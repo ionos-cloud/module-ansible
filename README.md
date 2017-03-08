@@ -3,16 +3,16 @@
 The path to the ProfitBricks Ansible module can be specified in several ways.
 
 * `ANSIBLE_LIBRARY` environment variables:
-`export ANSIBLE_LIBRARY=/path/to/profitbricks-ansible-module/lib`
+`export ANSIBLE_LIBRARY=/path/to/profitbricks-ansible-module/profitbricks`
 * `ansible-playbook --module-path` command line parameter:
-  `ansible-playbook --module-path /path/to/profitbricks-ansible-module/lib`
+  `ansible-playbook --module-path /path/to/profitbricks-ansible-module/profitbricks`
 * `ansible.cfg` configuration file
 
 Example `ansible.cfg`:
 
 ```
 [default]
-library = /path/to/profitbricks-ansible-module/lib
+library = /path/to/profitbricks-ansible-module/profitbricks
 ```
 
 The Ansible configuration file is read in the following order:
