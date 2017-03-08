@@ -1,0 +1,7 @@
+datacenter: ansible-test
+server: server01
+nic: nic01
+location: us/las
+image: 826c507a-fe3f-11e6-afc5-525400f64d8d
+image_password: qq6mdvirWwj1dsdXjcpp
+timeout: 500
