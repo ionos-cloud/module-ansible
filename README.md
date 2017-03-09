@@ -223,7 +223,7 @@ The following parameters are supported:
 
 #### Example Syntax
 
-    - name: Create Private NIC
+    - name: Create private NIC
       profitbricks_nic:
           datacenter: Example
           server: "{{ item.id }}"
@@ -412,7 +412,7 @@ The follow example will provision two servers both connected to public and priva
               state: present
           with_items: "{{ profitbricks.machines }}"
     
-        - name: Create Private NIC
+        - name: Create private NIC
           profitbricks_nic:
               datacenter: "{{ datacenter }}"
               server: "{{ item.id }}"
@@ -421,7 +421,7 @@ The follow example will provision two servers both connected to public and priva
           register: private_nic
           with_items: "{{ profitbricks.machines }}"
     
-        - name: Create SSH Firewall Rule
+        - name: Create SSH firewall rule
           profitbricks_firewall_rule:
               datacenter: "{{ datacenter }}"
               server: "{{ item.item.id }}"
@@ -434,7 +434,7 @@ The follow example will provision two servers both connected to public and priva
               state: present
           with_items: "{{ private_nic.results }}"
     
-        - name: Create Ping Firewall Rule
+        - name: Create ping firewall rule
           profitbricks_firewall_rule:
               datacenter: "{{ datacenter }}"
               server: "{{ item.item.id }}"
@@ -459,16 +459,6 @@ The follow example will provision two servers both connected to public and priva
               state: present
           with_items: "{{ profitbricks.machines }}"
     
-        - name: Add servers to servers host group
-          add_host:
-              hostname: "{{ item.properties.name }}"
-              ansible_ssh_host: "{{ item.public_ip }}"
-              ansible_ssh_user: root
-              ansible_ssh_pass: "{{ image_password }}"
-              groupname: servers
-          with_items: "{{ profitbricks.machines }}"
-          when: profitbricks.action == 'create'
-
 ## Support
 
 You are welcome to contact us with questions or comments using the **Community** section of the [ProfitBricks DevOps Central](https://devops.profitbricks.com/). Please report any feature requests or issues using GitHub issue tracker.
