@@ -373,7 +373,7 @@ The follow example will provision two servers both connected to public and priva
           image_password: secretpassword
           timeout: 900
         
-    tasks:
+      tasks:
         - name: Provision a set of instances
           profitbricks:
               datacenter: "{{ datacenter }}"
