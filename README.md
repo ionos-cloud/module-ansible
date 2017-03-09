@@ -127,10 +127,15 @@ Ansible leverages YAML manifest files called Playbooks. The Playbook will descri
               location: us/las
               assign_public_ip: true
               remove_boot_volume: true
-             state: present
+              state: present
           register: profitbricks
 
 ### Execute a Playbook
+
+If your credentials are not already defined:
+
+    export PROFITBRICKS_USERNAME=username
+    export PROFITBRICKS_PASSWORD=password
 
 The `ansible-playbook` command will execute the above Playbook.
 
