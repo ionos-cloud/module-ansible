@@ -52,7 +52,7 @@ The ProfitBricks module for Ansible must first be downloaded from GitHub. This c
 
 Download and extract with `curl`:
 
-    mkdir -p profitbricks-module-ansible && curl -L https://github.com/profitbricks/profitbricks-module-ansible/tarball/master | tar zx -C profitbricks-module-module/ --strip-components=1
+    mkdir -p profitbricks-module-ansible && curl -L https://github.com/profitbricks/profitbricks-module-ansible/tarball/master | tar zx -C profitbricks-module-ansible/ --strip-components=1
 
 Clone the GitHub repository locally:
 
@@ -359,7 +359,7 @@ The following parameters are supported:
 
 ## Examples
 
-The follow example will provision two servers both connected to public and private LANs. The two servers will have an attached data volume and each NIC will have firewall rules assigned.
+The following example will provision two servers both connected to public and private LANs. The two servers will have an attached data volume and each NIC will have firewall rules assigned.
 
     ---
     - hosts: localhost
@@ -466,6 +466,7 @@ You are welcome to contact us with questions or comments using the **Community**
 * [ProfitBricks REST API](https://devops.profitbricks.com/api/rest/) documentation.
 * Ask a question or discuss at [ProfitBricks DevOps Central](https://devops.profitbricks.com/community/).
 * Report an [issue here](https://github.com/profitbricks/profitbricks-module-ansible/issues).
+* More examples are located in the [GitHub repository](https://github.com/profitbricks/profitbricks-module-ansible/tree/master/examples) `examples` directory.
 
 ## Testing
 
