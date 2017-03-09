@@ -20,7 +20,7 @@ Version: **profitbricks-module-ansible v1.0.0**
     * [profitbricks_volume](#profitbricks_volume)
     * [profitbricks\_volume\_attachments](#profitbricks_volume_attachments)
     * [profitbricks\_firewall\_rule](#profitbricks_firewall_rule)
-* [Example](#example)
+* [Examples](#examples)
 * [Support](#support)
 * [Testing](#testing)
 * [Contributing](#contributing)
@@ -477,7 +477,7 @@ You are welcome to contact us with questions or comments using the **Community**
 * Ask a question or discuss at [ProfitBricks DevOps Central](https://devops.profitbricks.com/community/).
 * Report an [issue here](https://github.com/profitbricks/profitbricks-module-ansible/issues).
 
-## Running Tests
+## Testing
 
 Set your ProfitBricks user credentials.
 
