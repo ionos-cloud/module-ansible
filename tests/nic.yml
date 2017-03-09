@@ -1,0 +1,59 @@
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Provision server
+      profitbricks:
+         datacenter: "{{ datacenter }}"
+         name: "{{ server }}"
+         auto_increment: false
+         cores: 1
+         ram: 2048
+         volume_size: 5
+         image: "{{ image }}"
+         image_password: "{{ image_password }}"
+         location: "{{ location }}"
+         assign_public_ip: true
+         remove_boot_volume: true
+         wait: true
+         wait_timeout: "{{ timeout }}"
+         state: present
+      register: profitbricks
+
+    - name: Create NIC
+      profitbricks_nic:
+         name: "{{ nic }}"
+         datacenter: "{{ datacenter }}"
+         server: "{{ server }}"
+         lan: 2
+         wait: true
+         wait_timeout: "{{ timeout }}"
+         state: present
+      register: profitbricks_nic
+
+    - name: Debug - Show NIC
+      debug:
+         msg: "{{ profitbricks_nic }}"
+
+    - name: Remove NIC
+      profitbricks_nic:
+         name: "{{ profitbricks_nic.id }}"
+         datacenter: "{{ datacenter }}"
+         server: "{{ server }}"
+         wait: true
+         wait_timeout: "{{ timeout }}"
+         state: absent
+
+    - name: Remove server
+      profitbricks:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ server }}"
+         remove_boot_volume: yes
+         wait_timeout: "{{ timeout }}"
+         state: absent
