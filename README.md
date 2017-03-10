@@ -14,6 +14,7 @@ Version: **profitbricks-module-ansible v1.0.0**
     * [Wait for Requests](#wait-for-requests)
     * [Wait for Services](#wait-for-services)
     * [Incrementing Servers](#incrementing-servers)
+    * [SSH Key Authentication](#ssh-key-authentication)
 * [Reference](#reference)
     * [profitbricks](#profitbricks)
     * [profitbricks_nic](#profitbricks_nic)
@@ -48,43 +49,41 @@ Lastly, the ProfitBricks module requires the ProfitBricks SDK for Python to be i
 
 ## Installation
 
-The ProfitBricks module for Ansible must first be downloaded from GitHub. This can be accomplished a few different ways such as downloading and extracting the archive using `curl` or cloning the GitHub repository locally.
+1. The ProfitBricks module for Ansible must first be downloaded from GitHub. This can be accomplished a few different ways such as downloading and extracting the archive using `curl` or cloning the GitHub repository locally.
 
-Download and extract with `curl`:
+    Download and extract with `curl`:
 
-    mkdir -p profitbricks-module-ansible && curl -L https://github.com/profitbricks/profitbricks-module-ansible/tarball/master | tar zx -C profitbricks-module-ansible/ --strip-components=1
+        mkdir -p profitbricks-module-ansible && curl -L https://github.com/profitbricks/profitbricks-module-ansible/tarball/master | tar zx -C profitbricks-module-ansible/ --strip-components=1
 
-Clone the GitHub repository locally:
+    Clone the GitHub repository locally:
 
-    git clone https://github.com/profitbricks/profitbricks-module-ansible/
+        git clone https://github.com/profitbricks/profitbricks-module-ansible/
 
-Ansible must be made aware of the new module path. This too can be accomplished a few different ways depending on your requirements and environment.
+2. Ansible must be made aware of the new module path. This too can be accomplished a few different ways depending on your requirements and environment.
 
-* Ansible configuration file: `ansible.cfg`
-* Environment variable: `ANSIBLE_LIBRARY`
-* Command line parameter: `ansible-playbook --module-path [path]`
+    * Ansible configuration file: `ansible.cfg`
+    * Environment variable: `ANSIBLE_LIBRARY`
+    * Command line parameter: `ansible-playbook --module-path [path]`
 
-The preferred method is to update the Ansible configuration with the module path. This can be done locally for the current user or globally for all users depending on the configuration file used.
+    2a. The preferred method is to update the Ansible configuration with the module path. To include the path globally for all users, edit the `/etc/ansible/ansible.cfg` file and add `library = /path/to/module/profitbricks` under the **[default]** section. For example:
 
-To include the path globally for all users, edit the `/etc/ansible/ansible.cfg` file and add the **library** parameter followed by the path under the **[default]** section. For example:
+        [default]
+        library = /path/to/profitbricks-module-ansible/profitbricks
 
-    [default]
-    library = /path/to/profitbricks-module-ansible/profitbricks
+    Note that the Ansible configuration file is read from several locations in the following order:
 
-Note that the Ansible configuration file is read from several locations in the following order:
+    * `ANSIBLE_CONFIG` environment variable path
+    * `ansible.cfg` from the current directory
+    * `.ansible.cfg` in the user home directory
+    * `/etc/ansible/ansible.cfg`
 
-* `ANSIBLE_CONFIG` environment variable path
-* `ansible.cfg` from the current directory
-* `.ansible.cfg` in the user home directory
-* `/etc/ansible/ansible.cfg`
+    2b. The module path can also be set using an environment variable. This variable will be lost once the terminal session is closed:
 
-The module path can also be set using an environment variable. This variable will be lost once the terminal session is closed:
+        export ANSIBLE_LIBRARY=/path/to/profitbricks-module-ansible/profitbricks
 
-    export ANSIBLE_LIBRARY=/path/to/profitbricks-module-ansible/profitbricks
+    2c. The module path can be overridden with an `ansible-playbook` command line parameter:
 
-The module path can be overridden with an `ansible-playbook` command line parameter:
-
-    ansible-playbook --module-path /path/to/profitbricks-module-ansible/profitbricks playbook.yml
+        ansible-playbook --module-path /path/to/profitbricks-module-ansible/profitbricks playbook.yml
 
 ## Usage
 
@@ -174,6 +173,35 @@ The server **name** parameter with a value of `server%02d` will appended the nam
 
 The **auto_increment** parameter can be set to `false` to disable this feature and provision a single server.
 
+### SSH Key Authentication
+
+The ProfitBricks module sets server authentication using the **image_password** and **ssh_keys** parameters. Previous examples have demonstrated the administrative user password being set with the **image_password** parameter. The following example demonstrates two public SSH keys being supplied with two different methods.
+
+1. Set the public key as a string in the Playbook.
+2. Load the public key into a variable from a local file.
+
+`example.yml`:
+
+    ---
+    - hosts: localhost
+      connection: local
+      gather_facts: false
+
+      vars:
+          ssh_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+      tasks:
+        - name: Provision a server
+          profitbricks:
+              datacenter: Example
+              name: server%02d
+              assign_public_ip: true
+              image: 25cfc4fd-fe2f-11e6-afc5-525400f64d8d
+              ssh_keys:
+                  - "{{ ssh_public_key }}"
+                  - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDPCNA2YgJ...user@hostname"
+              state: present
+
 ## Reference
 
 ### profitbricks
@@ -196,7 +224,7 @@ The **auto_increment** parameter can be set to `false` to disable this feature a
 The following parameters are supported:
                       
 | Name | Required | Type | Default | Description |
-| --- | --- | --- | --- | --- |
+| --- | :-: | --- | --- | --- |
 | auto_increment | no | boolean | true | Whether or not to increment created servers. |
 | count | no | integer | 1 | The number of servers to create. |
 | name | **yes** | string | | The name of the server(s). |
@@ -242,9 +270,9 @@ The following parameters are supported:
 The following parameters are supported:
 
 | Name | Required | Type | Default | Description |
-| --- | --- | --- | --- | --- |
+| --- | :-: | --- | --- | --- |
 | datacenter | **yes** | string | | The datacenter in which to operate. |
-| server | **yes** | strin | | The server name or UUID. |
+| server | **yes** | string | | The server name or UUID. |
 | name | **yes*** | string | | The name or UUID of the NIC. Only required on deletes. |
 | lan | **yes*** | integer | | The LAN to connect the NIC. The LAN will be created if it does not exist. Only required on creates. |
 | nat | no | boolean | false | Allow the private IP address outbound Internet access. |
@@ -274,7 +302,7 @@ The following parameters are supported:
 The following parameters are supported:
 
 | Name | Required | Type | Default | Description |
-| --- | --- | --- | --- | --- |
+| --- | :-: | --- | --- | --- |
 | datacenter | **yes** | string | | The datacenter in which to create the volume. |
 | server | no | string | | The server on which to attach the volume. |
 | name | **yes** | string | | The name of the volume. You can enumerate the names using auto_increment. |
@@ -311,7 +339,7 @@ The following parameters are supported:
 The following parameters are supported:
 
 | Name | Required | Type | Default | Description |
-| --- | --- | --- | --- | --- |
+| --- | :-: | --- | --- | --- |
 | datacenter | **yes** | string | | The datacenter in which to operate. |
 | server | **yes** | string | | The name of the server to attach or detach the volume. |
 | volume | **yes** | string | | The volume name or UUID. |
@@ -343,7 +371,7 @@ The following parameters are supported:
 The following parameters are supported:
 
 | Name | Required | Type | Default | Description |
-| --- | --- | --- | --- | --- |
+| --- | :-: | --- | --- | --- |
 | datacenter | **yes** | string | | The datacenter name or UUID in which to operate. |
 | server | **yes** | string | | The server name or UUID. |
 | nic | **yes** | string | | The NIC name or UUID. |
