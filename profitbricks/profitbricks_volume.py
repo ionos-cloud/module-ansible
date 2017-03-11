@@ -70,7 +70,7 @@ options:
       - The licence type for the volume. This is used when the image is non-standard.
     required: false
     default: UNKNOWN
-    choices: ["LINUX", "WINDOWS", "UNKNOWN" , "OTHER"]
+    choices: ["LINUX", "WINDOWS", "UNKNOWN" , "OTHER", "WINDOWS2016"]
   availability_zone:
     description:
       - The storage availability zone assigned to the volume.
@@ -171,6 +171,12 @@ AVAILABILITY_ZONES = ['AUTO',
                       'ZONE_1',
                       'ZONE_2',
                       'ZONE_3']
+
+LICENCE_TYPES = ['LINUX',
+                 'WINDOWS',
+                 'UNKNOWN',
+                 'OTHER',
+                 'WINDOWS2016']
 
 uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
@@ -399,7 +405,7 @@ def main():
             ssh_keys=dict(type='list', default=[]),
             bus=dict(type='str', choices=BUS_TYPES, default='VIRTIO'),
             disk_type=dict(type='str', choices=DISK_TYPES, default='HDD'),
-            licence_type=dict(type='str', default='UNKNOWN'),
+            licence_type=dict(type='str', choices=LICENCE_TYPES, default='UNKNOWN'),
             availability_zone=dict(type='str', choices=AVAILABILITY_ZONES, default=None),
             count=dict(type='int', default=1),
             auto_increment=dict(type='bool', default=True),
