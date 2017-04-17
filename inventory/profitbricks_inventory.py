@@ -372,9 +372,17 @@ class ProfitBricksInventory(object):
                 self.inventory[zone]['hosts'].append(host_ip)
 
             if self.group_by_image_name:
-                if server['properties'].has_key('image'):
+                boot_device = {}
+                image_key = 'image'
+                if server['properties']['bootVolume'] is not None:
+                    boot_device = server['properties']['bootVolume']
+                elif server['properties']['bootCdrom'] is not None:
+                    boot_device = server['properties']['bootCdrom']
+                    image_key = 'name'
+                if image_key in boot_device['properties']:
+                    key = boot_device['properties'][image_key]
                     for image in self.data['images']:
-                        if server['properties']['image'] == image['id']:
+                        if key == image['id'] or key == image['properties']['name']:
                             image_name = self.to_safe(image['properties']['name'])
                             if image_name not in self.inventory:
                                 self.inventory[image_name] = { 'hosts': [ ], 'vars': self.vars }
