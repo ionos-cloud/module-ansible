@@ -49,7 +49,7 @@ Produce an Ansible Inventory file based on ProfitBricks credentials
 
 optional arguments:
   -h, --help         show this help message and exit
-  --list             List all ProfitBricks servers
+  --list             List all ProfitBricks servers (default)
   --host HOST        Get all the variables about a server specified by UUID or
                      IP address
   --datacenters, -d  List virtual data centers
@@ -211,7 +211,7 @@ class ProfitBricksInventory(object):
         ''' Command line argument processing '''
         parser = argparse.ArgumentParser(description='Produce an Ansible Inventory file based on ProfitBricks credentials')
 
-        parser.add_argument('--list', action='store_true', default=True, help='List all ProfitBricks servers')
+        parser.add_argument('--list', action='store_true', default=True, help='List all ProfitBricks servers (default)')
         parser.add_argument('--host', action='store',
                             help='Get all the variables about a server specified by UUID or IP address')
 
