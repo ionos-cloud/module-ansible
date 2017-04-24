@@ -58,7 +58,7 @@ optional arguments:
   --lans, -l         List all LANs
   --locations, -p    List all locations
   --nics, -n         List all NICs
-  --servers, -s      List all servers
+  --servers, -s      List all servers accessible via an IP address
   --volumes, -v      List all volumes
   --refresh, -r      Force refresh of cache by making API calls to
                      ProfitBricks
@@ -221,7 +221,7 @@ class ProfitBricksInventory(object):
         parser.add_argument('--lans', '-l', action='store_true', help='List all LANs')
         parser.add_argument('--locations', '-p', action='store_true', help='List all locations')
         parser.add_argument('--nics', '-n', action='store_true', help='List all NICs')
-        parser.add_argument('--servers','-s', action='store_true', help='List all servers')
+        parser.add_argument('--servers','-s', action='store_true', help='List all servers accessible via an IP address')
         parser.add_argument('--volumes', '-v', action='store_true', help='List all volumes')
 
         parser.add_argument('--refresh','-r', action='store_true', default=False,
