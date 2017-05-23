@@ -115,7 +115,7 @@ Ansible leverages YAML manifest files called Playbooks. The Playbook will descri
       tasks:
         - name: Provision a set of instances
           profitbricks:
-              datacenter: Datacenter Name
+              datacenter: Example
               name: server%02d
               auto_increment: true
               count: 2
@@ -312,7 +312,7 @@ The following parameters are supported:
 | image_password | no | string | | Password set for the administrative user. |
 | ssh_keys | no | list | | Public SSH keys allowing access to the server. |
 | disk_type | no | string | HDD | The disk type of the volume: **HDD**, SSD |
-| licence_type | no | string | UNKNOWN | The licence type for the volume. This is used when the image is non-standard: LINUX, WINDOWS, **UNKNOWN**, OTHER |
+| licence_type | no | string | UNKNOWN | The licence type for the volume. This is used when the image is non-standard: LINUX, WINDOWS, **UNKNOWN**, OTHER, WINDOWS2016 |
 | availability_zone | no | string | AUTO | The storage availability zone assigned to the volume: **AUTO**, ZONE\_1, ZONE\_2, ZONE\_3 |
 | count | no | integer | 1 | The number of volumes to create. |
 | auto_increment | no | boolean | true | Whether or not to increment created servers. |
