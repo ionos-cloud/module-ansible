@@ -184,7 +184,10 @@ def create_nic(module, profitbricks):
 
         if wait:
             _wait_for_completion(profitbricks, nic_response,
-                                 wait_timeout, "create_nic")
+                                 wait_timeout, 'create_nic')
+
+        # Refresh NIC properties
+        nic_response = profitbricks.get_nic(datacenter, server, nic_response['id'])
 
         return nic_response
 
