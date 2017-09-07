@@ -241,7 +241,7 @@ The following parameters are supported:
 | volume\_availability\_zone | no | string | AUTO | The storage availability zone assigned to the volume: **AUTO**, ZONE\_1, ZONE\_2, ZONE\_3 |
 | bus | no | string | VIRTIO | The bus type for the volume: **VIRTIO**, IDE |
 | instance_ids | no | list | | List of instance IDs used only with `state='absent'` during deletes. |
-| location | no | string | us/las | The datacenter location used only if the module creates a default datacenter: us/las, de/fra, de/fkb |
+| location | no | string | us/las | The datacenter location used only if the module creates a default datacenter: us/las, us/ewr, de/fra, de/fkb |
 | assign\_public\_ip | no | boolean | false | This will assign the server to the public LAN. The LAN is created if no LAN exists with public Internet access. |
 | lan | no | integer | 1 | The LAN ID of the server. |
 | nat | no | boolean | false | The private IP address has outbound access to the Internet. |
