@@ -110,7 +110,7 @@ options:
       - The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.
     required: false
     default: us/las
-    choices: [ "us/las", "de/fra", "de/fkb" ]
+    choices: [ "us/las", "us/ewr", "de/fra", "de/fkb" ]
   assign_public_ip:
     description:
       - This will assign the machine to the public LAN. If no LAN exists with public Internet access it is created.
@@ -162,7 +162,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "profitbricks >= 3.0.0"
+    - "profitbricks >= 4.0.0"
 author:
     - "Matt Baldwin (baldwin@stackpointcloud.com)"
     - "Ethan Devenport (@edevenport)"
@@ -235,6 +235,7 @@ except ImportError:
     HAS_PB_SDK = False
 
 LOCATIONS = ['us/las',
+             'us/ewr',
              'de/fra',
              'de/fkb']
 
