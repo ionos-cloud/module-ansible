@@ -43,7 +43,7 @@ subscription_password =
 # ProfitBricks API URL.
 # It may be overriden via PROFITBRICKS_API_URL environment variable.
 #
-# api_url = https://api.profitbricks.com/cloudapi/v3
+# api_url = https://api.profitbricks.com/cloudapi/v4
 
 
 # API calls to ProfitBricks may be slow. For this reason, we cache the results

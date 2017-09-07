@@ -102,7 +102,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "profitbricks >= 3.0.0"
+    - "profitbricks >= 4.0.0"
 author:
     - "Matt Baldwin (baldwin@stackpointcloud.com)"
     - "Ethan Devenport (@edevenport)"
