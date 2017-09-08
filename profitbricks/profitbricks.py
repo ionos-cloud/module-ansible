@@ -37,7 +37,7 @@ options:
     required: true
   image:
     description:
-      - The system image ID for creating the virtual machine, e.g. a3eae284-a2fe-11e4-b187-5f1f641608c8.
+      - The image alias or ID for creating the virtual machine.
     required: true
   image_password:
     description:
@@ -225,6 +225,8 @@ import re
 import uuid
 import time
 
+from uuid import (uuid4, UUID)
+
 HAS_PB_SDK = True
 
 try:
@@ -323,13 +325,19 @@ def _create_machine(module, profitbricks, datacenter, name):
     v = Volume(
         name=str(uuid.uuid4()).replace('-', '')[:10],
         size=volume_size,
-        image=image,
         image_password=image_password,
         ssh_keys=ssh_keys,
         disk_type=disk_type,
         availability_zone=volume_availability_zone,
         bus=bus
         )
+
+    try:
+        UUID(image)
+    except:
+        v.image_alias = image
+    else:
+        v.image = image
 
     n = NIC(
         name=str(uuid.uuid4()).replace('-', '')[:10],
@@ -360,7 +368,7 @@ def _create_machine(module, profitbricks, datacenter, name):
             depth=3
         )
     except Exception as e:
-        module.fail_json(msg="failed to create the new server: %s" % str(e))
+        module.fail_json(msg="failed to create the new server: %s" % e.content)
     else:
         server_response['nic'] = server_response['entities']['nics']['items'][0]
         return server_response
