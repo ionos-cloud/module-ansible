@@ -47,7 +47,7 @@ options:
     choices: [ "IDE", "VIRTIO"]
   image:
     description:
-      - The system image ID for the volume, e.g. a3eae284-a2fe-11e4-b187-5f1f641608c8. This can also be a snapshot image ID.
+      - The image alias or ID for the volume. This can also be a snapshot image ID.
     required: true
   image_password:
     description:
@@ -150,8 +150,9 @@ EXAMPLES = '''
 '''
 
 import re
-import uuid
 import time
+
+from uuid import UUID
 
 HAS_PB_SDK = True
 
@@ -221,13 +222,19 @@ def _create_volume(module, profitbricks, datacenter, name):
             name=name,
             size=size,
             bus=bus,
-            image=image,
             image_password=image_password,
             ssh_keys=ssh_keys,
             disk_type=disk_type,
             licence_type=licence_type,
             availability_zone=availability_zone
             )
+
+        try:
+            UUID(image)
+        except:
+            v.image_alias = image
+        else:
+            v.image = image
 
         volume_response = profitbricks.create_volume(datacenter, v)
 
@@ -236,7 +243,7 @@ def _create_volume(module, profitbricks, datacenter, name):
                                  wait_timeout, "_create_volume")
 
     except Exception as e:
-        module.fail_json(msg="failed to create the volume: %s" % str(e))
+        module.fail_json(msg="failed to create the volume: %s" % e.content)
 
     return volume_response
 

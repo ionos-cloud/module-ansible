@@ -6,7 +6,7 @@
   vars:
       datacenter: Example
       location: us/las
-      image: 826c507a-fe3f-11e6-afc5-525400f64d8d
+      image: ubuntu:latest
       ssh_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
       timeout: 900
 
