@@ -228,7 +228,7 @@ The following parameters are supported:
 | auto_increment | no | boolean | true | Whether or not to increment created servers. |
 | count | no | integer | 1 | The number of servers to create. |
 | name | **yes** | string | | The name of the server(s). |
-| image | **yes** | string | | The image UUID for creating the server. |
+| image | **yes** | string | | The image alias or UUID for creating the server. |
 | image_password | no | string | | Password set for the administrative user. |
 | ssh_keys | no | list | none | List of public SSH keys allowing access to the server. |
 | datacenter | no | string | none | The datacenter where the server is located. |
@@ -308,7 +308,7 @@ The following parameters are supported:
 | name | **yes** | string | | The name of the volume. You can enumerate the names using auto_increment. |
 | size | no | integer | 10 | The size of the volume in GB. |
 | bus | no | string | VIRTIO | The bus type of the volume: **VIRTIO**, IDE |
-| image | no | string | | The image or snapshot UUID for the volume. |
+| image | no | string | | The image alias, image UUID, or snapshot UUID for the volume. |
 | image_password | no | string | | Password set for the administrative user. |
 | ssh_keys | no | list | | Public SSH keys allowing access to the server. |
 | disk_type | no | string | HDD | The disk type of the volume: **HDD**, SSD |
@@ -402,7 +402,7 @@ The following example will provision two servers both connected to public and pr
       vars:
           datacenter: Example
           location: us/las
-          image: 826c507a-fe3f-11e6-afc5-525400f64d8d
+          image: ubuntu:latest
           image_password: secretpassword
           timeout: 900
         
@@ -513,7 +513,7 @@ Change into the `tests` directory and execute the Playbooks.
     cd tests
     ansible-playbook server.yml
 
-Note: The ProfitBricks public image UUIDs change periodically due to updates. Therefore, the UUID in the test Playbooks might need to be updated.
+Note: The ProfitBricks public image UUIDs change periodically due to updates. Therefore, it is recommended to use image aliases.
 
 ## Contributing
 
