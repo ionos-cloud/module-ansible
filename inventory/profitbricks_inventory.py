@@ -91,6 +91,8 @@ import json
 import ast
 import argparse
 import re
+import stat
+import subprocess
 
 import six
 from six.moves import configparser
@@ -120,6 +122,9 @@ class ProfitBricksInventory(object):
         self.read_cli_args()
         self.read_settings()
         self.read_environment()
+
+        if not getattr(self, 'subscription_password', None) and getattr(self, 'subscription_password_file', None):
+            self.subscription_password = read_password_file(self.subscription_password_file)
 
         self.cache_filename = self.cache_path + "/ansible-profitbricks.cache"
 
@@ -170,6 +175,8 @@ class ProfitBricksInventory(object):
             self.subscription_user = config.get('profitbricks', 'subscription_user')
         if config.has_option('profitbricks', 'subscription_password'):
             self.subscription_password = config.get('profitbricks', 'subscription_password')
+        if config.has_option('profitbricks', 'subscription_password_file'):
+            self.subscription_password_file = config.get('profitbricks', 'subscription_password_file')
 
         if config.has_option('profitbricks', 'api_url'):
             self.api_url = config.get('profitbricks', 'api_url')
@@ -204,6 +211,8 @@ class ProfitBricksInventory(object):
             self.subscription_user = os.getenv('PROFITBRICKS_USERNAME')
         if os.getenv('PROFITBRICKS_PASSWORD'):
             self.subscription_password = os.getenv('PROFITBRICKS_PASSWORD')
+        if os.getenv('PROFITBRICKS_PASSWORD_FILE'):
+            self.subscription_password_file = os.getenv('PROFITBRICKS_PASSWORD_FILE')
         if os.getenv('PROFITBRICKS_API_URL'):
             self.api_url = os.getenv('PROFITBRICKS_API_URL')
 
@@ -459,6 +468,36 @@ class ProfitBricksInventory(object):
         parts = href.split('/')
         parts.reverse()
         return parts[position]
+
+def read_password_file(password_file):
+    """
+    Read a password from a file or if executable, execute the script and
+    retrieve password from STDOUT
+    """
+    this_path = os.path.realpath(os.path.expanduser(password_file))
+    if not os.path.exists(this_path):
+        raise Exception("The password file %s was not found" % this_path)
+
+    if is_executable(this_path):
+        try:
+            # STDERR not captured to make it easier for users to prompt for input in their scripts
+            p = subprocess.Popen(this_path, stdout=subprocess.PIPE)
+        except OSError as e:
+            raise Exception("Problem running password script %s (%s). If this is not a script, remove the executable bit from the file." % (this_path, e))
+        stdout, stderr = p.communicate()
+        password = stdout.strip('\r\n')
+    else:
+        try:
+            f = open(this_path, "rb")
+            password = f.read().strip()
+            f.close()
+        except (OSError, IOError) as e:
+            raise Exception("Could not read password file %s: %s" % (this_path, e))
+
+    return password
+
+def is_executable(path):
+    return ((stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH) & os.stat(path)[stat.ST_MODE])
 
 # Run the script
 ProfitBricksInventory()
