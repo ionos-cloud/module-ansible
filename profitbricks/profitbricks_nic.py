@@ -1,22 +1,14 @@
 #!/usr/bin/python
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright: Ansible Project
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-ANSIBLE_METADATA = {'status': ['preview'],
-                    'supported_by': 'community',
-                    'version': '1.0'}
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -101,9 +93,11 @@ EXAMPLES = '''
 
 '''
 
+import os
 import re
-import uuid
 import time
+
+from uuid import uuid4
 
 HAS_PB_SDK = True
 
@@ -113,12 +107,17 @@ try:
 except ImportError:
     HAS_PB_SDK = False
 
+from ansible import __version__
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils._text import to_native
+
 uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
 def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
-    if not promise: return
+    if not promise:
+        return
     wait_timeout = time.time() + wait_timeout
     while wait_timeout > time.time():
         time.sleep(5)
@@ -133,10 +132,9 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
                 'Request failed to complete ' + msg + ' "' + str(
                     promise['requestId']) + '" to complete.')
 
-    raise Exception(
-        'Timed out waiting for async operation ' + msg + ' "' + str(
-            promise['requestId']
-            ) + '" to complete.')
+    raise Exception('Timed out waiting for async operation ' + msg + ' "' +
+                    str(promise['requestId']) + '" to complete.')
+
 
 def create_nic(module, profitbricks):
     """
@@ -192,7 +190,8 @@ def create_nic(module, profitbricks):
         return nic_response
 
     except Exception as e:
-        module.fail_json(msg="failed to create the NIC: %s" % str(e))
+        module.fail_json(msg="failed to create the NIC: %s" % to_native(e))
+
 
 def delete_nic(module, profitbricks):
     """
@@ -247,18 +246,19 @@ def delete_nic(module, profitbricks):
         nic_response = profitbricks.delete_nic(datacenter, server, name)
         return nic_response
     except Exception as e:
-        module.fail_json(msg="failed to remove the NIC: %s" % str(e))
+        module.fail_json(msg="failed to remove the NIC: %s" % to_native(e))
+
 
 def main():
     module = AnsibleModule(
         argument_spec=dict(
             datacenter=dict(type='str'),
             server=dict(type='str'),
-            name=dict(type='str', default=str(uuid.uuid4()).replace('-', '')[:10]),
+            name=dict(type='str', default=str(uuid4()).replace('-', '')[:10]),
             lan=dict(type='int'),
             nat=dict(type='bool', default=False),
             subscription_user=dict(type='str', default=os.environ.get('PROFITBRICKS_USERNAME')),
-            subscription_password=dict(type='str', default=os.environ.get('PROFITBRICKS_PASSWORD')),
+            subscription_password=dict(type='str', default=os.environ.get('PROFITBRICKS_PASSWORD'), no_log=True),
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
             state=dict(type='str', default='present'),
@@ -270,10 +270,10 @@ def main():
 
     if not module.params.get('subscription_user'):
         module.fail_json(msg='subscription_user parameter or ' +
-            'PROFITBRICKS_USERNAME environment variable is required.')
+                             'PROFITBRICKS_USERNAME environment variable is required.')
     if not module.params.get('subscription_password'):
         module.fail_json(msg='subscription_password parameter or ' +
-            'PROFITBRICKS_PASSWORD environment variable is required.')
+                             'PROFITBRICKS_PASSWORD environment variable is required.')
     if not module.params.get('datacenter'):
         module.fail_json(msg='datacenter parameter is required')
     if not module.params.get('server'):
@@ -286,7 +286,7 @@ def main():
         username=subscription_user,
         password=subscription_password)
 
-    user_agent = 'profitbricks-sdk-ruby/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
     profitbricks.headers = {'User-Agent': user_agent}
 
     state = module.params.get('state')
@@ -299,7 +299,7 @@ def main():
             (changed) = delete_nic(module, profitbricks)
             module.exit_json(changed=changed)
         except Exception as e:
-            module.fail_json(msg='failed to set nic state: %s' % str(e))
+            module.fail_json(msg='failed to set nic state: %s' % to_native(e))
 
     elif state == 'present':
         if not module.params.get('lan'):
@@ -309,10 +309,8 @@ def main():
             (nic_dict) = create_nic(module, profitbricks)
             module.exit_json(**nic_dict)
         except Exception as e:
-            module.fail_json(msg='failed to set nic state: %s' % str(e))
+            module.fail_json(msg='failed to set nic state: %s' % to_native(e))
 
-from ansible import __version__
-from ansible.module_utils.basic import *
 
 if __name__ == '__main__':
     main()

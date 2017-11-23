@@ -1,22 +1,14 @@
 #!/usr/bin/python
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright: Ansible Project
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-ANSIBLE_METADATA = {'status': ['preview'],
-                    'supported_by': 'community',
-                    'version': '1.0'}
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -45,7 +37,7 @@ options:
   protocol:
     description:
       - The protocol for the firewall rule.
-    choices: [ "TCP", "UDP", "ICMP" ]
+    choices: [ "TCP", "UDP", "ICMP", "ANY" ]
     required: true
   source_mac:
     description:
@@ -57,7 +49,8 @@ options:
     required: false
   target_ip:
     description:
-      - In case the target NIC has multiple IP addresses, only traffic directed to the respective IP address of the NIC is allowed. No value allows all target IPs.
+      - In case the target NIC has multiple IP addresses, only traffic directed to the respective IP address of the NIC is allowed.
+        No value allows all target IPs.
     required: false
   port_range_start:
     description:
@@ -77,11 +70,11 @@ options:
     required: false
   subscription_user:
     description:
-      - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable.
+      - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.
     required: false
   subscription_password:
     description:
-      - The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable.
+      - The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.
     required: false
   wait:
     description:
@@ -152,7 +145,7 @@ id:
   type: string
   sample: be60aa97-d9c7-4c22-bebe-f5df7d6b675d
 name:
-  description: Name of the firwall rule.
+  description: Name of the firewall rule.
   returned: success
   type: string
   sample: Allow SSH
@@ -172,7 +165,7 @@ source_ip:
   type: string
   sample: tcp
 target_ip:
-  description: Target IP of the firewal rule.
+  description: Target IP of the firewall rule.
   returned: success
   type: string
   sample: 10.0.0.1
@@ -198,7 +191,7 @@ icmp_code:
   sample: 0
 '''
 
-# import uuid
+import os
 import time
 
 HAS_PB_SDK = True
@@ -209,13 +202,19 @@ try:
 except ImportError:
     HAS_PB_SDK = False
 
+from ansible import __version__
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils._text import to_native
+
 PROTOCOLS = ['TCP',
              'UDP',
-             'ICMP']
+             'ICMP',
+             'ANY']
 
 
 def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
-    if not promise: return
+    if not promise:
+        return
     wait_timeout = time.time() + wait_timeout
     while wait_timeout > time.time():
         time.sleep(5)
@@ -230,10 +229,8 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
                 'Request failed to complete ' + msg + ' "' + str(
                     promise['requestId']) + '" to complete.')
 
-    raise Exception(
-        'Timed out waiting for async operation ' + msg + ' "' + str(
-            promise['requestId']
-            ) + '" to complete.')
+    raise Exception('Timed out waiting for async operation ' + msg + ' "' +
+                    str(promise['requestId']) + '" to complete.')
 
 
 def create_firewall_rule(module, profitbricks):
@@ -279,7 +276,7 @@ def create_firewall_rule(module, profitbricks):
         profitbricks.update_nic(datacenter_id, server_id, nic_id,
                                 firewall_active=True)
     except Exception as e:
-        module.fail_json(msg='Unable to activate the NIC firewall.' % str(e))
+        module.fail_json(msg='Unable to activate the NIC firewall.' % to_native(e))
 
     f = FirewallRule(
         name=name,
@@ -291,7 +288,7 @@ def create_firewall_rule(module, profitbricks):
         port_range_end=port_range_end,
         icmp_type=icmp_type,
         icmp_code=icmp_code
-        )
+    )
 
     try:
         firewall_rule_response = profitbricks.create_firewall_rule(
@@ -304,7 +301,7 @@ def create_firewall_rule(module, profitbricks):
         return firewall_rule_response
 
     except Exception as e:
-        module.fail_json(msg="failed to create the firewall rule: %s" % str(e))
+        module.fail_json(msg="failed to create the firewall rule: %s" % to_native(e))
 
 
 def delete_firewall_rule(module, profitbricks):
@@ -344,7 +341,7 @@ def delete_firewall_rule(module, profitbricks):
         )
         return firewall_rule_response
     except Exception as e:
-        module.fail_json(msg="failed to remove the firewall rule: %s" % str(e))
+        module.fail_json(msg="failed to remove the firewall rule: %s" % to_native(e))
 
 
 def _get_resource_id(resource_list, identity):
@@ -374,7 +371,7 @@ def main():
             icmp_type=dict(type='int', default=None),
             icmp_code=dict(type='int', default=None),
             subscription_user=dict(type='str', default=os.environ.get('PROFITBRICKS_USERNAME')),
-            subscription_password=dict(type='str', default=os.environ.get('PROFITBRICKS_PASSWORD')),
+            subscription_password=dict(type='str', default=os.environ.get('PROFITBRICKS_PASSWORD'), no_log=True),
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
             state=dict(type='str', default='present'),
@@ -386,10 +383,10 @@ def main():
 
     if not module.params.get('subscription_user'):
         module.fail_json(msg='subscription_user parameter or ' +
-            'PROFITBRICKS_USERNAME environment variable is required.')
+                             'PROFITBRICKS_USERNAME environment variable is required.')
     if not module.params.get('subscription_password'):
         module.fail_json(msg='subscription_password parameter or ' +
-            'PROFITBRICKS_PASSWORD environment variable is required.')
+                             'PROFITBRICKS_PASSWORD environment variable is required.')
 
     subscription_user = module.params.get('subscription_user')
     subscription_password = module.params.get('subscription_password')
@@ -398,7 +395,7 @@ def main():
         username=subscription_user,
         password=subscription_password)
 
-    user_agent = 'profitbricks-sdk-ruby/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
     profitbricks.headers = {'User-Agent': user_agent}
 
     state = module.params.get('state')
@@ -408,17 +405,15 @@ def main():
             (changed) = delete_firewall_rule(module, profitbricks)
             module.exit_json(changed=changed)
         except Exception as e:
-            module.fail_json(msg='failed to set firewall rule state: %s' % str(e))
+            module.fail_json(msg='failed to set firewall rule state: %s' % to_native(e))
 
     elif state == 'present':
         try:
             (firewall_rule_dict) = create_firewall_rule(module, profitbricks)
             module.exit_json(**firewall_rule_dict)
         except Exception as e:
-            module.fail_json(msg='failed to set firewall rules state: %s' % str(e))
+            module.fail_json(msg='failed to set firewall rules state: %s' % to_native(e))
 
-from ansible import __version__
-from ansible.module_utils.basic import *
 
 if __name__ == '__main__':
     main()
