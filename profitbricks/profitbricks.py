@@ -360,7 +360,7 @@ def _create_machine(module, profitbricks, datacenter, name):
             depth=3
         )
     except Exception as e:
-        module.fail_json(msg="failed to create the new server: %s" % e.content)
+        module.fail_json(msg="failed to create the new server: %s" % to_native(e))
     else:
         server_response['nic'] = server_response['entities']['nics']['items'][0]
         return server_response

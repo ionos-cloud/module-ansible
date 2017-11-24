@@ -241,7 +241,7 @@ def _create_volume(module, profitbricks, datacenter, name):
                                  wait_timeout, "_create_volume")
 
     except Exception as e:
-        module.fail_json(msg="failed to create the volume: %s" % e.content)
+        module.fail_json(msg="failed to create the volume: %s" % to_native(e))
 
     return volume_response
 

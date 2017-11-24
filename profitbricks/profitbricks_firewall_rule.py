@@ -15,7 +15,7 @@ DOCUMENTATION = '''
 module: profitbricks_firewall_rule
 short_description: Create or remove a firewall rule.
 description:
-     - This module allows you to create or remove a firewlal rule.
+     - This module allows you to create or remove a firewall rule.
 version_added: "2.2"
 options:
   datacenter:
