@@ -48,6 +48,12 @@ options:
       - Boolean value indicating if secure (two-factor) authentication should be forced for the user.
     required: false
     default: None
+  groups:
+    description:
+      - A list of group IDs or names where the user (non-administrator) is to be added.
+        Set to empty list ([]) to remove the user from all groups.
+    required: false
+    default: None
   subscription_user:
     description:
       - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.
@@ -87,6 +93,9 @@ EXAMPLES = '''
     email: john.doe@example.com
     password: secretpassword123
     administrator: true
+    groups:
+      - Developers
+      - Testers
     state: present
 
 # Update a user
@@ -97,6 +106,7 @@ EXAMPLES = '''
     email: john.doe@example.com
     administrator: false
     force_sec_auth: false
+    groups: []
     state: present
 
 # Remove a user
