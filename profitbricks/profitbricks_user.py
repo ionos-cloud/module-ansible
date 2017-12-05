@@ -208,6 +208,33 @@ def create_update_user(module, profitbricks):
         if wait:
             _wait_for_completion(profitbricks, user_response, wait_timeout, "create_update_user")
 
+        if module.params.get('groups') is not None:
+            user = profitbricks.get_user(user_id=user_response['id'], depth=2)
+            old_ug = []
+            for g in user['entities']['groups']['items']:
+                old_ug.append(g['id'])
+
+            all_groups = profitbricks.list_groups()
+            new_ug = []
+            for g in module.params.get('groups'):
+                group_id = _get_resource_id(all_groups, g)
+                new_ug.append(group_id)
+
+            for group_id in old_ug:
+                if group_id not in new_ug:
+                    profitbricks.remove_group_user(
+                        group_id=group_id,
+                        user_id=user['id']
+                    )
+
+            for group_id in new_ug:
+                if group_id not in old_ug:
+                    user_response = profitbricks.add_group_user(
+                        group_id=group_id,
+                        user_id=user['id']
+                    )
+                    _wait_for_completion(profitbricks, user_response, wait_timeout, "add_group_user")
+
         return {
             'failed': False,
             'changed': True,
@@ -252,6 +279,17 @@ def _get_user_id(resource_list, identity):
     return None
 
 
+def _get_resource_id(resource_list, identity):
+    """
+    Fetch and return the UUID of a resource regardless of whether the name or
+    UUID is passed.
+    """
+    for resource in resource_list['items']:
+        if identity in (resource['properties']['name'], resource['id']):
+            return resource['id']
+    return None
+
+
 def main():
     module = AnsibleModule(
         argument_spec=dict(
@@ -261,6 +299,7 @@ def main():
             password=dict(type='str', default=None, no_log=True),
             administrator=dict(type='bool', default=None),
             force_sec_auth=dict(type='bool', default=None),
+            groups=dict(type='list', default=None),
             subscription_user=dict(type='str', default=os.environ.get('PROFITBRICKS_USERNAME')),
             subscription_password=dict(type='str', default=os.environ.get('PROFITBRICKS_PASSWORD'), no_log=True),
             wait=dict(type='bool', default=True),
