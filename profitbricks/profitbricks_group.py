@@ -42,6 +42,12 @@ options:
       - Boolean value indicating if the group is allowed to access the activity log.
     required: false
     default: None
+  users:
+    description:
+      - A list of (non-administrator) user IDs or emails to associate with the group.
+        Set to empty list ([]) to remove all users from the group.
+    required: false
+    default: None
   subscription_user:
     description:
       - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.
@@ -69,7 +75,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "profitbricks >= 4.0.0"
+    - "profitbricks >= 4.1.0"
 '''
 
 EXAMPLES = '''
@@ -81,6 +87,17 @@ EXAMPLES = '''
     create_snapshot: true
     reserve_ip: false
     access_activity_log: false
+    users:
+      - john.doe@example.com
+    state: present
+
+# Update a group
+- name: Update group
+  profitbricks_group:
+    name: guests
+    create_datacenter: false
+    users:
+      - john.smith@test.com
     state: present
 
 # Remove a group
@@ -184,6 +201,33 @@ def create_update_group(module, profitbricks):
             _wait_for_completion(profitbricks, group_response,
                                  wait_timeout, "create_update_group")
 
+        if module.params.get('users') is not None:
+            group = profitbricks.get_group(group_id=group_response['id'], depth=2)
+            old_gu = []
+            for u in group['entities']['users']['items']:
+                old_gu.append(u['id'])
+
+            all_users = profitbricks.list_users()
+            new_gu = []
+            for u in module.params.get('users'):
+                user_id = _get_user_id(all_users, u)
+                new_gu.append(user_id)
+
+            for user_id in old_gu:
+                if user_id not in new_gu:
+                    profitbricks.remove_group_user(
+                        group_id=group['id'],
+                        user_id=user_id
+                    )
+
+            for user_id in new_gu:
+                if user_id not in old_gu:
+                    user_response = profitbricks.add_group_user(
+                        group_id=group['id'],
+                        user_id=user_id
+                    )
+                    _wait_for_completion(profitbricks, user_response, wait_timeout, "add_group_user")
+
         return {
             'failed': False,
             'changed': True,
@@ -217,6 +261,16 @@ def delete_group(module, profitbricks):
         module.fail_json(msg="failed to remove the group: %s" % to_native(e))
 
 
+def _get_user_id(resource_list, identity):
+    """
+    Return the UUID of a user regardless of whether the email or UUID is passed.
+    """
+    for resource in resource_list['items']:
+        if identity in (resource['properties']['email'], resource['id']):
+            return resource['id']
+    return None
+
+
 def _get_resource_id(resource_list, identity):
     """
     Fetch and return the UUID of a resource regardless of whether the name or
@@ -236,6 +290,7 @@ def main():
             create_snapshot=dict(type='bool', default=None),
             reserve_ip=dict(type='bool', default=None),
             access_activity_log=dict(type='bool', default=None),
+            users=dict(type='list', default=None),
             subscription_user=dict(type='str', default=os.environ.get('PROFITBRICKS_USERNAME')),
             subscription_password=dict(type='str', default=os.environ.get('PROFITBRICKS_PASSWORD'), no_log=True),
             wait=dict(type='bool', default=True),
