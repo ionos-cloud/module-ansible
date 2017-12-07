@@ -19,7 +19,6 @@ Version: **profitbricks-module-ansible v1.0.0**
     * [profitbricks](#profitbricks)
     * [profitbricks_nic](#profitbricks_nic)
     * [profitbricks_volume](#profitbricks_volume)
-    * [profitbricks\_volume\_attachments](#profitbricks_volume_attachments)
     * [profitbricks\_firewall\_rule](#profitbricks_firewall_rule)
 * [Examples](#examples)
 * [Support](#support)
@@ -323,31 +322,6 @@ The following parameters are supported:
 | wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
 | state | no | string | present | Create or remove volumes: **present**, absent |
 
-### profitbricks\_volume\_attachments
-
-#### Example Syntax
-
-    - name: Attach a volume to the server
-      profitbricks_volume_attachments:
-          datacenter: Example
-          server: server01
-          volume: volume01
-          state: present
-
-#### Parameter Reference
-
-The following parameters are supported:
-
-| Name | Required | Type | Default | Description |
-| --- | :-: | --- | --- | --- |
-| datacenter | **yes** | string | | The datacenter in which to operate. |
-| server | **yes** | string | | The name of the server to attach or detach the volume. |
-| volume | **yes** | string | | The volume name or UUID. |
-| subscription_user | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable. | |
-| subscription_password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.|
-| wait | no | boolean | true | Wait for the operation to complete before continuing. |
-| wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| state | no | string | present | Indicate desired state of the resource. |
 
 ### profitbricks\_firewall\_rule
 
