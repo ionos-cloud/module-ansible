@@ -13,7 +13,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 DOCUMENTATION = '''
 ---
 module: profitbricks_snapshot
-short_description: Create, restore or remove a snapshot.
+short_description: Create, restore, update or remove a snapshot.
 description:
      - This module allows you to create or remove a snapshot.
 version_added: "2.4"
