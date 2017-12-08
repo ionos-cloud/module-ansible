@@ -77,7 +77,7 @@ options:
       - Indicate desired state of the resource
     required: false
     default: "present"
-    choices: ["present", "absent"]
+    choices: ["present", "absent", "update"]
 
 requirements:
     - "python >= 2.6"
@@ -107,7 +107,7 @@ EXAMPLES = '''
     administrator: false
     force_sec_auth: false
     groups: []
-    state: present
+    state: update
 
 # Remove a user
 - name: Remove user
@@ -153,9 +153,58 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
                     str(promise['requestId']) + '" to complete.')
 
 
-def create_update_user(module, profitbricks):
+def create_user(module, profitbricks):
     """
-    Creates or updates a user.
+    Creates a user.
+
+    module : AnsibleModule object
+    profitbricks: authenticated profitbricks object.
+
+    Returns:
+        The user instance
+    """
+    firstname = module.params.get('firstname')
+    if not firstname:
+        module.fail_json(msg='firstname parameter is required')
+    lastname = module.params.get('lastname')
+    if not lastname:
+        module.fail_json(msg='lastname parameter is required')
+    email = module.params.get('email')
+    password = module.params.get('password')
+    if not password:
+        module.fail_json(msg='password parameter is required')
+    administrator = module.params.get('administrator')
+    force_sec_auth = module.params.get('force_sec_auth')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    try:
+        user = User(
+            firstname=firstname,
+            lastname=lastname,
+            email=email,
+            password=password,
+            administrator=administrator or False,
+            force_sec_auth=force_sec_auth or False
+        )
+        user_response = profitbricks.create_user(user)
+
+        if wait:
+            _wait_for_completion(profitbricks, user_response, wait_timeout, "create_user")
+
+        return {
+            'failed': False,
+            'changed': True,
+            'user': user_response
+        }
+
+    except Exception as e:
+        module.fail_json(msg="failed to create the user: %s" % to_native(e))
+
+
+def update_user(module, profitbricks):
+    """
+    Updates a user.
 
     module : AnsibleModule object
     profitbricks: authenticated profitbricks object.
@@ -166,7 +215,6 @@ def create_update_user(module, profitbricks):
     firstname = module.params.get('firstname')
     lastname = module.params.get('lastname')
     email = module.params.get('email')
-    password = module.params.get('password')
     administrator = module.params.get('administrator')
     force_sec_auth = module.params.get('force_sec_auth')
     wait = module.params.get('wait')
@@ -198,25 +246,10 @@ def create_update_user(module, profitbricks):
                 force_sec_auth=force_sec_auth
             )
         else:
-            if not firstname:
-                module.fail_json(msg='firstname parameter is required')
-            if not lastname:
-                module.fail_json(msg='lastname parameter is required')
-            if not password:
-                module.fail_json(msg='password parameter is required')
-
-            user = User(
-                firstname=firstname,
-                lastname=lastname,
-                email=email,
-                password=password,
-                administrator=administrator or False,
-                force_sec_auth=force_sec_auth or False
-            )
-            user_response = profitbricks.create_user(user)
+            module.fail_json(msg='User \'%s\' not found.' % str(email))
 
         if wait:
-            _wait_for_completion(profitbricks, user_response, wait_timeout, "create_update_user")
+            _wait_for_completion(profitbricks, user_response, wait_timeout, "update_user")
 
         if module.params.get('groups') is not None:
             user = profitbricks.get_user(user_id=user_response['id'], depth=2)
@@ -349,10 +382,17 @@ def main():
 
     elif state == 'present':
         try:
-            (user_dict) = create_update_user(module, profitbricks)
+            (user_dict) = create_user(module, profitbricks)
             module.exit_json(**user_dict)
         except Exception as e:
             module.fail_json(msg='failed to set user state: %s' % to_native(e))
+
+    elif state == 'update':
+        try:
+            (user_dict) = update_user(module, profitbricks)
+            module.exit_json(**user_dict)
+        except Exception as e:
+            module.fail_json(msg='failed to update user: %s' % to_native(e))
 
 
 if __name__ == '__main__':
