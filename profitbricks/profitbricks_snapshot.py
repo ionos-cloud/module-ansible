@@ -34,11 +34,56 @@ options:
     description:
       - The description of the snapshot.
     required: false
-  restore:
+  cpu_hot_plug:
     description:
-      - Boolean value indicating the snapshot restore action.
+      - Boolean value indicating the volume is capable of CPU hot plug (no reboot required).
     required: false
-    default: false
+    default: None
+  cpu_hot_unplug:
+    description:
+      - Boolean value indicating the volume is capable of CPU hot unplug (no reboot required).
+    required: false
+    default: None
+  ram_hot_plug:
+    description:
+      - Boolean value indicating the volume is capable of memory hot plug (no reboot required).
+    required: false
+    default: None
+  ram_hot_unplug:
+    description:
+      - Boolean value indicating the volume is capable of memory hot unplug (no reboot required).
+    required: false
+    default: None
+  nic_hot_plug:
+    description:
+      - Boolean value indicating the volume is capable of NIC hot plug (no reboot required).
+    required: false
+    default: None
+  nic_hot_unplug:
+    description:
+      - Boolean value indicating the volume is capable of NIC hot unplug (no reboot required).
+    required: false
+    default: None
+  disc_virtio_hot_plug:
+    description:
+      - Boolean value indicating the volume is capable of VirtIO drive hot plug (no reboot required).
+    required: false
+    default: None
+  disc_virtio_hot_unplug:
+    description:
+      - Boolean value indicating the volume is capable of VirtIO drive hot unplug (no reboot required).
+    required: false
+    default: None
+  disc_scsi_hot_plug:
+    description:
+      - Boolean value indicating the volume is capable of SCSI drive hot plug (no reboot required).
+    required: false
+    default: None
+  disc_scsi_hot_unplug:
+    description:
+      - Boolean value indicating the volume is capable of SCSI drive hot unplug (no reboot required).
+    required: false
+    default: None
   subscription_user:
     description:
       - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.
@@ -62,7 +107,7 @@ options:
       - Indicate desired state of the resource
     required: false
     default: "present"
-    choices: ["present", "absent"]
+    choices: ["present", "absent", "restore", "update"]
 
 requirements:
     - "python >= 2.6"
@@ -84,8 +129,7 @@ EXAMPLES = '''
     datacenter: production DC
     volume: slave
     name: boot volume image
-    restore: true
-    state: present
+    state: restore
 
 # Remove a snapshot
 - name: Remove snapshot
@@ -108,6 +152,13 @@ except ImportError:
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
+
+
+LICENCE_TYPES = ['LINUX',
+                 'WINDOWS',
+                 'UNKNOWN',
+                 'OTHER',
+                 'WINDOWS2016']
 
 
 def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
@@ -226,6 +277,81 @@ def restore_snapshot(module, profitbricks):
         module.fail_json(msg="failed to restore the snapshot: %s" % to_native(e))
 
 
+def update_snapshot(module, profitbricks):
+    """
+    Updates a snapshot.
+
+    module : AnsibleModule object
+    profitbricks: authenticated profitbricks object.
+
+    Returns:
+        The snapshot instance
+    """
+    name = module.params.get('name')
+
+    # Locate UUID for snapshot
+    snapshot_list = profitbricks.list_snapshots()
+    snapshot = _get_resource_instance(snapshot_list, name)
+    if not snapshot:
+        module.fail_json(msg='Snapshot \'%s\' not found.' % name)
+
+    cpu_hot_plug = module.params.get('cpu_hot_plug')
+    cpu_hot_unplug = module.params.get('cpu_hot_unplug')
+    ram_hot_plug = module.params.get('ram_hot_plug')
+    ram_hot_unplug = module.params.get('ram_hot_unplug')
+    nic_hot_plug = module.params.get('nic_hot_plug')
+    nic_hot_unplug = module.params.get('nic_hot_unplug')
+    disc_virtio_hot_plug = module.params.get('disc_virtio_hot_plug')
+    disc_virtio_hot_unplug = module.params.get('disc_virtio_hot_unplug')
+    disc_scsi_hot_plug = module.params.get('disc_scsi_hot_plug')
+    disc_scsi_hot_unplug = module.params.get('disc_scsi_hot_unplug')
+    licence_type = module.params.get('licence_type')
+
+    if cpu_hot_plug is None:
+        cpu_hot_plug = snapshot['properties']['cpuHotPlug']
+    if cpu_hot_unplug is None:
+        cpu_hot_unplug = snapshot['properties']['cpuHotUnplug']
+    if ram_hot_plug is None:
+        ram_hot_plug = snapshot['properties']['ramHotPlug']
+    if ram_hot_unplug is None:
+        ram_hot_unplug = snapshot['properties']['ramHotUnplug']
+    if nic_hot_plug is None:
+        nic_hot_plug = snapshot['properties']['nicHotPlug']
+    if nic_hot_unplug is None:
+        nic_hot_unplug = snapshot['properties']['nicHotUnplug']
+    if disc_virtio_hot_plug is None:
+        disc_virtio_hot_plug = snapshot['properties']['discVirtioHotPlug']
+    if disc_virtio_hot_unplug is None:
+        disc_virtio_hot_unplug = snapshot['properties']['discVirtioHotUnplug']
+    if disc_scsi_hot_plug is None:
+        disc_scsi_hot_plug = snapshot['properties']['discScsiHotPlug']
+    if disc_scsi_hot_unplug is None:
+        disc_scsi_hot_unplug = snapshot['properties']['discScsiHotUnplug']
+    if licence_type is None:
+        licence_type = snapshot['properties']['licenceType']
+
+    try:
+        snapshot_resp = profitbricks.update_snapshot(
+            snapshot_id=snapshot['id'],
+            cpu_hot_plug=cpu_hot_plug,
+            cpu_hot_unplug=cpu_hot_unplug,
+            ram_hot_plug=ram_hot_plug,
+            ram_hot_unplug=ram_hot_unplug,
+            nic_hot_plug=nic_hot_plug,
+            nic_hot_unplug=nic_hot_unplug,
+            disc_virtio_hot_plug=disc_virtio_hot_plug,
+            disc_virtio_hot_unplug=disc_virtio_hot_unplug,
+            disc_scsi_hot_plug=disc_scsi_hot_plug,
+            disc_scsi_hot_unplug=disc_scsi_hot_unplug,
+            licence_type=licence_type
+        )
+
+        return snapshot_resp
+
+    except Exception as e:
+        module.fail_json(msg="failed to update the snapshot: %s" % to_native(e))
+
+
 def delete_snapshot(module, profitbricks):
     """
     Removes a snapshot
@@ -260,6 +386,16 @@ def _get_resource_id(resource_list, identity):
     return None
 
 
+def _get_resource_instance(resource_list, identity):
+    """
+    Find and return the resource instance regardless of whether the name or UUID is passed.
+    """
+    for resource in resource_list['items']:
+        if identity in (resource['properties']['name'], resource['id']):
+            return resource
+    return None
+
+
 def main():
     module = AnsibleModule(
         argument_spec=dict(
@@ -268,6 +404,17 @@ def main():
             name=dict(type='str', default=''),
             description=dict(type='str', default=''),
             restore=dict(type='bool', default=False),
+            licence_type=dict(type='str', choices=LICENCE_TYPES, default=None),
+            cpu_hot_plug=dict(type='bool', default=None),
+            cpu_hot_unplug=dict(type='bool', default=None),
+            ram_hot_plug=dict(type='bool', default=None),
+            ram_hot_unplug=dict(type='bool', default=None),
+            nic_hot_plug=dict(type='bool', default=None),
+            nic_hot_unplug=dict(type='bool', default=None),
+            disc_virtio_hot_plug=dict(type='bool', default=None),
+            disc_virtio_hot_unplug=dict(type='bool', default=None),
+            disc_scsi_hot_plug=dict(type='bool', default=None),
+            disc_scsi_hot_unplug=dict(type='bool', default=None),
             subscription_user=dict(type='str', default=os.environ.get('PROFITBRICKS_USERNAME')),
             subscription_password=dict(type='str', default=os.environ.get('PROFITBRICKS_PASSWORD'), no_log=True),
             wait=dict(type='bool', default=True),
@@ -312,14 +459,29 @@ def main():
             module.fail_json(msg='volume parameter is required')
 
         try:
-            if module.params.get('restore'):
-                (snapshot_dict) = restore_snapshot(module, profitbricks)
-            else:
-                (snapshot_dict) = create_snapshot(module, profitbricks)
-
+            (snapshot_dict) = create_snapshot(module, profitbricks)
             module.exit_json(**snapshot_dict)
         except Exception as e:
             module.fail_json(msg='failed to set snapshot state: %s' % to_native(e))
+
+    elif state == 'restore':
+        if not module.params.get('datacenter'):
+            module.fail_json(msg='datacenter parameter is required')
+        if not module.params.get('volume'):
+            module.fail_json(msg='volume parameter is required')
+
+        try:
+            (changed) = restore_snapshot(module, profitbricks)
+            module.exit_json(changed=changed)
+        except Exception as e:
+            module.fail_json(msg='failed to restore snapshot: %s' % to_native(e))
+
+    elif state == 'update':
+        try:
+            (snapshot_dict) = update_snapshot(module, profitbricks)
+            module.exit_json(**snapshot_dict)
+        except Exception as e:
+            module.fail_json(msg='failed to update snapshot: %s' % to_native(e))
 
 
 if __name__ == '__main__':
