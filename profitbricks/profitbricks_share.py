@@ -59,7 +59,7 @@ options:
       - Indicate desired state of the resource
     required: false
     default: "present"
-    choices: ["present", "absent"]
+    choices: ["present", "absent", "update"]
 
 requirements:
     - "python >= 2.6"
@@ -85,7 +85,7 @@ EXAMPLES = '''
     edit_privilege: false
     resource_ids:
       - b50ba74e-b585-44d6-9b6e-68941b2ce98e
-    state: present
+    state: update
 
 # Remove shares
 - name: Remove shares
@@ -134,15 +134,64 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
                     str(promise['requestId']) + '" to complete.')
 
 
-def create_update_shares(module, profitbricks):
+def create_shares(module, profitbricks):
     """
-    Create or update shares.
+    Create shares.
 
     module : AnsibleModule object
     profitbricks: authenticated profitbricks object.
 
     Returns:
         The share instance
+    """
+    group = module.params.get('group')
+
+    # Locate UUID for the group
+    group_list = profitbricks.list_groups()
+    group_id = _get_resource_id(group_list, group)
+
+    edit_privilege = module.params.get('edit_privilege')
+    share_privilege = module.params.get('share_privilege')
+    resource_ids = module.params.get('resource_ids')
+
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    try:
+        responses = []
+
+        for uuid in resource_ids:
+            share_response = profitbricks.add_share(
+                group_id=group_id,
+                resource_id=uuid,
+                edit_privilege=edit_privilege or False,
+                share_privilege=share_privilege or False
+            )
+
+            if wait:
+                _wait_for_completion(profitbricks, share_response,
+                                     wait_timeout, "create_shares")
+            responses.append(share_response)
+
+        return {
+            'failed': False,
+            'changed': True,
+            'shares': responses
+        }
+
+    except Exception as e:
+        module.fail_json(msg="failed to create the shares: %s" % to_native(e))
+
+
+def update_shares(module, profitbricks):
+    """
+    Update shares.
+
+    module : AnsibleModule object
+    profitbricks: authenticated profitbricks object.
+
+    Returns:
+        The share instances
     """
     group = module.params.get('group')
 
@@ -180,17 +229,10 @@ def create_update_shares(module, profitbricks):
                     edit_privilege=edit_privilege,
                     share_privilege=share_privilege
                 )
-            else:
-                share_response = profitbricks.add_share(
-                    group_id=group_id,
-                    resource_id=uuid,
-                    edit_privilege=edit_privilege or False,
-                    share_privilege=share_privilege or False
-                )
 
             if wait:
                 _wait_for_completion(profitbricks, share_response,
-                                     wait_timeout, "create_update_shares")
+                                     wait_timeout, "update_shares")
             responses.append(share_response)
 
         return {
@@ -200,7 +242,7 @@ def create_update_shares(module, profitbricks):
         }
 
     except Exception as e:
-        module.fail_json(msg="failed to create or update the shares: %s" % to_native(e))
+        module.fail_json(msg="failed to update the shares: %s" % to_native(e))
 
 
 def delete_shares(module, profitbricks):
@@ -286,10 +328,17 @@ def main():
 
     elif state == 'present':
         try:
-            (share_dict) = create_update_shares(module, profitbricks)
+            (share_dict) = create_shares(module, profitbricks)
             module.exit_json(**share_dict)
         except Exception as e:
             module.fail_json(msg='failed to set state of the shares: %s' % to_native(e))
+
+    elif state == 'update':
+        try:
+            (share_dict) = update_shares(module, profitbricks)
+            module.exit_json(**share_dict)
+        except Exception as e:
+            module.fail_json(msg='failed to update share: %s' % to_native(e))
 
 
 if __name__ == '__main__':
