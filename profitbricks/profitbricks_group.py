@@ -71,7 +71,7 @@ options:
       - Indicate desired state of the resource
     required: false
     default: "present"
-    choices: ["present", "absent"]
+    choices: ["present", "absent", "update"]
 
 requirements:
     - "python >= 2.6"
@@ -98,7 +98,7 @@ EXAMPLES = '''
     create_datacenter: false
     users:
       - john.smith@test.com
-    state: present
+    state: update
 
 # Remove a group
 - name: Remove group
@@ -144,9 +144,51 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
                     str(promise['requestId']) + '" to complete.')
 
 
-def create_update_group(module, profitbricks):
+def create_group(module, profitbricks):
     """
-    Creates or updates a group.
+    Creates a group.
+
+    module : AnsibleModule object
+    profitbricks: authenticated profitbricks object.
+
+    Returns:
+        The group instance
+    """
+    name = module.params.get('name')
+    create_datacenter = module.params.get('create_datacenter')
+    create_snapshot = module.params.get('create_snapshot')
+    reserve_ip = module.params.get('reserve_ip')
+    access_activity_log = module.params.get('access_activity_log')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    try:
+        group = Group(
+            name=name,
+            create_datacenter=create_datacenter or False,
+            create_snapshot=create_snapshot or False,
+            reserve_ip=reserve_ip or False,
+            access_activity_log=access_activity_log or False
+        )
+        group_response = profitbricks.create_group(group)
+
+        if wait:
+            _wait_for_completion(profitbricks, group_response,
+                                 wait_timeout, "create_group")
+
+        return {
+            'failed': False,
+            'changed': True,
+            'group': group_response
+        }
+
+    except Exception as e:
+        module.fail_json(msg="failed to create the group: %s" % to_native(e))
+
+
+def update_group(module, profitbricks):
+    """
+    Updates a group.
 
     module : AnsibleModule object
     profitbricks: authenticated profitbricks object.
@@ -188,18 +230,11 @@ def create_update_group(module, profitbricks):
                 access_activity_log=access_activity_log
             )
         else:
-            group = Group(
-                name=name,
-                create_datacenter=create_datacenter or False,
-                create_snapshot=create_snapshot or False,
-                reserve_ip=reserve_ip or False,
-                access_activity_log=access_activity_log or False
-            )
-            group_response = profitbricks.create_group(group)
+            module.fail_json(msg='Group \'%s\' not found.' % str(name))
 
         if wait:
             _wait_for_completion(profitbricks, group_response,
-                                 wait_timeout, "create_update_group")
+                                 wait_timeout, "update_group")
 
         if module.params.get('users') is not None:
             group = profitbricks.get_group(group_id=group_response['id'], depth=2)
@@ -235,7 +270,7 @@ def create_update_group(module, profitbricks):
         }
 
     except Exception as e:
-        module.fail_json(msg="failed to create or update the group: %s" % to_native(e))
+        module.fail_json(msg="failed to update the group: %s" % to_native(e))
 
 
 def delete_group(module, profitbricks):
@@ -330,10 +365,17 @@ def main():
 
     elif state == 'present':
         try:
-            (group_dict) = create_update_group(module, profitbricks)
+            (group_dict) = create_group(module, profitbricks)
             module.exit_json(**group_dict)
         except Exception as e:
             module.fail_json(msg='failed to set group state: %s' % to_native(e))
+
+    elif state == 'update':
+        try:
+            (group_dict) = update_group(module, profitbricks)
+            module.exit_json(**group_dict)
+        except Exception as e:
+            module.fail_json(msg='failed to update group: %s' % to_native(e))
 
 
 if __name__ == '__main__':
