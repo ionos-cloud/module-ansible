@@ -58,7 +58,7 @@ options:
       - Indicate desired state of the resource
     required: false
     default: "present"
-    choices: ["present", "absent"]
+    choices: ["present", "absent", "update"]
 
 requirements:
     - "python >= 2.6"
@@ -83,7 +83,7 @@ EXAMPLES = '''
     ip_failover:
           208.94.38.167: 1de3e6ae-da16-4dc7-845c-092e8a19fded
           208.94.38.168: 8f01cbd3-bec4-46b7-b085-78bb9ea0c77c
-    state: present
+    state: update
 
 # Remove a LAN
 - name: Remove LAN
@@ -130,9 +130,53 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
                     str(promise['requestId']) + '" to complete.')
 
 
-def create_update_lan(module, profitbricks):
+def create_lan(module, profitbricks):
     """
-    Creates or updates a LAN.
+    Creates a LAN.
+
+    module : AnsibleModule object
+    profitbricks: authenticated profitbricks object.
+
+    Returns:
+        The LAN instance
+    """
+    datacenter = module.params.get('datacenter')
+    name = module.params.get('name')
+    public = module.params.get('public')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    # Locate UUID for virtual datacenter
+    datacenter_list = profitbricks.list_datacenters()
+    datacenter_id = _get_resource_id(datacenter_list, datacenter)
+    if not datacenter_id:
+        module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
+
+    try:
+        lan = LAN(
+            name=name,
+            public=public
+        )
+
+        lan_response = profitbricks.create_lan(datacenter_id, lan)
+
+        if wait:
+            _wait_for_completion(profitbricks, lan_response,
+                                 wait_timeout, "create_lan")
+
+        return {
+            'failed': False,
+            'changed': True,
+            'lan': lan_response
+        }
+
+    except Exception as e:
+        module.fail_json(msg="failed to create the LAN: %s" % to_native(e))
+
+
+def update_lan(module, profitbricks):
+    """
+    Updates a LAN.
 
     module : AnsibleModule object
     profitbricks: authenticated profitbricks object.
@@ -153,57 +197,36 @@ def create_update_lan(module, profitbricks):
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
 
+    # Prefetch a list of LANs.
+    lan_list = profitbricks.list_lans(datacenter_id)
+    lan_id = _get_resource_id(lan_list, name)
+    if not lan_id:
+        module.fail_json(msg='LAN \'%s\' not found.' % str(name))
+
     try:
-        # Prefetch a list of LANs.
-        lan_list = profitbricks.list_lans(datacenter_id)
+        failover_group = []
+        for ip, nic_uuid in dict.iteritems(ip_failover):
+            item = {
+                'ip': ip,
+                'nicUuid': nic_uuid
+            }
+            failover_group.append(item)
 
-        lan = LAN(
-            name=name,
-            public=public
-        )
+        lan_response = profitbricks.update_lan(
+            datacenter_id, lan_id=lan_id, public=public, ip_failover=failover_group)
 
-        exists = False
-        changed = False
-
-        # Check if the LAN already exists.
-        for instance in lan_list['items']:
-            if name in (instance['properties']['name'], instance['id']):
-                lan = instance
-                exists = True
-                break
-
-        if exists:
-            if lan['properties']['public'] != public or _is_failover_update(new_group=ip_failover, old_group=lan['properties']['ipFailover']):
-                failover_group = []
-                for ip, nic_uuid in dict.iteritems(ip_failover):
-                    item = {
-                        'ip': ip,
-                        'nicUuid': nic_uuid
-                    }
-                    failover_group.append(item)
-
-                lan_response = profitbricks.update_lan(
-                    datacenter_id, lan_id=lan['id'], public=public, ip_failover=failover_group)
-
-                changed = True
-            else:
-                lan_response = lan
-        else:
-            lan_response = profitbricks.create_lan(datacenter_id, lan)
-            changed = True
-
-        if changed and wait:
+        if wait:
             _wait_for_completion(profitbricks, lan_response,
-                                 wait_timeout, "create_update_lan")
+                                 wait_timeout, "update_lan")
 
         return {
             'failed': False,
-            'changed': changed,
+            'changed': True,
             'lan': lan_response
         }
 
     except Exception as e:
-        module.fail_json(msg="failed to create or update the LAN: %s" % to_native(e))
+        module.fail_json(msg="failed to update the LAN: %s" % to_native(e))
 
 
 def delete_lan(module, profitbricks):
@@ -243,25 +266,6 @@ def _get_resource_id(resource_list, identity):
         if identity in (resource['properties']['name'], resource['id']):
             return resource['id']
     return None
-
-
-def _is_failover_update(new_group, old_group):
-    """
-    Returns true if the LAN failover group needs update, otherwise false.
-    """
-    if not new_group:
-        return False
-
-    if not old_group:
-        return True
-
-    for fo in old_group:
-        if not fo['ip'] in new_group:
-            return True
-        if new_group.get(fo['ip']) != fo['nicUuid']:
-            return True
-
-    return False
 
 
 def main():
@@ -310,10 +314,17 @@ def main():
 
     elif state == 'present':
         try:
-            (lan_dict) = create_update_lan(module, profitbricks)
+            (lan_dict) = create_lan(module, profitbricks)
             module.exit_json(**lan_dict)
         except Exception as e:
             module.fail_json(msg='failed to set LANs state: %s' % to_native(e))
+
+    elif state == 'update':
+        try:
+            (lan_dict) = update_lan(module, profitbricks)
+            module.exit_json(**lan_dict)
+        except Exception as e:
+            module.fail_json(msg='failed to update LAN: %s' % to_native(e))
 
 
 if __name__ == '__main__':
