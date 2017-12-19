@@ -136,6 +136,16 @@ def _remove_datacenter(module, profitbricks, datacenter):
         module.fail_json(msg="failed to remove the datacenter: %s" % to_native(e))
 
 
+def _update_datacenter(module, profitbricks, datacenter, description):
+    try:
+        profitbricks.update_datacenter(datacenter, description=description)
+        return True
+    except Exception as e:
+        module.fail_json(msg="failed to update the datacenter: %s" % to_native(e))
+
+    return False
+
+
 def create_datacenter(module, profitbricks):
     """
     Creates a Datacenter
@@ -146,7 +156,7 @@ def create_datacenter(module, profitbricks):
     profitbricks: authenticated profitbricks object.
 
     Returns:
-        True if a new datacenter was created, false otherwise
+        The datacenter ID if a new datacenter was created.
     """
     name = module.params.get('name')
     location = module.params.get('location')
@@ -175,6 +185,41 @@ def create_datacenter(module, profitbricks):
 
     except Exception as e:
         module.fail_json(msg="failed to create the new datacenter: %s" % to_native(e))
+
+
+def update_datacenter(module, profitbricks):
+    """
+    Updates a Datacenter.
+
+    This will update a datacenter.
+
+    module : AnsibleModule object
+    profitbricks: authenticated profitbricks object.
+
+    Returns:
+        True if a new datacenter was updated, false otherwise
+    """
+    name = module.params.get('name')
+    description = module.params.get('description')
+
+    if description is None:
+        return False
+
+    changed = False
+
+    if(uuid_match.match(name)):
+        changed = _update_datacenter(module, profitbricks, name, description)
+    else:
+        datacenters = profitbricks.list_datacenters()
+
+        for d in datacenters['items']:
+            vdc = profitbricks.get_datacenter(d['id'])
+
+            if name == vdc['properties']['name']:
+                name = d['id']
+                changed = _update_datacenter(module, profitbricks, name, description)
+
+    return changed
 
 
 def remove_datacenter(module, profitbricks):
@@ -266,6 +311,13 @@ def main():
             module.exit_json(**datacenter_dict_array)
         except Exception as e:
             module.fail_json(msg='failed to set datacenter state: %s' % to_native(e))
+
+    elif state == 'update':
+        try:
+            (changed) = update_datacenter(module, profitbricks)
+            module.exit_json(changed=changed)
+        except Exception as e:
+            module.fail_json(msg='failed to update datacenter: %s' % to_native(e))
 
 
 if __name__ == '__main__':
