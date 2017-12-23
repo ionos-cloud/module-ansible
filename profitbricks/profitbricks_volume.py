@@ -13,9 +13,9 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 DOCUMENTATION = '''
 ---
 module: profitbricks_volume
-short_description: Create or destroy a volume.
+short_description: Create, update or destroy a volume.
 description:
-     - Allows you to create or remove a volume from a ProfitBricks datacenter.
+     - Allows you to create, update or remove a volume from a ProfitBricks datacenter.
 version_added: "2.0"
 options:
   datacenter:
@@ -128,6 +128,18 @@ EXAMPLES = '''
     auto_increment: yes
     wait_timeout: 500
     state: present
+
+# Update Volumes
+
+- profitbricks_volume:
+    datacenter: Tardis One
+    instance_ids:
+      - 'vol01'
+      - 'vol02'
+    size: 50
+    bus: IDE
+    wait_timeout: 500
+    state: update
 
 # Remove Volumes
 
@@ -246,6 +258,29 @@ def _create_volume(module, profitbricks, datacenter, name):
     return volume_response
 
 
+def _update_volume(module, profitbricks, datacenter, volume):
+    size = module.params.get('size')
+    bus = module.params.get('bus')
+    wait_timeout = module.params.get('wait_timeout')
+    wait = module.params.get('wait')
+    try:
+        volume_response = profitbricks.update_volume(
+            datacenter_id=datacenter,
+            volume_id=volume,
+            size=size,
+            bus=bus
+        )
+
+        if wait:
+            _wait_for_completion(profitbricks, volume_response,
+                                 wait_timeout, "_update_volume")
+
+    except Exception as e:
+        module.fail_json(msg="failed to update the volume: %s" % to_native(e))
+
+    return volume_response
+
+
 def _delete_volume(module, profitbricks, datacenter, volume):
     try:
         profitbricks.delete_volume(datacenter, volume)
@@ -255,15 +290,15 @@ def _delete_volume(module, profitbricks, datacenter, volume):
 
 def create_volume(module, profitbricks):
     """
-    Creates a volume.
+    Create volumes.
 
-    This will create a volume in a datacenter.
+    This will create one or more volumes in a datacenter.
 
     module : AnsibleModule object
     profitbricks: authenticated profitbricks object.
 
     Returns:
-        True if the volume was created, false otherwise
+        dict of created volumes
     """
     datacenter = module.params.get('datacenter')
     name = module.params.get('name')
@@ -326,17 +361,74 @@ def create_volume(module, profitbricks):
     return results
 
 
-def delete_volume(module, profitbricks):
+def update_volume(module, profitbricks):
     """
-    Removes a volume.
+    Update volumes.
 
-    This will create a volume in a datacenter.
+    This will update one or more volumes in a datacenter.
 
     module : AnsibleModule object
     profitbricks: authenticated profitbricks object.
 
     Returns:
-        True if the volume was removed, false otherwise
+        dict of updated volumes
+    """
+    datacenter = module.params.get('datacenter')
+    instance_ids = module.params.get('instance_ids')
+
+    datacenter_found = False
+    failed = True
+    volumes = []
+
+    # Locate UUID for Datacenter
+    if not (uuid_match.match(datacenter)):
+        datacenter_list = profitbricks.list_datacenters()
+        for d in datacenter_list['items']:
+            dc = profitbricks.get_datacenter(d['id'])
+            if datacenter == dc['properties']['name']:
+                datacenter = d['id']
+                datacenter_found = True
+                break
+
+    if not datacenter_found:
+        module.fail_json(msg='datacenter could not be found.')
+
+    for n in instance_ids:
+        if(uuid_match.match(n)):
+            update_response = _update_volume(module, profitbricks, datacenter, n)
+        else:
+            volume_list = profitbricks.list_volumes(datacenter)
+            for v in volume_list['items']:
+                if n == v['properties']['name']:
+                    volume_id = v['id']
+                    update_response = _update_volume(module, profitbricks, datacenter, volume_id)
+
+        volumes.append(update_response)
+        failed = False
+
+    results = {
+        'failed': failed,
+        'volumes': volumes,
+        'action': 'update',
+        'instance_ids': {
+            'instances': [i['id'] for i in volumes],
+        }
+    }
+
+    return results
+
+
+def delete_volume(module, profitbricks):
+    """
+    Remove volumes.
+
+    This will remove one or more volumes from a datacenter.
+
+    module : AnsibleModule object
+    profitbricks: authenticated profitbricks object.
+
+    Returns:
+        True if the volumes were removed, false otherwise
     """
     if not isinstance(module.params.get('instance_ids'), list) or len(module.params.get('instance_ids')) < 1:
         module.fail_json(msg='instance_ids should be a list of volume ids or names, aborting')
@@ -379,7 +471,7 @@ def _attach_volume(module, profitbricks, datacenter, volume):
     profitbricks: authenticated profitbricks object.
 
     Returns:
-        True if the volume was attached, false otherwise
+        the volume instance being attached
     """
     server = module.params.get('server')
 
@@ -444,7 +536,7 @@ def main():
 
     if state == 'absent':
         if not module.params.get('datacenter'):
-            module.fail_json(msg='datacenter parameter is required for running or stopping machines.')
+            module.fail_json(msg='datacenter parameter is required for creating, updating or deleting volumes.')
 
         try:
             (changed) = delete_volume(module, profitbricks)
@@ -463,6 +555,13 @@ def main():
             module.exit_json(**volume_dict_array)
         except Exception as e:
             module.fail_json(msg='failed to set volume state: %s' % to_native(e))
+
+    elif state == 'update':
+        try:
+            (volume_dict_array) = update_volume(module, profitbricks)
+            module.exit_json(**volume_dict_array)
+        except Exception as e:
+            module.fail_json(msg='failed to update volume: %s' % to_native(e))
 
 
 if __name__ == '__main__':
