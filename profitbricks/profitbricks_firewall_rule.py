@@ -13,9 +13,9 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 DOCUMENTATION = '''
 ---
 module: profitbricks_firewall_rule
-short_description: Create or remove a firewall rule.
+short_description: Create, update or remove a firewall rule.
 description:
-     - This module allows you to create or remove a firewall rule.
+     - This module allows you to create, update or remove a firewall rule.
 version_added: "2.2"
 options:
   datacenter:
@@ -126,6 +126,17 @@ EXAMPLES = '''
     icmp_type: 8
     icmp_code: 0
     state: present
+
+# Update a firewall rule
+- name: Allow SSH access
+  profitbricks_firewall_rule:
+      datacenter: Virtual Datacenter
+      server: node001
+      nic: 7341c2454f
+      name: Allow Ping
+      source_ip: 162.254.27.217
+      source_mac: 01:23:45:67:89:00
+      state: update
 
 # Remove a firewall rule
 - name: Remove public ping firewall rule
@@ -241,7 +252,7 @@ def create_firewall_rule(module, profitbricks):
     profitbricks: authenticated profitbricks object.
 
     Returns:
-        True if the firewal rule creates, false otherwise
+        The firewall rule instance being created
     """
     datacenter = module.params.get('datacenter')
     server = module.params.get('server')
@@ -302,6 +313,72 @@ def create_firewall_rule(module, profitbricks):
 
     except Exception as e:
         module.fail_json(msg="failed to create the firewall rule: %s" % to_native(e))
+
+
+def update_firewall_rule(module, profitbricks):
+    """
+    Updates a firewall rule.
+
+    module : AnsibleModule object
+    profitbricks: authenticated profitbricks object.
+
+    Returns:
+        The firewall rule instance being updated
+    """
+    datacenter = module.params.get('datacenter')
+    server = module.params.get('server')
+    nic = module.params.get('nic')
+    name = module.params.get('name')
+    source_mac = module.params.get('source_mac')
+    source_ip = module.params.get('source_ip')
+    target_ip = module.params.get('target_ip')
+    port_range_start = module.params.get('port_range_start')
+    port_range_end = module.params.get('port_range_end')
+    icmp_type = module.params.get('icmp_type')
+    icmp_code = module.params.get('icmp_code')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    # Locate UUID for virtual datacenter
+    datacenter_list = profitbricks.list_datacenters()
+    datacenter_id = _get_resource_id(datacenter_list, datacenter)
+    if not datacenter_id:
+        module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
+
+    # Locate UUID for server
+    server_list = profitbricks.list_servers(datacenter_id)
+    server_id = _get_resource_id(server_list, server)
+
+    # Locate UUID for NIC
+    nic_list = profitbricks.list_nics(datacenter_id, server_id)
+    nic_id = _get_resource_id(nic_list, nic)
+
+    # Locate UUID for firewall rule
+    fw_list = profitbricks.get_firewall_rules(datacenter_id, server_id, nic_id)
+    fw_id = _get_resource_id(fw_list, name)
+
+    try:
+        firewall_rule_response = profitbricks.update_firewall_rule(
+            datacenter_id,
+            server_id,
+            nic_id,
+            fw_id,
+            source_mac=source_mac,
+            source_ip=source_ip,
+            target_ip=target_ip,
+            port_range_start=port_range_start,
+            port_range_end=port_range_end,
+            icmp_type=icmp_type,
+            icmp_code=icmp_code
+        )
+
+        if wait:
+            _wait_for_completion(profitbricks, firewall_rule_response,
+                                 wait_timeout, "update_firewall_rule")
+        return firewall_rule_response
+
+    except Exception as e:
+        module.fail_json(msg="failed to update the firewall rule: %s" % to_native(e))
 
 
 def delete_firewall_rule(module, profitbricks):
@@ -413,6 +490,13 @@ def main():
             module.exit_json(**firewall_rule_dict)
         except Exception as e:
             module.fail_json(msg='failed to set firewall rules state: %s' % to_native(e))
+
+    elif state == 'update':
+        try:
+            (firewall_rule_dict) = update_firewall_rule(module, profitbricks)
+            module.exit_json(**firewall_rule_dict)
+        except Exception as e:
+            module.fail_json(msg='failed to update firewall rule: %s' % to_native(e))
 
 
 if __name__ == '__main__':
