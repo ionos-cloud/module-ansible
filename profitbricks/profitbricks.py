@@ -13,10 +13,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 DOCUMENTATION = '''
 ---
 module: profitbricks
-short_description: Create, destroy, start, stop, and reboot a ProfitBricks virtual machine.
+short_description: Create, update, destroy, start, stop, and reboot a ProfitBricks virtual machine.
 description:
-     - Create, destroy, update, start, stop, and reboot a ProfitBricks virtual machine. When the virtual machine is created it can optionally wait
-       for it to be 'running' before returning.
+     - Create, update, destroy, update, start, stop, and reboot a ProfitBricks virtual machine.
+       When the virtual machine is created it can optionally wait for it to be 'running' before returning.
 version_added: "2.0"
 options:
   auto_increment:
@@ -151,7 +151,7 @@ options:
       - create or terminate instances
     required: false
     default: "present"
-    choices: [ "running", "stopped", "absent", "present" ]
+    choices: [ "running", "stopped", "absent", "present", "update" ]
 
 requirements:
     - "python >= 2.6"
@@ -176,6 +176,19 @@ EXAMPLES = '''
     location: us/las
     count: 3
     assign_public_ip: true
+
+# Update Virtual machines
+
+- profitbricks:
+    datacenter: Tardis One
+    instance_ids:
+      - web001.stackpointcloud.com
+      - web002.stackpointcloud.com
+    cores: 4
+    ram: 4096
+    cpu_family: INTEL_XEON
+    availability_zone: ZONE_1
+    state: update
 
 # Removing Virtual machines
 
@@ -483,6 +496,79 @@ def create_virtual_machine(module, profitbricks):
     return results
 
 
+def update_server(module, profitbricks):
+    """
+    Update servers.
+
+    This will update one or more servers.
+
+    module : AnsibleModule object
+    profitbricks: authenticated profitbricks object.
+
+    Returns:
+        dict of updated servers
+    """
+    datacenter = module.params.get('datacenter')
+    instance_ids = module.params.get('instance_ids')
+
+    if not isinstance(module.params.get('instance_ids'), list) or len(module.params.get('instance_ids')) < 1:
+        module.fail_json(msg='instance_ids should be a list of virtual machine ids or names, aborting')
+
+    # Locate UUID for datacenter if referenced by name.
+    datacenter_list = profitbricks.list_datacenters()
+    datacenter_id = _get_datacenter_id(datacenter_list, datacenter)
+    if not datacenter_id:
+        module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
+
+    updated_servers = []
+
+    cores = module.params.get('cores')
+    ram = module.params.get('ram')
+    cpu_family = module.params.get('cpu_family')
+    availability_zone = module.params.get('availability_zone')
+    allow_reboot = None
+
+    server_list = profitbricks.list_servers(datacenter_id)
+    for instance in instance_ids:
+        server = None
+        for s in server_list['items']:
+            if instance in (s['properties']['name'], s['id']):
+                server = s
+                break
+
+        if not server:
+            module.fail_json(msg='Server \'%s\' not found.' % str(instance))
+
+        if cpu_family != server['properties']['cpuFamily']:
+            allow_reboot = True
+
+        try:
+            update_response = profitbricks.update_server(
+                datacenter_id,
+                server['id'],
+                cores=cores,
+                ram=ram,
+                cpu_family=cpu_family,
+                availability_zone=availability_zone,
+                allow_reboot=allow_reboot
+            )
+        except Exception as e:
+            module.fail_json(msg="failed to update the server: %s" % to_native(e), exception=traceback.format_exc())
+        else:
+            updated_servers.append(update_response)
+
+    results = {
+        'failed': False,
+        'machines': updated_servers,
+        'action': 'update',
+        'instance_ids': {
+            'instances': [i['id'] for i in updated_servers],
+        }
+    }
+
+    return results
+
+
 def remove_virtual_machine(module, profitbricks):
     """
     Removes a virtual machine.
@@ -707,6 +793,13 @@ def main():
             module.exit_json(**machine_dict_array)
         except Exception as e:
             module.fail_json(msg='failed to set instance state: %s' % to_native(e), exception=traceback.format_exc())
+
+    elif state == 'update':
+        try:
+            (machine_dict_array) = update_server(module, profitbricks)
+            module.exit_json(**machine_dict_array)
+        except Exception as e:
+            module.fail_json(msg='failed to update server: %s' % to_native(e), exception=traceback.format_exc())
 
 
 if __name__ == '__main__':
