@@ -13,9 +13,9 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 DOCUMENTATION = '''
 ---
 module: profitbricks_nic
-short_description: Create or Remove a NIC.
+short_description: Create, Update or Remove a NIC.
 description:
-     - This module allows you to create or restore a volume snapshot.
+     - This module allows you to create, update or remove a NIC.
 version_added: "2.0"
 options:
   datacenter:
@@ -34,12 +34,31 @@ options:
     description:
       - The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create.
     required: true
+    default: None
   nat:
     description:
       - Boolean value indicating if the private IP address has outbound access to the public internet.
     required: false
-    default: false
+    default: None
     version_added: "2.3"
+  dhcp:
+    description:
+      - Boolean value indicating if the NIC is using DHCP or not.
+    required: false
+    default: None
+    version_added: "2.4"
+  firewall_active:
+    description:
+      - Boolean value indicating if the firewall is active.
+    required: false
+    default: None
+    version_added: "2.4"
+  ips:
+    description:
+      - A list of IPs to be assigned to the NIC.
+    required: false
+    default: None
+    version_added: "2.4"
   subscription_user:
     description:
       - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable.
@@ -82,6 +101,18 @@ EXAMPLES = '''
     lan: 2
     wait_timeout: 500
     state: present
+
+# Update a NIC
+- profitbricks_nic:
+    datacenter: Tardis One
+    server: node002
+    name: 7341c2454f
+    lan: 1
+    ips:
+      - 158.222.103.23
+      - 158.222.103.24
+    dhcp: false
+    state: update
 
 # Remove a NIC
 - profitbricks_nic:
@@ -144,12 +175,15 @@ def create_nic(module, profitbricks):
     profitbricks: authenticated profitbricks object.
 
     Returns:
-        True if the nic creates, false otherwise
+        The NIC instance being created
     """
     datacenter = module.params.get('datacenter')
     server = module.params.get('server')
     lan = module.params.get('lan')
-    nat = module.params.get('nat')
+    dhcp = module.params.get('dhcp') or False
+    nat = module.params.get('nat') or False
+    firewall_active = module.params.get('firewall_active')
+    ips = module.params.get('ips')
     name = module.params.get('name')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
@@ -175,7 +209,10 @@ def create_nic(module, profitbricks):
         n = NIC(
             name=name,
             lan=lan,
-            nat=nat
+            nat=nat,
+            dhcp=dhcp,
+            ips=ips,
+            firewall_active=firewall_active
         )
 
         nic_response = profitbricks.create_nic(datacenter, server, n)
@@ -191,6 +228,90 @@ def create_nic(module, profitbricks):
 
     except Exception as e:
         module.fail_json(msg="failed to create the NIC: %s" % to_native(e))
+
+
+def update_nic(module, profitbricks):
+    """
+    Updates a NIC.
+
+    module : AnsibleModule object
+    profitbricks: authenticated profitbricks object.
+
+    Returns:
+        The NIC instance being updated
+    """
+    datacenter = module.params.get('datacenter')
+    server = module.params.get('server')
+    lan = module.params.get('lan')
+    nat = module.params.get('nat')
+    dhcp = module.params.get('dhcp')
+    firewall_active = module.params.get('firewall_active')
+    ips = module.params.get('ips')
+    name = module.params.get('name')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    # Locate UUID for Datacenter
+    if not (uuid_match.match(datacenter)):
+        datacenter_list = profitbricks.list_datacenters()
+        for d in datacenter_list['items']:
+            dc = profitbricks.get_datacenter(d['id'])
+            if datacenter == dc['properties']['name']:
+                datacenter = d['id']
+                break
+
+    # Locate UUID for Server
+    if not (uuid_match.match(server)):
+        server_list = profitbricks.list_servers(datacenter)
+        for s in server_list['items']:
+            if server == s['properties']['name']:
+                server = s['id']
+                break
+
+    nic = None
+    # Locate NIC to update
+    if not (uuid_match.match(name)):
+        nic_list = profitbricks.list_nics(datacenter, server)
+        for n in nic_list['items']:
+            if name == n['properties']['name'] or name == n['id']:
+                nic = n
+                break
+
+    if not nic:
+        module.fail_json(msg="NIC could not be found.")
+
+    try:
+        if lan is None:
+            lan = nic['properties']['lan']
+        if firewall_active is None:
+            firewall_active = nic['properties']['firewallActive']
+        if nat is None:
+            nat = nic['properties']['nat']
+        if dhcp is None:
+            dhcp = nic['properties']['dhcp']
+
+        nic_response = profitbricks.update_nic(
+            datacenter,
+            server,
+            nic['id'],
+            lan=lan,
+            firewall_active=firewall_active,
+            nat=nat,
+            dhcp=dhcp,
+            ips=ips
+        )
+
+        if wait:
+            _wait_for_completion(profitbricks, nic_response,
+                                 wait_timeout, 'update_nic')
+
+        # Refresh NIC properties
+        nic_response = profitbricks.get_nic(datacenter, server, nic_response['id'])
+
+        return nic_response
+
+    except Exception as e:
+        module.fail_json(msg="failed to update the NIC: %s" % to_native(e))
 
 
 def delete_nic(module, profitbricks):
@@ -255,8 +376,11 @@ def main():
             datacenter=dict(type='str'),
             server=dict(type='str'),
             name=dict(type='str', default=str(uuid4()).replace('-', '')[:10]),
-            lan=dict(type='int'),
-            nat=dict(type='bool', default=False),
+            lan=dict(type='int', default=None),
+            dhcp=dict(type='bool', default=None),
+            nat=dict(type='bool', default=None),
+            firewall_active=dict(type='bool', default=None),
+            ips=dict(type='list', default=None),
             subscription_user=dict(type='str', default=os.environ.get('PROFITBRICKS_USERNAME')),
             subscription_password=dict(type='str', default=os.environ.get('PROFITBRICKS_PASSWORD'), no_log=True),
             wait=dict(type='bool', default=True),
@@ -310,6 +434,13 @@ def main():
             module.exit_json(**nic_dict)
         except Exception as e:
             module.fail_json(msg='failed to set nic state: %s' % to_native(e))
+
+    elif state == 'update':
+        try:
+            (nic_dict) = update_nic(module, profitbricks)
+            module.exit_json(**nic_dict)
+        except Exception as e:
+            module.fail_json(msg='failed to update nic: %s' % to_native(e))
 
 
 if __name__ == '__main__':
