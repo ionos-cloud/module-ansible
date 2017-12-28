@@ -403,7 +403,6 @@ def main():
             volume=dict(type='str'),
             name=dict(type='str', default=''),
             description=dict(type='str', default=''),
-            restore=dict(type='bool', default=False),
             licence_type=dict(type='str', choices=LICENCE_TYPES, default=None),
             cpu_hot_plug=dict(type='bool', default=None),
             cpu_hot_unplug=dict(type='bool', default=None),
