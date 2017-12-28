@@ -104,7 +104,7 @@ options:
     default: 600
   state:
     description:
-      - create or terminate datacenters
+      - Indicate desired state of the resource
     required: false
     default: "present"
     choices: ["present", "absent", "update"]

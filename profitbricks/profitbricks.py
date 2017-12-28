@@ -148,7 +148,7 @@ options:
     choices: ["yes", "no"]
   state:
     description:
-      - create or terminate instances
+      - Indicate desired state of the resource
     required: false
     default: "present"
     choices: [ "running", "stopped", "absent", "present", "update" ]

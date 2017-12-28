@@ -93,9 +93,6 @@ EXAMPLES = '''
     email: john.doe@example.com
     password: secretpassword123
     administrator: true
-    groups:
-      - Developers
-      - Testers
     state: present
 
 # Update a user
@@ -106,7 +103,9 @@ EXAMPLES = '''
     email: john.doe@example.com
     administrator: false
     force_sec_auth: false
-    groups: []
+    groups:
+      - Developers
+      - Testers
     state: update
 
 # Remove a user

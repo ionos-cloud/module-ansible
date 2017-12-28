@@ -87,8 +87,6 @@ EXAMPLES = '''
     create_snapshot: true
     reserve_ip: false
     access_activity_log: false
-    users:
-      - john.doe@example.com
     state: present
 
 # Update a group
