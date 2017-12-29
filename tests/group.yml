@@ -1,0 +1,56 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - set_fact:
+        random_user: "no-reply{{100000000 |random}}@example.com"
+      run_once: yes
+
+    - name: Create group
+      profitbricks_group:
+        name: "{{ name }}"
+        create_datacenter: true
+        create_snapshot: true
+        reserve_ip: true
+        access_activity_log: true
+
+    - name: Update group
+      profitbricks_group:
+        name: "{{ name }}"
+        create_datacenter: false
+        state: update
+
+    - name: Create user
+      profitbricks_user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        password: "{{ password }}"
+        administrator: false
+
+    - name: Add user to group
+      profitbricks_group:
+        name: "{{ name }}"
+        users:
+          - "{{ random_user }}"
+        state: update
+
+    - name: Remove user from group
+      profitbricks_group:
+        name: "{{ name }}"
+        users: []
+        state: update
+
+    - name: Delete user
+      profitbricks_user:
+        email: "{{ random_user }}"
+        state: absent
+
+    - name: Delete group
+      profitbricks_group:
+        name: "{{ name }}"
+        state: absent

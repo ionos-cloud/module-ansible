@@ -7,20 +7,27 @@
     - vars.yml
 
   tasks:
-    - name: Provision a set of instances
+    - name: Create datacenter
+      profitbricks_datacenter:
+          name: "{{ name }}"
+          location: "{{ location }}"
+
+    - name: Provision a server
       profitbricks:
          datacenter: "{{ datacenter }}"
-         name: server%02d
+         name: "{{ name }} %02d"
          auto_increment: true
          cores: 1
-         ram: 2048
+         ram: 1024
          availability_zone: ZONE_1
          volume_availability_zone: ZONE_3
          volume_size: 5
          cpu_family: AMD_OPTERON
          disk_type: HDD
          image: "{{ image }}"
-         image_password: "{{ image_password }}"
+         image_password: "{{ password }}"
+         ssh_keys:
+            - "{{ ssh_public_key }}"
          location: "{{ location }}"
          count: 1
          assign_public_ip: true
@@ -40,22 +47,26 @@
           delay: 10
       with_items: "{{ profitbricks.machines }}"
 
-    # - name: Add servers to servers host group
-    #   add_host:
-    #      hostname: "{{ item.properties.name }}"
-    #      ansible_ssh_host: "{{ item.public_ip }}"
-    #      ansible_ssh_user: root
-    #      ansible_ssh_pass: password
-    #      groupname: servers
-    #   with_items: "{{ profitbricks.machines }}"
-    #   when: profitbricks.action == 'create'
-
-    - name: Remove a set of instances
+    - name: Update server
       profitbricks:
          datacenter: "{{ datacenter }}"
          instance_ids:
-           - 'server01'
-           - 'server02'
+           - "{{ name }} 01"
+         cores: 2
+         ram: 2048
+         wait_timeout: "{{ timeout }}"
+         state: update
+
+    - name: Remove server
+      profitbricks:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ name }} 01"
          remove_boot_volume: yes
          wait_timeout: "{{ timeout }}"
          state: absent
+
+    - name: Remove datacenter
+      profitbricks_datacenter:
+        name: "{{ name }}"
+        state: absent
