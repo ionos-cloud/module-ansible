@@ -3,6 +3,9 @@
   connection: local
   gather_facts: false
 
+  vars:
+    ssh_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
   vars_files:
     - vars.yml
 
@@ -56,6 +59,22 @@
          ram: 2048
          wait_timeout: "{{ timeout }}"
          state: update
+
+    - name: Stop server
+      profitbricks:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ name }} 01"
+         wait_timeout: "{{ timeout }}"
+         state: stopped
+
+    - name: Start server
+      profitbricks:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ name }} 01"
+         wait_timeout: "{{ timeout }}"
+         state: running
 
     - name: Remove server
       profitbricks:
