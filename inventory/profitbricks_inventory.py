@@ -205,6 +205,13 @@ class ProfitBricksInventory(object):
             else:
                 setattr(self, option, True)
 
+        # Inventory Hostname
+        option = 'server_name_as_inventory_hostname'
+        if config.has_option('profitbricks', option):
+            setattr(self, option, config.getboolean('profitbricks', option))
+        else:
+            setattr(self, option, False)
+
     def read_environment(self):
         ''' Reads the environment variables '''
         if os.getenv('PROFITBRICKS_USERNAME'):
@@ -354,15 +361,22 @@ class ProfitBricksInventory(object):
         for server in self.data['servers']:
             host_ip = server['entities']['nics']['items'][0]['properties']['ips'][0]
 
-            self.inventory['all']['hosts'].append(host_ip)
-            self.inventory['_meta']['hostvars'][host_ip] = server
+            if self.server_name_as_inventory_hostname:
+                host = server['properties']['name']
+            else:
+                host = host_ip
+
+            self.inventory['all']['hosts'].append(host)
+            self.inventory['_meta']['hostvars'][host] = server
+            if self.server_name_as_inventory_hostname:
+                self.inventory['_meta']['hostvars'][host]['ansible_host'] = host_ip
 
             datacenter_id = self._parse_id_from_href(server['href'], 2)
 
             if self.group_by_datacenter_id:
                 if datacenter_id not in self.inventory:
                     self.inventory[datacenter_id] = { 'hosts': [ ], 'vars': self.vars }
-                self.inventory[datacenter_id]['hosts'].append(host_ip)
+                self.inventory[datacenter_id]['hosts'].append(host)
 
             if self.group_by_location:
                 location = None
@@ -372,13 +386,13 @@ class ProfitBricksInventory(object):
                         break
                 if location not in self.inventory:
                     self.inventory[location] = { 'hosts': [ ], 'vars': self.vars }
-                self.inventory[location]['hosts'].append(host_ip)
+                self.inventory[location]['hosts'].append(host)
 
             if self.group_by_availability_zone:
                 zone = server['properties']['availabilityZone']
                 if zone not in self.inventory:
                     self.inventory[zone] = { 'hosts': [ ], 'vars': self.vars }
-                self.inventory[zone]['hosts'].append(host_ip)
+                self.inventory[zone]['hosts'].append(host)
 
             if self.group_by_image_name:
                 boot_device = {}
@@ -395,7 +409,7 @@ class ProfitBricksInventory(object):
                             image_name = self.to_safe(image['properties']['name'])
                             if image_name not in self.inventory:
                                 self.inventory[image_name] = { 'hosts': [ ], 'vars': self.vars }
-                            self.inventory[image_name]['hosts'].append(host_ip)
+                            self.inventory[image_name]['hosts'].append(host)
                             break
 
             if self.group_by_licence_type:
@@ -407,7 +421,7 @@ class ProfitBricksInventory(object):
                 if license is not None:
                     if license not in self.inventory:
                         self.inventory[license] = { 'hosts': [ ], 'vars': self.vars }
-                    self.inventory[license]['hosts'].append(host_ip)
+                    self.inventory[license]['hosts'].append(host)
 
     def get_host_info(self):
         '''Generate a JSON response to a --host call'''
