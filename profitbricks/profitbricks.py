@@ -120,6 +120,12 @@ options:
     required: false
     default: false
     version_added: "2.3"
+  api_url:
+    description:
+      - The ProfitBricks API base URL.
+    required: false
+    default: The value specified by API_HOST variable in ProfitBricks SDK for Python dependency.
+    version_added: "2.4"
   subscription_user:
     description:
       - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.
@@ -235,6 +241,7 @@ from uuid import (uuid4, UUID)
 HAS_PB_SDK = True
 
 try:
+    from profitbricks import API_HOST
     from profitbricks import __version__ as sdk_version
     from profitbricks.client import (ProfitBricksService, Volume, Server,
                                      Datacenter, NIC, LAN)
@@ -730,6 +737,7 @@ def main():
             count=dict(type='int', default=1),
             auto_increment=dict(type='bool', default=True),
             instance_ids=dict(type='list', default=[]),
+            api_url=dict(type='str', default=API_HOST),
             subscription_user=dict(type='str', default=os.environ.get('PROFITBRICKS_USERNAME')),
             subscription_password=dict(type='str', default=os.environ.get('PROFITBRICKS_PASSWORD'), no_log=True),
             location=dict(type='str', choices=LOCATIONS, default='us/las'),
@@ -753,10 +761,13 @@ def main():
 
     subscription_user = module.params.get('subscription_user')
     subscription_password = module.params.get('subscription_password')
+    api_url = module.params.get('api_url')
 
     profitbricks = ProfitBricksService(
         username=subscription_user,
-        password=subscription_password)
+        password=subscription_password,
+        host_base=api_url
+    )
 
     user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
     profitbricks.headers = {'User-Agent': user_agent}

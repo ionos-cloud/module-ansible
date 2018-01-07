@@ -54,6 +54,11 @@ options:
         Set to empty list ([]) to remove the user from all groups.
     required: false
     default: None
+  api_url:
+    description:
+      - The ProfitBricks API base URL.
+    required: false
+    default: The value specified by API_HOST variable in ProfitBricks SDK for Python dependency.
   subscription_user:
     description:
       - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.
@@ -121,6 +126,7 @@ import time
 HAS_PB_SDK = True
 
 try:
+    from profitbricks import API_HOST
     from profitbricks import __version__ as sdk_version
     from profitbricks.client import ProfitBricksService, User
 except ImportError:
@@ -342,6 +348,7 @@ def main():
             administrator=dict(type='bool', default=None),
             force_sec_auth=dict(type='bool', default=None),
             groups=dict(type='list', default=None),
+            api_url=dict(type='str', default=API_HOST),
             subscription_user=dict(type='str', default=os.environ.get('PROFITBRICKS_USERNAME')),
             subscription_password=dict(type='str', default=os.environ.get('PROFITBRICKS_PASSWORD'), no_log=True),
             wait=dict(type='bool', default=True),
@@ -362,10 +369,13 @@ def main():
 
     subscription_user = module.params.get('subscription_user')
     subscription_password = module.params.get('subscription_password')
+    api_url = module.params.get('api_url')
 
     profitbricks = ProfitBricksService(
         username=subscription_user,
-        password=subscription_password)
+        password=subscription_password,
+        host_base=api_url
+    )
 
     user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
     profitbricks.headers = {'User-Agent': user_agent}
