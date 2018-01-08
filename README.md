@@ -233,11 +233,11 @@ The following parameters are supported:
 | --- | :-: | --- | --- | --- |
 | auto_increment | no | boolean | true | Whether or not to increment created servers. |
 | count | no | integer | 1 | The number of servers to create. |
-| name | **yes** | string | | The name of the server(s). |
-| image | **yes** | string | | The image alias or UUID for creating the server. |
+| name | **yes**/no | string | | The name of the server(s). Required only for `state='present'`. |
+| image | **yes**/no | string | | The image alias or UUID for creating the server. Required only for `state='present'`. |
 | image_password | no | string | | Password set for the administrative user. |
 | ssh_keys | no | list | none | List of public SSH keys allowing access to the server. |
-| datacenter | no | string | none | The datacenter where the server is located. |
+| datacenter | **yes** | string | none | The datacenter where the server is located. |
 | cores | no | integer | 2 | The number of CPU cores to allocate to the server. |
 | ram | no | integer | 2048 | The amount of memory to allocate to the server. |
 | cpu_family | no | string | AMD_OPTERON | The CPU family type of the server: **AMD_OPTERON**, INTEL_XEON |
@@ -246,7 +246,7 @@ The following parameters are supported:
 | disk_type | no | string | HDD | The type of disk the volume will use: **HDD**, SSD |
 | volume\_availability\_zone | no | string | AUTO | The storage availability zone assigned to the volume: **AUTO**, ZONE\_1, ZONE\_2, ZONE\_3 |
 | bus | no | string | VIRTIO | The bus type for the volume: **VIRTIO**, IDE |
-| instance_ids | no | list | | List of instance IDs used only with `state='absent'` during deletes. |
+| instance_ids | **yes**/no | list | | List of instance IDs or names. **Not required** for `state='present'`. |
 | location | no | string | us/las | The datacenter location used only if the module creates a default datacenter: us/las, us/ewr, de/fra, de/fkb |
 | assign\_public\_ip | no | boolean | false | This will assign the server to the public LAN. The LAN is created if no LAN exists with public Internet access. |
 | lan | no | integer | 1 | The LAN ID of the server. |
@@ -402,7 +402,7 @@ The following parameters are supported:
 | --- | :-: | --- | --- | --- |
 | datacenter | **yes** | string | | The datacenter in which to create the volume. |
 | server | no | string | | The server on which to attach the volume. |
-| name | **yes** | string | | The name of the volume. You can enumerate the names using auto_increment. |
+| name | **yes**/no | string | | The name of the volume. You can enumerate the names using auto_increment. |
 | size | no | integer | 10 | The size of the volume in GB. |
 | bus | no | string | VIRTIO | The bus type of the volume: **VIRTIO**, IDE |
 | image | no | string | | The image alias, image UUID, or snapshot UUID for the volume. |
@@ -413,7 +413,7 @@ The following parameters are supported:
 | availability_zone | no | string | AUTO | The storage availability zone assigned to the volume: **AUTO**, ZONE\_1, ZONE\_2, ZONE\_3 |
 | count | no | integer | 1 | The number of volumes to create. |
 | auto_increment | no | boolean | true | Whether or not to increment created servers. |
-| instance_ids | no | list | | List of instance UUIDs only used when `state='absent'` or `state='update'` to remove or update volumes. |
+| instance_ids | **yes**/no | list | | List of instance UUIDs or names. Required for `state='absent'` or `state='update'` to remove or update volumes. |
 | api_url | no | string | | The ProfitBricks API base URL. Overrides the value specified by `API_HOST` in ProfitBricks Python SDK dependency. |
 | subscription_user | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable. |
 | subscription_password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable. |
@@ -512,9 +512,9 @@ The following parameters are supported:
 
 | Name | Required | Type | Default | Description |
 | --- | :-: | --- | --- | --- |
-| datacenter | **yes** | string | | The datacenter in which the volume resides. |
-| volume | **yes** | string | | The server on which to attach the volume. |
-| name | no | string | | The name of the snapshot. |
+| datacenter | **yes**/no | string | | The datacenter in which the volume resides. Required for `state='present'` or `state='restore'` to create or restore a snapshot. |
+| volume | **yes**/no | string | | The volume to create or restore the snapshot. Required for `state='present'` or `state='restore'`. |
+| name | **yes**/no | string | | The name of the snapshot. Required for `state='update'` or `state='absent'` to update or remove a snapshot. |
 | description | no | string | | The description of the snapshot. |
 | licence_type | no | string | | The licence type for the volume. This is used when updating the snapshot: LINUX, WINDOWS, UNKNOWN, OTHER, WINDOWS2016 |
 | cpu_hot_plug | no | boolean | | Indicates the volume is capable of CPU hot plug (no reboot required). |
@@ -563,10 +563,10 @@ The following parameters are supported:
 
 | Name | Required | Type | Default | Description |
 | --- | :-: | --- | --- | --- |
-| firstname | **yes** | string | | The user's first name. |
-| lastname | **yes** | string | | The user's last name. |
+| firstname | **yes**/no | string | | The user's first name. Required for `state='present'` only. |
+| lastname | **yes**/no | string | | The user's last name. Required for `state='present'` only. |
 | email | **yes** | string | | The user's email. |
-| password | **yes** | string | | A password for the user. |
+| password | **yes**/no | string | | A password for the user. Required for `state='present'` only. |
 | administrator | no | boolean | | Indicates if the user has administrative rights. |
 | force_sec_auth | no | boolean | | Indicates if secure (two-factor) authentication should be forced for the user. |
 | groups | no | list | | A list of group IDs or names where the user (non-administrator) is to be added. Set to empty list (`[]`) to remove the user from all groups. |
