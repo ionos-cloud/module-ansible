@@ -29,7 +29,7 @@
         firstname: John
         lastname: Doe
         email: "{{ random_user }}"
-        password: "{{ password }}"
+        user_password: "{{ password }}"
         administrator: false
 
     - name: Add user to group
