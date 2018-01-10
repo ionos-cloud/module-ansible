@@ -235,6 +235,9 @@ def _create_volume(module, profitbricks, datacenter, name):
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         v = Volume(
             name=name,
@@ -271,6 +274,10 @@ def _update_volume(module, profitbricks, datacenter, volume):
     bus = module.params.get('bus')
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
+
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         volume_response = profitbricks.update_volume(
             datacenter_id=datacenter,
@@ -290,6 +297,8 @@ def _update_volume(module, profitbricks, datacenter, volume):
 
 
 def _delete_volume(module, profitbricks, datacenter, volume):
+    if module.check_mode:
+        module.exit_json(changed=True)
     try:
         profitbricks.delete_volume(datacenter, volume)
     except Exception as e:
@@ -532,7 +541,8 @@ def main():
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
             state=dict(type='str', default='present'),
-        )
+        ),
+        supports_check_mode=True
     )
 
     if not HAS_PB_SDK:

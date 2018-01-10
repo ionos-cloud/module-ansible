@@ -548,6 +548,9 @@ def update_server(module, profitbricks):
         if cpu_family != server['properties']['cpuFamily']:
             allow_reboot = True
 
+        if module.check_mode:
+            module.exit_json(changed=True)
+
         try:
             update_response = profitbricks.update_server(
                 datacenter_id,
@@ -609,6 +612,9 @@ def remove_virtual_machine(module, profitbricks):
         # Locate UUID for server if referenced by name.
         server_id = _get_server_id(server_list, instance)
         if server_id:
+            if module.check_mode:
+                module.exit_json(changed=True)
+
             # Remove the server's boot volume
             if remove_boot_volume:
                 _remove_boot_volume(module, profitbricks, datacenter_id, server_id)
@@ -668,6 +674,9 @@ def startstop_machine(module, profitbricks, state):
         # Locate UUID of server if referenced by name.
         server_id = _get_server_id(server_list, instance)
         if server_id:
+            if module.check_mode:
+                module.exit_json(changed=True)
+
             _startstop_machine(module, profitbricks, datacenter_id, server_id)
             changed = True
 
@@ -756,7 +765,8 @@ def main():
             wait_timeout=dict(type='int', default=600),
             remove_boot_volume=dict(type='bool', default=True),
             state=dict(type='str', default='present'),
-        )
+        ),
+        supports_check_mode=True
     )
 
     if not HAS_PB_SDK:
@@ -801,6 +811,9 @@ def main():
             module.fail_json(msg='name parameter is required for new instance')
         if not module.params.get('image'):
             module.fail_json(msg='image parameter is required for new instance')
+
+        if module.check_mode:
+            module.exit_json(changed=True)
 
         try:
             (machine_dict_array) = create_virtual_machine(module, profitbricks)

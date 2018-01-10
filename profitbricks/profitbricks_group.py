@@ -167,6 +167,9 @@ def create_group(module, profitbricks):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         group = Group(
             name=name,
@@ -217,6 +220,9 @@ def update_group(module, profitbricks):
                 break
 
         if group:
+            if module.check_mode:
+                module.exit_json(changed=True)
+
             if create_datacenter is None:
                 create_datacenter = group['properties']['createDataCenter']
             if create_snapshot is None:
@@ -294,6 +300,9 @@ def delete_group(module, profitbricks):
     group_list = profitbricks.list_groups()
     group_id = _get_resource_id(group_list, name)
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         group_response = profitbricks.delete_group(group_id)
         return group_response
@@ -348,7 +357,8 @@ def main():
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
             state=dict(type='str', default='present'),
-        )
+        ),
+        supports_check_mode=True
     )
 
     if not HAS_PB_SDK:

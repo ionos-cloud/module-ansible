@@ -218,6 +218,9 @@ def create_snapshot(module, profitbricks):
     if not volume_id:
         module.fail_json(msg='Volume \'%s\' not found.' % volume)
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         snapshot_resp = profitbricks.create_snapshot(
             datacenter_id=datacenter_id,
@@ -271,6 +274,9 @@ def restore_snapshot(module, profitbricks):
     if not snapshot_id:
         module.fail_json(msg='Snapshot \'%s\' not found.' % name)
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         snapshot_resp = profitbricks.restore_snapshot(
             datacenter_id=datacenter_id,
@@ -301,6 +307,9 @@ def update_snapshot(module, profitbricks):
     snapshot = _get_resource_instance(snapshot_list, name)
     if not snapshot:
         module.fail_json(msg='Snapshot \'%s\' not found.' % name)
+
+    if module.check_mode:
+        module.exit_json(changed=True)
 
     cpu_hot_plug = module.params.get('cpu_hot_plug')
     cpu_hot_unplug = module.params.get('cpu_hot_unplug')
@@ -375,6 +384,9 @@ def delete_snapshot(module, profitbricks):
     snapshot_list = profitbricks.list_snapshots()
     snapshot_id = _get_resource_id(snapshot_list, name)
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         snapshot_resp = profitbricks.delete_snapshot(snapshot_id)
         return snapshot_resp
@@ -438,7 +450,8 @@ def main():
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
             state=dict(type='str', default='present'),
-        )
+        ),
+        supports_check_mode=True
     )
 
     if not HAS_PB_SDK:

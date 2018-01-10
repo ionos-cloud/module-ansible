@@ -145,6 +145,8 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
 
 
 def _remove_datacenter(module, profitbricks, datacenter):
+    if module.check_mode:
+        module.exit_json(changed=True)
     try:
         profitbricks.delete_datacenter(datacenter)
     except Exception as e:
@@ -152,6 +154,8 @@ def _remove_datacenter(module, profitbricks, datacenter):
 
 
 def _update_datacenter(module, profitbricks, datacenter, description):
+    if module.check_mode:
+        module.exit_json(changed=True)
     try:
         profitbricks.update_datacenter(datacenter, description=description)
         return True
@@ -292,7 +296,8 @@ def main():
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
             state=dict(type='str', default='present'),
-        )
+        ),
+        supports_check_mode=True
     )
     if not HAS_PB_SDK:
         module.fail_json(msg='profitbricks required for this module')
@@ -328,6 +333,9 @@ def main():
             module.fail_json(msg='name parameter is required for a new datacenter')
         if not module.params.get('location'):
             module.fail_json(msg='location parameter is required for a new datacenter')
+
+        if module.check_mode:
+            module.exit_json(changed=True)
 
         try:
             (datacenter_dict_array) = create_datacenter(module, profitbricks)

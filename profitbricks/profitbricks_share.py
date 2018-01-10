@@ -164,6 +164,9 @@ def create_shares(module, profitbricks):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         responses = []
 
@@ -212,6 +215,9 @@ def update_shares(module, profitbricks):
 
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
+
+    if module.check_mode:
+        module.exit_json(changed=True)
 
     try:
         share_list = profitbricks.list_shares(group_id=group_id)
@@ -268,6 +274,9 @@ def delete_shares(module, profitbricks):
     group_list = profitbricks.list_groups()
     group_id = _get_resource_id(group_list, group)
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         response = None
         for uuid in module.params.get('resource_ids'):
@@ -313,7 +322,8 @@ def main():
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
             state=dict(type='str', default='present'),
-        )
+        ),
+        supports_check_mode=True
     )
 
     if not HAS_PB_SDK:

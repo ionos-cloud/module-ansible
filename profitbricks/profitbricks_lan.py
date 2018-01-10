@@ -159,6 +159,9 @@ def create_lan(module, profitbricks):
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         lan = LAN(
             name=name,
@@ -210,6 +213,9 @@ def update_lan(module, profitbricks):
     if not lan_id:
         module.fail_json(msg='LAN \'%s\' not found.' % str(name))
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         failover_group = []
         for ip, nic_uuid in dict.iteritems(ip_failover):
@@ -257,6 +263,9 @@ def delete_lan(module, profitbricks):
     lan_list = profitbricks.list_lans(datacenter_id)
     lan_id = _get_resource_id(lan_list, name)
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         lan_response = profitbricks.delete_lan(datacenter_id, lan_id)
         return lan_response
@@ -299,7 +308,8 @@ def main():
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
             state=dict(type='str', default='present'),
-        )
+        ),
+        supports_check_mode=True
     )
 
     if not HAS_PB_SDK:

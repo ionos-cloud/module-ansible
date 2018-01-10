@@ -184,6 +184,9 @@ def create_user(module, profitbricks):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         user = User(
             firstname=firstname,
@@ -234,6 +237,9 @@ def update_user(module, profitbricks):
                 break
 
         if user:
+            if module.check_mode:
+                module.exit_json(changed=True)
+
             if not firstname:
                 firstname = user['properties']['firstname']
             if not lastname:
@@ -310,6 +316,9 @@ def delete_user(module, profitbricks):
     user_list = profitbricks.list_users()
     user_id = _get_user_id(user_list, email)
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         user_response = profitbricks.delete_user(user_id)
         return user_response
@@ -366,7 +375,8 @@ def main():
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
             state=dict(type='str', default='present'),
-        )
+        ),
+        supports_check_mode=True
     )
 
     if not HAS_PB_SDK:

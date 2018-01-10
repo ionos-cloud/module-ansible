@@ -213,6 +213,9 @@ def create_nic(module, profitbricks):
                 server = s['id']
                 break
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         n = NIC(
             name=name,
@@ -287,6 +290,9 @@ def update_nic(module, profitbricks):
 
     if not nic:
         module.fail_json(msg="NIC could not be found.")
+
+    if module.check_mode:
+        module.exit_json(changed=True)
 
     try:
         if lan is None:
@@ -371,6 +377,9 @@ def delete_nic(module, profitbricks):
         if not nic_found:
             return False
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         nic_response = profitbricks.delete_nic(datacenter, server, name)
         return nic_response
@@ -406,7 +415,8 @@ def main():
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
             state=dict(type='str', default='present'),
-        )
+        ),
+        supports_check_mode=True
     )
 
     if not HAS_PB_SDK:

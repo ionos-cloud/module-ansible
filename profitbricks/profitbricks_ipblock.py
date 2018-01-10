@@ -145,6 +145,9 @@ def reserve_ipblock(module, profitbricks):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         ipblock = IPBlock(
             name=name,
@@ -183,6 +186,9 @@ def delete_ipblock(module, profitbricks):
     # Locate UUID for the IPBlock
     ipblock_list = profitbricks.list_ipblocks()
     id = _get_resource_id(ipblock_list, name)
+
+    if module.check_mode:
+        module.exit_json(changed=True)
 
     try:
         ipblock_response = profitbricks.delete_ipblock(id)
@@ -225,7 +231,8 @@ def main():
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
             state=dict(type='str', default='present'),
-        )
+        ),
+        supports_check_mode=True
     )
 
     if not HAS_PB_SDK:

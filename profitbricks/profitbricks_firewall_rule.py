@@ -291,6 +291,9 @@ def create_firewall_rule(module, profitbricks):
     nic_list = profitbricks.list_nics(datacenter_id, server_id)
     nic_id = _get_resource_id(nic_list, nic)
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         profitbricks.update_nic(datacenter_id, server_id, nic_id,
                                 firewall_active=True)
@@ -365,6 +368,9 @@ def update_firewall_rule(module, profitbricks):
     fw_list = profitbricks.get_firewall_rules(datacenter_id, server_id, nic_id)
     fw_id = _get_resource_id(fw_list, name)
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         firewall_rule_response = profitbricks.update_firewall_rule(
             datacenter_id,
@@ -420,6 +426,9 @@ def delete_firewall_rule(module, profitbricks):
     firewall_rule_list = profitbricks.get_firewall_rules(datacenter_id, server_id, nic_id)
     firewall_rule_id = _get_resource_id(firewall_rule_list, name)
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         firewall_rule_response = profitbricks.delete_firewall_rule(
             datacenter_id, server_id, nic_id, firewall_rule_id
@@ -472,7 +481,8 @@ def main():
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
             state=dict(type='str', default='present'),
-        )
+        ),
+        supports_check_mode=True
     )
 
     if not HAS_PB_SDK:
