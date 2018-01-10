@@ -18,12 +18,16 @@ stored in the cache file, by default to
 ----
 Configuration is read from `profitbricks_inventory.ini`.
 ProfitBricks credentials could be specified as:
-    subscription_user = MyProfitBricksUsername
-    subscription_password = MyProfitBricksPassword
+    username = MyProfitBricksUsername
+    password = MyProfitBricksPassword
 
 or with the following environment variables:
     export PROFITBRICKS_USERNAME='MyProfitBricksUsername'
     export PROFITBRICKS_PASSWORD='MyProfitBricksPassword'
+
+Alternatively, passwords can be specified with a file or a script, similarly
+to Ansible's vault_password_file. The environment variable
+PROFITBRICKS_PASSWORD_FILE can also be used to specify that file.
 
 ProfitBricks API URL may be overridden in the settings file or via
 PROFITBRICKS_API_URL environment variable.
@@ -122,13 +126,13 @@ class ProfitBricksInventory(object):
         self.read_settings()
         self.read_environment()
 
-        if not getattr(self, 'subscription_password', None) and getattr(self, 'subscription_password_file', None):
-            self.subscription_password = read_password_file(self.subscription_password_file)
+        if not getattr(self, 'password', None) and getattr(self, 'password_file', None):
+            self.password = read_password_file(self.password_file)
 
         self.cache_filename = self.cache_path + "/ansible-profitbricks.cache"
 
         # Verify credentials and create client
-        if hasattr(self, 'subscription_user') and hasattr(self, 'subscription_password'):
+        if hasattr(self, 'username') and hasattr(self, 'password'):
             base_url = API_HOST
             if hasattr(self, 'api_url'):
                 base_url = self.api_url
@@ -137,8 +141,8 @@ class ProfitBricksInventory(object):
             headers = {'User-Agent': user_agent}
 
             self.client = ProfitBricksService(
-                username=self.subscription_user,
-                password=self.subscription_password,
+                username=self.username,
+                password=self.password,
                 host_base=base_url,
                 headers=headers)
         else:
@@ -170,12 +174,18 @@ class ProfitBricksInventory(object):
         config.read(os.path.dirname(os.path.realpath(__file__)) + '/profitbricks_inventory.ini')
 
         # Credentials
-        if config.has_option('profitbricks', 'subscription_user'):
-            self.subscription_user = config.get('profitbricks', 'subscription_user')
-        if config.has_option('profitbricks', 'subscription_password'):
-            self.subscription_password = config.get('profitbricks', 'subscription_password')
-        if config.has_option('profitbricks', 'subscription_password_file'):
-            self.subscription_password_file = config.get('profitbricks', 'subscription_password_file')
+        if config.has_option('profitbricks', 'username'):
+            self.username = config.get('profitbricks', 'username')
+        elif config.has_option('profitbricks', 'subscription_user'):
+            self.username = config.get('profitbricks', 'subscription_user')
+        if config.has_option('profitbricks', 'password'):
+            self.password = config.get('profitbricks', 'password')
+        elif config.has_option('profitbricks', 'subscription_password'):
+            self.password = config.get('profitbricks', 'subscription_password')
+        if config.has_option('profitbricks', 'password_file'):
+            self.password_file = config.get('profitbricks', 'password_file')
+        elif config.has_option('profitbricks', 'subscription_password_file'):
+            self.password_file = config.get('profitbricks', 'subscription_password_file')
 
         if config.has_option('profitbricks', 'api_url'):
             self.api_url = config.get('profitbricks', 'api_url')
@@ -214,11 +224,11 @@ class ProfitBricksInventory(object):
     def read_environment(self):
         """ Reads the environment variables """
         if os.getenv('PROFITBRICKS_USERNAME'):
-            self.subscription_user = os.getenv('PROFITBRICKS_USERNAME')
+            self.username = os.getenv('PROFITBRICKS_USERNAME')
         if os.getenv('PROFITBRICKS_PASSWORD'):
-            self.subscription_password = os.getenv('PROFITBRICKS_PASSWORD')
+            self.password = os.getenv('PROFITBRICKS_PASSWORD')
         if os.getenv('PROFITBRICKS_PASSWORD_FILE'):
-            self.subscription_password_file = os.getenv('PROFITBRICKS_PASSWORD_FILE')
+            self.password_file = os.getenv('PROFITBRICKS_PASSWORD_FILE')
         if os.getenv('PROFITBRICKS_API_URL'):
             self.api_url = os.getenv('PROFITBRICKS_API_URL')
 
