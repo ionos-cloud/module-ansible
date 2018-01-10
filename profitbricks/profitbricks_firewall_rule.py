@@ -74,14 +74,16 @@ options:
     required: false
     default: The value specified by API_HOST variable in ProfitBricks SDK for Python dependency.
     version_added: "2.4"
-  subscription_user:
+  username:
     description:
       - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.
     required: false
-  subscription_password:
+    aliases: subscription_user
+  password:
     description:
       - The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.
     required: false
+    aliases: subscription_password
   wait:
     description:
       - wait for the operation to complete before returning
@@ -208,7 +210,6 @@ icmp_code:
   sample: 0
 '''
 
-import os
 import time
 
 HAS_PB_SDK = True
@@ -221,7 +222,7 @@ except ImportError:
     HAS_PB_SDK = False
 
 from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
 PROTOCOLS = ['TCP',
@@ -455,8 +456,19 @@ def main():
             icmp_type=dict(type='int', default=None),
             icmp_code=dict(type='int', default=None),
             api_url=dict(type='str', default=API_HOST),
-            subscription_user=dict(type='str', default=os.environ.get('PROFITBRICKS_USERNAME')),
-            subscription_password=dict(type='str', default=os.environ.get('PROFITBRICKS_PASSWORD'), no_log=True),
+            username=dict(
+                type='str',
+                required=True,
+                aliases=['subscription_user'],
+                fallback=(env_fallback, ['PROFITBRICKS_USERNAME'])
+            ),
+            password=dict(
+                type='str',
+                required=True,
+                aliases=['subscription_password'],
+                fallback=(env_fallback, ['PROFITBRICKS_PASSWORD']),
+                no_log=True
+            ),
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
             state=dict(type='str', default='present'),
@@ -466,20 +478,13 @@ def main():
     if not HAS_PB_SDK:
         module.fail_json(msg='profitbricks required for this module')
 
-    if not module.params.get('subscription_user'):
-        module.fail_json(msg='subscription_user parameter or ' +
-                             'PROFITBRICKS_USERNAME environment variable is required.')
-    if not module.params.get('subscription_password'):
-        module.fail_json(msg='subscription_password parameter or ' +
-                             'PROFITBRICKS_PASSWORD environment variable is required.')
-
-    subscription_user = module.params.get('subscription_user')
-    subscription_password = module.params.get('subscription_password')
+    username = module.params.get('username')
+    password = module.params.get('password')
     api_url = module.params.get('api_url')
 
     profitbricks = ProfitBricksService(
-        username=subscription_user,
-        password=subscription_password,
+        username=username,
+        password=password,
         host_base=api_url
     )
 

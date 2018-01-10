@@ -97,8 +97,8 @@ Lastly, the ProfitBricks module requires the ProfitBricks SDK for Python to be i
 
 Credentials can be supplied within a Playbook with the following parameters:
 
-* **subscription_user**
-* **subscription_password**
+* **username** (**subscription_user** is a legacy alias)
+* **password** (**subscription_password** is a legacy alias)
 
 However, the module can also inherit the credentials from environment variables:
 
@@ -252,8 +252,8 @@ The following parameters are supported:
 | lan | no | integer | 1 | The LAN ID of the server. |
 | nat | no | boolean | false | The private IP address has outbound access to the Internet. |
 | api_url | no | string | | The ProfitBricks API base URL. Overrides the value specified by `API_HOST` in ProfitBricks Python SDK dependency. |
-| subscription_user | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable. |
-| subscription_password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable. |
+| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable. |
+| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable. |
 | wait | no | boolean | true | Wait for the instance to be in state 'running' before continuing. |
 | wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
 | remove\_boot\_volume | no | boolean | true | Remove the boot volume of the server being deleted. |
@@ -278,8 +278,8 @@ The following parameters are supported:
 | location | no | string | us/las | The datacenter location: us/las, us/ewr, de/fra, de/fkb |
 | description | no | string | | The description of the datacenter. |
 | api_url | no | string | | The ProfitBricks API base URL. Overrides the value specified by `API_HOST` in ProfitBricks Python SDK dependency. |
-| subscription_user | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| subscription_password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
+| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
+| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
 | wait | no | boolean | true | Wait for the operation to complete before continuing. |
 | wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
 | state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
@@ -316,8 +316,8 @@ The following parameters are supported:
 | public | no | boolean | true | If true, the LAN will have public Internet access. |
 | ip_failover | no | dict | | The IP failover group dictionary where its keys represent IP addresses and values represent NIC UUIDs. |
 | api_url | no | string | | The ProfitBricks API base URL. Overrides the value specified by `API_HOST` in ProfitBricks Python SDK dependency. |
-| subscription_user | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| subscription_password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
+| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
+| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
 | wait | no | boolean | true | Wait for the operation to complete before continuing. |
 | wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
 | state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
@@ -362,8 +362,8 @@ The following parameters are supported:
 | firewall_active | no | boolean | | Indicates if the firewall is active. |
 | ips | no | list | | A list of IPs to be assigned to the NIC. |
 | api_url | no | string | | The ProfitBricks API base URL. Overrides the value specified by `API_HOST` in ProfitBricks Python SDK dependency. |
-| subscription_user | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| subscription_password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
+| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
+| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
 | wait | no | boolean | true | Wait for the operation to complete before continuing. |
 | wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
 | state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
@@ -415,8 +415,8 @@ The following parameters are supported:
 | auto_increment | no | boolean | true | Whether or not to increment created servers. |
 | instance_ids | **yes**/no | list | | List of instance UUIDs or names. Required for `state='absent'` or `state='update'` to remove or update volumes. |
 | api_url | no | string | | The ProfitBricks API base URL. Overrides the value specified by `API_HOST` in ProfitBricks Python SDK dependency. |
-| subscription_user | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable. |
-| subscription_password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable. |
+| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable. |
+| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable. |
 | wait | no | boolean | true | Wait for the resource to be created before continuing. |
 | wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
 | state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
@@ -457,8 +457,8 @@ The following parameters are supported:
 | icmp_type | no | integer | | Defines the allowed type if the protocol ICMP is chosen. No value allows all types: 0 to 254 |
 | icmp_code | no | integer | | Defines the allowed code if protocol ICMP is chosen. No value allows all codes: 0 to 254 |
 | api_url | no | string | | The ProfitBricks API base URL. Overrides the value specified by `API_HOST` in ProfitBricks Python SDK dependency. |
-| subscription_user | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable. |
-| subscription_password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable. |
+| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable. |
+| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable. |
 | wait | no | boolean | true | Wait for the operation to complete before continuing. |
 | wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
 | state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
@@ -483,8 +483,8 @@ The following parameters are supported:
 | location | no | string | us/las | The IPBlock location: us/las, us/ewr, de/fra, de/fkb |
 | size | no | integer | 1 | The number of IP addresses to allocate in the IPBlock. |
 | api_url | no | string | | The ProfitBricks API base URL. Overrides the value specified by `API_HOST` in ProfitBricks Python SDK dependency. |
-| subscription_user | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| subscription_password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
+| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
+| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
 | wait | no | boolean | true | Wait for the operation to complete before continuing. |
 | wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
 | state | no | string | present | Indicates desired state of the resource: **present**, absent |
@@ -528,8 +528,8 @@ The following parameters are supported:
 | disc_scsi_hot_plug | no | boolean | | Indicates the volume is capable of SCSI drive hot plug. |
 | disc_scsi_hot_unplug | no | boolean | | Indicates the volume is capable of SCSI drive hot unplug. |
 | api_url | no | string | | The ProfitBricks API base URL. Overrides the value specified by `API_HOST` in ProfitBricks Python SDK dependency. |
-| subscription_user | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable. |
-| subscription_password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable. |
+| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable. |
+| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable. |
 | wait | no | boolean | true | Wait for the resource to be created before continuing. |
 | wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
 | state | no | string | present | Indicate desired state of the resource: **present**, absent, restore, update |
@@ -543,7 +543,7 @@ The following parameters are supported:
         firstname: John
         lastname: Doe
         email: john.doe@example.com
-        password: secretpassword123
+        user_password: secretpassword123
         administrator: true
 
     - name: Update user
@@ -566,13 +566,13 @@ The following parameters are supported:
 | firstname | **yes**/no | string | | The user's first name. Required for `state='present'` only. |
 | lastname | **yes**/no | string | | The user's last name. Required for `state='present'` only. |
 | email | **yes** | string | | The user's email. |
-| password | **yes**/no | string | | A password for the user. Required for `state='present'` only. |
+| user_password | **yes**/no | string | | A password for the user. Required for `state='present'` only. |
 | administrator | no | boolean | | Indicates if the user has administrative rights. |
 | force_sec_auth | no | boolean | | Indicates if secure (two-factor) authentication should be forced for the user. |
 | groups | no | list | | A list of group IDs or names where the user (non-administrator) is to be added. Set to empty list (`[]`) to remove the user from all groups. |
 | api_url | no | string | | The ProfitBricks API base URL. Overrides the value specified by `API_HOST` in ProfitBricks Python SDK dependency. |
-| subscription_user | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| subscription_password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
+| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
+| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
 | wait | no | boolean | true | Wait for the operation to complete before continuing. |
 | wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
 | state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
@@ -610,8 +610,8 @@ The following parameters are supported:
 | access_activity_log | no | boolean | | Indicates if the group is allowed to access the activity log. |
 | users | no | list | | A list of (non-administrator) user IDs or emails to associate with the group. Set to empty list (`[]`) to remove all users from the group. |
 | api_url | no | string | | The ProfitBricks API base URL. Overrides the value specified by `API_HOST` in ProfitBricks Python SDK dependency. |
-| subscription_user | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| subscription_password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
+| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
+| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
 | wait | no | boolean | true | Wait for the operation to complete before continuing. |
 | wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
 | state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
@@ -649,8 +649,8 @@ The following parameters are supported:
 | edit_privilege | no | boolean | | Indicates that the group has permission to edit privileges on the resource. |
 | share_privilege | no | boolean | | Indicates that the group has permission to share the resource. |
 | api_url | no | string | | The ProfitBricks API base URL. Overrides the value specified by `API_HOST` in ProfitBricks Python SDK dependency. |
-| subscription_user | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| subscription_password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
+| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
+| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
 | wait | no | boolean | true | Wait for the operation to complete before continuing. |
 | wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
 | state | no | string | present | Indicate desired state of the resource: **present**, absent, update |

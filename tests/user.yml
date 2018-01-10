@@ -15,7 +15,7 @@
         firstname: John
         lastname: Doe
         email: "{{ random_user }}"
-        password: "{{ password }}"
+        user_password: "{{ password }}"
         administrator: true
         force_sec_auth: false
         state: present
