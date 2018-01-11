@@ -89,6 +89,9 @@ options:
 requirements:
     - "python >= 2.6"
     - "profitbricks >= 4.1.0"
+author:
+    - Nurfet Becirevic (@nurfet-becirevic)
+    - Ethan Devenport (@edevenport)
 '''
 
 EXAMPLES = '''
