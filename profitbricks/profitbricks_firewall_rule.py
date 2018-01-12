@@ -1,29 +1,21 @@
 #!/usr/bin/python
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright: Ansible Project
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-ANSIBLE_METADATA = {'status': ['preview'],
-                    'supported_by': 'community',
-                    'version': '1.0'}
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
 module: profitbricks_firewall_rule
-short_description: Create or remove a firewall rule.
+short_description: Create, update or remove a firewall rule.
 description:
-     - This module allows you to create or remove a firewlal rule.
+     - This module allows you to create, update or remove a firewall rule.
 version_added: "2.2"
 options:
   datacenter:
@@ -45,7 +37,7 @@ options:
   protocol:
     description:
       - The protocol for the firewall rule.
-    choices: [ "TCP", "UDP", "ICMP" ]
+    choices: [ "TCP", "UDP", "ICMP", "ANY" ]
     required: true
   source_mac:
     description:
@@ -57,7 +49,8 @@ options:
     required: false
   target_ip:
     description:
-      - In case the target NIC has multiple IP addresses, only traffic directed to the respective IP address of the NIC is allowed. No value allows all target IPs.
+      - In case the target NIC has multiple IP addresses, only traffic directed to the respective IP address of the NIC is allowed.
+        No value allows all target IPs.
     required: false
   port_range_start:
     description:
@@ -75,14 +68,22 @@ options:
     description:
       - Defines the allowed code (from 0 to 254) if protocol ICMP is chosen. No value allows all codes.
     required: false
-  subscription_user:
+  api_url:
     description:
-      - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable.
+      - The ProfitBricks API base URL.
     required: false
-  subscription_password:
+    default: The value specified by API_HOST variable in ProfitBricks SDK for Python dependency.
+    version_added: "2.4"
+  username:
     description:
-      - The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable.
+      - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.
     required: false
+    aliases: subscription_user
+  password:
+    description:
+      - The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.
+    required: false
+    aliases: subscription_password
   wait:
     description:
       - wait for the operation to complete before returning
@@ -98,7 +99,7 @@ options:
       - Indicate desired state of the resource
     required: false
     default: "present"
-    choices: ["present", "absent"]
+    choices: ["present", "absent", "update"]
 
 requirements:
     - "python >= 2.6"
@@ -134,6 +135,17 @@ EXAMPLES = '''
     icmp_code: 0
     state: present
 
+# Update a firewall rule
+- name: Allow SSH access
+  profitbricks_firewall_rule:
+      datacenter: Virtual Datacenter
+      server: node001
+      nic: 7341c2454f
+      name: Allow Ping
+      source_ip: 162.254.27.217
+      source_mac: 01:23:45:67:89:00
+      state: update
+
 # Remove a firewall rule
 - name: Remove public ping firewall rule
   profitbricks_firewall_rule:
@@ -152,7 +164,7 @@ id:
   type: string
   sample: be60aa97-d9c7-4c22-bebe-f5df7d6b675d
 name:
-  description: Name of the firwall rule.
+  description: Name of the firewall rule.
   returned: success
   type: string
   sample: Allow SSH
@@ -172,7 +184,7 @@ source_ip:
   type: string
   sample: tcp
 target_ip:
-  description: Target IP of the firewal rule.
+  description: Target IP of the firewall rule.
   returned: success
   type: string
   sample: 10.0.0.1
@@ -198,24 +210,30 @@ icmp_code:
   sample: 0
 '''
 
-# import uuid
 import time
 
 HAS_PB_SDK = True
 
 try:
+    from profitbricks import API_HOST
     from profitbricks import __version__ as sdk_version
     from profitbricks.client import ProfitBricksService, FirewallRule
 except ImportError:
     HAS_PB_SDK = False
 
+from ansible import __version__
+from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils._text import to_native
+
 PROTOCOLS = ['TCP',
              'UDP',
-             'ICMP']
+             'ICMP',
+             'ANY']
 
 
 def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
-    if not promise: return
+    if not promise:
+        return
     wait_timeout = time.time() + wait_timeout
     while wait_timeout > time.time():
         time.sleep(5)
@@ -230,10 +248,8 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
                 'Request failed to complete ' + msg + ' "' + str(
                     promise['requestId']) + '" to complete.')
 
-    raise Exception(
-        'Timed out waiting for async operation ' + msg + ' "' + str(
-            promise['requestId']
-            ) + '" to complete.')
+    raise Exception('Timed out waiting for async operation ' + msg + ' "' +
+                    str(promise['requestId']) + '" to complete.')
 
 
 def create_firewall_rule(module, profitbricks):
@@ -244,7 +260,7 @@ def create_firewall_rule(module, profitbricks):
     profitbricks: authenticated profitbricks object.
 
     Returns:
-        True if the firewal rule creates, false otherwise
+        The firewall rule instance being created
     """
     datacenter = module.params.get('datacenter')
     server = module.params.get('server')
@@ -275,11 +291,14 @@ def create_firewall_rule(module, profitbricks):
     nic_list = profitbricks.list_nics(datacenter_id, server_id)
     nic_id = _get_resource_id(nic_list, nic)
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         profitbricks.update_nic(datacenter_id, server_id, nic_id,
                                 firewall_active=True)
     except Exception as e:
-        module.fail_json(msg='Unable to activate the NIC firewall.' % str(e))
+        module.fail_json(msg='Unable to activate the NIC firewall.' % to_native(e))
 
     f = FirewallRule(
         name=name,
@@ -291,7 +310,7 @@ def create_firewall_rule(module, profitbricks):
         port_range_end=port_range_end,
         icmp_type=icmp_type,
         icmp_code=icmp_code
-        )
+    )
 
     try:
         firewall_rule_response = profitbricks.create_firewall_rule(
@@ -304,7 +323,76 @@ def create_firewall_rule(module, profitbricks):
         return firewall_rule_response
 
     except Exception as e:
-        module.fail_json(msg="failed to create the firewall rule: %s" % str(e))
+        module.fail_json(msg="failed to create the firewall rule: %s" % to_native(e))
+
+
+def update_firewall_rule(module, profitbricks):
+    """
+    Updates a firewall rule.
+
+    module : AnsibleModule object
+    profitbricks: authenticated profitbricks object.
+
+    Returns:
+        The firewall rule instance being updated
+    """
+    datacenter = module.params.get('datacenter')
+    server = module.params.get('server')
+    nic = module.params.get('nic')
+    name = module.params.get('name')
+    source_mac = module.params.get('source_mac')
+    source_ip = module.params.get('source_ip')
+    target_ip = module.params.get('target_ip')
+    port_range_start = module.params.get('port_range_start')
+    port_range_end = module.params.get('port_range_end')
+    icmp_type = module.params.get('icmp_type')
+    icmp_code = module.params.get('icmp_code')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    # Locate UUID for virtual datacenter
+    datacenter_list = profitbricks.list_datacenters()
+    datacenter_id = _get_resource_id(datacenter_list, datacenter)
+    if not datacenter_id:
+        module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
+
+    # Locate UUID for server
+    server_list = profitbricks.list_servers(datacenter_id)
+    server_id = _get_resource_id(server_list, server)
+
+    # Locate UUID for NIC
+    nic_list = profitbricks.list_nics(datacenter_id, server_id)
+    nic_id = _get_resource_id(nic_list, nic)
+
+    # Locate UUID for firewall rule
+    fw_list = profitbricks.get_firewall_rules(datacenter_id, server_id, nic_id)
+    fw_id = _get_resource_id(fw_list, name)
+
+    if module.check_mode:
+        module.exit_json(changed=True)
+
+    try:
+        firewall_rule_response = profitbricks.update_firewall_rule(
+            datacenter_id,
+            server_id,
+            nic_id,
+            fw_id,
+            source_mac=source_mac,
+            source_ip=source_ip,
+            target_ip=target_ip,
+            port_range_start=port_range_start,
+            port_range_end=port_range_end,
+            icmp_type=icmp_type,
+            icmp_code=icmp_code
+        )
+
+        if wait:
+            _wait_for_completion(profitbricks, firewall_rule_response,
+                                 wait_timeout, "update_firewall_rule")
+        return firewall_rule_response
+
+    except Exception as e:
+        module.fail_json(msg="failed to update the firewall rule: %s" % to_native(e))
 
 
 def delete_firewall_rule(module, profitbricks):
@@ -338,13 +426,16 @@ def delete_firewall_rule(module, profitbricks):
     firewall_rule_list = profitbricks.get_firewall_rules(datacenter_id, server_id, nic_id)
     firewall_rule_id = _get_resource_id(firewall_rule_list, name)
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         firewall_rule_response = profitbricks.delete_firewall_rule(
             datacenter_id, server_id, nic_id, firewall_rule_id
         )
         return firewall_rule_response
     except Exception as e:
-        module.fail_json(msg="failed to remove the firewall rule: %s" % str(e))
+        module.fail_json(msg="failed to remove the firewall rule: %s" % to_native(e))
 
 
 def _get_resource_id(resource_list, identity):
@@ -373,32 +464,41 @@ def main():
             port_range_end=dict(type='int', default=None),
             icmp_type=dict(type='int', default=None),
             icmp_code=dict(type='int', default=None),
-            subscription_user=dict(type='str', default=os.environ.get('PROFITBRICKS_USERNAME')),
-            subscription_password=dict(type='str', default=os.environ.get('PROFITBRICKS_PASSWORD')),
+            api_url=dict(type='str', default=API_HOST),
+            username=dict(
+                type='str',
+                required=True,
+                aliases=['subscription_user'],
+                fallback=(env_fallback, ['PROFITBRICKS_USERNAME'])
+            ),
+            password=dict(
+                type='str',
+                required=True,
+                aliases=['subscription_password'],
+                fallback=(env_fallback, ['PROFITBRICKS_PASSWORD']),
+                no_log=True
+            ),
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
             state=dict(type='str', default='present'),
-        )
+        ),
+        supports_check_mode=True
     )
 
     if not HAS_PB_SDK:
         module.fail_json(msg='profitbricks required for this module')
 
-    if not module.params.get('subscription_user'):
-        module.fail_json(msg='subscription_user parameter or ' +
-            'PROFITBRICKS_USERNAME environment variable is required.')
-    if not module.params.get('subscription_password'):
-        module.fail_json(msg='subscription_password parameter or ' +
-            'PROFITBRICKS_PASSWORD environment variable is required.')
-
-    subscription_user = module.params.get('subscription_user')
-    subscription_password = module.params.get('subscription_password')
+    username = module.params.get('username')
+    password = module.params.get('password')
+    api_url = module.params.get('api_url')
 
     profitbricks = ProfitBricksService(
-        username=subscription_user,
-        password=subscription_password)
+        username=username,
+        password=password,
+        host_base=api_url
+    )
 
-    user_agent = 'profitbricks-sdk-ruby/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
     profitbricks.headers = {'User-Agent': user_agent}
 
     state = module.params.get('state')
@@ -408,17 +508,22 @@ def main():
             (changed) = delete_firewall_rule(module, profitbricks)
             module.exit_json(changed=changed)
         except Exception as e:
-            module.fail_json(msg='failed to set firewall rule state: %s' % str(e))
+            module.fail_json(msg='failed to set firewall rule state: %s' % to_native(e))
 
     elif state == 'present':
         try:
             (firewall_rule_dict) = create_firewall_rule(module, profitbricks)
             module.exit_json(**firewall_rule_dict)
         except Exception as e:
-            module.fail_json(msg='failed to set firewall rules state: %s' % str(e))
+            module.fail_json(msg='failed to set firewall rules state: %s' % to_native(e))
 
-from ansible import __version__
-from ansible.module_utils.basic import *
+    elif state == 'update':
+        try:
+            (firewall_rule_dict) = update_firewall_rule(module, profitbricks)
+            module.exit_json(**firewall_rule_dict)
+        except Exception as e:
+            module.fail_json(msg='failed to update firewall rule: %s' % to_native(e))
+
 
 if __name__ == '__main__':
     main()

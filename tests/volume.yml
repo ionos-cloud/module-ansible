@@ -1,0 +1,54 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+      ssh_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Create datacenter
+      profitbricks_datacenter:
+          name: "{{ name }}"
+          location: "{{ location }}"
+
+    - name: Create volumes
+      profitbricks_volume:
+        datacenter: "{{ datacenter }}"
+        name: "{{ name }} %02d"
+        count: 2
+        size: 2
+        image: "{{ image }}"
+        image_password: "{{ password }}"
+        availability_zone: ZONE_3
+        ssh_keys:
+            - "{{ ssh_public_key }}"
+        auto_increment: yes
+        wait_timeout: 600
+        state: present
+
+    - name: Update volumes
+      profitbricks_volume:
+        datacenter: "{{ datacenter }}"
+        instance_ids:
+          - "{{ name }} 01"
+          - "{{ name }} 02"
+        size: 5
+        wait_timeout: 600
+        state: update
+
+    - name: Delete volumes
+      profitbricks_volume:
+        datacenter: "{{ datacenter }}"
+        instance_ids:
+          - "{{ name }} 01"
+          - "{{ name }} 02"
+        wait_timeout: 600
+        state: absent
+
+    - name: Remove datacenter
+      profitbricks_datacenter:
+        name: "{{ name }}"
+        state: absent

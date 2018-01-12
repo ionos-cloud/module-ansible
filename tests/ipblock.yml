@@ -1,0 +1,19 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Create ipblock
+      profitbricks_ipblock:
+          name: ansible test
+          location: "{{ location }}"
+          size: 2
+          state: present
+
+    - name: Remove ipblock
+      profitbricks_ipblock:
+          name: ansible test
+          state: absent

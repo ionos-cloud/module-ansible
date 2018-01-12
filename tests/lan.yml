@@ -1,0 +1,36 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Create datacenter
+      profitbricks_datacenter:
+          name: "{{ name }}"
+          location: "{{ location }}"
+
+    - name: Create public LAN
+      profitbricks_lan:
+        datacenter: "{{ name }}"
+        name: "{{ lan }}"
+        public: true
+
+    - name: Update LAN
+      profitbricks_lan:
+        datacenter: "{{ name }}"
+        name: "{{ lan }}"
+        public: false
+        state: update
+
+    - name: Remove LAN
+      profitbricks_lan:
+        datacenter: "{{ name }}"
+        name: "{{ lan }}"
+        state: absent
+
+    - name: Remove datacenter
+      profitbricks_datacenter:
+        name: "{{ name }}"
+        state: absent

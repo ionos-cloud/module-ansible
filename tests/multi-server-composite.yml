@@ -3,6 +3,9 @@
   connection: local
   gather_facts: false
 
+  vars:
+      ssh_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
   vars_files:
     - vars.yml
 
@@ -10,7 +13,7 @@
     - name: Provision a set of instances
       profitbricks:
          datacenter: "{{ datacenter }}"
-         name: server%02d
+         name: "{{ name }} %02d"
          auto_increment: true
          cores: 1
          ram: 2048
@@ -20,7 +23,9 @@
          cpu_family: AMD_OPTERON
          disk_type: HDD
          image: "{{ image }}"
-         image_password: "{{ image_password }}"
+         image_password: "{{ password }}"
+         ssh_keys:
+            - "{{ ssh_public_key }}"
          location: "{{ location }}"
          count: 2
          assign_public_ip: true
@@ -109,3 +114,8 @@
          groupname: servers
       with_items: "{{ profitbricks.machines }}"
       when: profitbricks.action == 'create'
+
+    - name: Remove datacenter
+      profitbricks_datacenter:
+        name: "{{ datacenter }}"
+        state: absent
