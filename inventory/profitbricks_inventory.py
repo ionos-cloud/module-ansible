@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-'''
+"""
 ProfitBricks external inventory script
 ======================================
 
@@ -10,25 +10,29 @@ This script exposes --list and --host options used by Ansible.
 Additionally, there are options for listing other ProfitBricks
 instances in JSON format, such as data centers, locations, LANs,
 etc. This is useful when creating servers.  For example,
---datacenters will return all virtual data centers associated 
-with the ProfitBricks account. All the ProfitBricks data are 
+--datacenters will return all virtual data centers associated
+with the ProfitBricks account. All the ProfitBricks data are
 stored in the cache file, by default to
 /tmp/ansible-profitbricks.cache.
 
 ----
 Configuration is read from `profitbricks_inventory.ini`.
 ProfitBricks credentials could be specified as:
-    subscription_user = MyProfitBricksUsername
-    subscription_password = MyProfitBricksPassword
+    username = MyProfitBricksUsername
+    password = MyProfitBricksPassword
 
 or with the following environment variables:
     export PROFITBRICKS_USERNAME='MyProfitBricksUsername'
     export PROFITBRICKS_PASSWORD='MyProfitBricksPassword'
 
-ProfitBricks API URL may be overridden in the settings file or via
-PROFITBRICKS_API_URL environment variable. 
+Alternatively, passwords can be specified with a file or a script, similarly
+to Ansible's vault_password_file. The environment variable
+PROFITBRICKS_PASSWORD_FILE can also be used to specify that file.
 
-The credentials and API URL specified in the environment variables 
+ProfitBricks API URL may be overridden in the settings file or via
+PROFITBRICKS_API_URL environment variable.
+
+The credentials and API URL specified in the environment variables
 will override those specified in the configuration file.
 
 ----
@@ -64,7 +68,7 @@ optional arguments:
                      ProfitBricks
 ```
 
-'''
+"""
 
 # This file is part of Ansible,
 #
@@ -85,7 +89,6 @@ optional arguments:
 
 import os
 import sys
-import re
 from time import time
 import json
 import ast
@@ -108,28 +111,28 @@ except ImportError:
 class ProfitBricksInventory(object):
 
     def __init__(self):
-        ''' Main execution path '''
+        """ Main execution path """
 
         self.data = {}
-        self.inventory = {} # Ansible Inventory
+        self.inventory = {}  # Ansible Inventory
         self.vars = {}
 
         # Defaults, if not found in the settings file
         self.cache_path = '.'
         self.cache_max_age = 0
 
-        # # Read settings, environment variables, and CLI arguments
+        # Read settings, environment variables, and CLI arguments
         self.read_cli_args()
         self.read_settings()
         self.read_environment()
 
-        if not getattr(self, 'subscription_password', None) and getattr(self, 'subscription_password_file', None):
-            self.subscription_password = read_password_file(self.subscription_password_file)
+        if not getattr(self, 'password', None) and getattr(self, 'password_file', None):
+            self.password = read_password_file(self.password_file)
 
         self.cache_filename = self.cache_path + "/ansible-profitbricks.cache"
 
         # Verify credentials and create client
-        if hasattr(self, 'subscription_user') and hasattr(self, 'subscription_password'):
+        if hasattr(self, 'username') and hasattr(self, 'password'):
             base_url = API_HOST
             if hasattr(self, 'api_url'):
                 base_url = self.api_url
@@ -138,8 +141,8 @@ class ProfitBricksInventory(object):
             headers = {'User-Agent': user_agent}
 
             self.client = ProfitBricksService(
-                username=self.subscription_user,
-                password=self.subscription_password,
+                username=self.username,
+                password=self.password,
                 host_base=base_url,
                 headers=headers)
         else:
@@ -161,7 +164,7 @@ class ProfitBricksInventory(object):
         print(json.dumps(print_data, sort_keys=False, indent=2, separators=(',', ': ')))
 
     def read_settings(self):
-        ''' Reads the settings from the profitbricks_inventory.ini file '''
+        """ Reads the settings from the profitbricks_inventory.ini file """
 
         if six.PY3:
             config = configparser.ConfigParser()
@@ -171,12 +174,18 @@ class ProfitBricksInventory(object):
         config.read(os.path.dirname(os.path.realpath(__file__)) + '/profitbricks_inventory.ini')
 
         # Credentials
-        if config.has_option('profitbricks', 'subscription_user'):
-            self.subscription_user = config.get('profitbricks', 'subscription_user')
-        if config.has_option('profitbricks', 'subscription_password'):
-            self.subscription_password = config.get('profitbricks', 'subscription_password')
-        if config.has_option('profitbricks', 'subscription_password_file'):
-            self.subscription_password_file = config.get('profitbricks', 'subscription_password_file')
+        if config.has_option('profitbricks', 'username'):
+            self.username = config.get('profitbricks', 'username')
+        elif config.has_option('profitbricks', 'subscription_user'):
+            self.username = config.get('profitbricks', 'subscription_user')
+        if config.has_option('profitbricks', 'password'):
+            self.password = config.get('profitbricks', 'password')
+        elif config.has_option('profitbricks', 'subscription_password'):
+            self.password = config.get('profitbricks', 'subscription_password')
+        if config.has_option('profitbricks', 'password_file'):
+            self.password_file = config.get('profitbricks', 'password_file')
+        elif config.has_option('profitbricks', 'subscription_password_file'):
+            self.password_file = config.get('profitbricks', 'subscription_password_file')
 
         if config.has_option('profitbricks', 'api_url'):
             self.api_url = config.get('profitbricks', 'api_url')
@@ -213,40 +222,40 @@ class ProfitBricksInventory(object):
             setattr(self, option, False)
 
     def read_environment(self):
-        ''' Reads the environment variables '''
+        """ Reads the environment variables """
         if os.getenv('PROFITBRICKS_USERNAME'):
-            self.subscription_user = os.getenv('PROFITBRICKS_USERNAME')
+            self.username = os.getenv('PROFITBRICKS_USERNAME')
         if os.getenv('PROFITBRICKS_PASSWORD'):
-            self.subscription_password = os.getenv('PROFITBRICKS_PASSWORD')
+            self.password = os.getenv('PROFITBRICKS_PASSWORD')
         if os.getenv('PROFITBRICKS_PASSWORD_FILE'):
-            self.subscription_password_file = os.getenv('PROFITBRICKS_PASSWORD_FILE')
+            self.password_file = os.getenv('PROFITBRICKS_PASSWORD_FILE')
         if os.getenv('PROFITBRICKS_API_URL'):
             self.api_url = os.getenv('PROFITBRICKS_API_URL')
 
     def read_cli_args(self):
-        ''' Command line argument processing '''
+        """ Command line argument processing """
         parser = argparse.ArgumentParser(description='Produce an Ansible Inventory file based on ProfitBricks credentials')
 
         parser.add_argument('--list', action='store_true', default=True, help='List all ProfitBricks servers (default)')
         parser.add_argument('--host', action='store',
                             help='Get all the variables about a server specified by UUID or IP address')
 
-        parser.add_argument('--datacenters','-d', action='store_true', help='List virtual data centers')
+        parser.add_argument('--datacenters', '-d', action='store_true', help='List virtual data centers')
         parser.add_argument('--fwrules', '-f', action='store_true', help='List all firewall rules')
         parser.add_argument('--images', '-i', action='store_true', help='List all images')
         parser.add_argument('--lans', '-l', action='store_true', help='List all LANs')
         parser.add_argument('--locations', '-p', action='store_true', help='List all locations')
         parser.add_argument('--nics', '-n', action='store_true', help='List all NICs')
-        parser.add_argument('--servers','-s', action='store_true', help='List all servers accessible via an IP address')
+        parser.add_argument('--servers', '-s', action='store_true', help='List all servers accessible via an IP address')
         parser.add_argument('--volumes', '-v', action='store_true', help='List all volumes')
 
-        parser.add_argument('--refresh','-r', action='store_true', default=False,
+        parser.add_argument('--refresh', '-r', action='store_true', default=False,
                             help='Force refresh of cache by making API calls to ProfitBricks')
 
         self.args = parser.parse_args()
 
     def get_from_local_source(self):
-        '''Get ProfitBricks data based on the CLI command'''
+        """Get ProfitBricks data based on the CLI command"""
 
         if self.args.datacenters:
             return {'datacenters': self.data['datacenters']}
@@ -271,7 +280,7 @@ class ProfitBricksInventory(object):
             return self.inventory
 
     def get_from_api_source(self):
-        '''Get data from ProfitBricks API'''
+        """Get data from ProfitBricks API"""
 
         if self.args.datacenters:
             return {'datacenters': self.fetch_resources('datacenters')}
@@ -348,14 +357,14 @@ class ProfitBricksInventory(object):
         return instance_data
 
     def build_inventory(self):
-        '''Build Ansible inventory of servers'''
+        """Build Ansible inventory of servers"""
         self.inventory = {
             'all': {
                 'hosts': [],
                 'vars': self.vars
-                },
+            },
             '_meta': {'hostvars': {}}
-            }
+        }
 
         # add all servers by id and name
         for server in self.data['servers']:
@@ -375,7 +384,7 @@ class ProfitBricksInventory(object):
 
             if self.group_by_datacenter_id:
                 if datacenter_id not in self.inventory:
-                    self.inventory[datacenter_id] = { 'hosts': [ ], 'vars': self.vars }
+                    self.inventory[datacenter_id] = {'hosts': [], 'vars': self.vars}
                 self.inventory[datacenter_id]['hosts'].append(host)
 
             if self.group_by_location:
@@ -385,13 +394,13 @@ class ProfitBricksInventory(object):
                         location = self.to_safe(datacenter['properties']['location'])
                         break
                 if location not in self.inventory:
-                    self.inventory[location] = { 'hosts': [ ], 'vars': self.vars }
+                    self.inventory[location] = {'hosts': [], 'vars': self.vars}
                 self.inventory[location]['hosts'].append(host)
 
             if self.group_by_availability_zone:
                 zone = server['properties']['availabilityZone']
                 if zone not in self.inventory:
-                    self.inventory[zone] = { 'hosts': [ ], 'vars': self.vars }
+                    self.inventory[zone] = {'hosts': [], 'vars': self.vars}
                 self.inventory[zone]['hosts'].append(host)
 
             if self.group_by_image_name:
@@ -408,7 +417,7 @@ class ProfitBricksInventory(object):
                         if key == image['id'] or key == image['properties']['name']:
                             image_name = self.to_safe(image['properties']['name'])
                             if image_name not in self.inventory:
-                                self.inventory[image_name] = { 'hosts': [ ], 'vars': self.vars }
+                                self.inventory[image_name] = {'hosts': [], 'vars': self.vars}
                             self.inventory[image_name]['hosts'].append(host)
                             break
 
@@ -420,11 +429,11 @@ class ProfitBricksInventory(object):
                     license = server['properties']['bootCdrom']['properties']['licenceType']
                 if license is not None:
                     if license not in self.inventory:
-                        self.inventory[license] = { 'hosts': [ ], 'vars': self.vars }
+                        self.inventory[license] = {'hosts': [], 'vars': self.vars}
                     self.inventory[license]['hosts'].append(host)
 
     def get_host_info(self):
-        '''Generate a JSON response to a --host call'''
+        """Generate a JSON response to a --host call"""
         host = self.args.host
         # Check if host is specified by UUID
         if re.match('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', host, re.I):
@@ -444,7 +453,7 @@ class ProfitBricksInventory(object):
         return {}
 
     def is_cache_valid(self):
-        ''' Determines if the cache files have expired, or if it is still valid '''
+        """ Determines if the cache files have expired, or if it is still valid """
         if os.path.isfile(self.cache_filename):
             mod_time = os.path.getmtime(self.cache_filename)
             current_time = time()
@@ -453,7 +462,7 @@ class ProfitBricksInventory(object):
         return False
 
     def load_from_cache(self):
-        ''' Reads the data from the cache file and assigns it to member variables as Python Objects'''
+        """ Reads the data from the cache file and assigns it to member variables as Python Objects"""
         try:
             cache = open(self.cache_filename, 'r')
             json_data = cache.read()
@@ -466,8 +475,8 @@ class ProfitBricksInventory(object):
         self.inventory = data['inventory']
 
     def write_to_cache(self):
-        ''' Writes data in JSON format to a file '''
-        data = { 'data': self.data, 'inventory': self.inventory }
+        """ Writes data in JSON format to a file """
+        data = {'data': self.data, 'inventory': self.inventory}
         json_data = json.dumps(data, sort_keys=True, indent=2, separators=(',', ': '))
 
         cache = open(self.cache_filename, 'w')
@@ -475,13 +484,14 @@ class ProfitBricksInventory(object):
         cache.close()
 
     def to_safe(self, string):
-        ''' Converts 'bad' characters in a string to underscores so they can be used as Ansible groups '''
+        """ Converts 'bad' characters in a string to underscores so they can be used as Ansible groups """
         return re.sub("[^A-Za-z0-9\-\.]", "_", string)
 
     def _parse_id_from_href(self, href, position):
         parts = href.split('/')
         parts.reverse()
         return parts[position]
+
 
 def read_password_file(password_file):
     """
@@ -510,8 +520,10 @@ def read_password_file(password_file):
 
     return password
 
+
 def is_executable(path):
     return ((stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH) & os.stat(path)[stat.ST_MODE])
+
 
 # Run the script
 ProfitBricksInventory()

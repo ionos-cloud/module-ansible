@@ -1,29 +1,21 @@
 #!/usr/bin/python
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright: Ansible Project
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-ANSIBLE_METADATA = {'status': ['preview'],
-                    'supported_by': 'community',
-                    'version': '1.0'}
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
 module: profitbricks_volume
-short_description: Create or destroy a volume.
+short_description: Create, update or destroy a volume.
 description:
-     - Allows you to create or remove a volume from a ProfitBricks datacenter.
+     - Allows you to create, update or remove a volume from a ProfitBricks datacenter.
 version_added: "2.0"
 options:
   datacenter:
@@ -92,14 +84,22 @@ options:
     description:
       - list of instance ids, currently only used when state='absent' to remove instances.
     required: false
-  subscription_user:
+  api_url:
     description:
-      - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable.
+      - The ProfitBricks API base URL.
     required: false
-  subscription_password:
+    default: The value specified by API_HOST variable in ProfitBricks SDK for Python dependency.
+    version_added: "2.4"
+  username:
     description:
-      - THe ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable.
+      - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.
     required: false
+    aliases: subscription_user
+  password:
+    description:
+      - The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.
+    required: false
+    aliases: subscription_password
   wait:
     description:
       - wait for the datacenter to be created before returning
@@ -112,10 +112,10 @@ options:
     default: 600
   state:
     description:
-      - create or terminate datacenters
+      - Indicate desired state of the resource
     required: false
     default: "present"
-    choices: ["present", "absent"]
+    choices: ["present", "absent", "update"]
 
 requirements:
     - "python >= 2.6"
@@ -137,6 +137,18 @@ EXAMPLES = '''
     wait_timeout: 500
     state: present
 
+# Update Volumes
+
+- profitbricks_volume:
+    datacenter: Tardis One
+    instance_ids:
+      - 'vol01'
+      - 'vol02'
+    size: 50
+    bus: IDE
+    wait_timeout: 500
+    state: update
+
 # Remove Volumes
 
 - profitbricks_volume:
@@ -151,16 +163,23 @@ EXAMPLES = '''
 
 import re
 import time
+import traceback
 
 from uuid import UUID
 
 HAS_PB_SDK = True
 
 try:
+    from profitbricks import API_HOST
     from profitbricks import __version__ as sdk_version
     from profitbricks.client import ProfitBricksService, Volume
 except ImportError:
     HAS_PB_SDK = False
+
+from ansible import __version__
+from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils.six.moves import xrange
+from ansible.module_utils._text import to_native
 
 DISK_TYPES = ['HDD',
               'SSD']
@@ -184,7 +203,8 @@ uuid_match = re.compile(
 
 
 def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
-    if not promise: return
+    if not promise:
+        return
     wait_timeout = time.time() + wait_timeout
     while wait_timeout > time.time():
         time.sleep(5)
@@ -199,10 +219,8 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
                 'Request failed to complete ' + msg + ' "' + str(
                     promise['requestId']) + '" to complete.')
 
-    raise Exception(
-        'Timed out waiting for async operation ' + msg + ' "' + str(
-            promise['requestId']
-            ) + '" to complete.')
+    raise Exception('Timed out waiting for async operation ' + msg + ' "' +
+                    str(promise['requestId']) + '" to complete.')
 
 
 def _create_volume(module, profitbricks, datacenter, name):
@@ -217,6 +235,9 @@ def _create_volume(module, profitbricks, datacenter, name):
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
 
+    if module.check_mode:
+        module.exit_json(changed=True)
+
     try:
         v = Volume(
             name=name,
@@ -227,11 +248,11 @@ def _create_volume(module, profitbricks, datacenter, name):
             disk_type=disk_type,
             licence_type=licence_type,
             availability_zone=availability_zone
-            )
+        )
 
         try:
             UUID(image)
-        except:
+        except Exception:
             v.image_alias = image
         else:
             v.image = image
@@ -243,29 +264,58 @@ def _create_volume(module, profitbricks, datacenter, name):
                                  wait_timeout, "_create_volume")
 
     except Exception as e:
-        module.fail_json(msg="failed to create the volume: %s" % e.content)
+        module.fail_json(msg="failed to create the volume: %s" % to_native(e))
+
+    return volume_response
+
+
+def _update_volume(module, profitbricks, datacenter, volume):
+    size = module.params.get('size')
+    bus = module.params.get('bus')
+    wait_timeout = module.params.get('wait_timeout')
+    wait = module.params.get('wait')
+
+    if module.check_mode:
+        module.exit_json(changed=True)
+
+    try:
+        volume_response = profitbricks.update_volume(
+            datacenter_id=datacenter,
+            volume_id=volume,
+            size=size,
+            bus=bus
+        )
+
+        if wait:
+            _wait_for_completion(profitbricks, volume_response,
+                                 wait_timeout, "_update_volume")
+
+    except Exception as e:
+        module.fail_json(msg="failed to update the volume: %s" % to_native(e))
 
     return volume_response
 
 
 def _delete_volume(module, profitbricks, datacenter, volume):
+    if module.check_mode:
+        module.exit_json(changed=True)
     try:
         profitbricks.delete_volume(datacenter, volume)
     except Exception as e:
-        module.fail_json(msg="failed to remove the volume: %s" % str(e))
+        module.fail_json(msg="failed to remove the volume: %s" % to_native(e))
 
 
 def create_volume(module, profitbricks):
     """
-    Creates a volume.
+    Create volumes.
 
-    This will create a volume in a datacenter.
+    This will create one or more volumes in a datacenter.
 
     module : AnsibleModule object
     profitbricks: authenticated profitbricks object.
 
     Returns:
-        True if the volume was created, false otherwise
+        dict of created volumes
     """
     datacenter = module.params.get('datacenter')
     name = module.params.get('name')
@@ -295,11 +345,11 @@ def create_volume(module, profitbricks):
 
         try:
             name % 0
-        except TypeError, e:
-            if e.message.startswith('not all'):
+        except TypeError as e:
+            if e.message and e.message.startswith('not all'):
                 name = '%s%%d' % name
             else:
-                module.fail_json(msg=e.message)
+                module.fail_json(msg=e.message, exception=traceback.format_exc())
 
         number_range = xrange(count_offset, count_offset + count + len(numbers))
         available_numbers = list(set(number_range).difference(numbers))
@@ -328,20 +378,77 @@ def create_volume(module, profitbricks):
     return results
 
 
-def delete_volume(module, profitbricks):
+def update_volume(module, profitbricks):
     """
-    Removes a volume.
+    Update volumes.
 
-    This will create a volume in a datacenter.
+    This will update one or more volumes in a datacenter.
 
     module : AnsibleModule object
     profitbricks: authenticated profitbricks object.
 
     Returns:
-        True if the volume was removed, false otherwise
+        dict of updated volumes
+    """
+    datacenter = module.params.get('datacenter')
+    instance_ids = module.params.get('instance_ids')
+
+    datacenter_found = False
+    failed = True
+    volumes = []
+
+    # Locate UUID for Datacenter
+    if not (uuid_match.match(datacenter)):
+        datacenter_list = profitbricks.list_datacenters()
+        for d in datacenter_list['items']:
+            dc = profitbricks.get_datacenter(d['id'])
+            if datacenter == dc['properties']['name']:
+                datacenter = d['id']
+                datacenter_found = True
+                break
+
+    if not datacenter_found:
+        module.fail_json(msg='datacenter could not be found.')
+
+    for n in instance_ids:
+        if(uuid_match.match(n)):
+            update_response = _update_volume(module, profitbricks, datacenter, n)
+        else:
+            volume_list = profitbricks.list_volumes(datacenter)
+            for v in volume_list['items']:
+                if n == v['properties']['name']:
+                    volume_id = v['id']
+                    update_response = _update_volume(module, profitbricks, datacenter, volume_id)
+
+        volumes.append(update_response)
+        failed = False
+
+    results = {
+        'failed': failed,
+        'volumes': volumes,
+        'action': 'update',
+        'instance_ids': {
+            'instances': [i['id'] for i in volumes],
+        }
+    }
+
+    return results
+
+
+def delete_volume(module, profitbricks):
+    """
+    Remove volumes.
+
+    This will remove one or more volumes from a datacenter.
+
+    module : AnsibleModule object
+    profitbricks: authenticated profitbricks object.
+
+    Returns:
+        True if the volumes were removed, false otherwise
     """
     if not isinstance(module.params.get('instance_ids'), list) or len(module.params.get('instance_ids')) < 1:
-        module.fail_json(msg='instance_ids should be a list of virtual machine ids or names, aborting')
+        module.fail_json(msg='instance_ids should be a list of volume ids or names, aborting')
 
     datacenter = module.params.get('datacenter')
     changed = False
@@ -358,7 +465,7 @@ def delete_volume(module, profitbricks):
 
     for n in instance_ids:
         if(uuid_match.match(n)):
-            _delete_volume(module, profitbricks, datacenter, volume)
+            _delete_volume(module, profitbricks, datacenter, n)
             changed = True
         else:
             volumes = profitbricks.list_volumes(datacenter)
@@ -381,7 +488,7 @@ def _attach_volume(module, profitbricks, datacenter, volume):
     profitbricks: authenticated profitbricks object.
 
     Returns:
-        True if the volume was attached, false otherwise
+        the volume instance being attached
     """
     server = module.params.get('server')
 
@@ -397,7 +504,7 @@ def _attach_volume(module, profitbricks, datacenter, volume):
         try:
             return profitbricks.attach_volume(datacenter, server, volume)
         except Exception as e:
-            module.fail_json(msg='failed to attach volume: %s' % str(e))
+            module.fail_json(msg='failed to attach volume: %s' % to_native(e))
 
 
 def main():
@@ -408,7 +515,7 @@ def main():
             name=dict(type='str'),
             size=dict(type='int', default=10),
             image=dict(type='str'),
-            image_password=dict(type='str', default=None),
+            image_password=dict(type='str', default=None, no_log=True),
             ssh_keys=dict(type='list', default=[]),
             bus=dict(type='str', choices=BUS_TYPES, default='VIRTIO'),
             disk_type=dict(type='str', choices=DISK_TYPES, default='HDD'),
@@ -417,42 +524,54 @@ def main():
             count=dict(type='int', default=1),
             auto_increment=dict(type='bool', default=True),
             instance_ids=dict(type='list', default=[]),
-            subscription_user=dict(type='str', default=os.environ.get('PROFITBRICKS_USERNAME')),
-            subscription_password=dict(type='str', default=os.environ.get('PROFITBRICKS_PASSWORD')),
+            api_url=dict(type='str', default=API_HOST),
+            username=dict(
+                type='str',
+                required=True,
+                aliases=['subscription_user'],
+                fallback=(env_fallback, ['PROFITBRICKS_USERNAME'])
+            ),
+            password=dict(
+                type='str',
+                required=True,
+                aliases=['subscription_password'],
+                fallback=(env_fallback, ['PROFITBRICKS_PASSWORD']),
+                no_log=True
+            ),
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
             state=dict(type='str', default='present'),
-        )
+        ),
+        supports_check_mode=True
     )
 
-    if not module.params.get('subscription_user'):
-        module.fail_json(msg='subscription_user parameter or ' +
-            'PROFITBRICKS_USERNAME environment variable is required.')
-    if not module.params.get('subscription_password'):
-        module.fail_json(msg='subscription_password parameter or ' +
-            'PROFITBRICKS_PASSWORD environment variable is required.')
+    if not HAS_PB_SDK:
+        module.fail_json(msg='profitbricks required for this module')
 
-    subscription_user = module.params.get('subscription_user')
-    subscription_password = module.params.get('subscription_password')
+    username = module.params.get('username')
+    password = module.params.get('password')
+    api_url = module.params.get('api_url')
 
     profitbricks = ProfitBricksService(
-        username=subscription_user,
-        password=subscription_password)
+        username=username,
+        password=password,
+        host_base=api_url
+    )
 
-    user_agent = 'profitbricks-sdk-ruby/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
     profitbricks.headers = {'User-Agent': user_agent}
 
     state = module.params.get('state')
 
     if state == 'absent':
         if not module.params.get('datacenter'):
-            module.fail_json(msg='datacenter parameter is required for running or stopping machines.')
+            module.fail_json(msg='datacenter parameter is required for creating, updating or deleting volumes.')
 
         try:
             (changed) = delete_volume(module, profitbricks)
             module.exit_json(changed=changed)
         except Exception as e:
-            module.fail_json(msg='failed to set volume state: %s' % str(e))
+            module.fail_json(msg='failed to set volume state: %s' % to_native(e))
 
     elif state == 'present':
         if not module.params.get('datacenter'):
@@ -464,10 +583,15 @@ def main():
             (volume_dict_array) = create_volume(module, profitbricks)
             module.exit_json(**volume_dict_array)
         except Exception as e:
-            module.fail_json(msg='failed to set volume state: %s' % str(e))
+            module.fail_json(msg='failed to set volume state: %s' % to_native(e))
 
-from ansible import __version__
-from ansible.module_utils.basic import *
+    elif state == 'update':
+        try:
+            (volume_dict_array) = update_volume(module, profitbricks)
+            module.exit_json(**volume_dict_array)
+        except Exception as e:
+            module.fail_json(msg='failed to update volume: %s' % to_native(e))
+
 
 if __name__ == '__main__':
     main()

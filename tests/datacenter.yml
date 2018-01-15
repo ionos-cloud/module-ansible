@@ -1,0 +1,24 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Create datacenter
+      profitbricks_datacenter:
+        name: "{{ name }}"
+        description: "{{ description }}"
+        location: us/las
+
+    - name: Update datacenter
+      profitbricks_datacenter:
+        name: "{{ name }}"
+        description: "{{ description }} - RENAME"
+        state: update
+
+    - name: Remove datacenter
+      profitbricks_datacenter:
+        name: "{{ name }}"
+        state: absent

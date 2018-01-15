@@ -14,12 +14,10 @@
          auto_increment: false
          cores: 1
          ram: 2048
-         volume_size: 5
+         volume_size: 10
          image: "{{ image }}"
          image_password: "{{ password }}"
          location: "{{ location }}"
-         assign_public_ip: true
-         remove_boot_volume: true
          wait: true
          wait_timeout: "{{ timeout }}"
          state: present
@@ -29,42 +27,51 @@
       profitbricks_lan:
         datacenter: "{{ name }}"
         name: "{{ lan }}"
-        public: false
+        public: true
 
     - name: Create NIC
       profitbricks_nic:
-         name: "{{ nic }}"
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
-         lan: 2
+         name: "{{ nic }}"
+         lan: 1
          dhcp: true
          firewall_active: true
-         ips:
-           - 10.0.0.1
          wait: true
          wait_timeout: "{{ timeout }}"
          state: present
       register: profitbricks_nic
 
-    - name: Debug - Show NIC
-      debug:
-         msg: "{{ profitbricks_nic }}"
+    - name: Create a firewall rule
+      profitbricks_firewall_rule:
+          datacenter: "{{ datacenter }}"
+          server: "{{ server }}"
+          nic: "{{ nic }}"
+          name: SSH
+          protocol: TCP
+          source_mac: 01:23:45:67:89:00
+          port_range_start: 22
+          port_range_end: 22
+          state: present
 
-    - name: Update NIC
-      profitbricks_nic:
+    - name: Update firewall rule
+      profitbricks_firewall_rule:
+          datacenter: "{{ datacenter }}"
+          server: "{{ server }}"
+          nic: "{{ nic }}"
+          name: SSH
+          source_ip: 192.168.0.0
+          source_mac: 01:23:45:67:89:00
+          port_range_start: 22
+          port_range_end: 22
+          state: update
+
+    - name: Remove firewall rule
+      profitbricks_firewall_rule:
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
-         name: "{{ nic }}"
-         dhcp: false
-         wait: true
-         wait_timeout: "{{ timeout }}"
-         state: update
-
-    - name: Remove NIC
-      profitbricks_nic:
-         name: "{{ profitbricks_nic.id }}"
-         datacenter: "{{ datacenter }}"
-         server: "{{ server }}"
+         nic: "{{ nic }}"
+         name: SSH
          wait: true
          wait_timeout: "{{ timeout }}"
          state: absent

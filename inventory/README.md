@@ -35,9 +35,18 @@ are checked after the configuration file.
 # PROFITBRICKS_USERNAME and PROFITBRICKS_PASSWORD.
 # The credentials found in the environment variables have
 # higher precedence.
+# Alternatively, passwords can be specified with a file or a script, similarly
+# to Ansible's vault_password_file. The environment variable
+# PROFITBRICKS_PASSWORD_FILE can also be used to specify that file.
 #
-subscription_user =
-subscription_password =
+username =
+password =
+password_file =
+
+# deprecated parameters
+# subscription_user =
+# subscription_password =
+# subscription_password_file =
 
 
 # ProfitBricks API URL.
@@ -72,6 +81,10 @@ group_by_location = True
 group_by_availability_zone = True
 group_by_image_name = True
 group_by_licence_type = True
+
+# Use the server name instead of the IP as inventory hostname. The IP is still
+# set as ansible_host to connect to the server.
+server_name_as_inventory_hostname = False
 ```
 
 ## Usage
