@@ -1,7 +1,8 @@
 # Ansible Module
 
 Version: **profitbricks-module-ansible v2.0.0**
-API Version: **Cloud API v4**
+
+API Version: **ProfitBricks Cloud API v4**
 
 ## Table of Contents
 
