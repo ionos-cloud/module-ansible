@@ -183,6 +183,15 @@ def create_datacenter(module, profitbricks):
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
+    datacenters = profitbricks.list_datacenters()
+
+    for dc in datacenters['items']:
+        if name == dc['properties']['name']:
+            return {
+                'datacenter_id': dc['id'],
+                'changed': False
+            }
+
     i = Datacenter(
         name=name,
         location=location,
@@ -197,7 +206,8 @@ def create_datacenter(module, profitbricks):
                                  wait_timeout, "_create_datacenter")
 
         results = {
-            'datacenter_id': datacenter_response['id']
+            'datacenter_id': datacenter_response['id'],
+            'changed': True
         }
 
         return results

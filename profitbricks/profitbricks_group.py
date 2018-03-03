@@ -170,8 +170,22 @@ def create_group(module, profitbricks):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
+    group = None
+    for g in profitbricks.list_groups()['items']:
+        if name == g['properties']['name']:
+            group = g
+            break
+
+    should_change = group is None
+
     if module.check_mode:
-        module.exit_json(changed=True)
+        module.exit_json(changed=should_change)
+
+    if not should_change:
+        return {
+            'changed': should_change,
+            'group': group
+        }
 
     try:
         group = Group(

@@ -213,8 +213,23 @@ def create_nic(module, profitbricks):
                 server = s['id']
                 break
 
+    nic_list = profitbricks.list_nics(datacenter, server)
+    nic = None
+    for n in nic_list['items']:
+        if name == n['properties']['name']:
+            nic = n
+            break
+
+    should_change = nic is None
+
     if module.check_mode:
-        module.exit_json(changed=True)
+        module.exit_json(changed=should_change)
+
+    if not should_change:
+        return {
+            'changed': should_change,
+            'nic': nic
+        }
 
     try:
         n = NIC(
@@ -235,7 +250,10 @@ def create_nic(module, profitbricks):
         # Refresh NIC properties
         nic_response = profitbricks.get_nic(datacenter, server, nic_response['id'])
 
-        return nic_response
+        return {
+            'changed': True,
+            'nic': nic_response
+        }
 
     except Exception as e:
         module.fail_json(msg="failed to create the NIC: %s" % to_native(e))
@@ -322,7 +340,10 @@ def update_nic(module, profitbricks):
         # Refresh NIC properties
         nic_response = profitbricks.get_nic(datacenter, server, nic_response['id'])
 
-        return nic_response
+        return {
+            'changed': True,
+            'nic': nic_response
+        }
 
     except Exception as e:
         module.fail_json(msg="failed to update the NIC: %s" % to_native(e))

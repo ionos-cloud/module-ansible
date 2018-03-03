@@ -1,6 +1,6 @@
 # Ansible Module
 
-Version: **profitbricks-module-ansible v2.0.0**
+Version: **profitbricks-module-ansible v2.0.1**
 
 API Version: **ProfitBricks Cloud API v4**
 
