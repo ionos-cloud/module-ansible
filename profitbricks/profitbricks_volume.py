@@ -323,7 +323,6 @@ def create_volume(module, profitbricks):
     count = module.params.get('count')
 
     datacenter_found = False
-    failed = True
     volumes = []
 
     # Locate UUID for Datacenter
@@ -360,14 +359,24 @@ def create_volume(module, profitbricks):
     else:
         names = [name] * count
 
+    changed = False
+
+    # Prefetch a list of volumes for later comparison.
+    volume_list = profitbricks.list_volumes(datacenter)
+
     for name in names:
+        # Skip volume creation if a volume with the same name already exists.
+        if _get_instance_id(volume_list, name):
+            continue
+
         create_response = _create_volume(module, profitbricks, str(datacenter), name)
         volumes.append(create_response)
         _attach_volume(module, profitbricks, datacenter, create_response['id'])
-        failed = False
+        changed = True
 
     results = {
-        'failed': failed,
+        'changed': changed,
+        'failed': False,
         'volumes': volumes,
         'action': 'create',
         'instance_ids': {
@@ -395,6 +404,7 @@ def update_volume(module, profitbricks):
 
     datacenter_found = False
     failed = True
+    changed = False
     volumes = []
 
     # Locate UUID for Datacenter
@@ -413,17 +423,20 @@ def update_volume(module, profitbricks):
     for n in instance_ids:
         if(uuid_match.match(n)):
             update_response = _update_volume(module, profitbricks, datacenter, n)
+            changed = True
         else:
             volume_list = profitbricks.list_volumes(datacenter)
             for v in volume_list['items']:
                 if n == v['properties']['name']:
                     volume_id = v['id']
                     update_response = _update_volume(module, profitbricks, datacenter, volume_id)
+                    changed = True
 
         volumes.append(update_response)
         failed = False
 
     results = {
+        'changed': changed,
         'failed': failed,
         'volumes': volumes,
         'action': 'update',
@@ -505,6 +518,16 @@ def _attach_volume(module, profitbricks, datacenter, volume):
             return profitbricks.attach_volume(datacenter, server, volume)
         except Exception as e:
             module.fail_json(msg='failed to attach volume: %s' % to_native(e))
+
+
+def _get_instance_id(instance_list, identity):
+    """
+    Return instance UUID by name or ID, if found.
+    """
+    for i in instance_list['items']:
+        if identity in (i['properties']['name'], i['id']):
+            return i['id']
+    return None
 
 
 def main():

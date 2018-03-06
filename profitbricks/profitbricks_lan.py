@@ -162,8 +162,23 @@ def create_lan(module, profitbricks):
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
 
+    lan_list = profitbricks.list_lans(datacenter_id)
+    lan = None
+    for i in lan_list['items']:
+        if name == i['properties']['name']:
+            lan = i
+            break
+
+    should_change = lan is None
+
     if module.check_mode:
-        module.exit_json(changed=True)
+        module.exit_json(changed=should_change)
+
+    if not should_change:
+        return {
+            'changed': should_change,
+            'lan': lan
+        }
 
     try:
         lan = LAN(

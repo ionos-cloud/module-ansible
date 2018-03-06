@@ -221,8 +221,23 @@ def create_snapshot(module, profitbricks):
     if not volume_id:
         module.fail_json(msg='Volume \'%s\' not found.' % volume)
 
+    snapshot_list = profitbricks.list_snapshots()
+    snapshot = None
+    for s in snapshot_list['items']:
+        if name == s['properties']['name']:
+            snapshot = s
+            break
+
+    should_change = snapshot is None
+
     if module.check_mode:
-        module.exit_json(changed=True)
+        module.exit_json(changed=should_change)
+
+    if not should_change:
+        return {
+            'changed': should_change,
+            'snapshot': snapshot
+        }
 
     try:
         snapshot_resp = profitbricks.create_snapshot(
@@ -287,7 +302,10 @@ def restore_snapshot(module, profitbricks):
             snapshot_id=snapshot_id
         )
 
-        return snapshot_resp
+        return {
+            'changed': True,
+            'snapshot': snapshot_resp
+        }
 
     except Exception as e:
         module.fail_json(msg="failed to restore the snapshot: %s" % to_native(e))
@@ -365,7 +383,10 @@ def update_snapshot(module, profitbricks):
             licence_type=licence_type
         )
 
-        return snapshot_resp
+        return {
+            'changed': True,
+            'snapshot': snapshot_resp
+        }
 
     except Exception as e:
         module.fail_json(msg="failed to update the snapshot: %s" % to_native(e))
