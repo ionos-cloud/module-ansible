@@ -1,6 +1,6 @@
 # Ansible Module
 
-Version: **profitbricks-module-ansible v2.0.0**
+Version: **profitbricks-module-ansible v2.0.1**
 
 API Version: **ProfitBricks Cloud API v4**
 
@@ -725,7 +725,7 @@ The following example will provision two servers both connected to public and pr
           profitbricks_firewall_rule:
               datacenter: "{{ datacenter }}"
               server: "{{ item.item.id }}"
-              nic: "{{ item.id }}"
+              nic: "{{ item.nic.id }}"
               name: Allow SSH
               protocol: TCP
               source_ip: 0.0.0.0
@@ -738,7 +738,7 @@ The following example will provision two servers both connected to public and pr
           profitbricks_firewall_rule:
               datacenter: "{{ datacenter }}"
               server: "{{ item.item.id }}"
-              nic: "{{ item.id }}"
+              nic: "{{ item.nic.id }}"
               name: Allow Ping
               protocol: ICMP
               source_ip: 0.0.0.0

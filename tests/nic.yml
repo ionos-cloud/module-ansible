@@ -62,7 +62,7 @@
 
     - name: Remove NIC
       profitbricks_nic:
-         name: "{{ profitbricks_nic.id }}"
+         name: "{{ profitbricks_nic.nic.id }}"
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          wait: true

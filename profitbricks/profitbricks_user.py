@@ -187,8 +187,22 @@ def create_user(module, profitbricks):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
+    user = None
+    for u in profitbricks.list_users()['items']:
+        if email == u['properties']['email']:
+            user = u
+            break
+
+    should_change = user is None
+
     if module.check_mode:
-        module.exit_json(changed=True)
+        module.exit_json(changed=should_change)
+
+    if not should_change:
+        return {
+            'changed': should_change,
+            'user': user
+        }
 
     try:
         user = User(

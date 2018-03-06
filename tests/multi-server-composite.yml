@@ -67,7 +67,7 @@
       profitbricks_firewall_rule:
          datacenter: "{{ datacenter }}"
          server: "{{ item.item.id }}"
-         nic: "{{ item.id }}"
+         nic: "{{ item.nic.id }}"
          name: Allow SSH
          protocol: TCP
          source_ip: 0.0.0.0
@@ -82,7 +82,7 @@
       profitbricks_firewall_rule:
          datacenter: "{{ datacenter }}"
          server: "{{ item.item.id }}"
-         nic: "{{ item.id }}"
+         nic: "{{ item.nic.id }}"
          name: Allow Ping
          protocol: ICMP
          source_ip: 0.0.0.0

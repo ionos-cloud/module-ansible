@@ -291,8 +291,23 @@ def create_firewall_rule(module, profitbricks):
     nic_list = profitbricks.list_nics(datacenter_id, server_id)
     nic_id = _get_resource_id(nic_list, nic)
 
+    fw_list = profitbricks.get_firewall_rules(datacenter_id, server_id, nic_id)
+    f = None
+    for fw in fw_list['items']:
+        if name == fw['properties']['name']:
+            f = fw
+            break
+
+    should_change = f is None
+
     if module.check_mode:
-        module.exit_json(changed=True)
+        module.exit_json(changed=should_change)
+
+    if not should_change:
+        return {
+            'changed': should_change,
+            'firewall_rule': f
+        }
 
     try:
         profitbricks.update_nic(datacenter_id, server_id, nic_id,
@@ -320,7 +335,10 @@ def create_firewall_rule(module, profitbricks):
         if wait:
             _wait_for_completion(profitbricks, firewall_rule_response,
                                  wait_timeout, "create_firewall_rule")
-        return firewall_rule_response
+        return {
+            'changed': True,
+            'firewall_rule': firewall_rule_response
+        }
 
     except Exception as e:
         module.fail_json(msg="failed to create the firewall rule: %s" % to_native(e))
@@ -389,7 +407,10 @@ def update_firewall_rule(module, profitbricks):
         if wait:
             _wait_for_completion(profitbricks, firewall_rule_response,
                                  wait_timeout, "update_firewall_rule")
-        return firewall_rule_response
+        return {
+            'changed': True,
+            'firewall_rule': firewall_rule_response
+        }
 
     except Exception as e:
         module.fail_json(msg="failed to update the firewall rule: %s" % to_native(e))

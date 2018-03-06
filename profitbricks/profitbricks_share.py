@@ -167,12 +167,26 @@ def create_shares(module, profitbricks):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
+    share_list = profitbricks.list_shares(group_id=group_id)['items']
+    for share in share_list:
+        if share['id'] in resource_ids:
+            resource_ids.remove(share['id'])
+
+    should_change = True
+
+    if not resource_ids:
+        should_change = False
+
     if module.check_mode:
-        module.exit_json(changed=True)
+        module.exit_json(changed=should_change)
+
+    if not should_change:
+        return {
+            'changed': should_change,
+            'shares': share_list
+        }
 
     try:
-        responses = []
-
         for uuid in resource_ids:
             share_response = profitbricks.add_share(
                 group_id=group_id,
@@ -184,12 +198,13 @@ def create_shares(module, profitbricks):
             if wait:
                 _wait_for_completion(profitbricks, share_response,
                                      wait_timeout, "create_shares")
-            responses.append(share_response)
+
+        share_list = profitbricks.list_shares(group_id=group_id)['items']
 
         return {
             'failed': False,
             'changed': True,
-            'shares': responses
+            'shares': share_list
         }
 
     except Exception as e:

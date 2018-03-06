@@ -475,6 +475,8 @@ def create_virtual_machine(module, profitbricks):
     else:
         names = [name]
 
+    changed = False
+
     # Prefetch a list of servers for later comparison.
     server_list = profitbricks.list_servers(datacenter_id)
     for name in names:
@@ -483,6 +485,7 @@ def create_virtual_machine(module, profitbricks):
             continue
 
         create_response = _create_machine(module, profitbricks, str(datacenter_id), name)
+        changed = True
         nics = profitbricks.list_nics(datacenter_id, create_response['id'])
         for n in nics['items']:
             if lan == n['properties']['lan']:
@@ -491,6 +494,7 @@ def create_virtual_machine(module, profitbricks):
         virtual_machines.append(create_response)
 
     results = {
+        'changed': changed,
         'failed': False,
         'machines': virtual_machines,
         'action': 'create',
@@ -568,6 +572,7 @@ def update_server(module, profitbricks):
 
     results = {
         'failed': False,
+        'changed': True,
         'machines': updated_servers,
         'action': 'update',
         'instance_ids': {

@@ -148,8 +148,23 @@ def reserve_ipblock(module, profitbricks):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
+    ip_list = profitbricks.list_ipblocks()
+    ip = None
+    for i in ip_list['items']:
+        if name == i['properties']['name']:
+            ip = i
+            break
+
+    should_change = ip is None
+
     if module.check_mode:
-        module.exit_json(changed=True)
+        module.exit_json(changed=should_change)
+
+    if not should_change:
+        return {
+            'changed': should_change,
+            'ipblock': ip
+        }
 
     try:
         ipblock = IPBlock(
