@@ -299,12 +299,11 @@ def update_nic(module, profitbricks):
 
     nic = None
     # Locate NIC to update
-    if not (uuid_match.match(name)):
-        nic_list = profitbricks.list_nics(datacenter, server)
-        for n in nic_list['items']:
-            if name == n['properties']['name'] or name == n['id']:
-                nic = n
-                break
+    nic_list = profitbricks.list_nics(datacenter, server)
+    for n in nic_list['items']:
+        if name == n['properties']['name'] or name == n['id']:
+            nic = n
+            break
 
     if not nic:
         module.fail_json(msg="NIC could not be found.")

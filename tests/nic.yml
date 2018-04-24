@@ -60,6 +60,18 @@
          wait_timeout: "{{ timeout }}"
          state: update
 
+    - name: Update NIC by UUID
+      profitbricks_nic:
+         datacenter: "{{ datacenter }}"
+         server: "{{ server }}"
+         name: "{{ profitbricks_nic.nic.id }}"
+         dhcp: false
+         ips:
+           - 192.168.16.18
+         wait: true
+         wait_timeout: "{{ timeout }}"
+         state: update
+
     - name: Remove NIC
       profitbricks_nic:
          name: "{{ profitbricks_nic.nic.id }}"
