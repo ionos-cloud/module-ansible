@@ -478,10 +478,12 @@ def create_virtual_machine(module, profitbricks):
     changed = False
 
     # Prefetch a list of servers for later comparison.
-    server_list = profitbricks.list_servers(datacenter_id)
+    server_list = profitbricks.list_servers(datacenter_id, depth=3)
     for name in names:
         # Skip server creation if the server already exists.
-        if _get_server_id(server_list, name):
+        server = _get_instance(server_list, name)
+        if server is not None:
+            virtual_machines.append(server)
             continue
 
         create_response = _create_machine(module, profitbricks, str(datacenter_id), name)
@@ -726,6 +728,16 @@ def _get_server_id(servers, identity):
     for server in servers['items']:
         if identity in (server['properties']['name'], server['id']):
             return server['id']
+    return None
+
+
+def _get_instance(instance_list, identity):
+    """
+    Find and return the resource instance regardless of whether the name or UUID is passed.
+    """
+    for resource in instance_list['items']:
+        if identity in (resource['properties']['name'], resource['id']):
+            return resource
     return None
 
 
