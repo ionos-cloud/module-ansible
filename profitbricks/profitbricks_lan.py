@@ -158,9 +158,7 @@ def create_lan(module, profitbricks):
 
     # Locate UUID for virtual datacenter
     datacenter_list = profitbricks.list_datacenters()
-    datacenter_id = _get_resource_id(datacenter_list, datacenter)
-    if not datacenter_id:
-        module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
+    datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
 
     lan_list = profitbricks.list_lans(datacenter_id)
     lan = None
@@ -221,15 +219,11 @@ def update_lan(module, profitbricks):
 
     # Locate UUID for virtual datacenter
     datacenter_list = profitbricks.list_datacenters()
-    datacenter_id = _get_resource_id(datacenter_list, datacenter)
-    if not datacenter_id:
-        module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
+    datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
 
     # Prefetch a list of LANs.
     lan_list = profitbricks.list_lans(datacenter_id)
-    lan_id = _get_resource_id(lan_list, name)
-    if not lan_id:
-        module.fail_json(msg='LAN \'%s\' not found.' % str(name))
+    lan_id = _get_resource_id(lan_list, name, module, "LAN")
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -275,11 +269,11 @@ def delete_lan(module, profitbricks):
 
     # Locate UUID for virtual datacenter
     datacenter_list = profitbricks.list_datacenters()
-    datacenter_id = _get_resource_id(datacenter_list, datacenter)
+    datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
 
     # Locate ID for LAN
     lan_list = profitbricks.list_lans(datacenter_id)
-    lan_id = _get_resource_id(lan_list, name)
+    lan_id = _get_resource_id(lan_list, name, module, "LAN")
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -291,15 +285,16 @@ def delete_lan(module, profitbricks):
         module.fail_json(msg="failed to remove the LAN: %s" % to_native(e))
 
 
-def _get_resource_id(resource_list, identity):
+def _get_resource_id(resource_list, identity, module, resource_type):
     """
     Fetch and return the UUID of a resource regardless of whether the name or
-    UUID is passed.
+    UUID is passed. Throw an error otherwise.
     """
     for resource in resource_list['items']:
         if identity in (resource['properties']['name'], resource['id']):
             return resource['id']
-    return None
+
+    module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
 
 
 def main():

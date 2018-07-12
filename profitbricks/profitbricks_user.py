@@ -289,7 +289,7 @@ def update_user(module, profitbricks):
             all_groups = profitbricks.list_groups()
             new_ug = []
             for g in module.params.get('groups'):
-                group_id = _get_resource_id(all_groups, g)
+                group_id = _get_resource_id(all_groups, g, module, "Group")
                 new_ug.append(group_id)
 
             for group_id in old_ug:
@@ -354,15 +354,16 @@ def _get_user_id(resource_list, identity):
     return None
 
 
-def _get_resource_id(resource_list, identity):
+def _get_resource_id(resource_list, identity, module, resource_type):
     """
     Fetch and return the UUID of a resource regardless of whether the name or
-    UUID is passed.
+    UUID is passed. Throw an error otherwise.
     """
     for resource in resource_list['items']:
         if identity in (resource['properties']['name'], resource['id']):
             return resource['id']
-    return None
+
+    module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
 
 
 def main():

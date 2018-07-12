@@ -211,15 +211,11 @@ def create_snapshot(module, profitbricks):
 
     # Locate UUID for virtual datacenter
     datacenter_list = profitbricks.list_datacenters()
-    datacenter_id = _get_resource_id(datacenter_list, datacenter)
-    if not datacenter_id:
-        module.fail_json(msg='Virtual data center \'%s\' not found.' % datacenter)
+    datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
 
     # Locate UUID for volume
     volume_list = profitbricks.list_volumes(datacenter_id)
-    volume_id = _get_resource_id(volume_list, volume)
-    if not volume_id:
-        module.fail_json(msg='Volume \'%s\' not found.' % volume)
+    volume_id = _get_resource_id(volume_list, volume, module, "Volume")
 
     snapshot_list = profitbricks.list_snapshots()
     snapshot = None
@@ -276,21 +272,15 @@ def restore_snapshot(module, profitbricks):
 
     # Locate UUID for virtual datacenter
     datacenter_list = profitbricks.list_datacenters()
-    datacenter_id = _get_resource_id(datacenter_list, datacenter)
-    if not datacenter_id:
-        module.fail_json(msg='Virtual data center \'%s\' not found.' % datacenter)
+    datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
 
     # Locate UUID for volume
     volume_list = profitbricks.list_volumes(datacenter_id)
-    volume_id = _get_resource_id(volume_list, volume)
-    if not volume_id:
-        module.fail_json(msg='Volume \'%s\' not found.' % volume)
+    volume_id = _get_resource_id(volume_list, volume, module, "Volume")
 
     # Locate UUID for snapshot
     snapshot_list = profitbricks.list_snapshots()
-    snapshot_id = _get_resource_id(snapshot_list, name)
-    if not snapshot_id:
-        module.fail_json(msg='Snapshot \'%s\' not found.' % name)
+    snapshot_id = _get_resource_id(snapshot_list, name, module, "Snapshot")
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -406,7 +396,7 @@ def delete_snapshot(module, profitbricks):
 
     # Locate UUID for snapshot
     snapshot_list = profitbricks.list_snapshots()
-    snapshot_id = _get_resource_id(snapshot_list, name)
+    snapshot_id = _get_resource_id(snapshot_list, name, module, "Snapshot")
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -418,15 +408,16 @@ def delete_snapshot(module, profitbricks):
         module.fail_json(msg="failed to remove the snapshot: %s" % to_native(e))
 
 
-def _get_resource_id(resource_list, identity):
+def _get_resource_id(resource_list, identity, module, resource_type):
     """
     Fetch and return the UUID of a resource regardless of whether the name or
-    UUID is passed.
+    UUID is passed. Throw an error otherwise.
     """
     for resource in resource_list['items']:
         if identity in (resource['properties']['name'], resource['id']):
             return resource['id']
-    return None
+
+    module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
 
 
 def _get_resource_instance(resource_list, identity):
