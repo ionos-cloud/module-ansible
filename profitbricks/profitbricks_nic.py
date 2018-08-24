@@ -63,7 +63,7 @@ options:
     description:
       - The ProfitBricks API base URL.
     required: false
-    default: The value specified by API_HOST variable in ProfitBricks SDK for Python dependency.
+    default: null
     version_added: "2.4"
   username:
     description:
@@ -140,7 +140,6 @@ from uuid import uuid4
 HAS_PB_SDK = True
 
 try:
-    from profitbricks import API_HOST
     from profitbricks import __version__ as sdk_version
     from profitbricks.client import ProfitBricksService, NIC
 except ImportError:
@@ -418,7 +417,7 @@ def main():
             nat=dict(type='bool', default=None),
             firewall_active=dict(type='bool', default=None),
             ips=dict(type='list', default=None),
-            api_url=dict(type='str', default=API_HOST),
+            api_url=dict(type='str', default=None),
             username=dict(
                 type='str',
                 required=True,
@@ -440,7 +439,7 @@ def main():
     )
 
     if not HAS_PB_SDK:
-        module.fail_json(msg='profitbricks required for this module')
+        module.fail_json(msg='profitbricks is required for this module, run `pip install profitbricks`')
 
     if not module.params.get('datacenter'):
         module.fail_json(msg='datacenter parameter is required')
@@ -451,11 +450,14 @@ def main():
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
-    profitbricks = ProfitBricksService(
-        username=username,
-        password=password,
-        host_base=api_url
-    )
+    if not api_url:
+        profitbricks = ProfitBricksService(username=username, password=password)
+    else:
+        profitbricks = ProfitBricksService(
+            username=username,
+            password=password,
+            host_base=api_url
+        )
 
     user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
     profitbricks.headers = {'User-Agent': user_agent}
