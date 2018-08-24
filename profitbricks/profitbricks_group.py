@@ -52,7 +52,7 @@ options:
     description:
       - The ProfitBricks API base URL.
     required: false
-    default: The value specified by API_HOST variable in ProfitBricks SDK for Python dependency.
+    default: null
   username:
     description:
       - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.
@@ -120,7 +120,6 @@ import time
 HAS_PB_SDK = True
 
 try:
-    from profitbricks import API_HOST
     from profitbricks import __version__ as sdk_version
     from profitbricks.client import ProfitBricksService, Group
 except ImportError:
@@ -358,7 +357,7 @@ def main():
             reserve_ip=dict(type='bool', default=None),
             access_activity_log=dict(type='bool', default=None),
             users=dict(type='list', default=None),
-            api_url=dict(type='str', default=API_HOST),
+            api_url=dict(type='str', default=None),
             username=dict(
                 type='str',
                 required=True,
@@ -380,17 +379,20 @@ def main():
     )
 
     if not HAS_PB_SDK:
-        module.fail_json(msg='profitbricks required for this module')
+        module.fail_json(msg='profitbricks is required for this module, run `pip install profitbricks`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
-    profitbricks = ProfitBricksService(
-        username=username,
-        password=password,
-        host_base=api_url
-    )
+    if not api_url:
+        profitbricks = ProfitBricksService(username=username, password=password)
+    else:
+        profitbricks = ProfitBricksService(
+            username=username,
+            password=password,
+            host_base=api_url
+        )
 
     user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
     profitbricks.headers = {'User-Agent': user_agent}
