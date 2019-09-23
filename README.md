@@ -119,7 +119,7 @@ Ansible leverages YAML manifest files called Playbooks. The Playbook will descri
     - hosts: localhost
       connection: local
       gather_facts: false
-    
+
       tasks:
         - name: Provision a set of instances
           profitbricks:
@@ -230,7 +230,7 @@ The ProfitBricks module sets server authentication using the **image_password** 
 #### Parameter Reference
 
 The following parameters are supported:
-                      
+
 | Name | Required | Type | Default | Description |
 | --- | :-: | --- | --- | --- |
 | auto_increment | no | boolean | true | Whether or not to increment created servers. |
@@ -251,7 +251,7 @@ The following parameters are supported:
 | instance_ids | **yes**/no | list | | List of instance IDs or names. **Not required** for `state='present'`. |
 | location | no | string | us/las | The datacenter location used only if the module creates a default datacenter: us/las, us/ewr, de/fra, de/fkb |
 | assign\_public\_ip | no | boolean | false | This will assign the server to the public LAN. The LAN is created if no LAN exists with public Internet access. |
-| lan | no | integer | 1 | The LAN ID of the server. |
+| lan | no | string / integer | 1 | The LAN ID / Name for the server. |
 | nat | no | boolean | false | The private IP address has outbound access to the Internet. |
 | api_url | no | string | | The ProfitBricks API base URL. |
 | username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable. |
@@ -672,7 +672,7 @@ The following example will provision two servers both connected to public and pr
           image: ubuntu:latest
           image_password: secretpassword
           timeout: 900
-        
+
       tasks:
         - name: Provision a set of instances
           profitbricks:
@@ -696,9 +696,9 @@ The following example will provision two servers both connected to public and pr
               wait_timeout: "{{ timeout }}"
               state: present
           register: profitbricks
-    
+
         - debug: msg="{{profitbricks.machines}}"
-    
+
         - name: Public SSH firewall rule
           profitbricks_firewall_rule:
               datacenter: "{{ datacenter }}"
@@ -711,7 +711,7 @@ The following example will provision two servers both connected to public and pr
               port_range_end: 22
               state: present
           with_items: "{{ profitbricks.machines }}"
-    
+
         - name: Create private NIC
           profitbricks_nic:
               datacenter: "{{ datacenter }}"
@@ -720,7 +720,7 @@ The following example will provision two servers both connected to public and pr
               state: present
           register: private_nic
           with_items: "{{ profitbricks.machines }}"
-    
+
         - name: Create SSH firewall rule
           profitbricks_firewall_rule:
               datacenter: "{{ datacenter }}"
@@ -733,7 +733,7 @@ The following example will provision two servers both connected to public and pr
               port_range_end: 22
               state: present
           with_items: "{{ private_nic.results }}"
-    
+
         - name: Create ping firewall rule
           profitbricks_firewall_rule:
               datacenter: "{{ datacenter }}"
@@ -746,7 +746,7 @@ The following example will provision two servers both connected to public and pr
               icmp_code: 0
               state: present
           with_items: "{{ private_nic.results }}"
-    
+
         - name: Create data volume
           profitbricks_volume:
               datacenter: "{{ datacenter }}"
@@ -758,7 +758,7 @@ The following example will provision two servers both connected to public and pr
               wait_timeout: "{{ timeout }}"
               state: present
           with_items: "{{ profitbricks.machines }}"
-    
+
 ## Support
 
 You are welcome to contact us with questions or comments using the **Community** section of the [ProfitBricks DevOps Central](https://devops.profitbricks.com/). Please report any feature requests or issues using GitHub issue tracker.

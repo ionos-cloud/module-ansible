@@ -111,7 +111,7 @@ options:
     default: false
   lan:
     description:
-      - The ID of the LAN you wish to add the servers to.
+      - The ID or name of the LAN you wish to add the servers to (can be a string or a number).
     required: false
     default: 1
   nat:
@@ -294,6 +294,22 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
     raise Exception('Timed out waiting for async operation ' + msg + ' "' +
                     str(promise['requestId']) + '" to complete.')
 
+def _get_lan_by_id_or_properties(networks, id=None, **kwargs):
+
+    matched_lan = None
+    query = kwargs.items()
+
+    if id is not None or len(query) > 0:
+        for elan in networks:
+            if id is not None and str(elan['id']) == str(id):
+                matched_lan = elan
+                break
+
+            if all(elan['properties'].get(pn, None) == pv for pn, pv in query):
+                matched_lan = elan
+                break
+
+    return matched_lan
 
 def _create_machine(module, profitbricks, datacenter, name):
     cores = module.params.get('cores')
@@ -313,24 +329,42 @@ def _create_machine(module, profitbricks, datacenter, name):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
+    nics = []
+
     if assign_public_ip:
-        public_found = False
+        public_lan = _get_lan_by_id_or_properties(profitbricks.list_lans(datacenter)['items'], public=True)
 
-        lans = profitbricks.list_lans(datacenter)
-        for lan in lans['items']:
-            if lan['properties']['public']:
-                public_found = True
-                lan = lan['id']
+        public_ip_lan_id = public_lan['id'] if public_lan is not None else None
 
-        if not public_found:
+        if public_ip_lan_id is None:
             i = LAN(
-                name='public',
-                public=True)
+                    name='public',
+                    public=True
+                )
 
             lan_response = profitbricks.create_lan(datacenter, i)
-            _wait_for_completion(profitbricks, lan_response,
-                                 wait_timeout, "_create_machine")
-            lan = lan_response['id']
+            _wait_for_completion(profitbricks, lan_response, wait_timeout, "_create_machine")
+
+            public_ip_lan_id = lan_response['id']
+
+        nics.append(
+            NIC(
+                name=str(uuid4()).replace('-', '')[:10],
+                nat=nat,
+                lan=int(public_ip_lan_id)
+            )
+        )
+
+    if lan is not None:
+        matching_lan = _get_lan_by_id_or_properties(profitbricks.list_lans(datacenter)['items'], lan, name=lan)
+
+        nics.append(
+            NIC(
+                name=str(uuid4()).replace('-', '')[:10],
+                nat=nat,
+                lan=int(matching_lan['id'])
+            )
+        )
 
     v = Volume(
         name=str(uuid4()).replace('-', '')[:10],
@@ -349,12 +383,6 @@ def _create_machine(module, profitbricks, datacenter, name):
     else:
         v.image = image
 
-    n = NIC(
-        name=str(uuid4()).replace('-', '')[:10],
-        nat=nat,
-        lan=int(lan)
-    )
-
     s = Server(
         name=name,
         ram=ram,
@@ -362,7 +390,7 @@ def _create_machine(module, profitbricks, datacenter, name):
         cpu_family=cpu_family,
         availability_zone=availability_zone,
         create_volumes=[v],
-        nics=[n],
+        nics=nics,
     )
 
     try:
@@ -460,12 +488,15 @@ def create_virtual_machine(module, profitbricks):
         try:
             name % 0
         except TypeError as e:
-            if e.message and e.message.startswith('not all'):
+            if 'message' in e and e.message.startswith('not all'):
                 name = '%s%%d' % name
             else:
-                module.fail_json(msg=e.message, exception=traceback.format_exc())
+                module.fail_json(msg=e, exception=traceback.format_exc())
+
 
         number_range = xrange(count_offset, count_offset + count + len(numbers))
+
+
         available_numbers = list(set(number_range).difference(numbers))
         names = []
         numbers_to_use = available_numbers[:count]
@@ -756,7 +787,7 @@ def main():
             image_password=dict(type='str', default=None, no_log=True),
             ssh_keys=dict(type='list', default=[]),
             bus=dict(type='str', choices=BUS_TYPES, default='VIRTIO'),
-            lan=dict(type='int', default=1),
+            lan=dict(type='raw', default=1),
             nat=dict(type='bool', default=None),
             count=dict(type='int', default=1),
             auto_increment=dict(type='bool', default=True),
@@ -784,6 +815,9 @@ def main():
         ),
         supports_check_mode=True
     )
+
+    if module.params.get('lan') is None and not (isinstance(module.params.get('lan'), str) or isinstance(module.params.get('lan'), int)):
+        module.fail_json(msg='lan should either be a string or a number')
 
     if not HAS_PB_SDK:
         module.fail_json(msg='profitbricks is required for this module, run `pip install profitbricks`')
