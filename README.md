@@ -6,33 +6,33 @@ API Version: **ProfitBricks Cloud API v4**
 
 ## Table of Contents
 
-* [Description](#description)
-* [Getting Started](#getting-started)
-* [Installation](#installation)
-* [Usage](#usage)
-    * [Authentication](#authentication)
-    * [Ansible Playbooks](#ansible-playbooks)
-    * [Execute a Playbook](#execute-a-playbook)
-    * [Wait for Requests](#wait-for-requests)
-    * [Wait for Services](#wait-for-services)
-    * [Incrementing Servers](#incrementing-servers)
-    * [SSH Key Authentication](#ssh-key-authentication)
-* [Reference](#reference)
-    * [profitbricks](#profitbricks)
-    * [profitbricks_datacenter](#profitbricks_datacenter)
-    * [profitbricks_lan](#profitbricks_lan)
-    * [profitbricks_nic](#profitbricks_nic)
-    * [profitbricks_volume](#profitbricks_volume)
-    * [profitbricks\_firewall\_rule](#profitbricks_firewall_rule)
-    * [profitbricks_ipblock](#profitbricks_ipblock)
-    * [profitbricks_snapshot](#profitbricks_snapshot)
-    * [profitbricks_user](#profitbricks_user)
-    * [profitbricks_group](#profitbricks_group)
-    * [profitbricks_share](#profitbricks_share)
-* [Examples](#examples)
-* [Support](#support)
-* [Testing](#testing)
-* [Contributing](#contributing)
+- [Description](#description)
+- [Getting Started](#getting-started)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Authentication](#authentication)
+  - [Ansible Playbooks](#ansible-playbooks)
+  - [Execute a Playbook](#execute-a-playbook)
+  - [Wait for Requests](#wait-for-requests)
+  - [Wait for Services](#wait-for-services)
+  - [Incrementing Servers](#incrementing-servers)
+  - [SSH Key Authentication](#ssh-key-authentication)
+- [Reference](#reference)
+  - [profitbricks](#profitbricks)
+  - [profitbricks_datacenter](#profitbricks_datacenter)
+  - [profitbricks_lan](#profitbricks_lan)
+  - [profitbricks_nic](#profitbricks_nic)
+  - [profitbricks_volume](#profitbricks_volume)
+  - [profitbricks_firewall_rule](#profitbricks_firewall_rule)
+  - [profitbricks_ipblock](#profitbricks_ipblock)
+  - [profitbricks_snapshot](#profitbricks_snapshot)
+  - [profitbricks_user](#profitbricks_user)
+  - [profitbricks_group](#profitbricks_group)
+  - [profitbricks_share](#profitbricks_share)
+- [Examples](#examples)
+- [Support](#support)
+- [Testing](#testing)
+- [Contributing](#contributing)
 
 ## Description
 
@@ -42,10 +42,10 @@ Ansible is an IT automation tool that allows users to configure, deploy, and orc
 
 The ProfitBricks module for Ansible has a couple of requirements:
 
-* ProfitBricks account
-* Python
-* [Ansible](https://www.ansible.com/)
-* [ProfitBricks SDK for Python](https://devops.profitbricks.com/libraries/python/)
+- ProfitBricks account
+- Python
+- [Ansible](https://www.ansible.com/)
+- [ProfitBricks SDK for Python](https://devops.profitbricks.com/libraries/python/)
 
 Before you begin you will need to have signed-up for a ProfitBricks account. The credentials you establish during sign-up will be used to authenticate against the ProfitBricks Cloud API.
 
@@ -57,7 +57,7 @@ Lastly, the ProfitBricks module requires the ProfitBricks SDK for Python to be i
 
 ## Installation
 
-1. The ProfitBricks module for Ansible must first be downloaded from GitHub. This can be accomplished a few different ways such as downloading and extracting the archive using `curl` or cloning the GitHub repository locally.
+1.  The ProfitBricks module for Ansible must first be downloaded from GitHub. This can be accomplished a few different ways such as downloading and extracting the archive using `curl` or cloning the GitHub repository locally.
 
     Download and extract with `curl`:
 
@@ -67,11 +67,11 @@ Lastly, the ProfitBricks module requires the ProfitBricks SDK for Python to be i
 
         git clone https://github.com/profitbricks/profitbricks-module-ansible/
 
-2. Ansible must be made aware of the new module path. This too can be accomplished a few different ways depending on your requirements and environment.
+2.  Ansible must be made aware of the new module path. This too can be accomplished a few different ways depending on your requirements and environment.
 
-    * Ansible configuration file: `ansible.cfg`
-    * Environment variable: `ANSIBLE_LIBRARY`
-    * Command line parameter: `ansible-playbook --module-path [path]`
+    - Ansible configuration file: `ansible.cfg`
+    - Environment variable: `ANSIBLE_LIBRARY`
+    - Command line parameter: `ansible-playbook --module-path [path]`
 
     2a. The preferred method is to update the Ansible configuration with the module path. To include the path globally for all users, edit the `/etc/ansible/ansible.cfg` file and add `library = /path/to/module/profitbricks` under the **[default]** section. For example:
 
@@ -80,10 +80,10 @@ Lastly, the ProfitBricks module requires the ProfitBricks SDK for Python to be i
 
     Note that the Ansible configuration file is read from several locations in the following order:
 
-    * `ANSIBLE_CONFIG` environment variable path
-    * `ansible.cfg` from the current directory
-    * `.ansible.cfg` in the user home directory
-    * `/etc/ansible/ansible.cfg`
+    - `ANSIBLE_CONFIG` environment variable path
+    - `ansible.cfg` from the current directory
+    - `.ansible.cfg` in the user home directory
+    - `/etc/ansible/ansible.cfg`
 
     2b. The module path can also be set using an environment variable. This variable will be lost once the terminal session is closed:
 
@@ -99,13 +99,13 @@ Lastly, the ProfitBricks module requires the ProfitBricks SDK for Python to be i
 
 Credentials can be supplied within a Playbook with the following parameters:
 
-* **username** (**subscription_user** is a legacy alias)
-* **password** (**subscription_password** is a legacy alias)
+- **username** (**subscription_user** is a legacy alias)
+- **password** (**subscription_password** is a legacy alias)
 
 However, the module can also inherit the credentials from environment variables:
 
-* `PROFITBRICKS_USERNAME`
-* `PROFITBRICKS_PASSWORD`
+- `PROFITBRICKS_USERNAME`
+- `PROFITBRICKS_PASSWORD`
 
 Storing credentials in environment variables is useful if you plan to store your PlayBooks using version control.
 
@@ -156,8 +156,8 @@ Sometimes requests must be told to wait until they finish before continuing to p
 
 The ProfitBricks module includes two resource parameters to address this scenario:
 
-* **wait** (default: true)
-* **wait_timeout** (default: 600 seconds)
+- **wait** (default: true)
+- **wait_timeout** (default: 600 seconds)
 
 By default, the module will wait until a resource is finished provisioning before continuing to process further resources defined in the Playbook.
 
@@ -231,35 +231,35 @@ The ProfitBricks module sets server authentication using the **image_password** 
 
 The following parameters are supported:
 
-| Name | Required | Type | Default | Description |
-| --- | :-: | --- | --- | --- |
-| auto_increment | no | boolean | true | Whether or not to increment created servers. |
-| count | no | integer | 1 | The number of servers to create. |
-| name | **yes**/no | string | | The name of the server(s). Required only for `state='present'`. |
-| image | **yes**/no | string | | The image alias or UUID for creating the server. Required only for `state='present'`. |
-| image_password | no | string | | Password set for the administrative user. |
-| ssh_keys | no | list | none | List of public SSH keys allowing access to the server. |
-| datacenter | **yes** | string | none | The datacenter where the server is located. |
-| cores | no | integer | 2 | The number of CPU cores to allocate to the server. |
-| ram | no | integer | 2048 | The amount of memory to allocate to the server. |
-| cpu_family | no | string | AMD_OPTERON | The CPU family type of the server: **AMD_OPTERON**, INTEL_XEON |
-| availability_zone | no | string | AUTO | The availability zone assigned to the server: **AUTO**, ZONE\_1, ZONE\_2 |
-| volume_size | no | integer | 10 | The size in GB of the boot volume. |
-| disk_type | no | string | HDD | The type of disk the volume will use: **HDD**, SSD |
-| volume\_availability\_zone | no | string | AUTO | The storage availability zone assigned to the volume: **AUTO**, ZONE\_1, ZONE\_2, ZONE\_3 |
-| bus | no | string | VIRTIO | The bus type for the volume: **VIRTIO**, IDE |
-| instance_ids | **yes**/no | list | | List of instance IDs or names. **Not required** for `state='present'`. |
-| location | no | string | us/las | The datacenter location used only if the module creates a default datacenter: us/las, us/ewr, de/fra, de/fkb |
-| assign\_public\_ip | no | boolean | false | This will assign the server to the public LAN. The LAN is created if no LAN exists with public Internet access. |
-| lan | no | string / integer | 1 | The LAN ID / Name for the server. |
-| nat | no | boolean | false | The private IP address has outbound access to the Internet. |
-| api_url | no | string | | The ProfitBricks API base URL. |
-| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable. |
-| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable. |
-| wait | no | boolean | true | Wait for the instance to be in state 'running' before continuing. |
-| wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| remove\_boot\_volume | no | boolean | true | Remove the boot volume of the server being deleted. |
-| state | no | string | present | Indicate desired state of the resource: **present**, absent, running, stopped, update |
+| Name                     |  Required  | Type             | Default     | Description                                                                                                          |
+| ------------------------ | :--------: | ---------------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| auto_increment           |     no     | boolean          | true        | Whether or not to increment created servers.                                                                         |
+| count                    |     no     | integer          | 1           | The number of servers to create.                                                                                     |
+| name                     | **yes**/no | string           |             | The name of the server(s). Required only for `state='present'`.                                                      |
+| image                    | **yes**/no | string           |             | The image alias or UUID for creating the server. Required only for `state='present'`.                                |
+| image_password           |     no     | string           |             | Password set for the administrative user.                                                                            |
+| ssh_keys                 |     no     | list             | none        | List of public SSH keys allowing access to the server.                                                               |
+| datacenter               |  **yes**   | string           | none        | The datacenter where the server is located.                                                                          |
+| cores                    |     no     | integer          | 2           | The number of CPU cores to allocate to the server.                                                                   |
+| ram                      |     no     | integer          | 2048        | The amount of memory to allocate to the server.                                                                      |
+| cpu_family               |     no     | string           | AMD_OPTERON | The CPU family type of the server: **AMD_OPTERON**, INTEL_XEON                                                       |
+| availability_zone        |     no     | string           | AUTO        | The availability zone assigned to the server: **AUTO**, ZONE_1, ZONE_2                                               |
+| volume_size              |     no     | integer          | 10          | The size in GB of the boot volume.                                                                                   |
+| disk_type                |     no     | string           | HDD         | The type of disk the volume will use: **HDD**, SSD                                                                   |
+| volume_availability_zone |     no     | string           | AUTO        | The storage availability zone assigned to the volume: **AUTO**, ZONE_1, ZONE_2, ZONE_3                               |
+| bus                      |     no     | string           | VIRTIO      | The bus type for the volume: **VIRTIO**, IDE                                                                         |
+| instance_ids             | **yes**/no | list             |             | List of instance IDs or names. **Not required** for `state='present'`.                                               |
+| location                 |     no     | string           | us/las      | The datacenter location used only if the module creates a default datacenter: us/las, us/ewr, de/fra, de/fkb, de/txl |
+| assign_public_ip         |     no     | boolean          | false       | This will assign the server to the public LAN. The LAN is created if no LAN exists with public Internet access.      |
+| lan                      |     no     | string / integer | 1           | The LAN ID / Name for the server.                                                                                    |
+| nat                      |     no     | boolean          | false       | The private IP address has outbound access to the Internet.                                                          |
+| api_url                  |     no     | string           |             | The ProfitBricks API base URL.                                                                                       |
+| username                 |     no     | string           |             | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.                                 |
+| password                 |     no     | string           |             | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.                                 |
+| wait                     |     no     | boolean          | true        | Wait for the instance to be in state 'running' before continuing.                                                    |
+| wait_timeout             |     no     | integer          | 600         | The number of seconds until the wait ends.                                                                           |
+| remove_boot_volume       |     no     | boolean          | true        | Remove the boot volume of the server being deleted.                                                                  |
+| state                    |     no     | string           | present     | Indicate desired state of the resource: **present**, absent, running, stopped, update                                |
 
 ### profitbricks_datacenter
 
@@ -274,17 +274,17 @@ The following parameters are supported:
 
 The following parameters are supported:
 
-| Name | Required | Type | Default | Description |
-| --- | :-: | --- | --- | --- |
-| name | **yes** | string | | The name of the datacenter. |
-| location | no | string | us/las | The datacenter location: us/las, us/ewr, de/fra, de/fkb |
-| description | no | string | | The description of the datacenter. |
-| api_url | no | string | | The ProfitBricks API base URL. |
-| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
-| wait | no | boolean | true | Wait for the operation to complete before continuing. |
-| wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
+| Name         | Required | Type    | Default | Description                                                                           |
+| ------------ | :------: | ------- | ------- | ------------------------------------------------------------------------------------- |
+| name         | **yes**  | string  |         | The name of the datacenter.                                                           |
+| location     |    no    | string  | us/las  | The datacenter location: us/las, us/ewr, de/fra, de/fkb, de/txl                       |
+| description  |    no    | string  |         | The description of the datacenter.                                                    |
+| api_url      |    no    | string  |         | The ProfitBricks API base URL.                                                        |
+| username     |    no    | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
+| password     |    no    | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
+| wait         |    no    | boolean | true    | Wait for the operation to complete before continuing.                                 |
+| wait_timeout |    no    | integer | 600     | The number of seconds until the wait ends.                                            |
+| state        |    no    | string  | present | Indicate desired state of the resource: **present**, absent, update                   |
 
 ### profitbricks_lan
 
@@ -311,18 +311,18 @@ The following parameters are supported:
 
 The following parameters are supported:
 
-| Name | Required | Type | Default | Description |
-| --- | :-: | --- | --- | --- |
-| datacenter | **yes** | string | | The datacenter in which to operate. |
-| name | **yes** | string | | The name of the LAN. |
-| public | no | boolean | true | If true, the LAN will have public Internet access. |
-| ip_failover | no | dict | | The IP failover group dictionary where its keys represent IP addresses and values represent NIC UUIDs. |
-| api_url | no | string | | The ProfitBricks API base URL. |
-| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
-| wait | no | boolean | true | Wait for the operation to complete before continuing. |
-| wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
+| Name         | Required | Type    | Default | Description                                                                                            |
+| ------------ | :------: | ------- | ------- | ------------------------------------------------------------------------------------------------------ |
+| datacenter   | **yes**  | string  |         | The datacenter in which to operate.                                                                    |
+| name         | **yes**  | string  |         | The name of the LAN.                                                                                   |
+| public       |    no    | boolean | true    | If true, the LAN will have public Internet access.                                                     |
+| ip_failover  |    no    | dict    |         | The IP failover group dictionary where its keys represent IP addresses and values represent NIC UUIDs. |
+| api_url      |    no    | string  |         | The ProfitBricks API base URL.                                                                         |
+| username     |    no    | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable.                  |
+| password     |    no    | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable.                  |
+| wait         |    no    | boolean | true    | Wait for the operation to complete before continuing.                                                  |
+| wait_timeout |    no    | integer | 600     | The number of seconds until the wait ends.                                                             |
+| state        |    no    | string  | present | Indicate desired state of the resource: **present**, absent, update                                    |
 
 ### profitbricks_nic
 
@@ -353,22 +353,22 @@ The following parameters are supported:
 
 The following parameters are supported:
 
-| Name | Required | Type | Default | Description |
-| --- | :-: | --- | --- | --- |
-| datacenter | **yes** | string | | The datacenter in which to operate. |
-| server | **yes** | string | | The server name or UUID. |
-| name | **yes** | string | | The name or UUID of the NIC. Only required on deletes. |
-| lan | **yes** | integer | | The LAN to connect the NIC. The LAN will be created if it does not exist. Only required on creates. |
-| dhcp | no | boolean | | Indicates if the NIC is using DHCP or not. |
-| nat | no | boolean | | Allow the private IP address outbound Internet access. |
-| firewall_active | no | boolean | | Indicates if the firewall is active. |
-| ips | no | list | | A list of IPs to be assigned to the NIC. |
-| api_url | no | string | | The ProfitBricks API base URL. |
-| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
-| wait | no | boolean | true | Wait for the operation to complete before continuing. |
-| wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
+| Name            | Required | Type    | Default | Description                                                                                         |
+| --------------- | :------: | ------- | ------- | --------------------------------------------------------------------------------------------------- |
+| datacenter      | **yes**  | string  |         | The datacenter in which to operate.                                                                 |
+| server          | **yes**  | string  |         | The server name or UUID.                                                                            |
+| name            | **yes**  | string  |         | The name or UUID of the NIC. Only required on deletes.                                              |
+| lan             | **yes**  | integer |         | The LAN to connect the NIC. The LAN will be created if it does not exist. Only required on creates. |
+| dhcp            |    no    | boolean |         | Indicates if the NIC is using DHCP or not.                                                          |
+| nat             |    no    | boolean |         | Allow the private IP address outbound Internet access.                                              |
+| firewall_active |    no    | boolean |         | Indicates if the firewall is active.                                                                |
+| ips             |    no    | list    |         | A list of IPs to be assigned to the NIC.                                                            |
+| api_url         |    no    | string  |         | The ProfitBricks API base URL.                                                                      |
+| username        |    no    | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable.               |
+| password        |    no    | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable.               |
+| wait            |    no    | boolean | true    | Wait for the operation to complete before continuing.                                               |
+| wait_timeout    |    no    | integer | 600     | The number of seconds until the wait ends.                                                          |
+| state           |    no    | string  | present | Indicate desired state of the resource: **present**, absent, update                                 |
 
 ### profitbricks_volume
 
@@ -400,30 +400,30 @@ The following parameters are supported:
 
 The following parameters are supported:
 
-| Name | Required | Type | Default | Description |
-| --- | :-: | --- | --- | --- |
-| datacenter | **yes** | string | | The datacenter in which to create the volume. |
-| server | no | string | | The server on which to attach the volume. |
-| name | **yes**/no | string | | The name of the volume. You can enumerate the names using auto_increment. |
-| size | no | integer | 10 | The size of the volume in GB. |
-| bus | no | string | VIRTIO | The bus type of the volume: **VIRTIO**, IDE |
-| image | no | string | | The image alias, image UUID, or snapshot UUID for the volume. |
-| image_password | no | string | | Password set for the administrative user. |
-| ssh_keys | no | list | | Public SSH keys allowing access to the server. |
-| disk_type | no | string | HDD | The disk type of the volume: **HDD**, SSD |
-| licence_type | no | string | UNKNOWN | The licence type for the volume. This is used when the image is non-standard: LINUX, WINDOWS, **UNKNOWN**, OTHER, WINDOWS2016 |
-| availability_zone | no | string | AUTO | The storage availability zone assigned to the volume: **AUTO**, ZONE\_1, ZONE\_2, ZONE\_3 |
-| count | no | integer | 1 | The number of volumes to create. |
-| auto_increment | no | boolean | true | Whether or not to increment created servers. |
-| instance_ids | **yes**/no | list | | List of instance UUIDs or names. Required for `state='absent'` or `state='update'` to remove or update volumes. |
-| api_url | no | string | | The ProfitBricks API base URL. |
-| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable. |
-| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable. |
-| wait | no | boolean | true | Wait for the resource to be created before continuing. |
-| wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
+| Name              |  Required  | Type    | Default | Description                                                                                                                   |
+| ----------------- | :--------: | ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| datacenter        |  **yes**   | string  |         | The datacenter in which to create the volume.                                                                                 |
+| server            |     no     | string  |         | The server on which to attach the volume.                                                                                     |
+| name              | **yes**/no | string  |         | The name of the volume. You can enumerate the names using auto_increment.                                                     |
+| size              |     no     | integer | 10      | The size of the volume in GB.                                                                                                 |
+| bus               |     no     | string  | VIRTIO  | The bus type of the volume: **VIRTIO**, IDE                                                                                   |
+| image             |     no     | string  |         | The image alias, image UUID, or snapshot UUID for the volume.                                                                 |
+| image_password    |     no     | string  |         | Password set for the administrative user.                                                                                     |
+| ssh_keys          |     no     | list    |         | Public SSH keys allowing access to the server.                                                                                |
+| disk_type         |     no     | string  | HDD     | The disk type of the volume: **HDD**, SSD                                                                                     |
+| licence_type      |     no     | string  | UNKNOWN | The licence type for the volume. This is used when the image is non-standard: LINUX, WINDOWS, **UNKNOWN**, OTHER, WINDOWS2016 |
+| availability_zone |     no     | string  | AUTO    | The storage availability zone assigned to the volume: **AUTO**, ZONE_1, ZONE_2, ZONE_3                                        |
+| count             |     no     | integer | 1       | The number of volumes to create.                                                                                              |
+| auto_increment    |     no     | boolean | true    | Whether or not to increment created servers.                                                                                  |
+| instance_ids      | **yes**/no | list    |         | List of instance UUIDs or names. Required for `state='absent'` or `state='update'` to remove or update volumes.               |
+| api_url           |     no     | string  |         | The ProfitBricks API base URL.                                                                                                |
+| username          |     no     | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.                                          |
+| password          |     no     | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.                                          |
+| wait              |     no     | boolean | true    | Wait for the resource to be created before continuing.                                                                        |
+| wait_timeout      |     no     | integer | 600     | The number of seconds until the wait ends.                                                                                    |
+| state             |     no     | string  | present | Indicate desired state of the resource: **present**, absent, update                                                           |
 
-### profitbricks\_firewall\_rule
+### profitbricks_firewall_rule
 
 #### Example Syntax
 
@@ -444,26 +444,26 @@ The following parameters are supported:
 
 The following parameters are supported:
 
-| Name | Required | Type | Default | Description |
-| --- | :-: | --- | --- | --- |
-| datacenter | **yes** | string | | The datacenter name or UUID in which to operate. |
-| server | **yes** | string | | The server name or UUID. |
-| nic | **yes** | string | | The NIC name or UUID. |
-| name | **yes** | string | | The name or UUID of the firewall rule. |
-| protocol | no | string | | The protocol of the firewall rule: TCP, UDP, ICMP, ANY |
-| source_mac | no | string | | Only traffic originating from the MAC address is allowed. No value allows all source MAC addresses. |
-| source_ip | no | string | | Only traffic originating from the IPv4 address is allowed. No value allows all source IPs. |
-| target_ip | no | string | | In case the target NIC has multiple IP addresses, only traffic directed to the IP address of the NIC is allowed. No value allows all target IPs. |
-| port\_range\_start | integer | string | | Defines the start range of the allowed port if protocol TCP or UDP is chosen. Leave value empty to allow all ports: 1 to 65534 |
-| port\_range\_end | integer | string | | Defines the end range of the allowed port if the protocol TCP or UDP is chosen. Leave value empty to allow all ports: 1 to 65534 |
-| icmp_type | no | integer | | Defines the allowed type if the protocol ICMP is chosen. No value allows all types: 0 to 254 |
-| icmp_code | no | integer | | Defines the allowed code if protocol ICMP is chosen. No value allows all codes: 0 to 254 |
-| api_url | no | string | | The ProfitBricks API base URL. |
-| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable. |
-| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable. |
-| wait | no | boolean | true | Wait for the operation to complete before continuing. |
-| wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
+| Name             | Required | Type    | Default | Description                                                                                                                                      |
+| ---------------- | :------: | ------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| datacenter       | **yes**  | string  |         | The datacenter name or UUID in which to operate.                                                                                                 |
+| server           | **yes**  | string  |         | The server name or UUID.                                                                                                                         |
+| nic              | **yes**  | string  |         | The NIC name or UUID.                                                                                                                            |
+| name             | **yes**  | string  |         | The name or UUID of the firewall rule.                                                                                                           |
+| protocol         |    no    | string  |         | The protocol of the firewall rule: TCP, UDP, ICMP, ANY                                                                                           |
+| source_mac       |    no    | string  |         | Only traffic originating from the MAC address is allowed. No value allows all source MAC addresses.                                              |
+| source_ip        |    no    | string  |         | Only traffic originating from the IPv4 address is allowed. No value allows all source IPs.                                                       |
+| target_ip        |    no    | string  |         | In case the target NIC has multiple IP addresses, only traffic directed to the IP address of the NIC is allowed. No value allows all target IPs. |
+| port_range_start | integer  | string  |         | Defines the start range of the allowed port if protocol TCP or UDP is chosen. Leave value empty to allow all ports: 1 to 65534                   |
+| port_range_end   | integer  | string  |         | Defines the end range of the allowed port if the protocol TCP or UDP is chosen. Leave value empty to allow all ports: 1 to 65534                 |
+| icmp_type        |    no    | integer |         | Defines the allowed type if the protocol ICMP is chosen. No value allows all types: 0 to 254                                                     |
+| icmp_code        |    no    | integer |         | Defines the allowed code if protocol ICMP is chosen. No value allows all codes: 0 to 254                                                         |
+| api_url          |    no    | string  |         | The ProfitBricks API base URL.                                                                                                                   |
+| username         |    no    | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.                                                             |
+| password         |    no    | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.                                                             |
+| wait             |    no    | boolean | true    | Wait for the operation to complete before continuing.                                                                                            |
+| wait_timeout     |    no    | integer | 600     | The number of seconds until the wait ends.                                                                                                       |
+| state            |    no    | string  | present | Indicate desired state of the resource: **present**, absent, update                                                                              |
 
 ### profitbricks_ipblock
 
@@ -479,17 +479,17 @@ The following parameters are supported:
 
 The following parameters are supported:
 
-| Name | Required | Type | Default | Description |
-| --- | :-: | --- | --- | --- |
-| name | **yes** | string | | The name of the IPBlock. |
-| location | no | string | us/las | The IPBlock location: us/las, us/ewr, de/fra, de/fkb |
-| size | no | integer | 1 | The number of IP addresses to allocate in the IPBlock. |
-| api_url | no | string | | The ProfitBricks API base URL. |
-| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
-| wait | no | boolean | true | Wait for the operation to complete before continuing. |
-| wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| state | no | string | present | Indicates desired state of the resource: **present**, absent |
+| Name         | Required | Type    | Default | Description                                                                           |
+| ------------ | :------: | ------- | ------- | ------------------------------------------------------------------------------------- |
+| name         | **yes**  | string  |         | The name of the IPBlock.                                                              |
+| location     |    no    | string  | us/las  | The IPBlock location: us/las, us/ewr, de/fra, de/fkb, de/txl                          |
+| size         |    no    | integer | 1       | The number of IP addresses to allocate in the IPBlock.                                |
+| api_url      |    no    | string  |         | The ProfitBricks API base URL.                                                        |
+| username     |    no    | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
+| password     |    no    | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
+| wait         |    no    | boolean | true    | Wait for the operation to complete before continuing.                                 |
+| wait_timeout |    no    | integer | 600     | The number of seconds until the wait ends.                                            |
+| state        |    no    | string  | present | Indicates desired state of the resource: **present**, absent                          |
 
 ### profitbricks_snapshot
 
@@ -512,29 +512,29 @@ The following parameters are supported:
 
 The following parameters are supported:
 
-| Name | Required | Type | Default | Description |
-| --- | :-: | --- | --- | --- |
-| datacenter | **yes**/no | string | | The datacenter in which the volume resides. Required for `state='present'` or `state='restore'` to create or restore a snapshot. |
-| volume | **yes**/no | string | | The volume to create or restore the snapshot. Required for `state='present'` or `state='restore'`. |
-| name | **yes**/no | string | | The name of the snapshot. Required for `state='update'` or `state='absent'` to update or remove a snapshot. |
-| description | no | string | | The description of the snapshot. |
-| licence_type | no | string | | The licence type for the volume. This is used when updating the snapshot: LINUX, WINDOWS, UNKNOWN, OTHER, WINDOWS2016 |
-| cpu_hot_plug | no | boolean | | Indicates the volume is capable of CPU hot plug (no reboot required). |
-| cpu_hot_unplug | no | boolean | | Indicates the volume is capable of CPU hot unplug (no reboot required). |
-| ram_hot_plug | no | boolean | | Indicates the volume is capable of memory hot plug. |
-| ram_hot_unplug | no | boolean | | Indicates the volume is capable of memory hot unplug. |
-| nic_hot_plug | no | boolean | | Indicates the volume is capable of NIC hot plug. |
-| nic_hot_unplug | no | boolean | | Indicates the volume is capable of NIC hot unplug. |
-| disc_virtio_hot_plug | no | boolean | | Indicates the volume is capable of VirtIO drive hot plug. |
-| disc_virtio_hot_unplug | no | boolean | | Indicates the volume is capable of VirtIO drive hot unplug. |
-| disc_scsi_hot_plug | no | boolean | | Indicates the volume is capable of SCSI drive hot plug. |
-| disc_scsi_hot_unplug | no | boolean | | Indicates the volume is capable of SCSI drive hot unplug. |
-| api_url | no | string | | The ProfitBricks API base URL. |
-| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable. |
-| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable. |
-| wait | no | boolean | true | Wait for the resource to be created before continuing. |
-| wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| state | no | string | present | Indicate desired state of the resource: **present**, absent, restore, update |
+| Name                   |  Required  | Type    | Default | Description                                                                                                                      |
+| ---------------------- | :--------: | ------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| datacenter             | **yes**/no | string  |         | The datacenter in which the volume resides. Required for `state='present'` or `state='restore'` to create or restore a snapshot. |
+| volume                 | **yes**/no | string  |         | The volume to create or restore the snapshot. Required for `state='present'` or `state='restore'`.                               |
+| name                   | **yes**/no | string  |         | The name of the snapshot. Required for `state='update'` or `state='absent'` to update or remove a snapshot.                      |
+| description            |     no     | string  |         | The description of the snapshot.                                                                                                 |
+| licence_type           |     no     | string  |         | The licence type for the volume. This is used when updating the snapshot: LINUX, WINDOWS, UNKNOWN, OTHER, WINDOWS2016            |
+| cpu_hot_plug           |     no     | boolean |         | Indicates the volume is capable of CPU hot plug (no reboot required).                                                            |
+| cpu_hot_unplug         |     no     | boolean |         | Indicates the volume is capable of CPU hot unplug (no reboot required).                                                          |
+| ram_hot_plug           |     no     | boolean |         | Indicates the volume is capable of memory hot plug.                                                                              |
+| ram_hot_unplug         |     no     | boolean |         | Indicates the volume is capable of memory hot unplug.                                                                            |
+| nic_hot_plug           |     no     | boolean |         | Indicates the volume is capable of NIC hot plug.                                                                                 |
+| nic_hot_unplug         |     no     | boolean |         | Indicates the volume is capable of NIC hot unplug.                                                                               |
+| disc_virtio_hot_plug   |     no     | boolean |         | Indicates the volume is capable of VirtIO drive hot plug.                                                                        |
+| disc_virtio_hot_unplug |     no     | boolean |         | Indicates the volume is capable of VirtIO drive hot unplug.                                                                      |
+| disc_scsi_hot_plug     |     no     | boolean |         | Indicates the volume is capable of SCSI drive hot plug.                                                                          |
+| disc_scsi_hot_unplug   |     no     | boolean |         | Indicates the volume is capable of SCSI drive hot unplug.                                                                        |
+| api_url                |     no     | string  |         | The ProfitBricks API base URL.                                                                                                   |
+| username               |     no     | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.                                             |
+| password               |     no     | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.                                             |
+| wait                   |     no     | boolean | true    | Wait for the resource to be created before continuing.                                                                           |
+| wait_timeout           |     no     | integer | 600     | The number of seconds until the wait ends.                                                                                       |
+| state                  |     no     | string  | present | Indicate desired state of the resource: **present**, absent, restore, update                                                     |
 
 ### profitbricks_user
 
@@ -563,21 +563,21 @@ The following parameters are supported:
 
 The following parameters are supported:
 
-| Name | Required | Type | Default | Description |
-| --- | :-: | --- | --- | --- |
-| firstname | **yes**/no | string | | The user's first name. Required for `state='present'` only. |
-| lastname | **yes**/no | string | | The user's last name. Required for `state='present'` only. |
-| email | **yes** | string | | The user's email. |
-| user_password | **yes**/no | string | | A password for the user. Required for `state='present'` only. |
-| administrator | no | boolean | | Indicates if the user has administrative rights. |
-| force_sec_auth | no | boolean | | Indicates if secure (two-factor) authentication should be forced for the user. |
-| groups | no | list | | A list of group IDs or names where the user (non-administrator) is to be added. Set to empty list (`[]`) to remove the user from all groups. |
-| api_url | no | string | | The ProfitBricks API base URL. |
-| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
-| wait | no | boolean | true | Wait for the operation to complete before continuing. |
-| wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
+| Name           |  Required  | Type    | Default | Description                                                                                                                                  |
+| -------------- | :--------: | ------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| firstname      | **yes**/no | string  |         | The user's first name. Required for `state='present'` only.                                                                                  |
+| lastname       | **yes**/no | string  |         | The user's last name. Required for `state='present'` only.                                                                                   |
+| email          |  **yes**   | string  |         | The user's email.                                                                                                                            |
+| user_password  | **yes**/no | string  |         | A password for the user. Required for `state='present'` only.                                                                                |
+| administrator  |     no     | boolean |         | Indicates if the user has administrative rights.                                                                                             |
+| force_sec_auth |     no     | boolean |         | Indicates if secure (two-factor) authentication should be forced for the user.                                                               |
+| groups         |     no     | list    |         | A list of group IDs or names where the user (non-administrator) is to be added. Set to empty list (`[]`) to remove the user from all groups. |
+| api_url        |     no     | string  |         | The ProfitBricks API base URL.                                                                                                               |
+| username       |     no     | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable.                                                        |
+| password       |     no     | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable.                                                        |
+| wait           |     no     | boolean | true    | Wait for the operation to complete before continuing.                                                                                        |
+| wait_timeout   |     no     | integer | 600     | The number of seconds until the wait ends.                                                                                                   |
+| state          |     no     | string  | present | Indicate desired state of the resource: **present**, absent, update                                                                          |
 
 ### profitbricks_group
 
@@ -603,20 +603,20 @@ The following parameters are supported:
 
 The following parameters are supported:
 
-| Name | Required | Type | Default | Description |
-| --- | :-: | --- | --- | --- |
-| name | **yes** | string | | The name of the group. |
-| create_datacenter | no | boolean | | Indicates if the group is allowed to create virtual data centers. |
-| create_snapshot | no | boolean | | Indicates if the group is allowed to create snapshots. |
-| reserve_ip | no | boolean | | Indicates if the group is allowed to reserve IP addresses. |
-| access_activity_log | no | boolean | | Indicates if the group is allowed to access the activity log. |
-| users | no | list | | A list of (non-administrator) user IDs or emails to associate with the group. Set to empty list (`[]`) to remove all users from the group. |
-| api_url | no | string | | The ProfitBricks API base URL. |
-| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
-| wait | no | boolean | true | Wait for the operation to complete before continuing. |
-| wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
+| Name                | Required | Type    | Default | Description                                                                                                                                |
+| ------------------- | :------: | ------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| name                | **yes**  | string  |         | The name of the group.                                                                                                                     |
+| create_datacenter   |    no    | boolean |         | Indicates if the group is allowed to create virtual data centers.                                                                          |
+| create_snapshot     |    no    | boolean |         | Indicates if the group is allowed to create snapshots.                                                                                     |
+| reserve_ip          |    no    | boolean |         | Indicates if the group is allowed to reserve IP addresses.                                                                                 |
+| access_activity_log |    no    | boolean |         | Indicates if the group is allowed to access the activity log.                                                                              |
+| users               |    no    | list    |         | A list of (non-administrator) user IDs or emails to associate with the group. Set to empty list (`[]`) to remove all users from the group. |
+| api_url             |    no    | string  |         | The ProfitBricks API base URL.                                                                                                             |
+| username            |    no    | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable.                                                      |
+| password            |    no    | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable.                                                      |
+| wait                |    no    | boolean | true    | Wait for the operation to complete before continuing.                                                                                      |
+| wait_timeout        |    no    | integer | 600     | The number of seconds until the wait ends.                                                                                                 |
+| state               |    no    | string  | present | Indicate desired state of the resource: **present**, absent, update                                                                        |
 
 ### profitbricks_share
 
@@ -644,18 +644,18 @@ The following parameters are supported:
 
 The following parameters are supported:
 
-| Name | Required | Type | Default | Description |
-| --- | :-: | --- | --- | --- |
-| group | **yes** | string | | The name or ID of the group. |
-| resource_ids | **yes**  | list | | A list of resource IDs to add, update or remove as shares. |
-| edit_privilege | no | boolean | | Indicates that the group has permission to edit privileges on the resource. |
-| share_privilege | no | boolean | | Indicates that the group has permission to share the resource. |
-| api_url | no | string | | The ProfitBricks API base URL. |
-| username | no | string | | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| password | no | string | | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
-| wait | no | boolean | true | Wait for the operation to complete before continuing. |
-| wait_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
+| Name            | Required | Type    | Default | Description                                                                           |
+| --------------- | :------: | ------- | ------- | ------------------------------------------------------------------------------------- |
+| group           | **yes**  | string  |         | The name or ID of the group.                                                          |
+| resource_ids    | **yes**  | list    |         | A list of resource IDs to add, update or remove as shares.                            |
+| edit_privilege  |    no    | boolean |         | Indicates that the group has permission to edit privileges on the resource.           |
+| share_privilege |    no    | boolean |         | Indicates that the group has permission to share the resource.                        |
+| api_url         |    no    | string  |         | The ProfitBricks API base URL.                                                        |
+| username        |    no    | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
+| password        |    no    | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
+| wait            |    no    | boolean | true    | Wait for the operation to complete before continuing.                                 |
+| wait_timeout    |    no    | integer | 600     | The number of seconds until the wait ends.                                            |
+| state           |    no    | string  | present | Indicate desired state of the resource: **present**, absent, update                   |
 
 ## Examples
 
@@ -763,10 +763,10 @@ The following example will provision two servers both connected to public and pr
 
 You are welcome to contact us with questions or comments using the **Community** section of the [ProfitBricks DevOps Central](https://devops.profitbricks.com/). Please report any feature requests or issues using GitHub issue tracker.
 
-* [ProfitBricks REST API](https://devops.profitbricks.com/api/rest/) documentation.
-* Ask a question or discuss at [ProfitBricks DevOps Central](https://devops.profitbricks.com/community/).
-* Report an [issue here](https://github.com/profitbricks/profitbricks-module-ansible/issues).
-* More examples are located in the [GitHub repository](https://github.com/profitbricks/profitbricks-module-ansible/tree/master/examples) `examples` directory.
+- [ProfitBricks REST API](https://devops.profitbricks.com/api/rest/) documentation.
+- Ask a question or discuss at [ProfitBricks DevOps Central](https://devops.profitbricks.com/community/).
+- Report an [issue here](https://github.com/profitbricks/profitbricks-module-ansible/issues).
+- More examples are located in the [GitHub repository](https://github.com/profitbricks/profitbricks-module-ansible/tree/master/examples) `examples` directory.
 
 ## Testing
 
