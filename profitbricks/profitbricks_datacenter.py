@@ -33,7 +33,7 @@ options:
       - The datacenter location.
     required: false
     default: us/las
-    choices: [ "us/las", "us/ewr", "de/fra", "de/fkb" ]
+    choices: [ "us/las", "us/ewr", "de/fra", "de/fkb", "de/txl" ]
   api_url:
     description:
       - The ProfitBricks API base URL.
@@ -116,7 +116,9 @@ from ansible.module_utils._text import to_native
 LOCATIONS = ['us/las',
              'us/ewr',
              'de/fra',
-             'de/fkb']
+             'de/fkb',
+             'de/txl'
+             ]
 
 uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)

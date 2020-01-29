@@ -2,9 +2,9 @@
 
 ## Table of Contents
 
-* [Description](#description)
-* [Installation](#installation)
-* [Usage](#usage)
+- [Description](#description)
+- [Installation](#installation)
+- [Usage](#usage)
 
 ## Description
 
@@ -120,18 +120,19 @@ optional arguments:
 ```
 $ ansible -i profitbricks_inventory.py all -m ping
 192.96.159.244 | SUCCESS => {
-    "changed": false, 
+    "changed": false,
     "ping": "pong"
 }
 162.254.26.143 | SUCCESS => {
-    "changed": false, 
+    "changed": false,
     "ping": "pong"
 }
 ```
 
 By default, the following groups are generated from `--list` option:
- - **ID** (data center ID)
- - **NAME** (image NAME)
- - **AVAILABILITY_ZONE** (server availability zone)
- - **LOCATION_ID** ('/' is replaced with '-')
- - **LICENCE_TYPE**  (image license type)
+
+- **ID** (data center ID)
+- **NAME** (image NAME)
+- **AVAILABILITY_ZONE** (server availability zone)
+- **LOCATION_ID** ('/' is replaced with '-')
+- **LICENCE_TYPE** (image license type)

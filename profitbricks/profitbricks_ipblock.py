@@ -27,7 +27,7 @@ options:
       - The datacenter location.
     required: false
     default: us/las
-    choices: [ "us/las", "us/ewr", "de/fra", "de/fkb" ]
+    choices: [ "us/las", "us/ewr", "de/fra", "de/fkb", "de/txl" ]
   size:
     description:
       - The number of IP addresses to allocate in the IPBlock.
@@ -107,7 +107,9 @@ from ansible.module_utils._text import to_native
 LOCATIONS = ['us/las',
              'us/ewr',
              'de/fra',
-             'de/fkb']
+             'de/fkb',
+             'de/txl'
+             ]
 
 
 def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
