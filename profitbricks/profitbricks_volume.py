@@ -324,15 +324,13 @@ def create_volume(module, profitbricks):
     datacenter_found = False
     volumes = []
 
-    # Locate UUID for Datacenter
-    if not (uuid_match.match(datacenter)):
-        datacenter_list = profitbricks.list_datacenters()
-        for d in datacenter_list['items']:
-            dc = profitbricks.get_datacenter(d['id'])
-            if datacenter == dc['properties']['name']:
-                datacenter = d['id']
-                datacenter_found = True
-                break
+    datacenter_list = profitbricks.list_datacenters()
+    for d in datacenter_list['items']:
+        dc = profitbricks.get_datacenter(d['id'])
+        if datacenter in [dc['properties']['name'], dc['id']]:
+            datacenter = d['id']
+            datacenter_found = True
+            break
 
     if not datacenter_found:
         module.fail_json(msg='datacenter could not be found.')
@@ -406,15 +404,13 @@ def update_volume(module, profitbricks):
     changed = False
     volumes = []
 
-    # Locate UUID for Datacenter
-    if not (uuid_match.match(datacenter)):
-        datacenter_list = profitbricks.list_datacenters()
-        for d in datacenter_list['items']:
-            dc = profitbricks.get_datacenter(d['id'])
-            if datacenter == dc['properties']['name']:
-                datacenter = d['id']
-                datacenter_found = True
-                break
+    datacenter_list = profitbricks.list_datacenters()
+    for d in datacenter_list['items']:
+        dc = profitbricks.get_datacenter(d['id'])
+        if datacenter in [dc['properties']['name'], dc['id']]:
+            datacenter = d['id']
+            datacenter_found = True
+            break
 
     if not datacenter_found:
         module.fail_json(msg='datacenter could not be found.')
@@ -471,7 +467,7 @@ def delete_volume(module, profitbricks):
         datacenter_list = profitbricks.list_datacenters()
         for d in datacenter_list['items']:
             dc = profitbricks.get_datacenter(d['id'])
-            if datacenter == dc['properties']['name']:
+            if datacenter in [dc['properties']['name'], dc['id']]:
                 datacenter = d['id']
                 break
 
