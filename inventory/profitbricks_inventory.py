@@ -415,7 +415,7 @@ class ProfitBricksInventory(object):
                 elif server['properties']['bootCdrom'] is not None:
                     boot_device = server['properties']['bootCdrom']
                     image_key = 'name'
-                if image_key in boot_device['properties']:
+                if 'properties' in boot_device and image_key in boot_device['properties']:
                     key = boot_device['properties'][image_key]
                     for image in self.data['images']:
                         if key == image['id'] or key == image['properties']['name']:
