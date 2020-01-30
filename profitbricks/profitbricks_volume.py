@@ -342,7 +342,7 @@ def create_volume(module, profitbricks):
         try:
             name % 0
         except TypeError as e:
-            if e.message and e.message.startswith('not all'):
+            if (hasattr(e, 'message') and e.message.startswith('not all') or to_native(e).startswith('not all')):
                 name = '%s%%d' % name
             else:
                 module.fail_json(msg=e.message, exception=traceback.format_exc())
