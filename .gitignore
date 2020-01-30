@@ -80,6 +80,7 @@ celerybeat-schedule
 
 # IDE stuff
 .idea/
+.vscode/
 
 # virtualenv
 venv/
