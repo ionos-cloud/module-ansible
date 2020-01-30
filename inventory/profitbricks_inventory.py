@@ -368,6 +368,10 @@ class ProfitBricksInventory(object):
 
         # add all servers by id and name
         for server in self.data['servers']:
+
+            if len(server['entities']['nics']['items'][0]['properties']['ips']) < 1:
+                continue
+
             host_ip = server['entities']['nics']['items'][0]['properties']['ips'][0]
 
             if self.server_name_as_inventory_hostname:
