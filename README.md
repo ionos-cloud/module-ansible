@@ -231,35 +231,35 @@ The ProfitBricks module sets server authentication using the **image_password** 
 
 The following parameters are supported:
 
-| Name                     |  Required  | Type             | Default     | Description                                                                                                          |
-| ------------------------ | :--------: | ---------------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
-| auto_increment           |     no     | boolean          | true        | Whether or not to increment created servers.                                                                         |
-| count                    |     no     | integer          | 1           | The number of servers to create.                                                                                     |
-| name                     | **yes**/no | string           |             | The name of the server(s). Required only for `state='present'`.                                                      |
-| image                    | **yes**/no | string           |             | The image alias or UUID for creating the server. Required only for `state='present'`.                                |
-| image_password           |     no     | string           |             | Password set for the administrative user.                                                                            |
-| ssh_keys                 |     no     | list             | none        | List of public SSH keys allowing access to the server.                                                               |
-| datacenter               |  **yes**   | string           | none        | The datacenter where the server is located.                                                                          |
-| cores                    |     no     | integer          | 2           | The number of CPU cores to allocate to the server.                                                                   |
-| ram                      |     no     | integer          | 2048        | The amount of memory to allocate to the server.                                                                      |
-| cpu_family               |     no     | string           | AMD_OPTERON | The CPU family type of the server: **AMD_OPTERON**, INTEL_XEON                                                       |
-| availability_zone        |     no     | string           | AUTO        | The availability zone assigned to the server: **AUTO**, ZONE_1, ZONE_2                                               |
-| volume_size              |     no     | integer          | 10          | The size in GB of the boot volume.                                                                                   |
-| disk_type                |     no     | string           | HDD         | The type of disk the volume will use: **HDD**, SSD                                                                   |
-| volume_availability_zone |     no     | string           | AUTO        | The storage availability zone assigned to the volume: **AUTO**, ZONE_1, ZONE_2, ZONE_3                               |
-| bus                      |     no     | string           | VIRTIO      | The bus type for the volume: **VIRTIO**, IDE                                                                         |
-| instance_ids             | **yes**/no | list             |             | List of instance IDs or names. **Not required** for `state='present'`.                                               |
-| location                 |     no     | string           | us/las      | The datacenter location used only if the module creates a default datacenter: us/las, us/ewr, de/fra, de/fkb, de/txl |
-| assign_public_ip         |     no     | boolean          | false       | This will assign the server to the public LAN. The LAN is created if no LAN exists with public Internet access.      |
-| lan                      |     no     | string / integer | 1           | The LAN ID / Name for the server.                                                                                    |
-| nat                      |     no     | boolean          | false       | The private IP address has outbound access to the Internet.                                                          |
-| api_url                  |     no     | string           |             | The ProfitBricks API base URL.                                                                                       |
-| username                 |     no     | string           |             | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.                                 |
-| password                 |     no     | string           |             | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.                                 |
-| wait                     |     no     | boolean          | true        | Wait for the instance to be in state 'running' before continuing.                                                    |
-| wait_timeout             |     no     | integer          | 600         | The number of seconds until the wait ends.                                                                           |
-| remove_boot_volume       |     no     | boolean          | true        | Remove the boot volume of the server being deleted.                                                                  |
-| state                    |     no     | string           | present     | Indicate desired state of the resource: **present**, absent, running, stopped, update                                |
+| Name                     |  Required  | Type             | Default     | Description                                                                                                                  |
+| ------------------------ | :--------: | ---------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| auto_increment           |     no     | boolean          | true        | Whether or not to increment created servers.                                                                                 |
+| count                    |     no     | integer          | 1           | The number of servers to create.                                                                                             |
+| name                     | **yes**/no | string           |             | The name of the server(s). Required only for `state='present'`.                                                              |
+| image                    | **yes**/no | string           |             | The image alias or UUID for creating the server. Required only for `state='present'`.                                        |
+| image_password           |     no     | string           |             | Password set for the administrative user.                                                                                    |
+| ssh_keys                 |     no     | list             | none        | List of public SSH keys allowing access to the server.                                                                       |
+| datacenter               |  **yes**   | string           | none        | The datacenter where the server is located.                                                                                  |
+| cores                    |     no     | integer          | 2           | The number of CPU cores to allocate to the server.                                                                           |
+| ram                      |     no     | integer          | 2048        | The amount of memory to allocate to the server.                                                                              |
+| cpu_family               |     no     | string           | AMD_OPTERON | The CPU family type of the server: **AMD_OPTERON**, INTEL_XEON, INTEL_SKYLAKE                                                |
+| availability_zone        |     no     | string           | AUTO        | The availability zone assigned to the server: **AUTO**, ZONE_1, ZONE_2                                                       |
+| volume_size              |     no     | integer          | 10          | The size in GB of the boot volume.                                                                                           |
+| disk_type                |     no     | string           | HDD         | The type of disk the volume will use: **HDD**, SSD                                                                           |
+| volume_availability_zone |     no     | string           | AUTO        | The storage availability zone assigned to the volume: **AUTO**, ZONE_1, ZONE_2, ZONE_3                                       |
+| bus                      |     no     | string           | VIRTIO      | The bus type for the volume: **VIRTIO**, IDE                                                                                 |
+| instance_ids             | **yes**/no | list             |             | List of instance IDs or names. **Not required** for `state='present'`.                                                       |
+| location                 |     no     | string           | us/las      | The datacenter location used only if the module creates a default datacenter: us/las, us/ewr, de/fra, de/fkb, de/txl, gb/lhr |
+| assign_public_ip         |     no     | boolean          | false       | This will assign the server to the public LAN. The LAN is created if no LAN exists with public Internet access.              |
+| lan                      |     no     | string / integer | 1           | The LAN ID / Name for the server.                                                                                            |
+| nat                      |     no     | boolean          | false       | The private IP address has outbound access to the Internet.                                                                  |
+| api_url                  |     no     | string           |             | The ProfitBricks API base URL.                                                                                               |
+| username                 |     no     | string           |             | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.                                         |
+| password                 |     no     | string           |             | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.                                         |
+| wait                     |     no     | boolean          | true        | Wait for the instance to be in state 'running' before continuing.                                                            |
+| wait_timeout             |     no     | integer          | 600         | The number of seconds until the wait ends.                                                                                   |
+| remove_boot_volume       |     no     | boolean          | true        | Remove the boot volume of the server being deleted.                                                                          |
+| state                    |     no     | string           | present     | Indicate desired state of the resource: **present**, absent, running, stopped, update                                        |
 
 ### profitbricks_datacenter
 
@@ -277,7 +277,7 @@ The following parameters are supported:
 | Name         | Required | Type    | Default | Description                                                                           |
 | ------------ | :------: | ------- | ------- | ------------------------------------------------------------------------------------- |
 | name         | **yes**  | string  |         | The name of the datacenter.                                                           |
-| location     |    no    | string  | us/las  | The datacenter location: us/las, us/ewr, de/fra, de/fkb, de/txl                       |
+| location     |    no    | string  | us/las  | The datacenter location: us/las, us/ewr, de/fra, de/fkb, de/txl, gb/lhr               |
 | description  |    no    | string  |         | The description of the datacenter.                                                    |
 | api_url      |    no    | string  |         | The ProfitBricks API base URL.                                                        |
 | username     |    no    | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
@@ -482,7 +482,7 @@ The following parameters are supported:
 | Name         | Required | Type    | Default | Description                                                                           |
 | ------------ | :------: | ------- | ------- | ------------------------------------------------------------------------------------- |
 | name         | **yes**  | string  |         | The name of the IPBlock.                                                              |
-| location     |    no    | string  | us/las  | The IPBlock location: us/las, us/ewr, de/fra, de/fkb, de/txl                          |
+| location     |    no    | string  | us/las  | The IPBlock location: us/las, us/ewr, de/fra, de/fkb, de/txl, gb/lhr                  |
 | size         |    no    | integer | 1       | The number of IP addresses to allocate in the IPBlock.                                |
 | api_url      |    no    | string  |         | The ProfitBricks API base URL.                                                        |
 | username     |    no    | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
