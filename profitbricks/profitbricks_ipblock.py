@@ -27,7 +27,7 @@ options:
       - The datacenter location.
     required: false
     default: us/las
-    choices: [ "us/las", "us/ewr", "de/fra", "de/fkb", "de/txl" ]
+    choices: [ "us/las", "us/ewr", "de/fra", "de/fkb", "de/txl", "gb/lhr" ]
   size:
     description:
       - The number of IP addresses to allocate in the IPBlock.
@@ -108,7 +108,8 @@ LOCATIONS = ['us/las',
              'us/ewr',
              'de/fra',
              'de/fkb',
-             'de/txl'
+             'de/txl',
+             'gb/lhr'
              ]
 
 

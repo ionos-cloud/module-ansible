@@ -69,7 +69,7 @@ options:
       - The CPU family type to allocate to the virtual machine.
     required: false
     default: AMD_OPTERON
-    choices: [ "AMD_OPTERON", "INTEL_XEON" ]
+    choices: [ "AMD_OPTERON", "INTEL_XEON", "INTEL_SKYLAKE" ]
     version_added: "2.2"
   availability_zone:
     description:
@@ -103,7 +103,7 @@ options:
       - The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.
     required: false
     default: us/las
-    choices: [ "us/las", "us/ewr", "de/fra", "de/fkb", "de/txl" ]
+    choices: [ "us/las", "us/ewr", "de/fra", "de/fkb", "de/txl", "gb/lhr" ]
   assign_public_ip:
     description:
       - This will assign the machine to the public LAN. If no LAN exists with public Internet access it is created.
@@ -255,11 +255,13 @@ LOCATIONS = ['us/las',
              'us/ewr',
              'de/fra',
              'de/fkb',
-             'de/txl'
+             'de/txl',
+             'gb/lhr'
              ]
 
 CPU_FAMILIES = ['AMD_OPTERON',
-                'INTEL_XEON']
+                'INTEL_XEON',
+                'INTEL_SKYLAKE']
 
 DISK_TYPES = ['HDD',
               'SSD']
