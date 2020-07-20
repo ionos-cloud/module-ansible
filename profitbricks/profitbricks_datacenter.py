@@ -33,7 +33,7 @@ options:
       - The datacenter location.
     required: false
     default: us/las
-    choices: [ "us/las", "us/ewr", "de/fra", "de/fkb", "de/txl" ]
+    choices: [ "us/las", "us/ewr", "de/fra", "de/fkb", "de/txl", "gb/lhr" ]
   api_url:
     description:
       - The ProfitBricks API base URL.
@@ -117,7 +117,8 @@ LOCATIONS = ['us/las',
              'us/ewr',
              'de/fra',
              'de/fkb',
-             'de/txl'
+             'de/txl',
+             'gb/lhr'
              ]
 
 uuid_match = re.compile(
