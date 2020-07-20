@@ -410,7 +410,8 @@ def _create_machine(module, profitbricks, datacenter, name):
     except Exception as e:
         module.fail_json(msg="failed to create the new server: %s" % to_native(e))
     else:
-        server_response['nic'] = server_response['entities']['nics']['items'][0]
+        if hasattr(server_response['entities'], 'nics'):
+          server_response['nic'] = server_response['entities']['nics']['items'][0]
         return server_response
 
 
@@ -818,7 +819,7 @@ def main():
         supports_check_mode=True
     )
 
-    if module.params.get('lan') is None and not (isinstance(module.params.get('lan'), str) or isinstance(module.params.get('lan'), int)):
+    if module.params.get('lan') is not None and not (isinstance(module.params.get('lan'), str) or isinstance(module.params.get('lan'), int)):
         module.fail_json(msg='lan should either be a string or a number')
 
     if not HAS_PB_SDK:
