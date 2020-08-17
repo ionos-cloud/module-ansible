@@ -362,13 +362,15 @@ def _create_machine(module, profitbricks, datacenter, name):
     if lan is not None:
         matching_lan = _get_lan_by_id_or_properties(profitbricks.list_lans(datacenter)['items'], lan, name=lan)
 
-        nics.append(
-            NIC(
-                name=str(uuid4()).replace('-', '')[:10],
-                nat=nat,
-                lan=int(matching_lan['id'])
+        if (not any(n.lan == int(matching_lan['id']) for n in nics)) or len(nics) < 1:
+
+            nics.append(
+                NIC(
+                    name=str(uuid4()).replace('-', '')[:10],
+                    nat=nat,
+                    lan=int(matching_lan['id'])
+                )
             )
-        )
 
     v = Volume(
         name=str(uuid4()).replace('-', '')[:10],
@@ -792,7 +794,7 @@ def main():
             image_password=dict(type='str', default=None, no_log=True),
             ssh_keys=dict(type='list', default=[]),
             bus=dict(type='str', choices=BUS_TYPES, default='VIRTIO'),
-            lan=dict(type='raw', default=1),
+            lan=dict(type='raw', required=False),
             nat=dict(type='bool', default=None),
             count=dict(type='int', default=1),
             auto_increment=dict(type='bool', default=True),
