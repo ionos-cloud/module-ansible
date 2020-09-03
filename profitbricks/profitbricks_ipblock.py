@@ -67,7 +67,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "profitbricks >= 4.0.0"
+    - "ionosenterprise >= 5.2.0"
 author:
     - Nurfet Becirevic (@nurfet-becirevic)
     - Ethan Devenport (@edevenport)
@@ -91,13 +91,14 @@ EXAMPLES = '''
 
 import time
 
-HAS_PB_SDK = True
+HAS_SDK = True
 
 try:
-    from profitbricks import __version__ as sdk_version
-    from profitbricks.client import ProfitBricksService, IPBlock
+    from ionosenterprise import __version__ as sdk_version
+    from ionosenterprise.client import IonosEnterpriseService
+    from ionosenterprise.items import IPBlock
 except ImportError:
-    HAS_PB_SDK = False
+    HAS_SDK = False
 
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
@@ -113,13 +114,13 @@ LOCATIONS = ['us/las',
              ]
 
 
-def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
+def _wait_for_completion(client, promise, wait_timeout, msg):
     if not promise:
         return
     wait_timeout = time.time() + wait_timeout
     while wait_timeout > time.time():
         time.sleep(5)
-        operation_result = profitbricks.get_request(
+        operation_result = client.get_request(
             request_id=promise['requestId'],
             status=True)
 
@@ -134,12 +135,12 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
                     str(promise['requestId']) + '" to complete.')
 
 
-def reserve_ipblock(module, profitbricks):
+def reserve_ipblock(module, client):
     """
     Creates an IPBlock.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         The IPBlock instance
@@ -150,7 +151,7 @@ def reserve_ipblock(module, profitbricks):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    ip_list = profitbricks.list_ipblocks()
+    ip_list = client.list_ipblocks()
     ip = None
     for i in ip_list['items']:
         if name == i['properties']['name']:
@@ -175,10 +176,10 @@ def reserve_ipblock(module, profitbricks):
             size=size
         )
 
-        ipblock_response = profitbricks.reserve_ipblock(ipblock)
+        ipblock_response = client.reserve_ipblock(ipblock)
 
         if wait:
-            _wait_for_completion(profitbricks, ipblock_response,
+            _wait_for_completion(client, ipblock_response,
                                  wait_timeout, "reserve_ipblock")
 
         return {
@@ -191,12 +192,12 @@ def reserve_ipblock(module, profitbricks):
         module.fail_json(msg="failed to create the IPBlock: %s" % to_native(e))
 
 
-def delete_ipblock(module, profitbricks):
+def delete_ipblock(module, client):
     """
     Removes an IPBlock
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         True if the IPBlock was removed, false otherwise
@@ -204,14 +205,14 @@ def delete_ipblock(module, profitbricks):
     name = module.params.get('name')
 
     # Locate UUID for the IPBlock
-    ipblock_list = profitbricks.list_ipblocks()
+    ipblock_list = client.list_ipblocks()
     id = _get_resource_id(ipblock_list, name, module, "IP Block")
 
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        ipblock_response = profitbricks.delete_ipblock(id)
+        ipblock_response = client.delete_ipblock(id)
         return ipblock_response
     except Exception as e:
         module.fail_json(msg="failed to remove the IPBlock: %s" % to_native(e))
@@ -256,37 +257,37 @@ def main():
         supports_check_mode=True
     )
 
-    if not HAS_PB_SDK:
-        module.fail_json(msg='profitbricks is required for this module, run `pip install profitbricks`')
+    if not HAS_SDK:
+        module.fail_json(msg='ionosenterprise is required for this module, run `pip install ionosenterprise`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
     if not api_url:
-        profitbricks = ProfitBricksService(username=username, password=password)
+        ionosenterprise = IonosEnterpriseService(username=username, password=password)
     else:
-        profitbricks = ProfitBricksService(
+        ionosenterprise = IonosEnterpriseService(
             username=username,
             password=password,
             host_base=api_url
         )
 
     user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
-    profitbricks.headers = {'User-Agent': user_agent}
+    ionosenterprise.headers = {'User-Agent': user_agent}
 
     state = module.params.get('state')
 
     if state == 'absent':
         try:
-            (changed) = delete_ipblock(module, profitbricks)
+            (changed) = delete_ipblock(module, ionosenterprise)
             module.exit_json(changed=changed)
         except Exception as e:
             module.fail_json(msg='failed to set IPBlock state: %s' % to_native(e))
 
     elif state == 'present':
         try:
-            (ipblock_dict) = reserve_ipblock(module, profitbricks)
+            (ipblock_dict) = reserve_ipblock(module, ionosenterprise)
             module.exit_json(**ipblock_dict)
         except Exception as e:
             module.fail_json(msg='failed to set IPBlocks state: %s' % to_native(e))

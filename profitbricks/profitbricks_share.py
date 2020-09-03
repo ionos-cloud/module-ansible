@@ -70,7 +70,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "profitbricks >= 4.1.0"
+    - "ionosenterprise >= 5.2.0"
 author:
     - Nurfet Becirevic (@nurfet-becirevic)
     - Ethan Devenport (@edevenport)
@@ -109,26 +109,26 @@ EXAMPLES = '''
 
 import time
 
-HAS_PB_SDK = True
+HAS_SDK = True
 
 try:
-    from profitbricks import __version__ as sdk_version
-    from profitbricks.client import ProfitBricksService
+    from ionosenterprise import __version__ as sdk_version
+    from ionosenterprise.client import IonosEnterpriseService
 except ImportError:
-    HAS_PB_SDK = False
+    HAS_SDK = False
 
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
 
-def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
+def _wait_for_completion(client, promise, wait_timeout, msg):
     if not promise:
         return
     wait_timeout = time.time() + wait_timeout
     while wait_timeout > time.time():
         time.sleep(5)
-        operation_result = profitbricks.get_request(
+        operation_result = client.get_request(
             request_id=promise['requestId'],
             status=True)
 
@@ -143,12 +143,12 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
                     str(promise['requestId']) + '" to complete.')
 
 
-def create_shares(module, profitbricks):
+def create_shares(module, client):
     """
     Create shares.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         The share instance
@@ -156,7 +156,7 @@ def create_shares(module, profitbricks):
     group = module.params.get('group')
 
     # Locate UUID for the group
-    group_list = profitbricks.list_groups()
+    group_list = client.list_groups()
     group_id = _get_resource_id(group_list, group, module, "Group")
 
     edit_privilege = module.params.get('edit_privilege')
@@ -166,7 +166,7 @@ def create_shares(module, profitbricks):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    share_list = profitbricks.list_shares(group_id=group_id)['items']
+    share_list = client.list_shares(group_id=group_id)['items']
     for share in share_list:
         if share['id'] in resource_ids:
             resource_ids.remove(share['id'])
@@ -187,7 +187,7 @@ def create_shares(module, profitbricks):
 
     try:
         for uuid in resource_ids:
-            share_response = profitbricks.add_share(
+            share_response = client.add_share(
                 group_id=group_id,
                 resource_id=uuid,
                 edit_privilege=edit_privilege or False,
@@ -195,10 +195,10 @@ def create_shares(module, profitbricks):
             )
 
             if wait:
-                _wait_for_completion(profitbricks, share_response,
+                _wait_for_completion(client, share_response,
                                      wait_timeout, "create_shares")
 
-        share_list = profitbricks.list_shares(group_id=group_id)['items']
+        share_list = client.list_shares(group_id=group_id)['items']
 
         return {
             'failed': False,
@@ -210,12 +210,12 @@ def create_shares(module, profitbricks):
         module.fail_json(msg="failed to create the shares: %s" % to_native(e))
 
 
-def update_shares(module, profitbricks):
+def update_shares(module, client):
     """
     Update shares.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         The share instances
@@ -223,7 +223,7 @@ def update_shares(module, profitbricks):
     group = module.params.get('group')
 
     # Locate UUID for the group
-    group_list = profitbricks.list_groups()
+    group_list = client.list_groups()
     group_id = _get_resource_id(group_list, group, module, "Group")
 
     edit_privilege = module.params.get('edit_privilege')
@@ -237,7 +237,7 @@ def update_shares(module, profitbricks):
         module.exit_json(changed=True)
 
     try:
-        share_list = profitbricks.list_shares(group_id=group_id)
+        share_list = client.list_shares(group_id=group_id)
 
         existing = dict()
         for share in share_list['items']:
@@ -253,7 +253,7 @@ def update_shares(module, profitbricks):
                 if share_privilege is None:
                     share_privilege = share['properties']['sharePrivilege']
 
-                share_response = profitbricks.update_share(
+                share_response = client.update_share(
                     group_id=group_id,
                     resource_id=uuid,
                     edit_privilege=edit_privilege,
@@ -261,7 +261,7 @@ def update_shares(module, profitbricks):
                 )
 
             if wait:
-                _wait_for_completion(profitbricks, share_response,
+                _wait_for_completion(client, share_response,
                                      wait_timeout, "update_shares")
             responses.append(share_response)
 
@@ -275,12 +275,12 @@ def update_shares(module, profitbricks):
         module.fail_json(msg="failed to update the shares: %s" % to_native(e))
 
 
-def delete_shares(module, profitbricks):
+def delete_shares(module, client):
     """
     Remove shares
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         True if the share was removed, false otherwise
@@ -288,7 +288,7 @@ def delete_shares(module, profitbricks):
     group = module.params.get('group')
 
     # Locate UUID for the group
-    group_list = profitbricks.list_groups()
+    group_list = client.list_groups()
     group_id = _get_resource_id(group_list, group, module, "Group")
 
     if module.check_mode:
@@ -297,7 +297,7 @@ def delete_shares(module, profitbricks):
     try:
         response = None
         for uuid in module.params.get('resource_ids'):
-            response = profitbricks.delete_share(group_id=group_id, resource_id=uuid)
+            response = client.delete_share(group_id=group_id, resource_id=uuid)
 
         return response
     except Exception as e:
@@ -344,44 +344,44 @@ def main():
         supports_check_mode=True
     )
 
-    if not HAS_PB_SDK:
-        module.fail_json(msg='profitbricks is required for this module, run `pip install profitbricks`')
+    if not HAS_SDK:
+        module.fail_json(msg='ionosenterprise is required for this module, run `pip install ionosenterprise`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
     if not api_url:
-        profitbricks = ProfitBricksService(username=username, password=password)
+        ionosenterprise = IonosEnterpriseService(username=username, password=password)
     else:
-        profitbricks = ProfitBricksService(
+        ionosenterprise = IonosEnterpriseService(
             username=username,
             password=password,
             host_base=api_url
         )
 
     user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
-    profitbricks.headers = {'User-Agent': user_agent}
+    ionosenterprise.headers = {'User-Agent': user_agent}
 
     state = module.params.get('state')
 
     if state == 'absent':
         try:
-            (changed) = delete_shares(module, profitbricks)
+            (changed) = delete_shares(module, ionosenterprise)
             module.exit_json(changed=changed)
         except Exception as e:
             module.fail_json(msg='failed to set state of the shares: %s' % to_native(e))
 
     elif state == 'present':
         try:
-            (share_dict) = create_shares(module, profitbricks)
+            (share_dict) = create_shares(module, ionosenterprise)
             module.exit_json(**share_dict)
         except Exception as e:
             module.fail_json(msg='failed to set state of the shares: %s' % to_native(e))
 
     elif state == 'update':
         try:
-            (share_dict) = update_shares(module, profitbricks)
+            (share_dict) = update_shares(module, ionosenterprise)
             module.exit_json(**share_dict)
         except Exception as e:
             module.fail_json(msg='failed to update share: %s' % to_native(e))

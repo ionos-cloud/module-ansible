@@ -1,0 +1,24 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Create an s3key
+      profitbricks_s3key:
+        user_id: "{{ user_id }}"
+
+    - name: Update an s3key
+      profitbricks_s3key:
+        user_id: "{{ user_id }}"
+        key_id: "00ca413c94eecc56857d"
+        active: False
+        state: update
+
+    - name: Remove an s3key
+      profitbricks_s3key:
+        user_id: "{{ user_id }}"
+        key_id: "00ca413c94eecc56857d"
+        state: absent

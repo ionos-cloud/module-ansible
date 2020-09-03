@@ -1,0 +1,13 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Get k8s config
+      profitbricks_k8s_config:
+        k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+        config_file: 'config.yaml'
+        state: present

@@ -88,7 +88,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "profitbricks >= 4.1.0"
+    - "ionosenterprise >= 5.2.0"
 author:
     - Nurfet Becirevic (@nurfet-becirevic)
     - Ethan Devenport (@edevenport)
@@ -127,26 +127,27 @@ EXAMPLES = '''
 
 import time
 
-HAS_PB_SDK = True
+HAS_SDK = True
 
 try:
-    from profitbricks import __version__ as sdk_version
-    from profitbricks.client import ProfitBricksService, User
+    from ionosenterprise import __version__ as sdk_version
+    from ionosenterprise.client import IonosEnterpriseService
+    from ionosenterprise.items import User
 except ImportError:
-    HAS_PB_SDK = False
+    HAS_SDK = False
 
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
 
-def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
+def _wait_for_completion(client, promise, wait_timeout, msg):
     if not promise:
         return
     wait_timeout = time.time() + wait_timeout
     while wait_timeout > time.time():
         time.sleep(5)
-        operation_result = profitbricks.get_request(
+        operation_result = client.get_request(
             request_id=promise['requestId'],
             status=True)
 
@@ -161,12 +162,12 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
                     str(promise['requestId']) + '" to complete.')
 
 
-def create_user(module, profitbricks):
+def create_user(module, client):
     """
     Creates a user.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         The user instance
@@ -187,7 +188,7 @@ def create_user(module, profitbricks):
     wait_timeout = module.params.get('wait_timeout')
 
     user = None
-    for u in profitbricks.list_users()['items']:
+    for u in client.list_users()['items']:
         if email == u['properties']['email']:
             user = u
             break
@@ -212,10 +213,10 @@ def create_user(module, profitbricks):
             administrator=administrator or False,
             force_sec_auth=force_sec_auth or False
         )
-        user_response = profitbricks.create_user(user)
+        user_response = client.create_user(user)
 
         if wait:
-            _wait_for_completion(profitbricks, user_response, wait_timeout, "create_user")
+            _wait_for_completion(client, user_response, wait_timeout, "create_user")
 
         return {
             'failed': False,
@@ -227,12 +228,12 @@ def create_user(module, profitbricks):
         module.fail_json(msg="failed to create the user: %s" % to_native(e))
 
 
-def update_user(module, profitbricks):
+def update_user(module, client):
     """
     Updates a user.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         The user instance
@@ -247,7 +248,7 @@ def update_user(module, profitbricks):
 
     try:
         user = None
-        for resource in profitbricks.list_users()['items']:
+        for resource in client.list_users()['items']:
             if email in (resource['properties']['email'], resource['id']):
                 user = resource
                 break
@@ -265,7 +266,7 @@ def update_user(module, profitbricks):
             if force_sec_auth is None:
                 force_sec_auth = user['properties']['forceSecAuth']
 
-            user_response = profitbricks.update_user(
+            user_response = client.update_user(
                 user_id=user['id'],
                 firstname=firstname,
                 lastname=lastname,
@@ -277,15 +278,15 @@ def update_user(module, profitbricks):
             module.fail_json(msg='User \'%s\' not found.' % str(email))
 
         if wait:
-            _wait_for_completion(profitbricks, user_response, wait_timeout, "update_user")
+            _wait_for_completion(client, user_response, wait_timeout, "update_user")
 
         if module.params.get('groups') is not None:
-            user = profitbricks.get_user(user_id=user_response['id'], depth=2)
+            user = client.get_user(user_id=user_response['id'], depth=2)
             old_ug = []
             for g in user['entities']['groups']['items']:
                 old_ug.append(g['id'])
 
-            all_groups = profitbricks.list_groups()
+            all_groups = client.list_groups()
             new_ug = []
             for g in module.params.get('groups'):
                 group_id = _get_resource_id(all_groups, g, module, "Group")
@@ -293,18 +294,18 @@ def update_user(module, profitbricks):
 
             for group_id in old_ug:
                 if group_id not in new_ug:
-                    profitbricks.remove_group_user(
+                    client.remove_group_user(
                         group_id=group_id,
                         user_id=user['id']
                     )
 
             for group_id in new_ug:
                 if group_id not in old_ug:
-                    user_response = profitbricks.add_group_user(
+                    user_response = client.add_group_user(
                         group_id=group_id,
                         user_id=user['id']
                     )
-                    _wait_for_completion(profitbricks, user_response, wait_timeout, "add_group_user")
+                    _wait_for_completion(client, user_response, wait_timeout, "add_group_user")
 
         return {
             'failed': False,
@@ -316,12 +317,12 @@ def update_user(module, profitbricks):
         module.fail_json(msg="failed to create or update the user: %s" % to_native(e))
 
 
-def delete_user(module, profitbricks):
+def delete_user(module, client):
     """
     Removes a user
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         True if the user was removed, false otherwise
@@ -329,14 +330,14 @@ def delete_user(module, profitbricks):
     email = module.params.get('email')
 
     # Locate UUID for the user
-    user_list = profitbricks.list_users()
+    user_list = client.list_users()
     user_id = _get_user_id(user_list, email)
 
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        user_response = profitbricks.delete_user(user_id)
+        user_response = client.delete_user(user_id)
         return user_response
     except Exception as e:
         module.fail_json(msg="failed to remove the user: %s" % to_native(e))
@@ -396,44 +397,44 @@ def main():
         supports_check_mode=True
     )
 
-    if not HAS_PB_SDK:
-        module.fail_json(msg='profitbricks is required for this module, run `pip install profitbricks`')
+    if not HAS_SDK:
+        module.fail_json(msg='ionosenterprise is required for this module, run `pip install ionosenterprise`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
     if not api_url:
-        profitbricks = ProfitBricksService(username=username, password=password)
+        ionosenterprise = IonosEnterpriseService(username=username, password=password)
     else:
-        profitbricks = ProfitBricksService(
+        ionosenterprise = IonosEnterpriseService(
             username=username,
             password=password,
             host_base=api_url
         )
 
     user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
-    profitbricks.headers = {'User-Agent': user_agent}
+    ionosenterprise.headers = {'User-Agent': user_agent}
 
     state = module.params.get('state')
 
     if state == 'absent':
         try:
-            (changed) = delete_user(module, profitbricks)
+            (changed) = delete_user(module, ionosenterprise)
             module.exit_json(changed=changed)
         except Exception as e:
             module.fail_json(msg='failed to set user state: %s' % to_native(e))
 
     elif state == 'present':
         try:
-            (user_dict) = create_user(module, profitbricks)
+            (user_dict) = create_user(module, ionosenterprise)
             module.exit_json(**user_dict)
         except Exception as e:
             module.fail_json(msg='failed to set user state: %s' % to_native(e))
 
     elif state == 'update':
         try:
-            (user_dict) = update_user(module, profitbricks)
+            (user_dict) = update_user(module, ionosenterprise)
             module.exit_json(**user_dict)
         except Exception as e:
             module.fail_json(msg='failed to update user: %s' % to_native(e))

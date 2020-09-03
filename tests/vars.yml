@@ -1,10 +1,14 @@
 name: Ansible Test
 datacenter: Ansible Test
-description: Ansible test datacenter
+description: Ansible test description
 server: Ansible Test
 nic: ansible test
 lan: ansible test
 location: us/las
-image: ubuntu:latest
+image: 58018ea3-d39b-11ea-9aec-0242ac120003
 password: qq6mdvirWwj1dsdXjcpp
+updated_password: fjee83jkw940djcer
 timeout: 500
+email: ansible.test@mail.com
+updated_email: updated.ansible.test@mail.com
+user_id: b8da3562-a73d-435c-87f2-b28176147a28

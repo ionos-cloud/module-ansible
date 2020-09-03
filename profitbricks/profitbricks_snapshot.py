@@ -118,7 +118,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "profitbricks >= 4.0.0"
+    - "ionosenterprise >= 5.2.0"
 author:
     - Nurfet Becirevic (@nurfet-becirevic)
     - Ethan Devenport (@edevenport)
@@ -150,13 +150,13 @@ EXAMPLES = '''
 
 import time
 
-HAS_PB_SDK = True
+HAS_SDK = True
 
 try:
-    from profitbricks import __version__ as sdk_version
-    from profitbricks.client import ProfitBricksService
+    from ionosenterprise import __version__ as sdk_version
+    from ionosenterprise.client import IonosEnterpriseService
 except ImportError:
-    HAS_PB_SDK = False
+    HAS_SDK = False
 
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
@@ -170,13 +170,13 @@ LICENCE_TYPES = ['LINUX',
                  'WINDOWS2016']
 
 
-def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
+def _wait_for_completion(client, promise, wait_timeout, msg):
     if not promise:
         return
     wait_timeout = time.time() + wait_timeout
     while wait_timeout > time.time():
         time.sleep(5)
-        operation_result = profitbricks.get_request(
+        operation_result = client.get_request(
             request_id=promise['requestId'],
             status=True)
 
@@ -191,12 +191,12 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
                     str(promise['requestId']) + '" to complete.')
 
 
-def create_snapshot(module, profitbricks):
+def create_snapshot(module, client):
     """
     Creates a snapshot.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         The snapshot instance
@@ -209,14 +209,14 @@ def create_snapshot(module, profitbricks):
     wait_timeout = module.params.get('wait_timeout')
 
     # Locate UUID for virtual datacenter
-    datacenter_list = profitbricks.list_datacenters()
+    datacenter_list = client.list_datacenters()
     datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
 
     # Locate UUID for volume
-    volume_list = profitbricks.list_volumes(datacenter_id)
+    volume_list = client.list_volumes(datacenter_id)
     volume_id = _get_resource_id(volume_list, volume, module, "Volume")
 
-    snapshot_list = profitbricks.list_snapshots()
+    snapshot_list = client.list_snapshots()
     snapshot = None
     for s in snapshot_list['items']:
         if name == s['properties']['name']:
@@ -235,7 +235,7 @@ def create_snapshot(module, profitbricks):
         }
 
     try:
-        snapshot_resp = profitbricks.create_snapshot(
+        snapshot_resp = client.create_snapshot(
             datacenter_id=datacenter_id,
             volume_id=volume_id,
             name=name,
@@ -243,7 +243,7 @@ def create_snapshot(module, profitbricks):
         )
 
         if wait:
-            _wait_for_completion(profitbricks, snapshot_resp, wait_timeout, "create_snapshot")
+            _wait_for_completion(client, snapshot_resp, wait_timeout, "create_snapshot")
 
         return {
             'failed': False,
@@ -255,12 +255,12 @@ def create_snapshot(module, profitbricks):
         module.fail_json(msg="failed to create the snapshot: %s" % to_native(e))
 
 
-def restore_snapshot(module, profitbricks):
+def restore_snapshot(module, client):
     """
     Restores a snapshot.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         True if the snapshot started restoring, false otherwise
@@ -270,22 +270,22 @@ def restore_snapshot(module, profitbricks):
     name = module.params.get('name')
 
     # Locate UUID for virtual datacenter
-    datacenter_list = profitbricks.list_datacenters()
+    datacenter_list = client.list_datacenters()
     datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
 
     # Locate UUID for volume
-    volume_list = profitbricks.list_volumes(datacenter_id)
+    volume_list = client.list_volumes(datacenter_id)
     volume_id = _get_resource_id(volume_list, volume, module, "Volume")
 
     # Locate UUID for snapshot
-    snapshot_list = profitbricks.list_snapshots()
+    snapshot_list = client.list_snapshots()
     snapshot_id = _get_resource_id(snapshot_list, name, module, "Snapshot")
 
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        snapshot_resp = profitbricks.restore_snapshot(
+        snapshot_resp = client.restore_snapshot(
             datacenter_id=datacenter_id,
             volume_id=volume_id,
             snapshot_id=snapshot_id
@@ -300,12 +300,12 @@ def restore_snapshot(module, profitbricks):
         module.fail_json(msg="failed to restore the snapshot: %s" % to_native(e))
 
 
-def update_snapshot(module, profitbricks):
+def update_snapshot(module, client):
     """
     Updates a snapshot.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         The snapshot instance
@@ -313,7 +313,7 @@ def update_snapshot(module, profitbricks):
     name = module.params.get('name')
 
     # Locate UUID for snapshot
-    snapshot_list = profitbricks.list_snapshots()
+    snapshot_list = client.list_snapshots()
     snapshot = _get_resource_instance(snapshot_list, name)
     if not snapshot:
         module.fail_json(msg='Snapshot \'%s\' not found.' % name)
@@ -357,7 +357,7 @@ def update_snapshot(module, profitbricks):
         licence_type = snapshot['properties']['licenceType']
 
     try:
-        snapshot_resp = profitbricks.update_snapshot(
+        snapshot_resp = client.update_snapshot(
             snapshot_id=snapshot['id'],
             cpu_hot_plug=cpu_hot_plug,
             cpu_hot_unplug=cpu_hot_unplug,
@@ -381,12 +381,12 @@ def update_snapshot(module, profitbricks):
         module.fail_json(msg="failed to update the snapshot: %s" % to_native(e))
 
 
-def delete_snapshot(module, profitbricks):
+def delete_snapshot(module, client):
     """
     Removes a snapshot
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         True if the snapshot was removed, false otherwise
@@ -394,14 +394,14 @@ def delete_snapshot(module, profitbricks):
     name = module.params.get('name')
 
     # Locate UUID for snapshot
-    snapshot_list = profitbricks.list_snapshots()
+    snapshot_list = client.list_snapshots()
     snapshot_id = _get_resource_id(snapshot_list, name, module, "Snapshot")
 
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        snapshot_resp = profitbricks.delete_snapshot(snapshot_id)
+        snapshot_resp = client.delete_snapshot(snapshot_id)
         return snapshot_resp
     except Exception as e:
         module.fail_json(msg="failed to remove the snapshot: %s" % to_native(e))
@@ -468,30 +468,30 @@ def main():
         supports_check_mode=True
     )
 
-    if not HAS_PB_SDK:
-        module.fail_json(msg='profitbricks is required for this module, run `pip install profitbricks`')
+    if not HAS_SDK:
+        module.fail_json(msg='ionosenterprise is required for this module, run `pip install ionosenterprise`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
     if not api_url:
-        profitbricks = ProfitBricksService(username=username, password=password)
+        ionosenterprise = IonosEnterpriseService(username=username, password=password)
     else:
-        profitbricks = ProfitBricksService(
+        ionosenterprise = IonosEnterpriseService(
             username=username,
             password=password,
             host_base=api_url
         )
 
     user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
-    profitbricks.headers = {'User-Agent': user_agent}
+    ionosenterprise.headers = {'User-Agent': user_agent}
 
     state = module.params.get('state')
 
     if state == 'absent':
         try:
-            (changed) = delete_snapshot(module, profitbricks)
+            (changed) = delete_snapshot(module, ionosenterprise)
             module.exit_json(changed=changed)
         except Exception as e:
             module.fail_json(msg='failed to set snapshot state: %s' % to_native(e))
@@ -503,7 +503,7 @@ def main():
             module.fail_json(msg='volume parameter is required')
 
         try:
-            (snapshot_dict) = create_snapshot(module, profitbricks)
+            (snapshot_dict) = create_snapshot(module, ionosenterprise)
             module.exit_json(**snapshot_dict)
         except Exception as e:
             module.fail_json(msg='failed to set snapshot state: %s' % to_native(e))
@@ -515,14 +515,14 @@ def main():
             module.fail_json(msg='volume parameter is required')
 
         try:
-            (changed) = restore_snapshot(module, profitbricks)
+            (changed) = restore_snapshot(module, ionosenterprise)
             module.exit_json(changed=changed)
         except Exception as e:
             module.fail_json(msg='failed to restore snapshot: %s' % to_native(e))
 
     elif state == 'update':
         try:
-            (snapshot_dict) = update_snapshot(module, profitbricks)
+            (snapshot_dict) = update_snapshot(module, ionosenterprise)
             module.exit_json(**snapshot_dict)
         except Exception as e:
             module.fail_json(msg='failed to update snapshot: %s' % to_native(e))

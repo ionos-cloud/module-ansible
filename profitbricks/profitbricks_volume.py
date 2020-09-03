@@ -119,7 +119,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "profitbricks >= 4.0.0"
+    - "ionosenterprise >= 5.2.0"
 author:
     - "Matt Baldwin (baldwin@stackpointcloud.com)"
     - "Ethan Devenport (@edevenport)"
@@ -167,13 +167,14 @@ import traceback
 
 from uuid import UUID
 
-HAS_PB_SDK = True
+HAS_SDK = True
 
 try:
-    from profitbricks import __version__ as sdk_version
-    from profitbricks.client import ProfitBricksService, Volume
+    from ionosenterprise import __version__ as sdk_version
+    from ionosenterprise.client import IonosEnterpriseService
+    from ionosenterprise.items import Volume
 except ImportError:
-    HAS_PB_SDK = False
+    HAS_SDK = False
 
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
@@ -201,13 +202,13 @@ uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
-def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
+def _wait_for_completion(client, promise, wait_timeout, msg):
     if not promise:
         return
     wait_timeout = time.time() + wait_timeout
     while wait_timeout > time.time():
         time.sleep(5)
-        operation_result = profitbricks.get_request(
+        operation_result = client.get_request(
             request_id=promise['requestId'],
             status=True)
 
@@ -222,7 +223,7 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
                     str(promise['requestId']) + '" to complete.')
 
 
-def _create_volume(module, profitbricks, datacenter, name):
+def _create_volume(module, client, datacenter, name):
     size = module.params.get('size')
     bus = module.params.get('bus')
     image = module.params.get('image')
@@ -256,10 +257,10 @@ def _create_volume(module, profitbricks, datacenter, name):
         else:
             v.image = image
 
-        volume_response = profitbricks.create_volume(datacenter, v)
+        volume_response = client.create_volume(datacenter, v)
 
         if wait:
-            _wait_for_completion(profitbricks, volume_response,
+            _wait_for_completion(client, volume_response,
                                  wait_timeout, "_create_volume")
 
     except Exception as e:
@@ -268,7 +269,7 @@ def _create_volume(module, profitbricks, datacenter, name):
     return volume_response
 
 
-def _update_volume(module, profitbricks, datacenter, volume):
+def _update_volume(module, client, datacenter, volume):
     size = module.params.get('size')
     bus = module.params.get('bus')
     wait_timeout = module.params.get('wait_timeout')
@@ -278,7 +279,7 @@ def _update_volume(module, profitbricks, datacenter, volume):
         module.exit_json(changed=True)
 
     try:
-        volume_response = profitbricks.update_volume(
+        volume_response = client.update_volume(
             datacenter_id=datacenter,
             volume_id=volume,
             size=size,
@@ -286,7 +287,7 @@ def _update_volume(module, profitbricks, datacenter, volume):
         )
 
         if wait:
-            _wait_for_completion(profitbricks, volume_response,
+            _wait_for_completion(client, volume_response,
                                  wait_timeout, "_update_volume")
 
     except Exception as e:
@@ -295,23 +296,23 @@ def _update_volume(module, profitbricks, datacenter, volume):
     return volume_response
 
 
-def _delete_volume(module, profitbricks, datacenter, volume):
+def _delete_volume(module, client, datacenter, volume):
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        profitbricks.delete_volume(datacenter, volume)
+        client.delete_volume(datacenter, volume)
     except Exception as e:
         module.fail_json(msg="failed to remove the volume: %s" % to_native(e))
 
 
-def create_volume(module, profitbricks):
+def create_volume(module, client):
     """
     Create volumes.
 
     This will create one or more volumes in a datacenter.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         dict of created volumes
@@ -324,9 +325,9 @@ def create_volume(module, profitbricks):
     datacenter_found = False
     volumes = []
 
-    datacenter_list = profitbricks.list_datacenters()
+    datacenter_list = client.list_datacenters()
     for d in datacenter_list['items']:
-        dc = profitbricks.get_datacenter(d['id'])
+        dc = client.get_datacenter(d['id'])
         if datacenter in [dc['properties']['name'], dc['id']]:
             datacenter = d['id']
             datacenter_found = True
@@ -359,16 +360,16 @@ def create_volume(module, profitbricks):
     changed = False
 
     # Prefetch a list of volumes for later comparison.
-    volume_list = profitbricks.list_volumes(datacenter)
+    volume_list = client.list_volumes(datacenter)
 
     for name in names:
         # Skip volume creation if a volume with the same name already exists.
         if _get_instance_id(volume_list, name):
             continue
 
-        create_response = _create_volume(module, profitbricks, str(datacenter), name)
+        create_response = _create_volume(module, client, str(datacenter), name)
         volumes.append(create_response)
-        _attach_volume(module, profitbricks, datacenter, create_response['id'])
+        _attach_volume(module, client, datacenter, create_response['id'])
         changed = True
 
     results = {
@@ -384,14 +385,14 @@ def create_volume(module, profitbricks):
     return results
 
 
-def update_volume(module, profitbricks):
+def update_volume(module, client):
     """
     Update volumes.
 
     This will update one or more volumes in a datacenter.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         dict of updated volumes
@@ -404,9 +405,9 @@ def update_volume(module, profitbricks):
     changed = False
     volumes = []
 
-    datacenter_list = profitbricks.list_datacenters()
+    datacenter_list = client.list_datacenters()
     for d in datacenter_list['items']:
-        dc = profitbricks.get_datacenter(d['id'])
+        dc = client.get_datacenter(d['id'])
         if datacenter in [dc['properties']['name'], dc['id']]:
             datacenter = d['id']
             datacenter_found = True
@@ -417,14 +418,14 @@ def update_volume(module, profitbricks):
 
     for n in instance_ids:
         if(uuid_match.match(n)):
-            update_response = _update_volume(module, profitbricks, datacenter, n)
+            update_response = _update_volume(module, client, datacenter, n)
             changed = True
         else:
-            volume_list = profitbricks.list_volumes(datacenter)
+            volume_list = client.list_volumes(datacenter)
             for v in volume_list['items']:
                 if n == v['properties']['name']:
                     volume_id = v['id']
-                    update_response = _update_volume(module, profitbricks, datacenter, volume_id)
+                    update_response = _update_volume(module, client, datacenter, volume_id)
                     changed = True
 
         volumes.append(update_response)
@@ -443,14 +444,14 @@ def update_volume(module, profitbricks):
     return results
 
 
-def delete_volume(module, profitbricks):
+def delete_volume(module, client):
     """
     Remove volumes.
 
     This will remove one or more volumes from a datacenter.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         True if the volumes were removed, false otherwise
@@ -464,36 +465,36 @@ def delete_volume(module, profitbricks):
 
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
-        datacenter_list = profitbricks.list_datacenters()
+        datacenter_list = client.list_datacenters()
         for d in datacenter_list['items']:
-            dc = profitbricks.get_datacenter(d['id'])
+            dc = client.get_datacenter(d['id'])
             if datacenter in [dc['properties']['name'], dc['id']]:
                 datacenter = d['id']
                 break
 
     for n in instance_ids:
         if(uuid_match.match(n)):
-            _delete_volume(module, profitbricks, datacenter, n)
+            _delete_volume(module, client, datacenter, n)
             changed = True
         else:
-            volumes = profitbricks.list_volumes(datacenter)
+            volumes = client.list_volumes(datacenter)
             for v in volumes['items']:
                 if n == v['properties']['name']:
                     volume_id = v['id']
-                    _delete_volume(module, profitbricks, datacenter, volume_id)
+                    _delete_volume(module, client, datacenter, volume_id)
                     changed = True
 
     return changed
 
 
-def _attach_volume(module, profitbricks, datacenter, volume):
+def _attach_volume(module, client, datacenter, volume):
     """
     Attaches a volume.
 
     This will attach a volume to the server.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         the volume instance being attached
@@ -503,14 +504,14 @@ def _attach_volume(module, profitbricks, datacenter, volume):
     # Locate UUID for Server
     if server:
         if not (uuid_match.match(server)):
-            server_list = profitbricks.list_servers(datacenter)
+            server_list = client.list_servers(datacenter)
             for s in server_list['items']:
                 if server == s['properties']['name']:
                     server = s['id']
                     break
 
         try:
-            return profitbricks.attach_volume(datacenter, server, volume)
+            return client.attach_volume(datacenter, server, volume)
         except Exception as e:
             module.fail_json(msg='failed to attach volume: %s' % to_native(e))
 
@@ -563,24 +564,24 @@ def main():
         supports_check_mode=True
     )
 
-    if not HAS_PB_SDK:
-        module.fail_json(msg='profitbricks is required for this module, run `pip install profitbricks`')
+    if not HAS_SDK:
+        module.fail_json(msg='ionosenterprise is required for this module, run `pip install ionosenterprise`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
     if not api_url:
-        profitbricks = ProfitBricksService(username=username, password=password)
+        ionosenterprise = IonosEnterpriseService(username=username, password=password)
     else:
-        profitbricks = ProfitBricksService(
+        ionosenterprise = IonosEnterpriseService(
             username=username,
             password=password,
             host_base=api_url
         )
 
     user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
-    profitbricks.headers = {'User-Agent': user_agent}
+    ionosenterprise.headers = {'User-Agent': user_agent}
 
     state = module.params.get('state')
 
@@ -589,7 +590,7 @@ def main():
             module.fail_json(msg='datacenter parameter is required for creating, updating or deleting volumes.')
 
         try:
-            (changed) = delete_volume(module, profitbricks)
+            (changed) = delete_volume(module, ionosenterprise)
             module.exit_json(changed=changed)
         except Exception as e:
             module.fail_json(msg='failed to set volume state: %s' % to_native(e))
@@ -601,14 +602,14 @@ def main():
             module.fail_json(msg='name parameter is required for new instance')
 
         try:
-            (volume_dict_array) = create_volume(module, profitbricks)
+            (volume_dict_array) = create_volume(module, ionosenterprise)
             module.exit_json(**volume_dict_array)
         except Exception as e:
             module.fail_json(msg='failed to set volume state: %s' % to_native(e))
 
     elif state == 'update':
         try:
-            (volume_dict_array) = update_volume(module, profitbricks)
+            (volume_dict_array) = update_volume(module, ionosenterprise)
             module.exit_json(**volume_dict_array)
         except Exception as e:
             module.fail_json(msg='failed to update volume: %s' % to_native(e))

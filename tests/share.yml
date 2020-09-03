@@ -1,0 +1,37 @@
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+  - name: Create share
+    profitbricks_share:
+      group: Demo
+      edit_privilege: True
+      share_privilege: True
+      resource_ids:
+        - fb17d4c2-a838-442a-8b29-ff70e4fe1f4f
+        - 8b2716ed-9b58-4b0f-8009-3180c52aed1c
+      state: present
+
+  # Update shares
+  - name: Update shares
+    profitbricks_share:
+      group: Demo
+      edit_privilege: false
+      resource_ids:
+        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
+      state: update
+
+#   Remove shares
+  - name: Remove shares
+    profitbricks_share:
+      group: Demo
+      resource_ids:
+        - fb17d4c2-a838-442a-8b29-ff70e4fe1f4f
+        - 8b2716ed-9b58-4b0f-8009-3180c52aed1c
+        - 3d63b84e-ce76-47de-819a-334796eedc7c
+      state: absent

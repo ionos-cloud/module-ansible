@@ -1,0 +1,42 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Create k8s cluster nodepool
+      profitbricks_k8s_nodepools:
+        name: "my-nodepool"
+        k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+        datacenter_id: "4d495548-e330-434d-83a9-251bfa645875"
+        node_count: "1"
+        cpu_family: "AMD_OPTERON"
+        cores_count: "1"
+        ram_size: "2048"
+        availability_zone: "AUTO"
+        storage_type: "SSD"
+        storage_size: "100"
+
+    - name: Delete k8s cluster nodepool
+      profitbricks_k8s_nodepools:
+        k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+        nodepool_id: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
+        state: absent
+
+
+    - name: Update k8s cluster nodepool
+      profitbricks_k8s_nodepools:
+        name: "my-nodepool"
+        k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+        datacenter_id: "4d495548-e330-434d-83a9-251bfa645875"
+        nodepool_id: "09b83214-c6db-4358-b8f1-c74980110a81"
+        node_count: "1"
+        cpu_family: "AMD_OPTERON"
+        cores_count: "1"
+        ram_size: "2048"
+        availability_zone: "AUTO"
+        storage_type: "SSD"
+        storage_size: "100"
+        state: update

@@ -82,7 +82,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "profitbricks >= 4.1.0"
+    - "ionosenterprise >= 5.2.0"
 author:
     - Nurfet Becirevic (@nurfet-becirevic)
     - Ethan Devenport (@edevenport)
@@ -117,26 +117,27 @@ EXAMPLES = '''
 
 import time
 
-HAS_PB_SDK = True
+HAS_SDK = True
 
 try:
-    from profitbricks import __version__ as sdk_version
-    from profitbricks.client import ProfitBricksService, Group
+    from ionosenterprise import __version__ as sdk_version
+    from ionosenterprise.client import IonosEnterpriseService
+    from ionosenterprise.items import Group
 except ImportError:
-    HAS_PB_SDK = False
+    HAS_SDK = False
 
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
 
-def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
+def _wait_for_completion(client, promise, wait_timeout, msg):
     if not promise:
         return
     wait_timeout = time.time() + wait_timeout
     while wait_timeout > time.time():
         time.sleep(5)
-        operation_result = profitbricks.get_request(
+        operation_result = client.get_request(
             request_id=promise['requestId'],
             status=True)
 
@@ -151,12 +152,12 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
                     str(promise['requestId']) + '" to complete.')
 
 
-def create_group(module, profitbricks):
+def create_group(module, client):
     """
     Creates a group.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         The group instance
@@ -170,7 +171,7 @@ def create_group(module, profitbricks):
     wait_timeout = module.params.get('wait_timeout')
 
     group = None
-    for g in profitbricks.list_groups()['items']:
+    for g in client.list_groups()['items']:
         if name == g['properties']['name']:
             group = g
             break
@@ -194,10 +195,10 @@ def create_group(module, profitbricks):
             reserve_ip=reserve_ip or False,
             access_activity_log=access_activity_log or False
         )
-        group_response = profitbricks.create_group(group)
+        group_response = client.create_group(group)
 
         if wait:
-            _wait_for_completion(profitbricks, group_response,
+            _wait_for_completion(client, group_response,
                                  wait_timeout, "create_group")
 
         return {
@@ -210,12 +211,12 @@ def create_group(module, profitbricks):
         module.fail_json(msg="failed to create the group: %s" % to_native(e))
 
 
-def update_group(module, profitbricks):
+def update_group(module, client):
     """
     Updates a group.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         The group instance
@@ -230,7 +231,7 @@ def update_group(module, profitbricks):
 
     try:
         group = None
-        for resource in profitbricks.list_groups()['items']:
+        for resource in client.list_groups()['items']:
             if name in (resource['properties']['name'], resource['id']):
                 group = resource
                 break
@@ -248,7 +249,7 @@ def update_group(module, profitbricks):
             if access_activity_log is None:
                 access_activity_log = group['properties']['accessActivityLog']
 
-            group_response = profitbricks.update_group(
+            group_response = client.update_group(
                 group_id=group['id'],
                 name=name,
                 create_datacenter=create_datacenter,
@@ -260,16 +261,16 @@ def update_group(module, profitbricks):
             module.fail_json(msg='Group \'%s\' not found.' % str(name))
 
         if wait:
-            _wait_for_completion(profitbricks, group_response,
+            _wait_for_completion(client, group_response,
                                  wait_timeout, "update_group")
 
         if module.params.get('users') is not None:
-            group = profitbricks.get_group(group_id=group_response['id'], depth=2)
+            group = client.get_group(group_id=group_response['id'], depth=2)
             old_gu = []
             for u in group['entities']['users']['items']:
                 old_gu.append(u['id'])
 
-            all_users = profitbricks.list_users()
+            all_users = client.list_users()
             new_gu = []
             for u in module.params.get('users'):
                 user_id = _get_user_id(all_users, u)
@@ -277,18 +278,18 @@ def update_group(module, profitbricks):
 
             for user_id in old_gu:
                 if user_id not in new_gu:
-                    profitbricks.remove_group_user(
+                    client.remove_group_user(
                         group_id=group['id'],
                         user_id=user_id
                     )
 
             for user_id in new_gu:
                 if user_id not in old_gu:
-                    user_response = profitbricks.add_group_user(
+                    user_response = client.add_group_user(
                         group_id=group['id'],
                         user_id=user_id
                     )
-                    _wait_for_completion(profitbricks, user_response, wait_timeout, "add_group_user")
+                    _wait_for_completion(client, user_response, wait_timeout, "add_group_user")
 
         return {
             'failed': False,
@@ -300,12 +301,12 @@ def update_group(module, profitbricks):
         module.fail_json(msg="failed to update the group: %s" % to_native(e))
 
 
-def delete_group(module, profitbricks):
+def delete_group(module, client):
     """
     Removes a group
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         True if the group was removed, false otherwise
@@ -313,14 +314,14 @@ def delete_group(module, profitbricks):
     name = module.params.get('name')
 
     # Locate UUID for the group
-    group_list = profitbricks.list_groups()
+    group_list = client.list_groups()
     group_id = _get_resource_id(group_list, name, module, "Group")
 
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        group_response = profitbricks.delete_group(group_id)
+        group_response = client.delete_group(group_id)
         return group_response
     except Exception as e:
         module.fail_json(msg="failed to remove the group: %s" % to_native(e))
@@ -378,44 +379,44 @@ def main():
         supports_check_mode=True
     )
 
-    if not HAS_PB_SDK:
-        module.fail_json(msg='profitbricks is required for this module, run `pip install profitbricks`')
+    if not HAS_SDK:
+        module.fail_json(msg='ionosenterprise is required for this module, run `pip install ionosenterprise`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
     if not api_url:
-        profitbricks = ProfitBricksService(username=username, password=password)
+        ionosenterprise = IonosEnterpriseService(username=username, password=password)
     else:
-        profitbricks = ProfitBricksService(
+        ionosenterprise = IonosEnterpriseService(
             username=username,
             password=password,
             host_base=api_url
         )
 
     user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
-    profitbricks.headers = {'User-Agent': user_agent}
+    ionosenterprise.headers = {'User-Agent': user_agent}
 
     state = module.params.get('state')
 
     if state == 'absent':
         try:
-            (changed) = delete_group(module, profitbricks)
+            (changed) = delete_group(module, ionosenterprise)
             module.exit_json(changed=changed)
         except Exception as e:
             module.fail_json(msg='failed to set group state: %s' % to_native(e))
 
     elif state == 'present':
         try:
-            (group_dict) = create_group(module, profitbricks)
+            (group_dict) = create_group(module, ionosenterprise)
             module.exit_json(**group_dict)
         except Exception as e:
             module.fail_json(msg='failed to set group state: %s' % to_native(e))
 
     elif state == 'update':
         try:
-            (group_dict) = update_group(module, profitbricks)
+            (group_dict) = update_group(module, ionosenterprise)
             module.exit_json(**group_dict)
         except Exception as e:
             module.fail_json(msg='failed to update group: %s' % to_native(e))

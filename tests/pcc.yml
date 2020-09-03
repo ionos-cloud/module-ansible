@@ -1,0 +1,24 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Create pcc
+      profitbricks_pcc:
+        name: "{{ name }}"
+        description: "{{ description }}"
+
+    - name: Update pcc
+      profitbricks_pcc:
+        pcc_id: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
+        name: "RENAMED {{ name }}"
+        description: "{{ description }} - RENAME"
+        state: update
+
+    - name: Remove pcc
+      profitbricks_pcc:
+        pcc_id: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
+        state: absent

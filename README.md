@@ -1,8 +1,8 @@
 # Ansible Module
 
-Version: **profitbricks-module-ansible v2.0.5**
+Version: **profitbricks-module-ansible v2.0.6**
 
-API Version: **ProfitBricks Cloud API v4**
+API Version: **ProfitBricks Cloud API v5**
 
 ## Table of Contents
 
@@ -29,6 +29,12 @@ API Version: **ProfitBricks Cloud API v4**
   - [profitbricks_user](#profitbricks_user)
   - [profitbricks_group](#profitbricks_group)
   - [profitbricks_share](#profitbricks_share)
+  - [profitbricks_pcc](#profitbricks_pcc)
+  - [profitbricks_s3key](#profitbricks_s3key)
+  - [profitbricks_k8s_cluster](#profitbricks_k8s_cluster)
+  - [profitbricks_k8s_nodepool](#profitbricks_k8s_nodepool)
+  - [profitbricks_k8s_config](#profitbricks_k8s_config)
+  - [profitbricks_backupunit](#profibricks_backupunit)
 - [Examples](#examples)
 - [Support](#support)
 - [Testing](#testing)
@@ -758,6 +764,219 @@ The following example will provision two servers both connected to public and pr
               wait_timeout: "{{ timeout }}"
               state: present
           with_items: "{{ profitbricks.machines }}"
+          
+### profitbricks_s3key
+
+#### Example Syntax
+
+    - name: Create an s3key
+      profitbricks_s3key:
+        user_id: "{{ user_id }}"
+
+    - name: Update an s3key
+      profitbricks_s3key:
+        user_id: "{{ user_id }}"
+        key_id: "00ca413c94eecc56857d"
+        active: False
+        state: update
+
+    - name: Remove an s3key
+      profitbricks_s3key:
+        user_id: "{{ user_id }}"
+        key_id: "00ca413c94eecc56857d"
+        state: absent
+
+#### Parameter Reference
+
+The following parameters are supported:
+
+| Name         | Required | Type    | Default | Description                                                                           |
+| ------------ | :------: | ------- | ------- | ------------------------------------------------------------------------------------- |
+| user_id      | **yes**  | string  |         | The unique ID of the user.                                                           |
+| key_id       | **yes**  | string  |         | The ID of the key. Required only for state = 'update' or state = 'absent'               |
+| active       |    no    | boolean |         | State of the key.                                                  |
+
+
+### profitbricks_k8s_cluster
+
+#### Example Syntax
+
+    - name: Create k8s cluster
+      profitbricks_k8s_cluster:
+        name: "{{ cluster_name }}"
+
+    - name: Delete k8s cluster
+      profitbricks_k8s_cluster:
+        k8s_cluster_id: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
+        state: absent
+
+    - name: Update k8s cluster
+      profitbricks_k8s_cluster:
+        k8s_cluster_id: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
+        maintenance_window:
+          day: 'Tuesday'
+          time: '13:03:00'
+        k8s_version: 1.17.8
+        state: update
+        
+
+#### Parameter Reference
+
+The following parameters are supported:
+
+| Name               | Required   | Type    | Default | Description                                                                           |
+| ------------------ | :--------: | ------- | ------- | ------------------------------------------------------------------------------------- |
+| cluster_name       | **yes**/no | string  |         | The name of the cluster. Required only for state = 'present'                                                           |
+| k8s_cluster_id     | **yes**    | string  |         | The ID of the cluster. Required only for state = 'update' or state = 'absent'               |
+| k8s_version        |    no      | string  |         | The kubernetes version in which the cluster is running.                                                  |
+| maintenance_window |    no      |  dict   |         | The day and time for the maintenance. Contains 'dayOfTheWeek' and 'time'.                                                          |
+
+
+
+### profitbricks_k8s_nodepool
+
+#### Example Syntax
+
+    - name: Create k8s cluster nodepool
+      profitbricks_k8s_nodepools:
+        cluster_name: "{{ name }}"
+        k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+        datacenter_id: "4d495548-e330-434d-83a9-251bfa645875"
+        node_count: "1"
+        cpu_family: "AMD_OPTERON"
+        cores_count: "1"
+        ram_size: "2048"
+        availability_zone: "AUTO"
+        storage_type: "SSD"
+        storage_size: "100"
+
+    - name: Delete k8s cluster nodepool
+      profitbricks_k8s_nodepools:
+        k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+        nodepool_id: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
+        state: absent
+
+    - name: Update k8s cluster nodepool
+      profitbricks_k8s_nodepools:
+        cluster_name: "{{ name }}"
+        k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+        nodepool_id: "6e9efcc6-649a-4514-bee5-6165b614c89e"
+        node_count: 1
+        cores_count: "1"
+        maintenance_window:
+          day: 'Tuesday'
+          time: '13:03:00'
+        auto_scaling:
+          min_node_count: 1
+          max_node_count: 3
+        state: update
+
+
+#### Parameter Reference
+
+The following parameters are supported:
+
+| Name               | Required   | Type    | Default | Description                                                                                                                                          |
+| ------------------ | :--------: | ------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nodepool_name      | **yes**    | string  |         | The name of the nodepool. Required only for state = 'present'                                                                                        |
+| k8s_cluster_id     | **yes**    | string  |         | The ID of the cluster.                                                                                                                               |
+| nodepool_id        | **yes**/no | string  |         | The ID of the nodepool. Required for state = 'update' or state = 'absent'                                                                            |
+| datacenter_id      | **yes**/no | string  |         | The ID of the datacenter. Required only for state = 'present'                                                                                        |
+| node_count         | **yes**/no |  int    |         | The number of nodes in the nodepool. Required only for state = 'present'                                                                             |
+| cpu_family         | **yes**/no | string  |         | A valid CPU family name. Required only for state = 'update' or state = 'absent'                                                                      |
+| cores_count        | **yes**/no | string  |         | The number of cores. Required only for state = 'present'                                                                                             |
+| ram_size           | **yes**/no | string  |         | RAM size for node, minimum size 2048MB is recommended. Required only for state = 'present'                                                           |
+| availability_zone  | **yes**/no | string  |         | The availability zone in which the server should exist. Required only for state = 'present'                                                          |
+| storage_type       | **yes**/no | string  |         | Hardware type of the volume. Required only for state = 'present'                                                                                     |
+| storage_size       | **yes**/no | string  |         | The size of the volume in GB. The size should be greater than 10GB. Required only for state = 'present'                                              |
+| maintenance_window |    no      |  dict   |         | The day and time for the maintenance. Contains 'dayOfTheWeek' and 'time'.                                                                            |
+| auto_scaling       |    no      |  dict   |         | The minimum and maximum number of worker nodes that the managed node group can scale in. Contains 'min_node_count' and 'max_node_count'.             |
+
+
+
+### profitbricks_k8s_config
+
+#### Example Syntax
+
+    - name: Get k8s config
+      profitbricks_k8s_config:
+        k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+        config_file: 'config.yaml'
+        state: present
+
+#### Parameter Reference
+
+The following parameters are supported:
+
+| Name               | Required   | Type    | Default | Description                                                                           |
+| ------------------ | :--------: | ------- | ------- | ------------------------------------------------------------------------------------- |
+| k8s_cluster_id     | **yes**    | string  |         | The ID of the cluster.                                                          |
+| config_file        | **yes**    | string  |         | The name of the file that will contain the configuration of the cluster.                                                  |
+          
+### profitbricks_backupunit
+
+#### Example Syntax
+
+    - name: Create backupunit
+      profitbricks_backupunit:
+        backupunit_email: "{{ email }}"
+        backupunit_password: "{{ password }}"
+        name: "{{ name }}"
+
+    - name: Update a backupunit
+      profitbricks_backupunit:
+        backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+        backupunit_email: "{{ updated_email }}"
+        backupunit_password:  "{{ updated_password }}"
+        state: update
+
+    - name: Remove backupunit
+      profitbricks_backupunit:
+        backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+        state: absent
+        
+#### Parameter Reference
+
+The following parameters are supported:
+
+| Name                  | Required    | Type    | Default | Description                                                                                                                                     |
+| ----------------------| :---------: | ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| name                  | **yes**/no  | string  |         | The resource name (only alphanumeric characters are acceptable). Only required when state = 'present'.                                          |
+| backupunit_email      | **yes**/no  | string  |         | The email associated with the backup unit. This email does not have to be the same as the user's email.  Only required when state = 'present'.  |
+| backupunit_password   | **yes**/no  | string  |         | The password associated to that resource.  Only required when state = 'present'.                                                                |
+| backupunit_id         | **yes**/no  | string  |         | The ID of the backupunit.  Required when state = 'update' or state = 'absent'.                                                                  |
+
+### profitbricks_pcc
+
+#### Example Syntax
+
+    - name: Create pcc
+      profitbricks_pcc:
+        name: "{{ name }}"
+        description: "{{ description }}"
+
+    - name: Update pcc
+      profitbricks_pcc:
+        pcc_id: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
+        name: "{{ new_name }}"
+        description: "{{ new_description }}"
+        state: update
+
+    - name: Remove pcc
+      profitbricks_pcc:
+        pcc_id: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
+        state: absent
+        
+#### Parameter Reference
+
+The following parameters are supported:
+
+| Name            | Required    | Type    | Default | Description                                                                           |
+| --------------- | :------:    | ------- | ------- | ------------------------------------------------------------------------------------- |
+| pcc_id          | **yes**/no  | string  |         | The ID of the pcc. Required for state = 'update' or state = 'absent'.                  |
+| name            | **yes**/no  | string  |         | The name of the pcc. Required only for state = 'present'.                              |
+| description     |    no       | string  |         | The description of the pcc.                                                           |
+
 
 ## Support
 

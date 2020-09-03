@@ -1,0 +1,25 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Create backupunit
+      profitbricks_backupunit:
+        backupunit_email: "{{ email }}"
+        backupunit_password: "{{ password }}"
+        name: "{{ name }}"
+
+    - name: Update a backupunit
+      profitbricks_backupunit:
+        backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+        backupunit_email: "{{ updated_email }}"
+        backupunit_password:  "{{ updated_password }}"
+        state: update
+
+    - name: Remove backupunit
+      profitbricks_backupunit:
+        backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+        state: absent

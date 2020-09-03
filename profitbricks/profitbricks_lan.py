@@ -69,7 +69,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "profitbricks >= 4.0.0"
+    - "ionosenterprise >= 5.2.0"
 author:
     - Nurfet Becirevic (@nurfet-becirevic)
     - Ethan Devenport (@edevenport)
@@ -105,26 +105,27 @@ EXAMPLES = '''
 
 import time
 
-HAS_PB_SDK = True
+HAS_SDK = True
 
 try:
-    from profitbricks import __version__ as sdk_version
-    from profitbricks.client import ProfitBricksService, LAN
+    from ionosenterprise import __version__ as sdk_version
+    from ionosenterprise.client import IonosEnterpriseService
+    from ionosenterprise.items import LAN
 except ImportError:
-    HAS_PB_SDK = False
+    HAS_SDK = False
 
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
 
-def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
+def _wait_for_completion(client, promise, wait_timeout, msg):
     if not promise:
         return
     wait_timeout = time.time() + wait_timeout
     while wait_timeout > time.time():
         time.sleep(5)
-        operation_result = profitbricks.get_request(
+        operation_result = client.get_request(
             request_id=promise['requestId'],
             status=True)
 
@@ -139,12 +140,12 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
                     str(promise['requestId']) + '" to complete.')
 
 
-def create_lan(module, profitbricks):
+def create_lan(module, client):
     """
     Creates a LAN.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         The LAN instance
@@ -156,10 +157,10 @@ def create_lan(module, profitbricks):
     wait_timeout = module.params.get('wait_timeout')
 
     # Locate UUID for virtual datacenter
-    datacenter_list = profitbricks.list_datacenters()
+    datacenter_list = client.list_datacenters()
     datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
 
-    lan_list = profitbricks.list_lans(datacenter_id)
+    lan_list = client.list_lans(datacenter_id)
     lan = None
     for i in lan_list['items']:
         if name == i['properties']['name']:
@@ -183,10 +184,10 @@ def create_lan(module, profitbricks):
             public=public
         )
 
-        lan_response = profitbricks.create_lan(datacenter_id, lan)
+        lan_response = client.create_lan(datacenter_id, lan)
 
         if wait:
-            _wait_for_completion(profitbricks, lan_response,
+            _wait_for_completion(client, lan_response,
                                  wait_timeout, "create_lan")
 
         return {
@@ -199,12 +200,12 @@ def create_lan(module, profitbricks):
         module.fail_json(msg="failed to create the LAN: %s" % to_native(e))
 
 
-def update_lan(module, profitbricks):
+def update_lan(module, client):
     """
     Updates a LAN.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         The LAN instance
@@ -213,15 +214,16 @@ def update_lan(module, profitbricks):
     name = module.params.get('name')
     public = module.params.get('public')
     ip_failover = module.params.get('ip_failover')
+    pcc_id = module.params.get('pcc_id')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
     # Locate UUID for virtual datacenter
-    datacenter_list = profitbricks.list_datacenters()
+    datacenter_list = client.list_datacenters()
     datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
 
     # Prefetch a list of LANs.
-    lan_list = profitbricks.list_lans(datacenter_id)
+    lan_list = client.list_lans(datacenter_id)
     lan_id = _get_resource_id(lan_list, name, module, "LAN")
 
     if module.check_mode:
@@ -229,18 +231,18 @@ def update_lan(module, profitbricks):
 
     try:
         failover_group = []
-        for ip, nic_uuid in dict.iteritems(ip_failover):
+        for ip, nic_uuid in ip_failover.items():
             item = {
                 'ip': ip,
                 'nicUuid': nic_uuid
             }
             failover_group.append(item)
 
-        lan_response = profitbricks.update_lan(
-            datacenter_id, lan_id=lan_id, public=public, ip_failover=failover_group)
+        lan_response = client.update_lan(
+            datacenter_id, lan_id=lan_id, public=public, ip_failover=failover_group, pcc=pcc_id)
 
         if wait:
-            _wait_for_completion(profitbricks, lan_response,
+            _wait_for_completion(client, lan_response,
                                  wait_timeout, "update_lan")
 
         return {
@@ -253,12 +255,12 @@ def update_lan(module, profitbricks):
         module.fail_json(msg="failed to update the LAN: %s" % to_native(e))
 
 
-def delete_lan(module, profitbricks):
+def delete_lan(module, client):
     """
     Removes a LAN
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         True if the LAN was removed, false otherwise
@@ -267,18 +269,18 @@ def delete_lan(module, profitbricks):
     name = module.params.get('name')
 
     # Locate UUID for virtual datacenter
-    datacenter_list = profitbricks.list_datacenters()
+    datacenter_list = client.list_datacenters()
     datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
 
     # Locate ID for LAN
-    lan_list = profitbricks.list_lans(datacenter_id)
+    lan_list = client.list_lans(datacenter_id)
     lan_id = _get_resource_id(lan_list, name, module, "LAN")
 
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        lan_response = profitbricks.delete_lan(datacenter_id, lan_id)
+        lan_response = client.delete_lan(datacenter_id, lan_id)
         return lan_response
     except Exception as e:
         module.fail_json(msg="failed to remove the LAN: %s" % to_native(e))
@@ -324,44 +326,44 @@ def main():
         supports_check_mode=True
     )
 
-    if not HAS_PB_SDK:
-        module.fail_json(msg='profitbricks is required for this module, run `pip install profitbricks`')
+    if not HAS_SDK:
+        module.fail_json(msg='ionosenterprise is required for this module, run `pip install ionosenterprise`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
     if not api_url:
-        profitbricks = ProfitBricksService(username=username, password=password)
+        ionosenterprise = IonosEnterpriseService(username=username, password=password)
     else:
-        profitbricks = ProfitBricksService(
+        ionosenterprise = IonosEnterpriseService(
             username=username,
             password=password,
             host_base=api_url
         )
 
     user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
-    profitbricks.headers = {'User-Agent': user_agent}
+    ionosenterprise.headers = {'User-Agent': user_agent}
 
     state = module.params.get('state')
 
     if state == 'absent':
         try:
-            (changed) = delete_lan(module, profitbricks)
+            (changed) = delete_lan(module, ionosenterprise)
             module.exit_json(changed=changed)
         except Exception as e:
             module.fail_json(msg='failed to set LAN state: %s' % to_native(e))
 
     elif state == 'present':
         try:
-            (lan_dict) = create_lan(module, profitbricks)
+            (lan_dict) = create_lan(module, ionosenterprise)
             module.exit_json(**lan_dict)
         except Exception as e:
             module.fail_json(msg='failed to set LANs state: %s' % to_native(e))
 
     elif state == 'update':
         try:
-            (lan_dict) = update_lan(module, profitbricks)
+            (lan_dict) = update_lan(module, ionosenterprise)
             module.exit_json(**lan_dict)
         except Exception as e:
             module.fail_json(msg='failed to update LAN: %s' % to_native(e))

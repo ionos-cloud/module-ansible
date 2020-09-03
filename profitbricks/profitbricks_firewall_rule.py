@@ -103,7 +103,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "profitbricks >= 4.0.0"
+    - "ionosenterprise >= 5.2.0"
 author:
     - "Matt Baldwin (baldwin@stackpointcloud.com)"
     - "Ethan Devenport (@edevenport)"
@@ -212,13 +212,14 @@ icmp_code:
 
 import time
 
-HAS_PB_SDK = True
+HAS_SDK = True
 
 try:
-    from profitbricks import __version__ as sdk_version
-    from profitbricks.client import ProfitBricksService, FirewallRule
+    from ionosenterprise import __version__ as sdk_version
+    from ionosenterprise.client import IonosEnterpriseService
+    from ionosenterprise.items import FirewallRule
 except ImportError:
-    HAS_PB_SDK = False
+    HAS_SDK = False
 
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
@@ -230,13 +231,13 @@ PROTOCOLS = ['TCP',
              'ANY']
 
 
-def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
+def _wait_for_completion(client, promise, wait_timeout, msg):
     if not promise:
         return
     wait_timeout = time.time() + wait_timeout
     while wait_timeout > time.time():
         time.sleep(5)
-        operation_result = profitbricks.get_request(
+        operation_result = client.get_request(
             request_id=promise['requestId'],
             status=True)
 
@@ -251,12 +252,12 @@ def _wait_for_completion(profitbricks, promise, wait_timeout, msg):
                     str(promise['requestId']) + '" to complete.')
 
 
-def create_firewall_rule(module, profitbricks):
+def create_firewall_rule(module, client):
     """
     Creates a firewall rule.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         The firewall rule instance being created
@@ -277,18 +278,18 @@ def create_firewall_rule(module, profitbricks):
     wait_timeout = module.params.get('wait_timeout')
 
     # Locate UUID for virtual datacenter
-    datacenter_list = profitbricks.list_datacenters()
+    datacenter_list = client.list_datacenters()
     datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
 
     # Locate UUID for server
-    server_list = profitbricks.list_servers(datacenter_id)
+    server_list = client.list_servers(datacenter_id)
     server_id = _get_resource_id(server_list, server, module, "Server")
 
     # Locate UUID for NIC
-    nic_list = profitbricks.list_nics(datacenter_id, server_id)
+    nic_list = client.list_nics(datacenter_id, server_id)
     nic_id = _get_resource_id(nic_list, nic, module, "NIC")
 
-    fw_list = profitbricks.get_firewall_rules(datacenter_id, server_id, nic_id)
+    fw_list = client.get_firewall_rules(datacenter_id, server_id, nic_id)
     f = None
     for fw in fw_list['items']:
         if name == fw['properties']['name']:
@@ -307,8 +308,8 @@ def create_firewall_rule(module, profitbricks):
         }
 
     try:
-        profitbricks.update_nic(datacenter_id, server_id, nic_id,
-                                firewall_active=True)
+        client.update_nic(datacenter_id, server_id, nic_id,
+                          firewall_active=True)
     except Exception as e:
         module.fail_json(msg='Unable to activate the NIC firewall.' % to_native(e))
 
@@ -325,12 +326,12 @@ def create_firewall_rule(module, profitbricks):
     )
 
     try:
-        firewall_rule_response = profitbricks.create_firewall_rule(
+        firewall_rule_response = client.create_firewall_rule(
             datacenter_id, server_id, nic_id, f
         )
 
         if wait:
-            _wait_for_completion(profitbricks, firewall_rule_response,
+            _wait_for_completion(client, firewall_rule_response,
                                  wait_timeout, "create_firewall_rule")
         return {
             'changed': True,
@@ -341,12 +342,12 @@ def create_firewall_rule(module, profitbricks):
         module.fail_json(msg="failed to create the firewall rule: %s" % to_native(e))
 
 
-def update_firewall_rule(module, profitbricks):
+def update_firewall_rule(module, client):
     """
     Updates a firewall rule.
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         The firewall rule instance being updated
@@ -366,26 +367,26 @@ def update_firewall_rule(module, profitbricks):
     wait_timeout = module.params.get('wait_timeout')
 
     # Locate UUID for virtual datacenter
-    datacenter_list = profitbricks.list_datacenters()
+    datacenter_list = client.list_datacenters()
     datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
 
     # Locate UUID for server
-    server_list = profitbricks.list_servers(datacenter_id)
+    server_list = client.list_servers(datacenter_id)
     server_id = _get_resource_id(server_list, server, module, "Server")
 
     # Locate UUID for NIC
-    nic_list = profitbricks.list_nics(datacenter_id, server_id)
+    nic_list = client.list_nics(datacenter_id, server_id)
     nic_id = _get_resource_id(nic_list, nic, module, "NIC")
 
     # Locate UUID for firewall rule
-    fw_list = profitbricks.get_firewall_rules(datacenter_id, server_id, nic_id)
+    fw_list = client.get_firewall_rules(datacenter_id, server_id, nic_id)
     fw_id = _get_resource_id(fw_list, name, module, "Firewall rule")
 
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        firewall_rule_response = profitbricks.update_firewall_rule(
+        firewall_rule_response = client.update_firewall_rule(
             datacenter_id,
             server_id,
             nic_id,
@@ -400,7 +401,7 @@ def update_firewall_rule(module, profitbricks):
         )
 
         if wait:
-            _wait_for_completion(profitbricks, firewall_rule_response,
+            _wait_for_completion(client, firewall_rule_response,
                                  wait_timeout, "update_firewall_rule")
         return {
             'changed': True,
@@ -411,12 +412,12 @@ def update_firewall_rule(module, profitbricks):
         module.fail_json(msg="failed to update the firewall rule: %s" % to_native(e))
 
 
-def delete_firewall_rule(module, profitbricks):
+def delete_firewall_rule(module, client):
     """
     Removes a firewall rule
 
     module : AnsibleModule object
-    profitbricks: authenticated profitbricks object.
+    client: authenticated ionosenterprise object.
 
     Returns:
         True if the firewall rule was removed, false otherwise
@@ -427,26 +428,26 @@ def delete_firewall_rule(module, profitbricks):
     name = module.params.get('name')
 
     # Locate UUID for virtual datacenter
-    datacenter_list = profitbricks.list_datacenters()
+    datacenter_list = client.list_datacenters()
     datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Datacenter")
 
     # Locate UUID for server
-    server_list = profitbricks.list_servers(datacenter_id)
+    server_list = client.list_servers(datacenter_id)
     server_id = _get_resource_id(server_list, server, module, "Server")
 
     # Locate UUID for NIC
-    nic_list = profitbricks.list_nics(datacenter_id, server_id)
+    nic_list = client.list_nics(datacenter_id, server_id)
     nic_id = _get_resource_id(nic_list, nic, module, "NIC")
 
     # Locate UUID for firewall rule
-    firewall_rule_list = profitbricks.get_firewall_rules(datacenter_id, server_id, nic_id)
+    firewall_rule_list = client.get_firewall_rules(datacenter_id, server_id, nic_id)
     firewall_rule_id = _get_resource_id(firewall_rule_list, name, module, "Firewall rule")
 
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        firewall_rule_response = profitbricks.delete_firewall_rule(
+        firewall_rule_response = client.delete_firewall_rule(
             datacenter_id, server_id, nic_id, firewall_rule_id
         )
         return firewall_rule_response
@@ -502,44 +503,44 @@ def main():
         supports_check_mode=True
     )
 
-    if not HAS_PB_SDK:
-        module.fail_json(msg='profitbricks is required for this module, run `pip install profitbricks`')
+    if not HAS_SDK:
+        module.fail_json(msg='ionosenterprise is required for this module, run `pip install ionosenterprise`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
     if not api_url:
-        profitbricks = ProfitBricksService(username=username, password=password)
+        ionosenterprise = IonosEnterpriseService(username=username, password=password)
     else:
-        profitbricks = ProfitBricksService(
+        ionosenterprise = IonosEnterpriseService(
             username=username,
             password=password,
             host_base=api_url
         )
 
     user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
-    profitbricks.headers = {'User-Agent': user_agent}
+    ionosenterprise.headers = {'User-Agent': user_agent}
 
     state = module.params.get('state')
 
     if state == 'absent':
         try:
-            (changed) = delete_firewall_rule(module, profitbricks)
+            (changed) = delete_firewall_rule(module, ionosenterprise)
             module.exit_json(changed=changed)
         except Exception as e:
             module.fail_json(msg='failed to set firewall rule state: %s' % to_native(e))
 
     elif state == 'present':
         try:
-            (firewall_rule_dict) = create_firewall_rule(module, profitbricks)
+            (firewall_rule_dict) = create_firewall_rule(module, ionosenterprise)
             module.exit_json(**firewall_rule_dict)
         except Exception as e:
             module.fail_json(msg='failed to set firewall rules state: %s' % to_native(e))
 
     elif state == 'update':
         try:
-            (firewall_rule_dict) = update_firewall_rule(module, profitbricks)
+            (firewall_rule_dict) = update_firewall_rule(module, ionosenterprise)
             module.exit_json(**firewall_rule_dict)
         except Exception as e:
             module.fail_json(msg='failed to update firewall rule: %s' % to_native(e))
