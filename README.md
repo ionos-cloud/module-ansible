@@ -1,8 +1,8 @@
 # Ansible Module
 
-Version: **profitbricks-module-ansible v2.0.6**
+Version: **ionos-cloud-module-ansible v2.0.6**
 
-API Version: **ProfitBricks Cloud API v5**
+API Version: **Ionos Cloud Cloud API v5**
 
 ## Table of Contents
 
