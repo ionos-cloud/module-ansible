@@ -11,12 +11,12 @@
 
   tasks:
     - name: Create datacenter
-      profitbricks_datacenter:
+      ionos_cloud_datacenter:
           name: "{{ name }}"
           location: "{{ location }}"
 
     - name: Provision a server
-      profitbricks:
+      ionos_cloud:
          datacenter: "{{ datacenter }}"
          name: "{{ name }} %02d"
          auto_increment: true
@@ -38,9 +38,9 @@
          wait: true
          wait_timeout: "{{ timeout }}"
          state: present
-      register: profitbricks
+      register: ionos_cloud
 
-    - debug: msg="{{profitbricks.machines}}"
+    - debug: msg="{{ionos_cloud.machines}}"
 
     - name: Wait for SSH
       wait_for:
@@ -48,10 +48,10 @@
           host: "{{ item.public_ip }}"
           search_regex: OpenSSH
           delay: 10
-      with_items: "{{ profitbricks.machines }}"
+      with_items: "{{ ionos_cloud.machines }}"
 
     - name: Update server
-      profitbricks:
+      ionos_cloud:
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} 01"
@@ -61,7 +61,7 @@
          state: update
 
     - name: Stop server
-      profitbricks:
+      ionos_cloud:
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} 01"
@@ -69,7 +69,7 @@
          state: stopped
 
     - name: Start server
-      profitbricks:
+      ionos_cloud:
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} 01"
@@ -77,7 +77,7 @@
          state: running
 
     - name: Remove server
-      profitbricks:
+      ionos_cloud:
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} 01"
@@ -86,6 +86,6 @@
          state: absent
 
     - name: Remove datacenter
-      profitbricks_datacenter:
+      ionos_cloud_datacenter:
         name: "{{ name }}"
         state: absent

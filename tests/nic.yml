@@ -8,7 +8,7 @@
 
   tasks:
     - name: Provision server
-      profitbricks:
+      ionos_cloud:
          datacenter: "{{ datacenter }}"
          name: "{{ server }}"
          auto_increment: false
@@ -23,16 +23,16 @@
          wait: true
          wait_timeout: "{{ timeout }}"
          state: present
-      register: profitbricks
+      register: ionos_cloud
 
     - name: Create LAN
-      profitbricks_lan:
+      ionos_cloud_lan:
         datacenter: "{{ name }}"
         name: "{{ lan }}"
         public: false
 
     - name: Create NIC
-      profitbricks_nic:
+      ionos_cloud_nic:
          name: "{{ nic }}"
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
@@ -44,14 +44,14 @@
          wait: true
          wait_timeout: "{{ timeout }}"
          state: present
-      register: profitbricks_nic
+      register: ionos_cloud_nic
 
     - name: Debug - Show NIC
       debug:
-         msg: "{{ profitbricks_nic }}"
+         msg: "{{ ionos_cloud_nic }}"
 
     - name: Update NIC
-      profitbricks_nic:
+      ionos_cloud_nic:
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          name: "{{ nic }}"
@@ -61,10 +61,10 @@
          state: update
 
     - name: Update NIC by UUID
-      profitbricks_nic:
+      ionos_cloud_nic:
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
-         name: "{{ profitbricks_nic.nic.id }}"
+         name: "{{ ionos_cloud_nic.nic_id }}"
          dhcp: false
          ips:
            - 192.168.16.18
@@ -73,8 +73,8 @@
          state: update
 
     - name: Remove NIC
-      profitbricks_nic:
-         name: "{{ profitbricks_nic.nic.id }}"
+      ionos_cloud_nic:
+         name: "{{ ionos_cloud_nic.nic_id }}"
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          wait: true
@@ -82,6 +82,6 @@
          state: absent
 
     - name: Remove datacenter
-      profitbricks_datacenter:
+      ionos_cloud_datacenter:
         name: "{{ datacenter }}"
         state: absent

@@ -3,8 +3,8 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
-__metaclass__ = type
 
+__metaclass__ = type
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
@@ -12,7 +12,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: profitbricks_nic
+module: ionos-cloud_nic
 short_description: Create, Update or Remove a NIC.
 description:
      - This module allows you to create, update or remove a NIC.
@@ -67,12 +67,12 @@ options:
     version_added: "2.4"
   username:
     description:
-      - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.
+      - The ProfitBricks username. Overrides the IONOS_USERNAME environment variable.
     required: false
     aliases: subscription_user
   password:
     description:
-      - The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.
+      - The ProfitBricks password. Overrides the IONOS_PASSWORD environment variable.
     required: false
     aliases: subscription_password
   wait:
@@ -94,7 +94,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "ionosenterprise >= 5.2.0"
+    - "ionos_cloud_sdk >= 5.2.0"
 author:
     - "Matt Baldwin (baldwin@stackpointcloud.com)"
     - "Ethan Devenport (@edevenport)"
@@ -103,7 +103,7 @@ author:
 EXAMPLES = '''
 
 # Create a NIC
-- profitbricks_nic:
+- ionos-cloud_nic:
     datacenter: Tardis One
     server: node002
     lan: 2
@@ -111,7 +111,7 @@ EXAMPLES = '''
     state: present
 
 # Update a NIC
-- profitbricks_nic:
+- ionos-cloud_nic:
     datacenter: Tardis One
     server: node002
     name: 7341c2454f
@@ -123,7 +123,7 @@ EXAMPLES = '''
     state: update
 
 # Remove a NIC
-- profitbricks_nic:
+- ionos-cloud_nic:
     datacenter: Tardis One
     server: node002
     name: 7341c2454f
@@ -140,9 +140,11 @@ from uuid import uuid4
 HAS_SDK = True
 
 try:
-    from ionosenterprise import __version__ as sdk_version
-    from ionosenterprise.client import IonosEnterpriseService
-    from ionosenterprise.items import NIC
+    import ionos_cloud_sdk
+    from ionos_cloud_sdk import __version__ as sdk_version
+    from ionos_cloud_sdk.models import Nic, NicProperties
+    from ionos_cloud_sdk.rest import ApiException
+    from ionos_cloud_sdk import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -154,25 +156,13 @@ uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
-def _wait_for_completion(client, promise, wait_timeout, msg):
-    if not promise:
-        return
-    wait_timeout = time.time() + wait_timeout
-    while wait_timeout > time.time():
-        time.sleep(5)
-        operation_result = client.get_request(
-            request_id=promise['requestId'],
-            status=True)
-
-        if operation_result['metadata']['status'] == "DONE":
-            return
-        elif operation_result['metadata']['status'] == "FAILED":
-            raise Exception(
-                'Request failed to complete ' + msg + ' "' + str(
-                    promise['requestId']) + '" to complete.')
-
-    raise Exception('Timed out waiting for async operation ' + msg + ' "' +
-                    str(promise['requestId']) + '" to complete.')
+def _get_request_id(headers):
+    match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
+    if match:
+        return match.group(1)
+    else:
+        raise Exception("Failed to extract request ID from response "
+                        "header 'location': '{location}'".format(location=headers['location']))
 
 
 def create_nic(module, client):
@@ -180,7 +170,7 @@ def create_nic(module, client):
     Creates a NIC.
 
     module : AnsibleModule object
-    client: authenticated ionosenterprise object.
+    client: authenticated ionos_cloud_sdk object.
 
     Returns:
         The NIC instance being created
@@ -196,27 +186,31 @@ def create_nic(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
+    datacenter_server = ionos_cloud_sdk.DataCenterApi(api_client=client)
+    server_server = ionos_cloud_sdk.ServerApi(api_client=client)
+    nic_server = ionos_cloud_sdk.NicApi(api_client=client)
+
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
-        datacenter_list = client.list_datacenters()
-        for d in datacenter_list['items']:
-            dc = client.get_datacenter(d['id'])
-            if datacenter == dc['properties']['name']:
-                datacenter = d['id']
+        datacenter_list = datacenter_server.datacenters_get(depth=2)
+        for d in datacenter_list.items:
+            dc = datacenter_server.datacenters_find_by_id(datacenter_id=d.id)
+            if datacenter == dc.properties.name:
+                datacenter = d.id
                 break
 
     # Locate UUID for Server
     if not (uuid_match.match(server)):
-        server_list = client.list_servers(datacenter)
-        for s in server_list['items']:
-            if server == s['properties']['name']:
-                server = s['id']
+        server_list = server_server.datacenters_servers_get(datacenter, depth=2)
+        for s in server_list.items:
+            if server == s.properties.name:
+                server = s.id
                 break
 
-    nic_list = client.list_nics(datacenter, server)
+    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server, depth=2)
     nic = None
-    for n in nic_list['items']:
-        if name == n['properties']['name']:
+    for n in nic_list.items:
+        if name == n.properties.name:
             nic = n
             break
 
@@ -228,31 +222,27 @@ def create_nic(module, client):
     if not should_change:
         return {
             'changed': should_change,
-            'nic': nic
+            'nic': str(nic),
+            'nic_id': nic.id
         }
 
     try:
-        n = NIC(
-            name=name,
-            lan=lan,
-            nat=nat,
-            dhcp=dhcp,
-            ips=ips,
-            firewall_active=firewall_active
-        )
+        nic_properties = NicProperties(name=name, ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active,
+                                       nat=nat)
+        nic = Nic(properties=nic_properties)
 
-        nic_response = client.create_nic(datacenter, server, n)
+        response = nic_server.datacenters_servers_nics_post_with_http_info(datacenter_id=datacenter, server_id=server,
+                                                                           nic=nic)
+        (nic_response, _, headers) = response
 
         if wait:
-            _wait_for_completion(client, nic_response,
-                                 wait_timeout, 'create_nic')
-
-        # Refresh NIC properties
-        nic_response = client.get_nic(datacenter, server, nic_response['id'])
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
         return {
             'changed': True,
-            'nic': nic_response
+            'nic': str(nic_response),
+            'nic_id': nic_response.id
         }
 
     except Exception as e:
@@ -264,7 +254,7 @@ def update_nic(module, client):
     Updates a NIC.
 
     module : AnsibleModule object
-    client: authenticated ionosenterprise object.
+    client: authenticated ionos_cloud_sdk object.
 
     Returns:
         The NIC instance being updated
@@ -280,28 +270,32 @@ def update_nic(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
+    datacenter_server = ionos_cloud_sdk.DataCenterApi(api_client=client)
+    server_server = ionos_cloud_sdk.ServerApi(api_client=client)
+    nic_server = ionos_cloud_sdk.NicApi(api_client=client)
+
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
-        datacenter_list = client.list_datacenters()
-        for d in datacenter_list['items']:
-            dc = client.get_datacenter(d['id'])
-            if datacenter == dc['properties']['name']:
-                datacenter = d['id']
+        datacenter_list = datacenter_server.datacenters_get(depth=2)
+        for d in datacenter_list.items:
+            dc = datacenter_server.datacenters_find_by_id(datacenter_id=d.id)
+            if datacenter == dc.properties.name:
+                datacenter = d.id
                 break
 
     # Locate UUID for Server
     if not (uuid_match.match(server)):
-        server_list = client.list_servers(datacenter)
-        for s in server_list['items']:
-            if server == s['properties']['name']:
-                server = s['id']
+        server_list = server_server.datacenters_servers_get(datacenter, depth=2)
+        for s in server_list.items:
+            if server == s.properties.name:
+                server = s.id
                 break
 
     nic = None
     # Locate NIC to update
-    nic_list = client.list_nics(datacenter, server)
-    for n in nic_list['items']:
-        if name == n['properties']['name'] or name == n['id']:
+    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server, depth=2)
+    for n in nic_list.items:
+        if name == n.properties.name or name == n.id:
             nic = n
             break
 
@@ -313,35 +307,29 @@ def update_nic(module, client):
 
     try:
         if lan is None:
-            lan = nic['properties']['lan']
+            lan = nic.properties.lan
         if firewall_active is None:
-            firewall_active = nic['properties']['firewallActive']
+            firewall_active = nic.properties.firewall_active
         if nat is None:
-            nat = nic['properties']['nat']
+            nat = nic.properties.nat
         if dhcp is None:
-            dhcp = nic['properties']['dhcp']
+            dhcp = nic.properties.dhcp
 
-        nic_response = client.update_nic(
-            datacenter,
-            server,
-            nic['id'],
-            lan=lan,
-            firewall_active=firewall_active,
-            nat=nat,
-            dhcp=dhcp,
-            ips=ips
-        )
+        nic_properties = NicProperties(ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active,
+                                       nat=nat)
+        updated_nic = Nic(properties=nic_properties)
+
+        response = nic_server.datacenters_servers_nics_put_with_http_info(datacenter_id=datacenter, server_id=server,
+                                                                          nic_id=nic.id, nic=updated_nic)
+        (nic_response, _, headers) = response
 
         if wait:
-            _wait_for_completion(client, nic_response,
-                                 wait_timeout, 'update_nic')
-
-        # Refresh NIC properties
-        nic_response = client.get_nic(datacenter, server, nic_response['id'])
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
         return {
             'changed': True,
-            'nic': nic_response
+            'nic': str(nic_response)
         }
 
     except Exception as e:
@@ -353,7 +341,7 @@ def delete_nic(module, client):
     Removes a NIC
 
     module : AnsibleModule object
-    client: authenticated ionosenterprise object.
+    client: authenticated ionos_cloud_sdk object.
 
     Returns:
         True if the NIC was removed, false otherwise
@@ -362,23 +350,27 @@ def delete_nic(module, client):
     server = module.params.get('server')
     name = module.params.get('name')
 
+    datacenter_server = ionos_cloud_sdk.DataCenterApi(api_client=client)
+    server_server = ionos_cloud_sdk.ServerApi(api_client=client)
+    nic_server = ionos_cloud_sdk.NicApi(api_client=client)
+
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
-        datacenter_list = client.list_datacenters()
-        for d in datacenter_list['items']:
-            dc = client.get_datacenter(d['id'])
-            if datacenter == dc['properties']['name']:
-                datacenter = d['id']
+        datacenter_list = datacenter_server.datacenters_get(depth=2)
+        for d in datacenter_list.items:
+            dc = datacenter_server.datacenters_find_by_id(datacenter_id=d.id)
+            if datacenter == dc.properties.name:
+                datacenter = d.id
                 break
 
     # Locate UUID for Server
     server_found = False
     if not (uuid_match.match(server)):
-        server_list = client.list_servers(datacenter)
-        for s in server_list['items']:
-            if server == s['properties']['name']:
+        server_list = server_server.datacenters_servers_get(datacenter, depth=2)
+        for s in server_list.items:
+            if server == s.properties.name:
                 server_found = True
-                server = s['id']
+                server = s.id
                 break
 
         if not server_found:
@@ -387,11 +379,11 @@ def delete_nic(module, client):
     # Locate UUID for NIC
     nic_found = False
     if not (uuid_match.match(name)):
-        nic_list = client.list_nics(datacenter, server)
-        for n in nic_list['items']:
-            if name == n['properties']['name']:
+        nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server, depth=2)
+        for n in nic_list.items:
+            if name == n.properties.name:
                 nic_found = True
-                name = n['id']
+                name = n.id
                 break
 
         if not nic_found:
@@ -399,9 +391,9 @@ def delete_nic(module, client):
 
     if module.check_mode:
         module.exit_json(changed=True)
-
     try:
-        nic_response = client.delete_nic(datacenter, server, name)
+        nic_response = nic_server.datacenters_servers_nics_delete(datacenter_id=datacenter, server_id=server,
+                                                                  nic_id=name)
         return nic_response
     except Exception as e:
         module.fail_json(msg="failed to remove the NIC: %s" % to_native(e))
@@ -423,13 +415,13 @@ def main():
                 type='str',
                 required=True,
                 aliases=['subscription_user'],
-                fallback=(env_fallback, ['PROFITBRICKS_USERNAME'])
+                fallback=(env_fallback, ['IONOS_USERNAME'])
             ),
             password=dict(
                 type='str',
                 required=True,
                 aliases=['subscription_password'],
-                fallback=(env_fallback, ['PROFITBRICKS_PASSWORD']),
+                fallback=(env_fallback, ['IONOS_PASSWORD']),
                 no_log=True
             ),
             wait=dict(type='bool', default=True),
@@ -440,7 +432,7 @@ def main():
     )
 
     if not HAS_SDK:
-        module.fail_json(msg='ionosenterprise is required for this module, run `pip install ionosenterprise`')
+        module.fail_json(msg='ionos_cloud_sdk is required for this module, run `pip install ionos_cloud_sdk`')
 
     if not module.params.get('datacenter'):
         module.fail_json(msg='datacenter parameter is required')
@@ -450,47 +442,44 @@ def main():
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-
-    if not api_url:
-        ionosenterprise = IonosEnterpriseService(username=username, password=password)
-    else:
-        ionosenterprise = IonosEnterpriseService(
-            username=username,
-            password=password,
-            host_base=api_url
-        )
-
-    user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
-    ionosenterprise.headers = {'User-Agent': user_agent}
+    user_agent = 'ionos_cloud_sdk-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')
 
-    if state == 'absent':
-        if not module.params.get('name'):
-            module.fail_json(msg='name parameter is required')
+    configuration = ionos_cloud_sdk.Configuration(
+        username=username,
+        password=password
+    )
 
-        try:
-            (changed) = delete_nic(module, ionosenterprise)
-            module.exit_json(changed=changed)
-        except Exception as e:
-            module.fail_json(msg='failed to set nic state: %s' % to_native(e))
+    with ApiClient(configuration) as api_client:
+        api_client.user_agent = user_agent
 
-    elif state == 'present':
-        if not module.params.get('lan'):
-            module.fail_json(msg='lan parameter is required')
+        if state == 'absent':
+            if not module.params.get('name'):
+                module.fail_json(msg='name parameter is required')
 
-        try:
-            (nic_dict) = create_nic(module, ionosenterprise)
-            module.exit_json(**nic_dict)
-        except Exception as e:
-            module.fail_json(msg='failed to set nic state: %s' % to_native(e))
+            try:
+                (changed) = delete_nic(module, api_client)
+                module.exit_json(changed=changed)
+            except Exception as e:
+                module.fail_json(msg='failed to set nic state: %s' % to_native(e))
 
-    elif state == 'update':
-        try:
-            (nic_dict) = update_nic(module, ionosenterprise)
-            module.exit_json(**nic_dict)
-        except Exception as e:
-            module.fail_json(msg='failed to update nic: %s' % to_native(e))
+        elif state == 'present':
+            if not module.params.get('lan'):
+                module.fail_json(msg='lan parameter is required')
+
+            try:
+                (nic_dict) = create_nic(module, api_client)
+                module.exit_json(**nic_dict)
+            except Exception as e:
+                module.fail_json(msg='failed to set nic state: %s' % to_native(e))
+
+        elif state == 'update':
+            try:
+                (nic_dict) = update_nic(module, api_client)
+                module.exit_json(**nic_dict)
+            except Exception as e:
+                module.fail_json(msg='failed to update nic: %s' % to_native(e))
 
 
 if __name__ == '__main__':

@@ -7,18 +7,19 @@
 
   tasks:
     - name: Create pcc
-      profitbricks_pcc:
+      ionos_cloud_pcc:
         name: "{{ name }}"
         description: "{{ description }}"
+      register: pcc
 
     - name: Update pcc
-      profitbricks_pcc:
-        pcc_id: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
+      ionos_cloud_pcc:
+        pcc_id: "{{pcc.pcc_id}}"
         name: "RENAMED {{ name }}"
         description: "{{ description }} - RENAME"
         state: update
 
     - name: Remove pcc
-      profitbricks_pcc:
-        pcc_id: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
+      ionos_cloud_pcc:
+        pcc_id: "{{pcc.pcc_id}}"
         state: absent

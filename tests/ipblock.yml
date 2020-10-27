@@ -7,13 +7,19 @@
 
   tasks:
     - name: Create ipblock
-      profitbricks_ipblock:
+      ionos_cloud_ipblock:
           name: ansible test
           location: "{{ location }}"
           size: 2
           state: present
 
+    - name: Update ipblock
+      ionos_cloud_ipblock:
+        name: ansible test
+        location: "{{ location }}"
+        state: update
+
     - name: Remove ipblock
-      profitbricks_ipblock:
+      ionos_cloud_ipblock:
           name: ansible test
           state: absent

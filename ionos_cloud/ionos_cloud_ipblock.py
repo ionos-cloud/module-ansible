@@ -12,7 +12,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: profitbricks_ipblock
+module: ionos-cloud_ipblock
 short_description: Create or remove an IPBlock.
 description:
      - This module allows you to create or remove an IPBlock.
@@ -40,12 +40,12 @@ options:
     default: null
   username:
     description:
-      - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.
+      - The ProfitBricks username. Overrides the IONOS_USERNAME environment variable.
     required: false
     aliases: subscription_user
   password:
     description:
-      - The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.
+      - The ProfitBricks password. Overrides the IONOS_PASSWORD environment variable.
     required: false
     aliases: subscription_password
   wait:
@@ -67,7 +67,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "ionosenterprise >= 5.2.0"
+    - "ionos_cloud_sdk >= 5.2.0"
 author:
     - Nurfet Becirevic (@nurfet-becirevic)
     - Ethan Devenport (@edevenport)
@@ -76,7 +76,7 @@ author:
 EXAMPLES = '''
 # Create an IPBlock
 - name: Create IPBlock
-  profitbricks_ipblock:
+  ionos-cloud_ipblock:
     name: staging
     location: us/ewr
     size: 2
@@ -84,19 +84,21 @@ EXAMPLES = '''
 
 # Remove an IPBlock
 - name: Remove IPBlock
-  profitbricks_ipblock:
+  ionos-cloud_ipblock:
     name: staging
     state: absent
 '''
 
-import time
+import re
 
 HAS_SDK = True
 
 try:
-    from ionosenterprise import __version__ as sdk_version
-    from ionosenterprise.client import IonosEnterpriseService
-    from ionosenterprise.items import IPBlock
+    import ionos_cloud_sdk
+    from ionos_cloud_sdk import __version__ as sdk_version
+    from ionos_cloud_sdk.models import IpBlock, IpBlockProperties
+    from ionos_cloud_sdk.rest import ApiException
+    from ionos_cloud_sdk import ApiClient, IPBlocksApi
 except ImportError:
     HAS_SDK = False
 
@@ -114,33 +116,21 @@ LOCATIONS = ['us/las',
              ]
 
 
-def _wait_for_completion(client, promise, wait_timeout, msg):
-    if not promise:
-        return
-    wait_timeout = time.time() + wait_timeout
-    while wait_timeout > time.time():
-        time.sleep(5)
-        operation_result = client.get_request(
-            request_id=promise['requestId'],
-            status=True)
-
-        if operation_result['metadata']['status'] == 'DONE':
-            return
-        elif operation_result['metadata']['status'] == 'FAILED':
-            raise Exception(
-                'Request failed to complete ' + msg + ' "' + str(
-                    promise['requestId']) + '" to complete.')
-
-    raise Exception('Timed out waiting for async operation ' + msg + ' "' +
-                    str(promise['requestId']) + '" to complete.')
+def _get_request_id(headers):
+    match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
+    if match:
+        return match.group(1)
+    else:
+        raise Exception("Failed to extract request ID from response "
+                        "header 'location': '{location}'".format(location=headers['location']))
 
 
-def reserve_ipblock(module, client):
+def reserve_ipblock(module, client, api_client):
     """
     Creates an IPBlock.
 
     module : AnsibleModule object
-    client: authenticated ionosenterprise object.
+    client: authenticated ionos_cloud_sdk object.
 
     Returns:
         The IPBlock instance
@@ -151,10 +141,10 @@ def reserve_ipblock(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    ip_list = client.list_ipblocks()
+    ip_list = client.ipblocks_get(depth=2)
     ip = None
-    for i in ip_list['items']:
-        if name == i['properties']['name']:
+    for i in ip_list.items:
+        if name == i.properties.name:
             ip = i
             break
 
@@ -166,30 +156,74 @@ def reserve_ipblock(module, client):
     if not should_change:
         return {
             'changed': should_change,
-            'ipblock': ip
+            'ipblock': str(ip)
         }
 
     try:
-        ipblock = IPBlock(
-            name=name,
-            location=location,
-            size=size
-        )
+        ipblock_properties = IpBlockProperties(location=location, size=size, name=name)
+        ipblock = IpBlock(properties=ipblock_properties)
 
-        ipblock_response = client.reserve_ipblock(ipblock)
+        response = client.ipblocks_post_with_http_info(ipblock)
+        (ipblock_response, _, headers) = response
 
         if wait:
-            _wait_for_completion(client, ipblock_response,
-                                 wait_timeout, "reserve_ipblock")
+            request_id = _get_request_id(headers['Location'])
+            api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
         return {
             'failed': False,
             'changed': True,
-            'ipblock': ipblock_response
+            'ipblock': str(ipblock_response)
         }
 
     except Exception as e:
         module.fail_json(msg="failed to create the IPBlock: %s" % to_native(e))
+
+
+def update_ipblock(module, client, api_client):
+    """
+    Creates an IPBlock.
+
+    module : AnsibleModule object
+    client: authenticated ionos_cloud_sdk object.
+
+    Returns:
+        The IPBlock instance
+    """
+    name = module.params.get('name')
+    size = module.params.get('size')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    ip_list = client.ipblocks_get(depth=2)
+    ip = None
+    for i in ip_list.items:
+        if name == i.properties.name:
+            ip = i
+            break
+
+    if ip:
+        try:
+            ipblock_properties = IpBlockProperties(size=size, name=name)
+            ipblock = IpBlock(properties=ipblock_properties)
+
+            response = client.ipblocks_put_with_http_info(ip.id, ipblock)
+            (ipblock_response, _, headers) = response
+
+            if wait:
+                request_id = _get_request_id(headers['Location'])
+                api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
+            return {
+                'failed': False,
+                'changed': True,
+                'ipblock': str(ipblock_response)
+            }
+
+        except Exception as e:
+            module.fail_json(msg="failed to create the IPBlock: %s" % to_native(e))
+    else:
+        module.fail_json(msg='Ipblock \'%s\' not found.' % str(name))
 
 
 def delete_ipblock(module, client):
@@ -197,7 +231,7 @@ def delete_ipblock(module, client):
     Removes an IPBlock
 
     module : AnsibleModule object
-    client: authenticated ionosenterprise object.
+    client: authenticated ionos_cloud_sdk object.
 
     Returns:
         True if the IPBlock was removed, false otherwise
@@ -205,15 +239,16 @@ def delete_ipblock(module, client):
     name = module.params.get('name')
 
     # Locate UUID for the IPBlock
-    ipblock_list = client.list_ipblocks()
+    ipblock_list = client.ipblocks_get(depth=2)
     id = _get_resource_id(ipblock_list, name, module, "IP Block")
 
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        ipblock_response = client.delete_ipblock(id)
+        ipblock_response = client.ipblocks_delete(id)
         return ipblock_response
+
     except Exception as e:
         module.fail_json(msg="failed to remove the IPBlock: %s" % to_native(e))
 
@@ -223,9 +258,9 @@ def _get_resource_id(resource_list, identity, module, resource_type):
     Fetch and return the UUID of a resource regardless of whether the name or
     UUID is passed. Throw an error otherwise.
     """
-    for resource in resource_list['items']:
-        if identity in (resource['properties']['name'], resource['id']):
-            return resource['id']
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
 
     module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
 
@@ -241,13 +276,13 @@ def main():
                 type='str',
                 required=True,
                 aliases=['subscription_user'],
-                fallback=(env_fallback, ['PROFITBRICKS_USERNAME'])
+                fallback=(env_fallback, ['IONOS_USERNAME'])
             ),
             password=dict(
                 type='str',
                 required=True,
                 aliases=['subscription_password'],
-                fallback=(env_fallback, ['PROFITBRICKS_PASSWORD']),
+                fallback=(env_fallback, ['IONOS_PASSWORD']),
                 no_log=True
             ),
             wait=dict(type='bool', default=True),
@@ -258,39 +293,47 @@ def main():
     )
 
     if not HAS_SDK:
-        module.fail_json(msg='ionosenterprise is required for this module, run `pip install ionosenterprise`')
+        module.fail_json(msg='ionos_cloud_sdk is required for this module, run `pip install ionos_cloud_sdk`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
-    if not api_url:
-        ionosenterprise = IonosEnterpriseService(username=username, password=password)
-    else:
-        ionosenterprise = IonosEnterpriseService(
-            username=username,
-            password=password,
-            host_base=api_url
-        )
-
-    user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
-    ionosenterprise.headers = {'User-Agent': user_agent}
+    user_agent = 'ionos_cloud_sdk-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')
 
-    if state == 'absent':
-        try:
-            (changed) = delete_ipblock(module, ionosenterprise)
-            module.exit_json(changed=changed)
-        except Exception as e:
-            module.fail_json(msg='failed to set IPBlock state: %s' % to_native(e))
+    configuration = ionos_cloud_sdk.Configuration(
+        username=username,
+        password=password
+    )
 
-    elif state == 'present':
-        try:
-            (ipblock_dict) = reserve_ipblock(module, ionosenterprise)
-            module.exit_json(**ipblock_dict)
-        except Exception as e:
-            module.fail_json(msg='failed to set IPBlocks state: %s' % to_native(e))
+    state = module.params.get('state')
+
+    with ApiClient(configuration) as api_client:
+        api_client.user_agent = user_agent
+        ipblock_server = ionos_cloud_sdk.IPBlocksApi(api_client)
+
+        if state == 'absent':
+            try:
+                (changed) = delete_ipblock(module, ipblock_server)
+                module.exit_json(changed=changed)
+            except Exception as e:
+                module.fail_json(msg='failed to set IPBlock state: %s' % to_native(e))
+
+        elif state == 'present':
+            try:
+                (ipblock_dict) = reserve_ipblock(module, ipblock_server, api_client)
+                module.exit_json(**ipblock_dict)
+            except Exception as e:
+                module.fail_json(msg='failed to set IPBlocks state: %s' % to_native(e))
+
+        elif state == 'update':
+            try:
+                (ipblock_dict) = update_ipblock(module, ipblock_server, api_client)
+                module.exit_json(**ipblock_dict)
+            except Exception as e:
+                module.fail_json(msg='failed to set IPBlocks state: %s' % to_native(e))
 
 
 if __name__ == '__main__':

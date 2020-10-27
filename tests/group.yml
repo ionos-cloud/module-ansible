@@ -11,7 +11,7 @@
       run_once: yes
 
     - name: Create group
-      profitbricks_group:
+      ionos_cloud_group:
         name: "{{ name }}"
         create_datacenter: true
         create_snapshot: true
@@ -19,13 +19,14 @@
         access_activity_log: true
 
     - name: Update group
-      profitbricks_group:
+      ionos_cloud_group:
         name: "{{ name }}"
         create_datacenter: false
+        wait: true
         state: update
 
     - name: Create user
-      profitbricks_user:
+      ionos_cloud_user:
         firstname: John
         lastname: Doe
         email: "{{ random_user }}"
@@ -33,24 +34,24 @@
         administrator: false
 
     - name: Add user to group
-      profitbricks_group:
+      ionos_cloud_group:
         name: "{{ name }}"
         users:
           - "{{ random_user }}"
         state: update
 
     - name: Remove user from group
-      profitbricks_group:
+      ionos_cloud_group:
         name: "{{ name }}"
         users: []
         state: update
 
     - name: Delete user
-      profitbricks_user:
+      ionos_cloud_user:
         email: "{{ random_user }}"
         state: absent
 
     - name: Delete group
-      profitbricks_group:
+      ionos_cloud_group:
         name: "{{ name }}"
         state: absent

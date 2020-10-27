@@ -10,12 +10,12 @@
 
   tasks:
     - name: Create datacenter
-      profitbricks_datacenter:
+      ionos_cloud_datacenter:
           name: "{{ name }}"
           location: "{{ location }}"
 
     - name: Create volume
-      profitbricks_volume:
+      ionos_cloud_volume:
         datacenter: "{{ datacenter }}"
         name: "{{ name }}"
         count: 1
@@ -28,7 +28,7 @@
         state: present
 
     - name: Create snapshot
-      profitbricks_snapshot:
+      ionos_cloud_snapshot:
         datacenter: "{{ datacenter }}"
         volume: "{{ name }}"
         name: "{{ name }}"
@@ -36,18 +36,18 @@
         wait_timeout: 600
 
     - name: Update snapshot
-      profitbricks_snapshot:
+      ionos_cloud_snapshot:
         name: "{{ name }}"
         description: Ansible test snapshot - RENAME
         state: update
 
     - name: Delete snapshot
-      profitbricks_snapshot:
+      ionos_cloud_snapshot:
         name: "{{ name }}"
         wait_timeout: 600
         state: absent
 
     - name: Remove datacenter
-      profitbricks_datacenter:
+      ionos_cloud_datacenter:
         name: "{{ name }}"
         state: absent

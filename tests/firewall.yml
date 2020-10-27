@@ -7,8 +7,14 @@
     - vars.yml
 
   tasks:
+    - name: Create datacenter
+      ionos_cloud_datacenter:
+        name: "{{ name }}"
+        location: "{{ location }}"
+        wait: True
+
     - name: Provision server
-      profitbricks:
+      ionos_cloud:
          datacenter: "{{ datacenter }}"
          name: "{{ server }}"
          auto_increment: false
@@ -21,16 +27,16 @@
          wait: true
          wait_timeout: "{{ timeout }}"
          state: present
-      register: profitbricks
+      register: ionos_cloud
 
     - name: Create LAN
-      profitbricks_lan:
+      ionos_cloud_lan:
         datacenter: "{{ name }}"
         name: "{{ lan }}"
         public: true
 
     - name: Create NIC
-      profitbricks_nic:
+      ionos_cloud_nic:
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          name: "{{ nic }}"
@@ -40,10 +46,10 @@
          wait: true
          wait_timeout: "{{ timeout }}"
          state: present
-      register: profitbricks_nic
+      register: ionos_cloud_nic
 
     - name: Create a firewall rule
-      profitbricks_firewall_rule:
+      ionos_cloud_firewall_rule:
           datacenter: "{{ datacenter }}"
           server: "{{ server }}"
           nic: "{{ nic }}"
@@ -51,11 +57,11 @@
           protocol: TCP
           source_mac: 01:23:45:67:89:00
           port_range_start: 22
-          port_range_end: 22
+          port_range_end: 24
           state: present
 
     - name: Update firewall rule
-      profitbricks_firewall_rule:
+      ionos_cloud_firewall_rule:
           datacenter: "{{ datacenter }}"
           server: "{{ server }}"
           nic: "{{ nic }}"
@@ -63,11 +69,11 @@
           source_ip: 192.168.0.0
           source_mac: 01:23:45:67:89:00
           port_range_start: 22
-          port_range_end: 22
+          port_range_end: 23
           state: update
 
     - name: Remove firewall rule
-      profitbricks_firewall_rule:
+      ionos_cloud_firewall_rule:
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          nic: "{{ nic }}"
@@ -77,6 +83,6 @@
          state: absent
 
     - name: Remove datacenter
-      profitbricks_datacenter:
+      ionos_cloud_datacenter:
         name: "{{ datacenter }}"
         state: absent

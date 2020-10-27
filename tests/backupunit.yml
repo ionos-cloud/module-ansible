@@ -7,19 +7,20 @@
 
   tasks:
     - name: Create backupunit
-      profitbricks_backupunit:
+      ionos_cloud_backupunit:
         backupunit_email: "{{ email }}"
         backupunit_password: "{{ password }}"
-        name: "{{ name }}"
+        name: "My {{ name }}"
+      register: backupunit
 
     - name: Update a backupunit
-      profitbricks_backupunit:
-        backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+      ionos_cloud_backupunit:
+        backupunit_id: "{{ backupunit.id }}"
         backupunit_email: "{{ updated_email }}"
         backupunit_password:  "{{ updated_password }}"
         state: update
 
     - name: Remove backupunit
-      profitbricks_backupunit:
-        backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+      ionos_cloud_backupunit:
+        backupunit_id: "{{ backupunit.id }}"
         state: absent

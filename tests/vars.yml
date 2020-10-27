@@ -1,11 +1,11 @@
-name: Ansible Test
+name: Ansible Test 1
 datacenter: Ansible Test
 description: Ansible test description
 server: Ansible Test
 nic: ansible test
 lan: ansible test
-location: us/las
-image: 58018ea3-d39b-11ea-9aec-0242ac120003
+location: de/fra
+image: 0898f9f4-038c-11eb-a663-5254001a8838
 password: qq6mdvirWwj1dsdXjcpp
 updated_password: fjee83jkw940djcer
 timeout: 500

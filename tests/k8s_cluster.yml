@@ -7,18 +7,25 @@
 
   tasks:
     - name: Create k8s cluster
-      profitbricks_k8s_cluster:
-        cluster_name: "my-cluster"
-
-    - name: Delete k8s cluster
-      profitbricks_k8s_cluster:
-        k8s_cluster_id: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
-        state: absent
+      ionos_cloud_k8s_cluster:
+        cluster_name: "my-cluster-{{ 100 |random}}"
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+          time: "12:02:00"
+        k8s_version: 1.19.2
+      register: cluster
 
     - name: Update k8s cluster
-      profitbricks_k8s_cluster:
-        k8s_cluster_id: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
-        maintenance_day: "Wednesday"
-        maintenance_time: "12:02:00"
-        k8s_version: 1.17.8
+      ionos_cloud_k8s_cluster:
+        cluster_name: "my_cluster"
+        k8s_cluster_id:  "{{ cluster.id }}"
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+          time: "12:02:00"
+        k8s_version: 1.19.2
         state: update
+
+    - name: Delete k8s cluster
+      ionos_cloud_k8s_cluster:
+        k8s_cluster_id: "{{ cluster.id }}"
+        state: absent

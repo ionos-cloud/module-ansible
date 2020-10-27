@@ -11,7 +11,7 @@
       run_once: yes
 
     - name: Create user
-      profitbricks_user:
+      ionos_cloud_user:
         firstname: John
         lastname: Doe
         email: "{{ random_user }}"
@@ -21,7 +21,7 @@
         state: present
 
     - name: Update user
-      profitbricks_user:
+      ionos_cloud_user:
         firstname: John
         lastname: Doe
         email: "{{ random_user }}"
@@ -30,28 +30,28 @@
         state: update
 
     - name: Create group
-      profitbricks_group:
+      ionos_cloud_group:
         name: "{{ name }}"
 
     - name: Add user to group
-      profitbricks_user:
+      ionos_cloud_user:
         email: "{{ random_user }}"
         groups:
           - "{{ name }}"
         state: update
 
     - name: Remove user from group
-      profitbricks_user:
+      ionos_cloud_user:
         email: "{{ random_user }}"
         groups: []
         state: update
 
     - name: Delete user
-      profitbricks_user:
+      ionos_cloud_user:
         email: "{{ random_user }}"
         state: absent
 
     - name: Delete group
-      profitbricks_group:
+      ionos_cloud_group:
         name: "{{ name }}"
         state: absent

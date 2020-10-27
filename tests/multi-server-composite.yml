@@ -11,7 +11,7 @@
 
   tasks:
     - name: Provision a set of instances
-      profitbricks:
+      ionos_cloud:
          datacenter: "{{ datacenter }}"
          name: "{{ name }} %02d"
          auto_increment: true
@@ -33,11 +33,11 @@
          wait: true
          wait_timeout: "{{ timeout }}"
          state: present
-      register: profitbricks
-    - debug: msg="{{profitbricks.machines}}"
+      register: ionos_cloud
+    - debug: msg="{{ionos_cloud.machines}}"
 
     - name: Public SSH firewall rule
-      profitbricks_firewall_rule:
+      ionos_cloud_firewall_rule:
          datacenter: "{{ datacenter }}"
          server: "{{ item.id }}"
          nic: "{{ item.nic.id }}"
@@ -49,10 +49,10 @@
          wait: true
          wait_timeout: "{{ timeout }}"
          state: present
-      with_items: "{{ profitbricks.machines }}"
+      with_items: "{{ ionos_cloud.machines }}"
 
     - name: Create Private NIC
-      profitbricks_nic:
+      ionos_cloud_nic:
          datacenter: "{{ datacenter }}"
          server: "{{ item.id }}"
          lan: 2
@@ -60,11 +60,11 @@
          wait_timeout: "{{ timeout }}"
          state: present
       register: private_nic
-      with_items: "{{ profitbricks.machines }}"
+      with_items: "{{ ionos_cloud.machines }}"
     - debug: msg="{{private_nic.results}}"
 
     - name: Create SSH Firewall Rule
-      profitbricks_firewall_rule:
+      ionos_cloud_firewall_rule:
          datacenter: "{{ datacenter }}"
          server: "{{ item.item.id }}"
          nic: "{{ item.nic.id }}"
@@ -79,7 +79,7 @@
       with_items: "{{ private_nic.results }}"
 
     - name: Create Ping Firewall Rule
-      profitbricks_firewall_rule:
+      ionos_cloud_firewall_rule:
          datacenter: "{{ datacenter }}"
          server: "{{ item.item.id }}"
          nic: "{{ item.nic.id }}"
@@ -94,7 +94,7 @@
       with_items: "{{ private_nic.results }}"
 
     - name: Create data volume
-      profitbricks_volume:
+      ionos_cloud_volume:
          datacenter: "{{ datacenter }}"
          server: "{{ item.id }}"
          name: "{{ item.properties.name }}-data%02d"
@@ -103,7 +103,7 @@
          licence_type: OTHER
          wait_timeout: "{{ timeout }}"
          state: present
-      with_items: "{{ profitbricks.machines }}"
+      with_items: "{{ ionos_cloud.machines }}"
 
     - name: Add servers to servers host group
       add_host:
@@ -112,10 +112,10 @@
          ansible_ssh_user: root
          ansible_ssh_pass: password
          groupname: servers
-      with_items: "{{ profitbricks.machines }}"
-      when: profitbricks.action == 'create'
+      with_items: "{{ ionos_cloud.machines }}"
+      when: ionos_cloud.action == 'create'
 
     - name: Remove datacenter
-      profitbricks_datacenter:
+      ionos_cloud_datacenter:
         name: "{{ datacenter }}"
         state: absent

@@ -6,32 +6,45 @@
     - vars.yml
 
   tasks:
-    - name: Create k8s cluster nodepool
-      profitbricks_k8s_nodepools:
-        name: "my-nodepool"
-        k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-        datacenter_id: "4d495548-e330-434d-83a9-251bfa645875"
-        node_count: "1"
-        cpu_family: "AMD_OPTERON"
-        cores_count: "1"
-        ram_size: "2048"
-        availability_zone: "AUTO"
-        storage_type: "SSD"
-        storage_size: "100"
+    - name: Create datacenter
+      ionos_cloud_datacenter:
+        name: "{{ name }}"
+        description: "{{ description }}"
+        location: us/las
+      register: datacenter
 
-    - name: Delete k8s cluster nodepool
-      profitbricks_k8s_nodepools:
-        k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-        nodepool_id: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
-        state: absent
+    - name: Create k8s cluster
+      ionos_cloud_k8s_cluster:
+        cluster_name: "my-cluster"
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+          time: "12:02:00"
+        k8s_version: 1.19.2
+      register: cluster
 
+#    - name: Create k8s cluster nodepool
+#      ionos_cloud_k8s_nodepool:
+#        nodepool_name: "my-nodepool-8"
+#        k8s_cluster_id:  "{{ cluster.id }}"
+#        datacenter_id: "{{ datacenter.id }}"
+#        node_count: "1"
+#        cpu_family: "AMD_OPTERON"
+#        cores_count: "1"
+#        ram_size: "2048"
+#        availability_zone: "AUTO"
+#        storage_type: "SSD"
+#        storage_size: "100"
+#      register: nodepool
+#
+#    - name: Debug - Show nodepool
+#      debug:
+#         msg: "{{ nodepool }}"
 
     - name: Update k8s cluster nodepool
-      profitbricks_k8s_nodepools:
-        name: "my-nodepool"
-        k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-        datacenter_id: "4d495548-e330-434d-83a9-251bfa645875"
-        nodepool_id: "09b83214-c6db-4358-b8f1-c74980110a81"
+      ionos_cloud_k8s_nodepool:
+        k8s_cluster_id: "{{ cluster.id }}"
+        datacenter_id: "{{ datacenter.id }}"
+        nodepool_id: "29731bf1-4741-4df9-bc9f-8fb9639c436f"
         node_count: "1"
         cpu_family: "AMD_OPTERON"
         cores_count: "1"
@@ -40,3 +53,21 @@
         storage_type: "SSD"
         storage_size: "100"
         state: update
+#
+#    - name: Delete k8s cluster nodepool
+#      ionos_cloud_k8s_nodepool:
+#        k8s_cluster_id: "{{ cluster.id }}"
+#        nodepool_id: "3baae59e-dee9-446c-99cd-201e148bb453"
+#        wait: true
+#        state: absent
+#
+#    - name: Delete k8s cluster
+#      ionos_cloud_k8s_cluster:
+#        k8s_cluster_id: "{{ cluster.id }}"
+#        state: absent
+#
+#    - name: Remove datacenter
+#      ionos_cloud_datacenter:
+#         id: " {{ datacenter.id }}"
+#         name: "{{ name }}"
+#         state: absent

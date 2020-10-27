@@ -10,37 +10,40 @@
 
   tasks:
     - name: Create datacenter
-      profitbricks_datacenter:
+      ionos_cloud_datacenter:
           name: "{{ name }}"
           location: "{{ location }}"
 
+
     - name: Create volumes
-      profitbricks_volume:
+      ionos_cloud_volume:
         datacenter: "{{ datacenter }}"
         name: "{{ name }} %02d"
         count: 2
         size: 2
-        image: "{{ image }}"
+        image: "1a493ebd-038a-11eb-a663-5254001a8838"
         image_password: "{{ password }}"
         availability_zone: ZONE_3
         ssh_keys:
             - "{{ ssh_public_key }}"
         auto_increment: yes
         wait_timeout: 600
+        wait: true
         state: present
 
     - name: Update volumes
-      profitbricks_volume:
+      ionos_cloud_volume:
         datacenter: "{{ datacenter }}"
         instance_ids:
           - "{{ name }} 01"
           - "{{ name }} 02"
         size: 5
         wait_timeout: 600
+        wait: true
         state: update
 
     - name: Delete volumes
-      profitbricks_volume:
+      ionos_cloud_volume:
         datacenter: "{{ datacenter }}"
         instance_ids:
           - "{{ name }} 01"
@@ -49,6 +52,6 @@
         state: absent
 
     - name: Remove datacenter
-      profitbricks_datacenter:
+      ionos_cloud_datacenter:
         name: "{{ name }}"
         state: absent

@@ -12,7 +12,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: profitbricks_user
+module: ionos-cloud_user
 short_description: Create, update or remove a user.
 description:
      - This module allows you to create, update or remove a user.
@@ -61,12 +61,12 @@ options:
     default: null
   username:
     description:
-      - The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.
+      - The ProfitBricks username. Overrides the IONOS_USERNAME environment variable.
     required: false
     aliases: subscription_user
   password:
     description:
-      - The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.
+      - The ProfitBricks password. Overrides the IONOS_PASSWORD environment variable.
     required: false
     aliases: subscription_password
   wait:
@@ -88,7 +88,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "ionosenterprise >= 5.2.0"
+    - "ionos_cloud_sdk >= 5.2.0"
 author:
     - Nurfet Becirevic (@nurfet-becirevic)
     - Ethan Devenport (@edevenport)
@@ -97,7 +97,7 @@ author:
 EXAMPLES = '''
 # Create a user
 - name: Create user
-  profitbricks_user:
+  ionos-cloud_user:
     firstname: John
     lastname: Doe
     email: john.doe@example.com
@@ -107,7 +107,7 @@ EXAMPLES = '''
 
 # Update a user
 - name: Update user
-  profitbricks_user:
+  ionos-cloud_user:
     firstname: John II
     lastname: Doe
     email: john.doe@example.com
@@ -120,19 +120,22 @@ EXAMPLES = '''
 
 # Remove a user
 - name: Remove user
-  profitbricks_user:
+  ionos-cloud_user:
     email: john.doe@example.com
     state: absent
 '''
 
 import time
+import re
 
 HAS_SDK = True
 
 try:
-    from ionosenterprise import __version__ as sdk_version
-    from ionosenterprise.client import IonosEnterpriseService
-    from ionosenterprise.items import User
+    import ionos_cloud_sdk
+    from ionos_cloud_sdk import __version__ as sdk_version
+    from ionos_cloud_sdk.models import User, UserProperties
+    from ionos_cloud_sdk.rest import ApiException
+    from ionos_cloud_sdk import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -141,33 +144,22 @@ from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
 
-def _wait_for_completion(client, promise, wait_timeout, msg):
-    if not promise:
-        return
-    wait_timeout = time.time() + wait_timeout
-    while wait_timeout > time.time():
-        time.sleep(5)
-        operation_result = client.get_request(
-            request_id=promise['requestId'],
-            status=True)
-
-        if operation_result['metadata']['status'] == 'DONE':
-            return
-        elif operation_result['metadata']['status'] == 'FAILED':
-            raise Exception(
-                'Request failed to complete ' + msg + ' "' + str(
-                    promise['requestId']) + '" to complete.')
-
-    raise Exception('Timed out waiting for async operation ' + msg + ' "' +
-                    str(promise['requestId']) + '" to complete.')
+def _get_request_id(headers):
+    match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
+    if match:
+        return match.group(1)
+    else:
+        raise Exception("Failed to extract request ID from response "
+                        "header 'location': '{location}'".format(location=headers['location']))
 
 
-def create_user(module, client):
+
+def create_user(module, client, api_client):
     """
     Creates a user.
 
     module : AnsibleModule object
-    client: authenticated ionosenterprise object.
+    client: authenticated ionos_cloud_sdk object.
 
     Returns:
         The user instance
@@ -186,10 +178,13 @@ def create_user(module, client):
     force_sec_auth = module.params.get('force_sec_auth')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
+    s3_canonical_user_id = module.params.get('s3_canonical_user_id')
 
     user = None
-    for u in client.list_users()['items']:
-        if email == u['properties']['email']:
+
+    users = client.um_users_get(depth=2)
+    for u in users.items:
+        if email == u.properties.email:
             user = u
             break
 
@@ -205,35 +200,37 @@ def create_user(module, client):
         }
 
     try:
-        user = User(
-            firstname=firstname,
-            lastname=lastname,
-            email=email,
-            password=user_password,
-            administrator=administrator or False,
-            force_sec_auth=force_sec_auth or False
-        )
-        user_response = client.create_user(user)
+        user_properties = UserProperties(firstname=firstname, lastname=lastname, email=email,
+                                         administrator=administrator or False,
+                                         force_sec_auth=force_sec_auth or False,
+                                         s3_canonical_user_id=s3_canonical_user_id,
+                                         password=user_password)
+
+        user = User(properties=user_properties)
+        response = client.um_users_post_with_http_info(user)
+        (user_response, _, headers) = response
 
         if wait:
-            _wait_for_completion(client, user_response, wait_timeout, "create_user")
+            request_id = _get_request_id(headers['Location'])
+            api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
 
         return {
             'failed': False,
             'changed': True,
-            'user': user_response
+            'user': str(user_response)
         }
 
     except Exception as e:
         module.fail_json(msg="failed to create the user: %s" % to_native(e))
 
 
-def update_user(module, client):
+def update_user(module, client, api_client):
     """
     Updates a user.
 
     module : AnsibleModule object
-    client: authenticated ionosenterprise object.
+    client: authenticated ionos_cloud_sdk object.
 
     Returns:
         The user instance
@@ -248,8 +245,9 @@ def update_user(module, client):
 
     try:
         user = None
-        for resource in client.list_users()['items']:
-            if email in (resource['properties']['email'], resource['id']):
+        users = client.um_users_get(depth=2)
+        for resource in users.items:
+            if email in (resource.properties.email, resource.id):
                 user = resource
                 break
 
@@ -258,35 +256,38 @@ def update_user(module, client):
                 module.exit_json(changed=True)
 
             if not firstname:
-                firstname = user['properties']['firstname']
+                firstname = user.properties.firstname
             if not lastname:
-                lastname = user['properties']['lastname']
+                lastname = user.properties.lastname
             if administrator is None:
-                administrator = user['properties']['administrator']
+                administrator = user.properties.administrator
             if force_sec_auth is None:
-                force_sec_auth = user['properties']['forceSecAuth']
+                force_sec_auth = user.properties.force_sec_auth
 
-            user_response = client.update_user(
-                user_id=user['id'],
-                firstname=firstname,
-                lastname=lastname,
-                email=email,
-                administrator=administrator,
-                force_sec_auth=force_sec_auth
-            )
+            user_properties = UserProperties(firstname=firstname,
+                                             lastname=lastname,
+                                             email=email,
+                                             administrator=administrator or False,
+                                             force_sec_auth=force_sec_auth or False)
+
+            new_user = User(properties=user_properties)
+            response = client.um_users_put_with_http_info(user_id=user.id, user=new_user)
+            (user_response, _, headers) = response
+
         else:
             module.fail_json(msg='User \'%s\' not found.' % str(email))
 
         if wait:
-            _wait_for_completion(client, user_response, wait_timeout, "update_user")
+            request_id = _get_request_id(headers['Location'])
+            api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
         if module.params.get('groups') is not None:
-            user = client.get_user(user_id=user_response['id'], depth=2)
+            user = client.um_users_find_by_id(user_id=user_response.id, depth=2)
             old_ug = []
-            for g in user['entities']['groups']['items']:
-                old_ug.append(g['id'])
+            for g in user.entities.groups.items:
+                old_ug.append(g.id)
 
-            all_groups = client.list_groups()
+            all_groups = client.um_groups_get(depth=2)
             new_ug = []
             for g in module.params.get('groups'):
                 group_id = _get_resource_id(all_groups, g, module, "Group")
@@ -294,23 +295,27 @@ def update_user(module, client):
 
             for group_id in old_ug:
                 if group_id not in new_ug:
-                    client.remove_group_user(
+                    client.um_groups_users_delete(
                         group_id=group_id,
-                        user_id=user['id']
+                        user_id=user.id
                     )
 
             for group_id in new_ug:
                 if group_id not in old_ug:
-                    user_response = client.add_group_user(
+                    response = client.um_groups_users_post_with_http_info(
                         group_id=group_id,
-                        user_id=user['id']
+                        user=User(id=user.id)
                     )
-                    _wait_for_completion(client, user_response, wait_timeout, "add_group_user")
+                    (user_response, _, headers) = response
+                    request_id = _get_request_id(headers['Location'])
+                    api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
+
 
         return {
             'failed': False,
             'changed': True,
-            'user': user_response
+            'user': str(user_response)
         }
 
     except Exception as e:
@@ -322,7 +327,7 @@ def delete_user(module, client):
     Removes a user
 
     module : AnsibleModule object
-    client: authenticated ionosenterprise object.
+    client: authenticated ionos_cloud_sdk object.
 
     Returns:
         True if the user was removed, false otherwise
@@ -330,14 +335,14 @@ def delete_user(module, client):
     email = module.params.get('email')
 
     # Locate UUID for the user
-    user_list = client.list_users()
+    user_list = client.um_users_get(depth=2)
     user_id = _get_user_id(user_list, email)
 
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        user_response = client.delete_user(user_id)
+        user_response = client.um_users_delete(user_id)
         return user_response
     except Exception as e:
         module.fail_json(msg="failed to remove the user: %s" % to_native(e))
@@ -348,9 +353,9 @@ def _get_user_id(resource_list, identity):
     Fetch and return the UUID of a user regardless of whether the email or
     UUID is passed.
     """
-    for resource in resource_list['items']:
-        if identity in (resource['properties']['email'], resource['id']):
-            return resource['id']
+    for resource in resource_list.items:
+        if identity in (resource.properties.email, resource.id):
+            return resource.id
     return None
 
 
@@ -359,9 +364,9 @@ def _get_resource_id(resource_list, identity, module, resource_type):
     Fetch and return the UUID of a resource regardless of whether the name or
     UUID is passed. Throw an error otherwise.
     """
-    for resource in resource_list['items']:
-        if identity in (resource['properties']['name'], resource['id']):
-            return resource['id']
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
 
     module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
 
@@ -377,17 +382,19 @@ def main():
             force_sec_auth=dict(type='bool', default=None),
             groups=dict(type='list', default=None),
             api_url=dict(type='str', default=None),
+            sec_auth_active=dict(type='bool', default=False),
+            s3_canonical_user_id=dict(type='str'),
             username=dict(
                 type='str',
                 required=True,
                 aliases=['subscription_user'],
-                fallback=(env_fallback, ['PROFITBRICKS_USERNAME'])
+                fallback=(env_fallback, ['IONOS_USERNAME'])
             ),
             password=dict(
                 type='str',
                 required=True,
                 aliases=['subscription_password'],
-                fallback=(env_fallback, ['PROFITBRICKS_PASSWORD']),
+                fallback=(env_fallback, ['IONOS_PASSWORD']),
                 no_log=True
             ),
             wait=dict(type='bool', default=True),
@@ -398,46 +405,45 @@ def main():
     )
 
     if not HAS_SDK:
-        module.fail_json(msg='ionosenterprise is required for this module, run `pip install ionosenterprise`')
+        module.fail_json(msg='ionos_cloud_sdk is required for this module, run `pip install ionos_cloud_sdk`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
-    if not api_url:
-        ionosenterprise = IonosEnterpriseService(username=username, password=password)
-    else:
-        ionosenterprise = IonosEnterpriseService(
-            username=username,
-            password=password,
-            host_base=api_url
-        )
-
-    user_agent = 'profitbricks-sdk-python/%s Ansible/%s' % (sdk_version, __version__)
-    ionosenterprise.headers = {'User-Agent': user_agent}
+    user_agent = 'ionos_cloud_sdk-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')
 
-    if state == 'absent':
-        try:
-            (changed) = delete_user(module, ionosenterprise)
-            module.exit_json(changed=changed)
-        except Exception as e:
-            module.fail_json(msg='failed to set user state: %s' % to_native(e))
+    configuration = ionos_cloud_sdk.Configuration(
+        username=username,
+        password=password
+    )
 
-    elif state == 'present':
-        try:
-            (user_dict) = create_user(module, ionosenterprise)
-            module.exit_json(**user_dict)
-        except Exception as e:
-            module.fail_json(msg='failed to set user state: %s' % to_native(e))
+    with ApiClient(configuration) as api_client:
+        api_client.user_agent = user_agent
+        api_instance = ionos_cloud_sdk.UserManagementApi(api_client)
 
-    elif state == 'update':
-        try:
-            (user_dict) = update_user(module, ionosenterprise)
-            module.exit_json(**user_dict)
-        except Exception as e:
-            module.fail_json(msg='failed to update user: %s' % to_native(e))
+        if state == 'absent':
+            try:
+                (changed) = delete_user(module, api_instance)
+                module.exit_json(changed=changed)
+            except Exception as e:
+                module.fail_json(msg='failed to set user state: %s' % to_native(e))
+
+        elif state == 'present':
+            try:
+                (user_dict) = create_user(module, api_instance, api_client)
+                module.exit_json(**user_dict)
+            except Exception as e:
+                module.fail_json(msg='failed to set user state: %s' % to_native(e))
+
+        elif state == 'update':
+            try:
+                (user_dict) = update_user(module, api_instance, api_client)
+                module.exit_json(**user_dict)
+            except Exception as e:
+                module.fail_json(msg='failed to update user: %s' % to_native(e))
 
 
 if __name__ == '__main__':

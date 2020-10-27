@@ -16,7 +16,7 @@ stored in the cache file, by default to
 /tmp/ansible-profitbricks.cache.
 
 ----
-Configuration is read from `profitbricks_inventory.ini`.
+Configuration is read from `ionos_cloud_inventory.ini`.
 ProfitBricks credentials could be specified as:
     username = MyProfitBricksUsername
     password = MyProfitBricksPassword
@@ -45,7 +45,7 @@ The following groups are generated from --list option:
 
 ----
 ```
-usage: profitbricks_inventory.py [-h] [--list] [--host HOST] [--datacenters]
+usage: ionos_cloud_inventory.py [-h] [--list] [--host HOST] [--datacenters]
                                  [--fwrules] [--images] [--lans] [--locations]
                                  [--nics] [--servers] [--volumes] [--refresh]
 
@@ -164,14 +164,14 @@ class ProfitBricksInventory(object):
         print(json.dumps(print_data, sort_keys=False, indent=2, separators=(',', ': ')))
 
     def read_settings(self):
-        """ Reads the settings from the profitbricks_inventory.ini file """
+        """ Reads the settings from the ionos_cloud_inventory.ini file """
 
         if six.PY3:
             config = configparser.ConfigParser()
         else:
             config = configparser.SafeConfigParser()
 
-        config.read(os.path.dirname(os.path.realpath(__file__)) + '/profitbricks_inventory.ini')
+        config.read(os.path.dirname(os.path.realpath(__file__)) + '/ionos_cloud_inventory.ini')
 
         # Credentials
         if config.has_option('profitbricks', 'username'):

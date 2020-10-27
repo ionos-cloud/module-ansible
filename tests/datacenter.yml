@@ -7,18 +7,19 @@
 
   tasks:
     - name: Create datacenter
-      profitbricks_datacenter:
-        name: "{{ name }}"
+      ionos_cloud_datacenter:
+        name: "{{ name }}-{{ 100 |random}}"
         description: "{{ description }}"
         location: us/las
+      register: datacenter
 
     - name: Update datacenter
-      profitbricks_datacenter:
+      ionos_cloud_datacenter:
         name: "{{ name }}"
-        description: "{{ description }} - RENAME"
+        description: "{{ description }} - RENAMED"
         state: update
 
     - name: Remove datacenter
-      profitbricks_datacenter:
-        name: "{{ name }}"
+      ionos_cloud_datacenter:
+        id: "{{ datacenter.id }}"
         state: absent

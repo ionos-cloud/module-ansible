@@ -1,0 +1,193 @@
+import re
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
+EXAMPLES = '''
+    - name: Create an s3key
+      ionos-cloud_s3key:
+        user_id: "{{ user_id }}"
+
+    - name: Update an s3key
+      ionos-cloud_s3key:
+        user_id: "{{ user_id }}"
+        key_id: "00ca413c94eecc56857d"
+        active: False
+        state: update
+
+    - name: Remove an s3key
+      ionos-cloud_s3key:
+        user_id: "{{ user_id }}"
+        key_id: "00ca413c94eecc56857d"
+        state: absent
+'''
+
+HAS_SDK = True
+try:
+    import ionos_cloud_sdk
+    from ionos_cloud_sdk import __version__ as sdk_version
+    from ionos_cloud_sdk.models import S3Key
+    from ionos_cloud_sdk.models import S3KeyProperties
+    from ionos_cloud_sdk.rest import ApiException
+    from ionos_cloud_sdk import ApiClient
+except ImportError:
+    HAS_SDK = False
+
+from ansible import __version__
+from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils._text import to_native
+
+
+def _get_request_id(headers):
+    match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
+    if match:
+        return match.group(1)
+    else:
+        raise Exception("Failed to extract request ID from response "
+                        "header 'location': '{location}'".format(location=headers['location']))
+
+
+def create_s3key(module, client, api_client):
+    user_id = module.params.get('user_id')
+    wait = module.params.get('wait')
+    wait_timeout = int(module.params.get('wait_timeout'))
+
+    try:
+        response = client.um_users_s3keys_post_with_http_info(user_id=user_id)
+        (s3key_response, _, headers) = response
+
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
+        results = {
+            's3key_id': s3key_response.id,
+            'changed': True
+        }
+
+        return results
+
+    except Exception as e:
+        module.fail_json(msg="failed to create the s3key: %s" % to_native(e))
+
+
+def delete_s3key(module, client):
+    user_id = module.params.get('user_id')
+    key_id = module.params.get('key_id')
+
+    changed = False
+
+    try:
+        client.um_users_s3keys_delete(user_id, key_id)
+        changed = True
+    except Exception as e:
+        module.fail_json(msg="failed to delete the s3key: %s" % to_native(e))
+
+    return changed
+
+
+def update_s3key(module, client):
+    user_id = module.params.get('user_id')
+    key_id = module.params.get('key_id')
+    active = module.params.get('active')
+    properties = S3KeyProperties(active=active)
+
+    if module.check_mode:
+        module.exit_json(changed=True)
+    try:
+        client.um_users_s3keys_put(user_id, key_id, S3Key(properties=properties))
+        changed = True
+
+    except Exception as e:
+        module.fail_json(msg="failed to update the s3key: %s" % to_native(e))
+        changed = False
+
+    return changed
+
+
+def main():
+    module = AnsibleModule(
+        argument_spec=dict(
+            active=dict(type='bool'),
+            user_id=dict(type='str'),
+            key_id=dict(type='str'),
+            api_url=dict(type='str', default=None),
+            username=dict(
+                type='str',
+                required=True,
+                aliases=['subscription_user'],
+                fallback=(env_fallback, ['IONOS_USERNAME'])
+            ),
+            password=dict(
+                type='str',
+                required=True,
+                aliases=['subscription_password'],
+                fallback=(env_fallback, ['IONOS_PASSWORD']),
+                no_log=True
+            ),
+            wait=dict(type='bool', default=True),
+            wait_timeout=dict(type='int', default=600),
+            state=dict(type='str', default='present'),
+        ),
+        supports_check_mode=True
+    )
+    if not HAS_SDK:
+        module.fail_json(msg='ionos_cloud_sdk is required for this module, run `pip install ionos_cloud_sdk`')
+
+    username = module.params.get('username')
+    password = module.params.get('password')
+    api_url = module.params.get('api_url')
+
+    user_agent = 'ionos_cloud_sdk-python/%s Ansible/%s' % (sdk_version, __version__)
+
+    state = module.params.get('state')
+
+    configuration = ionos_cloud_sdk.Configuration(
+        username=username,
+        password=password
+    )
+
+    state = module.params.get('state')
+
+    with ApiClient(configuration) as api_client:
+        api_client.user_agent = user_agent
+        api_instance = ionos_cloud_sdk.UserManagementApi(api_client)
+
+        if state == 'present':
+            if not module.params.get('user_id'):
+                module.fail_json(msg='user_id parameter is required for a new s3key')
+            try:
+                (s3key_dict_array) = create_s3key(module, api_instance, api_client)
+                module.exit_json(**s3key_dict_array)
+            except Exception as e:
+                module.fail_json(msg='failed to set user state: %s' % to_native(e))
+
+        elif state == 'absent':
+            if not module.params.get('user_id'):
+                module.fail_json(msg='user_id parameter is required for deleting an s3key.')
+            if not module.params.get('key_id'):
+                module.fail_json(msg='key_id parameter is required for deleting an s3key.')
+
+            try:
+                (changed) = delete_s3key(module, api_instance)
+                module.exit_json(changed=changed)
+            except Exception as e:
+                module.fail_json(msg='failed to set user state: %s' % to_native(e))
+
+        elif state == 'update':
+            if not module.params.get('user_id'):
+                module.fail_json(msg='user_id parameter is required for updating an s3key.')
+            if not module.params.get('key_id'):
+                module.fail_json(msg='key_id parameter is required for updating an s3key.')
+
+            try:
+                (changed) = update_s3key(module, api_instance)
+                module.exit_json(
+                    changed=changed)
+            except Exception as e:
+                module.fail_json(msg='failed to set s3key state: %s' % to_native(e))
+
+
+if __name__ == '__main__':
+    main()

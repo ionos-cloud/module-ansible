@@ -6,8 +6,18 @@
     - vars.yml
 
   tasks:
+    - name: Create k8s cluster
+      ionos_cloud_k8s_cluster:
+        cluster_name: "my-cluster"
+      register: cluster
+
     - name: Get k8s config
-      profitbricks_k8s_config:
-        k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+      ionos_cloud_k8s_config:
+        k8s_cluster_id: "{{ cluster.id }}"
         config_file: 'config.yaml'
         state: present
+
+    - name: Delete k8s cluster
+      ionos_cloud_k8s_cluster:
+        k8s_cluster_id: "{{ cluster.id }}"
+        state: absent

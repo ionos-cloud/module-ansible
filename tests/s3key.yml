@@ -7,18 +7,19 @@
 
   tasks:
     - name: Create an s3key
-      profitbricks_s3key:
+      ionos_cloud_s3key:
         user_id: "{{ user_id }}"
+      register: key
 
     - name: Update an s3key
-      profitbricks_s3key:
+      ionos_cloud_s3key:
         user_id: "{{ user_id }}"
-        key_id: "00ca413c94eecc56857d"
+        key_id: "{{ key.s3key_id }}"
         active: False
         state: update
 
     - name: Remove an s3key
-      profitbricks_s3key:
+      ionos_cloud_s3key:
         user_id: "{{ user_id }}"
-        key_id: "00ca413c94eecc56857d"
+        key_id: "{{ key.s3key_id }}"
         state: absent
