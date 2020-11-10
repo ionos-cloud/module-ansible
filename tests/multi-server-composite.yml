@@ -11,7 +11,7 @@
 
   tasks:
     - name: Provision a set of instances
-      ionos_cloud:
+      server:
          datacenter: "{{ datacenter }}"
          name: "{{ name }} %02d"
          auto_increment: true

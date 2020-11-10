@@ -14,7 +14,7 @@
         wait: True
 
     - name: Provision server
-      ionos_cloud:
+      server:
          datacenter: "{{ datacenter }}"
          name: "{{ server }}"
          auto_increment: false
