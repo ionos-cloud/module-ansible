@@ -148,7 +148,6 @@ EXAMPLES = '''
     state: absent
 '''
 
-import time
 import re
 
 HAS_SDK = True
@@ -225,22 +224,25 @@ def create_snapshot(module, client):
 
     if not should_change:
         return {
-            'changed': should_change,
-            'snapshot': str(snapshot)
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'snapshot': snapshot.to_dict()
         }
 
     try:
         response = volume_server.datacenters_volumes_create_snapshot_post_with_http_info(datacenter_id=datacenter_id,
-                                                                          volume_id=volume_id, name=name,
-                                                                          description=description)
+                                                                                         volume_id=volume_id, name=name,
+                                                                                         description=description)
         (snapshot_response, _, headers) = response
         request_id = _get_request_id(headers['Location'])
         client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
         return {
-            'failed': False,
             'changed': True,
-            'snapshot': str(snapshot_response)
+            'failed': False,
+            'action': 'create',
+            'snapshot': snapshot_response.to_dict()
         }
 
     except Exception as e:
@@ -260,32 +262,41 @@ def restore_snapshot(module, client):
     datacenter = module.params.get('datacenter')
     volume = module.params.get('volume')
     name = module.params.get('name')
+    wait = module.params.get('wait')
+
+    datacenter_server = ionos_cloud_sdk.DataCenterApi(api_client=client)
+    volume_server = ionos_cloud_sdk.VolumeApi(api_client=client)
+    snapshot_server = ionos_cloud_sdk.SnapshotApi(api_client=client)
 
     # Locate UUID for virtual datacenter
-    datacenter_list = client.list_datacenters()
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
 
     # Locate UUID for volume
-    volume_list = client.list_volumes(datacenter_id)
+    volume_list = volume_server.datacenters_volumes_get(datacenter_id=datacenter_id, depth=2)
     volume_id = _get_resource_id(volume_list, volume, module, "Volume")
 
     # Locate UUID for snapshot
-    snapshot_list = client.list_snapshots()
+    snapshot_list = snapshot_server.snapshots_get(depth=2)
     snapshot_id = _get_resource_id(snapshot_list, name, module, "Snapshot")
 
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        snapshot_resp = client.restore_snapshot(
-            datacenter_id=datacenter_id,
-            volume_id=volume_id,
-            snapshot_id=snapshot_id
-        )
+        response = volume_server.datacenters_volumes_restore_snapshot_post_with_http_info(datacenter_id=datacenter_id,
+                                                                                          volume_id=volume_id,
+                                                                                          snapshot_id=snapshot_id)
+        (snapshot_response, _, headers) = response
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id)
 
         return {
             'changed': True,
-            'snapshot': snapshot_resp
+            'failed': False,
+            'action': 'restore',
+            'snapshot': snapshot_response
         }
 
     except Exception as e:
@@ -372,7 +383,9 @@ def update_snapshot(module, client):
 
         return {
             'changed': True,
-            'snapshot': str(snapshot_response)
+            'failed': False,
+            'action': 'update',
+            'snapshot': snapshot_response.to_dict()
         }
 
     except Exception as e:
@@ -401,10 +414,19 @@ def delete_snapshot(module, client):
         module.exit_json(changed=True)
 
     try:
-        snapshot_resp = snapshot_server.snapshots_delete(snapshot_id)
-        return snapshot_resp
+        snapshot_server.snapshots_delete(snapshot_id)
+        return {
+            'action': 'delete',
+            'changed': True,
+            'id': snapshot_id
+        }
     except Exception as e:
         module.fail_json(msg="failed to remove the snapshot: %s" % to_native(e))
+        return {
+            'action': 'delete',
+            'changed': False,
+            'id': snapshot_id
+        }
 
 
 def _get_resource_id(resource_list, identity, module, resource_type):

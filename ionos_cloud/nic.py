@@ -133,7 +133,6 @@ EXAMPLES = '''
 '''
 
 import re
-import time
 
 from uuid import uuid4
 
@@ -221,9 +220,10 @@ def create_nic(module, client):
 
     if not should_change:
         return {
-            'changed': should_change,
-            'nic': str(nic),
-            'nic_id': nic.id
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'nic': nic.to_dict()
         }
 
     try:
@@ -241,8 +241,9 @@ def create_nic(module, client):
 
         return {
             'changed': True,
-            'nic': str(nic_response),
-            'nic_id': nic_response.id
+            'failed': False,
+            'action': 'create',
+            'nic': nic_response.to_dict()
         }
 
     except Exception as e:
@@ -317,10 +318,9 @@ def update_nic(module, client):
 
         nic_properties = NicProperties(ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active,
                                        nat=nat)
-        updated_nic = Nic(properties=nic_properties)
 
-        response = nic_server.datacenters_servers_nics_put_with_http_info(datacenter_id=datacenter, server_id=server,
-                                                                          nic_id=nic.id, nic=updated_nic)
+        response = nic_server.datacenters_servers_nics_patch_with_http_info(datacenter_id=datacenter, server_id=server,
+                                                                            nic_id=nic.id, nic=nic_properties)
         (nic_response, _, headers) = response
 
         if wait:
@@ -329,7 +329,9 @@ def update_nic(module, client):
 
         return {
             'changed': True,
-            'nic': str(nic_response)
+            'failed': False,
+            'action': 'update',
+            'nic': nic_response.to_dict()
         }
 
     except Exception as e:
@@ -374,7 +376,11 @@ def delete_nic(module, client):
                 break
 
         if not server_found:
-            return False
+            return {
+                'action': 'delete',
+                'changed': False,
+                'id': name
+            }
 
     # Locate UUID for NIC
     nic_found = False
@@ -387,16 +393,29 @@ def delete_nic(module, client):
                 break
 
         if not nic_found:
-            return False
+            return {
+                'action': 'delete',
+                'changed': False,
+                'id': name
+            }
 
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        nic_response = nic_server.datacenters_servers_nics_delete(datacenter_id=datacenter, server_id=server,
+        nic_server.datacenters_servers_nics_delete(datacenter_id=datacenter, server_id=server,
                                                                   nic_id=name)
-        return nic_response
+        return {
+            'action': 'delete',
+            'changed': True,
+            'id': name
+        }
     except Exception as e:
         module.fail_json(msg="failed to remove the NIC: %s" % to_native(e))
+        return {
+            'action': 'delete',
+            'changed': False,
+            'id': name
+        }
 
 
 def main():

@@ -50,17 +50,17 @@ options:
     default: None
   api_url:
     description:
-      - The ProfitBricks API base URL.
+      - The Ionos Cloud API base URL.
     required: false
     default: null
   username:
     description:
-      - The ProfitBricks username. Overrides the IONOS_USERNAME environment variable.
+      - The Ionos Cloud username. Overrides the IONOS_USERNAME environment variable.
     required: false
     aliases: subscription_user
   password:
     description:
-      - The ProfitBricks password. Overrides the IONOS_PASSWORD environment variable.
+      - The Ionos Cloud password. Overrides the IONOS_PASSWORD environment variable.
     required: false
     aliases: subscription_password
   wait:
@@ -142,7 +142,6 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-
 def create_group(module, client):
     """
     Creates a group.
@@ -183,8 +182,10 @@ def create_group(module, client):
 
     if not should_change:
         return {
-            'changed': should_change,
-            'group': str(group)
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'group': group.to_dict()
         }
 
     try:
@@ -209,9 +210,10 @@ def create_group(module, client):
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
         return {
-            'failed': False,
             'changed': True,
-            'group': str(group_response)
+            'failed': False,
+            'action': 'create',
+            'group': group_response.to_dict()
         }
 
     except Exception as e:
@@ -306,13 +308,12 @@ def update_group(module, client):
                         (user_response, _, headers) = response
                         request_id = _get_request_id(headers['Location'])
                         client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
             return {
-                'failed': False,
                 'changed': True,
-                'group': str(group_response)
+                'failed': False,
+                'action': 'update',
+                'group': group_response.to_dict()
             }
-
         else:
             module.fail_json(msg='Group \'%s\' not found.' % str(name))
 
@@ -340,8 +341,13 @@ def delete_group(module, client):
         module.exit_json(changed=True)
 
     try:
-        group_response = client.um_groups_delete(group_id=group_id)
-        return group_response
+        client.um_groups_delete(group_id=group_id)
+        return {
+            'action': 'delete',
+            'changed': False,
+            'id': group_id
+        }
+
     except Exception as e:
         module.fail_json(msg="failed to remove the group: %s" % to_native(e))
 
@@ -420,8 +426,8 @@ def main():
 
         if state == 'absent':
             try:
-                (changed) = delete_group(module, api_instance)
-                module.exit_json(changed=changed)
+                (result) = delete_group(module, api_instance)
+                module.exit_json(**result)
             except Exception as e:
                 module.fail_json(msg='failed to set group state: %s' % to_native(e))
 
@@ -434,8 +440,8 @@ def main():
 
         elif state == 'update':
             try:
-                (result) = update_group(module, api_client)
-                module.exit_json(result=result)
+                (group_dict) = update_group(module, api_client)
+                module.exit_json(**group_dict)
             except Exception as e:
                 module.fail_json(msg='failed to update group: %s' % to_native(e))
 

@@ -127,9 +127,10 @@ def create_k8s_cluster_nodepool(module, client):
             )
 
         results = {
-            'nodepool': str(k8s_response),
-            'id': k8s_response.id,
-            'changed': True
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            'nodepool': k8s_response.to_dict()
         }
         return results
 
@@ -164,7 +165,11 @@ def delete_k8s_cluster_nodepool(module, client):
     except Exception as e:
         module.fail_json(msg="failed to delete the k8s cluster: %s" % to_native(e))
 
-    return changed
+    return {
+        'action': 'delete',
+        'changed': changed,
+        'nodepool_id': nodepool_id
+    }
 
 
 def update_k8s_cluster_nodepool(module, client):
@@ -195,6 +200,8 @@ def update_k8s_cluster_nodepool(module, client):
         nodepool = k8s_server.k8s_nodepools_find_by_id(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id, depth=2)
         node_count = nodepool.properties.nodeCount
 
+    k8s_response = None
+
     if module.check_mode:
         module.exit_json(changed=True)
     try:
@@ -224,7 +231,12 @@ def update_k8s_cluster_nodepool(module, client):
         module.fail_json(msg="failed to update the nodepool: %s" % to_native(e))
         changed = False
 
-    return changed
+    return {
+        'changed': changed,
+        'failed': False,
+        'action': 'update',
+        'nodepool': k8s_response.to_dict()
+    }
 
 
 def main():
@@ -316,8 +328,8 @@ def main():
             if not module.params.get('storage_size'):
                 module.fail_json(msg=error_message % 'storage_size')
             try:
-                (k8s_cluster_dict_array) = create_k8s_cluster_nodepool(module, api_client)
-                module.exit_json(**k8s_cluster_dict_array)
+                (k8s_nodepool_dict_array) = create_k8s_cluster_nodepool(module, api_client)
+                module.exit_json(**k8s_nodepool_dict_array)
             except Exception as e:
                 module.fail_json(msg='failed to set k8s cluster nodepool state: %s' % to_native(e))
 
@@ -328,8 +340,8 @@ def main():
                 module.fail_json(msg='nodepool_id parameter is required deleting a k8s nodepool.')
 
             try:
-                (changed) = delete_k8s_cluster_nodepool(module, api_client)
-                module.exit_json(changed=changed)
+                (result) = delete_k8s_cluster_nodepool(module, api_client)
+                module.exit_json(**result)
             except Exception as e:
                 module.fail_json(msg='failed to set k8s nodepool state: %s' % to_native(e))
 
@@ -339,9 +351,8 @@ def main():
             if not module.params.get('nodepool_id'):
                 module.fail_json(msg='nodepool_id parameter is required updating a nodepool.')
             try:
-                (changed) = update_k8s_cluster_nodepool(module, api_client)
-                module.exit_json(
-                    changed=changed)
+                (k8s_nodepool_dict_array) = update_k8s_cluster_nodepool(module, api_client)
+                module.exit_json(**k8s_nodepool_dict_array)
             except Exception as e:
                 module.fail_json(msg='failed to set k8s nodepool state: %s' % to_native(e))
 

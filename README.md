@@ -1,6 +1,6 @@
 # Ansible Module
 
-Version: **ionos-cloud-module-ansible v2.0.6**
+Version: **ionos-cloud-module-ansible v2.2.0**
 
 API Version: **Ionos Cloud Cloud API v5**
 
@@ -18,23 +18,23 @@ API Version: **Ionos Cloud Cloud API v5**
   - [Incrementing Servers](#incrementing-servers)
   - [SSH Key Authentication](#ssh-key-authentication)
 - [Reference](#reference)
-  - [profitbricks](#profitbricks)
-  - [profitbricks_datacenter](#profitbricks_datacenter)
-  - [profitbricks_lan](#profitbricks_lan)
-  - [profitbricks_nic](#profitbricks_nic)
-  - [profitbricks_volume](#profitbricks_volume)
-  - [profitbricks_firewall_rule](#profitbricks_firewall_rule)
-  - [profitbricks_ipblock](#profitbricks_ipblock)
-  - [profitbricks_snapshot](#profitbricks_snapshot)
-  - [profitbricks_user](#profitbricks_user)
-  - [profitbricks_group](#profitbricks_group)
-  - [profitbricks_share](#profitbricks_share)
-  - [profitbricks_pcc](#profitbricks_pcc)
-  - [profitbricks_s3key](#profitbricks_s3key)
-  - [profitbricks_k8s_cluster](#profitbricks_k8s_cluster)
-  - [profitbricks_k8s_nodepool](#profitbricks_k8s_nodepool)
-  - [profitbricks_k8s_config](#profitbricks_k8s_config)
-  - [profitbricks_backupunit](#profibricks_backupunit)
+  - [server](#server)
+  - [datacenter](#datacenter)
+  - [lan](#lan)
+  - [nic](#nic)
+  - [volume](#volume)
+  - [firewall_rule](#rule)
+  - [ipblock](#ipblock)
+  - [snapshot](#snapshot)
+  - [user](#user)
+  - [group](#group)
+  - [share](#share)
+  - [pcc](#pcc)
+  - [s3key](#s3key)
+  - [k8s_cluster](#k8s_cluster)
+  - [k8s_nodepool](#k8s_nodepool)
+  - [k8s_config](#k8s_config)
+  - [backupunit](#backupunit)
 - [Examples](#examples)
 - [Support](#support)
 - [Testing](#testing)
@@ -42,36 +42,36 @@ API Version: **Ionos Cloud Cloud API v5**
 
 ## Description
 
-Ansible is an IT automation tool that allows users to configure, deploy, and orchestrate advanced tasks such as continuous deployments or zero downtime rolling updates. The ProfitBricks module for Ansible leverages the ProfitBricks Cloud API.
+Ansible is an IT automation tool that allows users to configure, deploy, and orchestrate advanced tasks such as continuous deployments or zero downtime rolling updates. The Ionos module for Ansible leverages the Ionos Cloud API.
 
 ## Getting Started
 
-The ProfitBricks module for Ansible has a couple of requirements:
+The Ionos module for Ansible has a couple of requirements:
 
-- ProfitBricks account
+- Ionos Cloud account
 - Python
 - [Ansible](https://www.ansible.com/)
-- [ProfitBricks SDK for Python](https://devops.profitbricks.com/libraries/python/)
+- [Ionos SDK for Python](https://pypi.org/project/ionossdk/)
 
-Before you begin you will need to have signed-up for a ProfitBricks account. The credentials you establish during sign-up will be used to authenticate against the ProfitBricks Cloud API.
+Before you begin you will need to have signed-up for a Ionos account. The credentials you establish during sign-up will be used to authenticate against the Ionos Cloud API.
 
-Ansible must also be installed before the ProfitBricks module can be used. Please review the official [Ansible Documentation](http://docs.ansible.com/ansible/intro_installation.html) for more information on installing Ansible.
+Ansible must also be installed before the Ionos module can be used. Please review the official [Ansible Documentation](http://docs.ansible.com/ansible/intro_installation.html) for more information on installing Ansible.
 
-Lastly, the ProfitBricks module requires the ProfitBricks SDK for Python to be installed. This can easily be accomplished with Python PyPI.
+Lastly, the Ionos module requires the Ionos SDK for Python to be installed. This can easily be accomplished with Python PyPI.
 
-    pip install profitbricks
+    pip install ionossdk
 
 ## Installation
 
-1.  The ProfitBricks module for Ansible must first be downloaded from GitHub. This can be accomplished a few different ways such as downloading and extracting the archive using `curl` or cloning the GitHub repository locally.
+1.  The Ionos module for Ansible must first be downloaded from GitHub. This can be accomplished a few different ways such as downloading and extracting the archive using `curl` or cloning the GitHub repository locally.
 
     Download and extract with `curl`:
 
-        mkdir -p profitbricks-module-ansible && curl -L https://github.com/profitbricks/profitbricks-module-ansible/tarball/master | tar zx -C profitbricks-module-ansible/ --strip-components=1
+        mkdir -p ionos-module-ansible && curl -L https://github.com/ionos-cloud/sdk-ansible/tarball/master | tar zx -C ionos-module-ansible/ --strip-components=1
 
     Clone the GitHub repository locally:
 
-        git clone https://github.com/profitbricks/profitbricks-module-ansible/
+        git clone https://github.com/ionos-cloud/sdk-ansible
 
 2.  Ansible must be made aware of the new module path. This too can be accomplished a few different ways depending on your requirements and environment.
 
@@ -79,10 +79,10 @@ Lastly, the ProfitBricks module requires the ProfitBricks SDK for Python to be i
     - Environment variable: `ANSIBLE_LIBRARY`
     - Command line parameter: `ansible-playbook --module-path [path]`
 
-    2a. The preferred method is to update the Ansible configuration with the module path. To include the path globally for all users, edit the `/etc/ansible/ansible.cfg` file and add `library = /path/to/module/profitbricks` under the **[default]** section. For example:
+    2a. The preferred method is to update the Ansible configuration with the module path. To include the path globally for all users, edit the `/etc/ansible/ansible.cfg` file and add `library = /path/to/module/ionos_cloud` under the **[default]** section. For example:
 
         [default]
-        library = /path/to/profitbricks-module-ansible/profitbricks
+        library = /path/to/ionos-module-ansible/ionos_cloud
 
     Note that the Ansible configuration file is read from several locations in the following order:
 
@@ -93,11 +93,11 @@ Lastly, the ProfitBricks module requires the ProfitBricks SDK for Python to be i
 
     2b. The module path can also be set using an environment variable. This variable will be lost once the terminal session is closed:
 
-        export ANSIBLE_LIBRARY=/path/to/profitbricks-module-ansible/profitbricks
+        export ANSIBLE_LIBRARY=/path/to/ionos-module-ansible/ionos_cloud
 
     2c. The module path can be overridden with an `ansible-playbook` command line parameter:
 
-        ansible-playbook --module-path /path/to/profitbricks-module-ansible/profitbricks playbook.yml
+        ansible-playbook --module-path /path/to/ionos-module-ansible/ionos_cloud playbook.yml
 
 ## Usage
 
@@ -110,8 +110,8 @@ Credentials can be supplied within a Playbook with the following parameters:
 
 However, the module can also inherit the credentials from environment variables:
 
-- `PROFITBRICKS_USERNAME`
-- `PROFITBRICKS_PASSWORD`
+- `IONOS_USERNAME`
+- `IONOS_PASSWORD`
 
 Storing credentials in environment variables is useful if you plan to store your PlayBooks using version control.
 
@@ -128,7 +128,7 @@ Ansible leverages YAML manifest files called Playbooks. The Playbook will descri
 
       tasks:
         - name: Provision a set of instances
-          profitbricks:
+          server:
               datacenter: Example
               name: server%02d
               auto_increment: true
@@ -141,31 +141,18 @@ Ansible leverages YAML manifest files called Playbooks. The Playbook will descri
               assign_public_ip: true
               remove_boot_volume: true
               state: present
-          register: profitbricks
+          register: ionos
 
 ### Execute a Playbook
 
 If your credentials are not already defined:
 
-    export PROFITBRICKS_USERNAME=username
-    export PROFITBRICKS_PASSWORD=password
+    export IONOS_USERNAME=username
+    export IONOS_PASSWORD=password
 
 The `ansible-playbook` command will execute the above Playbook.
 
     ansible-playbook example.yml
-
-### Wait for Requests
-
-When a request to create a resource such as a server is submitted to the ProfitBricks Cloud API, that request is accepted immediately while the provisioning occurs on the backend. This means the request can appear finished while provisioning is still occurring.
-
-Sometimes requests must be told to wait until they finish before continuing to provision dependent resources. For example, a server must finish provisioning before a data volume can be created and attached to the server.
-
-The ProfitBricks module includes two resource parameters to address this scenario:
-
-- **wait** (default: true)
-- **wait_timeout** (default: 600 seconds)
-
-By default, the module will wait until a resource is finished provisioning before continuing to process further resources defined in the Playbook.
 
 ### Wait for Services
 
@@ -177,11 +164,11 @@ There may be occasions where additional waiting is required. For example, a serv
           host: "{{ item.public_ip }}"
           search_regex: OpenSSH
           delay: 10
-      with_items: "{{ profitbricks.machines }}"
+      with_items: "{{ ionos.machines }}"
 
 ### Incrementing Servers
 
-The **profitbricks** module will provision a number of identical and fully operational servers based on the **count** parameter. A **count** parameter of 10 will provision ten servers with system volumes and network connectivity.
+The **servers** module will provision a number of identical and fully operational servers based on the **count** parameter. A **count** parameter of 10 will provision ten servers with system volumes and network connectivity.
 
 The server **name** parameter with a value of `server%02d` will appended the name with the incremental count. For example, server01, server02, server03, and so forth.
 
@@ -189,7 +176,7 @@ The **auto_increment** parameter can be set to `false` to disable this feature a
 
 ### SSH Key Authentication
 
-The ProfitBricks module sets server authentication using the **image_password** and **ssh_keys** parameters. Previous examples have demonstrated the administrative user password being set with the **image_password** parameter. The following example demonstrates two public SSH keys being supplied with two different methods.
+The Ionos module sets server authentication using the **image_password** and **ssh_keys** parameters. Previous examples have demonstrated the administrative user password being set with the **image_password** parameter. The following example demonstrates two public SSH keys being supplied with two different methods.
 
 1. Set the public key as a string in the Playbook.
 2. Load the public key into a variable from a local file.
@@ -206,7 +193,7 @@ The ProfitBricks module sets server authentication using the **image_password** 
 
       tasks:
         - name: Provision a server
-          profitbricks:
+          server:
               datacenter: Example
               name: server%02d
               assign_public_ip: true
@@ -216,13 +203,14 @@ The ProfitBricks module sets server authentication using the **image_password** 
                   - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDPCNA2YgJ...user@hostname"
               state: present
 
-## Reference
+## Documentation for API Endpoints
+All URIs are relative to https://api.ionos.com/cloudapi/v5
 
-### profitbricks
+### server
 
-#### Example Syntax
+#### Example
 
-    - profitbricks:
+    - server:
           datacenter: Example
           name: server%02d
           cores: 2
@@ -259,19 +247,22 @@ The following parameters are supported:
 | assign_public_ip         |     no     | boolean          | false       | This will assign the server to the public LAN. The LAN is created if no LAN exists with public Internet access.              |
 | lan                      |     no     | string / integer | 1           | The LAN ID / Name for the server.                                                                                            |
 | nat                      |     no     | boolean          | false       | The private IP address has outbound access to the Internet.                                                                  |
-| api_url                  |     no     | string           |             | The ProfitBricks API base URL.                                                                                               |
-| username                 |     no     | string           |             | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.                                         |
-| password                 |     no     | string           |             | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.                                         |
+| api_url                  |     no     | string           |             | The Ionos API base URL.                                                                                               |
+| username                 |     no     | string           |             | The Ionos username. Overrides the IONOS_USERNAME environment variable.                                         |
+| password                 |     no     | string           |             | The Ionos password. Overrides the IONOS_PASSWORD environment variable.                                         |
 | wait                     |     no     | boolean          | true        | Wait for the instance to be in state 'running' before continuing.                                                            |
 | wait_timeout             |     no     | integer          | 600         | The number of seconds until the wait ends.                                                                                   |
 | remove_boot_volume       |     no     | boolean          | true        | Remove the boot volume of the server being deleted.                                                                          |
 | state                    |     no     | string           | present     | Indicate desired state of the resource: **present**, absent, running, stopped, update                                        |
 
-### profitbricks_datacenter
+#### Example
+
+
+### datacenter
 
 #### Example Syntax
 
-    - profitbricks_datacenter:
+    - datacenter:
           name: Example DC
           description: test datacenter
           location: us/las
@@ -285,32 +276,34 @@ The following parameters are supported:
 | name         | **yes**  | string  |         | The name of the datacenter.                                                           |
 | location     |    no    | string  | us/las  | The datacenter location: us/las, us/ewr, de/fra, de/fkb, de/txl, gb/lhr               |
 | description  |    no    | string  |         | The description of the datacenter.                                                    |
-| api_url      |    no    | string  |         | The ProfitBricks API base URL.                                                        |
-| username     |    no    | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| password     |    no    | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
+| api_url      |    no    | string  |         | The Ionos API base URL.                                                        |
+| username     |    no    | string  |         | The Ionos username. Overrides the IONOS_USERNAME environement variable. |
+| password     |    no    | string  |         | The Ionos password. Overrides the IONOS_PASSWORD environement variable. |
 | wait         |    no    | boolean | true    | Wait for the operation to complete before continuing.                                 |
 | wait_timeout |    no    | integer | 600     | The number of seconds until the wait ends.                                            |
 | state        |    no    | string  | present | Indicate desired state of the resource: **present**, absent, update                   |
 
-### profitbricks_lan
+### lan
 
 #### Example Syntax
 
     - name: Create public LAN
-      profitbricks_lan:
+      lan:
         datacenter: Virtual Datacenter
         name: nameoflan
         public: true
         state: present
 
     - name: Update LAN
-      profitbricks_lan:
+      lan:
         datacenter: Virtual Datacenter
         name: nameoflan
         public: true
         ip_failover:
-           208.94.38.167: 1de3e6ae-da16-4dc7-845c-092e8a19fded
-           208.94.38.168: 8f01cbd3-bec4-46b7-b085-78bb9ea0c77c
+            - ip: "158.222.102.93"
+              nic_uuid: "{{ nic.id }}"
+            - ip: "158.222.102.94"
+              nic_uuid: "{{ nic.id }}"
         state: update
 
 #### Parameter Reference
@@ -322,29 +315,29 @@ The following parameters are supported:
 | datacenter   | **yes**  | string  |         | The datacenter in which to operate.                                                                    |
 | name         | **yes**  | string  |         | The name of the LAN.                                                                                   |
 | public       |    no    | boolean | true    | If true, the LAN will have public Internet access.                                                     |
-| ip_failover  |    no    | dict    |         | The IP failover group dictionary where its keys represent IP addresses and values represent NIC UUIDs. |
-| api_url      |    no    | string  |         | The ProfitBricks API base URL.                                                                         |
-| username     |    no    | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable.                  |
-| password     |    no    | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable.                  |
+| ip_failover  |    no    | list    |         | The IP failover list of group dictionaries containing IP addresses and NIC UUIDs. |
+| api_url      |    no    | string  |         | The Ionos API base URL.                                                                         |
+| username     |    no    | string  |         | The Ionos username. Overrides the IONOS_USERNAME environement variable.                  |
+| password     |    no    | string  |         | The Ionos password. Overrides the IONOS_PASSWORD environement variable.                  |
 | wait         |    no    | boolean | true    | Wait for the operation to complete before continuing.                                                  |
 | wait_timeout |    no    | integer | 600     | The number of seconds until the wait ends.                                                             |
 | state        |    no    | string  | present | Indicate desired state of the resource: **present**, absent, update                                    |
 
-### profitbricks_nic
+### nic
 
 #### Example Syntax
 
     - name: Create private NIC
-      profitbricks_nic:
+      nic:
           datacenter: Example
           server: "{{ item.id }}"
           lan: 2
           state: present
       register: private_nic
-      with_items: "{{ profitbricks.machines }}"
+      with_items: "{{ ionos.machines }}"
 
     - name: Update NIC
-      profitbricks_nic:
+      nic:
         datacenter: Example
         server: "{{ item.id }}"
         name: 7341c2454f
@@ -369,19 +362,19 @@ The following parameters are supported:
 | nat             |    no    | boolean |         | Allow the private IP address outbound Internet access.                                              |
 | firewall_active |    no    | boolean |         | Indicates if the firewall is active.                                                                |
 | ips             |    no    | list    |         | A list of IPs to be assigned to the NIC.                                                            |
-| api_url         |    no    | string  |         | The ProfitBricks API base URL.                                                                      |
-| username        |    no    | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable.               |
-| password        |    no    | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable.               |
+| api_url         |    no    | string  |         | The Ionos API base URL.                                                                      |
+| username        |    no    | string  |         | The Ionos username. Overrides the IONOS_USERNAME environement variable.               |
+| password        |    no    | string  |         | The Ionos password. Overrides the IONOS_PASSWORD environement variable.               |
 | wait            |    no    | boolean | true    | Wait for the operation to complete before continuing.                                               |
 | wait_timeout    |    no    | integer | 600     | The number of seconds until the wait ends.                                                          |
 | state           |    no    | string  | present | Indicate desired state of the resource: **present**, absent, update                                 |
 
-### profitbricks_volume
+### volume
 
 #### Example Syntax
 
     - name: Create data volume
-      profitbricks_volume:
+      volume:
           datacenter: Example
           server: "{{ item.id }}"
           name: "{{ item.properties.name }}-data%02d"
@@ -389,10 +382,10 @@ The following parameters are supported:
           disk_type: SSD
           licence_type: OTHER
           state: present
-      with_items: "{{ profitbricks.machines }}"
+      with_items: "{{ ionos.machines }}"
 
     - name: Update volumes
-      profitbricks_volume:
+      volume:
         datacenter: Tardis One
         instance_ids:
           - vol01
@@ -422,19 +415,19 @@ The following parameters are supported:
 | count             |     no     | integer | 1       | The number of volumes to create.                                                                                              |
 | auto_increment    |     no     | boolean | true    | Whether or not to increment created servers.                                                                                  |
 | instance_ids      | **yes**/no | list    |         | List of instance UUIDs or names. Required for `state='absent'` or `state='update'` to remove or update volumes.               |
-| api_url           |     no     | string  |         | The ProfitBricks API base URL.                                                                                                |
-| username          |     no     | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.                                          |
-| password          |     no     | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.                                          |
+| api_url           |     no     | string  |         | The Ionos API base URL.                                                                                                |
+| username          |     no     | string  |         | The Ionos username. Overrides the IONOS_USERNAME environment variable.                                          |
+| password          |     no     | string  |         | The Ionos password. Overrides the IONOS_PASSWORD environment variable.                                          |
 | wait              |     no     | boolean | true    | Wait for the resource to be created before continuing.                                                                        |
 | wait_timeout      |     no     | integer | 600     | The number of seconds until the wait ends.                                                                                    |
 | state             |     no     | string  | present | Indicate desired state of the resource: **present**, absent, update                                                           |
 
-### profitbricks_firewall_rule
+### firewall_rule
 
 #### Example Syntax
 
     - name: Allow SSH access
-      profitbricks_firewall_rule:
+      firewall_rule:
           datacenter: Example
           server: server01
           nic: nic01
@@ -464,19 +457,19 @@ The following parameters are supported:
 | port_range_end   | integer  | string  |         | Defines the end range of the allowed port if the protocol TCP or UDP is chosen. Leave value empty to allow all ports: 1 to 65534                 |
 | icmp_type        |    no    | integer |         | Defines the allowed type if the protocol ICMP is chosen. No value allows all types: 0 to 254                                                     |
 | icmp_code        |    no    | integer |         | Defines the allowed code if protocol ICMP is chosen. No value allows all codes: 0 to 254                                                         |
-| api_url          |    no    | string  |         | The ProfitBricks API base URL.                                                                                                                   |
-| username         |    no    | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.                                                             |
-| password         |    no    | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.                                                             |
+| api_url          |    no    | string  |         | The Ionos API base URL.                                                                                                                   |
+| username         |    no    | string  |         | The Ionos username. Overrides the IONOS_USERNAME environment variable.                                                             |
+| password         |    no    | string  |         | The Ionos password. Overrides the IONOS_PASSWORD environment variable.                                                             |
 | wait             |    no    | boolean | true    | Wait for the operation to complete before continuing.                                                                                            |
 | wait_timeout     |    no    | integer | 600     | The number of seconds until the wait ends.                                                                                                       |
 | state            |    no    | string  | present | Indicate desired state of the resource: **present**, absent, update                                                                              |
 
-### profitbricks_ipblock
+### ipblock
 
 #### Example Syntax
 
     - name: Create IPBlock
-      profitbricks_ipblock:
+      ipblock:
         name: spare
         location: us/ewr
         size: 2
@@ -490,25 +483,25 @@ The following parameters are supported:
 | name         | **yes**  | string  |         | The name of the IPBlock.                                                              |
 | location     |    no    | string  | us/las  | The IPBlock location: us/las, us/ewr, de/fra, de/fkb, de/txl, gb/lhr                  |
 | size         |    no    | integer | 1       | The number of IP addresses to allocate in the IPBlock.                                |
-| api_url      |    no    | string  |         | The ProfitBricks API base URL.                                                        |
-| username     |    no    | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| password     |    no    | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
+| api_url      |    no    | string  |         | The Ionos API base URL.                                                        |
+| username     |    no    | string  |         | The Ionos username. Overrides the IONOS_USERNAME environement variable. |
+| password     |    no    | string  |         | The Ionos password. Overrides the IONOS_PASSWORD environement variable. |
 | wait         |    no    | boolean | true    | Wait for the operation to complete before continuing.                                 |
 | wait_timeout |    no    | integer | 600     | The number of seconds until the wait ends.                                            |
 | state        |    no    | string  | present | Indicates desired state of the resource: **present**, absent                          |
 
-### profitbricks_snapshot
+### snapshot
 
 #### Example Syntax
 
     - name: Create snapshot
-      profitbricks_snapshot:
+      snapshot:
         datacenter: production DC
         volume: master
         name: boot volume snapshot
 
     - name: Restore snapshot
-      profitbricks_snapshot:
+      snapshot:
         datacenter: production DC
         volume: slave
         name: boot volume snapshot
@@ -535,19 +528,19 @@ The following parameters are supported:
 | disc_virtio_hot_unplug |     no     | boolean |         | Indicates the volume is capable of VirtIO drive hot unplug.                                                                      |
 | disc_scsi_hot_plug     |     no     | boolean |         | Indicates the volume is capable of SCSI drive hot plug.                                                                          |
 | disc_scsi_hot_unplug   |     no     | boolean |         | Indicates the volume is capable of SCSI drive hot unplug.                                                                        |
-| api_url                |     no     | string  |         | The ProfitBricks API base URL.                                                                                                   |
-| username               |     no     | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environment variable.                                             |
-| password               |     no     | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environment variable.                                             |
+| api_url                |     no     | string  |         | The Ionos API base URL.                                                                                                   |
+| username               |     no     | string  |         | The Ionos username. Overrides the IONOS_USERNAME environment variable.                                             |
+| password               |     no     | string  |         | The Ionos password. Overrides the IONOS_PASSWORD environment variable.                                             |
 | wait                   |     no     | boolean | true    | Wait for the resource to be created before continuing.                                                                           |
 | wait_timeout           |     no     | integer | 600     | The number of seconds until the wait ends.                                                                                       |
 | state                  |     no     | string  | present | Indicate desired state of the resource: **present**, absent, restore, update                                                     |
 
-### profitbricks_user
+### user
 
 #### Example Syntax
 
     - name: Create user
-      profitbricks_user:
+      user:
         firstname: John
         lastname: Doe
         email: john.doe@example.com
@@ -555,7 +548,7 @@ The following parameters are supported:
         administrator: true
 
     - name: Update user
-      profitbricks_user:
+      user:
         firstname: John
         lastname: Doe
         email: john.doe@example.com
@@ -578,19 +571,19 @@ The following parameters are supported:
 | administrator  |     no     | boolean |         | Indicates if the user has administrative rights.                                                                                             |
 | force_sec_auth |     no     | boolean |         | Indicates if secure (two-factor) authentication should be forced for the user.                                                               |
 | groups         |     no     | list    |         | A list of group IDs or names where the user (non-administrator) is to be added. Set to empty list (`[]`) to remove the user from all groups. |
-| api_url        |     no     | string  |         | The ProfitBricks API base URL.                                                                                                               |
-| username       |     no     | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable.                                                        |
-| password       |     no     | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable.                                                        |
+| api_url        |     no     | string  |         | The Ionos API base URL.                                                                                                               |
+| username       |     no     | string  |         | The Ionos username. Overrides the IONOS_USERNAME environement variable.                                                        |
+| password       |     no     | string  |         | The Ionos password. Overrides the IONOS_PASSWORD environement variable.                                                        |
 | wait           |     no     | boolean | true    | Wait for the operation to complete before continuing.                                                                                        |
 | wait_timeout   |     no     | integer | 600     | The number of seconds until the wait ends.                                                                                                   |
 | state          |     no     | string  | present | Indicate desired state of the resource: **present**, absent, update                                                                          |
 
-### profitbricks_group
+### group
 
 #### Example Syntax
 
     - name: Create group
-      profitbricks_group:
+      group:
         name: guests
         create_datacenter: true
         create_snapshot: true
@@ -598,7 +591,7 @@ The following parameters are supported:
         access_activity_log: false
 
     - name: Update group
-      profitbricks_group:
+      group:
         name: guests
         create_datacenter: false
         users:
@@ -617,19 +610,19 @@ The following parameters are supported:
 | reserve_ip          |    no    | boolean |         | Indicates if the group is allowed to reserve IP addresses.                                                                                 |
 | access_activity_log |    no    | boolean |         | Indicates if the group is allowed to access the activity log.                                                                              |
 | users               |    no    | list    |         | A list of (non-administrator) user IDs or emails to associate with the group. Set to empty list (`[]`) to remove all users from the group. |
-| api_url             |    no    | string  |         | The ProfitBricks API base URL.                                                                                                             |
-| username            |    no    | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable.                                                      |
-| password            |    no    | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable.                                                      |
+| api_url             |    no    | string  |         | The Ionos API base URL.                                                                                                             |
+| username            |    no    | string  |         | The Ionos username. Overrides the IONOS_USERNAME environement variable.                                                      |
+| password            |    no    | string  |         | The Ionos password. Overrides the IONOS_PASSWORD environement variable.                                                      |
 | wait                |    no    | boolean | true    | Wait for the operation to complete before continuing.                                                                                      |
 | wait_timeout        |    no    | integer | 600     | The number of seconds until the wait ends.                                                                                                 |
 | state               |    no    | string  | present | Indicate desired state of the resource: **present**, absent, update                                                                        |
 
-### profitbricks_share
+### share
 
 #### Example Syntax
 
     - name: Create shares
-      profitbricks_share:
+      share:
         group: Demo
         edit_privilege: true
         share_privilege: true
@@ -639,7 +632,7 @@ The following parameters are supported:
         state: present
 
     - name: Update shares
-      profitbricks_share:
+      share:
         group: Demo
         edit_privilege: false
         resource_ids:
@@ -656,9 +649,9 @@ The following parameters are supported:
 | resource_ids    | **yes**  | list    |         | A list of resource IDs to add, update or remove as shares.                            |
 | edit_privilege  |    no    | boolean |         | Indicates that the group has permission to edit privileges on the resource.           |
 | share_privilege |    no    | boolean |         | Indicates that the group has permission to share the resource.                        |
-| api_url         |    no    | string  |         | The ProfitBricks API base URL.                                                        |
-| username        |    no    | string  |         | The ProfitBricks username. Overrides the PROFITBRICKS_USERNAME environement variable. |
-| password        |    no    | string  |         | The ProfitBricks password. Overrides the PROFITBRICKS_PASSWORD environement variable. |
+| api_url         |    no    | string  |         | The Ionos API base URL.                                                        |
+| username        |    no    | string  |         | The Ionos username. Overrides the IONOS_USERNAME environement variable. |
+| password        |    no    | string  |         | The Ionos password. Overrides the IONOS_PASSWORD environement variable. |
 | wait            |    no    | boolean | true    | Wait for the operation to complete before continuing.                                 |
 | wait_timeout    |    no    | integer | 600     | The number of seconds until the wait ends.                                            |
 | state           |    no    | string  | present | Indicate desired state of the resource: **present**, absent, update                   |
@@ -681,7 +674,7 @@ The following example will provision two servers both connected to public and pr
 
       tasks:
         - name: Provision a set of instances
-          profitbricks:
+          server:
               datacenter: "{{ datacenter }}"
               name: server%02d
               auto_increment: true
@@ -701,12 +694,12 @@ The following example will provision two servers both connected to public and pr
               wait: true
               wait_timeout: "{{ timeout }}"
               state: present
-          register: profitbricks
+          register: ionos
 
-        - debug: msg="{{profitbricks.machines}}"
+        - debug: msg="{{ionos.machines}}"
 
         - name: Public SSH firewall rule
-          profitbricks_firewall_rule:
+          firewall_rule:
               datacenter: "{{ datacenter }}"
               server: "{{ item.id }}"
               nic: "{{ item.nic.id }}"
@@ -716,19 +709,19 @@ The following example will provision two servers both connected to public and pr
               port_range_start: 22
               port_range_end: 22
               state: present
-          with_items: "{{ profitbricks.machines }}"
+          with_items: "{{ ionos.machines }}"
 
         - name: Create private NIC
-          profitbricks_nic:
+          nic:
               datacenter: "{{ datacenter }}"
               server: "{{ item.id }}"
               lan: 2
               state: present
           register: private_nic
-          with_items: "{{ profitbricks.machines }}"
+          with_items: "{{ ionos.machines }}"
 
         - name: Create SSH firewall rule
-          profitbricks_firewall_rule:
+          firewall_rule:
               datacenter: "{{ datacenter }}"
               server: "{{ item.item.id }}"
               nic: "{{ item.nic.id }}"
@@ -741,7 +734,7 @@ The following example will provision two servers both connected to public and pr
           with_items: "{{ private_nic.results }}"
 
         - name: Create ping firewall rule
-          profitbricks_firewall_rule:
+          firewall_rule:
               datacenter: "{{ datacenter }}"
               server: "{{ item.item.id }}"
               nic: "{{ item.nic.id }}"
@@ -754,7 +747,7 @@ The following example will provision two servers both connected to public and pr
           with_items: "{{ private_nic.results }}"
 
         - name: Create data volume
-          profitbricks_volume:
+          volume:
               datacenter: "{{ datacenter }}"
               server: "{{ item.id }}"
               name: "{{ item.properties.name }}-data%02d"
@@ -763,25 +756,25 @@ The following example will provision two servers both connected to public and pr
               licence_type: OTHER
               wait_timeout: "{{ timeout }}"
               state: present
-          with_items: "{{ profitbricks.machines }}"
+          with_items: "{{ ionos.machines }}"
           
-### profitbricks_s3key
+### s3key
 
 #### Example Syntax
 
     - name: Create an s3key
-      profitbricks_s3key:
+      s3key:
         user_id: "{{ user_id }}"
 
     - name: Update an s3key
-      profitbricks_s3key:
+      s3key:
         user_id: "{{ user_id }}"
         key_id: "00ca413c94eecc56857d"
         active: False
         state: update
 
     - name: Remove an s3key
-      profitbricks_s3key:
+      s3key:
         user_id: "{{ user_id }}"
         key_id: "00ca413c94eecc56857d"
         state: absent
@@ -797,21 +790,21 @@ The following parameters are supported:
 | active       |    no    | boolean |         | State of the key.                                                  |
 
 
-### profitbricks_k8s_cluster
+### k8s_cluster
 
 #### Example Syntax
 
     - name: Create k8s cluster
-      profitbricks_k8s_cluster:
+      k8s_cluster:
         name: "{{ cluster_name }}"
 
     - name: Delete k8s cluster
-      profitbricks_k8s_cluster:
+      k8s_cluster:
         k8s_cluster_id: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
         state: absent
 
     - name: Update k8s cluster
-      profitbricks_k8s_cluster:
+      k8s_cluster:
         k8s_cluster_id: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
         maintenance_window:
           day: 'Tuesday'
@@ -833,12 +826,12 @@ The following parameters are supported:
 
 
 
-### profitbricks_k8s_nodepool
+### k8s_nodepool
 
 #### Example Syntax
 
     - name: Create k8s cluster nodepool
-      profitbricks_k8s_nodepools:
+      k8s_nodepools:
         cluster_name: "{{ name }}"
         k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
         datacenter_id: "4d495548-e330-434d-83a9-251bfa645875"
@@ -851,13 +844,13 @@ The following parameters are supported:
         storage_size: "100"
 
     - name: Delete k8s cluster nodepool
-      profitbricks_k8s_nodepools:
+      k8s_nodepools:
         k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
         nodepool_id: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
         state: absent
 
     - name: Update k8s cluster nodepool
-      profitbricks_k8s_nodepools:
+      k8s_nodepools:
         cluster_name: "{{ name }}"
         k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
         nodepool_id: "6e9efcc6-649a-4514-bee5-6165b614c89e"
@@ -894,12 +887,12 @@ The following parameters are supported:
 
 
 
-### profitbricks_k8s_config
+### k8s_config
 
 #### Example Syntax
 
     - name: Get k8s config
-      profitbricks_k8s_config:
+      k8s_config:
         k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
         config_file: 'config.yaml'
         state: present
@@ -913,25 +906,25 @@ The following parameters are supported:
 | k8s_cluster_id     | **yes**    | string  |         | The ID of the cluster.                                                          |
 | config_file        | **yes**    | string  |         | The name of the file that will contain the configuration of the cluster.                                                  |
           
-### profitbricks_backupunit
+### backupunit
 
 #### Example Syntax
 
     - name: Create backupunit
-      profitbricks_backupunit:
+      backupunit:
         backupunit_email: "{{ email }}"
         backupunit_password: "{{ password }}"
         name: "{{ name }}"
 
     - name: Update a backupunit
-      profitbricks_backupunit:
+      backupunit:
         backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
         backupunit_email: "{{ updated_email }}"
         backupunit_password:  "{{ updated_password }}"
         state: update
 
     - name: Remove backupunit
-      profitbricks_backupunit:
+      backupunit:
         backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
         state: absent
         
@@ -946,24 +939,24 @@ The following parameters are supported:
 | backupunit_password   | **yes**/no  | string  |         | The password associated to that resource.  Only required when state = 'present'.                                                                |
 | backupunit_id         | **yes**/no  | string  |         | The ID of the backupunit.  Required when state = 'update' or state = 'absent'.                                                                  |
 
-### profitbricks_pcc
+### pcc
 
 #### Example Syntax
 
     - name: Create pcc
-      profitbricks_pcc:
+      pcc:
         name: "{{ name }}"
         description: "{{ description }}"
 
     - name: Update pcc
-      profitbricks_pcc:
+      pcc:
         pcc_id: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
         name: "{{ new_name }}"
         description: "{{ new_description }}"
         state: update
 
     - name: Remove pcc
-      profitbricks_pcc:
+      pcc:
         pcc_id: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
         state: absent
         
@@ -980,30 +973,29 @@ The following parameters are supported:
 
 ## Support
 
-You are welcome to contact us with questions or comments using the **Community** section of the [ProfitBricks DevOps Central](https://devops.profitbricks.com/). Please report any feature requests or issues using GitHub issue tracker.
+You are welcome to contact us with questions or comments using the **Community** section of the [Ionos DevOps Central](https://devops.ionos.com/). Please report any feature requests or issues using GitHub issue tracker.
 
-- [ProfitBricks REST API](https://devops.profitbricks.com/api/rest/) documentation.
-- Ask a question or discuss at [ProfitBricks DevOps Central](https://devops.profitbricks.com/community/).
-- Report an [issue here](https://github.com/profitbricks/profitbricks-module-ansible/issues).
-- More examples are located in the [GitHub repository](https://github.com/profitbricks/profitbricks-module-ansible/tree/master/examples) `examples` directory.
+- [Ionos API](https://devops.ionos.com/api/cloud/v4/) documentation.
+- Ask a question or discuss at [Ionos DevOps Central](https://devops.ionos.com/community/).
+- Report an [issue here](https://github.com/ionos-cloud/sdk-ansible/issues).
 
 ## Testing
 
-Set your ProfitBricks user credentials.
+Set your Ionos user credentials.
 
-    export PROFITBRICKS_USERNAME=username
-    export PROFITBRICKS_PASSWORD=password
+    export IONOS_USERNAME=username
+    export IONOS_PASSWORD=password
 
 Change into the `tests` directory and execute the Playbooks.
 
     cd tests
     ansible-playbook server.yml
 
-Note: The ProfitBricks public image UUIDs change periodically due to updates. Therefore, it is recommended to use image aliases.
+Note: The Ionos public image UUIDs change periodically due to updates. Therefore, it is recommended to use image aliases.
 
 ## Contributing
 
-1. Fork the repository ([https://github.com/profitbricks/profitbricks-module-ansible/fork](https://github.com/profitbricks/profitbricks-module-ansible/fork))
+1. Fork the repository ([https://github.com/ionos-cloud/sdk-ansible/fork](https://github.com/ionos-cloud/sdk-ansible/fork))
 2. Create your feature branch (git checkout -b my-new-feature)
 3. Commit your changes (git commit -am 'Add some feature')
 4. Push to the branch (git push origin my-new-feature)

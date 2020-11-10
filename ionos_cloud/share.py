@@ -107,7 +107,6 @@ EXAMPLES = '''
     state: absent
 '''
 
-import time
 import re
 
 HAS_SDK = True
@@ -174,8 +173,10 @@ def create_shares(module, client):
 
     if not should_change:
         return {
-            'changed': should_change,
-            'shares': share_list
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'shares': [s.to_dict() for s in share_list],
         }
 
     try:
@@ -194,9 +195,10 @@ def create_shares(module, client):
         share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=2).items
 
         return {
-            'failed': False,
             'changed': True,
-            'shares': str(share_list)
+            'failed': False,
+            'action': 'create',
+            'shares': [s.to_dict() for s in share_list]
         }
 
     except Exception as e:
@@ -257,11 +259,12 @@ def update_shares(module, client):
                     request_id = _get_request_id(headers['Location'])
                     client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-        return {
-            'failed': False,
-            'changed': True,
-            'shares': str(responses)
-        }
+            return {
+                'changed': True,
+                'failed': False,
+                'action': 'update',
+                'share': [s.to_dict() for s in responses]
+            }
 
     except Exception as e:
         module.fail_json(msg="failed to update the shares: %s" % to_native(e))
@@ -284,17 +287,28 @@ def delete_shares(module, client):
     group_list = user_management_server.um_groups_get(depth=2)
     group_id = _get_resource_id(group_list, group, module, "Group")
 
+
+
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        response = None
-        for uuid in module.params.get('resource_ids'):
-            response = user_management_server.um_groups_shares_delete(group_id=group_id, resource_id=uuid)
 
-        return response
+        for uuid in module.params.get('resource_ids'):
+            resp = user_management_server.um_groups_shares_delete(group_id=group_id, resource_id=uuid)
+
+        return {
+            'action': 'delete',
+            'changed': True,
+            'id': group_id
+        }
     except Exception as e:
         module.fail_json(msg="failed to remove the shares: %s" % to_native(e))
+        return {
+            'action': 'delete',
+            'changed': False,
+            'id': group_id
+        }
 
 
 def _get_resource_id(resource_list, identity, module, resource_type):
@@ -357,8 +371,8 @@ def main():
 
         if state == 'absent':
             try:
-                (changed) = delete_shares(module, api_client)
-                module.exit_json(changed=changed)
+                (result) = delete_shares(module, api_client)
+                module.exit_json(**result)
             except Exception as e:
                 module.fail_json(msg='failed to set state of the shares: %s' % to_native(e))
 

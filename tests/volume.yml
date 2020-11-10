@@ -10,18 +10,17 @@
 
   tasks:
     - name: Create datacenter
-      ionos_cloud_datacenter:
-          name: "{{ name }}"
+      datacenter:
+          name: "{{ datacenter }}"
           location: "{{ location }}"
 
-
     - name: Create volumes
-      ionos_cloud_volume:
+      volume:
         datacenter: "{{ datacenter }}"
         name: "{{ name }} %02d"
         count: 2
         size: 2
-        image: "1a493ebd-038a-11eb-a663-5254001a8838"
+        image: "{{ image }}"
         image_password: "{{ password }}"
         availability_zone: ZONE_3
         ssh_keys:
@@ -32,7 +31,7 @@
         state: present
 
     - name: Update volumes
-      ionos_cloud_volume:
+      volume:
         datacenter: "{{ datacenter }}"
         instance_ids:
           - "{{ name }} 01"
@@ -43,7 +42,7 @@
         state: update
 
     - name: Delete volumes
-      ionos_cloud_volume:
+      volume:
         datacenter: "{{ datacenter }}"
         instance_ids:
           - "{{ name }} 01"
@@ -52,6 +51,6 @@
         state: absent
 
     - name: Remove datacenter
-      ionos_cloud_datacenter:
+      datacenter:
         name: "{{ name }}"
         state: absent

@@ -1,5 +1,3 @@
-import time
-
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
@@ -38,26 +36,43 @@ from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
+import re
+
+
+def _get_request_id(headers):
+    match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
+    if match:
+        return match.group(1)
+    else:
+        raise Exception("Failed to extract request ID from response "
+                        "header 'location': '{location}'".format(location=headers['location']))
+
 
 def create_pcc(module, client):
     name = module.params.get('name')
     description = module.params.get('description')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
 
-    properties = {
-        'name': name,
-        'description': description
-    }
-    pcc = PrivateCrossConnect(properties=properties)
+    pcc_server = ionos_cloud_sdk.PrivateCrossConnectApi(client)
+
+    pcc_properties = PrivateCrossConnectProperties(name=name, description=description)
+    pcc = PrivateCrossConnect(properties=pcc_properties)
 
     try:
-        pcc_response = client.pccs_post(pcc)
+        response = pcc_server.pccs_post_with_http_info(pcc)
+        (pcc_response, _, headers) = response
 
-        results = {
-            'pcc_id': pcc_response.id,
-            'changed': True
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            'pcc': pcc_response.to_dict()
         }
-
-        return results
 
     except Exception as e:
         module.fail_json(msg="failed to create the pcc: %s" % to_native(e))
@@ -65,35 +80,59 @@ def create_pcc(module, client):
 
 def delete_pcc(module, client):
     pcc_id = module.params.get('pcc_id')
-    changed = False
+    pcc_server = ionos_cloud_sdk.PrivateCrossConnectApi(client)
 
     try:
-        client.pccs_delete(pcc_id)
-        changed = True
+        pcc_server.pccs_delete(pcc_id)
+        return {
+            'action': 'delete',
+            'changed': True,
+            'id': pcc_id
+        }
     except Exception as e:
         module.fail_json(msg="failed to delete the pcc: %s" % to_native(e))
-
-    return changed
+        return {
+            'action': 'delete',
+            'changed': False,
+            'id': pcc_id
+        }
 
 
 def update_pcc(module, client):
     pcc_id = module.params.get('pcc_id')
     name = module.params.get('name')
     description = module.params.get('description')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
 
-    pcc = PrivateCrossConnectProperties(name=name, description=description)
+    pcc_server = ionos_cloud_sdk.PrivateCrossConnectApi(client)
+
+    pcc_properties = PrivateCrossConnectProperties(name=name, description=description)
 
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        client.pccs_patch(pcc_id, pcc)
-        changed = True
+        response = pcc_server.pccs_patch_with_http_info(pcc_id=pcc_id, pcc=pcc_properties)
+        (pcc_response, _, headers) = response
+
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            'pcc': pcc_response.to_dict()
+        }
 
     except Exception as e:
         module.fail_json(msg="failed to update the pcc: %s" % to_native(e))
-        changed = False
-
-    return changed
+        return {
+            'changed': False,
+            'failed': True,
+            'action': 'update',
+        }
 
 
 def main():
@@ -130,7 +169,6 @@ def main():
     api_url = module.params.get('api_url')
     user_agent = 'ionos_cloud_sdk-python/%s Ansible/%s' % (sdk_version, __version__)
 
-
     configuration = ionos_cloud_sdk.Configuration(
         username=username,
         password=password
@@ -140,7 +178,6 @@ def main():
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent
-        api_instance = ionos_cloud_sdk.PrivateCrossConnectApi(api_client)
 
         if state == 'present':
             if not module.params.get('name'):
@@ -148,7 +185,7 @@ def main():
             if not module.params.get('description'):
                 module.fail_json(msg='description parameter is required for a new pcc')
             try:
-                (pcc_dict_array) = create_pcc(module, api_instance)
+                (pcc_dict_array) = create_pcc(module, api_client)
                 module.exit_json(**pcc_dict_array)
             except Exception as e:
                 module.fail_json(msg='failed to set user state: %s' % to_native(e))
@@ -157,7 +194,7 @@ def main():
             if not module.params.get('pcc_id'):
                 module.fail_json(msg='pcc_id parameter is required for deleting a pcc.')
             try:
-                (changed) = delete_pcc(module, api_instance)
+                (changed) = delete_pcc(module, api_client)
                 module.exit_json(changed=changed)
             except Exception as e:
                 module.fail_json(msg='failed to set pcc state: %s' % to_native(e))
@@ -166,7 +203,7 @@ def main():
             if not module.params.get('pcc_id'):
                 module.fail_json(msg='pcc_id parameter is required for updating a pcc.')
             try:
-                (changed) = update_pcc(module, api_instance)
+                (changed) = update_pcc(module, api_client)
                 module.exit_json(
                     changed=changed)
             except Exception as e:

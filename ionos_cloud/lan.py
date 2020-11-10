@@ -37,17 +37,17 @@ options:
     required: false
   api_url:
     description:
-      - The ProfitBricks API base URL.
+      - The Ionos Cloud API base URL.
     required: false
     default: null
   username:
     description:
-      - The ProfitBricks username. Overrides the IONOS_USERNAME environment variable.
+      - The Ionos Cloud username. Overrides the IONOS_USERNAME environment variable.
     required: false
     aliases: subscription_user
   password:
     description:
-      - The ProfitBricks password. Overrides the IONOS_PASSWORD environment variable.
+      - The Ionos Cloud password. Overrides the IONOS_PASSWORD environment variable.
     required: false
     aliases: subscription_password
   wait:
@@ -168,9 +168,11 @@ def create_lan(module, client):
     if not should_change:
         return {
             'changed': should_change,
-            'lan': str(lan)
+            'failed': False,
+            'action': 'create',
+            'lan': lan.to_dict(),
         }
-
+    lan_response = None
     try:
         lan_properties = LanPropertiesPost(name=name,
                                            public=public)
@@ -186,7 +188,8 @@ def create_lan(module, client):
         return {
             'failed': False,
             'changed': True,
-            'lan': str(lan_response)
+            'action': 'create',
+            'lan': lan_response.to_dict()
         }
 
     except Exception as e:
@@ -226,16 +229,10 @@ def update_lan(module, client):
         module.exit_json(changed=True)
 
     try:
-        failover_group = []
-        for ip, nic_uuid in ip_failover.items():
-            item = {
-                'ip': ip,
-                'nicUuid': nic_uuid
-            }
-            failover_group.append(item)
+        for elem in ip_failover:
+            elem['nicUuid'] = elem.pop('nic_uuid')
 
-        lan_properties = LanProperties(name=name, ip_failover=failover_group, pcc=pcc_id, public=public)
-
+        lan_properties = LanProperties(name=name, ip_failover=ip_failover, pcc=pcc_id, public=public)
         lan = Lan(properties=lan_properties)
 
         response = lan_server.datacenters_lans_put_with_http_info(datacenter_id=datacenter_id, lan_id=lan_id, lan=lan)
@@ -248,7 +245,8 @@ def update_lan(module, client):
         return {
             'failed': False,
             'changed': True,
-            'lan': str(lan_response)
+            'action': 'update',
+            'lan': lan_response.to_dict()
         }
 
     except Exception as e:
@@ -283,8 +281,12 @@ def delete_lan(module, client):
         module.exit_json(changed=True)
 
     try:
-        lan_response = lan_server.datacenters_lans_delete(datacenter_id=datacenter_id, lan_id=lan_id)
-        return lan_response
+        lan_server.datacenters_lans_delete(datacenter_id=datacenter_id, lan_id=lan_id)
+        return {
+            'action': 'delete',
+            'changed': True,
+            'id': lan_id
+        }
     except Exception as e:
         module.fail_json(msg="failed to remove the LAN: %s" % to_native(e))
 
@@ -308,7 +310,7 @@ def main():
             name=dict(type='str'),
             pcc_id=dict(type='str'),
             public=dict(type='bool', default=True),
-            ip_failover=dict(type='dict', default=dict()),
+            ip_failover=dict(type='list', elements='dict'),
             api_url=dict(type='str', default=None),
             username=dict(
                 type='str',
@@ -350,8 +352,8 @@ def main():
 
         if state == 'absent':
             try:
-                (changed) = delete_lan(module, api_client)
-                module.exit_json(changed=changed)
+                (result) = delete_lan(module, api_client)
+                module.exit_json(**result)
             except Exception as e:
                 module.fail_json(msg='failed to set LAN state: %s' % to_native(e))
 

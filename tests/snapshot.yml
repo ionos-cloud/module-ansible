@@ -10,12 +10,12 @@
 
   tasks:
     - name: Create datacenter
-      ionos_cloud_datacenter:
+      datacenter:
           name: "{{ name }}"
           location: "{{ location }}"
 
     - name: Create volume
-      ionos_cloud_volume:
+      volume:
         datacenter: "{{ datacenter }}"
         name: "{{ name }}"
         count: 1
@@ -28,7 +28,7 @@
         state: present
 
     - name: Create snapshot
-      ionos_cloud_snapshot:
+      snapshot:
         datacenter: "{{ datacenter }}"
         volume: "{{ name }}"
         name: "{{ name }}"
@@ -36,18 +36,25 @@
         wait_timeout: 600
 
     - name: Update snapshot
-      ionos_cloud_snapshot:
+      snapshot:
         name: "{{ name }}"
         description: Ansible test snapshot - RENAME
         state: update
 
+    - name: Restore snapshot
+      snapshot:
+        datacenter: "{{ datacenter }}"
+        volume: "{{ name }}"
+        name: "{{ name }}"
+        state: restore
+
     - name: Delete snapshot
-      ionos_cloud_snapshot:
+      snapshot:
         name: "{{ name }}"
         wait_timeout: 600
         state: absent
 
     - name: Remove datacenter
-      ionos_cloud_datacenter:
+      datacenter:
         name: "{{ name }}"
         state: absent

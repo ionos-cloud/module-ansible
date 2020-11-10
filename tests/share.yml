@@ -8,21 +8,23 @@
 
   tasks:
   - name: Create datacenter
-    ionos_cloud_datacenter:
+    datacenter:
       name: "{{ name }} - {{ 100 | random}}"
       description: "{{ description }}"
       location: us/las
+      wait: True
     register: datacenter1
 
   - name: Create datacenter
-    ionos_cloud_datacenter:
+    datacenter:
       name: "{{ name }} - {{ 100 | random}}"
       description: "{{ description }}"
       location: us/las
+      wait: True
     register: datacenter2
 
   - name: Create group
-    ionos_cloud_group:
+    group:
       name: "Demo"
       create_datacenter: true
       create_snapshot: true
@@ -30,47 +32,52 @@
       access_activity_log: true
 
   - name: Create share
-    ionos_cloud_share:
+    share:
       group: Demo
       edit_privilege: True
       share_privilege: True
       resource_ids:
-        - "{{ datacenter1.id }}"
-        - "{{ datacenter2.id }}"
+        - "{{ datacenter1.datacenter.id }}"
+        - "{{ datacenter2.datacenter.id }}"
       state: present
+    register: share
+
+  - name: Debug - Show Share
+    debug:
+      msg: "{{ share }}"
 
   # Update shares
   - name: Update shares
-    ionos_cloud_share:
+    share:
       group: Demo
       edit_privilege: False
-      share_privilege: False
+      share_privilege: True
       resource_ids:
-        - "{{ datacenter2.id }}"
-        - "{{ datacenter1.id }}"
+        - "{{ datacenter1.datacenter.id }}"
+        - "{{ datacenter2.datacenter.id }}"
       state: update
 
 #   Remove shares
   - name: Remove shares
-    ionos_cloud_share:
+    share:
       group: Demo
       resource_ids:
-        - "{{ datacenter2.id }}"
-        - "{{ datacenter1.id }}"
+        - "{{ datacenter1.datacenter.id }}"
+        - "{{ datacenter2.datacenter.id }}"
       state: absent
 
   - name: Delete group
-    ionos_cloud_group:
+    group:
       name: "Demo"
       state: absent
 
   - name: Remove datacenter
-    ionos_cloud_datacenter:
-      id: "{{ datacenter1.id }}"
+    datacenter:
+      id: "{{ datacenter1.datacenter.id }}"
       state: absent
 
   - name: Remove datacenter
-    ionos_cloud_datacenter:
-      id: "{{ datacenter2.id }}"
+    datacenter:
+      id: "{{ datacenter2.datacenter.id }}"
       state: absent
 

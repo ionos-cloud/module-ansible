@@ -11,7 +11,7 @@
       run_once: yes
 
     - name: Create group
-      ionos_cloud_group:
+      group:
         name: "{{ name }}"
         create_datacenter: true
         create_snapshot: true
@@ -19,14 +19,14 @@
         access_activity_log: true
 
     - name: Update group
-      ionos_cloud_group:
+      group:
         name: "{{ name }}"
         create_datacenter: false
         wait: true
         state: update
 
     - name: Create user
-      ionos_cloud_user:
+      user:
         firstname: John
         lastname: Doe
         email: "{{ random_user }}"
@@ -34,24 +34,24 @@
         administrator: false
 
     - name: Add user to group
-      ionos_cloud_group:
+      group:
         name: "{{ name }}"
         users:
           - "{{ random_user }}"
         state: update
 
     - name: Remove user from group
-      ionos_cloud_group:
+      group:
         name: "{{ name }}"
         users: []
         state: update
 
     - name: Delete user
-      ionos_cloud_user:
+      user:
         email: "{{ random_user }}"
         state: absent
 
     - name: Delete group
-      ionos_cloud_group:
+      group:
         name: "{{ name }}"
         state: absent

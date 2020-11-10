@@ -7,20 +7,34 @@
 
   tasks:
     - name: Create backupunit
-      ionos_cloud_backupunit:
+      backupunit:
         backupunit_email: "{{ email }}"
         backupunit_password: "{{ password }}"
         name: "My {{ name }}"
-      register: backupunit
+      register: create_result
+
+    - name: Debug - Show backupunit
+      debug:
+        msg: "{{ create_result }}"
 
     - name: Update a backupunit
-      ionos_cloud_backupunit:
-        backupunit_id: "{{ backupunit.id }}"
+      backupunit:
+        backupunit_id: "{{ create_result.backupunit.id }}"
         backupunit_email: "{{ updated_email }}"
         backupunit_password:  "{{ updated_password }}"
         state: update
+      register: update_result
+
+    - name: Debug - Show updated backupunit
+      debug:
+        msg: "{{ update_result }}"
 
     - name: Remove backupunit
-      ionos_cloud_backupunit:
-        backupunit_id: "{{ backupunit.id }}"
+      backupunit:
+        backupunit_id: "{{ create_result.backupunit.id }}"
         state: absent
+      register: delete_result
+
+    - name: Debug - Show updated backupunit
+      debug:
+        msg: "{{ delete_result }}"

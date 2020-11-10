@@ -125,7 +125,6 @@ EXAMPLES = '''
     state: absent
 '''
 
-import time
 import re
 
 HAS_SDK = True
@@ -195,8 +194,10 @@ def create_user(module, client, api_client):
 
     if not should_change:
         return {
-            'changed': should_change,
-            'user': user
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'user': user.to_dict()
         }
 
     try:
@@ -214,11 +215,11 @@ def create_user(module, client, api_client):
             request_id = _get_request_id(headers['Location'])
             api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-
         return {
-            'failed': False,
             'changed': True,
-            'user': str(user_response)
+            'failed': False,
+            'action': 'create',
+            'user': user_response.to_dict()
         }
 
     except Exception as e:
@@ -245,6 +246,7 @@ def update_user(module, client, api_client):
 
     try:
         user = None
+        user_response = None
         users = client.um_users_get(depth=2)
         for resource in users.items:
             if email in (resource.properties.email, resource.id):
@@ -274,12 +276,12 @@ def update_user(module, client, api_client):
             response = client.um_users_put_with_http_info(user_id=user.id, user=new_user)
             (user_response, _, headers) = response
 
+            if wait:
+                request_id = _get_request_id(headers['Location'])
+                api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
         else:
             module.fail_json(msg='User \'%s\' not found.' % str(email))
-
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
         if module.params.get('groups') is not None:
             user = client.um_users_find_by_id(user_id=user_response.id, depth=2)
@@ -310,12 +312,11 @@ def update_user(module, client, api_client):
                     request_id = _get_request_id(headers['Location'])
                     api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-
-
         return {
-            'failed': False,
             'changed': True,
-            'user': str(user_response)
+            'failed': False,
+            'action': 'update',
+            'user': user_response.to_dict()
         }
 
     except Exception as e:
@@ -342,8 +343,12 @@ def delete_user(module, client):
         module.exit_json(changed=True)
 
     try:
-        user_response = client.um_users_delete(user_id)
-        return user_response
+        client.um_users_delete(user_id)
+        return {
+            'action': 'delete',
+            'changed': True,
+            'id': user_id
+        }
     except Exception as e:
         module.fail_json(msg="failed to remove the user: %s" % to_native(e))
 
@@ -426,8 +431,8 @@ def main():
 
         if state == 'absent':
             try:
-                (changed) = delete_user(module, api_instance)
-                module.exit_json(changed=changed)
+                (result) = delete_user(module, api_instance)
+                module.exit_json(**result)
             except Exception as e:
                 module.fail_json(msg='failed to set user state: %s' % to_native(e))
 

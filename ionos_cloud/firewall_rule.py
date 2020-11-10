@@ -300,7 +300,9 @@ def create_firewall_rule(module, client):
     if not should_change:
         return {
             'changed': should_change,
-            'firewall_rule': str(f)
+            'failed': False,
+            'action': 'create',
+            'firewall_rule': f.to_dict()
         }
 
     try:
@@ -334,7 +336,9 @@ def create_firewall_rule(module, client):
 
         return {
             'changed': True,
-            'firewall_rule': str(firewall_rule_response)
+            'failed': False,
+            'action': 'create',
+            'firewall_rule': firewall_rule_response.to_dict()
         }
 
     except Exception as e:
@@ -414,7 +418,9 @@ def update_firewall_rule(module, client):
 
         return {
             'changed': True,
-            'firewall_rule': str(firewall_rule_response)
+            'failed': False,
+            'action': 'update',
+            'firewall_rule': firewall_rule_response.to_dict()
         }
 
     except Exception as e:
@@ -466,7 +472,11 @@ def delete_firewall_rule(module, client):
                                                                                           nic_id=nic_id,
                                                                                           firewallrule_id=firewall_rule_id)
 
-        return str(firewall_rule_response)
+        return {
+            'changed': True,
+            'action': 'delete',
+            'id': firewall_rule_id
+        }
     except Exception as e:
         module.fail_json(msg="failed to remove the firewall rule: %s" % to_native(e))
 
@@ -539,8 +549,8 @@ def main():
 
         if state == 'absent':
             try:
-                (changed) = delete_firewall_rule(module, api_client)
-                module.exit_json(changed=changed)
+                (result) = delete_firewall_rule(module, api_client)
+                module.exit_json(**result)
             except Exception as e:
                 module.fail_json(msg='failed to set firewall rule state: %s' % to_native(e))
 

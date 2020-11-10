@@ -7,19 +7,23 @@
 
   tasks:
     - name: Create pcc
-      ionos_cloud_pcc:
+      pcc:
         name: "{{ name }}"
         description: "{{ description }}"
-      register: pcc
+      register: result
+
+    - name: Debug - Show PCC
+      debug:
+        msg: "{{ result }}"
 
     - name: Update pcc
-      ionos_cloud_pcc:
-        pcc_id: "{{pcc.pcc_id}}"
+      pcc:
+        pcc_id: "{{ result.pcc.id }}"
         name: "RENAMED {{ name }}"
         description: "{{ description }} - RENAME"
         state: update
 
     - name: Remove pcc
-      ionos_cloud_pcc:
-        pcc_id: "{{pcc.pcc_id}}"
+      pcc:
+        pcc_id: "{{ result.pcc.id }}"
         state: absent

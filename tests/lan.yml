@@ -7,30 +7,87 @@
 
   tasks:
     - name: Create datacenter
-      ionos_cloud_datacenter:
-          name: "{{ name }}"
-          location: "{{ location }}"
+      datacenter:
+        name: "{{ datacenter }}"
+        location: "{{ location }}"
+        wait: true
+
+    - name: Provision server
+      ionos_cloud:
+        datacenter: "{{ datacenter }}"
+        name: "{{ server }}"
+        auto_increment: false
+        cores: 1
+        ram: 2048
+        volume_size: 5
+        image: "{{ image }}"
+        image_password: "{{ password }}"
+        location: "{{ location }}"
+        assign_public_ip: true
+        remove_boot_volume: true
+        wait: true
+        wait_timeout: "{{ timeout }}"
+        state: present
+      register: ionos_cloud
 
     - name: Create public LAN
-      ionos_cloud_lan:
-        datacenter: "{{ name }}"
+      lan:
+        datacenter: "{{ datacenter }}"
         name: "{{ lan }}"
         public: true
+      register: ionos_cloud_lan
 
-    - name: Update LAN
-      ionos_cloud_lan:
-        datacenter: "{{ name }}"
-        name: "{{ lan }}"
-        public: false
+    - name: Create NIC
+      nic:
+        name: "{{ name }}"
+        datacenter: "{{ datacenter }}"
+        server: "{{ server }}"
+        lan: "{{ ionos_cloud_lan.lan.id }}"
+        firewall_active: true
+        wait: true
+        wait_timeout: "{{ timeout }}"
+        state: present
+      register: ionos_cloud_nic
+
+    - name: Update NIC
+      nic:
+        datacenter: "{{ datacenter }}"
+        server: "{{ server }}"
+        name: "{{ name }}"
+        dhcp: false
+        ips: "158.222.102.93"
         state: update
 
+    - name: Update LAN
+      lan:
+        datacenter: "{{ name }}"
+        name: "{{ lan }}"
+        ip_failover:
+          - ip: "158.222.102.93"
+            nic_uuid: "{{ ionos_cloud_nic.nic.id }}"
+        wait: true
+        state: update
+
+    - name: Debug - Show LAN
+      debug:
+        msg: "{{ ionos_cloud_lan }}"
+
+    - name: Remove NIC
+      nic:
+        name: "{{ ionos_cloud_nic.nic.id }}"
+        datacenter: "{{ datacenter }}"
+        server: "{{ server }}"
+        wait: true
+        wait_timeout: "{{ timeout }}"
+        state: absent
+
     - name: Remove LAN
-      ionos_cloud_lan:
+      lan:
         datacenter: "{{ name }}"
         name: "{{ lan }}"
         state: absent
 
     - name: Remove datacenter
-      ionos_cloud_datacenter:
-        name: "{{ name }}"
+      datacenter:
+        name: "Ansible Test"
         state: absent

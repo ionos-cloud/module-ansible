@@ -77,8 +77,9 @@ def create_k8s_cluster(module, client):
     if not should_change:
         return {
             'changed': should_change,
-            'cluster': str(cluster),
-            'id': cluster.id
+            'failed': False,
+            'action': 'create',
+            'cluster': cluster.to_dict()
         }
 
     try:
@@ -100,9 +101,10 @@ def create_k8s_cluster(module, client):
             )
 
         results = {
-            'cluster': str(k8s_response),
-            'id': k8s_response.id,
-            'changed': True
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            'cluster': k8s_response.to_dict()
         }
 
         return results
@@ -132,7 +134,11 @@ def delete_k8s_cluster(module, client):
         module.fail_json(
             msg="failed to delete the k8s cluster: %s" % to_native(e))
 
-    return changed
+    return {
+        'action': 'delete',
+        'changed': changed,
+        'id': k8s_cluster_id
+    }
 
 
 def update_k8s_cluster(module, client):
@@ -145,13 +151,15 @@ def update_k8s_cluster(module, client):
     maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
     k8s_server = ionos_cloud_sdk.KubernetesApi(api_client=client)
+    k8s_response = None
 
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        kubernetes_cluster_properties = KubernetesClusterProperties(name=cluster_name, k8s_version=k8s_version, maintenance_window=maintenance_window)
+        kubernetes_cluster_properties = KubernetesClusterProperties(name=cluster_name, k8s_version=k8s_version,
+                                                                    maintenance_window=maintenance_window)
         kubernetes_cluster = KubernetesCluster(properties=kubernetes_cluster_properties)
-        k8s_server.k8s_put_with_http_info(k8s_cluster_id=k8s_cluster_id, kubernetescluster=kubernetes_cluster)
+        k8s_response = k8s_server.k8s_put_with_http_info(k8s_cluster_id=k8s_cluster_id, kubernetescluster=kubernetes_cluster)
 
         if module.params.get('wait'):
             client.wait_for(
@@ -168,7 +176,12 @@ def update_k8s_cluster(module, client):
             msg="failed to update the k8s cluster: %s" % to_native(e))
         changed = False
 
-    return changed
+    return {
+        'changed': changed,
+        'failed': False,
+        'action': 'update',
+        'cluster': k8s_response.to_dict()
+    }
 
 
 def main():

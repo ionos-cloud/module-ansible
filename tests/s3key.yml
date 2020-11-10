@@ -7,19 +7,23 @@
 
   tasks:
     - name: Create an s3key
-      ionos_cloud_s3key:
+      s3key:
         user_id: "{{ user_id }}"
-      register: key
+      register: result
+
+    - name: Debug - Show S3key
+      debug:
+        msg: "{{ result }}"
 
     - name: Update an s3key
-      ionos_cloud_s3key:
+      s3key:
         user_id: "{{ user_id }}"
-        key_id: "{{ key.s3key_id }}"
+        key_id: "{{ result.s3key.id }}"
         active: False
         state: update
 
     - name: Remove an s3key
-      ionos_cloud_s3key:
+      s3key:
         user_id: "{{ user_id }}"
-        key_id: "{{ key.s3key_id }}"
+        key_id: "{{ result.s3key.id }}"
         state: absent

@@ -22,12 +22,12 @@ ProfitBricks credentials could be specified as:
     password = MyProfitBricksPassword
 
 or with the following environment variables:
-    export PROFITBRICKS_USERNAME='MyProfitBricksUsername'
-    export PROFITBRICKS_PASSWORD='MyProfitBricksPassword'
+    export IONOS_USERNAME='MyProfitBricksUsername'
+    export IONOS_PASSWORD='MyProfitBricksPassword'
 
 Alternatively, passwords can be specified with a file or a script, similarly
 to Ansible's vault_password_file. The environment variable
-PROFITBRICKS_PASSWORD_FILE can also be used to specify that file.
+IONOS_PASSWORD_FILE can also be used to specify that file.
 
 ProfitBricks API URL may be overridden in the settings file or via
 PROFITBRICKS_API_URL environment variable.
@@ -223,12 +223,12 @@ class ProfitBricksInventory(object):
 
     def read_environment(self):
         """ Reads the environment variables """
-        if os.getenv('PROFITBRICKS_USERNAME'):
-            self.username = os.getenv('PROFITBRICKS_USERNAME')
-        if os.getenv('PROFITBRICKS_PASSWORD'):
-            self.password = os.getenv('PROFITBRICKS_PASSWORD')
-        if os.getenv('PROFITBRICKS_PASSWORD_FILE'):
-            self.password_file = os.getenv('PROFITBRICKS_PASSWORD_FILE')
+        if os.getenv('IONOS_USERNAME'):
+            self.username = os.getenv('IONOS_USERNAME')
+        if os.getenv('IONOS_PASSWORD'):
+            self.password = os.getenv('IONOS_PASSWORD')
+        if os.getenv('IONOS_PASSWORD_FILE'):
+            self.password_file = os.getenv('IONOS_PASSWORD_FILE')
         if os.getenv('PROFITBRICKS_API_URL'):
             self.api_url = os.getenv('PROFITBRICKS_API_URL')
 

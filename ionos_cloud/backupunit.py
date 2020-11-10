@@ -30,7 +30,7 @@ HAS_SDK = True
 try:
     import ionos_cloud_sdk
     from ionos_cloud_sdk import __version__ as sdk_version
-    from ionos_cloud_sdk.models import BackupUnit
+    from ionos_cloud_sdk.models import BackupUnit, BackupUnitProperties
     from ionos_cloud_sdk.rest import ApiException
     from ionos_cloud_sdk import ApiClient
 except ImportError:
@@ -40,76 +40,116 @@ from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
+import re
+
+
+def _get_request_id(headers):
+    match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
+    if match:
+        return match.group(1)
+    else:
+        raise Exception("Failed to extract request ID from response "
+                        "header 'location': '{location}'".format(location=headers['location']))
+
 
 def create_backupunit(module, client):
     name = module.params.get('name')
     password = module.params.get('backupunit_password')
     email = module.params.get('backupunit_email')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
 
-    properties = {
-        'name': name,
-        'password': password,
-        'email': email
-    }
+    backupunit_server = ionos_cloud_sdk.BackupUnitApi(client)
 
-    backupunit = BackupUnit(properties=properties)
+    backupunit_properties = BackupUnitProperties(name=name, password=password, email=email)
+    backupunit = BackupUnit(properties=backupunit_properties)
 
     try:
-        backupunit_response = client.backupunits_post(backupunit)
+        response = backupunit_server.backupunits_post_with_http_info(backupunit)
+        (backupunit_response, _, headers) = response
 
-        results = {
-            'id': backupunit_response.id,
-            'changed': True
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            'backupunit': backupunit_response.to_dict()
         }
-
-        return results
 
     except Exception as e:
         module.fail_json(msg="failed to create the backupunit: %s" % to_native(e))
+        return {
+            'changed': False,
+            'failed': True,
+            'action': 'create'
+        }
 
 
 def delete_backupunit(module, client):
     backupunit_id = module.params.get('backupunit_id')
-    changed = False
+    backupunit_server = ionos_cloud_sdk.BackupUnitApi(client)
 
     try:
-        client.backupunits_delete(backupunit_id)
-        changed = True
+        backupunit_server.backupunits_delete(backupunit_id)
+        return {
+            'action': 'delete',
+            'changed': True,
+            'id': backupunit_id
+        }
 
     except Exception as e:
         module.fail_json(msg="failed to delete the backupunit: %s" % to_native(e))
-
-    return changed
+        return {
+            'action': 'delete',
+            'changed': False,
+            'id': backupunit_id
+            }
 
 
 def update_backupunit(module, client):
     password = module.params.get('backupunit_password')
     email = module.params.get('backupunit_email')
     backupunit_id = module.params.get('backupunit_id')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
 
-    properties = {
-        'password': password,
-        'email': email
-    }
+    backupunit_server = ionos_cloud_sdk.BackupUnitApi(client)
 
-    backupunit = BackupUnit(properties=properties)
+    backupunit_properties = BackupUnitProperties(password=password, email=email)
+    backupunit = BackupUnit(properties=backupunit_properties)
 
     try:
-        client.backupunits_put(backupunit_id, backupunit)
-        changed = True
+        response = backupunit_server.backupunits_put_with_http_info(backupunit_id=backupunit_id, backup_unit=backupunit)
+        (backupunit_response, _, headers) = response
+
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            'backupunit': backupunit_response.to_dict()
+        }
 
     except Exception as e:
         module.fail_json(msg="failed to update the backupunit: %s" % to_native(e))
-        changed = False
-
-    return changed
+        return {
+            'changed': False,
+            'failed': True,
+            'action': 'update'
+        }
 
 
 def main():
     module = AnsibleModule(
         argument_spec=dict(
             name=dict(type='str'),
-            backupunit_password=dict(type='str'),
+            backupunit_password=dict(type='str', no_log=True),
             backupunit_email=dict(type='str'),
             backupunit_id=dict(type='str'),
             api_url=dict(type='str', default=None),
@@ -149,7 +189,6 @@ def main():
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent
-        api_instance = ionos_cloud_sdk.BackupUnitApi(api_client)
 
         if state == 'present':
             if not module.params.get('name'):
@@ -160,7 +199,7 @@ def main():
                 module.fail_json(msg='backupunit_password parameter is required for a new backupunit')
 
             try:
-                (backupunit_dict_array) = create_backupunit(module, api_instance)
+                (backupunit_dict_array) = create_backupunit(module, api_client)
                 module.exit_json(**backupunit_dict_array)
 
             except Exception as e:
@@ -171,8 +210,8 @@ def main():
                 module.fail_json(msg='backupunit_id parameter is required for deleting a backupunit.')
 
             try:
-                (changed) = delete_backupunit(module, api_instance)
-                module.exit_json(changed=changed)
+                (result) = delete_backupunit(module, api_client)
+                module.exit_json(**result)
             except Exception as e:
                 module.fail_json(msg='failed to set backupunit state: %s' % to_native(e))
 
@@ -181,9 +220,8 @@ def main():
                 module.fail_json(msg='backupunit_id parameter is required for updating a backupunit.')
 
             try:
-                (changed) = update_backupunit(module, api_instance)
-                module.exit_json(
-                    changed=changed)
+                (backupunit_dict_array) = update_backupunit(module, api_client)
+                module.exit_json(**backupunit_dict_array)
             except Exception as e:
                 module.fail_json(msg='failed to set backupunit state: %s' % to_native(e))
 

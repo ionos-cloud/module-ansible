@@ -7,19 +7,35 @@
 
   tasks:
     - name: Create datacenter
-      ionos_cloud_datacenter:
-        name: "{{ name }}-{{ 100 |random}}"
+      datacenter:
+        name: "{{ name }}"
         description: "{{ description }}"
         location: us/las
       register: datacenter
 
+    - name: Debug - Show Datacenter
+      debug:
+        msg: "{{ datacenter}}"
+
     - name: Update datacenter
-      ionos_cloud_datacenter:
+      datacenter:
+        id: "{{ datacenter.datacenter.id }}"
         name: "{{ name }}"
         description: "{{ description }} - RENAMED"
         state: update
+      register: updated_datacenter
+
+    - name: Debug - Show Updated Datacenter
+      debug:
+        msg: "{{ updated_datacenter }}"
 
     - name: Remove datacenter
-      ionos_cloud_datacenter:
-        id: "{{ datacenter.id }}"
+      datacenter:
+        id: "{{ datacenter.datacenter.id }}"
+        name: "{{ name }}"
         state: absent
+      register: deleted_datacenter
+
+    - name: Debug - Show Deleted Datacenter
+      debug:
+        msg: "{{ deleted_datacenter }}"

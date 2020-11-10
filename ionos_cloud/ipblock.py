@@ -125,7 +125,7 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def reserve_ipblock(module, client, api_client):
+def reserve_ipblock(module, client):
     """
     Creates an IPBlock.
 
@@ -141,7 +141,8 @@ def reserve_ipblock(module, client, api_client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    ip_list = client.ipblocks_get(depth=2)
+    ipblock_server = ionos_cloud_sdk.IPBlocksApi(client)
+    ip_list = ipblock_server.ipblocks_get(depth=2)
     ip = None
     for i in ip_list.items:
         if name == i.properties.name:
@@ -155,32 +156,36 @@ def reserve_ipblock(module, client, api_client):
 
     if not should_change:
         return {
-            'changed': should_change,
-            'ipblock': str(ip)
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'ipblock': ip.to_dict()
         }
 
     try:
         ipblock_properties = IpBlockProperties(location=location, size=size, name=name)
         ipblock = IpBlock(properties=ipblock_properties)
 
-        response = client.ipblocks_post_with_http_info(ipblock)
+        response = ipblock_server.ipblocks_post_with_http_info(ipblock)
         (ipblock_response, _, headers) = response
 
         if wait:
             request_id = _get_request_id(headers['Location'])
-            api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
         return {
-            'failed': False,
             'changed': True,
-            'ipblock': str(ipblock_response)
+            'failed': False,
+            'action': 'create',
+            'ipblock': ipblock_response.to_dict()
         }
+
 
     except Exception as e:
         module.fail_json(msg="failed to create the IPBlock: %s" % to_native(e))
 
 
-def update_ipblock(module, client, api_client):
+def update_ipblock(module, client):
     """
     Creates an IPBlock.
 
@@ -191,11 +196,11 @@ def update_ipblock(module, client, api_client):
         The IPBlock instance
     """
     name = module.params.get('name')
-    size = module.params.get('size')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    ip_list = client.ipblocks_get(depth=2)
+    ipblock_server = ionos_cloud_sdk.IPBlocksApi(client)
+    ip_list = ipblock_server.ipblocks_get(depth=2)
     ip = None
     for i in ip_list.items:
         if name == i.properties.name:
@@ -204,20 +209,21 @@ def update_ipblock(module, client, api_client):
 
     if ip:
         try:
-            ipblock_properties = IpBlockProperties(size=size, name=name)
+            ipblock_properties = IpBlockProperties(name=name)
             ipblock = IpBlock(properties=ipblock_properties)
 
-            response = client.ipblocks_put_with_http_info(ip.id, ipblock)
+            response = ipblock_server.ipblocks_put_with_http_info(ip.id, ipblock)
             (ipblock_response, _, headers) = response
 
             if wait:
                 request_id = _get_request_id(headers['Location'])
-                api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
             return {
-                'failed': False,
                 'changed': True,
-                'ipblock': str(ipblock_response)
+                'failed': False,
+                'action': 'update',
+                'ipblock': ipblock_response.to_dict()
             }
 
         except Exception as e:
@@ -237,17 +243,22 @@ def delete_ipblock(module, client):
         True if the IPBlock was removed, false otherwise
     """
     name = module.params.get('name')
+    ipblock_server = ionos_cloud_sdk.IPBlocksApi(client)
 
     # Locate UUID for the IPBlock
-    ipblock_list = client.ipblocks_get(depth=2)
+    ipblock_list = ipblock_server.ipblocks_get(depth=2)
     id = _get_resource_id(ipblock_list, name, module, "IP Block")
 
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        ipblock_response = client.ipblocks_delete(id)
-        return ipblock_response
+        ipblock_server.ipblocks_delete(id)
+        return {
+            'action': 'delete',
+            'changed': True,
+            'id': id
+        }
 
     except Exception as e:
         module.fail_json(msg="failed to remove the IPBlock: %s" % to_native(e))
@@ -312,25 +323,24 @@ def main():
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent
-        ipblock_server = ionos_cloud_sdk.IPBlocksApi(api_client)
 
         if state == 'absent':
             try:
-                (changed) = delete_ipblock(module, ipblock_server)
-                module.exit_json(changed=changed)
+                (result) = delete_ipblock(module, api_client)
+                module.exit_json(**result)
             except Exception as e:
                 module.fail_json(msg='failed to set IPBlock state: %s' % to_native(e))
 
         elif state == 'present':
             try:
-                (ipblock_dict) = reserve_ipblock(module, ipblock_server, api_client)
+                (ipblock_dict) = reserve_ipblock(module, api_client)
                 module.exit_json(**ipblock_dict)
             except Exception as e:
                 module.fail_json(msg='failed to set IPBlocks state: %s' % to_native(e))
 
         elif state == 'update':
             try:
-                (ipblock_dict) = update_ipblock(module, ipblock_server, api_client)
+                (ipblock_dict) = update_ipblock(module, api_client)
                 module.exit_json(**ipblock_dict)
             except Exception as e:
                 module.fail_json(msg='failed to set IPBlocks state: %s' % to_native(e))

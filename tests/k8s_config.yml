@@ -7,17 +7,17 @@
 
   tasks:
     - name: Create k8s cluster
-      ionos_cloud_k8s_cluster:
+      k8s_cluster:
         cluster_name: "my-cluster"
       register: cluster
 
     - name: Get k8s config
-      ionos_cloud_k8s_config:
+      k8s_config:
         k8s_cluster_id: "{{ cluster.id }}"
         config_file: 'config.yaml'
         state: present
 
     - name: Delete k8s cluster
-      ionos_cloud_k8s_cluster:
+      k8s_cluster:
         k8s_cluster_id: "{{ cluster.id }}"
         state: absent

@@ -11,7 +11,7 @@
       run_once: yes
 
     - name: Create user
-      ionos_cloud_user:
+      user:
         firstname: John
         lastname: Doe
         email: "{{ random_user }}"
@@ -21,7 +21,7 @@
         state: present
 
     - name: Update user
-      ionos_cloud_user:
+      user:
         firstname: John
         lastname: Doe
         email: "{{ random_user }}"
@@ -30,28 +30,28 @@
         state: update
 
     - name: Create group
-      ionos_cloud_group:
+      group:
         name: "{{ name }}"
 
     - name: Add user to group
-      ionos_cloud_user:
+      user:
         email: "{{ random_user }}"
         groups:
           - "{{ name }}"
         state: update
 
     - name: Remove user from group
-      ionos_cloud_user:
+      user:
         email: "{{ random_user }}"
         groups: []
         state: update
 
     - name: Delete user
-      ionos_cloud_user:
+      user:
         email: "{{ random_user }}"
         state: absent
 
     - name: Delete group
-      ionos_cloud_group:
+      group:
         name: "{{ name }}"
         state: absent

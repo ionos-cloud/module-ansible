@@ -212,7 +212,7 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def _create_volume(module, volume_server, datacenter, name, api_client):
+def _create_volume(module, volume_server, datacenter, name, client):
     size = module.params.get('size')
     bus = module.params.get('bus')
     image = module.params.get('image')
@@ -247,7 +247,7 @@ def _create_volume(module, volume_server, datacenter, name, api_client):
 
         if wait:
             request_id = _get_request_id(headers['Location'])
-            api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
     except Exception as e:
         module.fail_json(msg="failed to create the volume: %s" % to_native(e))
@@ -263,7 +263,6 @@ def _update_volume(module, volume_server, api_client, datacenter, volume_id):
 
     if module.check_mode:
         module.exit_json(changed=True)
-
 
     try:
         volume = Volume(properties=VolumeProperties(size=size, bus=bus))
@@ -292,7 +291,7 @@ def _delete_volume(module, volume_server, datacenter, volume):
         module.fail_json(msg="failed to remove the volume: %s" % to_native(e))
 
 
-def create_volume(module, volume_server, datacenter_server, api_client, server_client):
+def create_volume(module, client):
     """
     Create volumes.
 
@@ -308,6 +307,10 @@ def create_volume(module, volume_server, datacenter_server, api_client, server_c
     name = module.params.get('name')
     auto_increment = module.params.get('auto_increment')
     count = module.params.get('count')
+
+    volume_server = ionos_cloud_sdk.VolumeApi(client)
+    datacenter_server = ionos_cloud_sdk.DataCenterApi(client)
+    servers_server = ionos_cloud_sdk.ServerApi(client)
 
     datacenter_found = False
     volumes = []
@@ -356,24 +359,24 @@ def create_volume(module, volume_server, datacenter_server, api_client, server_c
         if _get_instance_id(volume_list, name):
             continue
 
-        create_response = _create_volume(module, volume_server, str(datacenter), name, api_client)
+        create_response = _create_volume(module, volume_server, str(datacenter), name, client)
         volumes.append(create_response)
         instance_ids.append(create_response.id)
-        _attach_volume(module, server_client, datacenter, create_response.id)
+        _attach_volume(module, servers_server, datacenter, create_response.id)
         changed = True
 
     results = {
         'changed': changed,
         'failed': False,
-        'volumes': str(volumes),
+        'volumes': [v.to_dict() for v in volumes],
         'action': 'create',
-        'instance_ids': str(instance_ids)
+        'instance_ids': instance_ids
     }
 
     return results
 
 
-def update_volume(module, volume_server, datacenter_server, api_client, server_client):
+def update_volume(module, client):
     """
     Update volumes.
 
@@ -387,6 +390,9 @@ def update_volume(module, volume_server, datacenter_server, api_client, server_c
     """
     datacenter = module.params.get('datacenter')
     instance_ids = module.params.get('instance_ids')
+
+    volume_server = ionos_cloud_sdk.VolumeApi(client)
+    datacenter_server = ionos_cloud_sdk.DataCenterApi(client)
 
     datacenter_found = False
     failed = True
@@ -406,14 +412,14 @@ def update_volume(module, volume_server, datacenter_server, api_client, server_c
 
     for n in instance_ids:
         if (uuid_match.match(n)):
-            update_response = _update_volume(module, volume_server, api_client, datacenter, n)
+            update_response = _update_volume(module, volume_server, client, datacenter, n)
             changed = True
         else:
             volume_list = volume_server.datacenters_volumes_get(datacenter, depth=2)
             for v in volume_list.items:
                 if n == v.properties.name:
                     volume_id = v.id
-                    update_response = _update_volume(module, volume_server, api_client, datacenter, volume_id)
+                    update_response = _update_volume(module, volume_server, client, datacenter, volume_id)
                     changed = True
 
         volumes.append(update_response)
@@ -422,7 +428,7 @@ def update_volume(module, volume_server, datacenter_server, api_client, server_c
     results = {
         'changed': changed,
         'failed': failed,
-        'volumes': str(volumes),
+        'volumes': [v.to_dict() for v in volumes],
         'action': 'update',
         'instance_ids': {
             'instances': [i.id for i in volumes],
@@ -432,7 +438,7 @@ def update_volume(module, volume_server, datacenter_server, api_client, server_c
     return results
 
 
-def delete_volume(module, volume_server, datacenter_server, api_client):
+def delete_volume(module, client):
     """
     Remove volumes.
 
@@ -444,12 +450,18 @@ def delete_volume(module, volume_server, datacenter_server, api_client):
     Returns:
         True if the volumes were removed, false otherwise
     """
+
+    volume_server = ionos_cloud_sdk.VolumeApi(client)
+    datacenter_server = ionos_cloud_sdk.DataCenterApi(client)
+
     if not isinstance(module.params.get('instance_ids'), list) or len(module.params.get('instance_ids')) < 1:
         module.fail_json(msg='instance_ids should be a list of volume ids or names, aborting')
 
     datacenter = module.params.get('datacenter')
     changed = False
     instance_ids = module.params.get('instance_ids')
+
+    volume_id = None
 
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
@@ -472,7 +484,11 @@ def delete_volume(module, volume_server, datacenter_server, api_client):
                     _delete_volume(module, volume_server, datacenter, volume_id)
                     changed = True
 
-    return changed
+    return {
+        'action': 'delete',
+        'changed': changed,
+        'id': volume_id
+    }
 
 
 def _attach_volume(module, server_client, datacenter, volume):
@@ -573,17 +589,14 @@ def main():
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent
-        volume_server = ionos_cloud_sdk.VolumeApi(api_client)
-        datacenter_server = ionos_cloud_sdk.DataCenterApi(api_client)
-        server_client = ionos_cloud_sdk.ServerApi(api_client)
 
         if state == 'absent':
             if not module.params.get('datacenter'):
                 module.fail_json(msg='datacenter parameter is required for creating, updating or deleting volumes.')
 
             try:
-                (changed) = delete_volume(module, volume_server, datacenter_server, api_client)
-                module.exit_json(changed=changed)
+                (result) = delete_volume(module, api_client)
+                module.exit_json(**result)
             except Exception as e:
                 module.fail_json(msg='failed to set volume state: %s' % to_native(e))
 
@@ -594,14 +607,14 @@ def main():
                 module.fail_json(msg='name parameter is required for new instance')
 
             try:
-                (volume_dict_array) = create_volume(module, volume_server, datacenter_server, api_client, server_client)
+                (volume_dict_array) = create_volume(module, api_client)
                 module.exit_json(**volume_dict_array)
             except Exception as e:
                 module.fail_json(msg='failed to set volume state: %s' % to_native(e))
 
         elif state == 'update':
             try:
-                (volume_dict_array) = update_volume(module, volume_server, datacenter_server, api_client, server_client)
+                (volume_dict_array) = update_volume(module, api_client)
                 module.exit_json(**volume_dict_array)
             except Exception as e:
                 module.fail_json(msg='failed to update volume: %s' % to_native(e))

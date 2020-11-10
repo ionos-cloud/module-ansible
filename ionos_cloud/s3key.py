@@ -48,62 +48,95 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def create_s3key(module, client, api_client):
+def create_s3key(module, client):
     user_id = module.params.get('user_id')
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
+    user_management_server = ionos_cloud_sdk.UserManagementApi(client)
+
     try:
-        response = client.um_users_s3keys_post_with_http_info(user_id=user_id)
+        response = user_management_server.um_users_s3keys_post_with_http_info(user_id=user_id)
         (s3key_response, _, headers) = response
 
         if wait:
             request_id = _get_request_id(headers['Location'])
-            api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-        results = {
-            's3key_id': s3key_response.id,
-            'changed': True
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            's3key': s3key_response.to_dict()
         }
-
-        return results
 
     except Exception as e:
         module.fail_json(msg="failed to create the s3key: %s" % to_native(e))
+        return {
+            'changed': False,
+            'failed': True,
+            'action': 'create',
+        }
 
 
 def delete_s3key(module, client):
     user_id = module.params.get('user_id')
     key_id = module.params.get('key_id')
 
-    changed = False
+    user_management_server = ionos_cloud_sdk.UserManagementApi(client)
 
     try:
-        client.um_users_s3keys_delete(user_id, key_id)
-        changed = True
+        user_management_server.um_users_s3keys_delete(user_id, key_id)
+        return {
+            'action': 'delete',
+            'changed': True,
+            'id': key_id
+        }
+
     except Exception as e:
         module.fail_json(msg="failed to delete the s3key: %s" % to_native(e))
-
-    return changed
+        return {
+            'action': 'delete',
+            'changed': False,
+            'id': key_id
+        }
 
 
 def update_s3key(module, client):
     user_id = module.params.get('user_id')
     key_id = module.params.get('key_id')
     active = module.params.get('active')
+    wait = module.params.get('wait')
+    wait_timeout = int(module.params.get('wait_timeout'))
+
+    user_management_server = ionos_cloud_sdk.UserManagementApi(client)
+
     properties = S3KeyProperties(active=active)
 
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        client.um_users_s3keys_put(user_id, key_id, S3Key(properties=properties))
-        changed = True
+        response = user_management_server.um_users_s3keys_put_with_http_info(user_id, key_id, S3Key(properties=properties))
+        (s3key_response, _, headers) = response
+
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            's3key': s3key_response.to_dict()
+        }
 
     except Exception as e:
         module.fail_json(msg="failed to update the s3key: %s" % to_native(e))
-        changed = False
-
-    return changed
+        return {
+            'changed': False,
+            'failed': True,
+            'action': 'update',
+        }
 
 
 def main():
@@ -152,13 +185,12 @@ def main():
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent
-        api_instance = ionos_cloud_sdk.UserManagementApi(api_client)
 
         if state == 'present':
             if not module.params.get('user_id'):
                 module.fail_json(msg='user_id parameter is required for a new s3key')
             try:
-                (s3key_dict_array) = create_s3key(module, api_instance, api_client)
+                (s3key_dict_array) = create_s3key(module, api_client)
                 module.exit_json(**s3key_dict_array)
             except Exception as e:
                 module.fail_json(msg='failed to set user state: %s' % to_native(e))
@@ -170,7 +202,7 @@ def main():
                 module.fail_json(msg='key_id parameter is required for deleting an s3key.')
 
             try:
-                (changed) = delete_s3key(module, api_instance)
+                (changed) = delete_s3key(module, api_client)
                 module.exit_json(changed=changed)
             except Exception as e:
                 module.fail_json(msg='failed to set user state: %s' % to_native(e))
@@ -182,7 +214,7 @@ def main():
                 module.fail_json(msg='key_id parameter is required for updating an s3key.')
 
             try:
-                (changed) = update_s3key(module, api_instance)
+                (changed) = update_s3key(module, api_client)
                 module.exit_json(
                     changed=changed)
             except Exception as e:

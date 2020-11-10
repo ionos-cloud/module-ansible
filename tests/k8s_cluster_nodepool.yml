@@ -7,14 +7,14 @@
 
   tasks:
     - name: Create datacenter
-      ionos_cloud_datacenter:
+      datacenter:
         name: "{{ name }}"
         description: "{{ description }}"
         location: us/las
       register: datacenter
 
     - name: Create k8s cluster
-      ionos_cloud_k8s_cluster:
+      k8s_cluster:
         cluster_name: "my-cluster"
         maintenance_window:
           day_of_the_week: "Wednesday"
@@ -22,29 +22,29 @@
         k8s_version: 1.19.2
       register: cluster
 
-#    - name: Create k8s cluster nodepool
-#      ionos_cloud_k8s_nodepool:
-#        nodepool_name: "my-nodepool-8"
-#        k8s_cluster_id:  "{{ cluster.id }}"
-#        datacenter_id: "{{ datacenter.id }}"
-#        node_count: "1"
-#        cpu_family: "AMD_OPTERON"
-#        cores_count: "1"
-#        ram_size: "2048"
-#        availability_zone: "AUTO"
-#        storage_type: "SSD"
-#        storage_size: "100"
-#      register: nodepool
-#
-#    - name: Debug - Show nodepool
-#      debug:
-#         msg: "{{ nodepool }}"
+    - name: Create k8s cluster nodepool
+      k8s_nodepool:
+        nodepool_name: "my-nodepool-8"
+        k8s_cluster_id:  "{{ cluster.cluster.id }}"
+        datacenter_id: "{{ datacenter.datacenter.id }}"
+        node_count: "1"
+        cpu_family: "AMD_OPTERON"
+        cores_count: "1"
+        ram_size: "2048"
+        availability_zone: "AUTO"
+        storage_type: "SSD"
+        storage_size: "100"
+      register: result
+
+    - name: Debug - Show nodepool
+      debug:
+         msg: "{{ result.nodepool }}"
 
     - name: Update k8s cluster nodepool
-      ionos_cloud_k8s_nodepool:
-        k8s_cluster_id: "{{ cluster.id }}"
-        datacenter_id: "{{ datacenter.id }}"
-        nodepool_id: "29731bf1-4741-4df9-bc9f-8fb9639c436f"
+      k8s_nodepool:
+        k8s_cluster_id: "{{ cluster.cluster.id }}"
+        datacenter_id: "{{ datacenter.datacenter.id }}"
+        nodepool_id: "{{ result.nodepool.id }}"
         node_count: "1"
         cpu_family: "AMD_OPTERON"
         cores_count: "1"
@@ -53,21 +53,21 @@
         storage_type: "SSD"
         storage_size: "100"
         state: update
-#
-#    - name: Delete k8s cluster nodepool
-#      ionos_cloud_k8s_nodepool:
-#        k8s_cluster_id: "{{ cluster.id }}"
-#        nodepool_id: "3baae59e-dee9-446c-99cd-201e148bb453"
-#        wait: true
-#        state: absent
-#
-#    - name: Delete k8s cluster
-#      ionos_cloud_k8s_cluster:
-#        k8s_cluster_id: "{{ cluster.id }}"
-#        state: absent
-#
-#    - name: Remove datacenter
-#      ionos_cloud_datacenter:
-#         id: " {{ datacenter.id }}"
-#         name: "{{ name }}"
-#         state: absent
+
+    - name: Delete k8s cluster nodepool
+      k8s_nodepool:
+        k8s_cluster_id: "{{ cluster.cluster.id }}"
+        nodepool_id: "{{ result.nodepool.id }}"
+        wait: true
+        state: absent
+
+    - name: Delete k8s cluster
+      k8s_cluster:
+        k8s_cluster_id: "{{ cluster.cluster.id }}"
+        state: absent
+
+    - name: Remove datacenter
+      datacenter:
+         id: " {{ datacenter.datacenter.id }}"
+         name: "{{ name }}"
+         state: absent

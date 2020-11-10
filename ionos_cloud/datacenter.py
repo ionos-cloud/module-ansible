@@ -6,7 +6,6 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
@@ -14,7 +13,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 DOCUMENTATION = '''
 ---
 module: ionos-cloud_datacenter
-short_description: Create or destroy a ProfitBricks Virtual Datacenter.
+short_description: Create or destroy a Ionos Cloud Virtual Datacenter.
 description:
      - This is a simple module that supports creating or removing vDCs. A vDC is required before you can create servers.
        This module has a dependency on ionos-cloud >= 1.0.0
@@ -98,6 +97,7 @@ EXAMPLES = '''
 '''
 
 import re
+import json
 
 HAS_SDK = True
 
@@ -109,7 +109,6 @@ try:
     from ionos_cloud_sdk import ApiClient
 except ImportError:
     HAS_SDK = False
-
 
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
@@ -136,28 +135,39 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def _remove_datacenter(module, client, datacenter):
+def _remove_datacenter(module, datacenter_server, datacenter):
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        client.datacenters_delete(datacenter)
+        datacenter_server.datacenters_delete(datacenter)
     except Exception as e:
         module.fail_json(msg="failed to remove the datacenter: %s" % to_native(e))
 
 
-def _update_datacenter(module, client, id, datacenter):
+def _update_datacenter(module, datacenter_server, client, id, datacenter, wait):
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        client.datacenters_put(datacenter_id=id, datacenter=datacenter)
-        return True
+        response = datacenter_server.datacenters_put_with_http_info(datacenter_id=id, datacenter=datacenter)
+        (datacenter_response, _, headers) = response
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id)
+
+        return {
+            'changed': True,
+            'failed': False,
+            'datacenter': datacenter_response.to_dict()
+        }
     except ApiException as e:
         module.fail_json(msg="failed to update the datacenter: %s" % to_native(e))
+    return {
+        'changed': False,
+        'failed': True,
+    }
 
-    return False
 
-
-def create_datacenter(module, client, api_client):
+def create_datacenter(module, client):
     """
     Creates a Datacenter
 
@@ -175,29 +185,34 @@ def create_datacenter(module, client, api_client):
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
-    datacenters = client.datacenters_get(depth=2)
+    datacenter_server = ionos_cloud_sdk.DataCenterApi(client)
+    datacenters = datacenter_server.datacenters_get(depth=2)
 
     for dc in datacenters.items:
         if name == dc.properties.name:
             return {
-                'id': dc.id,
-                'changed': False
+                'changed': False,
+                'failed': False,
+                'action': 'create',
+                'datacenter': dc.to_dict()
             }
 
     datacenter_properties = DatacenterProperties(name=name, description=description, location=location)
     datacenter = Datacenter(properties=datacenter_properties)
 
     try:
-        response = client.datacenters_post_with_http_info(datacenter=datacenter)
+        response = datacenter_server.datacenters_post_with_http_info(datacenter=datacenter)
         (datacenter_response, _, headers) = response
 
         if wait:
             request_id = _get_request_id(headers['Location'])
-            api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
         results = {
-            'id': datacenter_response.id,
-            'changed': True
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            'datacenter': datacenter_response.to_dict()
         }
 
         return results
@@ -220,29 +235,42 @@ def update_datacenter(module, client):
     """
     name = module.params.get('name')
     description = module.params.get('description')
-    id = module.params.get('id')
+    datacenter_id = module.params.get('id')
+    wait = module.params.get('wait')
+    datacenter_server = ionos_cloud_sdk.DataCenterApi(client)
 
     if description is None:
-        return False
+        return {
+            'action': 'update',
+            'changed': False
+        }
 
     changed = False
+    response = None
 
-    if id:
+    if datacenter_id:
         datacenter = Datacenter(properties={'name': name, 'description': description})
-        changed = _update_datacenter(module, client, id, datacenter)
+        response = _update_datacenter(module, datacenter_server, client, datacenter_id, datacenter, wait)
+        changed = response['changed']
     else:
-        datacenters = client.datacenters_get(depth=2)
+        datacenters = datacenter_server.datacenters_get(depth=2)
         for d in datacenters.items:
-            vdc = client.datacenters_find_by_id(d.id)
+            vdc = datacenter_server.datacenters_find_by_id(d.id)
             if name == vdc.properties.name:
                 datacenter = Datacenter(
                     properties={'name': name, 'description': description})
-                changed = _update_datacenter(module, client, vdc.id, datacenter)
+                response = _update_datacenter(module, datacenter_server, client, datacenter_id, datacenter, wait)
+                changed = response['changed']
 
     if not changed:
         module.fail_json(msg="failed to update the datacenter: The resource does not exist")
 
-    return changed
+    return {
+        'changed': changed,
+        'action': 'update',
+        'failed': response['failed'],
+        'datacenter': response['datacenter']
+    }
 
 
 def remove_datacenter(module, client):
@@ -258,23 +286,28 @@ def remove_datacenter(module, client):
         True if the datacenter was deleted, false otherwise
     """
     name = module.params.get('name')
-    id = module.params.get('id')
+    datacenter_id = module.params.get('id')
+    datacenter_server = ionos_cloud_sdk.DataCenterApi(client)
     changed = False
 
-    if id:
-        _remove_datacenter(module, client, id)
+    if datacenter_id:
+        _remove_datacenter(module, datacenter_server, datacenter_id)
         changed = True
 
     else:
-        datacenters = client.datacenters_get(depth=2)
+        datacenters = datacenter_server.datacenters_get(depth=2)
         for d in datacenters.items:
-            vdc = client.datacenters_find_by_id(d.id)
-
+            vdc = datacenter_server.datacenters_find_by_id(d.id)
             if name == vdc.properties.name:
-                _remove_datacenter(module, client, d.id)
+                datacenter_id = d.id
+                _remove_datacenter(module, datacenter_server, datacenter_id)
                 changed = True
 
-    return changed
+    return {
+        'action': 'delete',
+        'changed': changed,
+        'id': datacenter_id
+    }
 
 
 def main():
@@ -313,7 +346,6 @@ def main():
     state = module.params.get('state')
     user_agent = 'ionos_cloud_sdk-python/%s Ansible/%s' % (sdk_version, __version__)
 
-
     configuration = ionos_cloud_sdk.Configuration(
         username=username,
         password=password
@@ -321,15 +353,14 @@ def main():
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent
-        api_instance = ionos_cloud_sdk.DataCenterApi(api_client)
         if state == 'absent':
             if not module.params.get('name') and not module.params.get('id'):
                 module.fail_json(msg='name parameter or id parameter are required deleting a virtual datacenter.')
 
             try:
-                (changed) = remove_datacenter(module, api_instance)
+                (result) = remove_datacenter(module, api_client)
                 module.exit_json(
-                    changed=changed)
+                    changed=result)
             except Exception as e:
                 module.fail_json(msg='failed to set datacenter state: %s' % to_native(e))
 
@@ -343,15 +374,15 @@ def main():
                 module.exit_json(changed=True)
 
             try:
-                (datacenter_dict_array) = create_datacenter(module, api_instance, api_client)
+                (datacenter_dict_array) = create_datacenter(module, api_client)
                 module.exit_json(**datacenter_dict_array)
             except Exception as e:
                 module.fail_json(msg='failed to set datacenter state: %s' % to_native(e))
 
         elif state == 'update':
             try:
-                (changed) = update_datacenter(module, api_instance)
-                module.exit_json(changed=changed)
+                (datacenter_dict_array) = update_datacenter(module, api_client)
+                module.exit_json(**datacenter_dict_array)
             except Exception as e:
                 module.fail_json(msg='failed to update datacenter: %s' % to_native(e))
 

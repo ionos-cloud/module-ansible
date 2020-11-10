@@ -1,5 +1,3 @@
-import time
-
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
@@ -41,7 +39,7 @@ def get_config(module, client):
     return {
         'failed': False,
         'changed': True,
-        'config': str(response)
+        'config': response.to_dict()
     }
 
 

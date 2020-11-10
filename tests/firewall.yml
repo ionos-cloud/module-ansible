@@ -8,7 +8,7 @@
 
   tasks:
     - name: Create datacenter
-      ionos_cloud_datacenter:
+      datacenter:
         name: "{{ name }}"
         location: "{{ location }}"
         wait: True
@@ -30,13 +30,13 @@
       register: ionos_cloud
 
     - name: Create LAN
-      ionos_cloud_lan:
+      lan:
         datacenter: "{{ name }}"
         name: "{{ lan }}"
         public: true
 
     - name: Create NIC
-      ionos_cloud_nic:
+      nic:
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          name: "{{ nic }}"
@@ -49,7 +49,7 @@
       register: ionos_cloud_nic
 
     - name: Create a firewall rule
-      ionos_cloud_firewall_rule:
+      firewall_rule:
           datacenter: "{{ datacenter }}"
           server: "{{ server }}"
           nic: "{{ nic }}"
@@ -61,7 +61,7 @@
           state: present
 
     - name: Update firewall rule
-      ionos_cloud_firewall_rule:
+      firewall_rule:
           datacenter: "{{ datacenter }}"
           server: "{{ server }}"
           nic: "{{ nic }}"
@@ -73,7 +73,7 @@
           state: update
 
     - name: Remove firewall rule
-      ionos_cloud_firewall_rule:
+      firewall_rule:
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          nic: "{{ nic }}"
@@ -83,6 +83,6 @@
          state: absent
 
     - name: Remove datacenter
-      ionos_cloud_datacenter:
+      datacenter:
         name: "{{ datacenter }}"
         state: absent

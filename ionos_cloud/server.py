@@ -513,17 +513,12 @@ def create_virtual_machine(module, client):
 
         virtual_machines.append(create_response)
 
-    results = {
+    return {
         'changed': changed,
         'failed': False,
-        'machines': str(virtual_machines),
-        'action': 'create',
-        'instance_ids': {
-            'instances': [i.id for i in virtual_machines],
-        }
+        'machines': [v.to_dict() for v in virtual_machines],
+        'action': 'create'
     }
-
-    return results
 
 
 def update_server(module, client):
@@ -587,17 +582,12 @@ def update_server(module, client):
         else:
             updated_servers.append(server_response)
 
-    results = {
+    return {
         'failed': False,
         'changed': True,
-        'machines': str(updated_servers),
-        'action': 'update',
-        'instance_ids': {
-            'instances': [i.id for i in updated_servers],
-        }
+        'machines': [s.to_dict() for s in updated_servers],
+        'action': 'update'
     }
-
-    return results
 
 
 def remove_virtual_machine(module, client):
@@ -621,6 +611,8 @@ def remove_virtual_machine(module, client):
 
     datacenter_server = ionos_cloud_sdk.DataCenterApi(api_client=client)
     server_server = ionos_cloud_sdk.ServerApi(api_client=client)
+
+    server_id = None
 
     if not isinstance(module.params.get('instance_ids'), list) or len(module.params.get('instance_ids')) < 1:
         module.fail_json(msg='instance_ids should be a list of virtual machine ids or names, aborting')
@@ -653,7 +645,11 @@ def remove_virtual_machine(module, client):
             else:
                 changed = True
 
-    return changed
+    return {
+        'action': 'delete',
+        'changed': changed,
+        'id': server_id
+    }
 
 
 def _remove_boot_volume(module, client, datacenter_id, server_id):
@@ -782,6 +778,7 @@ def main():
             image_password=dict(type='str', default=None, no_log=True),
             ssh_keys=dict(type='list', default=[]),
             bus=dict(type='str', choices=BUS_TYPES, default='VIRTIO'),
+            ip=dict(type='str'),
             lan=dict(type='raw', required=False),
             nat=dict(type='bool', default=None),
             count=dict(type='int', default=1),
@@ -838,8 +835,8 @@ def main():
                 module.fail_json(msg='datacenter parameter is required for running or stopping machines.')
 
             try:
-                (changed) = remove_virtual_machine(module, api_client)
-                module.exit_json(changed=changed)
+                (result) = remove_virtual_machine(module, api_client)
+                module.exit_json(**result)
             except Exception as e:
                 module.fail_json(msg='failed to set instance state: %s' % to_native(e),
                                  exception=traceback.format_exc())

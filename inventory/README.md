@@ -32,12 +32,12 @@ are checked after the configuration file.
 
 # ProfitBricks credentials.
 # They may also be specified via the environment variables
-# PROFITBRICKS_USERNAME and PROFITBRICKS_PASSWORD.
+# IONOS_USERNAME and IONOS_PASSWORD.
 # The credentials found in the environment variables have
 # higher precedence.
 # Alternatively, passwords can be specified with a file or a script, similarly
 # to Ansible's vault_password_file. The environment variable
-# PROFITBRICKS_PASSWORD_FILE can also be used to specify that file.
+# IONOS_PASSWORD_FILE can also be used to specify that file.
 #
 username =
 password =
