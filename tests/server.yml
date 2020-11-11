@@ -38,9 +38,6 @@
          wait: true
          wait_timeout: "{{ timeout }}"
          state: present
-      register: ionos_cloud
-
-    - debug: msg="{{ionos_cloud.machines}}"
 
     - name: Wait for SSH
       wait_for:
@@ -67,6 +64,14 @@
            - "{{ name }} 01"
          wait_timeout: "{{ timeout }}"
          state: stopped
+
+    - name: Start server
+      server:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ name }} 01"
+         wait_timeout: "{{ timeout }}"
+         state: running
 
     - name: Start server
       server:

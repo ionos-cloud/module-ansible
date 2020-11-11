@@ -399,20 +399,40 @@ def _create_machine(module, client, datacenter, name):
         return server_response
 
 
-def _startstop_machine(module, client, datacenter_id, server_id):
+def _startstop_machine(module, client, datacenter_id, server_id, current_state):
     state = module.params.get('state')
     server_server = ionos_cloud_sdk.ServerApi(api_client=client)
-
+    server = None
+    changed = False
     try:
         if state == 'running':
-            server_server.datacenters_servers_start_post(datacenter_id, server_id)
-        else:
-            server_server.datacenters_servers_stop_post(datacenter_id, server_id)
+            if current_state != 'RUNNING':
+                response = server_server.datacenters_servers_start_post_with_http_info(datacenter_id, server_id)
+                (_, _, headers) = response
+                request_id = _get_request_id(headers['Location'])
+                client.wait_for_completion(request_id=request_id)
 
-        return True
+                server_response = server_server.datacenters_servers_find_by_id(datacenter_id, server_id)
+                if server_response.properties.vm_state == 'RUNNING':
+                    changed = True
+                    server = server_response
+        else:
+            if current_state != 'SHUTOFF':
+                response = server_server.datacenters_servers_stop_post_with_http_info(datacenter_id, server_id)
+                (_, _, headers) = response
+                request_id = _get_request_id(headers['Location'])
+                client.wait_for_completion(request_id=request_id)
+
+                server_response = server_server.datacenters_servers_find_by_id(datacenter_id, server_id)
+                if server_response.properties.vm_state == 'SHUTOFF':
+                    changed = True
+                    server = server_response
+
     except Exception as e:
         module.fail_json(
             msg="failed to start or stop the virtual machine %s at %s: %s" % (server_id, datacenter_id, to_native(e)))
+
+    return changed, server
 
 
 def _create_datacenter(module, client):
@@ -680,10 +700,6 @@ def startstop_machine(module, client, state):
     if not isinstance(module.params.get('instance_ids'), list) or len(module.params.get('instance_ids')) < 1:
         module.fail_json(msg='instance_ids should be a list of virtual machine ids or names, aborting')
 
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-    changed = False
-
     datacenter = module.params.get('datacenter')
     instance_ids = module.params.get('instance_ids')
 
@@ -698,6 +714,7 @@ def startstop_machine(module, client, state):
 
     # Prefetch server list for later comparison.
     server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=2)
+    matched_instances = []
     for instance in instance_ids:
         # Locate UUID of server if referenced by name.
         server_id = _get_server_id(server_list, instance)
@@ -705,31 +722,23 @@ def startstop_machine(module, client, state):
             if module.check_mode:
                 module.exit_json(changed=True)
 
-            _startstop_machine(module, client, datacenter_id, server_id)
-            changed = True
+            server = _get_instance(server_list, server_id)
+            state = server.properties.vm_state
+            changed, server = _startstop_machine(module, client, datacenter_id, server_id, state)
+            if changed:
+                matched_instances.append(server)
 
-    if wait:
-        wait_timeout = time.time() + wait_timeout
-        while wait_timeout > time.time():
-            matched_instances = []
-            for res in server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=2).items:
-                if state == 'running':
-                    if res.properties.vm_state.lower() == state:
-                        matched_instances.append(res)
-                elif state == 'stopped':
-                    if res.properties.vm_state.lower() in ['shutoff', 'shutdown', 'inactive']:
-                        matched_instances.append(res)
+    if len(matched_instances) == 0:
+        changed = False
+    else:
+        changed = True
 
-            if len(matched_instances) < len(instance_ids):
-                time.sleep(5)
-            else:
-                break
-
-        if wait_timeout <= time.time():
-            # waiting took too long
-            module.fail_json(msg="wait for virtual machine state timeout on %s" % time.asctime())
-
-    return (changed)
+    return {
+        'action': state,
+        'changed': changed,
+        'failed': False,
+        'machines': [m.to_dict() for m in matched_instances]
+    }
 
 
 def _get_datacenter_id(datacenters, identity):
@@ -845,8 +854,8 @@ def main():
             if not module.params.get('datacenter'):
                 module.fail_json(msg='datacenter parameter is required for running or stopping machines.')
             try:
-                (changed) = startstop_machine(module, api_client, state)
-                module.exit_json(changed=changed)
+                (result) = startstop_machine(module, api_client, state)
+                module.exit_json(**result)
             except Exception as e:
                 module.fail_json(msg='failed to set instance state: %s' % to_native(e),
                                  exception=traceback.format_exc())
