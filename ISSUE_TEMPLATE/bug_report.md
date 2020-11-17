@@ -7,21 +7,21 @@ assignees: LiviusP
 
 ---
 
-## Descripton
+## Description
 <!-- A clear and concise description of what the bug is. -->
 
 ## Expected behavior
 <!-- A clear and concise description of what you expected to happen. -->
 
 ## Environment
-<!-- coud be ansible, python etc.  version, depends on concrete sdk/tool -->
-hello version: <!-- run `hello --version` and paste the output between the ```marks. -->
+
+Ansible version:
 ```
 ```
-world version: <!-- run `grep version /etc/world.cfg` and paste the output between the ```marks. -->
+Module version: 
 ```
 ```
-OS: <!-- use whatever fits and put it between the ```marks. -->
+OS: 
 ```
 ```
 
