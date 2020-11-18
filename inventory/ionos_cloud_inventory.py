@@ -18,12 +18,12 @@ stored in the cache file, by default to
 ----
 Configuration is read from `ionos_cloud_inventory.ini`.
 ProfitBricks credentials could be specified as:
-    username = MyProfitBricksUsername
-    password = MyProfitBricksPassword
+    username = MyIonosUsername
+    password = MyIonosPassword
 
 or with the following environment variables:
-    export IONOS_USERNAME='MyProfitBricksUsername'
-    export IONOS_PASSWORD='MyProfitBricksPassword'
+    export IONOS_USERNAME='MyIonosUsername'
+    export IONOS_PASSWORD='MyIonosPassword'
 
 Alternatively, passwords can be specified with a file or a script, similarly
 to Ansible's vault_password_file. The environment variable
@@ -129,7 +129,7 @@ class ProfitBricksInventory(object):
         if not getattr(self, 'password', None) and getattr(self, 'password_file', None):
             self.password = read_password_file(self.password_file)
 
-        self.cache_filename = self.cache_path + "/ansible-profitbricks.cache"
+        self.cache_filename = self.cache_path + "/ansible-ionos.cache"
 
         # Verify credentials and create client
         if hasattr(self, 'username') and hasattr(self, 'password'):
@@ -137,7 +137,7 @@ class ProfitBricksInventory(object):
             if hasattr(self, 'api_url'):
                 base_url = self.api_url
 
-            user_agent = 'profitbricks-sdk-python/%s - Ansible' % (sdk_version)
+            user_agent = 'ionos-sdk-python/%s - Ansible' % (sdk_version)
             headers = {'User-Agent': user_agent}
 
             self.client = ProfitBricksService(
@@ -146,7 +146,7 @@ class ProfitBricksInventory(object):
                 host_base=base_url,
                 headers=headers)
         else:
-            sys.stderr.write('ERROR: ProfitBricks credentials cannot be found.\n')
+            sys.stderr.write('ERROR: Ionos credentials cannot be found.\n')
             sys.exit(1)
 
         if self.cache_max_age > 0:
@@ -174,31 +174,31 @@ class ProfitBricksInventory(object):
         config.read(os.path.dirname(os.path.realpath(__file__)) + '/ionos_cloud_inventory.ini')
 
         # Credentials
-        if config.has_option('profitbricks', 'username'):
-            self.username = config.get('profitbricks', 'username')
-        elif config.has_option('profitbricks', 'subscription_user'):
-            self.username = config.get('profitbricks', 'subscription_user')
-        if config.has_option('profitbricks', 'password'):
-            self.password = config.get('profitbricks', 'password')
-        elif config.has_option('profitbricks', 'subscription_password'):
-            self.password = config.get('profitbricks', 'subscription_password')
-        if config.has_option('profitbricks', 'password_file'):
-            self.password_file = config.get('profitbricks', 'password_file')
-        elif config.has_option('profitbricks', 'subscription_password_file'):
-            self.password_file = config.get('profitbricks', 'subscription_password_file')
+        if config.has_option('ionos', 'username'):
+            self.username = config.get('ionos', 'username')
+        elif config.has_option('ionos', 'subscription_user'):
+            self.username = config.get('ionos', 'subscription_user')
+        if config.has_option('ionos', 'password'):
+            self.password = config.get('ionos', 'password')
+        elif config.has_option('ionos', 'subscription_password'):
+            self.password = config.get('ionos', 'subscription_password')
+        if config.has_option('ionos', 'password_file'):
+            self.password_file = config.get('ionos', 'password_file')
+        elif config.has_option('ionos', 'subscription_password_file'):
+            self.password_file = config.get('ionos', 'subscription_password_file')
 
-        if config.has_option('profitbricks', 'api_url'):
-            self.api_url = config.get('profitbricks', 'api_url')
+        if config.has_option('ionos', 'api_url'):
+            self.api_url = config.get('ionos', 'api_url')
 
         # Cache
-        if config.has_option('profitbricks', 'cache_path'):
-            self.cache_path = config.get('profitbricks', 'cache_path')
-        if config.has_option('profitbricks', 'cache_max_age'):
-            self.cache_max_age = config.getint('profitbricks', 'cache_max_age')
+        if config.has_option('ionos', 'cache_path'):
+            self.cache_path = config.get('ionos', 'cache_path')
+        if config.has_option('ionos', 'cache_max_age'):
+            self.cache_max_age = config.getint('ionos', 'cache_max_age')
 
         # Group variables
-        if config.has_option('profitbricks', 'vars'):
-            self.vars = ast.literal_eval(config.get('profitbricks', 'vars'))
+        if config.has_option('ionos', 'vars'):
+            self.vars = ast.literal_eval(config.get('ionos', 'vars'))
 
         # Groups
         group_by_options = [
@@ -209,15 +209,15 @@ class ProfitBricksInventory(object):
             'group_by_licence_type'
         ]
         for option in group_by_options:
-            if config.has_option('profitbricks', option):
-                setattr(self, option, config.getboolean('profitbricks', option))
+            if config.has_option('ionos', option):
+                setattr(self, option, config.getboolean('ionos', option))
             else:
                 setattr(self, option, True)
 
         # Inventory Hostname
         option = 'server_name_as_inventory_hostname'
-        if config.has_option('profitbricks', option):
-            setattr(self, option, config.getboolean('profitbricks', option))
+        if config.has_option('ionos', option):
+            setattr(self, option, config.getboolean('ionos', option))
         else:
             setattr(self, option, False)
 
@@ -229,14 +229,14 @@ class ProfitBricksInventory(object):
             self.password = os.getenv('IONOS_PASSWORD')
         if os.getenv('IONOS_PASSWORD_FILE'):
             self.password_file = os.getenv('IONOS_PASSWORD_FILE')
-        if os.getenv('PROFITBRICKS_API_URL'):
-            self.api_url = os.getenv('PROFITBRICKS_API_URL')
+        if os.getenv('IONOS_API_URL'):
+            self.api_url = os.getenv('IONOS_API_URL')
 
     def read_cli_args(self):
         """ Command line argument processing """
-        parser = argparse.ArgumentParser(description='Produce an Ansible Inventory file based on ProfitBricks credentials')
+        parser = argparse.ArgumentParser(description='Produce an Ansible Inventory file based on Ionos credentials')
 
-        parser.add_argument('--list', action='store_true', default=True, help='List all ProfitBricks servers (default)')
+        parser.add_argument('--list', action='store_true', default=True, help='List all Ionos servers (default)')
         parser.add_argument('--host', action='store',
                             help='Get all the variables about a server specified by UUID or IP address')
 
@@ -250,7 +250,7 @@ class ProfitBricksInventory(object):
         parser.add_argument('--volumes', '-v', action='store_true', help='List all volumes')
 
         parser.add_argument('--refresh', '-r', action='store_true', default=False,
-                            help='Force refresh of cache by making API calls to ProfitBricks')
+                            help='Force refresh of cache by making API calls to Ionos')
 
         self.args = parser.parse_args()
 

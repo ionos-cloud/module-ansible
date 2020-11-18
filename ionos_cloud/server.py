@@ -232,7 +232,6 @@ EXAMPLES = '''
 '''
 
 import re
-import time
 import traceback
 
 from uuid import (uuid4, UUID)
@@ -244,7 +243,7 @@ try:
     from ionos_cloud_sdk import __version__ as sdk_version
     from ionos_cloud_sdk.models import (Volume, VolumeProperties, Server, ServerProperties, Datacenter,
                                         DatacenterProperties, Nic, NicProperties, Lan, LanProperties, LanPropertiesPost,
-                                        LanPost)
+                                        LanPost, ServerEntities, Nics, Volumes)
     from ionos_cloud_sdk.rest import ApiException
     from ionos_cloud_sdk import ApiClient
 except ImportError:
@@ -325,6 +324,7 @@ def _create_machine(module, client, datacenter, name):
     nat = module.params.get('nat')
     image = module.params.get('image')
     assign_public_ip = module.boolean(module.params.get('assign_public_ip'))
+    ip = module.params.get('ip')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
@@ -352,7 +352,7 @@ def _create_machine(module, client, datacenter, name):
 
         nics.append(
             Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10], nat=nat,
-                                         lan=int(public_ip_lan_id))))
+                                         lan=int(public_ip_lan_id), ips=[ip])))
 
     if lan is not None:
         lans_list = lan_server.datacenters_lans_get(datacenter_id=datacenter, depth=2).items
@@ -361,7 +361,7 @@ def _create_machine(module, client, datacenter, name):
         if (not any(n.properties.lan == int(matching_lan.id) for n in nics)) or len(nics) < 1:
             nics.append(
                 Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10], nat=nat,
-                                             lan=int(int(matching_lan.id)))))
+                                             lan=int(int(matching_lan.id)), ips=[ip])))
 
     volume_properties = VolumeProperties(name=str(uuid4()).replace('-', '')[:10],
                                          type=disk_type,
@@ -383,7 +383,9 @@ def _create_machine(module, client, datacenter, name):
     server_properties = ServerProperties(name=name, cores=cores, ram=ram, availability_zone=availability_zone,
                                          cpu_family=cpu_family)
 
-    server = Server(properties=server_properties)
+    server_entities = ServerEntities(volumes=Volumes(items=[volume]), nics=Nics(items=nics))
+
+    server = Server(properties=server_properties, entities=server_entities)
 
     try:
         response = server_server.datacenters_servers_post_with_http_info(datacenter_id=datacenter, server=server)
@@ -391,12 +393,25 @@ def _create_machine(module, client, datacenter, name):
         request_id = _get_request_id(headers['Location'])
         client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
+        client.wait_for(
+            fn_request=lambda: server_server.datacenters_servers_find_by_id(datacenter_id=datacenter,
+                                                                            server_id=server_response.id, depth=2),
+            fn_check=lambda r: (r.entities.volumes is not None) and (r.entities.volumes.items is not None) and (
+                        len(r.entities.volumes.items) > 0)
+                               and (r.entities.nics is not None) and (r.entities.nics.items is not None) and (
+                                           len(r.entities.nics.items) > 0),
+            scaleup=10000
+        )
+
+        server = server_server.datacenters_servers_find_by_id(datacenter_id=datacenter,
+                                                              server_id=server_response.id, depth=2)
+
     except Exception as e:
         module.fail_json(msg="failed to create the new server: %s" % to_native(e))
     else:
         if hasattr(server_response.entities, 'nics'):
-            server_response.nic = server_response.entities.nics.items[0]
-        return server_response
+            server.nic = server.entities.nics.items[0]
+        return server
 
 
 def _startstop_machine(module, client, datacenter_id, server_id, current_state):

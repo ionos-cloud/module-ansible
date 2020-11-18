@@ -12,7 +12,7 @@
 
   tasks:
     - name: Provision a set of instances
-      profitbricks:
+      server:
           datacenter: "{{ datacenter }}"
           name: server%02d
           auto_increment: true
@@ -33,12 +33,12 @@
           wait: true
           wait_timeout: "{{ timeout }}"
           state: present
-      register: profitbricks
+      register: ionos
 
-    - debug: msg="{{profitbricks.machines}}"
+    - debug: msg="{{ionos.machines}}"
 
     - name: Create public SSH firewall rule
-      profitbricks_firewall_rule:
+      firewall_rule:
           datacenter: "{{ datacenter }}"
           server: "{{ item.id }}"
           nic: "{{ item.nic.id }}"
@@ -48,10 +48,10 @@
           port_range_start: 22
           port_range_end: 22
           state: present
-      with_items: "{{ profitbricks.machines }}"
+      with_items: "{{ ionos.machines }}"
 
     - name: Create public HTTP firewall rule
-      profitbricks_firewall_rule:
+      firewall_rule:
           datacenter: "{{ datacenter }}"
           server: "{{ item.id }}"
           nic: "{{ item.nic.id }}"
@@ -61,19 +61,19 @@
           port_range_start: 80
           port_range_end: 80
           state: present
-      with_items: "{{ profitbricks.machines }}"
+      with_items: "{{ ionos.machines }}"
 
     - name: Create private NIC
-      profitbricks_nic:
+      nic:
           datacenter: "{{ datacenter }}"
           server: "{{ item.id }}"
           lan: 2
           state: present
       register: private_nic
-      with_items: "{{ profitbricks.machines }}"
+      with_items: "{{ ionos.machines }}"
 
     - name: Create private SSH firewall rule
-      profitbricks_firewall_rule:
+      firewall_rule:
           datacenter: "{{ datacenter }}"
           server: "{{ item.item.id }}"
           nic: "{{ item.nic.id }}"
@@ -86,7 +86,7 @@
       with_items: "{{ private_nic.results }}"
 
     - name: Create private ping firewall rule
-      profitbricks_firewall_rule:
+      firewall_rule:
           datacenter: "{{ datacenter }}"
           server: "{{ item.item.id }}"
           nic: "{{ item.nic.id }}"
@@ -99,7 +99,7 @@
       with_items: "{{ private_nic.results }}"
 
     - name: Create data volume
-      profitbricks_volume:
+      volume:
           datacenter: "{{ datacenter }}"
           server: "{{ item.id }}"
           name: "{{ item.properties.name }}-data%02d"
@@ -108,7 +108,7 @@
           licence_type: OTHER
           wait_timeout: "{{ timeout }}"
           state: present
-      with_items: "{{ profitbricks.machines }}"
+      with_items: "{{ ionos.machines }}"
 
     - name: Add instances to servers host group
       add_host:
@@ -117,8 +117,8 @@
           ansible_ssh_host: "{{ item.public_ip }}"
           ansible_ssh_user: root
           groupname: servers
-      with_items: "{{ profitbricks.machines }}"
-      when: profitbricks.action == 'create'
+      with_items: "{{ ionos.machines }}"
+      when: ionos.action == 'create'
 
 - name: Configure instances
   hosts: servers

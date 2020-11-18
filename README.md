@@ -255,8 +255,6 @@ The following parameters are supported:
 | remove_boot_volume       |     no     | boolean          | true        | Remove the boot volume of the server being deleted.                                                                          |
 | state                    |     no     | string           | present     | Indicate desired state of the resource: **present**, absent, running, stopped, update                                        |
 
-#### Example
-
 
 ### datacenter
 
