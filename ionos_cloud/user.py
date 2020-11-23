@@ -88,7 +88,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "ionos_cloud_sdk >= 5.2.0"
+    - "ionossdk >= 5.2.0"
 author:
     - Nurfet Becirevic (@nurfet-becirevic)
     - Ethan Devenport (@edevenport)
@@ -130,11 +130,11 @@ import re
 HAS_SDK = True
 
 try:
-    import ionos_cloud_sdk
-    from ionos_cloud_sdk import __version__ as sdk_version
-    from ionos_cloud_sdk.models import User, UserProperties
-    from ionos_cloud_sdk.rest import ApiException
-    from ionos_cloud_sdk import ApiClient
+    import ionossdk
+    from ionossdk import __version__ as sdk_version
+    from ionossdk.models import User, UserProperties
+    from ionossdk.rest import ApiException
+    from ionossdk import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -158,7 +158,7 @@ def create_user(module, client, api_client):
     Creates a user.
 
     module : AnsibleModule object
-    client: authenticated ionos_cloud_sdk object.
+    client: authenticated ionossdk object.
 
     Returns:
         The user instance
@@ -231,7 +231,7 @@ def update_user(module, client, api_client):
     Updates a user.
 
     module : AnsibleModule object
-    client: authenticated ionos_cloud_sdk object.
+    client: authenticated ionossdk object.
 
     Returns:
         The user instance
@@ -328,7 +328,7 @@ def delete_user(module, client):
     Removes a user
 
     module : AnsibleModule object
-    client: authenticated ionos_cloud_sdk object.
+    client: authenticated ionossdk object.
 
     Returns:
         True if the user was removed, false otherwise
@@ -410,24 +410,24 @@ def main():
     )
 
     if not HAS_SDK:
-        module.fail_json(msg='ionos_cloud_sdk is required for this module, run `pip install ionos_cloud_sdk`')
+        module.fail_json(msg='ionossdk is required for this module, run `pip install ionossdk`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
-    user_agent = 'ionos_cloud_sdk-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ionossdk-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')
 
-    configuration = ionos_cloud_sdk.Configuration(
+    configuration = ionossdk.Configuration(
         username=username,
         password=password
     )
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent
-        api_instance = ionos_cloud_sdk.UserManagementApi(api_client)
+        api_instance = ionossdk.UserManagementApi(api_client)
 
         if state == 'absent':
             try:

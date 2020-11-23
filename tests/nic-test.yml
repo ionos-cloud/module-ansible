@@ -14,7 +14,6 @@
         wait: true
         location: us/las
 
-
     - name: Provision server
       server:
          datacenter: "{{ datacenter }}"
@@ -41,17 +40,17 @@
 
     - name: Create NIC
       nic:
-         name: "{{ nic }}"
-         datacenter: "{{ datacenter }}"
-         server: "{{ server }}"
-         lan: 2
-         dhcp: true
-         firewall_active: true
-         ips:
-           - 10.0.0.1
-         wait: true
-         wait_timeout: "{{ timeout }}"
-         state: present
+       name: "{{ nic }}"
+       datacenter: "{{ datacenter }}"
+       server: "c26cdc71-0b33-4d7a-8a82-a557c6a1e59a"
+       lan: 2
+       dhcp: true
+       firewall_active: true
+       ips:
+         - 10.0.0.1
+       wait: true
+       wait_timeout: "{{ timeout }}"
+       state: present
       register: ionos_cloud_nic
 
     - name: Debug - Show NIC
@@ -60,31 +59,25 @@
 
     - name: Update NIC
       nic:
-         datacenter: "{{ datacenter }}"
-         server: "{{ server }}"
-         name: "{{ nic }}"
-         dhcp: false
-         wait: true
-         wait_timeout: "{{ timeout }}"
-         state: update
+       datacenter: "{{ datacenter }}"
+       server: "c26cdc71-0b33-4d7a-8a82-a557c6a1e59a"
+       name: "new-nic"
+       id: "{{ ionos_cloud_nic.nic.id }}"
+       dhcp: false
+       wait: true
+       wait_timeout: "{{ timeout }}"
+       state: update
+      register: updated_nic
 
-    - name: Update NIC by UUID
-      nic:
-         datacenter: "{{ datacenter }}"
-         server: "{{ server }}"
-         name: "{{ ionos_cloud_nic.nic.id }}"
-         dhcp: false
-         ips:
-           - 192.168.16.18
-         wait: true
-         wait_timeout: "{{ timeout }}"
-         state: update
+    - name: Debug - Show NIC
+      debug:
+          msg: "{{ updated_nic }}"
 
     - name: Remove NIC
       nic:
          name: "{{ ionos_cloud_nic.nic.id }}"
          datacenter: "{{ datacenter }}"
-         server: "{{ server }}"
+         server: "c26cdc71-0b33-4d7a-8a82-a557c6a1e59a"
          wait: true
          wait_timeout: "{{ timeout }}"
          state: absent

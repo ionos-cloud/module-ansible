@@ -31,11 +31,11 @@ EXAMPLES = '''
 '''
 
 try:
-    import ionos_cloud_sdk
-    from ionos_cloud_sdk import __version__ as sdk_version
-    from ionos_cloud_sdk.models import KubernetesCluster, KubernetesClusterProperties
-    from ionos_cloud_sdk.rest import ApiException
-    from ionos_cloud_sdk import ApiClient
+    import ionossdk
+    from ionossdk import __version__ as sdk_version
+    from ionossdk.models import KubernetesCluster, KubernetesClusterProperties
+    from ionossdk.rest import ApiException
+    from ionossdk import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -60,7 +60,7 @@ def create_k8s_cluster(module, client):
         maintenance_window = dict(maintenance)
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
-    k8s_server = ionos_cloud_sdk.KubernetesApi(api_client=client)
+    k8s_server = ionossdk.KubernetesApi(api_client=client)
 
     cluster = None
     clusters = k8s_server.k8s_get(depth=2)
@@ -120,7 +120,7 @@ def delete_k8s_cluster(module, client):
     wait_timeout = module.params.get('wait_timeout')
     changed = False
 
-    k8s_server = ionos_cloud_sdk.KubernetesApi(api_client=client)
+    k8s_server = ionossdk.KubernetesApi(api_client=client)
 
     try:
         response = k8s_server.k8s_delete_with_http_info(k8s_cluster_id=k8s_cluster_id)
@@ -150,7 +150,7 @@ def update_k8s_cluster(module, client):
     maintenance_window = dict(maintenance)
     maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
-    k8s_server = ionos_cloud_sdk.KubernetesApi(api_client=client)
+    k8s_server = ionossdk.KubernetesApi(api_client=client)
     k8s_response = None
 
     if module.check_mode:
@@ -217,16 +217,16 @@ def main():
     )
     if not HAS_SDK:
         module.fail_json(
-            msg='ionos_cloud_sdk is required for this module, run `pip install ionos_cloud_sdk`')
+            msg='ionossdk is required for this module, run `pip install ionossdk`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ionos_cloud_sdk-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ionossdk-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')
 
-    configuration = ionos_cloud_sdk.Configuration(
+    configuration = ionossdk.Configuration(
         username=username,
         password=password
     )

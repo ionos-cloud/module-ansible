@@ -94,7 +94,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "ionos_cloud_sdk >= 5.2.0"
+    - "ionossdk >= 5.2.0"
 author:
     - "Matt Baldwin (baldwin@stackpointcloud.com)"
     - "Ethan Devenport (@edevenport)"
@@ -139,11 +139,11 @@ from uuid import uuid4
 HAS_SDK = True
 
 try:
-    import ionos_cloud_sdk
-    from ionos_cloud_sdk import __version__ as sdk_version
-    from ionos_cloud_sdk.models import Nic, NicProperties
-    from ionos_cloud_sdk.rest import ApiException
-    from ionos_cloud_sdk import ApiClient
+    import ionossdk
+    from ionossdk import __version__ as sdk_version
+    from ionossdk.models import Nic, NicProperties
+    from ionossdk.rest import ApiException
+    from ionossdk import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -169,7 +169,7 @@ def create_nic(module, client):
     Creates a NIC.
 
     module : AnsibleModule object
-    client: authenticated ionos_cloud_sdk object.
+    client: authenticated ionossdk object.
 
     Returns:
         The NIC instance being created
@@ -185,9 +185,9 @@ def create_nic(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenter_server = ionos_cloud_sdk.DataCenterApi(api_client=client)
-    server_server = ionos_cloud_sdk.ServerApi(api_client=client)
-    nic_server = ionos_cloud_sdk.NicApi(api_client=client)
+    datacenter_server = ionossdk.DataCenterApi(api_client=client)
+    server_server = ionossdk.ServerApi(api_client=client)
+    nic_server = ionossdk.NicApi(api_client=client)
 
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
@@ -255,7 +255,7 @@ def update_nic(module, client):
     Updates a NIC.
 
     module : AnsibleModule object
-    client: authenticated ionos_cloud_sdk object.
+    client: authenticated ionossdk object.
 
     Returns:
         The NIC instance being updated
@@ -267,13 +267,14 @@ def update_nic(module, client):
     dhcp = module.params.get('dhcp')
     firewall_active = module.params.get('firewall_active')
     ips = module.params.get('ips')
+    id = module.params.get('id')
     name = module.params.get('name')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenter_server = ionos_cloud_sdk.DataCenterApi(api_client=client)
-    server_server = ionos_cloud_sdk.ServerApi(api_client=client)
-    nic_server = ionos_cloud_sdk.NicApi(api_client=client)
+    datacenter_server = ionossdk.DataCenterApi(api_client=client)
+    server_server = ionossdk.ServerApi(api_client=client)
+    nic_server = ionossdk.NicApi(api_client=client)
 
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
@@ -296,7 +297,7 @@ def update_nic(module, client):
     # Locate NIC to update
     nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server, depth=2)
     for n in nic_list.items:
-        if name == n.properties.name or name == n.id:
+        if name == n.properties.name or id == n.id:
             nic = n
             break
 
@@ -317,7 +318,7 @@ def update_nic(module, client):
             dhcp = nic.properties.dhcp
 
         nic_properties = NicProperties(ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active,
-                                       nat=nat)
+                                       nat=nat, name=name)
 
         response = nic_server.datacenters_servers_nics_patch_with_http_info(datacenter_id=datacenter, server_id=server,
                                                                             nic_id=nic.id, nic=nic_properties)
@@ -343,7 +344,7 @@ def delete_nic(module, client):
     Removes a NIC
 
     module : AnsibleModule object
-    client: authenticated ionos_cloud_sdk object.
+    client: authenticated ionossdk object.
 
     Returns:
         True if the NIC was removed, false otherwise
@@ -352,9 +353,9 @@ def delete_nic(module, client):
     server = module.params.get('server')
     name = module.params.get('name')
 
-    datacenter_server = ionos_cloud_sdk.DataCenterApi(api_client=client)
-    server_server = ionos_cloud_sdk.ServerApi(api_client=client)
-    nic_server = ionos_cloud_sdk.NicApi(api_client=client)
+    datacenter_server = ionossdk.DataCenterApi(api_client=client)
+    server_server = ionossdk.ServerApi(api_client=client)
+    nic_server = ionossdk.NicApi(api_client=client)
 
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
@@ -423,7 +424,8 @@ def main():
         argument_spec=dict(
             datacenter=dict(type='str'),
             server=dict(type='str'),
-            name=dict(type='str', default=str(uuid4()).replace('-', '')[:10]),
+            name=dict(type='str'),
+            id=dict(type='str', default=str(uuid4()).replace('-', '')[:10]),
             lan=dict(type='int', default=None),
             dhcp=dict(type='bool', default=None),
             nat=dict(type='bool', default=None),
@@ -451,7 +453,7 @@ def main():
     )
 
     if not HAS_SDK:
-        module.fail_json(msg='ionos_cloud_sdk is required for this module, run `pip install ionos_cloud_sdk`')
+        module.fail_json(msg='ionossdk is required for this module, run `pip install ionossdk`')
 
     if not module.params.get('datacenter'):
         module.fail_json(msg='datacenter parameter is required')
@@ -461,11 +463,11 @@ def main():
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ionos_cloud_sdk-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ionossdk-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')
 
-    configuration = ionos_cloud_sdk.Configuration(
+    configuration = ionossdk.Configuration(
         username=username,
         password=password
     )

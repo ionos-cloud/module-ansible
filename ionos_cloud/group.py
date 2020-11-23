@@ -82,7 +82,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "ionos_cloud_sdk >= 5.2.0"
+    - "ionossdk >= 5.2.0"
 author:
     - Nurfet Becirevic (@nurfet-becirevic)
     - Ethan Devenport (@edevenport)
@@ -120,11 +120,11 @@ import re
 HAS_SDK = True
 
 try:
-    import ionos_cloud_sdk
-    from ionos_cloud_sdk import __version__ as sdk_version
-    from ionos_cloud_sdk.models import User, UserProperties, Group, GroupProperties
-    from ionos_cloud_sdk.rest import ApiException
-    from ionos_cloud_sdk import ApiClient
+    import ionossdk
+    from ionossdk import __version__ as sdk_version
+    from ionossdk.models import User, UserProperties, Group, GroupProperties
+    from ionossdk.rest import ApiException
+    from ionossdk import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -147,7 +147,7 @@ def create_group(module, client):
     Creates a group.
 
     module : AnsibleModule object
-    client: authenticated ionos_cloud_sdk object.
+    client: authenticated ionossdk object.
 
     Returns:
         The group instance
@@ -166,7 +166,7 @@ def create_group(module, client):
     create_k8s_cluster = module.params.get('create_k8s_cluster')
     local_vars_configuration = module.params.get('local_vars_configuration')
 
-    user_management_server = ionos_cloud_sdk.UserManagementApi(client)
+    user_management_server = ionossdk.UserManagementApi(client)
 
     group = None
     groups = user_management_server.um_groups_get(depth=2)
@@ -225,7 +225,7 @@ def update_group(module, client):
     Updates a group.
 
     module : AnsibleModule object
-    client: authenticated ionos_cloud_sdk object.
+    client: authenticated ionossdk object.
 
     Returns:
         The group instance
@@ -238,7 +238,7 @@ def update_group(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    user_management_server = ionos_cloud_sdk.UserManagementApi(client)
+    user_management_server = ionossdk.UserManagementApi(client)
 
     try:
         group = None
@@ -326,7 +326,7 @@ def delete_group(module, client):
     Removes a group
 
     module : AnsibleModule object
-    client: authenticated ionos_cloud_sdk object.
+    client: authenticated ionossdk object.
 
     Returns:
         True if the group was removed, false otherwise
@@ -405,24 +405,24 @@ def main():
     )
 
     if not HAS_SDK:
-        module.fail_json(msg='ionos_cloud_sdk is required for this module, run `pip install ionos_cloud_sdk`')
+        module.fail_json(msg='ionossdk is required for this module, run `pip install ionossdk`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
-    user_agent = 'ionos_cloud_sdk-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ionossdk-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')
 
-    configuration = ionos_cloud_sdk.Configuration(
+    configuration = ionossdk.Configuration(
         username=username,
         password=password
     )
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent
-        api_instance = ionos_cloud_sdk.UserManagementApi(api_client)
+        api_instance = ionossdk.UserManagementApi(api_client)
 
         if state == 'absent':
             try:

@@ -23,12 +23,12 @@ EXAMPLES = '''
 
 HAS_SDK = True
 try:
-    import ionos_cloud_sdk
-    from ionos_cloud_sdk import __version__ as sdk_version
-    from ionos_cloud_sdk.models import PrivateCrossConnect
-    from ionos_cloud_sdk.models import PrivateCrossConnectProperties
-    from ionos_cloud_sdk.rest import ApiException
-    from ionos_cloud_sdk import ApiClient
+    import ionossdk
+    from ionossdk import __version__ as sdk_version
+    from ionossdk.models import PrivateCrossConnect
+    from ionossdk.models import PrivateCrossConnectProperties
+    from ionossdk.rest import ApiException
+    from ionossdk import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -54,7 +54,7 @@ def create_pcc(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    pcc_server = ionos_cloud_sdk.PrivateCrossConnectApi(client)
+    pcc_server = ionossdk.PrivateCrossConnectApi(client)
 
     pcc_properties = PrivateCrossConnectProperties(name=name, description=description)
     pcc = PrivateCrossConnect(properties=pcc_properties)
@@ -80,7 +80,7 @@ def create_pcc(module, client):
 
 def delete_pcc(module, client):
     pcc_id = module.params.get('pcc_id')
-    pcc_server = ionos_cloud_sdk.PrivateCrossConnectApi(client)
+    pcc_server = ionossdk.PrivateCrossConnectApi(client)
 
     try:
         pcc_server.pccs_delete(pcc_id)
@@ -105,7 +105,7 @@ def update_pcc(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    pcc_server = ionos_cloud_sdk.PrivateCrossConnectApi(client)
+    pcc_server = ionossdk.PrivateCrossConnectApi(client)
 
     pcc_properties = PrivateCrossConnectProperties(name=name, description=description)
 
@@ -162,14 +162,14 @@ def main():
         supports_check_mode=True
     )
     if not HAS_SDK:
-        module.fail_json(msg='ionos_cloud_sdk is required for this module, run `pip install ionos_cloud_sdk`')
+        module.fail_json(msg='ionossdk is required for this module, run `pip install ionossdk`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ionos_cloud_sdk-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ionossdk-python/%s Ansible/%s' % (sdk_version, __version__)
 
-    configuration = ionos_cloud_sdk.Configuration(
+    configuration = ionossdk.Configuration(
         username=username,
         password=password
     )

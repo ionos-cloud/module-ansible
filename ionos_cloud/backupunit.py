@@ -28,11 +28,11 @@ EXAMPLES = '''
 
 HAS_SDK = True
 try:
-    import ionos_cloud_sdk
-    from ionos_cloud_sdk import __version__ as sdk_version
-    from ionos_cloud_sdk.models import BackupUnit, BackupUnitProperties
-    from ionos_cloud_sdk.rest import ApiException
-    from ionos_cloud_sdk import ApiClient
+    import ionossdk
+    from ionossdk import __version__ as sdk_version
+    from ionossdk.models import BackupUnit, BackupUnitProperties
+    from ionossdk.rest import ApiException
+    from ionossdk import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -59,7 +59,7 @@ def create_backupunit(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    backupunit_server = ionos_cloud_sdk.BackupUnitApi(client)
+    backupunit_server = ionossdk.BackupUnitApi(client)
 
     backupunit_properties = BackupUnitProperties(name=name, password=password, email=email)
     backupunit = BackupUnit(properties=backupunit_properties)
@@ -90,7 +90,7 @@ def create_backupunit(module, client):
 
 def delete_backupunit(module, client):
     backupunit_id = module.params.get('backupunit_id')
-    backupunit_server = ionos_cloud_sdk.BackupUnitApi(client)
+    backupunit_server = ionossdk.BackupUnitApi(client)
 
     try:
         backupunit_server.backupunits_delete(backupunit_id)
@@ -116,7 +116,7 @@ def update_backupunit(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    backupunit_server = ionos_cloud_sdk.BackupUnitApi(client)
+    backupunit_server = ionossdk.BackupUnitApi(client)
 
     backupunit_properties = BackupUnitProperties(password=password, email=email)
     backupunit = BackupUnit(properties=backupunit_properties)
@@ -173,16 +173,16 @@ def main():
         supports_check_mode=True
     )
     if not HAS_SDK:
-        module.fail_json(msg='ionos_cloud_sdk is required for this module, run `pip install ionos_cloud_sdk`')
+        module.fail_json(msg='ionossdk is required for this module, run `pip install ionossdk`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ionos_cloud_sdk-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ionossdk-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')
 
-    configuration = ionos_cloud_sdk.Configuration(
+    configuration = ionossdk.Configuration(
         username=username,
         password=password
     )

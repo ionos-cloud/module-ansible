@@ -354,7 +354,8 @@ The following parameters are supported:
 | --------------- | :------: | ------- | ------- | --------------------------------------------------------------------------------------------------- |
 | datacenter      | **yes**  | string  |         | The datacenter in which to operate.                                                                 |
 | server          | **yes**  | string  |         | The server name or UUID.                                                                            |
-| name            | **yes**  | string  |         | The name or UUID of the NIC. Only required on deletes.                                              |
+| name            | no       | string  |         | The name of the NIC.                                              |
+| id              | **yes**  | string  |         | The id of the NIC.                                              |
 | lan             | **yes**  | integer |         | The LAN to connect the NIC. The LAN will be created if it does not exist. Only required on creates. |
 | dhcp            |    no    | boolean |         | Indicates if the NIC is using DHCP or not.                                                          |
 | nat             |    no    | boolean |         | Allow the private IP address outbound Internet access.                                              |
