@@ -247,6 +247,7 @@ The following parameters are supported:
 | assign_public_ip         |     no     | boolean          | false       | This will assign the server to the public LAN. The LAN is created if no LAN exists with public Internet access.              |
 | lan                      |     no     | string / integer | 1           | The LAN ID / Name for the server.                                                                                            |
 | nat                      |     no     | boolean          | false       | The private IP address has outbound access to the Internet.                                                                  |
+| nic_ips                  |     no     | list             | false       | List of IPs to be set in the included NIC of the server.                                                                  |
 | api_url                  |     no     | string           |             | The Ionos API base URL.                                                                                               |
 | username                 |     no     | string           |             | The Ionos username. Overrides the IONOS_USERNAME environment variable.                                         |
 | password                 |     no     | string           |             | The Ionos password. Overrides the IONOS_PASSWORD environment variable.                                         |

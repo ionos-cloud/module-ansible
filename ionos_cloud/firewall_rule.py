@@ -70,18 +70,18 @@ options:
     required: false
   api_url:
     description:
-      - The ProfitBricks API base URL.
+      - The Ionos API base URL.
     required: false
     default: null
     version_added: "2.4"
   username:
     description:
-      - The ProfitBricks username. Overrides the IONOS_USERNAME environment variable.
+      - The Ionos username. Overrides the IONOS_USERNAME environment variable.
     required: false
     aliases: subscription_user
   password:
     description:
-      - The ProfitBricks password. Overrides the IONOS_PASSWORD environment variable.
+      - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
     required: false
     aliases: subscription_password
   wait:

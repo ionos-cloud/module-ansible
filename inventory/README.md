@@ -8,29 +8,28 @@
 
 ## Description
 
-ProfitBricks dynamic inventory script is an external inventory system that can generate a proper JSON output from the ProfitBricks API.
+Ionos dynamic inventory script is an external inventory system that can generate a proper JSON output from the Ionos API.
 The host inventory created in that way then can be utilized from Ansible.
 
 ## Installation
 
-The ProfitBricks dynamic inventory script is meant to reside in the [contrib/inventory](https://github.com/ansible/ansible/tree/devel/contrib/inventory)
+The Ionos dynamic inventory script is meant to reside in the [contrib/inventory](https://github.com/ansible/ansible/tree/devel/contrib/inventory)
 directory of the Ansible repository. No special install procedure is required. It should be installed and ready to use after installing the Ansible.
 
-However, it can be installed idependently as well, in a similar manner as the ProfitBricks module for Ansible described
-[here](https://github.com/profitbricks/profitbricks-module-ansible#installation).
+However, it can be installed idependently as well, in a similar manner as the Ionos module for Ansible described
+[here](https://github.com/ionos-cloud/sdk-ansible#installation).
 
-Note that all the [requirements](https://github.com/profitbricks/profitbricks-module-ansible#getting-started) for the ProfitBricks Ansible module
+Note that all the [requirements](https://github.com/ionos-cloud/sdk-ansible#getting-started) for the Ionos Ansible module
 are applicable for the dynamic inventory script too.
 
 ## Configuration
 
-ProfitBricks credentials and the API URL (if needed) can be provided in `profitbricks_inventory.ini` file or via environment variables which
+Ionos credentials and the API URL (if needed) can be provided in `inventory.ini` file or via environment variables which
 are checked after the configuration file.
 
 ```
-[profitbricks]
 
-# ProfitBricks credentials.
+# Ionos credentials.
 # They may also be specified via the environment variables
 # IONOS_USERNAME and IONOS_PASSWORD.
 # The credentials found in the environment variables have
@@ -49,16 +48,16 @@ password_file =
 # subscription_password_file =
 
 
-# ProfitBricks API URL.
-# It may be overriden via PROFITBRICKS_API_URL environment variable.
+# Ionos API URL.
+# It may be overriden via IONOS_API_URL environment variable.
 #
-# api_url = https://api.profitbricks.com/cloudapi/v5
+# api_url = https://api.ionos.com/cloudapi/v5
 
 
-# API calls to ProfitBricks may be slow. For this reason, we cache the results
+# API calls to Ionos may be slow. For this reason, we cache the results
 # of an API call. Set this to the path you want cache files to be written to.
 # One file will be written to this directory:
-#   - ansible-profitbricks.cache
+#   - ansible-ionos.cache
 #
 cache_path = /tmp
 
@@ -89,20 +88,20 @@ server_name_as_inventory_hostname = False
 
 ## Usage
 
-The script exposes `--list` and `--host` options used by Ansible. Additionally, there are options for listing other ProfitBricks
+The script exposes `--list` and `--host` options used by Ansible. Additionally, there are options for listing other Ionos
 instances in JSON format, such as data centers, locations, LANs, etc. This is useful when creating servers. For example,
-`--datacenters` will return all virtual data centers associated with the ProfitBricks account.
+`--datacenters` will return all virtual data centers associated with the Ionos account.
 
 ```
-usage: profitbricks_inventory.py [-h] [--list] [--host HOST] [--datacenters]
+usage: inventory.py [-h] [--list] [--host HOST] [--datacenters]
                                  [--fwrules] [--images] [--lans] [--locations]
                                  [--nics] [--servers] [--volumes] [--refresh]
 
-Produce an Ansible Inventory file based on ProfitBricks credentials
+Produce an Ansible Inventory file based on Ionos credentials
 
 optional arguments:
   -h, --help         show this help message and exit
-  --list             List all ProfitBricks servers (default)
+  --list             List all Ionos servers (default)
   --host HOST        Get all the variables about a server specified by UUID or
                      IP address
   --datacenters, -d  List virtual data centers
@@ -114,11 +113,11 @@ optional arguments:
   --servers, -s      List all servers accessible via an IP address
   --volumes, -v      List all volumes
   --refresh, -r      Force refresh of cache by making API calls to
-                     ProfitBricks
+                     Ionos
 ```
 
 ```
-$ ansible -i profitbricks_inventory.py all -m ping
+$ ansible -i inventory.py all -m ping
 192.96.159.244 | SUCCESS => {
     "changed": false,
     "ping": "pong"

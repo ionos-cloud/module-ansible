@@ -12,10 +12,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: ionos-cloud
-short_description: Create, update, destroy, start, stop, and reboot a ProfitBricks virtual machine.
+module: server
+short_description: Create, update, destroy, start, stop, and reboot a Ionos virtual machine.
 description:
-     - Create, update, destroy, update, start, stop, and reboot a ProfitBricks virtual machine.
+     - Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine.
        When the virtual machine is created it can optionally wait for it to be 'running' before returning.
 version_added: "2.0"
 options:
@@ -122,18 +122,18 @@ options:
     version_added: "2.3"
   api_url:
     description:
-      - The ProfitBricks API base URL.
+      - The Ionos API base URL.
     required: false
     default: null
     version_added: "2.4"
   username:
     description:
-      - The ProfitBricks username. Overrides the IONOS_USERNAME environment variable.
+      - The Ionos username. Overrides the IONOS_USERNAME environment variable.
     required: false
     aliases: subscription_user
   password:
     description:
-      - The ProfitBricks password. Overrides the IONOS_PASSWORD environment variable.
+      - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
     required: false
     aliases: subscription_password
   wait:
@@ -242,8 +242,8 @@ try:
     import ionossdk
     from ionossdk import __version__ as sdk_version
     from ionossdk.models import (Volume, VolumeProperties, Server, ServerProperties, Datacenter,
-                                        DatacenterProperties, Nic, NicProperties, Lan, LanProperties, LanPropertiesPost,
-                                        LanPost, ServerEntities, Nics, Volumes)
+                                 DatacenterProperties, Nic, NicProperties, Lan, LanProperties, LanPropertiesPost,
+                                 LanPost, ServerEntities, Nics, Volumes)
     from ionossdk.rest import ApiException
     from ionossdk import ApiClient
 except ImportError:
@@ -324,7 +324,7 @@ def _create_machine(module, client, datacenter, name):
     nat = module.params.get('nat')
     image = module.params.get('image')
     assign_public_ip = module.boolean(module.params.get('assign_public_ip'))
-    ip = module.params.get('ip')
+    nic_ips = module.params.get('nic_ips')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
@@ -350,18 +350,22 @@ def _create_machine(module, client, datacenter, name):
 
             public_ip_lan_id = lan_response.id
 
-        nics.append(
-            Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10], nat=nat,
-                                         lan=int(public_ip_lan_id), ips=[ip])))
+        nic = Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10], nat=nat,
+                                           lan=int(public_ip_lan_id)))
+        if nic_ips:
+            nic.properties.ips = nic_ips
+        nics.append(nic)
 
     if lan is not None:
         lans_list = lan_server.datacenters_lans_get(datacenter_id=datacenter, depth=2).items
         matching_lan = _get_lan_by_id_or_properties(lans_list, lan, name=lan)
 
         if (not any(n.properties.lan == int(matching_lan.id) for n in nics)) or len(nics) < 1:
-            nics.append(
-                Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10], nat=nat,
-                                             lan=int(int(matching_lan.id)), ips=[ip])))
+            nic = Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10], nat=nat,
+                                               lan=int(int(matching_lan.id))))
+            if nic_ips:
+                nic.properties.ips = nic_ips
+            nics.append(nic)
 
     volume_properties = VolumeProperties(name=str(uuid4()).replace('-', '')[:10],
                                          type=disk_type,
@@ -397,9 +401,9 @@ def _create_machine(module, client, datacenter, name):
             fn_request=lambda: server_server.datacenters_servers_find_by_id(datacenter_id=datacenter,
                                                                             server_id=server_response.id, depth=2),
             fn_check=lambda r: (r.entities.volumes is not None) and (r.entities.volumes.items is not None) and (
-                        len(r.entities.volumes.items) > 0)
+                    len(r.entities.volumes.items) > 0)
                                and (r.entities.nics is not None) and (r.entities.nics.items is not None) and (
-                                           len(r.entities.nics.items) > 0),
+                                       len(r.entities.nics.items) > 0),
             scaleup=10000
         )
 
@@ -802,7 +806,7 @@ def main():
             image_password=dict(type='str', default=None, no_log=True),
             ssh_keys=dict(type='list', default=[]),
             bus=dict(type='str', choices=BUS_TYPES, default='VIRTIO'),
-            ip=dict(type='str'),
+            nic_ips=dict(type='list', elements='str'),
             lan=dict(type='raw', required=False),
             nat=dict(type='bool', default=None),
             count=dict(type='int', default=1),

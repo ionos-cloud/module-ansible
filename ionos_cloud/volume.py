@@ -15,7 +15,7 @@ DOCUMENTATION = '''
 module: ionos-cloud_volume
 short_description: Create, update or destroy a volume.
 description:
-     - Allows you to create, update or remove a volume from a ProfitBricks datacenter.
+     - Allows you to create, update or remove a volume from a Ionos datacenter.
 version_added: "2.0"
 options:
   datacenter:
@@ -86,18 +86,18 @@ options:
     required: false
   api_url:
     description:
-      - The ProfitBricks API base URL.
+      - The Ionos API base URL.
     required: false
     default: null
     version_added: "2.4"
   username:
     description:
-      - The ProfitBricks username. Overrides the IONOS_USERNAME environment variable.
+      - The Ionos username. Overrides the IONOS_USERNAME environment variable.
     required: false
     aliases: subscription_user
   password:
     description:
-      - The ProfitBricks password. Overrides the IONOS_PASSWORD environment variable.
+      - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
     required: false
     aliases: subscription_password
   wait:

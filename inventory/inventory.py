@@ -1,23 +1,23 @@
 #!/usr/bin/env python
 
 """
-ProfitBricks external inventory script
+Ionos external inventory script
 ======================================
 
-Generates Ansible inventory of ProfitBricks servers.
+Generates Ansible inventory of Ionos servers.
 
 This script exposes --list and --host options used by Ansible.
-Additionally, there are options for listing other ProfitBricks
+Additionally, there are options for listing other Ionos
 instances in JSON format, such as data centers, locations, LANs,
 etc. This is useful when creating servers.  For example,
 --datacenters will return all virtual data centers associated
-with the ProfitBricks account. All the ProfitBricks data are
+with the Ionos account. All the Ionos data are
 stored in the cache file, by default to
-/tmp/ansible-profitbricks.cache.
+/tmp/ansible-ionos.cache.
 
 ----
-Configuration is read from `ionos_cloud_inventory.ini`.
-ProfitBricks credentials could be specified as:
+Configuration is read from `inventory.ini`.
+Ionos credentials could be specified as:
     username = MyIonosUsername
     password = MyIonosPassword
 
@@ -29,8 +29,8 @@ Alternatively, passwords can be specified with a file or a script, similarly
 to Ansible's vault_password_file. The environment variable
 IONOS_PASSWORD_FILE can also be used to specify that file.
 
-ProfitBricks API URL may be overridden in the settings file or via
-PROFITBRICKS_API_URL environment variable.
+Ionos API URL may be overridden in the settings file or via
+IONOS_API_URL environment variable.
 
 The credentials and API URL specified in the environment variables
 will override those specified in the configuration file.
@@ -45,15 +45,15 @@ The following groups are generated from --list option:
 
 ----
 ```
-usage: ionos_cloud_inventory.py [-h] [--list] [--host HOST] [--datacenters]
+usage: inventory.py [-h] [--list] [--host HOST] [--datacenters]
                                  [--fwrules] [--images] [--lans] [--locations]
                                  [--nics] [--servers] [--volumes] [--refresh]
 
-Produce an Ansible Inventory file based on ProfitBricks credentials
+Produce an Ansible Inventory file based on Ionos credentials
 
 optional arguments:
   -h, --help         show this help message and exit
-  --list             List all ProfitBricks servers (default)
+  --list             List all Ionos servers (default)
   --host HOST        Get all the variables about a server specified by UUID or
                      IP address
   --datacenters, -d  List virtual data centers
@@ -65,7 +65,7 @@ optional arguments:
   --servers, -s      List all servers accessible via an IP address
   --volumes, -v      List all volumes
   --refresh, -r      Force refresh of cache by making API calls to
-                     ProfitBricks
+                     Ionos
 ```
 
 """
@@ -101,14 +101,14 @@ import six
 from six.moves import configparser
 
 try:
-    from profitbricks import __version__ as sdk_version
-    from profitbricks import API_HOST
-    from profitbricks.client import ProfitBricksService
+    import ionossdk
+    from ionossdk import __version__ as sdk_version
+    from ionossdk import Configuration, ApiClient
 except ImportError:
-    sys.exit("Failed to import `profitbricks` library. Try `pip install profitbricks`'")
+    sys.exit("Failed to import `ionossdk` library. Try `pip install ionossdk`'")
 
 
-class ProfitBricksInventory(object):
+class IonosCloudInventory(object):
 
     def __init__(self):
         """ Main execution path """
@@ -133,18 +133,14 @@ class ProfitBricksInventory(object):
 
         # Verify credentials and create client
         if hasattr(self, 'username') and hasattr(self, 'password'):
-            base_url = API_HOST
-            if hasattr(self, 'api_url'):
-                base_url = self.api_url
-
-            user_agent = 'ionos-sdk-python/%s - Ansible' % (sdk_version)
-            headers = {'User-Agent': user_agent}
-
-            self.client = ProfitBricksService(
+            configuration = Configuration(
                 username=self.username,
-                password=self.password,
-                host_base=base_url,
-                headers=headers)
+                password=self.password)
+
+            user_agent = 'ionossdk-python/%s Ansible' % (sdk_version)
+
+            self.client = ApiClient(configuration)
+            self.client.user_agent = user_agent
         else:
             sys.stderr.write('ERROR: Ionos credentials cannot be found.\n')
             sys.exit(1)
@@ -161,17 +157,18 @@ class ProfitBricksInventory(object):
         else:
             print_data = self.get_from_api_source()
 
-        print(json.dumps(print_data, sort_keys=False, indent=2, separators=(',', ': ')))
+        print(print_data)
+        # print(json.dumps(print_data, sort_keys=False, indent=2, separators=(',', ': ')))
 
     def read_settings(self):
-        """ Reads the settings from the ionos_cloud_inventory.ini file """
+        """ Reads the settings from the inventory.ini file """
 
         if six.PY3:
             config = configparser.ConfigParser()
         else:
             config = configparser.SafeConfigParser()
 
-        config.read(os.path.dirname(os.path.realpath(__file__)) + '/ionos_cloud_inventory.ini')
+        config.read(os.path.dirname(os.path.realpath(__file__)) + '/inventory.ini')
 
         # Credentials
         if config.has_option('ionos', 'username'):
@@ -246,7 +243,8 @@ class ProfitBricksInventory(object):
         parser.add_argument('--lans', '-l', action='store_true', help='List all LANs')
         parser.add_argument('--locations', '-p', action='store_true', help='List all locations')
         parser.add_argument('--nics', '-n', action='store_true', help='List all NICs')
-        parser.add_argument('--servers', '-s', action='store_true', help='List all servers accessible via an IP address')
+        parser.add_argument('--servers', '-s', action='store_true',
+                            help='List all servers accessible via an IP address')
         parser.add_argument('--volumes', '-v', action='store_true', help='List all volumes')
 
         parser.add_argument('--refresh', '-r', action='store_true', default=False,
@@ -255,7 +253,7 @@ class ProfitBricksInventory(object):
         self.args = parser.parse_args()
 
     def get_from_local_source(self):
-        """Get ProfitBricks data based on the CLI command"""
+        """Get Ionos data based on the CLI command"""
 
         if self.args.datacenters:
             return {'datacenters': self.data['datacenters']}
@@ -280,7 +278,7 @@ class ProfitBricksInventory(object):
             return self.inventory
 
     def get_from_api_source(self):
-        """Get data from ProfitBricks API"""
+        """Get data from Ionos API"""
 
         if self.args.datacenters:
             return {'datacenters': self.fetch_resources('datacenters')}
@@ -310,36 +308,43 @@ class ProfitBricksInventory(object):
     def fetch_resources(self, resource):
         instance_data = {}
 
-        datacenters = self.client.list_datacenters(depth=3)['items']
+        datacenter_server = ionossdk.DataCenterApi(self.client)
+        lan_server = ionossdk.LanApi(self.client)
+        location_server = ionossdk.LocationApi(self.client)
+        image_server = ionossdk.ImageApi(self.client)
+        server_server = ionossdk.ServerApi(self.client)
+        volume_server = ionossdk.VolumeApi(self.client)
+
+        datacenters = datacenter_server.datacenters_get(depth=3).items
         if resource == 'datacenters' or resource == 'all':
             instance_data['datacenters'] = datacenters
 
         if resource == 'lans' or resource == 'servers' or resource == 'all':
             lans = []
             for datacenter in datacenters:
-                lans += self.client.list_lans(datacenter_id=datacenter['id'], depth=3)['items']
+                lans += lan_server.datacenters_lans_get(datacenter_id=datacenter.id, depth=3).items
             instance_data['lans'] = lans
 
         if resource == 'locations' or resource == 'all':
-            instance_data['locations'] = self.client.list_locations()['items']
+            instance_data['locations'] = location_server.locations_get().items
 
         if resource == 'images' or resource == 'all':
-            instance_data['images'] = self.client.list_images()['items']
+            instance_data['images'] = image_server.images_get().items
 
         if resource == 'servers' or resource == 'all' or resource == 'nics' or resource == 'fwrules':
             servers = []
             nics = []
             fwrules = []
             for datacenter in datacenters:
-                servers_list = self.client.list_servers(datacenter_id=datacenter['id'], depth=5)['items']
+                servers_list = server_server.datacenters_servers_get(datacenter_id=datacenter.id, depth=5).items
                 if resource == 'all' or resource == 'nics' or resource == 'fwrules':
                     for server in servers_list:
-                        if len(server['entities']['nics']['items']) > 0:
+                        if len(server.entities.nics.items) > 0:
                             servers.append(server)
-                            nics += server['entities']['nics']['items']
+                            nics += server.entities.nics.items
                             if resource == 'all' or resource == 'fwrules':
-                                for nic in server['entities']['nics']['items']:
-                                    fwrules += nic['entities']['firewallrules']['items']
+                                for nic in server.entities.nics.items:
+                                    fwrules += nic.entities.firewallrules.items
 
             if resource == 'servers' or resource == 'all':
                 instance_data['servers'] = servers
@@ -351,7 +356,7 @@ class ProfitBricksInventory(object):
         if resource == 'volumes' or resource == 'all':
             volumes = []
             for datacenter in datacenters:
-                volumes += self.client.list_volumes(datacenter_id=datacenter['id'], depth=3)['items']
+                volumes += volume_server.datacenters_volumes_get(datacenter_id=datacenter.id, depth=3).items
             instance_data['volumes'] = volumes
 
         return instance_data
@@ -369,13 +374,13 @@ class ProfitBricksInventory(object):
         # add all servers by id and name
         for server in self.data['servers']:
 
-            if len(server['entities']['nics']['items'][0]['properties']['ips']) < 1:
+            if len(server.entities.nics.items[0].properties.ips) < 1:
                 continue
 
-            host_ip = server['entities']['nics']['items'][0]['properties']['ips'][0]
+            host_ip = server.entities.nics.items[0].properties.ips[0]
 
             if self.server_name_as_inventory_hostname:
-                host = server['properties']['name']
+                host = server.properties.name
             else:
                 host = host_ip
 
@@ -394,15 +399,15 @@ class ProfitBricksInventory(object):
             if self.group_by_location:
                 location = None
                 for datacenter in self.data['datacenters']:
-                    if datacenter['id'] == datacenter_id:
-                        location = self.to_safe(datacenter['properties']['location'])
+                    if datacenter.id == datacenter_id:
+                        location = self.to_safe(datacenter.properties.location)
                         break
                 if location not in self.inventory:
                     self.inventory[location] = {'hosts': [], 'vars': self.vars}
                 self.inventory[location]['hosts'].append(host)
 
             if self.group_by_availability_zone:
-                zone = server['properties']['availabilityZone']
+                zone = server.properties.availabilityZone
                 if zone not in self.inventory:
                     self.inventory[zone] = {'hosts': [], 'vars': self.vars}
                 self.inventory[zone]['hosts'].append(host)
@@ -410,16 +415,20 @@ class ProfitBricksInventory(object):
             if self.group_by_image_name:
                 boot_device = {}
                 image_key = 'image'
-                if server['properties']['bootVolume'] is not None:
-                    boot_device = server['properties']['bootVolume']
-                elif server['properties']['bootCdrom'] is not None:
-                    boot_device = server['properties']['bootCdrom']
+                key = None
+                if server.properties.bootVolume is not None:
+                    boot_device = server.properties.bootVolume
+                elif server.properties.bootCdrom is not None:
+                    boot_device = server.properties.bootCdrom
                     image_key = 'name'
                 if 'properties' in boot_device and image_key in boot_device['properties']:
-                    key = boot_device['properties'][image_key]
+                    if image_key == 'image':
+                        key = boot_device.properties.image
+                    elif image_key == 'name':
+                        key = boot_device.properties.name
                     for image in self.data['images']:
-                        if key == image['id'] or key == image['properties']['name']:
-                            image_name = self.to_safe(image['properties']['name'])
+                        if key == image.id or key == image.properties.name:
+                            image_name = self.to_safe(image.properties.name)
                             if image_name not in self.inventory:
                                 self.inventory[image_name] = {'hosts': [], 'vars': self.vars}
                             self.inventory[image_name]['hosts'].append(host)
@@ -427,10 +436,10 @@ class ProfitBricksInventory(object):
 
             if self.group_by_licence_type:
                 license = None
-                if server['properties']['bootVolume'] is not None:
-                    license = server['properties']['bootVolume']['properties']['licenceType']
-                elif server['properties']['bootCdrom'] is not None:
-                    license = server['properties']['bootCdrom']['properties']['licenceType']
+                if server.properties.bootVolume is not None:
+                    license = server.properties.bootVolume.properties.licenceType
+                elif server.properties.bootCdrom is not None:
+                    license = server.properties.bootCdrom.properties.licenceType
                 if license is not None:
                     if license not in self.inventory:
                         self.inventory[license] = {'hosts': [], 'vars': self.vars}
@@ -442,17 +451,18 @@ class ProfitBricksInventory(object):
         # Check if host is specified by UUID
         if re.match('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', host, re.I):
             for server in self.data['servers']:
-                if host == server['id']:
+                if host == server.id:
                     datacenter_id = self._parse_id_from_href(server['href'], 2)
-                    return self.client.get_server(datacenter_id, host, 5)
+                    return ionossdk.ServerApi(self.client).datacenters_servers_get(datacenter_id=datacenter_id, depth=5)
         else:
-            for server in self.data['servers']:
-                for nic in server['entities']['nics']['items']:
-                    for ip in nic['properties']['ips']:
+            for server in self.data.servers:
+                for nic in server.entities.nics.items:
+                    for ip in nic.properties.ips:
                         if host == ip:
                             datacenter_id = self._parse_id_from_href(server['href'], 2)
                             server_id = self._parse_id_from_href(server['href'], 0)
-                            return self.client.get_server(datacenter_id, server_id, 5)
+                            return ionossdk.ServerApi(self.client).datacenters_servers_get(datacenter_id=datacenter_id,
+                                                                                           depth=5)
 
         return {}
 
@@ -511,7 +521,8 @@ def read_password_file(password_file):
             # STDERR not captured to make it easier for users to prompt for input in their scripts
             p = subprocess.Popen(this_path, stdout=subprocess.PIPE)
         except OSError as e:
-            raise Exception("Problem running password script %s (%s). If this is not a script, remove the executable bit from the file." % (this_path, e))
+            raise Exception("Problem running password script %s (%s). If this is not a script, remove the executable "
+                            "bit from the file." % (this_path, e))
         stdout, stderr = p.communicate()
         password = stdout.strip('\r\n')
     else:
@@ -530,4 +541,4 @@ def is_executable(path):
 
 
 # Run the script
-ProfitBricksInventory()
+IonosCloudInventory()
