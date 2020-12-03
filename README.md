@@ -17,6 +17,10 @@ API Version: **Ionos Cloud Cloud API v5**
   - [Wait for Services](#wait-for-services)
   - [Incrementing Servers](#incrementing-servers)
   - [SSH Key Authentication](#ssh-key-authentication)
+- [Return values](#return-values)
+  - [create](#create)
+  - [update](#update)
+  - [delete](#delete)
 - [Reference](#reference)
   - [server](#server)
   - [datacenter](#datacenter)
@@ -212,7 +216,7 @@ For create operations, the module returns a dict containing:
 
 | Name   | Value                    | Description                                                                                         |  
 |--------|--------------------------|-----------------------------------------------------------------------------------------------------|
-| action | always `create`          | The name of the current action                                                                      |   
+| action | always **create**          | The name of the current action                                                                      |   
 | change | `True` or `False`        | If the task made changes within the resources                                                       |
 | failed | `True` or `False`        | If the task failed                                                                                  |  
 | resource | The current resource   | The key contains the resource name and the value is a dictionary containing the current resource.   | 
@@ -250,7 +254,7 @@ For update operations, the module returns a dict containing:
 
 | Name   | Value                    | Description                                                                                         |  
 |--------|--------------------------|-----------------------------------------------------------------------------------------------------|
-| action | always `update`          | The name of the current action                                                                      |   
+| action | always **update**          | The name of the current action                                                                      |   
 | change | `True` or `False`        | If the task made changes within the resources                                                       |
 | failed | `True` or `False`        | If the task failed                                                                                  |  
 | resource | The current resource   | The key contains the resource name and the value is a dictionary containing the current resource.   | 
@@ -287,7 +291,7 @@ For delete operations, the module returns a dict containing:
 
 | Name   | Value                    | Description                                                                                         |  
 |--------|--------------------------|-----------------------------------------------------------------------------------------------------|
-| action | always `delete`          | The name of the current action                                                                      |   
+| action | always **delete**          | The name of the current action                                                                      |   
 | change | `True` or `False`        | If the task made changes within the resources                                                       |
 | failed | `True` or `False`        | If the task failed                                                                                  |  
 | id     | The id of the resource   |                                                                                                     | 
