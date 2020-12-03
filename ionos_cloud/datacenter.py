@@ -359,8 +359,7 @@ def main():
 
             try:
                 (result) = remove_datacenter(module, api_client)
-                module.exit_json(
-                    changed=result)
+                module.exit_json(**result)
             except Exception as e:
                 module.fail_json(msg='failed to set datacenter state: %s' % to_native(e))
 
