@@ -945,6 +945,10 @@ The following parameters are supported:
         availability_zone: "AUTO"
         storage_type: "SSD"
         storage_size: "100"
+        public_ips:
+          - 185.132.45.40
+          - 217.160.200.52
+        state: present
 
     - name: Delete k8s cluster nodepool
       k8s_nodepools:
@@ -965,6 +969,9 @@ The following parameters are supported:
         auto_scaling:
           min_node_count: 1
           max_node_count: 3
+        public_ips:
+          - 185.132.45.40
+          - 217.160.200.52
         state: update
 
 
@@ -987,7 +994,10 @@ The following parameters are supported:
 | storage_size       | **yes**/no | string  |         | The size of the volume in GB. The size should be greater than 10GB. Required only for state = 'present'                                              |
 | maintenance_window |    no      |  dict   |         | The day and time for the maintenance. Contains 'dayOfTheWeek' and 'time'.                                                                            |
 | auto_scaling       |    no      |  dict   |         | The minimum and maximum number of worker nodes that the managed node group can scale in. Contains 'min_node_count' and 'max_node_count'.             |
-
+| lan_ids            |    no      |  list   |         | Array of additional LANs attached to worker nodes             |
+| labels             |    no      |  dict   |         | Map of labels attached to node pool             |
+| annotations        |    no      |  dict   |         | Map of annotations attached to node pool             |
+| public_ips         |    no      |  list   |         | Optional array of reserved public IP addresses to be used by the nodes. IPs must be from same location as the data center used for the node pool. The array must contain one extra IP than maximum number of nodes could be. (`nodeCount+1` if fixed node amount or `maxNodeCount+1` if auto scaling is used). The extra provided IP Will be used during rebuilding of nodes.             |
 
 
 ### k8s_config

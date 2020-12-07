@@ -84,6 +84,7 @@ def create_k8s_cluster_nodepool(module, client):
     labels = module.params.get('labels')
     annotations = module.params.get('annotations')
     wait = module.params.get('wait')
+    public_ips = module.params.get('public_ips')
 
     k8s_server = ionossdk.KubernetesApi(api_client=client)
 
@@ -108,7 +109,8 @@ def create_k8s_cluster_nodepool(module, client):
                                                                storage_size=storage_size, k8s_version=k8s_version,
                                                                maintenance_window=maintenance_window,
                                                                auto_scaling=auto_scaling, lans=lan_ids,
-                                                               labels=labels, annotations=annotations)
+                                                               labels=labels, annotations=annotations,
+                                                               public_ips=public_ips)
 
         k8s_nodepool = KubernetesNodePool(properties=k8s_nodepool_properties)
 
@@ -182,6 +184,7 @@ def update_k8s_cluster_nodepool(module, client):
     nodepool_name = module.params.get('nodepool_name')
     lan_ids = module.params.get('lan_ids')
     k8s_version = module.params.get('k8s_version')
+    public_ips = module.params.get('public_ips')
 
     k8s_server = ionossdk.KubernetesApi(api_client=client)
 
@@ -208,7 +211,7 @@ def update_k8s_cluster_nodepool(module, client):
         k8s_nodepool_properties = KubernetesNodePoolPropertiesForPut(
             name=nodepool_name, node_count=node_count,
             k8s_version=k8s_version, maintenance_window=maintenance_window,
-            auto_scaling=auto_scaling, lans=lan_ids)
+            auto_scaling=auto_scaling, lans=lan_ids, public_ips=public_ips)
 
         k8s_nodepool = KubernetesNodePool(properties=k8s_nodepool_properties)
         response = k8s_server.k8s_nodepools_put_with_http_info(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id,
@@ -267,6 +270,7 @@ def main():
                 min_node_count=dict(type='str'),
                 max_node_count=dict(type='str')
             ),
+            public_ips=dict(type='list', elements='str'),
             api_url=dict(type='str', default=None),
             username=dict(
                 type='str',
