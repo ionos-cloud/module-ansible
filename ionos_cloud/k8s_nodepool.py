@@ -6,7 +6,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 EXAMPLES = '''
 - name: Create k8s cluster nodepool
-  ionos-cloud_k8s_nodepools:
+  k8s_nodepools:
     cluster_name: "{{ name }}"
     k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
     datacenter_id: "4d495548-e330-434d-83a9-251bfa645875"
@@ -19,13 +19,13 @@ EXAMPLES = '''
     storage_size: "100"
 
 - name: Delete k8s cluster nodepool
-  ionos-cloud_k8s_nodepools:
+  k8s_nodepools:
     k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
     nodepool_id: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
     state: absent
 
 - name: Update k8s cluster nodepool
-  ionos-cloud_k8s_nodepools:
+  k8s_nodepools:
     cluster_name: "{{ name }}"
     k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
     nodepool_id: "6e9efcc6-649a-4514-bee5-6165b614c89e"
@@ -113,7 +113,7 @@ def create_k8s_cluster_nodepool(module, client):
         k8s_nodepool = KubernetesNodePool(properties=k8s_nodepool_properties)
 
         response = k8s_server.k8s_nodepools_post_with_http_info(k8s_cluster_id=k8s_cluster_id,
-                                                                kubernetes_node_pool_properties=k8s_nodepool)
+                                                                kubernetes_node_pool=k8s_nodepool)
         (k8s_response, _, headers) = response
 
         if wait:
@@ -212,7 +212,7 @@ def update_k8s_cluster_nodepool(module, client):
 
         k8s_nodepool = KubernetesNodePool(properties=k8s_nodepool_properties)
         response = k8s_server.k8s_nodepools_put_with_http_info(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id,
-                                                               kubernetes_node_pool_properties=k8s_nodepool)
+                                                               kubernetes_node_pool=k8s_nodepool)
         (k8s_response, _, headers) = response
 
         if wait:

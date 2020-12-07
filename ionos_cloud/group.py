@@ -12,7 +12,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: ionos-cloud_group
+module: group
 short_description: Create, update or remove a group.
 description:
      - This module allows you to create, update or remove a group.
@@ -91,7 +91,7 @@ author:
 EXAMPLES = '''
 # Create a group
 - name: Create group
-  ionos-cloud_group:
+  group:
     name: guests
     create_datacenter: true
     create_snapshot: true
@@ -101,7 +101,7 @@ EXAMPLES = '''
 
 # Update a group
 - name: Update group
-  ionos-cloud_group:
+  group:
     name: guests
     create_datacenter: false
     users:
@@ -110,7 +110,7 @@ EXAMPLES = '''
 
 # Remove a group
 - name: Remove group
-  ionos-cloud_group:
+  group:
     name: guests
     state: absent
 '''

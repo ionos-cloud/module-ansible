@@ -12,7 +12,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: ionos-cloud_datacenter
+module: datacenter
 short_description: Create or destroy a Ionos Cloud Virtual Datacenter.
 description:
      - This is a simple module that supports creating or removing vDCs. A vDC is required before you can create servers.
@@ -77,19 +77,19 @@ author:
 EXAMPLES = '''
 
 # Create a Datacenter
-- ionos-cloud_datacenter:
+- datacenter:
     name: Example DC
     location: us/las
     wait_timeout: 500
 
 # Update a datacenter description
-- ionos-cloud_datacenter:
+- datacenter:
     name: Example DC
     description: test data center
     state: update
 
 # Destroy a Datacenter. This will remove all servers, volumes, and other objects in the datacenter.
-- ionos-cloud_datacenter:
+- datacenter:
     name: Example DC
     wait_timeout: 500
     state: absent

@@ -12,16 +12,16 @@ HAS_SDK = True
 
 EXAMPLES = '''
 - name: Create k8s cluster
-  ionos-cloud_k8s_cluster:
+  k8s_cluster:
     name: "{{ cluster_name }}"
 
 - name: Delete k8s cluster
-  ionos-cloud_k8s_cluster:
+  k8s_cluster:
     k8s_cluster_id: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
     state: absent
 
 - name: Update k8s cluster
-  ionos-cloud_k8s_cluster:
+  k8s_cluster:
     k8s_cluster_id: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
     maintenance_window:
       day_of_the_week: 'Tuesday'

@@ -171,7 +171,7 @@ EXAMPLES = '''
 
 # Provisioning example. This will create three servers and enumerate their names.
 
-- ionos-cloud:
+- server:
     datacenter: Tardis One
     name: web%02d.stackpointcloud.com
     cores: 4
@@ -185,7 +185,7 @@ EXAMPLES = '''
 
 # Update Virtual machines
 
-- ionos-cloud:
+- server:
     datacenter: Tardis One
     instance_ids:
       - web001.stackpointcloud.com
@@ -198,7 +198,7 @@ EXAMPLES = '''
 
 # Removing Virtual machines
 
-- ionos-cloud:
+- server:
     datacenter: Tardis One
     instance_ids:
       - 'web001.stackpointcloud.com'
@@ -209,7 +209,7 @@ EXAMPLES = '''
 
 # Starting Virtual Machines.
 
-- ionos-cloud:
+- server:
     datacenter: Tardis One
     instance_ids:
       - 'web001.stackpointcloud.com'
@@ -220,7 +220,7 @@ EXAMPLES = '''
 
 # Stopping Virtual Machines
 
-- ionos-cloud:
+- server:
     datacenter: Tardis One
     instance_ids:
       - 'web001.stackpointcloud.com'

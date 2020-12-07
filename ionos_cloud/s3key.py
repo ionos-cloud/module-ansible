@@ -6,18 +6,18 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 EXAMPLES = '''
     - name: Create an s3key
-      ionos-cloud_s3key:
+      s3key:
         user_id: "{{ user_id }}"
 
     - name: Update an s3key
-      ionos-cloud_s3key:
+      s3key:
         user_id: "{{ user_id }}"
         key_id: "00ca413c94eecc56857d"
         active: False
         state: update
 
     - name: Remove an s3key
-      ionos-cloud_s3key:
+      s3key:
         user_id: "{{ user_id }}"
         key_id: "00ca413c94eecc56857d"
         state: absent

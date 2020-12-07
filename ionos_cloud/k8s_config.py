@@ -4,7 +4,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 EXAMPLES = '''
 - name: Get k8s config
-  ionos-cloud_k8s_config:
+  k8s_config:
     k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
     config_file: 'config.yaml'
 '''

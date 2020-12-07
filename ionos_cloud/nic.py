@@ -12,7 +12,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: ionos-cloud_nic
+module: nic
 short_description: Create, Update or Remove a NIC.
 description:
      - This module allows you to create, update or remove a NIC.
@@ -103,7 +103,7 @@ author:
 EXAMPLES = '''
 
 # Create a NIC
-- ionos-cloud_nic:
+- nic:
     datacenter: Tardis One
     server: node002
     lan: 2
@@ -111,7 +111,7 @@ EXAMPLES = '''
     state: present
 
 # Update a NIC
-- ionos-cloud_nic:
+- nic:
     datacenter: Tardis One
     server: node002
     name: 7341c2454f
@@ -123,7 +123,7 @@ EXAMPLES = '''
     state: update
 
 # Remove a NIC
-- ionos-cloud_nic:
+- nic:
     datacenter: Tardis One
     server: node002
     name: 7341c2454f

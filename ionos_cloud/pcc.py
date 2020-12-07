@@ -4,19 +4,19 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 EXAMPLES = '''
     - name: Create pcc
-      ionos-cloud_pcc:
+      pcc:
         name: "{{ name }}"
         description: "{{ description }}"
 
     - name: Update pcc
-      ionos-cloud_pcc:
+      pcc:
         pcc_id: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
         name: "{{ new_name }}"
         description: "{{ new_description }}"
         state: update
 
     - name: Remove pcc
-      ionos-cloud_pcc:
+      pcc:
         pcc_id: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
         state: absent
 '''

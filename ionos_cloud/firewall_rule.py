@@ -12,7 +12,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: ionos-cloud_firewall_rule
+module: firewall_rule
 short_description: Create, update or remove a firewall rule.
 description:
      - This module allows you to create, update or remove a firewall rule.
@@ -112,7 +112,7 @@ author:
 EXAMPLES = '''
 # Create a firewall rule
 - name: Create SSH firewall rule
-  ionos-cloud_firewall_rule:
+  firewall_rule:
     datacenter: Virtual Datacenter
     server: node001
     nic: 7341c2454f
@@ -124,7 +124,7 @@ EXAMPLES = '''
     state: present
 
 - name: Create ping firewall rule
-  ionos-cloud_firewall_rule:
+  firewall_rule:
     datacenter: Virtual Datacenter
     server: node001
     nic: 7341c2454f
@@ -137,7 +137,7 @@ EXAMPLES = '''
 
 # Update a firewall rule
 - name: Allow SSH access
-  ionos-cloud_firewall_rule:
+  firewall_rule:
       datacenter: Virtual Datacenter
       server: node001
       nic: 7341c2454f
@@ -148,7 +148,7 @@ EXAMPLES = '''
 
 # Remove a firewall rule
 - name: Remove public ping firewall rule
-  ionos-cloud_firewall_rule:
+  firewall_rule:
     datacenter: Virtual Datacenter
     server: node001
     nic: aa6c261b9c

@@ -12,7 +12,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: ionos-cloud_lan
+module: lan
 short_description: Create, update or remove a LAN.
 description:
      - This module allows you to create or remove a LAN.
@@ -78,7 +78,7 @@ author:
 EXAMPLES = '''
 # Create a LAN
 - name: Create private LAN
-  ionos-cloud_lan:
+  lan:
     datacenter: Virtual Datacenter
     name: nameoflan
     public: false
@@ -86,7 +86,7 @@ EXAMPLES = '''
 
 # Update a LAN
 - name: Update LAN
-  ionos-cloud_lan:
+  lan:
     datacenter: Virtual Datacenter
     name: nameoflan
     public: true
@@ -97,7 +97,7 @@ EXAMPLES = '''
 
 # Remove a LAN
 - name: Remove LAN
-  ionos-cloud_lan:
+  lan:
     datacenter: Virtual Datacenter
     name: nameoflan
     state: absent

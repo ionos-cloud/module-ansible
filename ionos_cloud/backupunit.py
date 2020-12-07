@@ -1,30 +1,31 @@
-import time
-
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
 
-
 EXAMPLES = '''
     - name: Create backupunit
-      ionos-cloud_backupunit:
+      backupunit:
         backupunit_email: "{{ email }}"
         backupunit_password: "{{ password }}"
         name: "{{ name }}"
 
     - name: Update a backupunit
-      ionos-cloud_backupunit:
+      backupunit:
         backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
         backupunit_email: "{{ updated_email }}"
         backupunit_password:  "{{ updated_password }}"
         state: update
 
     - name: Remove backupunit
-      ionos-cloud_backupunit:
+      backupunit:
         backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
         state: absent
 '''
 
+from ansible import __version__
+from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils._text import to_native
+import re
 
 HAS_SDK = True
 try:
@@ -35,12 +36,6 @@ try:
     from ionossdk import ApiClient
 except ImportError:
     HAS_SDK = False
-
-from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule, env_fallback
-from ansible.module_utils._text import to_native
-
-import re
 
 
 def _get_request_id(headers):
@@ -106,7 +101,7 @@ def delete_backupunit(module, client):
             'action': 'delete',
             'changed': False,
             'id': backupunit_id
-            }
+        }
 
 
 def update_backupunit(module, client):
@@ -177,7 +172,6 @@ def main():
 
     username = module.params.get('username')
     password = module.params.get('password')
-    api_url = module.params.get('api_url')
     user_agent = 'ionossdk-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')

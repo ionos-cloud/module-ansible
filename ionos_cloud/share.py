@@ -12,7 +12,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: ionos-cloud_share
+module: share
 short_description: Add, update or remove shares.
 description:
      - This module allows you to add, update or remove resource shares.
@@ -79,7 +79,7 @@ author:
 EXAMPLES = '''
 # Create shares
 - name: Create share
-  ionos-cloud_share:
+  share:
     group: Demo
     edit_privilege: true
     share_privilege: true
@@ -90,7 +90,7 @@ EXAMPLES = '''
 
 # Update shares
 - name: Update shares
-  ionos-cloud_share:
+  share:
     group: Demo
     edit_privilege: false
     resource_ids:
@@ -99,7 +99,7 @@ EXAMPLES = '''
 
 # Remove shares
 - name: Remove shares
-  ionos-cloud_share:
+  share:
     group: Demo
     resource_ids:
       - b50ba74e-b585-44d6-9b6e-68941b2ce98e
@@ -287,15 +287,13 @@ def delete_shares(module, client):
     group_list = user_management_server.um_groups_get(depth=2)
     group_id = _get_resource_id(group_list, group, module, "Group")
 
-
-
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
 
         for uuid in module.params.get('resource_ids'):
-            resp = user_management_server.um_groups_shares_delete(group_id=group_id, resource_id=uuid)
+            user_management_server.um_groups_shares_delete(group_id=group_id, resource_id=uuid)
 
         return {
             'action': 'delete',

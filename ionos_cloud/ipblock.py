@@ -12,7 +12,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: ionos-cloud_ipblock
+module: ipblock
 short_description: Create or remove an IPBlock.
 description:
      - This module allows you to create or remove an IPBlock.
@@ -76,7 +76,7 @@ author:
 EXAMPLES = '''
 # Create an IPBlock
 - name: Create IPBlock
-  ionos-cloud_ipblock:
+  ipblock:
     name: staging
     location: us/ewr
     size: 2
@@ -84,7 +84,7 @@ EXAMPLES = '''
 
 # Remove an IPBlock
 - name: Remove IPBlock
-  ionos-cloud_ipblock:
+  ipblock:
     name: staging
     state: absent
 '''

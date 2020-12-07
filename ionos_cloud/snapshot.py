@@ -12,7 +12,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: ionos-cloud_snapshot
+module: snapshot
 short_description: Create, restore, update or remove a snapshot.
 description:
      - This module allows you to create or remove a snapshot.
@@ -127,7 +127,7 @@ author:
 EXAMPLES = '''
 # Create a snapshot
 - name: Create snapshot
-  ionos-cloud_snapshot:
+  snapshot:
     datacenter: production DC
     volume: master
     name: boot volume image
@@ -135,7 +135,7 @@ EXAMPLES = '''
 
 # Restore a snapshot
 - name: Restore snapshot
-  ionos-cloud_snapshot:
+  snapshot:
     datacenter: production DC
     volume: slave
     name: boot volume image
@@ -143,7 +143,7 @@ EXAMPLES = '''
 
 # Remove a snapshot
 - name: Remove snapshot
-  ionos-cloud_snapshot:
+  snapshot:
     name: master-Snapshot-11/30/2017
     state: absent
 '''

@@ -12,7 +12,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: ionos-cloud_user
+module: user
 short_description: Create, update or remove a user.
 description:
      - This module allows you to create, update or remove a user.
@@ -97,7 +97,7 @@ author:
 EXAMPLES = '''
 # Create a user
 - name: Create user
-  ionos-cloud_user:
+  user:
     firstname: John
     lastname: Doe
     email: john.doe@example.com
@@ -107,7 +107,7 @@ EXAMPLES = '''
 
 # Update a user
 - name: Update user
-  ionos-cloud_user:
+  user:
     firstname: John II
     lastname: Doe
     email: john.doe@example.com
@@ -120,7 +120,7 @@ EXAMPLES = '''
 
 # Remove a user
 - name: Remove user
-  ionos-cloud_user:
+  user:
     email: john.doe@example.com
     state: absent
 '''

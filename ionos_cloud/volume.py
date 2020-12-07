@@ -12,7 +12,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: ionos-cloud_volume
+module: volume
 short_description: Create, update or destroy a volume.
 description:
      - Allows you to create, update or remove a volume from a Ionos datacenter.
@@ -129,7 +129,7 @@ EXAMPLES = '''
 
 # Create Multiple Volumes
 
-- ionos-cloud_volume:
+- volume:
     datacenter: Tardis One
     name: vol%02d
     count: 5
@@ -139,7 +139,7 @@ EXAMPLES = '''
 
 # Update Volumes
 
-- ionos-cloud_volume:
+- volume:
     datacenter: Tardis One
     instance_ids:
       - 'vol01'
@@ -151,7 +151,7 @@ EXAMPLES = '''
 
 # Remove Volumes
 
-- ionos-cloud_volume:
+- volume:
     datacenter: Tardis One
     instance_ids:
       - 'vol01'
