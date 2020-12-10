@@ -8,20 +8,20 @@
   tasks:
     - name: Create ipblock
       ipblock:
-          name: ansible test
-          location: "{{ location }}"
-          size: 2
-          state: present
+        name:  "{{ name }}"
+        location: "{{ location }}"
+        size: 2
+        state: present
 
     - name: Update ipblock
       ipblock:
-        name: ansible test
+        name: "{{ name }}"
         location: "{{ location }}"
         state: update
 
     - name: Remove ipblock
       ipblock:
-        name: ansible test
+        name: "{{ name }}"
         state: absent
       register: delete_result
 

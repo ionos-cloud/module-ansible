@@ -9,7 +9,7 @@
   tasks:
   - name: Create datacenter
     datacenter:
-      name: "{{ name }} - {{ 100 | random}}"
+      name: "{{ datacenter }} - {{ 100 | random}}"
       description: "{{ description }}"
       location: us/las
       wait: True
@@ -17,7 +17,7 @@
 
   - name: Create datacenter
     datacenter:
-      name: "{{ name }} - {{ 100 | random}}"
+      name: "{{ datacenter }} - {{ 100 | random}}"
       description: "{{ description }}"
       location: us/las
       wait: True

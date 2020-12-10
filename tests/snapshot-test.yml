@@ -11,7 +11,7 @@
   tasks:
     - name: Create datacenter
       datacenter:
-          name: "{{ name }}"
+          name: "{{ datacenter }}"
           location: "{{ location }}"
 
     - name: Create volume
@@ -56,5 +56,5 @@
 
     - name: Remove datacenter
       datacenter:
-        name: "{{ name }}"
+        name: "{{ datacenter }}"
         state: absent

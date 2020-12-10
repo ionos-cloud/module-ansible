@@ -341,9 +341,9 @@ def _create_machine(module, client, datacenter, name):
 
         if public_ip_lan_id is None:
             lan_properties = LanPropertiesPost(name='public', public=True)
-            lan = LanPost(properties=lan_properties)
+            lan_post = LanPost(properties=lan_properties)
 
-            response = lan_server.datacenters_lans_post_with_http_info(datacenter_id=datacenter, lan=lan)
+            response = lan_server.datacenters_lans_post_with_http_info(datacenter_id=datacenter, lan=lan_post)
             (lan_response, _, headers) = response
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
@@ -403,7 +403,7 @@ def _create_machine(module, client, datacenter, name):
             fn_check=lambda r: (r.entities.volumes is not None) and (r.entities.volumes.items is not None) and (
                     len(r.entities.volumes.items) > 0)
                                and (r.entities.nics is not None) and (r.entities.nics.items is not None) and (
-                                       len(r.entities.nics.items) > 0),
+                                       len(r.entities.nics.items) == len(nics)),
             scaleup=10000
         )
 
@@ -413,9 +413,9 @@ def _create_machine(module, client, datacenter, name):
     except Exception as e:
         module.fail_json(msg="failed to create the new server: %s" % to_native(e))
     else:
-        if hasattr(server_response.entities, 'nics'):
+        if len(server.entities.nics.items) > 0:
             server.nic = server.entities.nics.items[0]
-        return server
+    return server
 
 
 def _startstop_machine(module, client, datacenter_id, server_id, current_state):

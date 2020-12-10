@@ -9,7 +9,7 @@
   tasks:
     - name: Create datacenter
       datacenter:
-        name: "{{ name }}"
+        name: "{{ datacenter }}"
         location: "{{ location }}"
         wait: True
 
@@ -31,7 +31,7 @@
 
     - name: Create LAN
       lan:
-        datacenter: "{{ name }}"
+        datacenter: "{{ datacenter }}"
         name: "{{ lan }}"
         public: true
 

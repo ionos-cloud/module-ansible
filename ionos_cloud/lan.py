@@ -229,8 +229,9 @@ def update_lan(module, client):
         module.exit_json(changed=True)
 
     try:
-        for elem in ip_failover:
-            elem['nicUuid'] = elem.pop('nic_uuid')
+        if ip_failover:
+            for elem in ip_failover:
+                elem['nicUuid'] = elem.pop('nic_uuid')
 
         lan_properties = LanProperties(name=name, ip_failover=ip_failover, pcc=pcc_id, public=public)
         lan = Lan(properties=lan_properties)
@@ -309,7 +310,7 @@ def main():
             datacenter=dict(type='str', required=True),
             name=dict(type='str'),
             pcc_id=dict(type='str'),
-            public=dict(type='bool', default=True),
+            public=dict(type='bool', default=False),
             ip_failover=dict(type='list', elements='dict'),
             api_url=dict(type='str', default=None),
             username=dict(

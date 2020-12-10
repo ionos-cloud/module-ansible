@@ -20,8 +20,6 @@
         name: "{{ name }} %02d"
         count: 2
         size: 2
-        image: "{{ image }}"
-        image_password: "{{ password }}"
         availability_zone: ZONE_3
         ssh_keys:
             - "{{ ssh_public_key }}"
@@ -52,5 +50,5 @@
 
     - name: Remove datacenter
       datacenter:
-        name: "{{ name }}"
+        name: "{{ datacenter }}"
         state: absent

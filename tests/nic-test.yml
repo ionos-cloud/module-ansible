@@ -9,10 +9,10 @@
   tasks:
     - name: Create datacenter
       datacenter:
-        name: "{{ name }}"
+        name: "{{ datacenter }}"
         description: "{{ description }}"
         wait: true
-        location: us/las
+        location: "{{ location }}"
 
     - name: Provision server
       server:
@@ -34,7 +34,7 @@
 
     - name: Create LAN
       lan:
-        datacenter: "{{ name }}"
+        datacenter: "{{ datacenter }}"
         name: "{{ lan }}"
         public: false
 
@@ -42,7 +42,7 @@
       nic:
        name: "{{ nic }}"
        datacenter: "{{ datacenter }}"
-       server: "c26cdc71-0b33-4d7a-8a82-a557c6a1e59a"
+       server: "{{ server }}"
        lan: 2
        dhcp: true
        firewall_active: true
@@ -60,7 +60,7 @@
     - name: Update NIC
       nic:
        datacenter: "{{ datacenter }}"
-       server: "c26cdc71-0b33-4d7a-8a82-a557c6a1e59a"
+       server: "{{ server }}"
        name: "new-nic"
        id: "{{ ionos_cloud_nic.nic.id }}"
        dhcp: false
@@ -77,7 +77,7 @@
       nic:
          name: "{{ ionos_cloud_nic.nic.id }}"
          datacenter: "{{ datacenter }}"
-         server: "c26cdc71-0b33-4d7a-8a82-a557c6a1e59a"
+         server: "{{ server }}"
          wait: true
          wait_timeout: "{{ timeout }}"
          state: absent

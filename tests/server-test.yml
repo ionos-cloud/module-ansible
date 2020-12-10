@@ -12,7 +12,7 @@
   tasks:
     - name: Create datacenter
       datacenter:
-          name: "{{ name }}"
+          name: "{{ datacenter }}"
           location: "{{ location }}"
 
     - name: Provision a server
@@ -92,5 +92,5 @@
 
     - name: Remove datacenter
       datacenter:
-        name: "{{ name }}"
+        name: "{{ datacenter }}"
         state: absent

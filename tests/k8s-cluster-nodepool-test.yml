@@ -8,14 +8,14 @@
   tasks:
     - name: Create datacenter
       datacenter:
-        name: "{{ name }}"
+        name: "{{ datacenter }}"
         description: "{{ description }}"
-        location: us/las
+        location: de/fra
       register: datacenter
 
     - name: Create k8s cluster
       k8s_cluster:
-        cluster_name: "my-cluster"
+        cluster_name: "{{ name }}"
         maintenance_window:
           day_of_the_week: "Wednesday"
           time: "12:02:00"
@@ -24,7 +24,7 @@
 
     - name: Create k8s cluster nodepool
       k8s_nodepool:
-        nodepool_name: "my-nodepool-8"
+        nodepool_name: "{{ name }}"
         k8s_cluster_id:  "{{ cluster.cluster.id }}"
         datacenter_id: "{{ datacenter.datacenter.id }}"
         node_count: "1"
@@ -69,5 +69,5 @@
     - name: Remove datacenter
       datacenter:
          id: " {{ datacenter.datacenter.id }}"
-         name: "{{ name }}"
+         name: "{{ datacenter }}"
          state: absent

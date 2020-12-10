@@ -12,6 +12,18 @@
         location: "{{ location }}"
         wait: true
 
+    - name: Create ipblock
+      ipblock:
+        name: "{{ name }}"
+        location: "{{ location }}"
+        size: 1
+        state: present
+      register: ipblock_response
+
+    - name: Debug - Show Ipblock
+      debug:
+        msg: "{{ ipblock_response }}"
+
     - name: Provision server
       server:
         datacenter: "{{ datacenter }}"
@@ -30,12 +42,18 @@
         state: present
       register: ionos_cloud
 
-    - name: Create public LAN
+    - name: Create LAN
       lan:
         datacenter: "{{ datacenter }}"
         name: "{{ lan }}"
-        public: true
+        public: false
       register: ionos_cloud_lan
+
+    - name: Create PCC
+      pcc:
+        name: "{{ name }}"
+        description: "{{ description }}"
+      register: pcc_result
 
     - name: Create NIC
       nic:
@@ -55,17 +73,14 @@
         server: "{{ server }}"
         name: "{{ name }}"
         dhcp: false
-        ips: "158.222.102.93"
+        ips: "{{ ipblock_response.ipblock.properties.ips }}"
         state: update
 
     - name: Update LAN
       lan:
-        datacenter: "{{ name }}"
+        datacenter: "{{ datacenter }}"
         name: "{{ lan }}"
-        ip_failover:
-          - ip: "158.222.102.93"
-            nic_uuid: "{{ ionos_cloud_nic.nic.id }}"
-        wait: true
+        pcc_id: "{{ pcc_result.pcc.id }}"
         state: update
 
     - name: Debug - Show LAN
@@ -83,11 +98,21 @@
 
     - name: Remove LAN
       lan:
-        datacenter: "{{ name }}"
+        datacenter: "{{ datacenter }}"
         name: "{{ lan }}"
+        state: absent
+
+    - name: Remove ipblock
+      ipblock:
+        name: "{{ name }}"
         state: absent
 
     - name: Remove datacenter
       datacenter:
-        name: "Ansible Test"
+        name: "{{ datacenter }}"
+        state: absent
+
+    - name: Remove pcc
+      pcc:
+        pcc_id: "{{ pcc_result.pcc.id }}"
         state: absent

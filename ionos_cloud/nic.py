@@ -352,6 +352,8 @@ def delete_nic(module, client):
     datacenter = module.params.get('datacenter')
     server = module.params.get('server')
     name = module.params.get('name')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
 
     datacenter_server = ionossdk.DataCenterApi(api_client=client)
     server_server = ionossdk.ServerApi(api_client=client)
@@ -403,8 +405,14 @@ def delete_nic(module, client):
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        nic_server.datacenters_servers_nics_delete(datacenter_id=datacenter, server_id=server,
+        response = nic_server.datacenters_servers_nics_delete_with_http_info(datacenter_id=datacenter, server_id=server,
                                                                   nic_id=name)
+        (nic_response, _, headers) = response
+
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
         return {
             'action': 'delete',
             'changed': True,
