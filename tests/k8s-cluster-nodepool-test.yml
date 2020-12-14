@@ -13,6 +13,22 @@
         location: de/fra
       register: datacenter
 
+    - name: Create ipblock for create nodepool
+      ipblock:
+        name: "{{ name }} - create"
+        location: "{{ location }}"
+        size: 3
+        state: present
+      register: ipblock_response_create
+
+    - name: Create ipblock for update nodepool
+      ipblock:
+        name: "{{ name }} - update"
+        location: "{{ location }}"
+        size: 3
+        state: present
+      register: ipblock_response_update
+
     - name: Create k8s cluster
       k8s_cluster:
         cluster_name: "{{ name }}"
@@ -27,13 +43,14 @@
         nodepool_name: "{{ name }}"
         k8s_cluster_id:  "{{ cluster.cluster.id }}"
         datacenter_id: "{{ datacenter.datacenter.id }}"
-        node_count: "1"
+        node_count: 2
         cpu_family: "AMD_OPTERON"
         cores_count: "1"
         ram_size: "2048"
         availability_zone: "AUTO"
         storage_type: "SSD"
         storage_size: "100"
+        public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
       register: result
 
     - name: Debug - Show nodepool
@@ -45,13 +62,14 @@
         k8s_cluster_id: "{{ cluster.cluster.id }}"
         datacenter_id: "{{ datacenter.datacenter.id }}"
         nodepool_id: "{{ result.nodepool.id }}"
-        node_count: "1"
+        node_count: 2
         cpu_family: "AMD_OPTERON"
         cores_count: "1"
         ram_size: "2048"
         availability_zone: "AUTO"
         storage_type: "SSD"
         storage_size: "100"
+        public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
         state: update
 
     - name: Delete k8s cluster nodepool
@@ -71,3 +89,14 @@
          id: " {{ datacenter.datacenter.id }}"
          name: "{{ datacenter }}"
          state: absent
+
+    - name: Remove ipblock for create nodepool
+      ipblock:
+        name: "{{ name }} - create"
+        state: absent
+
+    - name: Remove ipblock for update nodepool
+      ipblock:
+        name: "{{ name }} - update"
+        state: absent
+

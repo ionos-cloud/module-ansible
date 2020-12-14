@@ -143,7 +143,6 @@ def create_k8s_cluster_nodepool(module, client):
 def delete_k8s_cluster_nodepool(module, client):
     k8s_cluster_id = module.params.get('k8s_cluster_id')
     nodepool_id = module.params.get('nodepool_id')
-    cluster_name = module.params.get('cluster_name')
     k8s_server = ionossdk.KubernetesApi(api_client=client)
 
     changed = False
@@ -156,7 +155,7 @@ def delete_k8s_cluster_nodepool(module, client):
             client.wait_for(
                 fn_request=lambda: k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=2),
                 fn_check=lambda r: len(list(filter(
-                    lambda e: e.properties.name == cluster_name,
+                    lambda e: e.id == nodepool_id,
                     r.items
                 ))) < 1,
                 console_print='.',
@@ -214,15 +213,14 @@ def update_k8s_cluster_nodepool(module, client):
             auto_scaling=auto_scaling, lans=lan_ids, public_ips=public_ips)
 
         k8s_nodepool = KubernetesNodePool(properties=k8s_nodepool_properties)
-        response = k8s_server.k8s_nodepools_put_with_http_info(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id,
+        k8s_response = k8s_server.k8s_nodepools_put(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id,
                                                                kubernetes_node_pool=k8s_nodepool)
-        (k8s_response, _, headers) = response
 
         if wait:
             client.wait_for(
-                fn_request=lambda: k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=2),
+                fn_request=lambda: k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=5),
                 fn_check=lambda r: list(filter(
-                    lambda e: e.properties.name == nodepool_name,
+                    lambda e: e.id == nodepool_id,
                     r.items
                 ))[0].metadata.state == 'ACTIVE',
                 scaleup=10000
@@ -317,8 +315,8 @@ def main():
                 module.fail_json(msg=error_message % 'k8s_cluster_id')
             if not module.params.get('datacenter_id'):
                 module.fail_json(msg=error_message % 'datacenter_id')
-            if not module.params.get('node_count'):
-                module.fail_json(msg=error_message % 'node_count')
+            if not (module.params.get('node_count') or module.params.get('auto_scaling')) :
+                module.fail_json(msg=error_message % 'node_count or auto_scaling')
             if not module.params.get('cpu_family'):
                 module.fail_json(msg=error_message % 'cpu_family')
             if not module.params.get('cores_count'):

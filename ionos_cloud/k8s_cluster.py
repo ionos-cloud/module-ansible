@@ -159,7 +159,7 @@ def update_k8s_cluster(module, client):
         kubernetes_cluster_properties = KubernetesClusterProperties(name=cluster_name, k8s_version=k8s_version,
                                                                     maintenance_window=maintenance_window)
         kubernetes_cluster = KubernetesCluster(properties=kubernetes_cluster_properties)
-        k8s_response = k8s_server.k8s_put_with_http_info(k8s_cluster_id=k8s_cluster_id, kubernetescluster=kubernetes_cluster)
+        k8s_response = k8s_server.k8s_put(k8s_cluster_id=k8s_cluster_id, kubernetes_cluster=kubernetes_cluster)
 
         if module.params.get('wait'):
             client.wait_for(
