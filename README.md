@@ -1,3 +1,5 @@
+[![Gitter](https://img.shields.io/gitter/room/ionos-cloud/sdk-general)](https://gitter.im/ionos-cloud/sdk-general)
+
 # Ansible Module
 
 Version: **ionos-cloud-module-ansible v5.0.0**
