@@ -69,7 +69,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "ionossdk >= 5.2.0"
+    - "ionoscloud >= 5.0.0"
 author:
     - Nurfet Becirevic (@nurfet-becirevic)
     - Ethan Devenport (@edevenport)
@@ -108,11 +108,11 @@ import re
 HAS_SDK = True
 
 try:
-    import ionossdk
-    from ionossdk import __version__ as sdk_version
-    from ionossdk.models import Lan, LanPost, LanProperties, LanPropertiesPost
-    from ionossdk.rest import ApiException
-    from ionossdk import ApiClient
+    import ionoscloud
+    from ionoscloud import __version__ as sdk_version
+    from ionoscloud.models import Lan, LanPost, LanProperties, LanPropertiesPost
+    from ionoscloud.rest import ApiException
+    from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -135,7 +135,7 @@ def create_lan(module, client):
     Creates a LAN.
 
     module : AnsibleModule object
-    client: authenticated ionossdk object.
+    client: authenticated ionoscloud object.
 
     Returns:
         The LAN instance
@@ -146,8 +146,8 @@ def create_lan(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenter_server = ionossdk.DataCenterApi(api_client=client)
-    lan_server = ionossdk.LanApi(api_client=client)
+    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
+    lan_server = ionoscloud.LanApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -201,7 +201,7 @@ def update_lan(module, client):
     Updates a LAN.
 
     module : AnsibleModule object
-    client: authenticated ionossdk object.
+    client: authenticated ionoscloud object.
 
     Returns:
         The LAN instance
@@ -214,8 +214,8 @@ def update_lan(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenter_server = ionossdk.DataCenterApi(api_client=client)
-    lan_server = ionossdk.LanApi(api_client=client)
+    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
+    lan_server = ionoscloud.LanApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -259,7 +259,7 @@ def delete_lan(module, client):
     Removes a LAN
 
     module : AnsibleModule object
-    client: authenticated ionossdk object.
+    client: authenticated ionoscloud object.
 
     Returns:
         True if the LAN was removed, false otherwise
@@ -267,8 +267,8 @@ def delete_lan(module, client):
     datacenter = module.params.get('datacenter')
     name = module.params.get('name')
 
-    datacenter_server = ionossdk.DataCenterApi(api_client=client)
-    lan_server = ionossdk.LanApi(api_client=client)
+    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
+    lan_server = ionoscloud.LanApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -334,16 +334,16 @@ def main():
     )
 
     if not HAS_SDK:
-        module.fail_json(msg='ionossdk is required for this module, run `pip install ionossdk`')
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ionossdk-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')
 
-    configuration = ionossdk.Configuration(
+    configuration = ionoscloud.Configuration(
         username=username,
         password=password
     )

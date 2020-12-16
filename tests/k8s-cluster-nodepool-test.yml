@@ -11,7 +11,7 @@
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: de/fra
-      register: datacenter
+      register: datacenter_response
 
     - name: Create ipblock for create nodepool
       ipblock:
@@ -42,7 +42,7 @@
       k8s_nodepool:
         nodepool_name: "{{ name }}"
         k8s_cluster_id:  "{{ cluster.cluster.id }}"
-        datacenter_id: "{{ datacenter.datacenter.id }}"
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
         node_count: 2
         cpu_family: "AMD_OPTERON"
         cores_count: "1"
@@ -60,7 +60,7 @@
     - name: Update k8s cluster nodepool
       k8s_nodepool:
         k8s_cluster_id: "{{ cluster.cluster.id }}"
-        datacenter_id: "{{ datacenter.datacenter.id }}"
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
         nodepool_id: "{{ result.nodepool.id }}"
         node_count: 2
         cpu_family: "AMD_OPTERON"
@@ -86,7 +86,6 @@
 
     - name: Remove datacenter
       datacenter:
-         id: " {{ datacenter.datacenter.id }}"
          name: "{{ datacenter }}"
          state: absent
 

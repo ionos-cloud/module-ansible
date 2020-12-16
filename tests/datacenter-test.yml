@@ -11,15 +11,15 @@
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: de/fra
-      register: datacenter
+      register: datacenter_response
 
     - name: Debug - Show Datacenter
       debug:
-        msg: "{{ datacenter}}"
+        msg: "{{ datacenter_response }}"
 
     - name: Update datacenter
       datacenter:
-        id: "{{ datacenter.datacenter.id }}"
+        id: "{{ datacenter_response.datacenter.id }}"
         name: "{{ datacenter }}"
         description: "{{ description }} - RENAMED"
         state: update
@@ -31,7 +31,7 @@
 
     - name: Remove datacenter
       datacenter:
-        id: "{{ datacenter.datacenter.id }}"
+        id: "{{ datacenter_response.datacenter.id }}"
         name: "{{ datacenter }}"
         state: absent
       register: deleted_datacenter

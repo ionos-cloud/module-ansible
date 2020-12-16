@@ -21,8 +21,6 @@
         count: 2
         size: 2
         availability_zone: ZONE_3
-        ssh_keys:
-            - "{{ ssh_public_key }}"
         auto_increment: yes
         wait_timeout: 600
         wait: true

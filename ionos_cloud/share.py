@@ -70,7 +70,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "ionossdk >= 5.2.0"
+    - "ionoscloud >= 5.0.0"
 author:
     - Nurfet Becirevic (@nurfet-becirevic)
     - Ethan Devenport (@edevenport)
@@ -112,11 +112,11 @@ import re
 HAS_SDK = True
 
 try:
-    import ionossdk
-    from ionossdk import __version__ as sdk_version
-    from ionossdk.models import GroupShare, GroupShareProperties
-    from ionossdk.rest import ApiException
-    from ionossdk import ApiClient
+    import ionoscloud
+    from ionoscloud import __version__ as sdk_version
+    from ionoscloud.models import GroupShare, GroupShareProperties
+    from ionoscloud.rest import ApiException
+    from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -139,12 +139,12 @@ def create_shares(module, client):
     Create shares.
 
     module : AnsibleModule object
-    client: authenticated ionossdk object.
+    client: authenticated ionoscloud object.
 
     Returns:
         The share instance
     """
-    user_management_server = ionossdk.UserManagementApi(api_client=client)
+    user_management_server = ionoscloud.UserManagementApi(api_client=client)
     group = module.params.get('group')
 
     # Locate UUID for the group
@@ -210,13 +210,13 @@ def update_shares(module, client):
     Update shares.
 
     module : AnsibleModule object
-    client: authenticated ionossdk object.
+    client: authenticated ionoscloud object.
 
     Returns:
         The share instances
     """
     group = module.params.get('group')
-    user_management_server = ionossdk.UserManagementApi(api_client=client)
+    user_management_server = ionoscloud.UserManagementApi(api_client=client)
 
     # Locate UUID for the group
     group_list = user_management_server.um_groups_get(depth=2)
@@ -275,13 +275,13 @@ def delete_shares(module, client):
     Remove shares
 
     module : AnsibleModule object
-    client: authenticated ionossdk object.
+    client: authenticated ionoscloud object.
 
     Returns:
         True if the share was removed, false otherwise
     """
     group = module.params.get('group')
-    user_management_server = ionossdk.UserManagementApi(api_client=client)
+    user_management_server = ionoscloud.UserManagementApi(api_client=client)
 
     # Locate UUID for the group
     group_list = user_management_server.um_groups_get(depth=2)
@@ -350,16 +350,16 @@ def main():
     )
 
     if not HAS_SDK:
-        module.fail_json(msg='ionossdk is required for this module, run `pip install ionossdk`')
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ionossdk-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')
 
-    configuration = ionossdk.Configuration(
+    configuration = ionoscloud.Configuration(
         username=username,
         password=password
     )

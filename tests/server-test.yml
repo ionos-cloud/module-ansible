@@ -39,14 +39,6 @@
          wait_timeout: "{{ timeout }}"
          state: present
 
-    - name: Wait for SSH
-      wait_for:
-          port: 22
-          host: "{{ item.public_ip }}"
-          search_regex: OpenSSH
-          delay: 10
-      with_items: "{{ ionos_cloud.machines }}"
-
     - name: Update server
       server:
          datacenter: "{{ datacenter }}"

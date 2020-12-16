@@ -1,4 +1,4 @@
-## 5.0.0 (December, 2020)
+## 5.0.0 (16 December, 2020)
 
 #### Features:
 - **IPFailover** now supports dynamically generated IPs
@@ -13,14 +13,14 @@
 
 #### Misc:
 - Rebranded the module from **profitbricks** to **ionos-cloud**
-- Changed the python package to **ionossdk** instead of **profitbricks**
+- Changed the python package to **ionoscloud** instead of **profitbricks**
 - The **datacenter** and **nic** modules now have both _name_ and _id_ parameters, instead of just _name_
 
 
 <br>
 
 ### Migration steps from [Profitbricks Module](https://github.com/ionos-enterprise/profitbricks-module-ansible) to [Ionos Cloud Module](https://github.com/ionos-cloud/sdk-ansible):
-- install [ionossdk python package](https://pypi.org/project/ionossdk) using `pip install ionossdk`
+- install [ionoscloud python package](https://pypi.org/project/ionoscloud) using `pip install ionoscloud`
 - set the `IONOS_USERNAME` and `IONOS_PASSWORD` environment variables (instead of `PROFITBRICKS_USERNAME` and `PROFITBRICKS_PASSWORD`)
 - adapt the playbooks by:
     - using the return values decribed [here](README.md#return-values)

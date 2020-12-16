@@ -119,7 +119,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "ionossdk >= 5.2.0"
+    - "ionoscloud >= 5.0.0"
 author:
     - "Matt Baldwin (baldwin@stackpointcloud.com)"
     - "Ethan Devenport (@edevenport)"
@@ -169,11 +169,11 @@ from uuid import UUID
 HAS_SDK = True
 
 try:
-    import ionossdk
-    from ionossdk import __version__ as sdk_version
-    from ionossdk.models import Volume, VolumeProperties
-    from ionossdk.rest import ApiException
-    from ionossdk import ApiClient
+    import ionoscloud
+    from ionoscloud import __version__ as sdk_version
+    from ionoscloud.models import Volume, VolumeProperties
+    from ionoscloud.rest import ApiException
+    from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -298,7 +298,7 @@ def create_volume(module, client):
     This will create one or more volumes in a datacenter.
 
     module : AnsibleModule object
-    client: authenticated ionossdk object.
+    client: authenticated ionoscloud object.
 
     Returns:
         dict of created volumes
@@ -308,9 +308,9 @@ def create_volume(module, client):
     auto_increment = module.params.get('auto_increment')
     count = module.params.get('count')
 
-    volume_server = ionossdk.VolumeApi(client)
-    datacenter_server = ionossdk.DataCenterApi(client)
-    servers_server = ionossdk.ServerApi(client)
+    volume_server = ionoscloud.VolumeApi(client)
+    datacenter_server = ionoscloud.DataCenterApi(client)
+    servers_server = ionoscloud.ServerApi(client)
 
     datacenter_found = False
     volumes = []
@@ -383,7 +383,7 @@ def update_volume(module, client):
     This will update one or more volumes in a datacenter.
 
     module : AnsibleModule object
-    client: authenticated ionossdk object.
+    client: authenticated ionoscloud object.
 
     Returns:
         dict of updated volumes
@@ -391,8 +391,8 @@ def update_volume(module, client):
     datacenter = module.params.get('datacenter')
     instance_ids = module.params.get('instance_ids')
 
-    volume_server = ionossdk.VolumeApi(client)
-    datacenter_server = ionossdk.DataCenterApi(client)
+    volume_server = ionoscloud.VolumeApi(client)
+    datacenter_server = ionoscloud.DataCenterApi(client)
 
     datacenter_found = False
     failed = True
@@ -445,14 +445,14 @@ def delete_volume(module, client):
     This will remove one or more volumes from a datacenter.
 
     module : AnsibleModule object
-    client: authenticated ionossdk object.
+    client: authenticated ionoscloud object.
 
     Returns:
         True if the volumes were removed, false otherwise
     """
 
-    volume_server = ionossdk.VolumeApi(client)
-    datacenter_server = ionossdk.DataCenterApi(client)
+    volume_server = ionoscloud.VolumeApi(client)
+    datacenter_server = ionoscloud.DataCenterApi(client)
 
     if not isinstance(module.params.get('instance_ids'), list) or len(module.params.get('instance_ids')) < 1:
         module.fail_json(msg='instance_ids should be a list of volume ids or names, aborting')
@@ -498,7 +498,7 @@ def _attach_volume(module, server_client, datacenter, volume):
     This will attach a volume to the server.
 
     module : AnsibleModule object
-    client: authenticated ionossdk object.
+    client: authenticated ionoscloud object.
 
     Returns:
         the volume instance being attached
@@ -570,17 +570,17 @@ def main():
     )
 
     if not HAS_SDK:
-        module.fail_json(msg='ionossdk is required for this module, run `pip install ionossdk`')
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
-    user_agent = 'ionossdk-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')
 
-    configuration = ionossdk.Configuration(
+    configuration = ionoscloud.Configuration(
         username=username,
         password=password
     )

@@ -94,7 +94,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "ionossdk >= 5.2.0"
+    - "ionoscloud >= 5.0.0"
 author:
     - "Matt Baldwin (baldwin@stackpointcloud.com)"
     - "Ethan Devenport (@edevenport)"
@@ -139,11 +139,11 @@ from uuid import uuid4
 HAS_SDK = True
 
 try:
-    import ionossdk
-    from ionossdk import __version__ as sdk_version
-    from ionossdk.models import Nic, NicProperties
-    from ionossdk.rest import ApiException
-    from ionossdk import ApiClient
+    import ionoscloud
+    from ionoscloud import __version__ as sdk_version
+    from ionoscloud.models import Nic, NicProperties
+    from ionoscloud.rest import ApiException
+    from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -169,7 +169,7 @@ def create_nic(module, client):
     Creates a NIC.
 
     module : AnsibleModule object
-    client: authenticated ionossdk object.
+    client: authenticated ionoscloud object.
 
     Returns:
         The NIC instance being created
@@ -185,9 +185,9 @@ def create_nic(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenter_server = ionossdk.DataCenterApi(api_client=client)
-    server_server = ionossdk.ServerApi(api_client=client)
-    nic_server = ionossdk.NicApi(api_client=client)
+    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
+    server_server = ionoscloud.ServerApi(api_client=client)
+    nic_server = ionoscloud.NicApi(api_client=client)
 
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
@@ -255,7 +255,7 @@ def update_nic(module, client):
     Updates a NIC.
 
     module : AnsibleModule object
-    client: authenticated ionossdk object.
+    client: authenticated ionoscloud object.
 
     Returns:
         The NIC instance being updated
@@ -272,9 +272,9 @@ def update_nic(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenter_server = ionossdk.DataCenterApi(api_client=client)
-    server_server = ionossdk.ServerApi(api_client=client)
-    nic_server = ionossdk.NicApi(api_client=client)
+    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
+    server_server = ionoscloud.ServerApi(api_client=client)
+    nic_server = ionoscloud.NicApi(api_client=client)
 
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
@@ -344,7 +344,7 @@ def delete_nic(module, client):
     Removes a NIC
 
     module : AnsibleModule object
-    client: authenticated ionossdk object.
+    client: authenticated ionoscloud object.
 
     Returns:
         True if the NIC was removed, false otherwise
@@ -355,9 +355,9 @@ def delete_nic(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenter_server = ionossdk.DataCenterApi(api_client=client)
-    server_server = ionossdk.ServerApi(api_client=client)
-    nic_server = ionossdk.NicApi(api_client=client)
+    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
+    server_server = ionoscloud.ServerApi(api_client=client)
+    nic_server = ionoscloud.NicApi(api_client=client)
 
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
@@ -461,7 +461,7 @@ def main():
     )
 
     if not HAS_SDK:
-        module.fail_json(msg='ionossdk is required for this module, run `pip install ionossdk`')
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
     if not module.params.get('datacenter'):
         module.fail_json(msg='datacenter parameter is required')
@@ -471,11 +471,11 @@ def main():
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ionossdk-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')
 
-    configuration = ionossdk.Configuration(
+    configuration = ionoscloud.Configuration(
         username=username,
         password=password
     )

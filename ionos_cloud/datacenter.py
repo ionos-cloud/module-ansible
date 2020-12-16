@@ -68,7 +68,7 @@ options:
 
 requirements:
     - "python >= 2.6"
-    - "ionossdk >= 5.2.0"
+    - "ionoscloud >= 5.0.0"
 author:
     - "Matt Baldwin (baldwin@stackpointcloud.com)"
     - "Ethan Devenport (@edevenport)"
@@ -102,11 +102,11 @@ import json
 HAS_SDK = True
 
 try:
-    import ionossdk
-    from ionossdk import __version__ as sdk_version
-    from ionossdk.models import Datacenter, DatacenterProperties
-    from ionossdk.rest import ApiException
-    from ionossdk import ApiClient
+    import ionoscloud
+    from ionoscloud import __version__ as sdk_version
+    from ionoscloud.models import Datacenter, DatacenterProperties
+    from ionoscloud.rest import ApiException
+    from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -174,7 +174,7 @@ def create_datacenter(module, client):
     This will create a new Datacenter in the specified location.
 
     module : AnsibleModule object
-    client: authenticated ionossdk object.
+    client: authenticated ionoscloud object.
 
     Returns:
         The datacenter ID if a new datacenter was created.
@@ -185,7 +185,7 @@ def create_datacenter(module, client):
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
-    datacenter_server = ionossdk.DataCenterApi(client)
+    datacenter_server = ionoscloud.DataCenterApi(client)
     datacenters = datacenter_server.datacenters_get(depth=2)
 
     for dc in datacenters.items:
@@ -228,7 +228,7 @@ def update_datacenter(module, client):
     This will update a datacenter.
 
     module : AnsibleModule object
-    client: authenticated ionossdk object.
+    client: authenticated ionoscloud object.
 
     Returns:
         True if a new datacenter was updated, false otherwise
@@ -237,7 +237,7 @@ def update_datacenter(module, client):
     description = module.params.get('description')
     datacenter_id = module.params.get('id')
     wait = module.params.get('wait')
-    datacenter_server = ionossdk.DataCenterApi(client)
+    datacenter_server = ionoscloud.DataCenterApi(client)
 
     if description is None:
         return {
@@ -280,14 +280,14 @@ def remove_datacenter(module, client):
     This will remove a datacenter.
 
     module : AnsibleModule object
-    client: authenticated ionossdk object.
+    client: authenticated ionoscloud object.
 
     Returns:
         True if the datacenter was deleted, false otherwise
     """
     name = module.params.get('name')
     datacenter_id = module.params.get('id')
-    datacenter_server = ionossdk.DataCenterApi(client)
+    datacenter_server = ionoscloud.DataCenterApi(client)
     changed = False
 
     if datacenter_id:
@@ -338,15 +338,15 @@ def main():
         supports_check_mode=True
     )
     if not HAS_SDK:
-        module.fail_json(msg='ionossdk is required for this module, run `pip install ionossdk`')
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
     state = module.params.get('state')
-    user_agent = 'ionossdk-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
 
-    configuration = ionossdk.Configuration(
+    configuration = ionoscloud.Configuration(
         username=username,
         password=password
     )

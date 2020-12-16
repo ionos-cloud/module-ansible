@@ -11,10 +11,10 @@ EXAMPLES = '''
 
 HAS_SDK = True
 try:
-    import ionossdk
-    from ionossdk import __version__ as sdk_version
-    from ionossdk.rest import ApiException
-    from ionossdk import ApiClient
+    import ionoscloud
+    from ionoscloud import __version__ as sdk_version
+    from ionoscloud.rest import ApiException
+    from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -26,7 +26,7 @@ from ansible.module_utils._text import to_native
 def get_config(module, client):
     k8s_cluster_id = module.params.get('k8s_cluster_id')
     config_file = module.params.get('config_file')
-    k8s_server = ionossdk.KubernetesApi(api_client=client)
+    k8s_server = ionoscloud.KubernetesApi(api_client=client)
 
     try:
         with open(config_file, 'w') as f:
@@ -69,16 +69,16 @@ def main():
         supports_check_mode=True
     )
     if not HAS_SDK:
-        module.fail_json(msg='ionossdk is required for this module, run `pip install ionossdk`')
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ionossdk-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')
 
-    configuration = ionossdk.Configuration(
+    configuration = ionoscloud.Configuration(
         username=username,
         password=password
     )

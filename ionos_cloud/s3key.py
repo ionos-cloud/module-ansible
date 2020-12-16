@@ -25,12 +25,12 @@ EXAMPLES = '''
 
 HAS_SDK = True
 try:
-    import ionossdk
-    from ionossdk import __version__ as sdk_version
-    from ionossdk.models import S3Key
-    from ionossdk.models import S3KeyProperties
-    from ionossdk.rest import ApiException
-    from ionossdk import ApiClient
+    import ionoscloud
+    from ionoscloud import __version__ as sdk_version
+    from ionoscloud.models import S3Key
+    from ionoscloud.models import S3KeyProperties
+    from ionoscloud.rest import ApiException
+    from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -53,7 +53,7 @@ def create_s3key(module, client):
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
-    user_management_server = ionossdk.UserManagementApi(client)
+    user_management_server = ionoscloud.UserManagementApi(client)
 
     try:
         response = user_management_server.um_users_s3keys_post_with_http_info(user_id=user_id)
@@ -83,7 +83,7 @@ def delete_s3key(module, client):
     user_id = module.params.get('user_id')
     key_id = module.params.get('key_id')
 
-    user_management_server = ionossdk.UserManagementApi(client)
+    user_management_server = ionoscloud.UserManagementApi(client)
 
     try:
         user_management_server.um_users_s3keys_delete(user_id, key_id)
@@ -109,7 +109,7 @@ def update_s3key(module, client):
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
-    user_management_server = ionossdk.UserManagementApi(client)
+    user_management_server = ionoscloud.UserManagementApi(client)
 
     properties = S3KeyProperties(active=active)
 
@@ -166,17 +166,17 @@ def main():
         supports_check_mode=True
     )
     if not HAS_SDK:
-        module.fail_json(msg='ionossdk is required for this module, run `pip install ionossdk`')
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
-    user_agent = 'ionossdk-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')
 
-    configuration = ionossdk.Configuration(
+    configuration = ionoscloud.Configuration(
         username=username,
         password=password
     )

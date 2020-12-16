@@ -55,7 +55,7 @@ The Ionos module for Ansible has a couple of requirements:
 - Ionos Cloud account
 - Python
 - [Ansible](https://www.ansible.com/)
-- [Ionos SDK for Python](https://pypi.org/project/ionossdk/)
+- [Ionos SDK for Python](https://pypi.org/project/ionoscloud/)
 
 Before you begin you will need to have signed-up for a Ionos account. The credentials you establish during sign-up will be used to authenticate against the Ionos Cloud API.
 
@@ -63,7 +63,7 @@ Ansible must also be installed before the Ionos module can be used. Please revie
 
 Lastly, the Ionos module requires the Ionos SDK for Python to be installed. This can easily be accomplished with Python PyPI.
 
-    pip install ionossdk
+    pip install ionoscloud
 
 ## Installation
 

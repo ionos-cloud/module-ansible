@@ -101,11 +101,11 @@ import six
 from six.moves import configparser
 
 try:
-    import ionossdk
-    from ionossdk import __version__ as sdk_version
-    from ionossdk import Configuration, ApiClient
+    import ionoscloud
+    from ionoscloud import __version__ as sdk_version
+    from ionoscloud import Configuration, ApiClient
 except ImportError:
-    sys.exit("Failed to import `ionossdk` library. Try `pip install ionossdk`'")
+    sys.exit("Failed to import `ionoscloud` library. Try `pip install ionoscloud`'")
 
 
 class IonosCloudInventory(object):
@@ -137,7 +137,7 @@ class IonosCloudInventory(object):
                 username=self.username,
                 password=self.password)
 
-            user_agent = 'ionossdk-python/%s Ansible' % (sdk_version)
+            user_agent = 'ionoscloud-python/%s Ansible' % (sdk_version)
 
             self.client = ApiClient(configuration)
             self.client.user_agent = user_agent
@@ -308,12 +308,12 @@ class IonosCloudInventory(object):
     def fetch_resources(self, resource):
         instance_data = {}
 
-        datacenter_server = ionossdk.DataCenterApi(self.client)
-        lan_server = ionossdk.LanApi(self.client)
-        location_server = ionossdk.LocationApi(self.client)
-        image_server = ionossdk.ImageApi(self.client)
-        server_server = ionossdk.ServerApi(self.client)
-        volume_server = ionossdk.VolumeApi(self.client)
+        datacenter_server = ionoscloud.DataCenterApi(self.client)
+        lan_server = ionoscloud.LanApi(self.client)
+        location_server = ionoscloud.LocationApi(self.client)
+        image_server = ionoscloud.ImageApi(self.client)
+        server_server = ionoscloud.ServerApi(self.client)
+        volume_server = ionoscloud.VolumeApi(self.client)
 
         datacenters = datacenter_server.datacenters_get(depth=3).items
         if resource == 'datacenters' or resource == 'all':
@@ -453,7 +453,7 @@ class IonosCloudInventory(object):
             for server in self.data['servers']:
                 if host == server.id:
                     datacenter_id = self._parse_id_from_href(server['href'], 2)
-                    return ionossdk.ServerApi(self.client).datacenters_servers_get(datacenter_id=datacenter_id, depth=5)
+                    return ionoscloud.ServerApi(self.client).datacenters_servers_get(datacenter_id=datacenter_id, depth=5)
         else:
             for server in self.data.servers:
                 for nic in server.entities.nics.items:
@@ -461,7 +461,7 @@ class IonosCloudInventory(object):
                         if host == ip:
                             datacenter_id = self._parse_id_from_href(server['href'], 2)
                             server_id = self._parse_id_from_href(server['href'], 0)
-                            return ionossdk.ServerApi(self.client).datacenters_servers_get(datacenter_id=datacenter_id,
+                            return ionoscloud.ServerApi(self.client).datacenters_servers_get(datacenter_id=datacenter_id,
                                                                                            depth=5)
 
         return {}

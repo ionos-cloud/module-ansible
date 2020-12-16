@@ -42,12 +42,12 @@ EXAMPLES = '''
 
 HAS_SDK = True
 try:
-    import ionossdk
-    from ionossdk import __version__ as sdk_version
-    from ionossdk.models import KubernetesCluster, KubernetesClusterProperties, KubernetesNodePool, \
+    import ionoscloud
+    from ionoscloud import __version__ as sdk_version
+    from ionoscloud.models import KubernetesCluster, KubernetesClusterProperties, KubernetesNodePool, \
         KubernetesNodePoolProperties, KubernetesNodePoolPropertiesForPut
-    from ionossdk.rest import ApiException
-    from ionossdk import ApiClient
+    from ionoscloud.rest import ApiException
+    from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -86,7 +86,7 @@ def create_k8s_cluster_nodepool(module, client):
     wait = module.params.get('wait')
     public_ips = module.params.get('public_ips')
 
-    k8s_server = ionossdk.KubernetesApi(api_client=client)
+    k8s_server = ionoscloud.KubernetesApi(api_client=client)
 
     auto_scaling = None
     if auto_scaling_dict:
@@ -143,7 +143,7 @@ def create_k8s_cluster_nodepool(module, client):
 def delete_k8s_cluster_nodepool(module, client):
     k8s_cluster_id = module.params.get('k8s_cluster_id')
     nodepool_id = module.params.get('nodepool_id')
-    k8s_server = ionossdk.KubernetesApi(api_client=client)
+    k8s_server = ionoscloud.KubernetesApi(api_client=client)
 
     changed = False
 
@@ -185,7 +185,7 @@ def update_k8s_cluster_nodepool(module, client):
     k8s_version = module.params.get('k8s_version')
     public_ips = module.params.get('public_ips')
 
-    k8s_server = ionossdk.KubernetesApi(api_client=client)
+    k8s_server = ionoscloud.KubernetesApi(api_client=client)
 
     auto_scaling = None
     if auto_scaling_dict:
@@ -290,16 +290,16 @@ def main():
         supports_check_mode=True
     )
     if not HAS_SDK:
-        module.fail_json(msg='ionossdk is required for this module, run `pip install ionossdk`')
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ionossdk-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')
 
-    configuration = ionossdk.Configuration(
+    configuration = ionoscloud.Configuration(
         username=username,
         password=password
     )
