@@ -73,11 +73,11 @@ Lastly, the Ionos module requires the Ionos SDK for Python to be installed. This
 
     Download and extract with `curl`:
 
-        mkdir -p ionos-module-ansible && curl -L https://github.com/ionos-cloud/sdk-ansible/tarball/master | tar zx -C ionos-module-ansible/ --strip-components=1
+        mkdir -p ionos-module-ansible && curl -L https://github.com/ionos-cloud/module-ansible/tarball/master | tar zx -C ionos-module-ansible/ --strip-components=1
 
     Clone the GitHub repository locally:
 
-        git clone https://github.com/ionos-cloud/sdk-ansible
+        git clone https://github.com/ionos-cloud/module-ansible
 
 2.  Ansible must be made aware of the new module path. This too can be accomplished a few different ways depending on your requirements and environment.
 
@@ -1092,7 +1092,7 @@ You are welcome to contact us with questions or comments using the **Community**
 
 - [Ionos API](https://devops.ionos.com/api/cloud/v4/) documentation.
 - Ask a question or discuss at [Ionos DevOps Central](https://devops.ionos.com/community/).
-- Report an [issue here](https://github.com/ionos-cloud/sdk-ansible/issues).
+- Report an [issue here](https://github.com/ionos-cloud/module-ansible/issues).
 
 ## Testing
 
@@ -1110,7 +1110,7 @@ Note: The Ionos public image UUIDs change periodically due to updates. Therefore
 
 ## Contributing
 
-1. Fork the repository ([https://github.com/ionos-cloud/sdk-ansible/fork](https://github.com/ionos-cloud/sdk-ansible/fork))
+1. Fork the repository ([https://github.com/ionos-cloud/module-ansible/fork](https://github.com/ionos-cloud/module-ansible/fork))
 2. Create your feature branch (git checkout -b my-new-feature)
 3. Commit your changes (git commit -am 'Add some feature')
 4. Push to the branch (git push origin my-new-feature)

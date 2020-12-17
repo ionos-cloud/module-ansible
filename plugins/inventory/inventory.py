@@ -118,7 +118,7 @@ class IonosCloudInventory(object):
         self.vars = {}
 
         # Defaults, if not found in the settings file
-        self.cache_path = '.'
+        self.cache_path = ''
         self.cache_max_age = 0
 
         # Read settings, environment variables, and CLI arguments

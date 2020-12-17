@@ -1,4 +1,4 @@
-## 5.0.0 (16 December, 2020)
+## 5.0.0 (17 December, 2020)
 
 #### Features:
 - **IPFailover** now supports dynamically generated IPs
