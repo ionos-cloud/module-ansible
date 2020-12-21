@@ -5,7 +5,7 @@ namespace: ionoscloudsdk
 name: ionoscloud
 
 # The version of the collection.
-version: 5.0.0
+version: 5.0.1
 
 readme: README.md
 
@@ -14,7 +14,16 @@ authors:
 
 description: The Ansible module of the Ionos Cloud API.
 
+build_ignore:
+  - .idea
+  - .github
+
 tags: [cloud, ionos, infrastructure, storage, k8s, development]
+
+license:
+- GPL-2.0-or-later
+
+license_file: ''
 
 # The URL of the originating SCM repository
 repository: https://github.com/ionos-cloud/module-ansible

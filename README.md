@@ -2,7 +2,7 @@
 
 # Ansible Module
 
-Version: **ionos-cloud-module-ansible v5.0.0**
+Version: **ionos-cloud-module-ansible v5.0.1**
 
 API Version: **Ionos Cloud Cloud API v5**
 
