@@ -1,0 +1,87 @@
+# Introduction
+
+[![Gitter](https://img.shields.io/gitter/room/ionos-cloud/sdk-general)](https://gitter.im/ionos-cloud/sdk-general)
+
+## Overview
+
+Ansible is an IT automation tool that allows users to configure, deploy, and orchestrate advanced tasks such as continuous deployments or zero downtime rolling updates. The Ionos module for Ansible leverages the Ionos Cloud API.
+
+## Getting Started
+
+Source code and in-depth documentation about installation and usage are available [here](https://github.com/ionos-cloud/module-ansible%20). The module is also available on [Ansible Galaxy](https://galaxy.ansible.com/ionoscloudsdk/ionoscloud).
+
+The IONOS module for Ansible has a couple of requirements:
+
+* IONOS Cloud account
+* Python
+* [Ansible](https://www.ansible.com/)
+* [Ionos SDK for Python](https://pypi.org/project/ionoscloud/)
+
+Before you begin you will need to have signed-up for an IONOS account. The credentials you establish during sign-up will be used to authenticate against the Ionos Cloud API.
+
+Ansible must also be installed before the IONOS module can be used. Please review the official [Ansible Documentation](http://docs.ansible.com/ansible/intro_installation.html) for more information on installing Ansible.
+
+Lastly, the IONOS module requires the IONOS SDK for Python to be installed. This can easily be accomplished with Python PyPI:
+
+```text
+pip install ionoscloud
+```
+
+### Installation
+
+1. The IONOS module for Ansible must first be downloaded from GitHub. This can be accomplished a few different ways such as downloading and extracting the archive using `curl` or cloning the GitHub repository locally.
+
+   Download and extract with `curl`:
+
+   ```text
+   mkdir -p ionos-module-ansible && curl -L https://github.com/ionos-cloud/module-ansible/tarball/master | tar zx -C ionos-module-ansible/ --strip-components=1
+   ```
+
+   Clone the GitHub repository locally:
+
+   ```text
+   git clone https://github.com/ionos-cloud/module-ansible
+   ```
+
+2. Ansible must be made aware of the new module path. This too can be accomplished a few different ways depending on your requirements and environment.
+
+   * Ansible configuration file: `ansible.cfg`
+   * Environment variable: `ANSIBLE_LIBRARY`
+   * Command line parameter: `ansible-playbook --module-path [path]`
+
+   2a. The preferred method is to update the Ansible configuration with the module path. To include the path globally for all users, edit the `/etc/ansible/ansible.cfg` file and add `library = /path/to/module/ionos_cloud` under the **\[default\]** section. For example:
+
+   ```text
+   [default]
+   library = /path/to/ionos-module-ansible/ionos_cloud
+   ```
+
+   Note that the Ansible configuration file is read from several locations in the following order:
+
+   * `ANSIBLE_CONFIG` environment variable path
+   * `ansible.cfg` from the current directory
+   * `.ansible.cfg` in the user home directory
+   * `/etc/ansible/ansible.cfg`
+
+   2b. The module path can also be set using an environment variable. This variable will be lost once the terminal session is closed:
+
+   ```text
+   export ANSIBLE_LIBRARY=/path/to/ionos-module-ansible/ionos_cloud
+   ```
+
+   2c. The module path can be overridden with an `ansible-playbook` command line parameter:
+
+   ```text
+   ansible-playbook --module-path /path/to/ionos-module-ansible/ionos_cloud playbook.yml
+   ```
+
+## FAQ
+
+1. How can I open a bug/feature request?
+
+Bugs & feature requests can be open on the repository issues: [https://github.com/ionos-cloud/module-ansible/issues/new/choose](https://github.com/ionos-cloud/module-ansible/issues/new/choose)
+
+1. Can I contribute to the Ansible Module?
+
+Sure! Our repository is public, feel free to fork it and file a PR for one of the issues opened in the issues list. We will review it and work together to get it released.
+
