@@ -4,24 +4,24 @@
 
 ## Overview
 
-Ansible is an IT automation tool that allows users to configure, deploy, and orchestrate advanced tasks such as continuous deployments or zero downtime rolling updates. The Ionos module for Ansible leverages the Ionos Cloud API.
+Ansible is an IT automation tool that allows you to configure, deploy, and orchestrate advanced tasks, such as continuous deployments or zero downtime rolling updates. The IONOS module for Ansible leverages the IONOS Cloud API.
 
 ## Getting Started
 
-Source code and in-depth documentation about installation and usage are available [here](https://github.com/ionos-cloud/module-ansible%20). The module is also available on [Ansible Galaxy](https://galaxy.ansible.com/ionoscloudsdk/ionoscloud).
+Source code and in-depth documentation about installation and use are available [here](https://github.com/ionos-cloud/module-ansible%20). The module is also available on [Ansible Galaxy](https://galaxy.ansible.com/ionoscloudsdk/ionoscloud).
 
-The IONOS module for Ansible has a couple of requirements:
+The IONOS module for Ansible requires the following:
 
 * IONOS Cloud account
 * Python
 * [Ansible](https://www.ansible.com/)
 * [Ionos SDK for Python](https://pypi.org/project/ionoscloud/)
 
-Before you begin you will need to have signed-up for an IONOS account. The credentials you establish during sign-up will be used to authenticate against the Ionos Cloud API.
+Before you begin you will need an IONOS account. The credentials from your registration will be used to authenticate against the IONOS Cloud API.
 
 Ansible must also be installed before the IONOS module can be used. Please review the official [Ansible Documentation](http://docs.ansible.com/ansible/intro_installation.html) for more information on installing Ansible.
 
-Lastly, the IONOS module requires the IONOS SDK for Python to be installed. This can easily be accomplished with Python PyPI:
+The IONOS module requires the IONOS SDK for Python to be installed. This can easily be accomplished with Python PyPI:
 
 ```text
 pip install ionoscloud
