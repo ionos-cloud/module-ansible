@@ -1,6 +1,12 @@
 # Introduction
 
 [![Gitter](https://img.shields.io/gitter/room/ionos-cloud/sdk-general)](https://gitter.im/ionos-cloud/sdk-general)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ansible-module&metric=alert_status)](https://sonarcloud.io/dashboard?id=ansible-module)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ansible-module&metric=bugs)](https://sonarcloud.io/dashboard?id=ansible-module)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ansible-module&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=ansible-module)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=ansible-module&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=ansible-module)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ansible-module&metric=security_rating)](https://sonarcloud.io/dashboard?id=ansible-module)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=ansible-module&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=ansible-module)
 
 ## Overview
 
