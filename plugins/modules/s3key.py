@@ -53,10 +53,10 @@ def create_s3key(module, client):
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
-    user_management_server = ionoscloud.UserManagementApi(client)
+    user_s3keys_server = ionoscloud.UserS3KeysApi(client)
 
     try:
-        response = user_management_server.um_users_s3keys_post_with_http_info(user_id=user_id)
+        response = user_s3keys_server.um_users_s3keys_post_with_http_info(user_id=user_id)
         (s3key_response, _, headers) = response
 
         if wait:
@@ -83,10 +83,10 @@ def delete_s3key(module, client):
     user_id = module.params.get('user_id')
     key_id = module.params.get('key_id')
 
-    user_management_server = ionoscloud.UserManagementApi(client)
+    user_s3keys_server = ionoscloud.UserS3KeysApi(client)
 
     try:
-        user_management_server.um_users_s3keys_delete(user_id, key_id)
+        user_s3keys_server.um_users_s3keys_delete(user_id, key_id)
         return {
             'action': 'delete',
             'changed': True,
@@ -109,14 +109,14 @@ def update_s3key(module, client):
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
-    user_management_server = ionoscloud.UserManagementApi(client)
+    user_s3keys_server = ionoscloud.UserS3KeysApi(client)
 
     properties = S3KeyProperties(active=active)
 
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        response = user_management_server.um_users_s3keys_put_with_http_info(user_id, key_id, S3Key(properties=properties))
+        response = user_s3keys_server.um_users_s3keys_put_with_http_info(user_id, key_id, S3Key(properties=properties))
         (s3key_response, _, headers) = response
 
         if wait:

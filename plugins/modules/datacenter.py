@@ -185,7 +185,7 @@ def create_datacenter(module, client):
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
-    datacenter_server = ionoscloud.DataCenterApi(client)
+    datacenter_server = ionoscloud.DataCentersApi(client)
     datacenters = datacenter_server.datacenters_get(depth=2)
 
     for dc in datacenters.items:
@@ -237,7 +237,7 @@ def update_datacenter(module, client):
     description = module.params.get('description')
     datacenter_id = module.params.get('id')
     wait = module.params.get('wait')
-    datacenter_server = ionoscloud.DataCenterApi(client)
+    datacenter_server = ionoscloud.DataCentersApi(client)
 
     if description is None:
         return {
@@ -287,7 +287,7 @@ def remove_datacenter(module, client):
     """
     name = module.params.get('name')
     datacenter_id = module.params.get('id')
-    datacenter_server = ionoscloud.DataCenterApi(client)
+    datacenter_server = ionoscloud.DataCentersApi(client)
     changed = False
 
     if datacenter_id:

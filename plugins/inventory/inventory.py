@@ -308,12 +308,12 @@ class IonosCloudInventory(object):
     def fetch_resources(self, resource):
         instance_data = {}
 
-        datacenter_server = ionoscloud.DataCenterApi(self.client)
-        lan_server = ionoscloud.LanApi(self.client)
-        location_server = ionoscloud.LocationApi(self.client)
-        image_server = ionoscloud.ImageApi(self.client)
-        server_server = ionoscloud.ServerApi(self.client)
-        volume_server = ionoscloud.VolumeApi(self.client)
+        datacenter_server = ionoscloud.DataCentersApi(self.client)
+        lan_server = ionoscloud.LansApi(self.client)
+        location_server = ionoscloud.LocationsApi(self.client)
+        image_server = ionoscloud.ImagesApi(self.client)
+        server_server = ionoscloud.ServersApi(self.client)
+        volume_server = ionoscloud.VolumesApi(self.client)
 
         datacenters = datacenter_server.datacenters_get(depth=3).items
         if resource == 'datacenters' or resource == 'all':
@@ -453,7 +453,7 @@ class IonosCloudInventory(object):
             for server in self.data['servers']:
                 if host == server.id:
                     datacenter_id = self._parse_id_from_href(server['href'], 2)
-                    return ionoscloud.ServerApi(self.client).datacenters_servers_get(datacenter_id=datacenter_id, depth=5)
+                    return ionoscloud.ServersApi(self.client).datacenters_servers_get(datacenter_id=datacenter_id, depth=5)
         else:
             for server in self.data.servers:
                 for nic in server.entities.nics.items:
@@ -461,7 +461,7 @@ class IonosCloudInventory(object):
                         if host == ip:
                             datacenter_id = self._parse_id_from_href(server['href'], 2)
                             server_id = self._parse_id_from_href(server['href'], 0)
-                            return ionoscloud.ServerApi(self.client).datacenters_servers_get(datacenter_id=datacenter_id,
+                            return ionoscloud.ServersApi(self.client).datacenters_servers_get(datacenter_id=datacenter_id,
                                                                                            depth=5)
 
         return {}

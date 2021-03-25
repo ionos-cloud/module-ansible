@@ -152,7 +152,6 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-
 def create_user(module, client, api_client):
     """
     Creates a user.
@@ -170,9 +169,6 @@ def create_user(module, client, api_client):
     if not lastname:
         module.fail_json(msg='lastname parameter is required')
     email = module.params.get('email')
-    user_password = module.params.get('user_password')
-    if not user_password:
-        module.fail_json(msg='user_password parameter is required')
     administrator = module.params.get('administrator')
     force_sec_auth = module.params.get('force_sec_auth')
     wait = module.params.get('wait')
@@ -204,8 +200,7 @@ def create_user(module, client, api_client):
         user_properties = UserProperties(firstname=firstname, lastname=lastname, email=email,
                                          administrator=administrator or False,
                                          force_sec_auth=force_sec_auth or False,
-                                         s3_canonical_user_id=s3_canonical_user_id,
-                                         password=user_password)
+                                         s3_canonical_user_id=s3_canonical_user_id)
 
         user = User(properties=user_properties)
         response = client.um_users_post_with_http_info(user)
@@ -382,7 +377,6 @@ def main():
             firstname=dict(type='str'),
             lastname=dict(type='str'),
             email=dict(type='str', required=True),
-            user_password=dict(type='str', default=None, no_log=True),
             administrator=dict(type='bool', default=None),
             force_sec_auth=dict(type='bool', default=None),
             groups=dict(type='list', default=None),

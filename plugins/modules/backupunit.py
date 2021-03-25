@@ -54,7 +54,7 @@ def create_backupunit(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    backupunit_server = ionoscloud.BackupUnitApi(client)
+    backupunit_server = ionoscloud.BackupUnitsApi(client)
 
     backupunit_properties = BackupUnitProperties(name=name, password=password, email=email)
     backupunit = BackupUnit(properties=backupunit_properties)
@@ -85,7 +85,7 @@ def create_backupunit(module, client):
 
 def delete_backupunit(module, client):
     backupunit_id = module.params.get('backupunit_id')
-    backupunit_server = ionoscloud.BackupUnitApi(client)
+    backupunit_server = ionoscloud.BackupUnitsApi(client)
 
     try:
         backupunit_server.backupunits_delete(backupunit_id)
@@ -111,7 +111,7 @@ def update_backupunit(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    backupunit_server = ionoscloud.BackupUnitApi(client)
+    backupunit_server = ionoscloud.BackupUnitsApi(client)
 
     backupunit_properties = BackupUnitProperties(password=password, email=email)
     backupunit = BackupUnit(properties=backupunit_properties)

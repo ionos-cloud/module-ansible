@@ -224,6 +224,8 @@ def _create_volume(module, volume_server, datacenter, name, client):
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
 
+    volume_response = None
+
     if module.check_mode:
         module.exit_json(changed=True)
 
@@ -260,6 +262,8 @@ def _update_volume(module, volume_server, api_client, datacenter, volume_id):
     bus = module.params.get('bus')
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
+
+    volume_response = None
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -308,9 +312,9 @@ def create_volume(module, client):
     auto_increment = module.params.get('auto_increment')
     count = module.params.get('count')
 
-    volume_server = ionoscloud.VolumeApi(client)
-    datacenter_server = ionoscloud.DataCenterApi(client)
-    servers_server = ionoscloud.ServerApi(client)
+    volume_server = ionoscloud.VolumesApi(client)
+    datacenter_server = ionoscloud.DataCentersApi(client)
+    servers_server = ionoscloud.ServersApi(client)
 
     datacenter_found = False
     volumes = []
@@ -337,7 +341,7 @@ def create_volume(module, client):
             if (hasattr(e, 'message') and e.message.startswith('not all') or to_native(e).startswith('not all')):
                 name = '%s%%d' % name
             else:
-                module.fail_json(msg=e.message, exception=traceback.format_exc())
+                module.fail_json(msg=e, exception=traceback.format_exc())
 
         number_range = xrange(count_offset, count_offset + count + len(numbers))
         available_numbers = list(set(number_range).difference(numbers))
@@ -391,8 +395,8 @@ def update_volume(module, client):
     datacenter = module.params.get('datacenter')
     instance_ids = module.params.get('instance_ids')
 
-    volume_server = ionoscloud.VolumeApi(client)
-    datacenter_server = ionoscloud.DataCenterApi(client)
+    volume_server = ionoscloud.VolumesApi(client)
+    datacenter_server = ionoscloud.DataCentersApi(client)
 
     datacenter_found = False
     failed = True
@@ -411,6 +415,7 @@ def update_volume(module, client):
         module.fail_json(msg='datacenter could not be found.')
 
     for n in instance_ids:
+        update_response = None
         if (uuid_match.match(n)):
             update_response = _update_volume(module, volume_server, client, datacenter, n)
             changed = True
@@ -451,8 +456,8 @@ def delete_volume(module, client):
         True if the volumes were removed, false otherwise
     """
 
-    volume_server = ionoscloud.VolumeApi(client)
-    datacenter_server = ionoscloud.DataCenterApi(client)
+    volume_server = ionoscloud.VolumesApi(client)
+    datacenter_server = ionoscloud.DataCentersApi(client)
 
     if not isinstance(module.params.get('instance_ids'), list) or len(module.params.get('instance_ids')) < 1:
         module.fail_json(msg='instance_ids should be a list of volume ids or names, aborting')

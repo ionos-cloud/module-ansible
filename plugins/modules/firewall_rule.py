@@ -268,9 +268,10 @@ def create_firewall_rule(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
-    server_server = ionoscloud.ServerApi(api_client=client)
-    nic_server = ionoscloud.NicApi(api_client=client)
+    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
+    server_server = ionoscloud.ServersApi(api_client=client)
+    nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
+    firewall_rules_server = ionoscloud.FirewallRulesApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -284,8 +285,8 @@ def create_firewall_rule(module, client):
     nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=2)
     nic_id = _get_resource_id(nic_list, nic, module, "NIC")
 
-    fw_list = nic_server.datacenters_servers_nics_firewallrules_get(datacenter_id=datacenter_id, server_id=server_id,
-                                                                    nic_id=nic_id, depth=2)
+    fw_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id, server_id,
+                                                                    nic_id, depth=2)
     f = None
     for fw in fw_list.items:
         if name == fw.properties.name:
@@ -325,7 +326,7 @@ def create_firewall_rule(module, client):
     firewall_rule = FirewallRule(properties=firewall_properties)
 
     try:
-        response = nic_server.datacenters_servers_nics_firewallrules_post_with_http_info(datacenter_id=datacenter_id,
+        response = firewall_rules_server.datacenters_servers_nics_firewallrules_post_with_http_info(datacenter_id=datacenter_id,
                                                                                          server_id=server_id,
                                                                                          nic_id=nic_id,
                                                                                          firewallrule=firewall_rule)
@@ -369,9 +370,10 @@ def update_firewall_rule(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
-    server_server = ionoscloud.ServerApi(api_client=client)
-    nic_server = ionoscloud.NicApi(api_client=client)
+    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
+    server_server = ionoscloud.ServersApi(api_client=client)
+    nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
+    firewall_rules_server = ionoscloud.FirewallRulesApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -386,7 +388,7 @@ def update_firewall_rule(module, client):
     nic_id = _get_resource_id(nic_list, nic, module, "NIC")
 
     # Locate UUID for firewall rule
-    fw_list = nic_server.datacenters_servers_nics_firewallrules_get(datacenter_id=datacenter_id, server_id=server_id,
+    fw_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id=datacenter_id, server_id=server_id,
                                                                     nic_id=nic_id, depth=2)
     fw_id = _get_resource_id(fw_list, name, module, "Firewall rule")
 
@@ -406,7 +408,7 @@ def update_firewall_rule(module, client):
             firewall_rule_properties.icmp_code = icmp_code
             firewall_rule_properties.icmp_type = icmp_type
 
-        response = nic_server.datacenters_servers_nics_firewallrules_patch_with_http_info(datacenter_id=datacenter_id,
+        response = firewall_rules_server.datacenters_servers_nics_firewallrules_patch_with_http_info(datacenter_id=datacenter_id,
                                                                                           server_id=server_id,
                                                                                           nic_id=nic_id,
                                                                                           firewallrule_id=fw_id,
@@ -441,9 +443,11 @@ def delete_firewall_rule(module, client):
     server = module.params.get('server')
     nic = module.params.get('nic')
     name = module.params.get('name')
-    datacenter_server = ionoscloud.DataCenterApi(client)
-    server_server = ionoscloud.ServerApi(client)
-    nic_server = ionoscloud.NicApi(client)
+
+    datacenter_server = ionoscloud.DataCentersApi(client)
+    server_server = ionoscloud.ServersApi(client)
+    nic_server = ionoscloud.NetworkInterfacesApi(client)
+    firewall_rules_server = ionoscloud.FirewallRulesApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -458,7 +462,7 @@ def delete_firewall_rule(module, client):
     nic_id = _get_resource_id(nic_list, nic, module, "NIC")
 
     # Locate UUID for firewall rule
-    firewall_rule_list = nic_server.datacenters_servers_nics_firewallrules_get(datacenter_id=datacenter_id,
+    firewall_rule_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id=datacenter_id,
                                                                                server_id=server_id, nic_id=nic_id,
                                                                                depth=2)
     firewall_rule_id = _get_resource_id(firewall_rule_list, name, module, "Firewall rule")
@@ -467,7 +471,7 @@ def delete_firewall_rule(module, client):
         module.exit_json(changed=True)
 
     try:
-        firewall_rule_response = nic_server.datacenters_servers_nics_firewallrules_delete(datacenter_id=datacenter_id,
+        firewall_rules_server.datacenters_servers_nics_firewallrules_delete(datacenter_id=datacenter_id,
                                                                                           server_id=server_id,
                                                                                           nic_id=nic_id,
                                                                                           firewallrule_id=firewall_rule_id)

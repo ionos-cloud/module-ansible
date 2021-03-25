@@ -31,7 +31,7 @@ def get_config(module, client):
     try:
         with open(config_file, 'w') as f:
             response = k8s_server.k8s_kubeconfig_get(k8s_cluster_id=k8s_cluster_id)
-            f.write(response.properties.kubeconfig)
+            f.write(response)
 
     except Exception as e:
         module.fail_json(msg="failed to get the k8s cluster config: %s" % to_native(e))
@@ -39,7 +39,7 @@ def get_config(module, client):
     return {
         'failed': False,
         'changed': True,
-        'config': response.to_dict()
+        'config': response
     }
 
 
