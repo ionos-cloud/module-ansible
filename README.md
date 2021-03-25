@@ -14,7 +14,7 @@ Ansible is an IT automation tool that allows you to configure, deploy, and orche
 
 ## Getting Started
 
-Source code and in-depth documentation about installation and use are available [here](https://github.com/ionos-cloud/module-ansible%20). The module is also available on [Ansible Galaxy](https://galaxy.ansible.com/ionoscloudsdk/ionoscloud).
+Source code and in-depth documentation about installation and use are available [here](https://docs.ionos.com/ansible/). The module is also available on [Ansible Galaxy](https://galaxy.ansible.com/ionoscloudsdk/ionoscloud).
 
 The IONOS module for Ansible requires the following:
 
