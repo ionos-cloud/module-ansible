@@ -53,13 +53,13 @@ def create_flowlog(module, client):
     """
     Creates a Flowlog
 
-    This will create a new Datacenter in the specified location.
+    This will create a new Flowlog in the specified location.
 
     module : AnsibleModule object
     client: authenticated ionoscloud object.
 
     Returns:
-        The datacenter ID if a new datacenter was created.
+        The flowlog ID if a new flowlog was created.
     """
     name = module.params.get('name')
     action = module.params.get('action')
@@ -116,7 +116,7 @@ def update_flowlog(module, client):
     client: authenticated ionoscloud object.
 
     Returns:
-        True if a new datacenter was updated, false otherwise
+        True if the flowlog was updated, false otherwise
     """
     name = module.params.get('name')
     action = module.params.get('action')
@@ -145,7 +145,7 @@ def update_flowlog(module, client):
                 changed = True
 
     if not changed:
-        module.fail_json(msg="failed to update the datacenter: The resource does not exist")
+        module.fail_json(msg="failed to update the flowlog: The resource does not exist")
 
     return {
         'changed': changed,
@@ -197,8 +197,8 @@ def remove_flowlog(module, client):
             for f in flowlogs.items:
                 if name == f.properties.name:
                     flowlog_id = f.id
-                    response = nic_flowlog_server.datacenters_servers_nics_flowlogs_delete_with_http_info(datacenter_id, server_id, nic_id, f.id)
-                    (flowlog_id_response, _, headers) = response
+                    response = nic_flowlog_server.datacenters_servers_nics_flowlogs_delete_with_http_info(datacenter_id, server_id, nic_id, flowlog_id)
+                    (flowlog_response, _, headers) = response
 
                     if wait:
                         request_id = _get_request_id(headers['Location'])
