@@ -1,0 +1,100 @@
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Create datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        description: "{{ description }}"
+        location: "{{ location }}"
+        wait: true
+      register: datacenter_response
+
+    - name: Create ipblock
+      ipblock:
+        name: "{{ name }}"
+        location: "{{ location }}"
+        size: 2
+        state: present
+      register: ipblock_response
+
+    - name: Create NAT Gateway
+      nat_gateway:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        name: "{{ name }}"
+        public_ips: "{{ ipblock_response.ipblock.properties.ips }}"
+        wait: true
+      register: nat_gateway_response
+
+    - name: Debug - Show NAT Gateway
+      debug:
+         msg: "{{ nat_gateway_response }}"
+
+    - name: Create NAT Gateway Rule
+      nat_gateway_rule:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+        name: "{{ name }}"
+        type: "SNAT"
+        protocol: "TCP"
+        source_subnet: "10.0.1.0/24"
+        target_subnet: "10.0.1.0"
+        target_port_range:
+          start: 10000
+          end: 20000
+        public_ip: "{{ ipblock_response.ipblock.properties.ips[0] }}"
+        wait: true
+      register: nat_gateway_rule_response
+
+    - name: Debug - Show NAT Gateway Rule
+      debug:
+         msg: "{{ nat_gateway_rule_response }}"
+
+    - name: Update NAT Gateway Rule
+      nat_gateway_rule:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+        nat_gateway_rule_id: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
+        public_ip: "{{ ipblock_response.ipblock.properties.ips[1] }}"
+        name: "{{ name }} - UPDATED"
+        type: "SNAT"
+        protocol: "TCP"
+        source_subnet: "10.0.1.0/24"
+        wait: true
+        state: update
+      register: nat_gateway_rule_update_response
+
+    - name: Debug - Show Updated NAT Gateway Rule
+      debug:
+         msg: "{{ nat_gateway_rule_update_response }}"
+
+    - name: Delete NAT Gateway Rule
+      nat_gateway_rule:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+        nat_gateway_rule_id: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
+        state: absent
+
+    - name: Remove NAT Gateway
+      nat_gateway:
+       nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       wait: true
+       wait_timeout: 2000
+       state: absent
+
+    - name: Remove datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        wait: true
+        state: absent
+
+    - name: Remove ipblock
+      ipblock:
+        name: "{{ name }}"
+        state: absent
