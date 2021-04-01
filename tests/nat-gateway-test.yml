@@ -48,7 +48,9 @@
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }} - UPDATED"
         public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
+        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
         wait: true
+        state: update
       register: nat_gateway_response_update
 
     - name: Debug - Show NAT Gateway
@@ -73,7 +75,12 @@
         wait: true
         state: absent
 
-    - name: Remove ipblock
+    - name: Remove ipblock - create
       ipblock:
         name: "{{ name }} - create"
+        state: absent
+
+    - name: Remove ipblock - update
+      ipblock:
+        name: "{{ name }} - update"
         state: absent

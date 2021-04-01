@@ -71,6 +71,7 @@ def create_nat_gateway(module, client):
 
     nat_gateway_server = ionoscloud.NATGatewaysApi(client)
     nat_gateways = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=2)
+    nat_gateway_response = None
 
     for nat_gateway in nat_gateways.items:
         if name == nat_gateway.properties.name:
@@ -84,27 +85,23 @@ def create_nat_gateway(module, client):
     nat_gateway_properties = NatGatewayProperties(name=name, public_ips=public_ips, lans=lans)
     nat_gateway = NatGateway(properties=nat_gateway_properties)
 
-    # try:
-    response = nat_gateway_server.datacenters_natgateways_post_with_http_info(datacenter_id, nat_gateway)
-    (nat_gateway_response, _, headers) = response
+    try:
+        response = nat_gateway_server.datacenters_natgateways_post_with_http_info(datacenter_id, nat_gateway)
+        (nat_gateway_response, _, headers) = response
 
-    f = open("log", 'w')
-    f.write(str(response))
-    f.close()
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-    if wait:
-        request_id = _get_request_id(headers['Location'])
-        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to create the new NAT Gateway: %s" % to_native(e))
 
-    return{
+    return {
         'changed': True,
         'failed': False,
         'action': 'create',
         'nat_gateway': nat_gateway_response.to_dict()
     }
-
-    # except ApiException as e:
-    #     module.fail_json(msg="failed to create the new NAT Gateway: %s" % to_native(e))
 
 
 def update_nat_gateway(module, client):
@@ -177,13 +174,7 @@ def remove_nat_gateway(module, client):
 
     try:
         if nat_gateway_id:
-
-            f = open("badbadbad", 'w')
-            f.write(nat_gateway_id)
-            f.close()
-
             response = nat_gateway_server.datacenters_natgateways_delete_with_http_info(datacenter_id, nat_gateway_id)
-
             (nat_gateway_response, _, headers) = response
 
             if wait:
@@ -279,8 +270,8 @@ def main():
                 module.fail_json(msg='datacenter_id parameter is required for a new NAT Gateway')
 
             try:
-                (nat_gateway_dict_array) = create_nat_gateway(module, api_client)
-                module.exit_json(**nat_gateway_dict_array)
+                (nat_gateway_dict) = create_nat_gateway(module, api_client)
+                module.exit_json(**nat_gateway_dict)
             except Exception as e:
                 module.fail_json(msg='failed to set NAT Gateway state: %s' % to_native(e))
 
