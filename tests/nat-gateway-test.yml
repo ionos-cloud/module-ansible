@@ -57,10 +57,6 @@
       debug:
          msg: "{{ nat_gateway_response_update }}"
 
-    - name: Debug - Show NAT Gateway ID
-      debug:
-         msg: "{{ nat_gateway_response.nat_gateway.id }}"
-
     - name: Remove NAT Gateway
       nat_gateway:
        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"

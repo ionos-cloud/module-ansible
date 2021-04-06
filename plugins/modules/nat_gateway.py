@@ -30,7 +30,8 @@ uuid_match = re.compile(
 def _update_nat_gateway(module, client, nat_gateway_server, datacenter_id, nat_gateway_id, nat_gateway_properties):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
-    response = nat_gateway_server.datacenters_natgateways_patch_with_http_info(datacenter_id, nat_gateway_id, nat_gateway_properties)
+    response = nat_gateway_server.datacenters_natgateways_patch_with_http_info(datacenter_id, nat_gateway_id,
+                                                                               nat_gateway_properties)
     (nat_gateway_response, _, headers) = response
 
     if wait:
@@ -128,7 +129,8 @@ def update_nat_gateway(module, client):
 
     if nat_gateway_id:
         nat_gateway_properties = NatGatewayProperties(name=name, public_ips=public_ips, lans=lans)
-        nat_gateway_response = _update_nat_gateway(module, client, nat_gateway_server, datacenter_id, nat_gateway_id, nat_gateway_properties)
+        nat_gateway_response = _update_nat_gateway(module, client, nat_gateway_server, datacenter_id, nat_gateway_id,
+                                                   nat_gateway_properties)
         changed = True
 
     else:
@@ -136,7 +138,8 @@ def update_nat_gateway(module, client):
         for n in nat_gateways.items:
             if name == n.properties.name:
                 nat_gateway_properties = NatGatewayProperties(name=name, public_ips=public_ips, lans=lans)
-                nat_gateway_response = _update_nat_gateway(module, client, nat_gateway_server, datacenter_id, n.id, nat_gateway_properties)
+                nat_gateway_response = _update_nat_gateway(module, client, nat_gateway_server, datacenter_id, n.id,
+                                                           nat_gateway_properties)
                 changed = True
 
     if not changed:
@@ -188,7 +191,8 @@ def remove_nat_gateway(module, client):
             for n in nat_gateways.items:
                 if name == n.properties.name:
                     nat_gateway_id = n.id
-                    response = nat_gateway_server.datacenters_natgateways_delete_with_http_info(datacenter_id, nat_gateway_id)
+                    response = nat_gateway_server.datacenters_natgateways_delete_with_http_info(datacenter_id,
+                                                                                                nat_gateway_id)
                     (nat_gateway_response, _, headers) = response
 
                     if wait:
@@ -252,6 +256,8 @@ def main():
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent
         if state == 'absent':
+            if not module.params.get('datacenter_id'):
+                module.fail_json(msg='datacenter_id parameter is required for a deleting a NAT Gateway')
             if not (module.params.get('name') or module.params.get('nat_gateway_id')):
                 module.fail_json(msg='name parameter or nat_gateway_id parameter are required deleting a NAT Gateway.')
             try:
@@ -276,6 +282,11 @@ def main():
                 module.fail_json(msg='failed to set NAT Gateway state: %s' % to_native(e))
 
         elif state == 'update':
+            if not (module.params.get('name') or module.params.get('nat_gateway_id')):
+                module.fail_json(
+                    msg='name parameter or nat_gateway_id parameter are required for updating a NAT Gateway.')
+            if not module.params.get('datacenter_id'):
+                module.fail_json(msg='datacenter_id parameter is required for updating a NAT Gateway.')
             try:
                 (nat_gateway_dict_array) = update_nat_gateway(module, api_client)
                 module.exit_json(**nat_gateway_dict_array)
