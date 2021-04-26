@@ -49,6 +49,13 @@ jobs:
         run: |
           python3 -m pip list
       # pip3 list
+      
+      - name: Inline python step
+        run: |
+            import ionoscloud 
+            from ionoscloud import __version__ as sdk_version
+            print('ionoscloud version is %s' % sdk_version)
+        shell: python
 
       - name: Run playbook
         uses: dawidd6/action-ansible-playbook@v2
