@@ -90,9 +90,9 @@ jobs:
 #         run: |
 #           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/s3key-test.yml
 
-      - name: Run Server test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/server-test.yml
+#       - name: Run Server test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/server-test.yml
 
       - name: Run Snapshot test
         run: |
