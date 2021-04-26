@@ -16,7 +16,7 @@ jobs:
 
     name: Testing the Ansible Module
     env:
-        python-version: 3.9.0
+        python-version: 3.8.0
         ionoscloud-version: 6.0.0b5
 
     # The type of runner that the job will run on
