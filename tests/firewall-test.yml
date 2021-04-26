@@ -24,6 +24,7 @@
          image: "{{ image }}"
          image_password: "{{ password }}"
          location: "{{ location }}"
+         cpu_family: "INTEL_SKYLAKE"
          wait: true
          wait_timeout: "{{ timeout }}"
          state: present

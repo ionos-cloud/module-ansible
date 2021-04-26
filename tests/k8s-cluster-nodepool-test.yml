@@ -44,7 +44,7 @@
         k8s_cluster_id:  "{{ cluster.cluster.id }}"
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         node_count: 2
-        cpu_family: "AMD_OPTERON"
+        cpu_family: "INTEL_SKYLAKE"
         cores_count: "1"
         ram_size: "2048"
         availability_zone: "AUTO"
@@ -63,7 +63,7 @@
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         nodepool_id: "{{ result.nodepool.id }}"
         node_count: 2
-        cpu_family: "AMD_OPTERON"
+        cpu_family: "INTEL_SKYLAKE"
         cores_count: "1"
         ram_size: "2048"
         availability_zone: "AUTO"
