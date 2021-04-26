@@ -34,6 +34,7 @@
         id: "{{ datacenter_response.datacenter.id }}"
         name: "{{ datacenter }}"
         state: absent
+        wait: true
       register: deleted_datacenter
 
     - name: Debug - Show Deleted Datacenter

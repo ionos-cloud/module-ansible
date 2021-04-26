@@ -50,3 +50,4 @@
       datacenter:
         name: "{{ datacenter }}"
         state: absent
+        wait: true
