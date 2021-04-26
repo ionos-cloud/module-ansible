@@ -130,9 +130,9 @@ jobs:
 #         run: |
 #           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
           
-      - name: Run Kubeconfig test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-config-test.yml
+#       - name: Run Kubeconfig test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-config-test.yml
 
       - name: Run K8s Cluster test
         run: |
