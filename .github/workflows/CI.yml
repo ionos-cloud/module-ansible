@@ -53,12 +53,13 @@ jobs:
         run: |
           python3 -m pip list
           
-      - name: Run Datacenter test
+      - name: Run tests
         env:
           IONOS_USERNAME: ${{ secrets.IONOS_VDC_USER }}
           IONOS_PASSWORD: ${{ secrets.IONOS_VDC_PASSWORD }}
+          FILES: datacenter-test.yml backupunit-test.yml
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml -vvv
+          for f in $FILES; do ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ f }} -vvv
       
 
        
