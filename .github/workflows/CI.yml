@@ -78,13 +78,13 @@ jobs:
 #         run: |
 #           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/lan-test.yml
 
-      - name: Run Nic test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-test.yml
+#       - name: Run Nic test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-test.yml
 
-      - name: Run PCC test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/pcc-test.yml
+#       - name: Run PCC test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/pcc-test.yml
 
       - name: Run S3key test
         run: |
