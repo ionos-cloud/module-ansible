@@ -94,41 +94,55 @@ jobs:
 #         run: |
 #           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/server-test.yml
 
-      - name: Run Snapshot test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/snapshot-test.yml
+#       - name: Run Snapshot test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/snapshot-test.yml
 
-      - name: Run Template test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/template-test.yml
+#       - name: Run Template test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/template-test.yml
 
-      - name: Run Volume test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
+#       - name: Run Volume test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
 
-      - name: Run NAT Gateway test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-test.yml
+#       - name: Run NAT Gateway test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-test.yml
 
-      - name: Run NAT Gateway Flowlog test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-flowlog-test.yml
+#       - name: Run NAT Gateway Flowlog test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-flowlog-test.yml
 
-      - name: Run NAT Gateway Rule test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-rule-test.yml
+#       - name: Run NAT Gateway Rule test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-rule-test.yml
 
-      - name: Run Network Load Balancer test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
+#       - name: Run Network Load Balancer test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
 
-      - name: Run Network Load Balancer Flowlog test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
+#       - name: Run Network Load Balancer Flowlog test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
 
-      - name: Run Network Load Balancer Forwarding Rule test
+#       - name: Run Network Load Balancer Forwarding Rule test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
+          
+      - name: Run Kubeconfig test
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-config-test.yml
+
+      - name: Run K8s Cluster test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-test.yml
+          
+      - name: Run K8s Nodepool test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-nodepool-test.yml
+                    
+
 
 #       - name: Run User test
 #         run: |
