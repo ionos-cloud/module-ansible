@@ -55,4 +55,4 @@ jobs:
           IONOS_PASSWORD: ${{ secrets.IONOS_VDC_PASSWORD }}
         with:
           playbook: datacenter-test.yml
-          directory: tests
+          directory: resources/module-ansible/tests
