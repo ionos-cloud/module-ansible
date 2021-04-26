@@ -6,10 +6,6 @@
     - vars.yml
 
   tasks:
-    - name: Install specified python requirements
-      pip:
-        name: https://test-files.pythonhosted.org/packages/89/06/d481f1e13f59ddd83eeea2df70eb53ee844e73ec7ebb0161878245cfb729/ionoscloud-6.0.0b5.tar.gz
-
     - name: Create datacenter
       datacenter:
         name: "{{ datacenter }}"
