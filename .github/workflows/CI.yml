@@ -43,6 +43,11 @@ jobs:
           pip install virtualenv
           pip install ionoscloud
       # pip install -i https://test.pypi.org/simple/ ionoscloud==${{ env.ionoscloud-version }}
+      
+      - name: Debug pip packages
+        run: |
+          pip list
+          pip3 list
 
       - name: Run playbook
         uses: dawidd6/action-ansible-playbook@v2
