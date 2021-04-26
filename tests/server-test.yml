@@ -25,7 +25,7 @@
          availability_zone: ZONE_1
          volume_availability_zone: ZONE_3
          volume_size: 5
-         cpu_family: AMD_OPTERON
+         cpu_family: INTEL_SKYLAKE
          disk_type: HDD
          image: "{{ image }}"
          image_password: "{{ password }}"
@@ -45,6 +45,7 @@
          instance_ids:
            - "{{ name }} 01"
          cores: 2
+         cpu_family: INTEL_SKYLAKE
          ram: 2048
          wait_timeout: "{{ timeout }}"
          state: update

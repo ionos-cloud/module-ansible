@@ -93,7 +93,7 @@
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         server_id: "{{ server_response.machines[0].id }}"
         nic_id: "{{ nic_response.nic.id }}"
-#        flowlog_id: "{{ flowlog_response.flowlog.id }}"
+        flowlog_id: "{{ flowlog_response.flowlog.id }}"
         name: "{{ name }}"
         state: absent
       register: flowlog_delete_response
@@ -103,8 +103,8 @@
       debug:
         msg: "{{ flowlog_delete_response }}"
 
-#
-#    - name: Remove datacenter
-#      datacenter:
-#        name: "{{ datacenter }}"
-#        state: absent
+
+    - name: Remove datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        state: absent
