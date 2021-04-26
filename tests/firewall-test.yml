@@ -26,7 +26,7 @@
          location: "{{ location }}"
          cpu_family: "INTEL_SKYLAKE"
          wait: true
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: present
       register: ionos_cloud
 
@@ -45,7 +45,7 @@
          dhcp: true
          firewall_active: true
          wait: true
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: present
       register: ionos_cloud_nic
 
@@ -80,7 +80,7 @@
          nic: "{{ nic }}"
          name: SSH
          wait: true
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: absent
 
     - name: Remove datacenter

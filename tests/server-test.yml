@@ -36,7 +36,7 @@
          assign_public_ip: true
          remove_boot_volume: true
          wait: true
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: present
 
     - name: Update server
@@ -47,7 +47,7 @@
          cores: 2
          cpu_family: INTEL_SKYLAKE
          ram: 2048
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: update
 
     - name: Stop server
@@ -55,7 +55,7 @@
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} 01"
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: stopped
 
     - name: Start server
@@ -63,7 +63,7 @@
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} 01"
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: running
 
     - name: Start server
@@ -71,7 +71,7 @@
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} 01"
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: running
 
     - name: Remove server
@@ -80,7 +80,7 @@
          instance_ids:
            - "{{ name }} 01"
          remove_boot_volume: yes
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: absent
 
     - name: Remove datacenter

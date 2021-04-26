@@ -37,7 +37,7 @@
         location: "gb/lhr"
         cpu_family: INTEL_SKYLAKE
         wait: true
-        wait_timeout: "{{ timeout }}"
+        wait_timeout: "{{ wait_timeout }}"
         state: present
       register: server_response
 
@@ -50,7 +50,7 @@
        dhcp: true
        firewall_active: true
        wait: true
-       wait_timeout: "{{ timeout }}"
+       wait_timeout: "{{ wait_timeout }}"
        state: present
       register: nic_response
 

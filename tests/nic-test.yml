@@ -27,8 +27,9 @@
          location: "{{ location }}"
          assign_public_ip: true
          remove_boot_volume: true
+         cpu_family: "INTEL_SKYLAKE"
          wait: true
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: present
       register: ionos_cloud
 
@@ -49,7 +50,7 @@
        ips:
          - 10.0.0.1
        wait: true
-       wait_timeout: "{{ timeout }}"
+       wait_timeout: "{{ wait_timeout }}"
        state: present
       register: ionos_cloud_nic
 
@@ -65,7 +66,7 @@
        id: "{{ ionos_cloud_nic.nic.id }}"
        dhcp: false
        wait: true
-       wait_timeout: "{{ timeout }}"
+       wait_timeout: "{{ wait_timeout }}"
        state: update
       register: updated_nic
 
@@ -79,7 +80,7 @@
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          wait: true
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: absent
 
     - name: Remove datacenter
