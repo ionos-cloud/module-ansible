@@ -35,12 +35,6 @@ options:
       - The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create.
     required: true
     default: None
-  nat:
-    description:
-      - Boolean value indicating if the private IP address has outbound access to the public internet.
-    required: false
-    default: None
-    version_added: "2.3"
   dhcp:
     description:
       - Boolean value indicating if the NIC is using DHCP or not.
@@ -178,7 +172,6 @@ def create_nic(module, client):
     server = module.params.get('server')
     lan = module.params.get('lan')
     dhcp = module.params.get('dhcp') or False
-    nat = module.params.get('nat') or False
     firewall_active = module.params.get('firewall_active')
     ips = module.params.get('ips')
     name = module.params.get('name')
@@ -262,7 +255,6 @@ def update_nic(module, client):
     datacenter = module.params.get('datacenter')
     server = module.params.get('server')
     lan = module.params.get('lan')
-    nat = module.params.get('nat')
     dhcp = module.params.get('dhcp')
     firewall_active = module.params.get('firewall_active')
     ips = module.params.get('ips')
@@ -311,8 +303,6 @@ def update_nic(module, client):
             lan = nic.properties.lan
         if firewall_active is None:
             firewall_active = nic.properties.firewall_active
-        if nat is None:
-            nat = nic.properties.nat
         if dhcp is None:
             dhcp = nic.properties.dhcp
 
@@ -435,7 +425,6 @@ def main():
             id=dict(type='str', default=str(uuid4()).replace('-', '')[:10]),
             lan=dict(type='int', default=None),
             dhcp=dict(type='bool', default=None),
-            nat=dict(type='bool', default=None),
             firewall_active=dict(type='bool', default=None),
             ips=dict(type='list', default=None),
             api_url=dict(type='str', default=None),
