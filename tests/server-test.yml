@@ -29,8 +29,6 @@
          disk_type: HDD
          image: "{{ image }}"
          image_password: "{{ password }}"
-         ssh_keys:
-            - "{{ ssh_public_key }}"
          location: "{{ location }}"
          count: 1
          assign_public_ip: true
