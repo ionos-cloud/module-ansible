@@ -66,13 +66,13 @@ jobs:
 #         run: |
 #           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-flowlog-test.yml
 
-      - name: Run Firewall test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/firewall-test.yml
+#       - name: Run Firewall test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/firewall-test.yml
 
-      - name: Run IP Block test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/ipblock-test.yml
+#       - name: Run IP Block test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/ipblock-test.yml
 
       - name: Run LAN test
         run: |
