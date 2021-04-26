@@ -52,3 +52,6 @@ jobs:
         with:
           playbook: datacenter-test.yml
           directory: /home/runner/work/module-ansible/module-ansible/tests
+          options: |
+            --verbose
+
