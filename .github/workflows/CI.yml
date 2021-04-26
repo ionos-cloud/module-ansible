@@ -46,6 +46,7 @@ jobs:
         env:
           IONOS_USERNAME: ${{ secrets.IONOS_VDC_USER }}
           IONOS_PASSWORD: ${{ secrets.IONOS_VDC_PASSWORD }}
+          ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
         with:
           playbook: datacenter-test.yml
           directory: /home/runner/work/module-ansible/module-ansible/tests
