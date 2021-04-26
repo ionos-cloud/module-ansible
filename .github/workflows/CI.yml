@@ -59,7 +59,8 @@ jobs:
           IONOS_PASSWORD: ${{ secrets.IONOS_VDC_PASSWORD }}
           FILES: datacenter-test.yml backupunit-test.yml
         run: |
-          for f in $FILES; do ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ f }} -vvv
+          cd /home/runner/work/module-ansible/module-ansible/tests/
+          for f in $FILES; do ansible-playbook f -vvv; done
       
 
        
