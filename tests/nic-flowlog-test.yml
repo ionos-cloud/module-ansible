@@ -9,7 +9,7 @@
     - name: Create datacenter
       datacenter:
         name: "{{ datacenter }}"
-        location: "{{ location }}"
+        location: "gb/lhr"
         wait: True
       register: datacenter_response
 
@@ -34,7 +34,7 @@
         volume_size: 14
         image: "{{ image }}"
         image_password: "{{ password }}"
-        location: "{{ location }}"
+        location: "gb/lhr"
         cpu_family: INTEL_SKYLAKE
         wait: true
         wait_timeout: "{{ timeout }}"
