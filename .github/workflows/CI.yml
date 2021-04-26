@@ -74,9 +74,9 @@ jobs:
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/ipblock-test.yml
 
-      - name: Run LAN test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/lan-test.yml
+#       - name: Run LAN test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/lan-test.yml
 
       - name: Run Nic test
         run: |
