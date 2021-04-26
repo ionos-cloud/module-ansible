@@ -27,14 +27,6 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
-      # Checkout sdk-resources
-      - name: Checkout module-ansible
-        uses: actions/checkout@v2
-        with:
-          path: resources
-          ref: feat/implement-cloudapi-v6-features
-
-
       - name: Setup Python ${{ env.python-version }}
         uses: actions/setup-python@v2
         with:
@@ -55,4 +47,4 @@ jobs:
           IONOS_PASSWORD: ${{ secrets.IONOS_VDC_PASSWORD }}
         with:
           playbook: datacenter-test.yml
-          directory: resources/module-ansible/tests
+          directory: module-ansible/tests
