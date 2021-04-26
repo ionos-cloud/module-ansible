@@ -101,14 +101,14 @@ import json
 
 HAS_SDK = True
 
-try:
-    import ionoscloud
-    from ionoscloud import __version__ as sdk_version
-    from ionoscloud.models import Datacenter, DatacenterProperties
-    from ionoscloud.rest import ApiException
-    from ionoscloud import ApiClient
-except ImportError:
-    HAS_SDK = False
+# try:
+import ionoscloud
+from ionoscloud import __version__ as sdk_version
+from ionoscloud.models import Datacenter, DatacenterProperties
+from ionoscloud.rest import ApiException
+from ionoscloud import ApiClient
+# except ImportError:
+#     HAS_SDK = False
 
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
@@ -189,7 +189,7 @@ def create_datacenter(module, client):
     datacenters = datacenter_server.datacenters_get(depth=2)
 
     for dc in datacenters.items:
-        if name == dc.properties.name:
+        if name == dc.properties.name and location == dc.properties.location:
             return {
                 'changed': False,
                 'failed': False,
