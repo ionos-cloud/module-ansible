@@ -54,17 +54,17 @@ jobs:
         run: |
           python3 -m pip list
           
-      - name: Run Datacenter tests
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml
+#       - name: Run Datacenter tests
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml
           
-      - name: Run Backupunit tests
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/backupunit-test.yml
+#       - name: Run Backupunit tests
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/backupunit-test.yml
           
-      - name: Run Nic Flowlog test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-flowlog-test.yml
+#       - name: Run Nic Flowlog test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-flowlog-test.yml
 
       - name: Run Firewall test
         run: |
