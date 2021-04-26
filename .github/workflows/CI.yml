@@ -29,6 +29,8 @@ jobs:
     
       - name: Checkout
         uses: actions/checkout@v2
+        with: 
+            ref: feat/implement-cloudapi-v6-features
 
       - name: Setup Python ${{ env.python-version }}
         uses: actions/setup-python@v2
