@@ -57,15 +57,11 @@ jobs:
           
       - name: Run datacenter tests
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml -vvv
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml
           
       - name: Run backupunit tests
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/backupunit-test.yml -vvv
-      
-      - name: Run Nic Flowlog tests
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-flowlog-test.yml -vvv
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/backupunit-test.yml
           
       - name: Run Nic Flowlog test
         run: |
