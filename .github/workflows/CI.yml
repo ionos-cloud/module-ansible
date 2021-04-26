@@ -16,7 +16,7 @@ jobs:
 
     name: Testing the Ansible Module
     env:
-        python-version: 2.7.18
+        python-version: 3.9.0
         ionoscloud-version: 6.0.0b5
 
     # The type of runner that the job will run on
@@ -39,14 +39,13 @@ jobs:
 
       - name: Setup pip, virtualenv, ionoscloud
         run: |
-          python -m pip install --upgrade pip
-          pip install virtualenv
-          pip install ionoscloud
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ionoscloud
       # pip install -i https://test.pypi.org/simple/ ionoscloud==${{ env.ionoscloud-version }}
       
       - name: Debug pip packages
         run: |
-          pip list
+          python3 -m pip list
       # pip3 list
 
       - name: Run playbook
