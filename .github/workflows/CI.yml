@@ -18,6 +18,7 @@ jobs:
     env:
         python-version: 3.8.0
         ionoscloud-version: 6.0.0b5
+        ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
 
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -42,23 +43,25 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install ionoscloud
           python3 -m pip install -i https://test.pypi.org/simple/ ionoscloud==${{ env.ionoscloud-version }}
+          
+      
+      - name: Install Ansible
+        run: |
+            python3 -m pip install ansible
       
       - name: Debug pip packages
         run: |
           python3 -m pip list
-      
-      - name: Inline python step
+          
+      - name: Run Datacenter test
+        env:
+          IONOS_USERNAME: ${{ secrets.IONOS_VDC_USER }}
+          IONOS_PASSWORD: ${{ secrets.IONOS_VDC_PASSWORD }}
         run: |
-            import ionoscloud 
-            from ionoscloud import __version__ as sdk_version
-            print('ionoscloud version is %s' % sdk_version)
-        shell: python
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml -vvv
+      
+
        
-      - name: Run playbook
-        uses: saubermacherag/ansible-playbook-docker-action@v1.3
-        with:
-          playbookName: /home/runner/work/module-ansible/module-ansible/plugins/modules/datacenter-test.yml
-          verbosity: "vv"
 
 #       - name: Run playbook
 #         uses: dawidd6/action-ansible-playbook@v2
