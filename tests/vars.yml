@@ -5,7 +5,7 @@ server: ANSIBLE TEST
 nic: ansible test
 lan: ansible test
 location: de/fra
-image: f7213902-cd78-11e9-b88c-525400f64d8d
+image: c9fac8c3-92af-11eb-b68e-9ad3ea4b1420
 password: qq6mdvirWwj1dsdXjcpp
 updated_password: fjee83jkw940djcer
 timeout: 500
