@@ -41,6 +41,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install ionoscloud
+          ls -al
       # pip install -i https://test.pypi.org/simple/ ionoscloud==${{ env.ionoscloud-version }}
       
       - name: Debug pip packages
