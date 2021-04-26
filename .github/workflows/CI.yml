@@ -135,11 +135,11 @@ jobs:
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
 
-      - name: Run User test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
+#       - name: Run User test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
 
-      - name: Run Group test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
+#       - name: Run Group test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
        
