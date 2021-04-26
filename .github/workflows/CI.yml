@@ -86,9 +86,9 @@ jobs:
 #         run: |
 #           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/pcc-test.yml
 
-      - name: Run S3key test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/s3key-test.yml
+#       - name: Run S3key test
+#         run: |
+#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/s3key-test.yml
 
       - name: Run Server test
         run: |
