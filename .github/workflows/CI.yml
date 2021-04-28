@@ -66,21 +66,21 @@ jobs:
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-flowlog-test.yml
 
-#       - name: Run Firewall test
-#         run: |
-#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/firewall-test.yml
+      - name: Run Firewall test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/firewall-test.yml
 
       - name: Run IP Block test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/ipblock-test.yml
 
-#       - name: Run LAN test
-#         run: |
-#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/lan-test.yml
+      - name: Run LAN test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/lan-test.yml
 
-#       - name: Run Nic test
-#         run: |
-#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-test.yml
+      - name: Run Nic test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-test.yml
 
       - name: Run PCC test
         run: |
@@ -90,21 +90,21 @@ jobs:
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/s3key-test.yml
 
-#       - name: Run Server test
-#         run: |
-#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/server-test.yml
+      - name: Run Server test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/server-test.yml
 
-#       - name: Run Snapshot test
-#         run: |
-#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/snapshot-test.yml
+      - name: Run Snapshot test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/snapshot-test.yml
 
       - name: Run Template test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/template-test.yml
 
-#       - name: Run Volume test
-#         run: |
-#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
+      - name: Run Volume test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
 
       - name: Run NAT Gateway test
         run: |
