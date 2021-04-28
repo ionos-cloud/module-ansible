@@ -13,6 +13,11 @@
         description: "{{ description }}"
         wait: true
         location: "{{ location }}"
+      register: datacenter_response
+
+    - name: Debug - show datacenter
+      debug:
+        msg: "{{ datacenter_response }}"
 
     - name: Provision server
       server:
