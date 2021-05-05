@@ -108,7 +108,7 @@ jobs:
 
       - name: Run NAT Gateway test
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-test.yml -vvv
 
       - name: Run NAT Gateway Flowlog test
         run: |
