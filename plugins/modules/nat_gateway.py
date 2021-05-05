@@ -84,8 +84,9 @@ def create_nat_gateway(module, client):
             }
 
     nat_gateway_lans = []
-    for lan in lans:
-        nat_gateway_lans.append(NatGatewayLanProperties(id=lan['id'], gateway_ips=lan['gateway_ips']))
+    if lans:
+        for lan in lans:
+            nat_gateway_lans.append(NatGatewayLanProperties(id=lan['id'], gateway_ips=lan['gateway_ips']))
 
     nat_gateway_properties = NatGatewayProperties(name=name, public_ips=public_ips, lans=nat_gateway_lans)
     nat_gateway = NatGateway(properties=nat_gateway_properties)
