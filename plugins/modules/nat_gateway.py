@@ -13,7 +13,7 @@ HAS_SDK = True
 try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
-    from ionoscloud.models import NatGateway, NatGatewayProperties
+    from ionoscloud.models import NatGateway, NatGatewayProperties, NatGatewayLanProperties
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
@@ -83,7 +83,11 @@ def create_nat_gateway(module, client):
                 'nat_gateway': nat_gateway.to_dict()
             }
 
-    nat_gateway_properties = NatGatewayProperties(name=name, public_ips=public_ips, lans=lans)
+    nat_gateway_lans = []
+    for lan in lans:
+        nat_gateway_lans.append(NatGatewayLanProperties(id=lan['id'], gateway_ips=lan['gateway_ips']))
+
+    nat_gateway_properties = NatGatewayProperties(name=name, public_ips=public_ips, lans=nat_gateway_lans)
     nat_gateway = NatGateway(properties=nat_gateway_properties)
 
     try:
