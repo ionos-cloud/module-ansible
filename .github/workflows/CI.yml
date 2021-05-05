@@ -142,11 +142,11 @@ jobs:
 #         run: |
 #           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-nodepool-test.yml
                     
-#       - name: Run User test
-#         run: |
-#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
+      - name: Run User test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
 
-#       - name: Run Group test
-#         run: |
-#           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
+      - name: Run Group test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
        
