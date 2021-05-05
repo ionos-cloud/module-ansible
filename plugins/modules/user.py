@@ -174,6 +174,7 @@ def create_user(module, client, api_client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
     s3_canonical_user_id = module.params.get('s3_canonical_user_id')
+    user_password = module.params.get('user_password')
 
     user = None
 
@@ -200,7 +201,8 @@ def create_user(module, client, api_client):
         user_properties = UserProperties(firstname=firstname, lastname=lastname, email=email,
                                          administrator=administrator or False,
                                          force_sec_auth=force_sec_auth or False,
-                                         s3_canonical_user_id=s3_canonical_user_id)
+                                         s3_canonical_user_id=s3_canonical_user_id,
+                                         password=user_password)
 
         user = User(properties=user_properties)
         response = client.um_users_post_with_http_info(user)
@@ -380,6 +382,7 @@ def main():
             administrator=dict(type='bool', default=None),
             force_sec_auth=dict(type='bool', default=None),
             groups=dict(type='list', default=None),
+            user_password=dict(type='str', no_log=True),
             api_url=dict(type='str', default=None),
             sec_auth_active=dict(type='bool', default=False),
             s3_canonical_user_id=dict(type='str'),
