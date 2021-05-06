@@ -45,7 +45,7 @@ try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import KubernetesCluster, KubernetesClusterProperties, KubernetesNodePool, \
-        KubernetesNodePoolProperties, KubernetesNodePoolPropertiesForPut
+        KubernetesNodePoolProperties, KubernetesNodePoolPropertiesForPut, KubernetesNodePoolForPut
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
@@ -212,7 +212,7 @@ def update_k8s_cluster_nodepool(module, client):
             k8s_version=k8s_version, maintenance_window=maintenance_window,
             auto_scaling=auto_scaling, lans=lan_ids, public_ips=public_ips)
 
-        k8s_nodepool = KubernetesNodePool(properties=k8s_nodepool_properties)
+        k8s_nodepool = KubernetesNodePoolForPut(properties=k8s_nodepool_properties)
         k8s_response = k8s_server.k8s_nodepools_put(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id,
                                                                kubernetes_node_pool=k8s_nodepool)
 
