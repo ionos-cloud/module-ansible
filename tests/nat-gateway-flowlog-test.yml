@@ -40,7 +40,7 @@
         name: "{{ name }}"
         action: "ACCEPTED"
         direction: "INGRESS"
-        bucket: "sdktestv6"
+        bucket: "sdktest"
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
         wait: true
@@ -58,7 +58,7 @@
         name: "{{ name }}"
         action: "ALL"
         direction: "INGRESS"
-        bucket: "sdktestv6"
+        bucket: "sdktest"
         wait: true
         state: update
       register: nat_gateway_flowlog_update_response
