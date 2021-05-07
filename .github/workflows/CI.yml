@@ -17,7 +17,7 @@ jobs:
     name: Testing the Ansible Module
     env:
         python-version: 3.8.0
-        ionoscloud-version: 6.0.0b5
+        ionoscloud-version: 6.0.0b12
         ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
         IONOS_USERNAME: ${{ secrets.IONOS_VDC_USER }}
         IONOS_PASSWORD: ${{ secrets.IONOS_VDC_PASSWORD }}
