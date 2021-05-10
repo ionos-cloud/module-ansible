@@ -1,0 +1,69 @@
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Create datacenter
+      datacenter:
+        name: "{{ datacenter }}1"
+        description: "{{ description }}"
+        location: "de/txl"
+        wait: true
+      register: datacenter_response
+
+    - name: Create Cube Server
+      cube_server:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        name: "{{ name }}"
+        template_uuid: "15c6dd2f-02d2-4987-b439-9a58dd59ecc3"
+        volume_type: "DAS"
+        wait: true
+      register: cube_server_response
+
+    - name: Debug - Show Cube Server
+      debug:
+         msg: "{{ cube_server_response }}"
+
+    - name: Update Cube Server
+      cube_server:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        cube_server_id: "{{ cube_server_response.cube_server.id }}"
+        name: "{{ name }} - UPDATED"
+        wait: true
+        state: update
+      register: cube_server_response_update
+
+    - name: Debug - Show Cube Server
+      debug:
+         msg: "{{ cube_server_response_update }}"
+
+    - name: Suspend Cube Server
+      cube_server:
+       cube_server_id: "{{ cube_server_response.cube_server.id }}"
+       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       wait: true
+       state: suspend
+
+    - name: Resume Cube Server
+      cube_server:
+       cube_server_id: "{{ cube_server_response.cube_server.id }}"
+       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       wait: true
+       state: resume
+
+    - name: Remove Cube Server
+      cube_server:
+       cube_server_id: "{{ cube_server_response.cube_server.id }}"
+       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       wait: true
+       state: absent
+
+    - name: Remove datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        wait: true
+        state: absent

@@ -321,15 +321,14 @@ def _create_machine(module, client, datacenter, name):
     ssh_keys = module.params.get('ssh_keys')
     bus = module.params.get('bus')
     lan = module.params.get('lan')
-    nat = module.params.get('nat')
     image = module.params.get('image')
     assign_public_ip = module.boolean(module.params.get('assign_public_ip'))
     nic_ips = module.params.get('nic_ips')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    server_server = ionoscloud.ServerApi(api_client=client)
-    lan_server = ionoscloud.LanApi(api_client=client)
+    server_server = ionoscloud.ServersApi(api_client=client)
+    lan_server = ionoscloud.LansApi(api_client=client)
 
     nics = []
 
@@ -350,7 +349,7 @@ def _create_machine(module, client, datacenter, name):
 
             public_ip_lan_id = lan_response.id
 
-        nic = Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10], nat=nat,
+        nic = Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10],
                                            lan=int(public_ip_lan_id)))
         if nic_ips:
             nic.properties.ips = nic_ips
@@ -361,7 +360,7 @@ def _create_machine(module, client, datacenter, name):
         matching_lan = _get_lan_by_id_or_properties(lans_list, lan, name=lan)
 
         if (not any(n.properties.lan == int(matching_lan.id) for n in nics)) or len(nics) < 1:
-            nic = Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10], nat=nat,
+            nic = Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10],
                                                lan=int(int(matching_lan.id))))
             if nic_ips:
                 nic.properties.ips = nic_ips
@@ -420,7 +419,7 @@ def _create_machine(module, client, datacenter, name):
 
 def _startstop_machine(module, client, datacenter_id, server_id, current_state):
     state = module.params.get('state')
-    server_server = ionoscloud.ServerApi(api_client=client)
+    server_server = ionoscloud.ServersApi(api_client=client)
     server = None
     changed = False
     try:
@@ -458,7 +457,7 @@ def _create_datacenter(module, client):
     datacenter = module.params.get('datacenter')
     location = module.params.get('location')
     wait_timeout = module.params.get('wait_timeout')
-    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
+    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
 
     datacenter_properties = DatacenterProperties(name=datacenter, location=location)
     datacenter = Datacenter(properties=datacenter_properties)
@@ -495,9 +494,9 @@ def create_virtual_machine(module, client):
 
     virtual_machines = []
 
-    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
-    server_server = ionoscloud.ServerApi(api_client=client)
-    nic_server = ionoscloud.NicApi(api_client=client)
+    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
+    server_server = ionoscloud.ServersApi(api_client=client)
+    nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
 
     # Locate UUID for datacenter if referenced by name.
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -575,8 +574,8 @@ def update_server(module, client):
     datacenter = module.params.get('datacenter')
     instance_ids = module.params.get('instance_ids')
 
-    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
-    server_server = ionoscloud.ServerApi(api_client=client)
+    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
+    server_server = ionoscloud.ServersApi(api_client=client)
 
     if not isinstance(module.params.get('instance_ids'), list) or len(module.params.get('instance_ids')) < 1:
         module.fail_json(msg='instance_ids should be a list of virtual machine ids or names, aborting')
@@ -648,8 +647,8 @@ def remove_virtual_machine(module, client):
     remove_boot_volume = module.params.get('remove_boot_volume')
     changed = False
 
-    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
-    server_server = ionoscloud.ServerApi(api_client=client)
+    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
+    server_server = ionoscloud.ServersApi(api_client=client)
 
     server_id = None
 
@@ -695,7 +694,7 @@ def _remove_boot_volume(module, client, datacenter_id, server_id):
     """
     Remove the boot volume from the server
     """
-    server_server = ionoscloud.ServerApi(api_client=client)
+    server_server = ionoscloud.ServersApi(api_client=client)
     try:
         server = server_server.datacenters_servers_find_by_id(datacenter_id, server_id, depth=2)
         volume = server.properties.boot_volume
@@ -722,8 +721,8 @@ def startstop_machine(module, client, state):
     datacenter = module.params.get('datacenter')
     instance_ids = module.params.get('instance_ids')
 
-    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
-    server_server = ionoscloud.ServerApi(api_client=client)
+    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
+    server_server = ionoscloud.ServersApi(api_client=client)
 
     # Locate UUID for datacenter if referenced by name.
     datacenter_list = datacenter_server.datacenters_get(depth=2)

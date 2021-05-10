@@ -88,6 +88,3 @@ The following parameters are supported:
 | wait\_timeout | no | integer | 600 | The number of seconds until the wait ends. |
 | remove\_boot\_volume | no | boolean | true | Remove the boot volume of the server being deleted. |
 | state | no | string | present | Indicate desired state of the resource: **present**, absent, running, stopped, update |
-
-\_\_
-

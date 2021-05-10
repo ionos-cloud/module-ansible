@@ -33,6 +33,7 @@
       backupunit:
         backupunit_id: "{{ create_result.backupunit.id }}"
         state: absent
+        wait: true
       register: delete_result
 
     - name: Debug - Show updated backupunit

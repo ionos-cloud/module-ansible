@@ -33,7 +33,7 @@ EXAMPLES = '''
 try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
-    from ionoscloud.models import KubernetesCluster, KubernetesClusterProperties
+    from ionoscloud.models import KubernetesCluster, KubernetesClusterProperties, KubernetesClusterForPut, KubernetesClusterPropertiesForPut
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
@@ -156,9 +156,9 @@ def update_k8s_cluster(module, client):
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        kubernetes_cluster_properties = KubernetesClusterProperties(name=cluster_name, k8s_version=k8s_version,
+        kubernetes_cluster_properties = KubernetesClusterPropertiesForPut(name=cluster_name, k8s_version=k8s_version,
                                                                     maintenance_window=maintenance_window)
-        kubernetes_cluster = KubernetesCluster(properties=kubernetes_cluster_properties)
+        kubernetes_cluster = KubernetesClusterForPut(properties=kubernetes_cluster_properties)
         k8s_response = k8s_server.k8s_put(k8s_cluster_id=k8s_cluster_id, kubernetes_cluster=kubernetes_cluster)
 
         if module.params.get('wait'):

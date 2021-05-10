@@ -54,7 +54,7 @@ def create_pcc(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    pcc_server = ionoscloud.PrivateCrossConnectApi(client)
+    pcc_server = ionoscloud.PrivateCrossConnectsApi(client)
 
     pcc_properties = PrivateCrossConnectProperties(name=name, description=description)
     pcc = PrivateCrossConnect(properties=pcc_properties)
@@ -80,7 +80,7 @@ def create_pcc(module, client):
 
 def delete_pcc(module, client):
     pcc_id = module.params.get('pcc_id')
-    pcc_server = ionoscloud.PrivateCrossConnectApi(client)
+    pcc_server = ionoscloud.PrivateCrossConnectsApi(client)
 
     try:
         pcc_server.pccs_delete(pcc_id)
@@ -105,7 +105,7 @@ def update_pcc(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    pcc_server = ionoscloud.PrivateCrossConnectApi(client)
+    pcc_server = ionoscloud.PrivateCrossConnectsApi(client)
 
     pcc_properties = PrivateCrossConnectProperties(name=name, description=description)
 

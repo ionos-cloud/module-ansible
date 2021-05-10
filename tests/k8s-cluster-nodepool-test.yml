@@ -10,7 +10,7 @@
       datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }}"
-        location: de/fra
+        location: "{{ location }}"
       register: datacenter_response
 
     - name: Create ipblock for create nodepool
@@ -35,7 +35,7 @@
         maintenance_window:
           day_of_the_week: "Wednesday"
           time: "12:02:00"
-        k8s_version: 1.19.2
+        wait: true
       register: cluster
 
     - name: Create k8s cluster nodepool
@@ -44,13 +44,15 @@
         k8s_cluster_id:  "{{ cluster.cluster.id }}"
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         node_count: 2
-        cpu_family: "AMD_OPTERON"
+        cpu_family: "INTEL_SKYLAKE"
         cores_count: "1"
         ram_size: "2048"
         availability_zone: "AUTO"
-        storage_type: "SSD"
+        storage_type: "HDD"
         storage_size: "100"
         public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
+        k8s_version: 1.19.10
+        wait: true
       register: result
 
     - name: Debug - Show nodepool
@@ -63,13 +65,14 @@
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         nodepool_id: "{{ result.nodepool.id }}"
         node_count: 2
-        cpu_family: "AMD_OPTERON"
+        cpu_family: "INTEL_SKYLAKE"
         cores_count: "1"
         ram_size: "2048"
         availability_zone: "AUTO"
-        storage_type: "SSD"
+        storage_type: "HDD"
         storage_size: "100"
         public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
+        wait: true
         state: update
 
     - name: Delete k8s cluster nodepool
@@ -82,12 +85,8 @@
     - name: Delete k8s cluster
       k8s_cluster:
         k8s_cluster_id: "{{ cluster.cluster.id }}"
+        wait: true
         state: absent
-
-    - name: Remove datacenter
-      datacenter:
-         name: "{{ datacenter }}"
-         state: absent
 
     - name: Remove ipblock for create nodepool
       ipblock:
@@ -98,4 +97,3 @@
       ipblock:
         name: "{{ name }} - update"
         state: absent
-

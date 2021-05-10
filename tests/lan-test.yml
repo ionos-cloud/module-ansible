@@ -11,6 +11,11 @@
         name: "{{ datacenter }}"
         location: "{{ location }}"
         wait: true
+      register: datacenter_response
+
+    - name: Debug - show datacenter
+      debug:
+        msg: "{{ datacenter_response }}"
 
     - name: Create ipblock
       ipblock:
@@ -31,6 +36,7 @@
         auto_increment: false
         cores: 1
         ram: 2048
+        cpu_family: INTEL_SKYLAKE
         volume_size: 5
         image: "{{ image }}"
         image_password: "{{ password }}"
@@ -38,7 +44,7 @@
         assign_public_ip: true
         remove_boot_volume: true
         wait: true
-        wait_timeout: "{{ timeout }}"
+        wait_timeout: "{{ wait_timeout }}"
         state: present
       register: ionos_cloud
 
@@ -63,7 +69,7 @@
         lan: "{{ ionos_cloud_lan.lan.id }}"
         firewall_active: true
         wait: true
-        wait_timeout: "{{ timeout }}"
+        wait_timeout: "{{ wait_timeout }}"
         state: present
       register: ionos_cloud_nic
 
@@ -93,7 +99,7 @@
         datacenter: "{{ datacenter }}"
         server: "{{ server }}"
         wait: true
-        wait_timeout: "{{ timeout }}"
+        wait_timeout: "{{ wait_timeout }}"
         state: absent
 
     - name: Remove LAN
@@ -101,6 +107,7 @@
         datacenter: "{{ datacenter }}"
         name: "{{ lan }}"
         state: absent
+        wait: true
 
     - name: Remove ipblock
       ipblock:
@@ -111,6 +118,7 @@
       datacenter:
         name: "{{ datacenter }}"
         state: absent
+        wait: true
 
     - name: Remove pcc
       pcc:

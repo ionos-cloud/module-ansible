@@ -35,12 +35,6 @@ options:
       - The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create.
     required: true
     default: None
-  nat:
-    description:
-      - Boolean value indicating if the private IP address has outbound access to the public internet.
-    required: false
-    default: None
-    version_added: "2.3"
   dhcp:
     description:
       - Boolean value indicating if the NIC is using DHCP or not.
@@ -178,16 +172,15 @@ def create_nic(module, client):
     server = module.params.get('server')
     lan = module.params.get('lan')
     dhcp = module.params.get('dhcp') or False
-    nat = module.params.get('nat') or False
     firewall_active = module.params.get('firewall_active')
     ips = module.params.get('ips')
     name = module.params.get('name')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
-    server_server = ionoscloud.ServerApi(api_client=client)
-    nic_server = ionoscloud.NicApi(api_client=client)
+    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
+    server_server = ionoscloud.ServersApi(api_client=client)
+    nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
 
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
@@ -227,8 +220,7 @@ def create_nic(module, client):
         }
 
     try:
-        nic_properties = NicProperties(name=name, ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active,
-                                       nat=nat)
+        nic_properties = NicProperties(name=name, ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active)
         nic = Nic(properties=nic_properties)
 
         response = nic_server.datacenters_servers_nics_post_with_http_info(datacenter_id=datacenter, server_id=server,
@@ -263,7 +255,6 @@ def update_nic(module, client):
     datacenter = module.params.get('datacenter')
     server = module.params.get('server')
     lan = module.params.get('lan')
-    nat = module.params.get('nat')
     dhcp = module.params.get('dhcp')
     firewall_active = module.params.get('firewall_active')
     ips = module.params.get('ips')
@@ -272,9 +263,9 @@ def update_nic(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
-    server_server = ionoscloud.ServerApi(api_client=client)
-    nic_server = ionoscloud.NicApi(api_client=client)
+    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
+    server_server = ionoscloud.ServersApi(api_client=client)
+    nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
 
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
@@ -312,13 +303,11 @@ def update_nic(module, client):
             lan = nic.properties.lan
         if firewall_active is None:
             firewall_active = nic.properties.firewall_active
-        if nat is None:
-            nat = nic.properties.nat
         if dhcp is None:
             dhcp = nic.properties.dhcp
 
         nic_properties = NicProperties(ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active,
-                                       nat=nat, name=name)
+                                       name=name)
 
         response = nic_server.datacenters_servers_nics_patch_with_http_info(datacenter_id=datacenter, server_id=server,
                                                                             nic_id=nic.id, nic=nic_properties)
@@ -355,9 +344,9 @@ def delete_nic(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
-    server_server = ionoscloud.ServerApi(api_client=client)
-    nic_server = ionoscloud.NicApi(api_client=client)
+    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
+    server_server = ionoscloud.ServersApi(api_client=client)
+    nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
 
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
@@ -436,7 +425,6 @@ def main():
             id=dict(type='str', default=str(uuid4()).replace('-', '')[:10]),
             lan=dict(type='int', default=None),
             dhcp=dict(type='bool', default=None),
-            nat=dict(type='bool', default=None),
             firewall_active=dict(type='bool', default=None),
             ips=dict(type='list', default=None),
             api_url=dict(type='str', default=None),

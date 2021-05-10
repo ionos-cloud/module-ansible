@@ -198,9 +198,9 @@ def create_snapshot(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
-    volume_server = ionoscloud.VolumeApi(api_client=client)
-    snapshot_server = ionoscloud.SnapshotApi(api_client=client)
+    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
+    volume_server = ionoscloud.VolumesApi(api_client=client)
+    snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -264,9 +264,9 @@ def restore_snapshot(module, client):
     name = module.params.get('name')
     wait = module.params.get('wait')
 
-    datacenter_server = ionoscloud.DataCenterApi(api_client=client)
-    volume_server = ionoscloud.VolumeApi(api_client=client)
-    snapshot_server = ionoscloud.SnapshotApi(api_client=client)
+    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
+    volume_server = ionoscloud.VolumesApi(api_client=client)
+    snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -313,7 +313,7 @@ def update_snapshot(module, client):
     Returns:
         The snapshot instance
     """
-    snapshot_server = ionoscloud.SnapshotApi(api_client=client)
+    snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
 
     name = module.params.get('name')
 
@@ -403,7 +403,7 @@ def delete_snapshot(module, client):
         True if the snapshot was removed, false otherwise
     """
 
-    snapshot_server = ionoscloud.SnapshotApi(api_client=client)
+    snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
     name = module.params.get('name')
 
     # Locate UUID for snapshot

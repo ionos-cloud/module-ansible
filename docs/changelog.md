@@ -50,3 +50,20 @@
     | profitbricks\_volume | volume |
     | profitbricks | server |
 
+## 6.0.0-beta.1 \(May, 2021\)
+
+### Features:
+
+* Added the following modules:
+    * cube_server
+    * template
+    * nat_gateway
+    * nat_gateway_rule
+    * nat_gateway_rule
+    * network_load_balancer
+    * network_load_balancer_flowlog
+    * network_load_balancer_rule
+    
+### Misc:
+* Removed `nat` parameter from **nic** and **server** module
+* Added `user_password` parameter on **user** module

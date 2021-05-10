@@ -135,11 +135,17 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def _remove_datacenter(module, datacenter_server, datacenter):
+def _remove_datacenter(client, module, datacenter_server, datacenter):
+    wait = module.params.get('wait')
+
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        datacenter_server.datacenters_delete(datacenter)
+        response = datacenter_server.datacenters_delete_with_http_info(datacenter_id=datacenter)
+        (datacenter_response, _, headers) = response
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id)
     except Exception as e:
         module.fail_json(msg="failed to remove the datacenter: %s" % to_native(e))
 
@@ -185,11 +191,11 @@ def create_datacenter(module, client):
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
-    datacenter_server = ionoscloud.DataCenterApi(client)
+    datacenter_server = ionoscloud.DataCentersApi(client)
     datacenters = datacenter_server.datacenters_get(depth=2)
 
     for dc in datacenters.items:
-        if name == dc.properties.name:
+        if name == dc.properties.name and location == dc.properties.location:
             return {
                 'changed': False,
                 'failed': False,
@@ -237,7 +243,7 @@ def update_datacenter(module, client):
     description = module.params.get('description')
     datacenter_id = module.params.get('id')
     wait = module.params.get('wait')
-    datacenter_server = ionoscloud.DataCenterApi(client)
+    datacenter_server = ionoscloud.DataCentersApi(client)
 
     if description is None:
         return {
@@ -287,11 +293,11 @@ def remove_datacenter(module, client):
     """
     name = module.params.get('name')
     datacenter_id = module.params.get('id')
-    datacenter_server = ionoscloud.DataCenterApi(client)
+    datacenter_server = ionoscloud.DataCentersApi(client)
     changed = False
 
     if datacenter_id:
-        _remove_datacenter(module, datacenter_server, datacenter_id)
+        _remove_datacenter(client, module, datacenter_server, datacenter_id)
         changed = True
 
     else:
@@ -300,7 +306,7 @@ def remove_datacenter(module, client):
             vdc = datacenter_server.datacenters_find_by_id(d.id)
             if name == vdc.properties.name:
                 datacenter_id = d.id
-                _remove_datacenter(module, datacenter_server, datacenter_id)
+                _remove_datacenter(client, module, datacenter_server, datacenter_id)
                 changed = True
 
     return {
