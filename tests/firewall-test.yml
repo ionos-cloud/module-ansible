@@ -24,8 +24,9 @@
          image: "{{ image }}"
          image_password: "{{ password }}"
          location: "{{ location }}"
+         cpu_family: "INTEL_SKYLAKE"
          wait: true
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: present
       register: ionos_cloud
 
@@ -44,7 +45,7 @@
          dhcp: true
          firewall_active: true
          wait: true
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: present
       register: ionos_cloud_nic
 
@@ -53,9 +54,9 @@
           datacenter: "{{ datacenter }}"
           server: "{{ server }}"
           nic: "{{ nic }}"
-          name: SSH
-          protocol: TCP
-          source_mac: 01:23:45:67:89:00
+          name: "SSH"
+          protocol: "TCP"
+          source_mac: "01:23:45:67:89:00"
           port_range_start: 22
           port_range_end: 24
           state: present
@@ -65,9 +66,7 @@
           datacenter: "{{ datacenter }}"
           server: "{{ server }}"
           nic: "{{ nic }}"
-          name: SSH
-          source_ip: 192.168.0.0
-          source_mac: 01:23:45:67:89:00
+          name: "SSH"
           port_range_start: 22
           port_range_end: 23
           state: update
@@ -77,12 +76,13 @@
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          nic: "{{ nic }}"
-         name: SSH
+         name: "SSH"
          wait: true
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: absent
 
     - name: Remove datacenter
       datacenter:
+        wait: true
         name: "{{ datacenter }}"
         state: absent

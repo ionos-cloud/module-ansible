@@ -6,9 +6,24 @@
     - vars.yml
 
   tasks:
+    - set_fact:
+        random_user: "no-reply{{100000000 |random}}@example.com"
+      run_once: yes
+
+    - name: Create user
+      user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: true
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        state: present
+      register: user_response
+
     - name: Create an s3key
       s3key:
-        user_id: "{{ user_id }}"
+        user_id: "{{ user_response.user.id }}"
       register: result
 
     - name: Debug - Show S3key
@@ -17,13 +32,13 @@
 
     - name: Update an s3key
       s3key:
-        user_id: "{{ user_id }}"
+        user_id: "{{ user_response.user.id }}"
         key_id: "{{ result.s3key.id }}"
         active: False
         state: update
 
     - name: Remove an s3key
       s3key:
-        user_id: "{{ user_id }}"
+        user_id: "{{ user_response.user.id }}"
         key_id: "{{ result.s3key.id }}"
         state: absent

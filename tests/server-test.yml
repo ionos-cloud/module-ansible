@@ -25,18 +25,16 @@
          availability_zone: ZONE_1
          volume_availability_zone: ZONE_3
          volume_size: 5
-         cpu_family: AMD_OPTERON
+         cpu_family: INTEL_SKYLAKE
          disk_type: HDD
          image: "{{ image }}"
          image_password: "{{ password }}"
-         ssh_keys:
-            - "{{ ssh_public_key }}"
          location: "{{ location }}"
          count: 1
          assign_public_ip: true
          remove_boot_volume: true
          wait: true
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: present
 
     - name: Update server
@@ -45,8 +43,9 @@
          instance_ids:
            - "{{ name }} 01"
          cores: 2
+         cpu_family: INTEL_SKYLAKE
          ram: 2048
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: update
 
     - name: Stop server
@@ -54,7 +53,7 @@
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} 01"
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: stopped
 
     - name: Start server
@@ -62,7 +61,7 @@
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} 01"
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: running
 
     - name: Start server
@@ -70,7 +69,7 @@
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} 01"
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: running
 
     - name: Remove server
@@ -79,10 +78,11 @@
          instance_ids:
            - "{{ name }} 01"
          remove_boot_volume: yes
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: absent
 
     - name: Remove datacenter
       datacenter:
         name: "{{ datacenter }}"
         state: absent
+        wait: true
