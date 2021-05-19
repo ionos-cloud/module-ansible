@@ -1,32 +1,214 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Publish
 
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g. v1.2.3)'
+        required: true
+      ionoscloud-version:
+        description: 'Python SDK client version to use '
+        required: true
+      test:
+        description: 'Whether to run tests or not'
+        required: true
+        default: 'yes'
+      ansible-repo:
+        required: true
+        description: 'Ansible repo to publish the Module to (galaxy or galaxy-dev)'
+        default: 'galaxy-dev'
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+
 jobs:
-  # This workflow contains a single job called "build"
-  build:
+  test:
+    name: Testing the Ansible Module
+    env:
+        python-version: 3.8.0
+        ionoscloud-version: 6.0.0b0
+        ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
+        IONOS_USERNAME: ${{ secrets.IONOS_VDC_USER }}
+        IONOS_PASSWORD: ${{ secrets.IONOS_VDC_PASSWORD }}
+
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    outputs:
+        python-version: ${{ env.python-version }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+            ref: release/v6
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Setup Python ${{ env.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.python-version }}
+
+      - name: Setup pip, virtualenv, ionoscloud
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+         python3 -m pip install --upgrade pip
+         python3 -m pip install ionoscloud
+         python3 -m pip install ionoscloud==${{ github.event.inputs.ionoscloud-version }}
+
+      - name: Install Ansible
+        run: |
+           python3 -m pip install ansible
+
+      - name: Debug pip packages
+        run: |
+         python3 -m pip list
+
+      - name: Run Datacenter tests
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml
+
+      - name: Run Backupunit tests
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/backupunit-test.yml
+
+      - name: Run Nic Flowlog test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-flowlog-test.yml
+
+      - name: Run Firewall test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/firewall-test.yml
+
+      - name: Run IP Block test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/ipblock-test.yml
+
+      - name: Run LAN test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/lan-test.yml
+
+      - name: Run Nic test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-test.yml
+
+      - name: Run PCC test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/pcc-test.yml
+
+      - name: Run S3key test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/s3key-test.yml
+
+      - name: Run Server test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/server-test.yml
+
+      - name: Run Snapshot test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/snapshot-test.yml
+
+      - name: Run Template test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/template-test.yml
+
+      - name: Run Volume test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
+
+      - name: Run NAT Gateway test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-test.yml
+
+      - name: Run NAT Gateway Flowlog test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-flowlog-test.yml
+
+      - name: Run NAT Gateway Rule test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-rule-test.yml
+
+      - name: Run Network Load Balancer test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
+
+      - name: Run Network Load Balancer Flowlog test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
+
+      - name: Run Network Load Balancer Forwarding Rule test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
+
+
+      - name: Run Kubeconfig test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-config-test.yml
+
+      - name: Run K8s Cluster test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-test.yml
+
+      - name: Run K8s Nodepool test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-nodepool-test.yml
+
+      - name: Run User test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
+
+      - name: Run Group test
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
+
+
+  publish:
+      name: Publishing the Module
+      runs-on: ubuntu-latest
+      needs: [test]
+      steps:
+
+        - name: Checkout
+          uses: actions/checkout@v2
+          with:
+            ref: release/v6
+
+        - name: Get current version
+          id: cversion
+          run: echo "::set-output name=version::$(grep version galaxy.yml | awk -F':' '{ print $2 }')"
+
+        - name: Build Ansible Collection
+          run: |
+            ansible-galaxy collection build
+            ls
+
+        - name: Deploy Ansible collection to Galaxy-Dev
+          if: github.event.inputs.ansible-repo == 'galaxy-dev'
+          run: |
+            ls
+            ansible-galaxy collection publish ionoscloudsdk-ionoscloud-${{ github.event.inputs.version }}.tar.gz --server https://galaxy-dev.ansible.com/ --api-key ${{ secrets.ANSIBLE_GALAXYDEV_API_KEY }}
+
+        - name: Deploy Ansible collection to Galaxy
+          if: github.event.inputs.ansible-repo == 'galaxy'
+          run: ansible-galaxy collection publish ionoscloudsdk-ionoscloud-${{ github.event.inputs.version }}.tar.gz --api-key ${{ secrets.ANSIBLE_GALAXY_API_KEY }}

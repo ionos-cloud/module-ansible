@@ -2,35 +2,116 @@
 
 name: CI
 
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    workflow_dispatch:
+    pull_request:
+        types: [ assigned, opened, synchronize, reopened ]
+    push:
+      branches: [ master ]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
+
+  test:
+
+    name: Testing the Ansible Module
+    env:
+        python-version: 3.8.0
+        ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
+        IONOS_USERNAME: ${{ secrets.IONOS_VDC_USER }}
+        IONOS_PASSWORD: ${{ secrets.IONOS_VDC_PASSWORD }}
+
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    outputs:
+        python-version: ${{ env.python-version }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+            ref: feat/latest-update
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Setup Python ${{ env.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.python-version }}
+
+      - name: Setup pip, virtualenv, ionoscloud
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ionoscloud
+
+      - name: Install Ansible
+        run: |
+            python3 -m pip install ansible
+
+      - name: Debug pip packages
+        run: |
+          python3 -m pip list
+
+      - name: Run Datacenter test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml
+
+      - name: Run Backupunit test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/backupunit-test.yml
+
+      - name: Run Firewall test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/firewall-test.yml
+
+      - name: Run IP Block test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/ipblock-test.yml
+
+      - name: Run LAN test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/lan-test.yml
+
+      - name: Run Nic test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-test.yml
+
+      - name: Run PCC test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/pcc-test.yml
+
+      - name: Run S3key test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/s3key-test.yml
+
+      - name: Run Server test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/server-test.yml
+
+      - name: Run Snapshot test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/snapshot-test.yml
+
+      - name: Run Volume test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
+
+      - name: Run Kubeconfig test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-config-test.yml
+
+      - name: Run K8s Cluster test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-test.yml
+
+      - name: Run K8s Nodepool test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-nodepool-test.yml
+
+      - name: Run User test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
+
+      - name: Run Group test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
+
