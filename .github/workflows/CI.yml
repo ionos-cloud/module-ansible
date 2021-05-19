@@ -55,9 +55,9 @@ jobs:
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml
 
-      - name: Run Backupunit test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/backupunit-test.yml
+#      - name: Run Backupunit test
+#        run: |
+#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/backupunit-test.yml
 
       - name: Run Firewall test
         run: |
