@@ -86,7 +86,7 @@
       k8s_cluster:
         k8s_cluster_id: "{{ cluster.cluster.id }}"
         wait: true
-         state: absent
+        state: absent
 
     - name: Remove ipblock for create nodepool
       ipblock:
