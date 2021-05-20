@@ -3,8 +3,8 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
-__metaclass__ = type
 
+__metaclass__ = type
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
@@ -132,7 +132,7 @@ HAS_SDK = True
 try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
-    from ionoscloud.models import User, UserProperties
+    from ionoscloud.models import User, UserProperties, UserPropertiesPut, UserPropertiesPost, UserPut, UserPost
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
@@ -150,7 +150,6 @@ def _get_request_id(headers):
     else:
         raise Exception("Failed to extract request ID from response "
                         "header 'location': '{location}'".format(location=headers['location']))
-
 
 
 def create_user(module, client, api_client):
@@ -201,13 +200,12 @@ def create_user(module, client, api_client):
         }
 
     try:
-        user_properties = UserProperties(firstname=firstname, lastname=lastname, email=email,
-                                         administrator=administrator or False,
-                                         force_sec_auth=force_sec_auth or False,
-                                         s3_canonical_user_id=s3_canonical_user_id,
-                                         password=user_password)
+        user_properties = UserPropertiesPost(firstname=firstname, lastname=lastname, email=email,
+                                             administrator=administrator or False,
+                                             force_sec_auth=force_sec_auth or False,
+                                             password=user_password)
 
-        user = User(properties=user_properties)
+        user = UserPost(properties=user_properties)
         response = client.um_users_post_with_http_info(user)
         (user_response, _, headers) = response
 
@@ -266,13 +264,13 @@ def update_user(module, client, api_client):
             if force_sec_auth is None:
                 force_sec_auth = user.properties.force_sec_auth
 
-            user_properties = UserProperties(firstname=firstname,
-                                             lastname=lastname,
-                                             email=email,
-                                             administrator=administrator or False,
-                                             force_sec_auth=force_sec_auth or False)
+            user_properties = UserPropertiesPut(firstname=firstname,
+                                                lastname=lastname,
+                                                email=email,
+                                                administrator=administrator or False,
+                                                force_sec_auth=force_sec_auth or False)
 
-            new_user = User(properties=user_properties)
+            new_user = UserPut(properties=user_properties)
             response = client.um_users_put_with_http_info(user_id=user.id, user=new_user)
             (user_response, _, headers) = response
 
