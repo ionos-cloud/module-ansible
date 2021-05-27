@@ -221,6 +221,15 @@ def _create_volume(module, volume_server, datacenter, name, client):
     disk_type = module.params.get('disk_type')
     availability_zone = module.params.get('availability_zone')
     licence_type = module.params.get('licence_type')
+    image_alias = module.params.get('image_alias')
+    cpu_hot_plug = module.params.get('cpu_hot_plug')
+    ram_hot_plug = module.params.get('ram_hot_plug')
+    nic_hot_plug = module.params.get('nic_hot_plug')
+    nic_hot_unplug = module.params.get('nic_hot_unplug')
+    disc_virtio_hot_plug = module.params.get('disc_virtio_hot_plug')
+    disc_virtio_hot_unplug = module.params.get('disc_virtio_hot_unplug')
+    backupunit_id = module.params.get('backupunit_id')
+    user_data = module.params.get('user_data')
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
 
@@ -228,9 +237,15 @@ def _create_volume(module, volume_server, datacenter, name, client):
         module.exit_json(changed=True)
 
     try:
-        volume_properties = VolumeProperties(name=name, size=size, availability_zone=availability_zone,
-                                             image_password=image_password, ssh_keys=ssh_keys, bus=bus,
-                                             licence_type=licence_type, type=disk_type)
+        volume_properties = VolumeProperties(name=name, type=disk_type, size=size, availability_zone=availability_zone,
+                                             image=image,
+                                             image_password=image_password, image_alias=image_alias, ssh_keys=ssh_keys,
+                                             bus=bus,
+                                             licence_type=licence_type, cpu_hot_plug=cpu_hot_plug,
+                                             ram_hot_plug=ram_hot_plug, nic_hot_plug=nic_hot_plug,
+                                             nic_hot_unplug=nic_hot_unplug, disc_virtio_hot_plug=disc_virtio_hot_plug,
+                                             disc_virtio_hot_unplug=disc_virtio_hot_unplug, backupunit_id=backupunit_id,
+                                             user_data=user_data)
 
         volume = Volume(properties=volume_properties)
 
@@ -258,6 +273,17 @@ def _create_volume(module, volume_server, datacenter, name, client):
 def _update_volume(module, volume_server, api_client, datacenter, volume_id):
     size = module.params.get('size')
     bus = module.params.get('bus')
+    disk_type = module.params.get('disk_type')
+    availability_zone = module.params.get('availability_zone')
+    licence_type = module.params.get('licence_type')
+    image_alias = module.params.get('image_alias')
+    cpu_hot_plug = module.params.get('cpu_hot_plug')
+    ram_hot_plug = module.params.get('ram_hot_plug')
+    nic_hot_plug = module.params.get('nic_hot_plug')
+    nic_hot_unplug = module.params.get('nic_hot_unplug')
+    disc_virtio_hot_plug = module.params.get('disc_virtio_hot_plug')
+    disc_virtio_hot_unplug = module.params.get('disc_virtio_hot_unplug')
+
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
 
@@ -265,7 +291,13 @@ def _update_volume(module, volume_server, api_client, datacenter, volume_id):
         module.exit_json(changed=True)
 
     try:
-        volume = Volume(properties=VolumeProperties(size=size, bus=bus))
+        volume_properties = VolumeProperties(size=size, availability_zone=availability_zone,
+                                             image_alias=image_alias, bus=bus,
+                                             cpu_hot_plug=cpu_hot_plug, ram_hot_plug=ram_hot_plug,
+                                             nic_hot_plug=nic_hot_plug, nic_hot_unplug=nic_hot_unplug,
+                                             disc_virtio_hot_plug=disc_virtio_hot_plug,
+                                             disc_virtio_hot_unplug=disc_virtio_hot_unplug)
+        volume = Volume(properties=volume_properties)
         response = volume_server.datacenters_volumes_put_with_http_info(
             datacenter_id=datacenter,
             volume_id=volume_id,
@@ -398,6 +430,7 @@ def update_volume(module, client):
     failed = True
     changed = False
     volumes = []
+    update_response = None
 
     datacenter_list = datacenter_server.datacenters_get(depth=2)
     for d in datacenter_list.items:
@@ -539,8 +572,17 @@ def main():
             name=dict(type='str'),
             size=dict(type='int', default=10),
             image=dict(type='str'),
+            image_alias=dict(type='str'),
+            backupunit_id=dict(type='str'),
+            user_data=dict(type='str'),
             image_password=dict(type='str', default=None, no_log=True),
             ssh_keys=dict(type='list', default=[]),
+            cpu_hot_plug=dict(type='bool'),
+            ram_hot_plug=dict(type='bool'),
+            nic_hot_plug=dict(type='bool'),
+            nic_hot_unplug=dict(type='bool'),
+            disc_virtio_hot_plug=dict(type='bool'),
+            disc_virtio_hot_unplug=dict(type='bool'),
             bus=dict(type='str', choices=BUS_TYPES, default='VIRTIO'),
             disk_type=dict(type='str', choices=DISK_TYPES, default='HDD'),
             licence_type=dict(type='str', choices=LICENCE_TYPES, default='UNKNOWN'),

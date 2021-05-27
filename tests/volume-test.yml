@@ -22,6 +22,12 @@
         size: 2
         availability_zone: ZONE_3
         auto_increment: yes
+        cpu_hot_plug: false
+        ram_hot_plug: true
+        nic_hot_plug: true
+        nic_hot_unplug: true
+        disc_virtio_hot_plug: true
+        disc_virtio_hot_unplug: true
         wait_timeout: 600
         wait: true
         state: present
@@ -33,6 +39,12 @@
           - "{{ name }} 01"
           - "{{ name }} 02"
         size: 5
+        cpu_hot_plug: false
+        ram_hot_plug: true
+        nic_hot_plug: true
+        nic_hot_unplug: true
+        disc_virtio_hot_plug: true
+        disc_virtio_hot_unplug: true
         wait_timeout: 600
         wait: true
         state: update
