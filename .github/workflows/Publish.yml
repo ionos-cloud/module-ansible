@@ -4,10 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to publish (e.g. v1.2.3)'
-        required: true
-      ionoscloud-version:
-        description: 'Python SDK client version to use '
+        description: 'Version to publish (e.g. 1.2.3)'
         required: true
       test:
         description: 'Whether to run tests or not'
