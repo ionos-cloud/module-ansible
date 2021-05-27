@@ -39,7 +39,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-            ref: master
+            ref: feat/latest-update
 
       - name: Setup Python ${{ env.python-version }}
         uses: actions/setup-python@v2
@@ -149,7 +149,7 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v2
           with:
-            ref: master
+            ref: feat/latest-update
 
         - name: Build Ansible Collection
           run: |
