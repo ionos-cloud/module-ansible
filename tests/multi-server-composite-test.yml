@@ -31,7 +31,7 @@
          assign_public_ip: true
          remove_boot_volume: true
          wait: true
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: present
       register: ionos_cloud
     - debug: msg="{{ionos_cloud.machines}}"
@@ -47,7 +47,7 @@
          port_range_start: 22
          port_range_end: 22
          wait: true
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: present
       with_items: "{{ ionos_cloud.machines }}"
 
@@ -57,7 +57,7 @@
          server: "{{ item.id }}"
          lan: 2
          wait: true
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: present
       register: private_nic
       with_items: "{{ ionos_cloud.machines }}"
@@ -74,7 +74,7 @@
          port_range_start: 22
          port_range_end: 22
          wait: true
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: present
       with_items: "{{ private_nic.results }}"
 
@@ -89,7 +89,7 @@
          icmp_type: 8
          icmp_code: 0
          wait: true
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: present
       with_items: "{{ private_nic.results }}"
 
@@ -101,7 +101,7 @@
          size: 5
          disk_type: SSD
          licence_type: OTHER
-         wait_timeout: "{{ timeout }}"
+         wait_timeout: "{{ wait_timeout }}"
          state: present
       with_items: "{{ ionos_cloud.machines }}"
 
@@ -119,3 +119,4 @@
       datacenter:
         name: "{{ datacenter }}"
         state: absent
+        wait: true

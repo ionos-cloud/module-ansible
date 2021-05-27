@@ -45,7 +45,8 @@ try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import KubernetesCluster, KubernetesClusterProperties, KubernetesNodePool, \
-        KubernetesNodePoolProperties, KubernetesNodePoolPropertiesForPut
+        KubernetesNodePoolProperties, KubernetesNodePoolPropertiesForPut, KubernetesNodePoolForPut, \
+        KubernetesNodePoolForPost, KubernetesNodePoolPropertiesForPost
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
@@ -100,19 +101,20 @@ def create_k8s_cluster_nodepool(module, client):
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
     try:
-        k8s_nodepool_properties = KubernetesNodePoolProperties(name=nodepool_name, datacenter_id=datacenter_id,
-                                                               node_count=node_count,
-                                                               cpu_family=cpu_family, cores_count=cores_count,
-                                                               ram_size=ram_size,
-                                                               availability_zone=availability_zone,
-                                                               storage_type=storage_type,
-                                                               storage_size=storage_size, k8s_version=k8s_version,
-                                                               maintenance_window=maintenance_window,
-                                                               auto_scaling=auto_scaling, lans=lan_ids,
-                                                               labels=labels, annotations=annotations,
-                                                               public_ips=public_ips)
+        k8s_nodepool_properties = KubernetesNodePoolPropertiesForPost(name=nodepool_name, datacenter_id=datacenter_id,
+                                                                      node_count=node_count,
+                                                                      cpu_family=cpu_family, cores_count=cores_count,
+                                                                      ram_size=ram_size,
+                                                                      availability_zone=availability_zone,
+                                                                      storage_type=storage_type,
+                                                                      storage_size=storage_size,
+                                                                      k8s_version=k8s_version,
+                                                                      maintenance_window=maintenance_window,
+                                                                      auto_scaling=auto_scaling, lans=lan_ids,
+                                                                      labels=labels, annotations=annotations,
+                                                                      public_ips=public_ips)
 
-        k8s_nodepool = KubernetesNodePool(properties=k8s_nodepool_properties)
+        k8s_nodepool = KubernetesNodePoolForPost(properties=k8s_nodepool_properties)
 
         response = k8s_server.k8s_nodepools_post_with_http_info(k8s_cluster_id=k8s_cluster_id,
                                                                 kubernetes_node_pool=k8s_nodepool)
@@ -212,9 +214,9 @@ def update_k8s_cluster_nodepool(module, client):
             k8s_version=k8s_version, maintenance_window=maintenance_window,
             auto_scaling=auto_scaling, lans=lan_ids, public_ips=public_ips)
 
-        k8s_nodepool = KubernetesNodePool(properties=k8s_nodepool_properties)
+        k8s_nodepool = KubernetesNodePoolForPut(properties=k8s_nodepool_properties)
         k8s_response = k8s_server.k8s_nodepools_put(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id,
-                                                               kubernetes_node_pool=k8s_nodepool)
+                                                    kubernetes_node_pool=k8s_nodepool)
 
         if wait:
             client.wait_for(
@@ -315,7 +317,7 @@ def main():
                 module.fail_json(msg=error_message % 'k8s_cluster_id')
             if not module.params.get('datacenter_id'):
                 module.fail_json(msg=error_message % 'datacenter_id')
-            if not (module.params.get('node_count') or module.params.get('auto_scaling')) :
+            if not (module.params.get('node_count') or module.params.get('auto_scaling')):
                 module.fail_json(msg=error_message % 'node_count or auto_scaling')
             if not module.params.get('cpu_family'):
                 module.fail_json(msg=error_message % 'cpu_family')

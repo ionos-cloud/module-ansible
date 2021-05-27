@@ -22,8 +22,6 @@
         image: "{{ image }}"
         image_password: "{{ password }}"
         availability_zone: ZONE_3
-        ssh_keys:
-            - "{{ ssh_public_key }}"
         auto_increment: no
         state: present
 
@@ -58,3 +56,4 @@
       datacenter:
         name: "{{ datacenter }}"
         state: absent
+        wait: true

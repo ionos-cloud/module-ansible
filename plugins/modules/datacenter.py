@@ -135,11 +135,17 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def _remove_datacenter(module, datacenter_server, datacenter):
+def _remove_datacenter(client, module, datacenter_server, datacenter):
+    wait = module.params.get('wait')
+
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        datacenter_server.datacenters_delete(datacenter)
+        response = datacenter_server.datacenters_delete_with_http_info(datacenter_id=datacenter)
+        (datacenter_response, _, headers) = response
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id)
     except Exception as e:
         module.fail_json(msg="failed to remove the datacenter: %s" % to_native(e))
 
@@ -189,7 +195,7 @@ def create_datacenter(module, client):
     datacenters = datacenter_server.datacenters_get(depth=2)
 
     for dc in datacenters.items:
-        if name == dc.properties.name:
+        if name == dc.properties.name and location == dc.properties.location:
             return {
                 'changed': False,
                 'failed': False,
@@ -291,7 +297,7 @@ def remove_datacenter(module, client):
     changed = False
 
     if datacenter_id:
-        _remove_datacenter(module, datacenter_server, datacenter_id)
+        _remove_datacenter(client, module, datacenter_server, datacenter_id)
         changed = True
 
     else:
@@ -300,7 +306,7 @@ def remove_datacenter(module, client):
             vdc = datacenter_server.datacenters_find_by_id(d.id)
             if name == vdc.properties.name:
                 datacenter_id = d.id
-                _remove_datacenter(module, datacenter_server, datacenter_id)
+                _remove_datacenter(client, module, datacenter_server, datacenter_id)
                 changed = True
 
     return {

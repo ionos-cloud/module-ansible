@@ -50,3 +50,17 @@
     | profitbricks\_volume | volume |
     | profitbricks | server |
 
+
+## 5.0.2 \(27 May, 2021\)
+
+* Added a new module (image). [Here](./#image) you can find the more details about this feature.
+* New parameters on `volume` module:
+    * image_alias
+    * backupunit_id
+    * user_data
+    * cpu_hot_plug
+    * ram_hot_plug
+    * nic_hot_plug
+    * nic_hot_unplug
+    * disc_virtio_hot_plug
+    * disc_virtio_hot_unplug

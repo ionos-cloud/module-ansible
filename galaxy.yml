@@ -5,7 +5,7 @@ namespace: ionoscloudsdk
 name: ionoscloud
 
 # The version of the collection.
-version: 5.0.1
+version: 5.0.2
 
 readme: README.md
 
@@ -29,7 +29,7 @@ license_file: ''
 repository: https://github.com/ionos-cloud/module-ansible
 
 # The URL to any online docs
-documentation: https://github.com/ionos-cloud/module-ansible/blob/master/README.md
+documentation: https://docs.ionos.com/ansible/
 
 # The URL to the collection issue tracker
 issues: https://github.com/ionos-cloud/module-ansible/issues
