@@ -32,4 +32,5 @@
 * [Kubernetes configuration](api/k8sconfig.md)
 * [Backup unit](api/backupunit.md)
 * [Private cross connect](api/pcc.md)
+* [Image](api/image.md)
 
