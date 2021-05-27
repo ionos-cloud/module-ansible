@@ -29,7 +29,7 @@ license_file: ''
 repository: https://github.com/ionos-cloud/module-ansible
 
 # The URL to any online docs
-documentation: https://github.com/ionos-cloud/module-ansible/blob/master/README.md
+documentation: https://docs.ionos.com/ansible/
 
 # The URL to the collection issue tracker
 issues: https://github.com/ionos-cloud/module-ansible/issues
