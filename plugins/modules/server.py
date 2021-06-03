@@ -281,6 +281,9 @@ AVAILABILITY_ZONES = ['AUTO',
                       'ZONE_2',
                       'ZONE_3']
 
+SERVER_TYPES = ['ENTERPRISE',
+                'CUBE']
+
 uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
@@ -932,7 +935,7 @@ def main():
             template_uuid=dict(type='str'),
             boot_volume=dict(type='str'),
             boot_cdrom=dict(type='str'),
-            type=dict(type='str'),
+            type=dict(type='str', choices=SERVER_TYPES, default='ENTERPRISE'),
             count=dict(type='int', default=1),
             auto_increment=dict(type='bool', default=True),
             instance_ids=dict(type='list', default=[]),

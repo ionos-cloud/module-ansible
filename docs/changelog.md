@@ -67,3 +67,25 @@
 ### Misc:
 * Removed `nat` parameter from **nic** and **server** module
 * Added `user_password` parameter on **user** module
+
+
+## 6.0.0-beta.2 (June, 2021)
+
+### Features:
+* Added a new module (`image`).  [Here](./#image) you can find the more details about this feature.
+* New parameters on `volume` module:
+    * image_alias
+    * backupunit_id
+    * user_data
+    * cpu_hot_plug
+    * ram_hot_plug
+    * nic_hot_plug
+    * nic_hot_unplug
+    * disc_virtio_hot_plug
+    * disc_virtio_hot_unplug
+* New parameters on `server` module:
+    * type
+    * template_uuid
+    * boot_volume
+    * boot_cdrom
+* Removed the `cube_server` module. Now the users can create **CUBE servers** using the `server` module.
