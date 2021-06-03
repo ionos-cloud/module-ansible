@@ -2,6 +2,7 @@
 
 ## Example
 
+### ENTERPRISE Server:
 ```text
     - name: Provision a server
       server:
@@ -52,6 +53,59 @@
            - "{{ name }} 01"
          wait_timeout: "{{ timeout }}"
          state: running
+         
+
+```
+
+### CUBE Server
+
+```text
+    - name: Provision a server
+      server:
+         datacenter: "{{ datacenter }}"
+         name: "{{ name }} %02d"
+         auto_increment: true
+         cpu_family: INTEL_SKYLAKE
+         disk_type: DAS
+         image: "912139a4-c283-11eb-a028-52d578831bb3"
+         image_password: "{{ password }}"
+         location: "de/txl"
+         count: 1
+         assign_public_ip: true
+         remove_boot_volume: true
+         template_uuid: "15c6dd2f-02d2-4987-b439-9a58dd59ecc3"
+         type: "CUBE"
+         wait: true
+         wait_timeout: "{{ wait_timeout }}"
+         state: present
+
+    - name: Update server
+      server:
+         datacenter: "{{ datacenter }}"
+         name: "{{ name }} - UPDATED"
+         instance_ids:
+           - "{{ name }} 01"
+         type: CUBE
+         wait: true
+         wait_timeout: "{{ wait_timeout }}"
+         state: update
+
+    - name: Suspend server
+      server:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ name }} 01"
+         wait_timeout: "{{ wait_timeout }}"
+         state: suspend
+
+    - name: Resume server
+      server:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ name }} 01"
+         wait_timeout: "{{ wait_timeout }}"
+         state: resume
+
 ```
 
 ## Parameter Reference
@@ -63,6 +117,7 @@ The following parameters are supported:
 | auto\_increment | no | boolean | true | Whether or not to increment created servers. |
 | count | no | integer | 1 | The number of servers to create. |
 | name | **yes**/no | string |  | The name of the server\(s\). Required only for `state='present'`. |
+| template_uuid | **yes**/no | string |  | The UUID of the template for creating a CUBE server; the available templates for CUBE servers can be found on the templates resource. Required only for state = 'present'. |
 | image | **yes**/no | string |  | The image alias or UUID for creating the server. Required only for `state='present'`. |
 | image\_password | no | string |  | Password set for the administrative user. |
 | ssh\_keys | no | list | none | List of public SSH keys allowing access to the server. |
@@ -75,8 +130,11 @@ The following parameters are supported:
 | disk\_type | no | string | HDD | The type of disk the volume will use: **HDD**, SSD |
 | volume\_availability\_zone | no | string | AUTO | The storage availability zone assigned to the volume: **AUTO**, ZONE\_1, ZONE\_2, ZONE\_3 |
 | bus | no | string | VIRTIO | The bus type for the volume: **VIRTIO**, IDE |
+| type | **yes** | string | ENTERPRISE | The type of the server. Accepted values: ENTERPRISE or CUBE |
 | instance\_ids | **yes**/no | list |  | List of instance IDs or names. **Not required** for `state='present'`. |
 | location | no | string | us/las | The datacenter location used only if the module creates a default datacenter: us/las, us/ewr, de/fra, de/fkb, de/txl, gb/lhr |
+| boot_volume | no | string |  | The boot volume. |
+| boot_cdrom | no | string |  | The boot CDROM. |
 | assign\_public\_ip | no | boolean | false | This will assign the server to the public LAN. The LAN is created if no LAN exists with public Internet access. |
 | lan | no | string / integer | 1 | The LAN ID / Name for the server. |
 | nat | no | boolean | false | The private IP address has outbound access to the Internet. |

@@ -242,8 +242,8 @@ try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import (Volume, VolumeProperties, Server, ServerProperties, Datacenter,
-                                 DatacenterProperties, Nic, NicProperties, Lan, LanProperties, LanPropertiesPost,
-                                 LanPost, ServerEntities, Nics, Volumes)
+                                   DatacenterProperties, Nic, NicProperties, Lan, LanProperties, LanPropertiesPost,
+                                   LanPost, ServerEntities, Nics, Volumes, AttachedVolumes)
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
@@ -267,7 +267,11 @@ CPU_FAMILIES = ['AMD_OPTERON',
                 'INTEL_SKYLAKE']
 
 DISK_TYPES = ['HDD',
-              'SSD']
+              'SSD',
+              'SSD Standard',
+              'SSD Premium',
+              'DAS'
+              ]
 
 BUS_TYPES = ['VIRTIO',
              'IDE']
@@ -276,6 +280,9 @@ AVAILABILITY_ZONES = ['AUTO',
                       'ZONE_1',
                       'ZONE_2',
                       'ZONE_3']
+
+SERVER_TYPES = ['ENTERPRISE',
+                'CUBE']
 
 uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
@@ -324,6 +331,10 @@ def _create_machine(module, client, datacenter, name):
     image = module.params.get('image')
     assign_public_ip = module.boolean(module.params.get('assign_public_ip'))
     nic_ips = module.params.get('nic_ips')
+    template_uuid = module.params.get('template_uuid')
+    type = module.params.get('type')
+    boot_cdrom = module.params.get('boot_cdrom')
+    boot_volume = module.params.get('boot_volume')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
@@ -366,27 +377,38 @@ def _create_machine(module, client, datacenter, name):
                 nic.properties.ips = nic_ips
             nics.append(nic)
 
-    volume_properties = VolumeProperties(name=str(uuid4()).replace('-', '')[:10],
-                                         type=disk_type,
-                                         size=volume_size,
-                                         availability_zone=volume_availability_zone,
-                                         image_password=image_password,
-                                         ssh_keys=ssh_keys,
-                                         bus=bus)
 
-    volume = Volume(properties=volume_properties)
+    if type == 'CUBE':
+        server_properties = ServerProperties(template_uuid=template_uuid, name=name,
+                                             availability_zone=availability_zone,
+                                             boot_cdrom=boot_cdrom, boot_volume=boot_volume,
+                                             cpu_family=cpu_family, type=type)
 
-    try:
-        UUID(image)
-    except Exception:
-        volume.properties.image_alias = image
+        volume_properties = VolumeProperties(type=disk_type, image=image,
+                                             image_password=image_password)
+        volume = Volume(properties=volume_properties)
+        server_entities = ServerEntities(volumes=AttachedVolumes(items=[volume]))
+
     else:
-        volume.properties.image = image
+        server_properties = ServerProperties(name=name, cores=cores, ram=ram, availability_zone=availability_zone,
+                                             cpu_family=cpu_family)
+        volume_properties = VolumeProperties(name=str(uuid4()).replace('-', '')[:10],
+                                             type=disk_type,
+                                             size=volume_size,
+                                             availability_zone=volume_availability_zone,
+                                             image_password=image_password,
+                                             ssh_keys=ssh_keys,
+                                             bus=bus)
 
-    server_properties = ServerProperties(name=name, cores=cores, ram=ram, availability_zone=availability_zone,
-                                         cpu_family=cpu_family)
+        volume = Volume(properties=volume_properties)
+        try:
+            UUID(image)
+        except Exception:
+            volume.properties.image_alias = image
+        else:
+            volume.properties.image = image
 
-    server_entities = ServerEntities(volumes=Volumes(items=[volume]), nics=Nics(items=nics))
+        server_entities = ServerEntities(volumes=Volumes(items=[volume]), nics=Nics(items=nics))
 
     server = Server(properties=server_properties, entities=server_entities)
 
@@ -396,15 +418,21 @@ def _create_machine(module, client, datacenter, name):
         request_id = _get_request_id(headers['Location'])
         client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-        client.wait_for(
-            fn_request=lambda: server_server.datacenters_servers_find_by_id(datacenter_id=datacenter,
-                                                                            server_id=server_response.id, depth=2),
-            fn_check=lambda r: (r.entities.volumes is not None) and (r.entities.volumes.items is not None) and (
-                    len(r.entities.volumes.items) > 0)
-                               and (r.entities.nics is not None) and (r.entities.nics.items is not None) and (
-                                       len(r.entities.nics.items) == len(nics)),
-            scaleup=10000
-        )
+        if type == 'CUBE':
+            client.wait_for(
+                fn_request=lambda: server_server.datacenters_servers_find_by_id(datacenter_id=datacenter,
+                                                                                server_id=server_response.id, depth=5),
+                fn_check=lambda r: (r.entities.volumes is not None) and (r.entities.volumes.items is not None) and (
+                        len(r.entities.volumes.items) > 0), scaleup=10000)
+        else:
+            client.wait_for(
+                fn_request=lambda: server_server.datacenters_servers_find_by_id(datacenter_id=datacenter,
+                                                                                server_id=server_response.id, depth=5),
+                fn_check=lambda r: (r.entities.volumes is not None) and (r.entities.volumes.items is not None) and (
+                        len(r.entities.volumes.items) > 0)
+                                   and (r.entities.nics is not None) and (r.entities.nics.items is not None) and (
+                                           len(r.entities.nics.items) == len(nics)), scaleup=10000)
+
 
         server = server_server.datacenters_servers_find_by_id(datacenter_id=datacenter,
                                                               server_id=server_response.id, depth=2)
@@ -449,6 +477,42 @@ def _startstop_machine(module, client, datacenter_id, server_id, current_state):
     except Exception as e:
         module.fail_json(
             msg="failed to start or stop the virtual machine %s at %s: %s" % (server_id, datacenter_id, to_native(e)))
+
+    return changed, server
+
+def _resume_suspend_machine(module, client, datacenter_id, server_id, current_state):
+    state = module.params.get('state')
+    server_server = ionoscloud.ServersApi(api_client=client)
+    server = None
+    changed = False
+    try:
+        if state == 'resume':
+            if current_state != 'RUNNING':
+                response = server_server.datacenters_servers_resume_post_with_http_info(datacenter_id, server_id)
+                (_, _, headers) = response
+                request_id = _get_request_id(headers['Location'])
+                client.wait_for_completion(request_id=request_id)
+
+                server_response = server_server.datacenters_servers_find_by_id(datacenter_id, server_id)
+                if server_response.properties.vm_state == 'RUNNING':
+                    changed = True
+                    server = server_response
+
+        else:
+            if current_state != 'SUSPENDED':
+                response = server_server.datacenters_servers_stop_post_with_http_info(datacenter_id, server_id)
+                (_, _, headers) = response
+                request_id = _get_request_id(headers['Location'])
+                client.wait_for_completion(request_id=request_id)
+
+                server_response = server_server.datacenters_servers_find_by_id(datacenter_id, server_id)
+                if server_response.properties.vm_state == 'SUSPENDED':
+                    changed = True
+                    server = server_response
+
+    except Exception as e:
+        module.fail_json(
+            msg="failed to resume or suspend the virtual machine %s at %s: %s" % (server_id, datacenter_id, to_native(e)))
 
     return changed, server
 
@@ -572,6 +636,10 @@ def update_server(module, client):
         dict of updated servers
     """
     datacenter = module.params.get('datacenter')
+    name = module.params.get('name')
+    boot_cdrom = module.params.get('boot_cdrom')
+    boot_volume = module.params.get('boot_volume')
+    type = module.params.get('type')
     instance_ids = module.params.get('instance_ids')
 
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
@@ -607,11 +675,14 @@ def update_server(module, client):
         if module.check_mode:
             module.exit_json(changed=True)
 
-        try:
+        if type == 'CUBE':
+            server_properties = ServerProperties(name=name, boot_cdrom=boot_cdrom, boot_volume=boot_volume)
+        else:
             server_properties = ServerProperties(cores=cores, ram=ram, availability_zone=availability_zone,
                                                  cpu_family=cpu_family)
-            new_server = Server(properties=server_properties)
 
+        new_server = Server(properties=server_properties)
+        try:
             server_response = server_server.datacenters_servers_put(datacenter_id=datacenter_id, server_id=server.id,
                                                                     server=new_server)
 
@@ -758,6 +829,59 @@ def startstop_machine(module, client, state):
         'machines': [m.to_dict() for m in matched_instances]
     }
 
+def resume_suspend_machine(module, client, state):
+    """
+    Reusmes or Suspend a CUBE virtual machine.
+
+    module : AnsibleModule object
+    client: authenticated ionos-cloud object.
+
+    Returns:
+        True when the servers process the action successfully, false otherwise.
+    """
+    if not isinstance(module.params.get('instance_ids'), list) or len(module.params.get('instance_ids')) < 1:
+        module.fail_json(msg='instance_ids should be a list of virtual machine ids or names, aborting')
+
+    datacenter = module.params.get('datacenter')
+    instance_ids = module.params.get('instance_ids')
+
+    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
+    server_server = ionoscloud.ServersApi(api_client=client)
+
+    # Locate UUID for datacenter if referenced by name.
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_id = _get_datacenter_id(datacenter_list, datacenter)
+    if not datacenter_id:
+        module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
+
+    # Prefetch server list for later comparison.
+    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=2)
+    matched_instances = []
+    for instance in instance_ids:
+        # Locate UUID of server if referenced by name.
+        server_id = _get_server_id(server_list, instance)
+        if server_id:
+            if module.check_mode:
+                module.exit_json(changed=True)
+
+            server = _get_instance(server_list, server_id)
+            state = server.properties.vm_state
+            changed, server = _resume_suspend_machine(module, client, datacenter_id, server_id, state)
+            if changed:
+                matched_instances.append(server)
+
+    if len(matched_instances) == 0:
+        changed = False
+    else:
+        changed = True
+
+    return {
+        'action': state,
+        'changed': changed,
+        'failed': False,
+        'machines': [m.to_dict() for m in matched_instances]
+    }
+
 
 def _get_datacenter_id(datacenters, identity):
     """
@@ -797,7 +921,7 @@ def main():
             image=dict(type='str'),
             cores=dict(type='int', default=2),
             ram=dict(type='int', default=2048),
-            cpu_family=dict(type='str', choices=CPU_FAMILIES, default='AMD_OPTERON'),
+            cpu_family=dict(type='str', choices=CPU_FAMILIES),
             volume_size=dict(type='int', default=10),
             disk_type=dict(type='str', choices=DISK_TYPES, default='HDD'),
             availability_zone=dict(type='str', choices=AVAILABILITY_ZONES, default='AUTO'),
@@ -808,6 +932,10 @@ def main():
             nic_ips=dict(type='list', elements='str'),
             lan=dict(type='raw', required=False),
             nat=dict(type='bool', default=None),
+            template_uuid=dict(type='str'),
+            boot_volume=dict(type='str'),
+            boot_cdrom=dict(type='str'),
+            type=dict(type='str', choices=SERVER_TYPES, default='ENTERPRISE'),
             count=dict(type='int', default=1),
             auto_increment=dict(type='bool', default=True),
             instance_ids=dict(type='list', default=[]),
@@ -873,6 +1001,16 @@ def main():
                 module.fail_json(msg='datacenter parameter is required for running or stopping machines.')
             try:
                 (result) = startstop_machine(module, api_client, state)
+                module.exit_json(**result)
+            except Exception as e:
+                module.fail_json(msg='failed to set instance state: %s' % to_native(e),
+                                 exception=traceback.format_exc())
+
+        elif state in ('resume', 'suspend'):
+            if not module.params.get('datacenter'):
+                module.fail_json(msg='datacenter parameter is required for resuming or suspending machines.')
+            try:
+                (result) = resume_suspend_machine(module, api_client, state)
                 module.exit_json(**result)
             except Exception as e:
                 module.fail_json(msg='failed to set instance state: %s' % to_native(e),

@@ -124,11 +124,11 @@ jobs:
 
       - name: Run Network Load Balancer Flowlog test
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-flowlog-test.yml
 
       - name: Run Network Load Balancer Forwarding Rule test
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-rule-test.yml
           
       - name: Run Kubeconfig test
         run: |

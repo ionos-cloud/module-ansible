@@ -33,6 +33,7 @@
 * [Kubernetes configuration](api/k8sconfig.md)
 * [Backup unit](api/backupunit.md)
 * [Private cross connect](api/pcc.md)
+* [Image](api/image.md)
 * [Cube server](api/cube_server.md)
 * [Cube template](api/cube_template.md)
 * [NAT Gateway](api/nat_gateway.md)
