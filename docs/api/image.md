@@ -34,18 +34,19 @@ The following parameters are supported:
 
 | Name | Required | Type | Default | Description |
 | :--- | :---: | :--- | :--- | :--- |
-| image_id | **yes**/no | string |  | The ID of the image. Only required when state = `update` |
+| image\_id | **yes**/no | string |  | The ID of the image. Only required when state = `update` |
 | name | no | string |  | The resource name. |
 | description | no | string |  | Human readable description. |
-| cpu_hot_plug | no | boolean |  | Is capable of CPU hot plug (no reboot required). |
-| cpu_hot_unplug | no | boolean |  | Is capable of CPU hot unplug (no reboot required). |
-| ram_hot_plug | no | boolean |  | Is capable of memory hot plug (no reboot required). |
-| ram_hot_unplug | no | boolean |  | Is capable of memory hot unplug (no reboot required). |
-| nic_hot_plug | no | boolean |  | Is capable of nic hot plug (no reboot required). |
-| nic_hot_unplug | no | boolean |  | Is capable of nic hot unplug (no reboot required). |
-| disc_scsi_hot_plug | no | boolean |  | Is capable of SCSI drive hot plug (no reboot required). |
-| disc_scsi_hot_unplug | no | boolean |  | Is capable of SCSI drive hot unplug (no reboot required). This works only for non-Windows virtual Machines.. |
-| disc_virtio_hot_plug | no | boolean |  | Is capable of Virt-IO drive hot plug (no reboot required). |
-| disc_virtio_hot_unplug | no | boolean |  | Is capable of Virt-IO drive hot unplug (no reboot required). This works only for non-Windows virtual Machines. |
-| licence_type | no | string |  | OS type of this Image. Accepted values: "UNKNOWN", "WINDOWS", "WINDOWS2016", "LINUX", "OTHER"|
-| cloud_init | no | string |  | Cloud init compatibility. Accepted values: "NONE", "V1" |
+| cpu\_hot\_plug | no | boolean |  | Is capable of CPU hot plug \(no reboot required\). |
+| cpu\_hot\_unplug | no | boolean |  | Is capable of CPU hot unplug \(no reboot required\). |
+| ram\_hot\_plug | no | boolean |  | Is capable of memory hot plug \(no reboot required\). |
+| ram\_hot\_unplug | no | boolean |  | Is capable of memory hot unplug \(no reboot required\). |
+| nic\_hot\_plug | no | boolean |  | Is capable of nic hot plug \(no reboot required\). |
+| nic\_hot\_unplug | no | boolean |  | Is capable of nic hot unplug \(no reboot required\). |
+| disc\_scsi\_hot\_plug | no | boolean |  | Is capable of SCSI drive hot plug \(no reboot required\). |
+| disc\_scsi\_hot\_unplug | no | boolean |  | Is capable of SCSI drive hot unplug \(no reboot required\). This works only for non-Windows virtual Machines.. |
+| disc\_virtio\_hot\_plug | no | boolean |  | Is capable of Virt-IO drive hot plug \(no reboot required\). |
+| disc\_virtio\_hot\_unplug | no | boolean |  | Is capable of Virt-IO drive hot unplug \(no reboot required\). This works only for non-Windows virtual Machines. |
+| licence\_type | no | string |  | OS type of this Image. Accepted values: "UNKNOWN", "WINDOWS", "WINDOWS2016", "LINUX", "OTHER" |
+| cloud\_init | no | string |  | Cloud init compatibility. Accepted values: "NONE", "V1" |
+

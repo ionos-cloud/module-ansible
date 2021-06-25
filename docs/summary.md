@@ -1,6 +1,6 @@
 # Table of contents
 
-* [Introduction](README.md)
+* [Ansible](README.md)
 * [Changelog](changelog.md)
 
 ## Usage

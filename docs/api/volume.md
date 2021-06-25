@@ -60,9 +60,9 @@ The following parameters are supported:
 | size | no | integer | 10 | The size of the volume in GB. |
 | bus | no | string | VIRTIO | The bus type of the volume: **VIRTIO**, IDE |
 | image | no | string |  | Image or snapshot ID to be used as template for this volume. |
-| image_alias | no | string |  | The image alias for the volume. |
-| backupunit_id | no | string |  | The uuid of the Backup Unit that user has access to. The property is immutable and is only allowed to be set on a new volume creation. It is mandatory to provide either 'public image' or 'imageAlias' in conjunction with this property.. |
-| user_data | no | string |  |The cloud-init configuration for the volume as base64 encoded string. The property is immutable and is only allowed to be set on a new volume creation. It is mandatory to provide either 'public image' or 'imageAlias' that has cloud-init compatibility in conjunction with this property.|
+| image\_alias | no | string |  | The image alias for the volume. |
+| backupunit\_id | no | string |  | The uuid of the Backup Unit that user has access to. The property is immutable and is only allowed to be set on a new volume creation. It is mandatory to provide either 'public image' or 'imageAlias' in conjunction with this property.. |
+| user\_data | no | string |  | The cloud-init configuration for the volume as base64 encoded string. The property is immutable and is only allowed to be set on a new volume creation. It is mandatory to provide either 'public image' or 'imageAlias' that has cloud-init compatibility in conjunction with this property. |
 | image\_password | no | string |  | Password set for the administrative user. |
 | ssh\_keys | no | list |  | Public SSH keys allowing access to the server. |
 | disk\_type | no | string | HDD | The disk type of the volume: **HDD**, SSD |
@@ -70,12 +70,12 @@ The following parameters are supported:
 | availability\_zone | no | string | AUTO | The storage availability zone assigned to the volume: **AUTO**, ZONE\_1, ZONE\_2, ZONE\_3 |
 | count | no | integer | 1 | The number of volumes to create. |
 | auto\_increment | no | boolean | true | Whether or not to increment created servers. |
-| cpu_hot_plug | no | boolean |  | Is capable of CPU hot plug (no reboot required). |
-| ram_hot_plug | no | boolean |  | Is capable of memory hot plug (no reboot required). |
-| nic_hot_plug | no | boolean |  | Is capable of nic hot plug (no reboot required). |
-| nic_hot_unplug | no | boolean |  | Is capable of nic hot unplug (no reboot required). |
-| disc_virtio_hot_plug | no | boolean |  | Is capable of Virt-IO drive hot plug (no reboot required). |
-| disc_virtio_hot_unplug | no | boolean |  | Is capable of Virt-IO drive hot unplug (no reboot required). This works only for non-Windows virtual Machines. |
+| cpu\_hot\_plug | no | boolean |  | Is capable of CPU hot plug \(no reboot required\). |
+| ram\_hot\_plug | no | boolean |  | Is capable of memory hot plug \(no reboot required\). |
+| nic\_hot\_plug | no | boolean |  | Is capable of nic hot plug \(no reboot required\). |
+| nic\_hot\_unplug | no | boolean |  | Is capable of nic hot unplug \(no reboot required\). |
+| disc\_virtio\_hot\_plug | no | boolean |  | Is capable of Virt-IO drive hot plug \(no reboot required\). |
+| disc\_virtio\_hot\_unplug | no | boolean |  | Is capable of Virt-IO drive hot unplug \(no reboot required\). This works only for non-Windows virtual Machines. |
 | instance\_ids | **yes**/no | list |  | List of instance UUIDs or names. Required for `state='absent'` or `state='update'` to remove or update volumes. |
 | api\_url | no | string |  | The Ionos API base URL. |
 | username | no | string |  | The Ionos username. Overrides the IONOS\_USERNAME environment variable. |
