@@ -32,8 +32,8 @@ jobs:
     
       - name: Checkout
         uses: actions/checkout@v2
-        with: 
-            ref: release/v6
+#        with:
+#            ref: release/v6
 
       - name: Setup Python ${{ env.python-version }}
         uses: actions/setup-python@v2
@@ -149,4 +149,9 @@ jobs:
       - name: Run Group test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
-       
+
+
+      - name: Run Target Group test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/target-group-test.yml
+
