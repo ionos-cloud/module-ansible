@@ -1,0 +1,41 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Create template
+      autoscaling_template:
+        name: ANSIBLE_TEST
+        availability_zone: AUTO
+        cores: 2
+        cpu_family: INTEL_XEON
+        location: us/las
+        ram: 1024
+        nics:
+          - lan: 1
+            name: ANSIBLE_TEST_NIC
+        volumes:
+          - image: 85cbcfaf-b334-11eb-b9b3-d2869b2d44d9
+            image_password: test12345
+            name: ANSIBLE_TEST_VOLUME
+            size: 50
+            type: HDD
+      register: template_response
+
+    - name: Debug - Show template
+      debug:
+        msg: "{{ template_response }}"
+
+    - name: Remove template
+      autoscaling_template:
+        template_id: "{{ template_response.template.id }}"
+        state: absent
+        wait: true
+      register: deleted_template
+
+    - name: Debug - Show Deleted template
+      debug:
+        msg: "{{ deleted_template }}"
