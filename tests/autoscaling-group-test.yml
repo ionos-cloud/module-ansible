@@ -1,0 +1,103 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Create template
+      autoscaling_template:
+        name: ANSIBLE_TEST
+        availability_zone: AUTO
+        cores: 2
+        cpu_family: INTEL_XEON
+        location: us/las
+        ram: 1024
+        nics:
+          - lan: 1
+            name: ANSIBLE_TEST_NIC
+        volumes:
+          - image: 85cbcfaf-b334-11eb-b9b3-d2869b2d44d9
+            image_password: test12345
+            name: ANSIBLE_TEST_VOLUME
+            size: 50
+            type: HDD
+      register: template_response
+
+    - name: Debug - Show template
+      debug:
+        msg: "{{ template_response }}"
+
+    - name: Create autoscaling group
+      autoscaling_group:
+        name: ANSIBLE_TEST
+        datacenter:
+          id: 2284dc16-b284-4826-846a-be283de60216
+        template:
+          id: "{{ template_response.template.id }}"
+        max_replica_count: 5
+        min_replica_count: 1
+        target_replica_count: 1
+        policy:
+          metric: INSTANCE_CPU_UTILIZATION_AVERAGE
+          range: P1D
+          scale_in_action:
+            amount: 1
+            amount_type: ABSOLUTE
+            cooldown_period: 5m
+          scale_in_threshold: 33
+          scale_out_action:
+            amount: 1
+            amount_type: ABSOLUTE
+            cooldown_period: PT5M
+          scale_out_threshold: 77
+          unit: PER_HOUR
+        wait: true
+      register: autoscaling_group_response
+
+    - name: Debug - Show Autoscaling Group
+      debug:
+        msg: "{{ autoscaling_group_response }}"
+
+    - name: Update autoscaling_group
+      autoscaling_group:
+        name: ANSIBLE_TEST_UPDATED
+        datacenter:
+          id: 2284dc16-b284-4826-846a-be283de60216
+        template:
+          id: "{{ template_response.template.id }}"
+        group_id: "{{ autoscaling_group_response.autoscaling_group.id }}"
+        max_replica_count: 0
+        min_replica_count: 0
+        policy:
+          metric: INSTANCE_NETWORK_IN_BYTES
+          range: P1D
+          scale_in_action:
+            amount: 1
+            amount_type: ABSOLUTE
+            cooldown_period: 5m
+          scale_in_threshold: 33
+          scale_out_action:
+            amount: 1
+            amount_type: ABSOLUTE
+            cooldown_period: PT5M
+          scale_out_threshold: 86
+          unit: PER_MINUTE
+        wait: true
+        state: update
+      register: updated_autoscaling_group
+
+    - name: Debug - Show Updated Autoscaling Group
+      debug:
+        msg: "{{ updated_autoscaling_group }}"
+
+    - name: Remove autoscaling_group
+      autoscaling_group:
+        group_id: "{{ autoscaling_group_response.autoscaling_group.id }}"
+        state: absent
+      register: deleted_autoscaling_group
+
+    - name: Debug - Show Deleted Autoscaling Group
+      debug:
+        msg: "{{ deleted_autoscaling_group }}"
