@@ -1,6 +1,6 @@
 # Table of contents
 
-* [Introduction](README.md)
+* [Ansible](README.md)
 * [Changelog](changelog.md)
 
 ## Usage
@@ -42,3 +42,6 @@
 * [Network Load Balancer](api/network_load_balancer.md)
 * [Network Load Balancer Flowlog](api/network_load_balancer_flowlog.md)
 * [Network Load Balancer Rule](api/network_load_balancer_rule.md)
+* [Autoscaling Template](api/autoscaling_template.md)
+* [Autoscaling Group](api/autoscaling_group.md)
+
