@@ -261,10 +261,6 @@ def main():
                 module.fail_json(msg=error_message % 'k8s_cluster_id')
             if not module.params.get('cluster_name'):
                 module.fail_json(msg=error_message % 'cluster_name')
-            if not module.params.get('k8s_version'):
-                module.fail_json(msg=error_message % 'k8s_version')
-            if not module.params.get('maintenance_window'):
-                module.fail_json(msg=error_message % 'maintenance_window')
 
             try:
                 (changed) = update_k8s_cluster(module, api_client)
