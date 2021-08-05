@@ -55,13 +55,13 @@ jobs:
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml
 
-#      - name: Run Backupunit test
-#        run: |
-#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/backupunit-test.yml
+      - name: Run Backupunit test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/backupunit-test.yml
 
       - name: Run Firewall test
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/firewall-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/firewall-test.yml -vvv
 
       - name: Run IP Block test
         run: |
@@ -94,6 +94,10 @@ jobs:
       - name: Run Volume test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
+
+      - name: Run Attach Volume test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/attach-volume-test.yml
 
       - name: Run Kubeconfig test
         run: |

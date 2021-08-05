@@ -1,9 +1,9 @@
-name: AUTOTESTANSIBLE
-datacenter: AUTOTESTANSIBLE
+name: AutoTestAnsible
+datacenter: AutoTestAnsible
 description: Ansible test description
-server: AUTOTESTANSIBLE
-nic: AUTOTESTANSIBLE
-lan: AUTOTESTANSIBLE
+server: AutoTestAnsible
+nic: AutoTestAnsible
+lan: AutoTestAnsible
 location: gb/lhr
 image: 31745b7e-f37e-11eb-9799-ca71ec1fa085
 password: qq6mdvirWwj1dsdXjcpp

@@ -64,3 +64,9 @@
   * disc\_virtio\_hot\_plug
   * disc\_virtio\_hot\_unplug
 
+
+## 5.0.3 \(5 August, 2021\)
+
+### Bug fixes:
+
+* fixed [Issue #2](https://github.com/ionos-cloud/module-ansible/issues/2): `Volume Module: HTTP 304 "Failed to parse request body" when attaching a volume to a server`
