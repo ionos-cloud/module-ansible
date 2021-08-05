@@ -95,6 +95,10 @@ jobs:
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
 
+      - name: Run Attach Volume test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/attach-volume-test.yml
+
       - name: Run Kubeconfig test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-config-test.yml
