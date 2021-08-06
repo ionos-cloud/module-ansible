@@ -156,7 +156,6 @@ try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import Snapshot, SnapshotProperties
-    from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
@@ -235,8 +234,9 @@ def create_snapshot(module, client):
                                                                                          volume_id=volume_id, name=name,
                                                                                          description=description)
         (snapshot_response, _, headers) = response
-        request_id = _get_request_id(headers['Location'])
-        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
         return {
             'changed': True,

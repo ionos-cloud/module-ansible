@@ -7,13 +7,27 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
 
+DOCUMENTATION = '''
+---
+module: image
+short_description: Update or remove IONOS Cloud Images.
+description:
+     - This is a simple module that supports updating or removing IONOS Cloud Images.
+       This module has a dependency on ionoscloud >= 5.0.0
+       
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 5.0.0"
+
+'''
+
+
 HAS_SDK = True
 
 try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
-    from ionoscloud.models import Image, Images, ImageProperties
-    from ionoscloud.rest import ApiException
+    from ionoscloud.models import ImageProperties
     from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False

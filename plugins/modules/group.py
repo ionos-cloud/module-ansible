@@ -122,8 +122,7 @@ HAS_SDK = True
 try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
-    from ionoscloud.models import User, UserProperties, Group, GroupProperties
-    from ionoscloud.rest import ApiException
+    from ionoscloud.models import User, Group, GroupProperties
     from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False

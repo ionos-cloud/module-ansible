@@ -242,7 +242,7 @@ try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import (Volume, VolumeProperties, Server, ServerProperties, Datacenter,
-                                 DatacenterProperties, Nic, NicProperties, Lan, LanProperties, LanPropertiesPost,
+                                 DatacenterProperties, Nic, NicProperties, LanPropertiesPost,
                                  LanPost, ServerEntities, Nics, Volumes)
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
