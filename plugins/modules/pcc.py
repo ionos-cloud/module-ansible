@@ -27,7 +27,6 @@ try:
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import PrivateCrossConnect
     from ionoscloud.models import PrivateCrossConnectProperties
-    from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False

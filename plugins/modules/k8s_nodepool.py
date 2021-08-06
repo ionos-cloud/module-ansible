@@ -1,5 +1,3 @@
-import time
-
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
@@ -44,10 +42,8 @@ HAS_SDK = True
 try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
-    from ionoscloud.models import KubernetesCluster, KubernetesClusterProperties, KubernetesNodePool, \
-        KubernetesNodePoolProperties, KubernetesNodePoolPropertiesForPut, KubernetesNodePoolForPut, \
+    from ionoscloud.models import KubernetesNodePoolPropertiesForPut, KubernetesNodePoolForPut, \
         KubernetesNodePoolForPost, KubernetesNodePoolPropertiesForPost
-    from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False

@@ -3,8 +3,8 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
-__metaclass__ = type
 
+__metaclass__ = type
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
@@ -97,15 +97,13 @@ try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import IpBlock, IpBlockProperties
-    from ionoscloud.rest import ApiException
-    from ionoscloud import ApiClient, IPBlocksApi
+    from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
 
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
-
 
 LOCATIONS = ['us/las',
              'us/ewr',

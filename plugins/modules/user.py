@@ -133,7 +133,6 @@ try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import User, UserProperties, UserPropertiesPut, UserPropertiesPost, UserPut, UserPost
-    from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False

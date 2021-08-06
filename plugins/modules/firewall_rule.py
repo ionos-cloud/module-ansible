@@ -210,7 +210,6 @@ icmp_code:
   sample: 0
 '''
 
-import time
 import re
 
 HAS_SDK = True
@@ -219,7 +218,6 @@ try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import FirewallRule, FirewallruleProperties, Nic, NicProperties
-    from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
@@ -413,8 +411,9 @@ def update_firewall_rule(module, client):
                                                                                           firewallrule=firewall_rule_properties)
 
         (firewall_rule_response, _, headers) = response
-        request_id = _get_request_id(headers['Location'])
-        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
         return {
             'changed': True,
@@ -467,10 +466,10 @@ def delete_firewall_rule(module, client):
         module.exit_json(changed=True)
 
     try:
-        firewall_rule_response = nic_server.datacenters_servers_nics_firewallrules_delete(datacenter_id=datacenter_id,
-                                                                                          server_id=server_id,
-                                                                                          nic_id=nic_id,
-                                                                                          firewallrule_id=firewall_rule_id)
+        nic_server.datacenters_servers_nics_firewallrules_delete(datacenter_id=datacenter_id,
+                                                                 server_id=server_id,
+                                                                 nic_id=nic_id,
+                                                                 firewallrule_id=firewall_rule_id)
 
         return {
             'changed': True,

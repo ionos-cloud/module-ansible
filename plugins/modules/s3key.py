@@ -29,7 +29,6 @@ try:
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import S3Key
     from ionoscloud.models import S3KeyProperties
-    from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False

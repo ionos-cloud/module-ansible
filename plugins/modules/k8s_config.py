@@ -9,11 +9,24 @@ EXAMPLES = '''
     config_file: 'config.yaml'
 '''
 
+DOCUMENTATION = '''
+---
+module: k8s_config
+short_description: Get IONOS Cloud Kubernetes Cluster configuration.
+description:
+     - This is a simple module that supports retrieving IONOS Cloud Kubernetes Cluster configuration.
+       This module has a dependency on ionoscloud >= 5.0.0
+
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 5.0.0"
+
+'''
+
 HAS_SDK = True
 try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
-    from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False

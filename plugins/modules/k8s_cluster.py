@@ -1,7 +1,6 @@
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible import __version__
-import time
 import re
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
@@ -33,8 +32,8 @@ EXAMPLES = '''
 try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
-    from ionoscloud.models import KubernetesCluster, KubernetesClusterProperties, KubernetesClusterPropertiesForPut, KubernetesClusterForPut
-    from ionoscloud.rest import ApiException
+    from ionoscloud.models import KubernetesCluster, KubernetesClusterProperties, KubernetesClusterPropertiesForPut, \
+        KubernetesClusterForPut
     from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
@@ -157,7 +156,7 @@ def update_k8s_cluster(module, client):
         module.exit_json(changed=True)
     try:
         kubernetes_cluster_properties = KubernetesClusterPropertiesForPut(name=cluster_name, k8s_version=k8s_version,
-                                                                    maintenance_window=maintenance_window)
+                                                                          maintenance_window=maintenance_window)
         kubernetes_cluster = KubernetesClusterForPut(properties=kubernetes_cluster_properties)
         k8s_response = k8s_server.k8s_put(k8s_cluster_id=k8s_cluster_id, kubernetes_cluster=kubernetes_cluster)
 
