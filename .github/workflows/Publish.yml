@@ -150,7 +150,7 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v2
           with:
-            ref: master
+            ref: feat/SDK-433-add-image-alias
 
         - name: Build Ansible Collection
           run: |
