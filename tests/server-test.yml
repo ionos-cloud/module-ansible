@@ -27,7 +27,7 @@
          volume_size: 5
          cpu_family: INTEL_SKYLAKE
          disk_type: HDD
-         image: "{{ image }}"
+         image: "{{ image_alias }}"
          image_password: "{{ password }}"
          location: "{{ location }}"
          count: 1
