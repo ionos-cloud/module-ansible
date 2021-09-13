@@ -112,6 +112,7 @@ jobs:
          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
 
       - name: Run Attach Volume test
+        if: github.event.inputs.test == 'yes'
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/attach-volume-test.yml
 

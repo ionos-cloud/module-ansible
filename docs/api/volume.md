@@ -59,14 +59,14 @@ The following parameters are supported:
 | name | **yes**/no | string |  | The name of the volume. You can enumerate the names using auto\_increment. |
 | size | no | integer | 10 | The size of the volume in GB. |
 | bus | no | string | VIRTIO | The bus type of the volume: **VIRTIO**, IDE |
-| image | no | string |  | Image or snapshot ID to be used as template for this volume. |
-| image\_alias | no | string |  | The image alias for the volume. |
+| image | no | string |  | Image, snapshot ID or image alias to be used as template for this volume. If image alias is used, provide the location and the disk_type too, in order to identify the correct image ID. |
+| location | no | string |  | The location of the provided image. This parameter is required only when the image alias is used instead of an UUID for the image. The available locations are: us/las, us/ewr, de/fra, de/fkb, de/txl, gb/lhr |
 | backupunit\_id | no | string |  | The uuid of the Backup Unit that user has access to. The property is immutable and is only allowed to be set on a new volume creation. It is mandatory to provide either 'public image' or 'imageAlias' in conjunction with this property.. |
 | user\_data | no | string |  | The cloud-init configuration for the volume as base64 encoded string. The property is immutable and is only allowed to be set on a new volume creation. It is mandatory to provide either 'public image' or 'imageAlias' that has cloud-init compatibility in conjunction with this property. |
 | image\_password | no | string |  | Password set for the administrative user. |
 | ssh\_keys | no | list |  | Public SSH keys allowing access to the server. |
 | disk\_type | no | string | HDD | The disk type of the volume: **HDD**, SSD |
-| licence\_type | no | string | UNKNOWN | The licence type for the volume. This is used when the image is non-standard: LINUX, WINDOWS, **UNKNOWN**, OTHER, WINDOWS2016 |
+| licence\_type | no | string |  | The licence type for the volume. This is used when the image is non-standard: LINUX, WINDOWS, **UNKNOWN**, OTHER, WINDOWS2016 |
 | availability\_zone | no | string | AUTO | The storage availability zone assigned to the volume: **AUTO**, ZONE\_1, ZONE\_2, ZONE\_3 |
 | count | no | integer | 1 | The number of volumes to create. |
 | auto\_increment | no | boolean | true | Whether or not to increment created servers. |
