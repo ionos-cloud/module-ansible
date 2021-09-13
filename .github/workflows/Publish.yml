@@ -36,7 +36,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-            ref: feat/SDK-433-add-image-alias
+            ref: master
 
       - name: Setup Python ${{ env.python-version }}
         uses: actions/setup-python@v2
@@ -151,7 +151,7 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v2
           with:
-            ref: feat/SDK-433-add-image-alias
+            ref: master
 
         - name: Build Ansible Collection
           run: |
