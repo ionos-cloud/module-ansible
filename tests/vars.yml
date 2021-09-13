@@ -5,7 +5,7 @@ server: AutoTestAnsible
 nic: AutoTestAnsible
 lan: AutoTestAnsible
 location: gb/lhr
-image: 45ec8032-e309-11eb-a927-824af8c35c96
+image: ce08ca15-0adf-11ec-9fa6-1e5ea9024c03
 image_alias: centos:7
 password: qq6mdvirWwj1dsdXjcpp
 updated_password: fjee83jkw940djcer
