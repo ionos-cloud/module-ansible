@@ -118,7 +118,7 @@ The following parameters are supported:
 | count | no | integer | 1 | The number of servers to create. |
 | name | **yes**/no | string |  | The name of the server\(s\). Required only for `state='present'`. |
 | template_uuid | **yes**/no | string |  | The UUID of the template for creating a CUBE server; the available templates for CUBE servers can be found on the templates resource. Required only for state = 'present'. |
-| image | **yes**/no | string |  | The image alias or UUID for creating the server. Required only for `state='present'`. |
+| image | **yes**/no | string |  | Image, snapshot ID or image alias to be used as template for the volume of the server. If image alias is used, provide the location and the disk_type too, in order to identify the correct image ID.  Required only for `state='present'`. |
 | image\_password | no | string |  | Password set for the administrative user. |
 | ssh\_keys | no | list | none | List of public SSH keys allowing access to the server. |
 | datacenter | **yes** | string | none | The datacenter where the server is located. |
