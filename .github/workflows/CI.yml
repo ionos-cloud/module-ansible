@@ -33,7 +33,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with: 
-            ref: release/v6
+            ref: feat/SDK-448-add-image-alias-support
 
       - name: Setup Python ${{ env.python-version }}
         uses: actions/setup-python@v2
