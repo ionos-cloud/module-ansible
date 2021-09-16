@@ -543,7 +543,7 @@ def delete_volume(module, client):
     }
 
 
-def _attach_volume(module, server_client, datacenter, volume):
+def _attach_volume(module, server_client, datacenter, volume_id):
     """
     Attaches a volume.
 
@@ -567,6 +567,7 @@ def _attach_volume(module, server_client, datacenter, volume):
                     break
 
         try:
+            volume = Volume(id=volume_id)
             return server_client.datacenters_servers_volumes_post(datacenter_id=datacenter, server_id=server,
                                                                   volume=volume)
         except Exception as e:

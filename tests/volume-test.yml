@@ -11,8 +11,8 @@
   tasks:
     - name: Create datacenter
       datacenter:
-          name: "{{ datacenter }}"
-          location: "{{ location }}"
+        name: "{{ datacenter }}"
+        location: "{{ location }}"
 
     - name: Create volumes
       volume:
