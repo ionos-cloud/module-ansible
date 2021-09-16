@@ -1,9 +1,9 @@
-name: AutoTestAnsible
-datacenter: AutoTestAnsible
+name: TestAnsible
+datacenter: TestAnsible
 description: Ansible test description
-server: AutoTestAnsible
-nic: AutoTestAnsible
-lan: AutoTestAnsible
+server: TestAnsible
+nic: TestAnsible
+lan: TestAnsible
 location: gb/lhr
 image: ce08ca15-0adf-11ec-9fa6-1e5ea9024c03
 image_alias: centos:7
