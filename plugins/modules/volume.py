@@ -212,16 +212,28 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
+def _resolve_image(image_alias, location, disk_type, client):
+    image_client = ionoscloud.api.ImagesApi(api_client=client)
+    images = image_client.images_get(depth=5)
+
+    if len(images.items) > 0:
+        for image in images.items:
+            if image_alias in image.properties.image_aliases and location == image.properties.location and disk_type == image.properties.image_type:
+                return image.id
+
+    return None
+
+
 def _create_volume(module, volume_server, datacenter, name, client):
     size = module.params.get('size')
     bus = module.params.get('bus')
+    location = module.params.get('location')
     image = module.params.get('image')
     image_password = module.params.get('image_password')
     ssh_keys = module.params.get('ssh_keys')
     disk_type = module.params.get('disk_type')
     availability_zone = module.params.get('availability_zone')
     licence_type = module.params.get('licence_type')
-    image_alias = module.params.get('image_alias')
     cpu_hot_plug = module.params.get('cpu_hot_plug')
     ram_hot_plug = module.params.get('ram_hot_plug')
     nic_hot_plug = module.params.get('nic_hot_plug')
@@ -232,24 +244,32 @@ def _create_volume(module, volume_server, datacenter, name, client):
     user_data = module.params.get('user_data')
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
-
-    volume_response = None
+    image_id = None
 
     if module.check_mode:
         module.exit_json(changed=True)
 
+    if image:
+        try:
+            if uuid_match.match(image):
+                image_id = image
+            else:
+                image_id = _resolve_image(image, location, disk_type, client)
+
+            if not image_id:
+                module.fail_json(
+                    msg="Could not find the image. Please provide either image_id, either image alias and disk_type "
+                        "parameters")
+        except Exception as e:
+            module.fail_json(
+                msg="Could not find the image. Please provide either image_id, either image alias and disk_type "
+                    "parameters. Error %s" % to_native(e))
+
+
     try:
-        volume_properties = VolumeProperties(name=name, type=disk_type, size=size, availability_zone=availability_zone, image=image, image_password=image_password, ssh_keys=ssh_keys, bus=bus, licence_type=licence_type, cpu_hot_plug=cpu_hot_plug, ram_hot_plug=ram_hot_plug, nic_hot_plug=nic_hot_plug, nic_hot_unplug=nic_hot_unplug, disc_virtio_hot_plug=disc_virtio_hot_plug, disc_virtio_hot_unplug=disc_virtio_hot_unplug, backupunit_id=backupunit_id, user_data=user_data)
+        volume_properties = VolumeProperties(name=name, type=disk_type, size=size, availability_zone=availability_zone, image=image_id, image_password=image_password, ssh_keys=ssh_keys, bus=bus, licence_type=licence_type, cpu_hot_plug=cpu_hot_plug, ram_hot_plug=ram_hot_plug, nic_hot_plug=nic_hot_plug, nic_hot_unplug=nic_hot_unplug, disc_virtio_hot_plug=disc_virtio_hot_plug, disc_virtio_hot_unplug=disc_virtio_hot_unplug, backupunit_id=backupunit_id, user_data=user_data)
 
         volume = Volume(properties=volume_properties)
-
-        try:
-            UUID(image)
-        except Exception:
-            volume.properties.image_alias = image
-        else:
-            volume.properties.image = image
-            volume.properties.licence_type = None
 
         response = volume_server.datacenters_volumes_post_with_http_info(datacenter_id=datacenter, volume=volume)
         (volume_response, _, headers) = response
@@ -258,22 +278,27 @@ def _create_volume(module, volume_server, datacenter, name, client):
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
+        return volume_response
+
     except Exception as e:
         module.fail_json(msg="failed to create the volume: %s" % to_native(e))
-
-    return volume_response
 
 
 def _update_volume(module, volume_server, api_client, datacenter, volume_id):
     size = module.params.get('size')
     bus = module.params.get('bus')
+    disk_type = module.params.get('disk_type')
     availability_zone = module.params.get('availability_zone')
+    licence_type = module.params.get('licence_type')
+    image = module.params.get('image')
+    location = module.params.get('location')
     cpu_hot_plug = module.params.get('cpu_hot_plug')
     ram_hot_plug = module.params.get('ram_hot_plug')
     nic_hot_plug = module.params.get('nic_hot_plug')
     nic_hot_unplug = module.params.get('nic_hot_unplug')
     disc_virtio_hot_plug = module.params.get('disc_virtio_hot_plug')
     disc_virtio_hot_unplug = module.params.get('disc_virtio_hot_unplug')
+    image_id = None
 
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
@@ -282,7 +307,12 @@ def _update_volume(module, volume_server, api_client, datacenter, volume_id):
         module.exit_json(changed=True)
 
     try:
-        volume_properties = VolumeProperties(size=size, availability_zone=availability_zone, bus=bus,
+        if image:
+            if uuid_match.match(image):
+                image_id = image
+            else:
+                image_id = _resolve_image(image, location, disk_type, api_client)
+        volume_properties = VolumeProperties(size=size, availability_zone=availability_zone, image=image_id, bus=bus,
                                              cpu_hot_plug=cpu_hot_plug, ram_hot_plug=ram_hot_plug,
                                              nic_hot_plug=nic_hot_plug, nic_hot_unplug=nic_hot_unplug,
                                              disc_virtio_hot_plug=disc_virtio_hot_plug,
@@ -297,11 +327,10 @@ def _update_volume(module, volume_server, api_client, datacenter, volume_id):
         if wait:
             request_id = _get_request_id(headers['Location'])
             api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        return volume_response
 
     except Exception as e:
         module.fail_json(msg="failed to update the volume: %s" % to_native(e))
-
-    return volume_response
 
 
 def _delete_volume(module, volume_server, datacenter, volume):
@@ -359,7 +388,7 @@ def create_volume(module, client):
             if (hasattr(e, 'message') and e.message.startswith('not all') or to_native(e).startswith('not all')):
                 name = '%s%%d' % name
             else:
-                module.fail_json(msg=e, exception=traceback.format_exc())
+                module.fail_json(msg=e.message, exception=traceback.format_exc())
 
         number_range = xrange(count_offset, count_offset + count + len(numbers))
         available_numbers = list(set(number_range).difference(numbers))
@@ -562,7 +591,7 @@ def main():
             name=dict(type='str'),
             size=dict(type='int', default=10),
             image=dict(type='str'),
-            image_alias=dict(type='str'),
+            location=dict(type='str'),
             backupunit_id=dict(type='str'),
             user_data=dict(type='str'),
             image_password=dict(type='str', default=None, no_log=True),
@@ -575,7 +604,7 @@ def main():
             disc_virtio_hot_unplug=dict(type='bool'),
             bus=dict(type='str', choices=BUS_TYPES, default='VIRTIO'),
             disk_type=dict(type='str', choices=DISK_TYPES, default='HDD'),
-            licence_type=dict(type='str', choices=LICENCE_TYPES, default='UNKNOWN'),
+            licence_type=dict(type='str', choices=LICENCE_TYPES),
             availability_zone=dict(type='str', choices=AVAILABILITY_ZONES, default=None),
             count=dict(type='int', default=1),
             auto_increment=dict(type='bool', default=True),
