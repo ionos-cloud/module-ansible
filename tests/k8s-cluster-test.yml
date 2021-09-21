@@ -12,7 +12,7 @@
         maintenance_window:
           day_of_the_week: "Wednesday"
           time: "12:02:00"
-        k8s_version: "1.20.6"
+        k8s_version: "1.21.4"
       register: cluster_response
 
     - name: Update k8s cluster
@@ -22,7 +22,7 @@
         maintenance_window:
           day_of_the_week: "Wednesday"
           time: "12:02:00"
-        k8s_version: "1.20.6"
+        k8s_version: "1.21.4"
         state: update
 
     - name: Delete k8s cluster

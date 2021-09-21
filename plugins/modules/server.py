@@ -288,6 +288,18 @@ uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
+def _resolve_image(image_alias, location, disk_type, client):
+    image_client = ionoscloud.api.ImagesApi(api_client=client)
+    images = image_client.images_get(depth=5)
+
+    if len(images.items) > 0:
+        for image in images.items:
+            if image_alias in image.properties.image_aliases and location == image.properties.location and disk_type == image.properties.image_type:
+                return image.id
+
+    return None
+
+
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -320,6 +332,7 @@ def _create_machine(module, client, datacenter, name):
     cores = module.params.get('cores')
     ram = module.params.get('ram')
     cpu_family = module.params.get('cpu_family')
+    location = module.params.get('location')
     volume_size = module.params.get('volume_size')
     disk_type = module.params.get('disk_type')
     availability_zone = module.params.get('availability_zone')
@@ -328,6 +341,7 @@ def _create_machine(module, client, datacenter, name):
     ssh_keys = module.params.get('ssh_keys')
     bus = module.params.get('bus')
     lan = module.params.get('lan')
+    nat = module.params.get('nat')
     image = module.params.get('image')
     assign_public_ip = module.boolean(module.params.get('assign_public_ip'))
     nic_ips = module.params.get('nic_ips')
@@ -390,23 +404,26 @@ def _create_machine(module, client, datacenter, name):
         server_entities = ServerEntities(volumes=AttachedVolumes(items=[volume]))
 
     else:
+        if uuid_match.match(image):
+            image_id = image
+        else:
+            image_id = _resolve_image(image, location, disk_type, client)
+
+        if not image_id:
+            module.fail_json(msg="Could not find the image. Please provide either image_id, either image_alias and "
+                                 "disk_type parameters")
         server_properties = ServerProperties(name=name, cores=cores, ram=ram, availability_zone=availability_zone,
                                              cpu_family=cpu_family)
         volume_properties = VolumeProperties(name=str(uuid4()).replace('-', '')[:10],
                                              type=disk_type,
                                              size=volume_size,
+                                             image=image_id,
                                              availability_zone=volume_availability_zone,
                                              image_password=image_password,
                                              ssh_keys=ssh_keys,
                                              bus=bus)
 
         volume = Volume(properties=volume_properties)
-        try:
-            UUID(image)
-        except Exception:
-            volume.properties.image_alias = image
-        else:
-            volume.properties.image = image
 
         server_entities = ServerEntities(volumes=Volumes(items=[volume]), nics=Nics(items=nics))
 
@@ -921,7 +938,7 @@ def main():
             image=dict(type='str'),
             cores=dict(type='int', default=2),
             ram=dict(type='int', default=2048),
-            cpu_family=dict(type='str', choices=CPU_FAMILIES),
+            cpu_family=dict(type='str', choices=CPU_FAMILIES, default='AMD_OPTERON'),
             volume_size=dict(type='int', default=10),
             disk_type=dict(type='str', choices=DISK_TYPES, default='HDD'),
             availability_zone=dict(type='str', choices=AVAILABILITY_ZONES, default='AUTO'),

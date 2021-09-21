@@ -1,11 +1,12 @@
-name: AUTOTESTANSIBLE
-datacenter: AUTOTESTANSIBLE
+name: TestAnsible
+datacenter: TestAnsible
 description: Ansible test description
-server: AUTOTESTANSIBLE
-nic: AUTOTESTANSIBLE
-lan: AUTOTESTANSIBLE
+server: TestAnsible
+nic: TestAnsible
+lan: TestAnsible
 location: gb/lhr
-image: 560491f7-c27e-11eb-a028-52d578831bb3
+image: ce08ca15-0adf-11ec-9fa6-1e5ea9024c03
+image_alias: centos:7
 password: qq6mdvirWwj1dsdXjcpp
 updated_password: fjee83jkw940djcer
 wait_timeout: 500
