@@ -8,7 +8,7 @@ on:
     pull_request:
         types: [ assigned, opened, synchronize, reopened ]
     push:
-      branches: [ master ]
+      branches: [ release/v6 ]
 
 jobs:
 
@@ -33,7 +33,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-            ref: master
+            ref: release/v6
 
       - name: Setup Python ${{ env.python-version }}
         uses: actions/setup-python@v2
