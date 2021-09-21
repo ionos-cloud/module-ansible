@@ -89,3 +89,17 @@
     * boot_volume
     * boot_cdrom
 * Removed the `cube_server` module. Now the users can create **CUBE servers** using the `server` module.
+
+
+## 6.0.0-beta.3 (September, 2021)
+
+### Bug fixes:
+
+* fixed issue: `Volume Module: HTTP 304 "Failed to parse request body" when attaching a volume to a server`
+
+### Improvements:
+
+* Added support for using image aliases when creating a volume. The modules now support _image ID, snapshot ID or 
+  image alias_ values for the `image` parameter. If the image alias is provided, the module will resolve the image alias and
+  use the correspondent image ID.
+* new parameter for the `volume` module: `location` - used for identifying the image when image alias is used
