@@ -17,7 +17,7 @@ jobs:
     name: Testing the Ansible Module
     env:
         python-version: 3.8.0
-        ionoscloud-version: 6.0.0b12
+        ionoscloud-version: 6.0.0b1
         ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
         IONOS_USERNAME: ${{ secrets.IONOS_VDC_USER }}
         IONOS_PASSWORD: ${{ secrets.IONOS_VDC_PASSWORD }}
@@ -44,7 +44,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install ionoscloud
-          python3 -m pip install -i https://test.pypi.org/simple/ ionoscloud==${{ env.ionoscloud-version }}\
+          python3 -m pip install ionoscloud==${{ env.ionoscloud-version }}
 
       - name: Install Ansible
         run: |

@@ -9,6 +9,7 @@ on:
       ionoscloud-version:
         description: 'Python SDK client version to use '
         required: true
+        default: 6.0.0b1
       test:
         description: 'Whether to run tests or not'
         required: true
@@ -24,7 +25,6 @@ jobs:
     name: Testing the Ansible Module
     env:
         python-version: 3.8.0
-        ionoscloud-version: 6.0.0b0
         ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
         IONOS_USERNAME: ${{ secrets.IONOS_VDC_USER }}
         IONOS_PASSWORD: ${{ secrets.IONOS_VDC_PASSWORD }}
