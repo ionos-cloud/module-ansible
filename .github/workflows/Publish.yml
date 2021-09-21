@@ -126,6 +126,11 @@ jobs:
         run: |
          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
 
+      - name: Run Attach Volume test
+        if: github.event.inputs.test == 'yes'
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/attach-volume-test.yml
+
       - name: Run NAT Gateway test
         if: github.event.inputs.test == 'yes'
         run: |
@@ -141,20 +146,20 @@ jobs:
         run: |
          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-rule-test.yml
 
-      - name: Run Network Load Balancer test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
-
-      - name: Run Network Load Balancer Flowlog test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
-
-      - name: Run Network Load Balancer Forwarding Rule test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
+#      - name: Run Network Load Balancer test
+#        if: github.event.inputs.test == 'yes'
+#        run: |
+#         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
+#
+#      - name: Run Network Load Balancer Flowlog test
+#        if: github.event.inputs.test == 'yes'
+#        run: |
+#         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
+#
+#      - name: Run Network Load Balancer Forwarding Rule test
+#        if: github.event.inputs.test == 'yes'
+#        run: |
+#         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
 
       - name: Run Kubeconfig test
         if: github.event.inputs.test == 'yes'
