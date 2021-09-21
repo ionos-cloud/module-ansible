@@ -214,7 +214,7 @@ def update_k8s_cluster_nodepool(module, client):
 
         k8s_nodepool = KubernetesNodePoolForPut(properties=k8s_nodepool_properties)
         k8s_response = k8s_server.k8s_nodepools_put(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id,
-                                                               kubernetes_node_pool=k8s_nodepool)
+                                                               kubernetes_node_pool_for_put=k8s_nodepool)
 
         if wait:
             client.wait_for(
