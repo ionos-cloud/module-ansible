@@ -34,3 +34,10 @@
 * [Private cross connect](api/pcc.md)
 * [Image](api/image.md)
 
+## Legal
+
+---
+
+* [Privacy policy](https://www.ionos.com/terms-gtc/terms-privacy/)
+* [Imprint](https://www.ionos.de/impressum)
+

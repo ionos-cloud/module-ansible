@@ -64,18 +64,21 @@
   * disc\_virtio\_hot\_plug
   * disc\_virtio\_hot\_unplug
 
-
 ## 5.0.3 \(5 August, 2021\)
 
 ### Bug fixes:
 
-* fixed [Issue #2](https://github.com/ionos-cloud/module-ansible/issues/2): `Volume Module: HTTP 304 "Failed to parse request body" when attaching a volume to a server`
+* fixed [Issue \#2](https://github.com/ionos-cloud/module-ansible/issues/2): `Volume Module: HTTP 304 "Failed to parse request body" when attaching a volume to a server`
 
 ## 5.0.4 \(13 September, 2021\)
 
 ### Improvements:
 
-* Added support for using image aliases when creating a volume. The modules now support _image ID, snapshot ID or 
-  image alias_ values for the `image` parameter. If the image alias is provided, the module will resolve the image alias and
+* Added support for using image aliases when creating a volume. The modules now support \_image ID, snapshot ID or 
+
+  image alias\_ values for the `image` parameter. If the image alias is provided, the module will resolve the image alias and
+
   use the correspondent image ID.
+
 * new parameter for the `volume` module: `location` - used for identifying the image when image alias is used
+
