@@ -19,10 +19,11 @@
         datacenter: "{{ datacenter }}"
         name: "{{ name }}"
         count: 1
-        image: "{{ image }}"
+        image: "{{ image_alias }}"
         image_password: "{{ password }}"
         availability_zone: ZONE_3
         auto_increment: no
+        location: "{{ location }}"
         state: present
 
     - name: Create snapshot

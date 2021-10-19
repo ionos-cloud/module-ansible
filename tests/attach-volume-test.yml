@@ -21,7 +21,8 @@
         auto_increment: false
         count: 1
         name: "{{ server }}"
-        image: "{{ image }}"
+        image: "{{ image_alias }}"
+        location: "{{ location }}"
         image_password: "{{ password }}"
         datacenter: "{{ datacenter }}"
         cores: 2
