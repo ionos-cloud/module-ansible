@@ -29,7 +29,7 @@
         ram: 2048
         cpu_family: INTEL_SKYLAKE
         volume_size: 20
-        disk_type: SSD
+        disk_type: HDD
         state: present
       register: srv
       tags:
