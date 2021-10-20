@@ -82,3 +82,8 @@
 
 * new parameter for the `volume` module: `location` - used for identifying the image when image alias is used
 
+## 5.0.5 \(20 October, 2021\)
+
+### Bug fixes:
+
+* Remove the default value of `dhcp` parameter for `nic` module. The default value was `False`, which was not aligned with the CloudAPI swagger file.

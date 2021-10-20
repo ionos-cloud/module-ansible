@@ -38,7 +38,7 @@
         ram: 2048
         cpu_family: INTEL_SKYLAKE
         volume_size: 5
-        image: "{{ image }}"
+        image: "{{ image_alias }}"
         image_password: "{{ password }}"
         location: "{{ location }}"
         assign_public_ip: true

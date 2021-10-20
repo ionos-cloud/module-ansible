@@ -21,7 +21,7 @@
          cores: 1
          ram: 2048
          volume_size: 10
-         image: "{{ image }}"
+         image: "{{ image_alias }}"
          image_password: "{{ password }}"
          location: "{{ location }}"
          cpu_family: "INTEL_SKYLAKE"

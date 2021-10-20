@@ -5,7 +5,7 @@ namespace: ionoscloudsdk
 name: ionoscloud
 
 # The version of the collection.
-version: 5.0.4
+version: 5.0.5
 
 readme: README.md
 

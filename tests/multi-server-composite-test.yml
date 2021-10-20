@@ -22,7 +22,7 @@
          volume_size: 5
          cpu_family: AMD_OPTERON
          disk_type: HDD
-         image: "{{ image }}"
+         image: "{{ image_alias }}"
          image_password: "{{ password }}"
          ssh_keys:
             - "{{ ssh_public_key }}"
