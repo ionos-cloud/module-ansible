@@ -31,7 +31,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-            ref: fix/remove-dhcp-default-value-v5
+            ref: master
 
       - name: Setup Python ${{ env.python-version }}
         uses: actions/setup-python@v2
