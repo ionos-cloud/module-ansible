@@ -151,7 +151,7 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v2
           with:
-            ref: master
+            ref: fix/remove-dhcp-default-value-v5
 
         - name: Build Ansible Collection
           run: |
