@@ -33,7 +33,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-            ref: release/v6
+            ref: fix/remove-dhcp-default-value-v6
 
       - name: Setup Python ${{ env.python-version }}
         uses: actions/setup-python@v2
