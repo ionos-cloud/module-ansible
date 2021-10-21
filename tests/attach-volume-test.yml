@@ -21,14 +21,15 @@
         auto_increment: false
         count: 1
         name: "{{ server }}"
-        image: "{{ image }}"
+        image: "{{ image_alias }}"
+        location: "{{ location }}"
         image_password: "{{ password }}"
         datacenter: "{{ datacenter }}"
         cores: 2
         ram: 2048
         cpu_family: INTEL_SKYLAKE
         volume_size: 20
-        disk_type: SSD
+        disk_type: HDD
         state: present
       register: srv
       tags:
