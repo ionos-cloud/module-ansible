@@ -171,7 +171,7 @@ def create_nic(module, client):
     datacenter = module.params.get('datacenter')
     server = module.params.get('server')
     lan = module.params.get('lan')
-    dhcp = module.params.get('dhcp') or False
+    dhcp = module.params.get('dhcp')
     firewall_active = module.params.get('firewall_active')
     ips = module.params.get('ips')
     name = module.params.get('name')
