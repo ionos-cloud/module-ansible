@@ -103,3 +103,9 @@
   image alias_ values for the `image` parameter. If the image alias is provided, the module will resolve the image alias and
   use the correspondent image ID.
 * new parameter for the `volume` module: `location` - used for identifying the image when image alias is used
+
+## 6.0.0-beta.4 \(23 October, 2021\)
+
+### Bug fixes:
+
+* Remove the default value of `dhcp` parameter for `nic` module. The default value was `False`, which was not aligned with the CloudAPI swagger file.

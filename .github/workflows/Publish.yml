@@ -40,7 +40,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-            ref: fix/remove-dhcp-default-value-v6
+            ref: release/v6
 
       - name: Setup Python ${{ env.python-version }}
         uses: actions/setup-python@v2
@@ -196,7 +196,7 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v2
           with:
-            ref: fix/remove-dhcp-default-value-v6
+            ref: release/v6
 
         - name: Get current version
           id: cversion
