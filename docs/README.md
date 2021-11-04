@@ -11,9 +11,11 @@ The module is also available on [Ansible Galaxy](https://galaxy.ansible.com/iono
 The IONOS module for Ansible requires the following:
 
 * IONOS Cloud account
-* Python
+* Python >= 3.5
 * [Ansible](https://www.ansible.com/)
 * [Ionos SDK for Python](https://pypi.org/project/ionoscloud/)
+
+> **_NOTE:_**  The Ansible module does not support Python 2. It only supports Python >= 3.5.
 
 Before you begin you will need an IONOS account. The credentials from your registration will be used to authenticate against the IONOS Cloud API.
 
