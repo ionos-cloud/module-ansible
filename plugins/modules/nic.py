@@ -237,6 +237,9 @@ def create_nic(module, client):
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            nic_response = nic_server.datacenters_servers_nics_find_by_id(datacenter_id=datacenter, server_id=server,
+                                                                     nic_id=nic_response.id)
+
 
         return {
             'changed': True,
@@ -326,6 +329,8 @@ def update_nic(module, client):
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            nic_response = nic_server.datacenters_servers_nics_find_by_id(datacenter_id=datacenter, server_id=server,
+                                                                     nic_id=nic_response.id)
 
         return {
             'changed': True,
@@ -405,7 +410,7 @@ def delete_nic(module, client):
         module.exit_json(changed=True)
     try:
         response = nic_server.datacenters_servers_nics_delete_with_http_info(datacenter_id=datacenter, server_id=server,
-                                                                  nic_id=name)
+                                                                             nic_id=name)
         (nic_response, _, headers) = response
 
         if wait:

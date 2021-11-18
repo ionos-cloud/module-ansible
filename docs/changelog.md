@@ -87,3 +87,15 @@
 ### Bug fixes:
 
 * Remove the default value of `dhcp` parameter for `nic` module. The default value was `False`, which was not aligned with the CloudAPI swagger file.
+
+
+## 5.0.6 \(18 November, 2021\)
+
+### Features:
+
+* added option to configure the API URL from environment variables (using IONOS_API_URL environment variable)
+
+### Bug fixes:
+
+* fixed response from nic creation (to contain all the values from the API)
+* issue #15 - server module failure
