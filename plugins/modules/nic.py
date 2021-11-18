@@ -234,6 +234,8 @@ def create_nic(module, client):
                                                                            nic=nic)
         (nic_response, _, headers) = response
 
+        created_nic = nic_server.datacenters_servers_nics_find_by_id(datacenter_id=datacenter, server_id=server, nic_id=nic_response.id)
+
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
@@ -242,7 +244,7 @@ def create_nic(module, client):
             'changed': True,
             'failed': False,
             'action': 'create',
-            'nic': nic_response.to_dict()
+            'nic': created_nic.to_dict()
         }
 
     except Exception as e:
@@ -323,6 +325,9 @@ def update_nic(module, client):
                                                                             nic_id=nic.id, nic=nic_properties)
         (nic_response, _, headers) = response
 
+        updated_nic = nic_server.datacenters_servers_nics_find_by_id(datacenter_id=datacenter, server_id=server, nic_id=nic_response.id)
+
+
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
@@ -331,7 +336,7 @@ def update_nic(module, client):
             'changed': True,
             'failed': False,
             'action': 'update',
-            'nic': nic_response.to_dict()
+            'nic': updated_nic.to_dict()
         }
 
     except Exception as e:
