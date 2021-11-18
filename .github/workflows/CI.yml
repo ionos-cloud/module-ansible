@@ -31,7 +31,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-            ref: master
+            ref: fix/fix-create-nic-bug
 
       - name: Setup Python ${{ env.python-version }}
         uses: actions/setup-python@v2
