@@ -133,13 +133,19 @@ class IonosCloudInventory(object):
 
         # Verify credentials and create client
         if hasattr(self, 'username') and hasattr(self, 'password'):
-            configuration = Configuration(
-                username=self.username,
-                password=self.password)
+
+            conf = {
+                'username': self.username,
+                'password': self.password,
+            }
+
+            if hasattr(self, 'api_url'):
+                conf['host'] = self.api_url
+                conf['server_index'] = None
 
             user_agent = 'ionoscloud-python/%s Ansible' % (sdk_version)
 
-            self.client = ApiClient(configuration)
+            self.client = ApiClient(Configuration(**conf))
             self.client.user_agent = user_agent
         else:
             sys.stderr.write('ERROR: Ionos credentials cannot be found.\n')

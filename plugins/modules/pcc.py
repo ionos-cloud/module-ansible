@@ -140,7 +140,7 @@ def main():
             pcc_id=dict(type='str'),
             name=dict(type='str'),
             description=dict(type='str'),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -168,10 +168,16 @@ def main():
     api_url = module.params.get('api_url')
     user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     state = module.params.get('state')
 

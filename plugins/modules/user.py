@@ -383,7 +383,7 @@ def main():
             administrator=dict(type='bool', default=None),
             force_sec_auth=dict(type='bool', default=None),
             groups=dict(type='list', default=None),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             sec_auth_active=dict(type='bool', default=False),
             s3_canonical_user_id=dict(type='str'),
             username=dict(
@@ -417,10 +417,16 @@ def main():
 
     state = module.params.get('state')
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent
