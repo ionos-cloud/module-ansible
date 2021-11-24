@@ -4,7 +4,7 @@ description: Ansible test description
 server: AUTOTESTANSIBLE
 nic: AUTOTESTANSIBLE
 lan: AUTOTESTANSIBLE
-location: gb/lhr
+location: de/txl
 image: 03d71960-da27-11eb-8ba6-26668591ed56
 password: qq6mdvirWwj1dsdXjcpp
 updated_password: fjee83jkw940djcer
