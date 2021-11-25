@@ -45,7 +45,7 @@
          msg: "{{ alb_response }}"
 
     - name: Create Application Load Balancer Forwarding Rule
-      application_load_balancer_rule:
+      application_load_balancer_forwardingrule:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
         name: "{{ name }}"
@@ -72,7 +72,7 @@
          msg: "{{ alb_forwarding_rule_response }}"
 
     - name: Update Application Load Balancer Forwarding Rule
-      application_load_balancer_rule:
+      application_load_balancer_forwardingrule:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
         forwarding_rule_id: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
@@ -87,7 +87,7 @@
          msg: "{{ alb_forwarding_rule_update_response }}"
 
     - name: Delete Application Load Balancer Forwarding Rule
-      application_load_balancer_rule:
+      application_load_balancer_forwardingrule:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
         forwarding_rule_id: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
