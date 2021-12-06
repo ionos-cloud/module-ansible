@@ -257,8 +257,8 @@ from ansible.module_utils._text import to_native
 LOCATIONS = ['us/las',
              'us/ewr',
              'de/fra',
+             'de/fkb',
              'de/txl',
-             'es/vit',
              'gb/lhr'
              ]
 
@@ -276,15 +276,6 @@ AVAILABILITY_ZONES = ['AUTO',
                       'ZONE_1',
                       'ZONE_2',
                       'ZONE_3']
-
-CPU_AUTO_SELECTOR = {
-                    'us/las': ['AMD_OPTERON', 'INTEL_XEON'],
-                    'us/ewr': ['AMD_OPTERON', 'INTEL_XEON'],
-                    'de/fra': ['AMD_OPTERON', 'INTEL_XEON'],
-                    'de/txl':'INTEL_SKYLAKE',
-                    'es/vit':'INTEL_SKYLAKE',
-                    'gb/lhr':'INTEL_SKYLAKE'
-                    }
 
 uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
@@ -818,7 +809,7 @@ def main():
             image=dict(type='str'),
             cores=dict(type='int', default=2),
             ram=dict(type='int', default=2048),
-            cpu_family=dict(type='str', choices=CPU_FAMILIES, default=CPU_AUTO_SELECTOR['datacenter'][1]),
+            cpu_family=dict(type='str', choices=CPU_FAMILIES, default='AMD_OPTERON'),
             volume_size=dict(type='int', default=10),
             disk_type=dict(type='str', choices=DISK_TYPES, default='HDD'),
             availability_zone=dict(type='str', choices=AVAILABILITY_ZONES, default='AUTO'),
