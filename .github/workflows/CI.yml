@@ -31,7 +31,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-            ref: master
+            ref: feat/improve-group-permissions
 
       - name: Setup Python ${{ env.python-version }}
         uses: actions/setup-python@v2
@@ -99,6 +99,14 @@ jobs:
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/attach-volume-test.yml
 
+      - name: Run User test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
+
+      - name: Run Group test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
+
       - name: Run Kubeconfig test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-config-test.yml
@@ -110,12 +118,3 @@ jobs:
       - name: Run K8s Nodepool test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-nodepool-test.yml
-
-      - name: Run User test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
-
-      - name: Run Group test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
-
