@@ -13,17 +13,40 @@
     - name: Create group
       group:
         name: "{{ name }}"
-        create_datacenter: true
-        create_snapshot: true
-        reserve_ip: true
-        access_activity_log: true
+        create_datacenter: True
+        create_snapshot: True
+        reserve_ip: True
+        access_activity_log: True
+        create_pcc: True
+        s3_privilege: True
+        create_backup_unit: True
+        create_internet_access: True
+        create_k8s_cluster: True
+      register: group_response
+
+    - name: Debug - show group
+      debug:
+        msg: "{{ group_response }}"
 
     - name: Update group
       group:
         name: "{{ name }}"
-        create_datacenter: false
-        wait: true
+        create_datacenter: False
+        create_snapshot: False
+        reserve_ip: False
+        access_activity_log: False
+        create_pcc: False
+        s3_privilege: False
+        create_backup_unit: False
+        create_internet_access: False
+        create_k8s_cluster: False
+        wait: False
         state: update
+      register: group_response
+
+    - name: Debug - show group
+      debug:
+        msg: "{{ group_response }}"
 
     - name: Create user
       user:
