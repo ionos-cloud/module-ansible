@@ -41,7 +41,7 @@ jobs:
       - name: Setup pip, virtualenv, ionoscloud
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install ionoscloud
+          python3 -m pip install ionoscloud==5.0.5
 
       - name: Install Ansible
         run: |
