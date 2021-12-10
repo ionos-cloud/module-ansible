@@ -99,3 +99,10 @@
 
 * fixed response from nic creation (to contain all the values from the API)
 * issue #15 - server module failure
+
+
+## 5.0.7 \(10 December, 2021\)
+
+### Enhancements:
+
+* fix #28 - added new group permissions according to the Cloud API
