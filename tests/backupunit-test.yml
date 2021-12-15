@@ -39,3 +39,11 @@
     - name: Debug - Show updated backupunit
       debug:
         msg: "{{ delete_result }}"
+
+
+    - name: Remove backupunit
+      backupunit:
+        backupunit_id: "{{ create_result.backupunit.id }}"
+        state: absent
+        wait: true
+      register: delete_result
