@@ -78,3 +78,9 @@
       group:
         name: "{{ name }}"
         state: absent
+
+    - name: Delete group
+      group:
+        name: "{{ name }}"
+        state: absent
+
