@@ -291,6 +291,7 @@ def _create_volume(module, volume_server, datacenter, name, client):
 
 
 def _update_volume(module, volume_server, api_client, datacenter, volume_id):
+    name = module.params.get('name')
     size = module.params.get('size')
     bus = module.params.get('bus')
     disk_type = module.params.get('disk_type')
@@ -319,7 +320,7 @@ def _update_volume(module, volume_server, api_client, datacenter, volume_id):
             else:
                 image_id = _resolve_image(image, location, disk_type, api_client)
 
-        volume_properties = VolumeProperties(size=size, availability_zone=availability_zone,
+        volume_properties = VolumeProperties(name=name, size=size, availability_zone=availability_zone,
                                              image=image_id, bus=bus,
                                              cpu_hot_plug=cpu_hot_plug, ram_hot_plug=ram_hot_plug,
                                              nic_hot_plug=nic_hot_plug, nic_hot_unplug=nic_hot_unplug,
@@ -416,6 +417,7 @@ def create_volume(module, client):
     for name in names:
         # Skip volume creation if a volume with the same name already exists.
         if _get_instance_id(volume_list, name):
+            volumes.append(_get_resource(volume_list, name))
             continue
 
         create_response = _create_volume(module, volume_server, str(datacenter), name, client)
@@ -589,6 +591,16 @@ def _get_instance_id(instance_list, identity):
     for i in instance_list.items:
         if identity in (i.properties.name, i.id):
             return i.id
+    return None
+
+
+def _get_resource(instance_list, identity):
+    """
+    Return instance UUID by name or ID, if found.
+    """
+    for i in instance_list.items:
+        if identity in (i.properties.name, i.id):
+            return i
     return None
 
 
