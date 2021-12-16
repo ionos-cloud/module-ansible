@@ -460,7 +460,9 @@ def delete_firewall_rule(module, client):
     firewall_rule_list = nic_server.datacenters_servers_nics_firewallrules_get(datacenter_id=datacenter_id,
                                                                                server_id=server_id, nic_id=nic_id,
                                                                                depth=2)
-    firewall_rule_id = _get_resource_id(firewall_rule_list, name, module, "Firewall rule")
+    firewall_rule_id = _get_resource(firewall_rule_list, name)
+    if not firewall_rule_id:
+        module.exit_json(changed=False)
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -478,6 +480,19 @@ def delete_firewall_rule(module, client):
         }
     except Exception as e:
         module.fail_json(msg="failed to remove the firewall rule: %s" % to_native(e))
+
+
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
 
 
 def _get_resource_id(resource_list, identity, module, resource_type):
