@@ -374,6 +374,9 @@ def delete_group(module, client):
     group_list = client.um_groups_get(depth=2)
     group_id = _get_resource_id(group_list, name, module, "Group")
 
+    if not group_id:
+        module.exit_json(changed=False)
+
     if module.check_mode:
         module.exit_json(changed=True)
 
@@ -381,7 +384,7 @@ def delete_group(module, client):
         client.um_groups_delete(group_id=group_id)
         return {
             'action': 'delete',
-            'changed': False,
+            'changed': True,
             'id': group_id
         }
 
@@ -408,7 +411,7 @@ def _get_resource_id(resource_list, identity, module, resource_type):
         if identity in (resource.properties.name, resource.id):
             return resource.id
 
-    module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
+    return None
 
 
 def main():
