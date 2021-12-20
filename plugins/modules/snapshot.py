@@ -406,10 +406,6 @@ def delete_snapshot(module, client):
     snapshot_server = ionoscloud.SnapshotApi(api_client=client)
     name = module.params.get('name')
 
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-
-
     # Locate UUID for snapshot
     snapshot_list = snapshot_server.snapshots_get(depth=2)
     snapshot = _get_resource(snapshot_list, name)
@@ -423,13 +419,7 @@ def delete_snapshot(module, client):
         module.exit_json(changed=True)
 
     try:
-        response = snapshot_server.snapshots_delete(snapshot_id)
-        (_, _, headers) = response
-
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
+        snapshot_server.snapshots_delete(snapshot_id)
         return {
             'action': 'delete',
             'changed': True,
