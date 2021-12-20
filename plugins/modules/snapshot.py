@@ -406,15 +406,30 @@ def delete_snapshot(module, client):
     snapshot_server = ionoscloud.SnapshotApi(api_client=client)
     name = module.params.get('name')
 
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+
     # Locate UUID for snapshot
     snapshot_list = snapshot_server.snapshots_get(depth=2)
+    snapshot = _get_resource(snapshot_list, name)
+
+    if not snapshot:
+        module.exit_json(changed=False)
+
     snapshot_id = _get_resource_id(snapshot_list, name, module, "Snapshot")
 
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        snapshot_server.snapshots_delete(snapshot_id)
+        response = snapshot_server.snapshots_delete(snapshot_id)
+        (_, _, headers) = response
+
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
         return {
             'action': 'delete',
             'changed': True,
@@ -422,11 +437,6 @@ def delete_snapshot(module, client):
         }
     except Exception as e:
         module.fail_json(msg="failed to remove the snapshot: %s" % to_native(e))
-        return {
-            'action': 'delete',
-            'changed': False,
-            'id': snapshot_id
-        }
 
 
 def _get_resource_id(resource_list, identity, module, resource_type):
@@ -448,6 +458,19 @@ def _get_resource_instance(resource_list, identity):
     for resource in resource_list.items:
         if identity in (resource.properties.name, resource.id):
             return resource
+    return None
+
+
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
     return None
 
 
