@@ -336,6 +336,9 @@ def delete_user(module, client):
     user_list = client.um_users_get(depth=2)
     user_id = _get_user_id(user_list, email)
 
+    if not user_id:
+        module.exit_json(changed=False)
+
     if module.check_mode:
         module.exit_json(changed=True)
 
