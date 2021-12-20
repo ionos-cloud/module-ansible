@@ -149,6 +149,19 @@ uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
+
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -390,11 +403,7 @@ def delete_nic(module, client):
                 break
 
         if not nic_found:
-            return {
-                'action': 'delete',
-                'changed': False,
-                'id': name
-            }
+            module.exit_json(changed=False)
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -414,11 +423,6 @@ def delete_nic(module, client):
         }
     except Exception as e:
         module.fail_json(msg="failed to remove the NIC: %s" % to_native(e))
-        return {
-            'action': 'delete',
-            'changed': False,
-            'id': name
-        }
 
 
 def main():

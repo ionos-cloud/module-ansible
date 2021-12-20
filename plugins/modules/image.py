@@ -19,6 +19,20 @@ except ImportError:
     HAS_SDK = False
 
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
+
+
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -34,6 +48,13 @@ def delete_image(module, client):
     changed = False
 
     image_server = ionoscloud.ImagesApi(api_client=client)
+
+    images_list = image_server.images_get(depth=5)
+    image = _get_resource(images_list, image_id)
+
+    if not image:
+        module.exit_json(changed=False)
+
 
     try:
         response = image_server.images_delete_with_http_info(image_id=image_id)

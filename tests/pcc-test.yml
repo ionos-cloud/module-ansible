@@ -27,3 +27,8 @@
       pcc:
         pcc_id: "{{ result.pcc.id }}"
         state: absent
+
+    - name: Remove non-existent pcc
+      pcc:
+        pcc_id: "non-existent-pcc"
+        state: absent

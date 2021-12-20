@@ -143,7 +143,14 @@ def create_k8s_cluster_nodepool(module, client):
 def delete_k8s_cluster_nodepool(module, client):
     k8s_cluster_id = module.params.get('k8s_cluster_id')
     nodepool_id = module.params.get('nodepool_id')
+
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
+
+    k8s_nodepool_list = k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=5)
+    k8s_nodepool = _get_resource(k8s_nodepool_list, nodepool_id)
+
+    if not k8s_nodepool:
+        module.exit_json(changed=False)
 
     changed = False
 
@@ -238,6 +245,19 @@ def update_k8s_cluster_nodepool(module, client):
         'action': 'update',
         'nodepool': k8s_response.to_dict()
     }
+
+
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
 
 
 def main():

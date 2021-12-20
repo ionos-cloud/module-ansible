@@ -121,6 +121,12 @@ def delete_k8s_cluster(module, client):
     changed = False
 
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
+    k8s_cluster_list = k8s_server.k8s_get(depth=5)
+    k8s_cluster = _get_resource(k8s_cluster_list, k8s_cluster_id)
+
+    if not k8s_cluster:
+        module.exit_json(changed=False)
+
 
     try:
         response = k8s_server.k8s_delete_with_http_info(k8s_cluster_id=k8s_cluster_id)
@@ -182,6 +188,19 @@ def update_k8s_cluster(module, client):
         'action': 'update',
         'cluster': k8s_response.to_dict()
     }
+
+
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
 
 
 def main():

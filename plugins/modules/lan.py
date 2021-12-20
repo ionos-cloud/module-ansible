@@ -275,7 +275,12 @@ def delete_lan(module, client):
     datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
 
     # Locate ID for LAN
-    lan_list = lan_server.datacenters_lans_get(datacenter_id, depth=2)
+    lan_list = lan_server.datacenters_lans_get(datacenter_id=datacenter_id, depth=5)
+    lan = _get_resource(lan_list, name)
+
+    if not lan:
+        module.exit_json(changed=False)
+
     lan_id = _get_resource_id(lan_list, name, module, "LAN")
 
     if module.check_mode:
@@ -302,6 +307,19 @@ def _get_resource_id(resource_list, identity, module, resource_type):
             return resource.id
 
     module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
+
+
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
 
 
 def main():

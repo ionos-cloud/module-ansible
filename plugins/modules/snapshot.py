@@ -408,6 +408,11 @@ def delete_snapshot(module, client):
 
     # Locate UUID for snapshot
     snapshot_list = snapshot_server.snapshots_get(depth=2)
+    snapshot = _get_resource(snapshot_list, name)
+
+    if not snapshot:
+        module.exit_json(changed=False)
+
     snapshot_id = _get_resource_id(snapshot_list, name, module, "Snapshot")
 
     if module.check_mode:
@@ -422,11 +427,6 @@ def delete_snapshot(module, client):
         }
     except Exception as e:
         module.fail_json(msg="failed to remove the snapshot: %s" % to_native(e))
-        return {
-            'action': 'delete',
-            'changed': False,
-            'id': snapshot_id
-        }
 
 
 def _get_resource_id(resource_list, identity, module, resource_type):
@@ -448,6 +448,19 @@ def _get_resource_instance(resource_list, identity):
     for resource in resource_list.items:
         if identity in (resource.properties.name, resource.id):
             return resource
+    return None
+
+
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
     return None
 
 

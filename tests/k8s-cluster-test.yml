@@ -29,3 +29,8 @@
       k8s_cluster:
         k8s_cluster_id: "{{ cluster_response.cluster.id }}"
         state: absent
+
+    - name: Delete k8s cluster
+      k8s_cluster:
+        k8s_cluster_id: "non-existent-cluster-id"
+        state: absent

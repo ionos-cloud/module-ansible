@@ -109,6 +109,13 @@
         state: absent
         wait: true
 
+    - name: Remove LAN
+      lan:
+        datacenter: "{{ datacenter }}"
+        name: "nonexistentlan"
+        state: absent
+        wait: true
+
     - name: Remove ipblock
       ipblock:
         name: "{{ name }}"
@@ -120,7 +127,7 @@
         state: absent
         wait: true
 
-    - name: Remove pcc
-      pcc:
-        pcc_id: "{{ pcc_result.pcc.id }}"
-        state: absent
+#    - name: Remove pcc
+#      pcc:
+#        pcc_id: "{{ pcc_result.pcc.id }}"
+#        state: absent

@@ -247,6 +247,12 @@ def delete_ipblock(module, client):
 
     # Locate UUID for the IPBlock
     ipblock_list = ipblock_server.ipblocks_get(depth=2)
+    ipblock = _get_resource(ipblock_list, name)
+
+    if not ipblock:
+        module.exit_json(changed=False)
+
+
     id = _get_resource_id(ipblock_list, name, module, "IP Block")
 
     if module.check_mode:
@@ -274,6 +280,19 @@ def _get_resource_id(resource_list, identity, module, resource_type):
             return resource.id
 
     module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
+
+
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
 
 
 def main():
