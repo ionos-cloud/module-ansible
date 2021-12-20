@@ -25,6 +25,12 @@
         state: absent
       register: delete_result
 
+    - name: Remove ipblock
+      ipblock:
+        name: "{{ name }}"
+        state: absent
+      register: delete_result
+
     - name: Debug - Show ipblock
       debug:
         msg: "{{ delete_result }}"
