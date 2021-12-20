@@ -84,6 +84,12 @@ def delete_s3key(module, client):
 
     user_management_server = ionoscloud.UserManagementApi(client)
 
+    s3key_list = user_management_server.um_users_s3keys_get(user_id=user_id, depth=5)
+    s3key = _get_resource(s3key_list, key_id)
+
+    if not s3key:
+        module.exit_json(changed=False)
+
     try:
         user_management_server.um_users_s3keys_delete(user_id, key_id)
         return {
@@ -136,6 +142,19 @@ def update_s3key(module, client):
             'failed': True,
             'action': 'update',
         }
+
+
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.secret_key, resource.id):
+            return resource.id
+
+    return None
 
 
 def main():
