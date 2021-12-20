@@ -13,7 +13,7 @@ Ansible leverages YAML manifest files called Playbooks. The Playbook will descri
 
       tasks:
       - name: Provision a set of instances
-          server:
+          ionoscloudsdk.ionoscloud.server:
               datacenter: Example
               name: server%02d
               auto_increment: true
