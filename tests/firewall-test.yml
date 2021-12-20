@@ -81,6 +81,16 @@
          wait_timeout: "{{ wait_timeout }}"
          state: absent
 
+    - name: Remove firewall rule
+      firewall_rule:
+         datacenter: "{{ datacenter }}"
+         server: "{{ server }}"
+         nic: "{{ nic }}"
+         name: "SSH2"
+         wait: true
+         wait_timeout: "{{ wait_timeout }}"
+         state: absent
+
     - name: Remove datacenter
       datacenter:
         wait: true

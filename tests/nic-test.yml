@@ -88,6 +88,15 @@
          wait_timeout: "{{ wait_timeout }}"
          state: absent
 
+    - name: Remove non-existent NIC
+      nic:
+         name: "non-existent-nic"
+         datacenter: "{{ datacenter }}"
+         server: "{{ server }}"
+         wait: true
+         wait_timeout: "{{ wait_timeout }}"
+         state: absent
+
     - name: Remove datacenter
       datacenter:
         name: "{{ datacenter }}"

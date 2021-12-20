@@ -38,6 +38,19 @@ from ansible.module_utils._text import to_native
 import re
 
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
+
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -81,6 +94,13 @@ def delete_pcc(module, client):
     pcc_id = module.params.get('pcc_id')
     pcc_server = ionoscloud.PrivateCrossConnectApi(client)
 
+    pcc_list = pcc_server.pccs_get(depth=5)
+    pcc = _get_resource(pcc_list, pcc_id)
+
+    if not pcc:
+        module.exit_json(changed=False)
+
+
     try:
         pcc_server.pccs_delete(pcc_id)
         return {
@@ -90,11 +110,6 @@ def delete_pcc(module, client):
         }
     except Exception as e:
         module.fail_json(msg="failed to delete the pcc: %s" % to_native(e))
-        return {
-            'action': 'delete',
-            'changed': False,
-            'id': pcc_id
-        }
 
 
 def update_pcc(module, client):
