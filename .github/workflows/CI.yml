@@ -44,7 +44,6 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install ionoscloud
-          python3 -m pip install ionoscloud==${{ env.ionoscloud-version }}
 
       - name: Install Ansible
         run: |
