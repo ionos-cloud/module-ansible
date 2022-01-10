@@ -353,7 +353,7 @@ def _create_machine(module, client, datacenter, name):
     wait_timeout = module.params.get('wait_timeout')
 
     server_server = ionoscloud.ServersApi(api_client=client)
-    lan_server = ionoscloud.LansApi(api_client=client)
+    lan_server = ionoscloud.LANsApi(api_client=client)
 
     nics = []
 
