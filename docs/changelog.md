@@ -109,3 +109,21 @@
 ### Bug fixes:
 
 * Remove the default value of `dhcp` parameter for `nic` module. The default value was `False`, which was not aligned with the CloudAPI swagger file.
+
+
+## 6.0.0 (11 January, 2022)
+
+### Bug fixes:
+
+* fix #31 - group deletion
+* fix create volume response -> it will return the entire list of created volumes, not an empty list anymore
+
+### Enhancements:
+
+* improved deletion on all resources -> when trying to delete a resource that does not exist, the module will not fail anymore and it will succeed with `changed: False`
+* allow name updates for volumes
+* fix #28 - added new group permissions according to the Cloud API
+
+### Misc:
+
+* docs: updated the name of the module in examples
