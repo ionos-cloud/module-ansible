@@ -27,6 +27,19 @@ uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
+
 def _update_nlb_flowlog(module, client, nlb_server, datacenter_id, network_load_balancer_id, flowlog_id,
                         flowlog_properties):
     wait = module.params.get('wait')
@@ -192,10 +205,20 @@ def remove_nlb_flowlog(module, client):
     changed = False
 
     try:
+        network_load_balancer_flowlog_list = nlb_server.datacenters_networkloadbalancers_get(datacenter_id=datacenter_id, depth=5)
+        if flowlog_id:
+            network_load_balancer_flowlog = _get_resource(network_load_balancer_flowlog_list,
+                                                          flowlog_id)
+        else:
+            network_load_balancer_flowlog = _get_resource(network_load_balancer_flowlog_list, name)
+
+        if not network_load_balancer_flowlog:
+            module.exit_json(changed=False)
+
         if flowlog_id:
             response = nlb_server.datacenters_networkloadbalancers_flowlogs_delete_with_http_info(datacenter_id,
                                                                                                   network_load_balancer_id,
-                                                                                                  flowlog_id)
+                                                                                                  network_load_balancer_flowlog)
             (flowlog_response, _, headers) = response
 
             if wait:
@@ -203,24 +226,6 @@ def remove_nlb_flowlog(module, client):
                 client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
             changed = True
-
-        elif name:
-            flowlogs = nlb_server.datacenters_networkloadbalancers_flowlogs_get(datacenter_id=datacenter_id,
-                                                                                network_load_balancer_id=network_load_balancer_id,
-                                                                                depth=2)
-            for f in flowlogs.items:
-                if name == f.properties.name:
-                    flowlog_id = f.id
-                    response = nlb_server.datacenters_networkloadbalancers_flowlogs_delete_with_http_info(datacenter_id,
-                                                                                                          network_load_balancer_id,
-                                                                                                          flowlog_id)
-                    (flowlog_response, _, headers) = response
-
-                    if wait:
-                        request_id = _get_request_id(headers['Location'])
-                        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-                    changed = True
 
     except Exception as e:
         module.fail_json(
