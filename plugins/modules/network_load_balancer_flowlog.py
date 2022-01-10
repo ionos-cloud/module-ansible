@@ -215,17 +215,16 @@ def remove_nlb_flowlog(module, client):
         if not network_load_balancer_flowlog:
             module.exit_json(changed=False)
 
-        if flowlog_id:
-            response = nlb_server.datacenters_networkloadbalancers_flowlogs_delete_with_http_info(datacenter_id,
-                                                                                                  network_load_balancer_id,
-                                                                                                  network_load_balancer_flowlog)
-            (flowlog_response, _, headers) = response
+        response = nlb_server.datacenters_networkloadbalancers_flowlogs_delete_with_http_info(datacenter_id,
+                                                                                              network_load_balancer_id,
+                                                                                              network_load_balancer_flowlog)
+        (flowlog_response, _, headers) = response
 
-            if wait:
-                request_id = _get_request_id(headers['Location'])
-                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-            changed = True
+        changed = True
 
     except Exception as e:
         module.fail_json(
