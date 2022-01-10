@@ -99,6 +99,17 @@
         wait: true
       register: flowlog_delete_response
 
+    - name: Delete a nic flowlog
+      nic_flowlog:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        server_id: "{{ server_response.machines[0].id }}"
+        nic_id: "{{ nic_response.nic.id }}"
+        flowlog_id: "invalid-id"
+        name: "{{ name }}"
+        state: absent
+        wait: true
+      register: flowlog_delete_response
+
     - name: Debug - Show Deleted Flowlog
       debug:
         msg: "{{ flowlog_delete_response }}"
