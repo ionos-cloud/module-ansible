@@ -121,7 +121,7 @@ def main():
             disc_virtio_hot_unplug=dict(type='bool'),
             licence_type=dict(type='str'),
             cloud_init=dict(type='str'),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -147,16 +147,23 @@ def main():
 
     username = module.params.get('username')
     password = module.params.get('password')
+    api_url = module.params.get('api_url')
     user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
 
     state = module.params.get('state')
     if not state:
         module.fail_json(msg='state parameter is required')
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent

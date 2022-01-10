@@ -228,7 +228,7 @@ def main():
             server_id=dict(type='str'),
             nic_id=dict(type='str'),
             flowlog_id=dict(type='str'),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -253,13 +253,21 @@ def main():
 
     username = module.params.get('username')
     password = module.params.get('password')
-    state = module.params.get('state')
+    api_url = module.params.get('api_url')
     user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    state = module.params.get('state')
+
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent
