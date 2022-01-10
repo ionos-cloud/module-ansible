@@ -624,11 +624,6 @@ def create_virtual_machine(module, client):
 
         create_response = _create_machine(module, client, str(datacenter_id), name)
         changed = True
-        nics = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=create_response.id,
-                                                       depth=2)
-        for n in nics.items:
-            if lan == n.properties.lan:
-                create_response.update({'public_ip': n.properties.ips[0]})
 
         virtual_machines.append(create_response)
 
