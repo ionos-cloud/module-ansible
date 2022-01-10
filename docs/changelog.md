@@ -14,7 +14,7 @@
 
 ### Enhancements:
 
-* Changed the return values for the tasks. [Here](./#return-values) you can find the more details about the new templates.
+* Changed the return values for the tasks. [Here](./usage/returnvalues.md) you can find the more details about the new templates.
 
 ### Misc:
 
@@ -27,7 +27,7 @@
 * install [ionoscloud python package](https://pypi.org/project/ionoscloud) using `pip install ionoscloud`
 * set the `IONOS_USERNAME` and `IONOS_PASSWORD` environment variables \(instead of `PROFITBRICKS_USERNAME` and `PROFITBRICKS_PASSWORD`\)
 * adapt the playbooks by:
-  * using the return values decribed [here](./#return-values)
+  * using the return values decribed [here](./usage/returnvalues.md)
   * changing the module names in playbooks \(using find and replace\), eliminating the `profitbricks_` prefix:
 
     | profitbricks module | ionos-cloud module |
@@ -72,7 +72,7 @@
 ## 6.0.0-beta.2 (June, 2021)
 
 ### Features:
-* Added a new module (`image`).  [Here](./#image) you can find the more details about this feature.
+* Added a new module (`image`).  [Here](./api/image.md) you can find the more details about this feature.
 * New parameters on `volume` module:
     * image_alias
     * backupunit_id
@@ -123,6 +123,7 @@
 * improved deletion on all resources -> when trying to delete a resource that does not exist, the module will not fail anymore and it will succeed with `changed: False`
 * allow name updates for volumes
 * fix #28 - added new group permissions according to the Cloud API
+* user resource now supports password updates
 
 ### Misc:
 

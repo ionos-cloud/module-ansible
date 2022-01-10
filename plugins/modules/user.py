@@ -240,6 +240,8 @@ def update_user(module, client, api_client):
     force_sec_auth = module.params.get('force_sec_auth')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
+    user_password = module.params.get('user_password')
+
 
     try:
         user = None
@@ -268,7 +270,8 @@ def update_user(module, client, api_client):
                                                 email=email,
                                                 administrator=administrator or False,
                                                 force_sec_auth=force_sec_auth or False)
-
+            if user_password:
+                user_properties.password = user_password
             new_user = UserPut(properties=user_properties)
             response = client.um_users_put_with_http_info(user_id=user.id, user=new_user)
             (user_response, _, headers) = response

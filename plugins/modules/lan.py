@@ -147,7 +147,7 @@ def create_lan(module, client):
     wait_timeout = module.params.get('wait_timeout')
 
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    lan_server = ionoscloud.LansApi(api_client=client)
+    lan_server = ionoscloud.LANsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -215,7 +215,7 @@ def update_lan(module, client):
     wait_timeout = module.params.get('wait_timeout')
 
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    lan_server = ionoscloud.LansApi(api_client=client)
+    lan_server = ionoscloud.LANsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -268,7 +268,7 @@ def delete_lan(module, client):
     name = module.params.get('name')
 
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    lan_server = ionoscloud.LansApi(api_client=client)
+    lan_server = ionoscloud.LANsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
