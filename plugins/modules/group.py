@@ -164,7 +164,9 @@ def create_group(module, client):
     create_backup_unit = module.params.get('create_backup_unit')
     create_internet_access = module.params.get('create_internet_access')
     create_k8s_cluster = module.params.get('create_k8s_cluster')
-    local_vars_configuration = module.params.get('local_vars_configuration')
+    create_flow_log = module.params.get('create_flow_log')
+    access_and_manage_monitoring = module.params.get('access_and_manage_monitoring')
+    access_and_manage_certificates = module.params.get('access_and_manage_certificates')
 
     user_management_server = ionoscloud.UserManagementApi(client)
 
@@ -199,7 +201,9 @@ def create_group(module, client):
                                            create_backup_unit=create_backup_unit or False,
                                            create_internet_access=create_internet_access or False,
                                            create_k8s_cluster=create_k8s_cluster or False,
-                                           local_vars_configuration=local_vars_configuration or False)
+                                           create_flow_log=create_flow_log or False,
+                                           access_and_manage_monitoring=access_and_manage_monitoring or False,
+                                           access_and_manage_certificates=access_and_manage_certificates or False)
 
         group = Group(properties=group_properties)
         response = user_management_server.um_groups_post_with_http_info(group)
@@ -235,6 +239,15 @@ def update_group(module, client):
     create_snapshot = module.params.get('create_snapshot')
     reserve_ip = module.params.get('reserve_ip')
     access_activity_log = module.params.get('access_activity_log')
+    create_pcc = module.params.get('create_pcc')
+    s3_privilege = module.params.get('s3_privilege')
+    create_backup_unit = module.params.get('create_backup_unit')
+    create_internet_access = module.params.get('create_internet_access')
+    create_k8s_cluster = module.params.get('create_k8s_cluster')
+    create_flow_log = module.params.get('create_flow_log')
+    access_and_manage_monitoring = module.params.get('access_and_manage_monitoring')
+    access_and_manage_certificates = module.params.get('access_and_manage_certificates')
+    
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
@@ -262,12 +275,36 @@ def update_group(module, client):
                 reserve_ip = group.properties.reserve_ip
             if access_activity_log is None:
                 access_activity_log = group.properties.access_activity_log
+            if create_pcc is None:
+                create_pcc = group.properties.create_pcc
+            if s3_privilege is None:
+                s3_privilege = group.properties.s3_privilege
+            if create_backup_unit is None:
+                create_backup_unit = group.properties.create_backup_unit
+            if create_internet_access is None:
+                create_internet_access = group.properties.create_internet_access
+            if create_k8s_cluster is None:
+                create_k8s_cluster = group.properties.create_k8s_cluster
+            if create_flow_log is None:
+                create_flow_log = group.properties.create_flow_log
+            if access_and_manage_monitoring is None:
+                access_and_manage_monitoring = group.properties.access_and_manage_monitoring
+            if access_and_manage_certificates is None:
+                access_and_manage_certificates = group.properties.access_and_manage_certificates
 
             group_properties = GroupProperties(name=name,
                                                create_data_center=create_datacenter,
                                                create_snapshot=create_snapshot,
                                                reserve_ip=reserve_ip,
-                                               access_activity_log=access_activity_log)
+                                               access_activity_log=access_activity_log,
+                                               create_pcc=create_pcc,
+                                               s3_privilege=s3_privilege,
+                                               create_backup_unit=create_backup_unit,
+                                               create_internet_access=create_internet_access,
+                                               create_k8s_cluster=create_k8s_cluster,
+                                               create_flow_log=create_flow_log,
+                                               access_and_manage_monitoring=access_and_manage_monitoring,
+                                               access_and_manage_certificates=access_and_manage_certificates)
 
             group = Group(properties=group_properties)
 
@@ -382,6 +419,14 @@ def main():
             create_snapshot=dict(type='bool', default=None),
             reserve_ip=dict(type='bool', default=None),
             access_activity_log=dict(type='bool', default=None),
+            create_pcc=dict(type='bool', default=None),
+            s3_privilege=dict(type='bool', default=None),
+            create_backup_unit=dict(type='bool', default=None),
+            create_internet_access=dict(type='bool', default=None),
+            create_k8s_cluster=dict(type='bool', default=None),
+            create_flow_log=dict(type='bool', default=None),
+            access_and_manage_monitoring=dict(type='bool', default=None),
+            access_and_manage_certificates=dict(type='bool', default=None),
             users=dict(type='list', default=None),
             api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(

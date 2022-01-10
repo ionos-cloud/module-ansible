@@ -31,6 +31,11 @@ The following parameters are supported:
 | create\_snapshot | no | boolean |  | Indicates if the group is allowed to create snapshots. |
 | reserve\_ip | no | boolean |  | Indicates if the group is allowed to reserve IP addresses. |
 | access\_activity\_log | no | boolean |  | Indicates if the group is allowed to access the activity log. |
+| create_pcc | no | boolean |  | Indicates if the group is allowed to create PCCs. |
+| s3_privilege | no | boolean |  | Indicates if the group is allowed to access s3. |
+| create_backup_unit | no | boolean |  | Indicates if the group is allowed to create backupunits. |
+| create_internet_access | no | boolean |  | Indicates if the group is allowed to create internet access.. |
+| create_k8s_cluster | no | boolean |  | Indicates if the group is allowed to create kubernetes clusters. |
 | users | no | list |  | A list of \(non-administrator\) user IDs or emails to associate with the group. Set to empty list \(`[]`\) to remove all users from the group. |
 | api\_url | no | string |  | The Ionos API base URL. |
 | username | no | string |  | The Ionos username. Overrides the IONOS\_USERNAME environement variable. |
