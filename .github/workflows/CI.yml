@@ -33,7 +33,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-            ref: release/v6
+            ref: release-v6.0.0
 
       - name: Setup Python ${{ env.python-version }}
         uses: actions/setup-python@v2
