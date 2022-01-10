@@ -169,11 +169,13 @@ def create_user(module, client, api_client):
     if not lastname:
         module.fail_json(msg='lastname parameter is required')
     email = module.params.get('email')
+    user_password = module.params.get('user_password')
+    if not user_password:
+        module.fail_json(msg='user_password parameter is required')
     administrator = module.params.get('administrator')
     force_sec_auth = module.params.get('force_sec_auth')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
-    user_password = module.params.get('user_password')
 
     user = None
 
@@ -377,6 +379,7 @@ def main():
             firstname=dict(type='str'),
             lastname=dict(type='str'),
             email=dict(type='str', required=True),
+            user_password=dict(type='str', default=None, no_log=True),
             administrator=dict(type='bool', default=None),
             force_sec_auth=dict(type='bool', default=None),
             groups=dict(type='list', default=None),
