@@ -32,7 +32,7 @@
         cores: 1
         ram: 2048
         volume_size: 14
-        image: "{{ image }}"
+        image: "{{ image_alias }}"
         image_password: "{{ password }}"
         location: "gb/lhr"
         cpu_family: INTEL_SKYLAKE
