@@ -85,7 +85,7 @@ def delete_s3key(module, client):
 
     user_s3keys_server = ionoscloud.UserS3KeysApi(client)
 
-    s3key_list = user_management_server.um_users_s3keys_get(user_id=user_id, depth=5)
+    s3key_list = user_s3keys_server.um_users_s3keys_get(user_id=user_id, depth=5)
     s3key = _get_resource(s3key_list, key_id)
 
     if not s3key:
