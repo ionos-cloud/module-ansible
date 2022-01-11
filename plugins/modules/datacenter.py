@@ -126,6 +126,19 @@ LOCATIONS = ['us/las',
              ]
 
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
+
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -133,21 +146,6 @@ def _get_request_id(headers):
     else:
         raise Exception("Failed to extract request ID from response "
                         "header 'location': '{location}'".format(location=headers['location']))
-
-
-def _remove_datacenter(client, module, datacenter_server, datacenter):
-    wait = module.params.get('wait')
-
-    if module.check_mode:
-        module.exit_json(changed=True)
-    try:
-        response = datacenter_server.datacenters_delete_with_http_info(datacenter_id=datacenter)
-        (datacenter_response, _, headers) = response
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id)
-    except Exception as e:
-        module.fail_json(msg="failed to remove the datacenter: %s" % to_native(e))
 
 
 def _update_datacenter(module, datacenter_server, client, id, datacenter, wait):
@@ -294,24 +292,31 @@ def remove_datacenter(module, client):
     name = module.params.get('name')
     datacenter_id = module.params.get('id')
     datacenter_server = ionoscloud.DataCentersApi(client)
-    changed = False
+    wait = module.params.get('wait')
 
+    datacenters_list = datacenter_server.datacenters_get(depth=5)
     if datacenter_id:
-        _remove_datacenter(client, module, datacenter_server, datacenter_id)
-        changed = True
-
+        datacenter = _get_resource(datacenters_list, datacenter_id)
     else:
-        datacenters = datacenter_server.datacenters_get(depth=2)
-        for d in datacenters.items:
-            vdc = datacenter_server.datacenters_find_by_id(d.id)
-            if name == vdc.properties.name:
-                datacenter_id = d.id
-                _remove_datacenter(client, module, datacenter_server, datacenter_id)
-                changed = True
+        datacenter = _get_resource(datacenters_list, name)
+
+    if not datacenter:
+        module.exit_json(changed=False)
+
+    if module.check_mode:
+        module.exit_json(changed=True)
+    try:
+        response = datacenter_server.datacenters_delete_with_http_info(datacenter_id=datacenter)
+        (datacenter_response, _, headers) = response
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id)
+    except Exception as e:
+        module.fail_json(msg="failed to remove the datacenter: %s" % to_native(e))
 
     return {
         'action': 'delete',
-        'changed': changed,
+        'changed': True,
         'id': datacenter_id
     }
 
@@ -323,7 +328,7 @@ def main():
             description=dict(type='str'),
             location=dict(type='str', choices=LOCATIONS, default='us/las'),
             id=dict(type='str'),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -350,12 +355,18 @@ def main():
     password = module.params.get('password')
     api_url = module.params.get('api_url')
     state = module.params.get('state')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent

@@ -28,6 +28,19 @@ uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
+
 def _update_nlb_forwarding_rule(module, client, nlb_server, datacenter_id, network_load_balancer_id, forwarding_rule_id,
                                 forwarding_rule_properties):
     wait = module.params.get('wait')
@@ -215,37 +228,26 @@ def remove_nlb_forwarding_rule(module, client):
     changed = False
 
     try:
+        network_load_balancer_rule_list = nlb_server.datacenters_networkloadbalancers_forwardingrules_get(datacenter_id=datacenter_id, network_load_balancer_id=network_load_balancer_id, depth=5)
         if forwarding_rule_id:
-            response = nlb_server.datacenters_networkloadbalancers_forwardingrules_delete_with_http_info(datacenter_id,
-                                                                                                         network_load_balancer_id,
-                                                                                                         forwarding_rule_id)
-            (forwarding_rule_response, _, headers) = response
+            network_load_balancer_rule = _get_resource(network_load_balancer_rule_list, forwarding_rule_id)
+        else:
+            network_load_balancer_rule = _get_resource(network_load_balancer_rule_list, name)
 
-            if wait:
-                request_id = _get_request_id(headers['Location'])
-                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        if not network_load_balancer_rule:
+            module.exit_json(changed=False)
 
-            changed = True
+        response = nlb_server.datacenters_networkloadbalancers_forwardingrules_delete_with_http_info(datacenter_id,
+                                                                                                     network_load_balancer_id,
+                                                                                                     network_load_balancer_rule)
+        (forwarding_rule_response, _, headers) = response
 
-        elif name:
-            forwarding_rules = nlb_server.datacenters_networkloadbalancers_forwardingrules_get(
-                                                            datacenter_id=datacenter_id,
-                                                            network_load_balancer_id=network_load_balancer_id,
-                                                            depth=2)
-            for rule in forwarding_rules.items:
-                if name == rule.properties.name:
-                    forwarding_rule_id = rule.id
-                    response = nlb_server.datacenters_networkloadbalancers_forwardingrules_delete_with_http_info(
-                                                            datacenter_id,
-                                                            network_load_balancer_id,
-                                                            forwarding_rule_id)
-                    (forwarding_rule_response, _, headers) = response
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-                    if wait:
-                        request_id = _get_request_id(headers['Location'])
-                        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        changed = True
 
-                    changed = True
 
     except Exception as e:
         module.fail_json(
@@ -277,7 +279,7 @@ def main():
             datacenter_id=dict(type='str'),
             forwarding_rule_id=dict(type='str'),
             network_load_balancer_id=dict(type='str'),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -302,13 +304,21 @@ def main():
 
     username = module.params.get('username')
     password = module.params.get('password')
-    state = module.params.get('state')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    api_url = module.params.get('api_url')
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    state = module.params.get('state')
+
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent

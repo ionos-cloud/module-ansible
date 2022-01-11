@@ -147,7 +147,7 @@ def create_lan(module, client):
     wait_timeout = module.params.get('wait_timeout')
 
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    lan_server = ionoscloud.LansApi(api_client=client)
+    lan_server = ionoscloud.LANsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -215,7 +215,7 @@ def update_lan(module, client):
     wait_timeout = module.params.get('wait_timeout')
 
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    lan_server = ionoscloud.LansApi(api_client=client)
+    lan_server = ionoscloud.LANsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -268,14 +268,19 @@ def delete_lan(module, client):
     name = module.params.get('name')
 
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    lan_server = ionoscloud.LansApi(api_client=client)
+    lan_server = ionoscloud.LANsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
 
     # Locate ID for LAN
-    lan_list = lan_server.datacenters_lans_get(datacenter_id, depth=2)
+    lan_list = lan_server.datacenters_lans_get(datacenter_id=datacenter_id, depth=5)
+    lan = _get_resource(lan_list, name)
+
+    if not lan:
+        module.exit_json(changed=False)
+
     lan_id = _get_resource_id(lan_list, name, module, "LAN")
 
     if module.check_mode:
@@ -304,6 +309,19 @@ def _get_resource_id(resource_list, identity, module, resource_type):
     module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
 
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
+
 def main():
     module = AnsibleModule(
         argument_spec=dict(
@@ -312,7 +330,7 @@ def main():
             pcc_id=dict(type='str'),
             public=dict(type='bool', default=False),
             ip_failover=dict(type='list', elements='dict'),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -339,14 +357,20 @@ def main():
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
     state = module.params.get('state')
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent

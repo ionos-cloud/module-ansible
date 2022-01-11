@@ -85,6 +85,12 @@ def delete_s3key(module, client):
 
     user_s3keys_server = ionoscloud.UserS3KeysApi(client)
 
+    s3key_list = user_s3keys_server.um_users_s3keys_get(user_id=user_id, depth=5)
+    s3key = _get_resource(s3key_list, key_id)
+
+    if not s3key:
+        module.exit_json(changed=False)
+
     try:
         user_s3keys_server.um_users_s3keys_delete(user_id, key_id)
         return {
@@ -139,13 +145,26 @@ def update_s3key(module, client):
         }
 
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.secret_key, resource.id):
+            return resource.id
+
+    return None
+
+
 def main():
     module = AnsibleModule(
         argument_spec=dict(
             active=dict(type='bool'),
             user_id=dict(type='str'),
             key_id=dict(type='str'),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -172,14 +191,20 @@ def main():
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
     state = module.params.get('state')
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     state = module.params.get('state')
 

@@ -169,11 +169,13 @@ def create_user(module, client, api_client):
     if not lastname:
         module.fail_json(msg='lastname parameter is required')
     email = module.params.get('email')
+    user_password = module.params.get('user_password')
+    if not user_password:
+        module.fail_json(msg='user_password parameter is required')
     administrator = module.params.get('administrator')
     force_sec_auth = module.params.get('force_sec_auth')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
-    user_password = module.params.get('user_password')
 
     user = None
 
@@ -238,6 +240,8 @@ def update_user(module, client, api_client):
     force_sec_auth = module.params.get('force_sec_auth')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
+    user_password = module.params.get('user_password')
+
 
     try:
         user = None
@@ -266,7 +270,8 @@ def update_user(module, client, api_client):
                                                 email=email,
                                                 administrator=administrator or False,
                                                 force_sec_auth=force_sec_auth or False)
-
+            if user_password:
+                user_properties.password = user_password
             new_user = UserPut(properties=user_properties)
             response = client.um_users_put_with_http_info(user_id=user.id, user=new_user)
             (user_response, _, headers) = response
@@ -334,6 +339,9 @@ def delete_user(module, client):
     user_list = client.um_users_get(depth=2)
     user_id = _get_user_id(user_list, email)
 
+    if not user_id:
+        module.exit_json(changed=False)
+
     if module.check_mode:
         module.exit_json(changed=True)
 
@@ -377,11 +385,11 @@ def main():
             firstname=dict(type='str'),
             lastname=dict(type='str'),
             email=dict(type='str', required=True),
+            user_password=dict(type='str', default=None, no_log=True),
             administrator=dict(type='bool', default=None),
             force_sec_auth=dict(type='bool', default=None),
             groups=dict(type='list', default=None),
-            user_password=dict(type='str', no_log=True),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             sec_auth_active=dict(type='bool', default=False),
             s3_canonical_user_id=dict(type='str'),
             username=dict(
@@ -411,14 +419,20 @@ def main():
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
     state = module.params.get('state')
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent

@@ -328,7 +328,7 @@ def main():
             edit_privilege=dict(type='bool', default=None),
             share_privilege=dict(type='bool', default=None),
             resource_ids=dict(type='list', required=True),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -355,14 +355,20 @@ def main():
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
     state = module.params.get('state')
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent

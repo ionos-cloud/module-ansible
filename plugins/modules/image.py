@@ -19,6 +19,20 @@ except ImportError:
     HAS_SDK = False
 
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
+
+
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -34,6 +48,13 @@ def delete_image(module, client):
     changed = False
 
     image_server = ionoscloud.ImagesApi(api_client=client)
+
+    images_list = image_server.images_get(depth=5)
+    image = _get_resource(images_list, image_id)
+
+    if not image:
+        module.exit_json(changed=False)
+
 
     try:
         response = image_server.images_delete_with_http_info(image_id=image_id)
@@ -121,7 +142,7 @@ def main():
             disc_virtio_hot_unplug=dict(type='bool'),
             licence_type=dict(type='str'),
             cloud_init=dict(type='str'),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -147,16 +168,23 @@ def main():
 
     username = module.params.get('username')
     password = module.params.get('password')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    api_url = module.params.get('api_url')
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
     state = module.params.get('state')
     if not state:
         module.fail_json(msg='state parameter is required')
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent

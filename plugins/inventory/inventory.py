@@ -309,7 +309,7 @@ class IonosCloudInventory(object):
         instance_data = {}
 
         datacenter_server = ionoscloud.DataCentersApi(self.client)
-        lan_server = ionoscloud.LansApi(self.client)
+        lan_server = ionoscloud.LANsApi(self.client)
         location_server = ionoscloud.LocationsApi(self.client)
         image_server = ionoscloud.ImagesApi(self.client)
         server_server = ionoscloud.ServersApi(self.client)

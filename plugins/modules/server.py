@@ -353,7 +353,7 @@ def _create_machine(module, client, datacenter, name):
     wait_timeout = module.params.get('wait_timeout')
 
     server_server = ionoscloud.ServersApi(api_client=client)
-    lan_server = ionoscloud.LansApi(api_client=client)
+    lan_server = ionoscloud.LANsApi(api_client=client)
 
     nics = []
 
@@ -624,11 +624,6 @@ def create_virtual_machine(module, client):
 
         create_response = _create_machine(module, client, str(datacenter_id), name)
         changed = True
-        nics = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=create_response.id,
-                                                       depth=2)
-        for n in nics.items:
-            if lan == n.properties.lan:
-                create_response.update({'public_ip': n.properties.ips[0]})
 
         virtual_machines.append(create_response)
 
@@ -956,7 +951,7 @@ def main():
             count=dict(type='int', default=1),
             auto_increment=dict(type='bool', default=True),
             instance_ids=dict(type='list', default=[]),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -990,14 +985,20 @@ def main():
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
     state = module.params.get('state')
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent

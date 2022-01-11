@@ -39,6 +39,19 @@ from ansible.module_utils._text import to_native
 import re
 
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
+
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -82,6 +95,13 @@ def delete_pcc(module, client):
     pcc_id = module.params.get('pcc_id')
     pcc_server = ionoscloud.PrivateCrossConnectsApi(client)
 
+    pcc_list = pcc_server.pccs_get(depth=5)
+    pcc = _get_resource(pcc_list, pcc_id)
+
+    if not pcc:
+        module.exit_json(changed=False)
+
+
     try:
         pcc_server.pccs_delete(pcc_id)
         return {
@@ -91,11 +111,6 @@ def delete_pcc(module, client):
         }
     except Exception as e:
         module.fail_json(msg="failed to delete the pcc: %s" % to_native(e))
-        return {
-            'action': 'delete',
-            'changed': False,
-            'id': pcc_id
-        }
 
 
 def update_pcc(module, client):
@@ -141,7 +156,7 @@ def main():
             pcc_id=dict(type='str'),
             name=dict(type='str'),
             description=dict(type='str'),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -167,12 +182,18 @@ def main():
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     state = module.params.get('state')
 
