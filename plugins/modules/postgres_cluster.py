@@ -65,6 +65,9 @@ def create_postgres_cluster(module, client):
         ),
     )
 
+    with open('debug.txt', 'w') as f:
+      f.write(str(postgres_cluster_properties))
+
     postgres_cluster = ionoscloud_dbaas_postgres.CreateClusterRequest(properties=postgres_cluster_properties)
 
     try:
@@ -141,6 +144,29 @@ def update_postgres_cluster(module, client):
         }
 
 
+def restore_postgres_cluster(module, client):
+    postgres_cluster_id = module.params.get('postgres_cluster_id')
+    restore_request = ionoscloud_dbaas_postgres.CreateRestoreRequest(
+        backup_id=module.params.get('backup_id'),
+        recovery_target_time=module.params.get('recovery_target_time'),
+    )
+
+    try:
+        ionoscloud_dbaas_postgres.RestoresApi(client).cluster_restore_post(postgres_cluster_id, restore_request)
+        return {
+            'action': 'restore',
+            'changed': True,
+            'id': postgres_cluster_id
+        }
+    except Exception as e:
+        module.fail_json(msg="failed to restore the Postgres cluster: %s" % to_native(e))
+        return {
+            'action': 'restore',
+            'changed': False,
+            'id': postgres_cluster_id
+        }
+
+
 def main():
     module = AnsibleModule(
         argument_spec=dict(
@@ -152,7 +178,7 @@ def main():
             ram=dict(type='int'),
             storage_size=dict(type='int'),
             storage_type=dict(type='str'),
-            connections=dict(type='list'),
+            connections=dict(type='list', elements='dict'),
             location=dict(type='str'),
             display_name=dict(type='str'),
             db_username=dict(type='str', no_log=True),
@@ -228,6 +254,16 @@ def main():
 
             try:
                 (postgres_cluster_dict_array) = update_postgres_cluster(module, api_client)
+                module.exit_json(**postgres_cluster_dict_array)
+            except Exception as e:
+                module.fail_json(msg='failed to set Postgres cluster state: %s' % to_native(e))
+
+        elif state == 'restore':
+            if not module.params.get('postgres_cluster_id'):
+                module.fail_json(msg='postgres_cluster_id parameter is required for restoring a Postgres cluster.')
+
+            try:
+                (postgres_cluster_dict_array) = restore_postgres_cluster(module, api_client)
                 module.exit_json(**postgres_cluster_dict_array)
             except Exception as e:
                 module.fail_json(msg='failed to set Postgres cluster state: %s' % to_native(e))
