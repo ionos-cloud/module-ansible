@@ -28,21 +28,21 @@
     * [Snapshot](api/compute-engine/snapshot.md)
     * [Volume](api/compute-engine/volume.md)
 * Managed Kubernetes
-    * [Kubernetes cluster](api/kubernetes/k8scluster.md)
-    * [Kubernetes nodepool](api/kubernetes/k8snodepool.md)
-    * [Kubernetes configuration](api/kubernetes/k8sconfig.md)
+    * [Kubernetes cluster](api/managed-kubernetes/k8scluster.md)
+    * [Kubernetes nodepool](api/managed-kubernetes/k8snodepool.md)
+    * [Kubernetes configuration](api/managed-kubernetes/k8sconfig.md)
 * NAT Gateway
-    * [NAT Gateway](api/nat-gateway/nat_gateway.md)
-    * [NAT Gateway Rule](api/nat-gateway/nat_gateway_rule.md)
-    * [NAT Gateway Flowlog](api/nat-gateway/nat_gateway_rule.md)
+    * [NAT Gateway](api/natgateway/nat_gateway.md)
+    * [NAT Gateway Rule](api/natgateway/nat_gateway_rule.md)
+    * [NAT Gateway Flowlog](api/natgateway/nat_gateway_rule.md)
 * Network Load Balancer
     * [Network Load Balancer](api/networkloadbalancer/network_load_balancer.md)
     * [Network Load Balancer Flowlog](api/networkloadbalancer/network_load_balancer_flowlog.md)
     * [Network Load Balancer Rule](api/networkloadbalancer/network_load_balancer_rule.md)
 * Managed Backup
-    * [Backup unit](api/backup/backupunit.md)
+    * [Backup unit](api/managed-backup/backupunit.md)
 * User Management
-    * [User](api/user/user.md)
-    * [Group](api/user/group.md)
-    * [Share](api/user/share.md)
-    * [S3key](api/user/s3key.md)
+    * [User](api/user-management/user.md)
+    * [Group](api/user-management/group.md)
+    * [Share](api/user-management/share.md)
+    * [S3key](api/user-management/s3key.md)
