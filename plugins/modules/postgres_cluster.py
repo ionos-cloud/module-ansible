@@ -35,10 +35,30 @@ except ImportError:
 
 
 def create_postgres_cluster(module, client):
-    time = module.params.get('time')
-    day_of_the_week = module.params.get('day_of_the_week')
+    maintenance_window = module.params.get('maintenance_window')
+    if maintenance_window:
+        maintenance_window = dict(module.params.get('maintenance_window'))
+        maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
+    display_name=module.params.get('display_name')
 
     postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(client)
+
+    postgres_clusters = postgres_cluster_server.clusters_get()
+
+    existing_postgres_cluster = None
+
+    for postgres_cluster in postgres_clusters.items:
+        if display_name == postgres_cluster.properties.display_name:
+            existing_postgres_cluster = postgres_cluster
+            break
+
+    if existing_postgres_cluster is not None:
+        return {
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'postgres_cluster': existing_postgres_cluster.to_dict()
+        }
 
     postgres_cluster_properties = ionoscloud_dbaas_postgres.CreateClusterProperties(
         postgres_version=module.params.get('postgres_version'),
@@ -49,11 +69,8 @@ def create_postgres_cluster(module, client):
         storage_type=module.params.get('storage_type'),
         connections=module.params.get('connections'),
         location=module.params.get('location'),
-        display_name=module.params.get('display_name'),
-        maintenance_window=ionoscloud_dbaas_postgres.MaintenanceWindow(
-            time=time,
-            day_of_the_week=day_of_the_week,
-        ) if (time and day_of_the_week) else None,
+        display_name=display_name,
+        maintenance_window=maintenance_window,
         credentials=ionoscloud_dbaas_postgres.DBUser(
             username=module.params.get('db_username'),
             password=module.params.get('db_password'),
@@ -65,17 +82,22 @@ def create_postgres_cluster(module, client):
         ),
     )
 
-    with open('debug.txt', 'w') as f:
-      f.write(str(postgres_cluster_properties))
-
     postgres_cluster = ionoscloud_dbaas_postgres.CreateClusterRequest(properties=postgres_cluster_properties)
 
     try:
+        postgres_cluster = postgres_cluster_server.clusters_post(postgres_cluster)
+        if module.params.get('wait'):
+            client.wait_for(
+                fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster.id),
+                fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
+                scaleup=10000
+            )
+
         return {
             'changed': True,
             'failed': False,
             'action': 'create',
-            'postgres_cluster': postgres_cluster_server.clusters_post(postgres_cluster).to_dict()
+            'postgres_cluster': postgres_cluster.to_dict(),
         }
     except Exception as e:
         module.fail_json(msg="failed to create the Postgres cluster: %s" % to_native(e))
@@ -106,8 +128,10 @@ def delete_postgres_cluster(module, client):
 
 
 def update_postgres_cluster(module, client):
-    time = module.params.get('time')
-    day_of_the_week = module.params.get('day_of_the_week')
+    maintenance_window = module.params.get('maintenance_window')
+    if maintenance_window:
+        maintenance_window = dict(module.params.get('maintenance_window'))
+        maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
     postgres_cluster_id = module.params.get('postgres_cluster_id')
 
@@ -120,23 +144,32 @@ def update_postgres_cluster(module, client):
         ram=module.params.get('ram'),
         storage_size=module.params.get('storage_size'),
         display_name=module.params.get('display_name'),
-        maintenance_window=ionoscloud_dbaas_postgres.MaintenanceWindow(
-            time=time,
-            day_of_the_week=day_of_the_week,
-        ) if (time and day_of_the_week) else None,
+        maintenance_window=maintenance_window,
     )
     postgres_cluster = ionoscloud_dbaas_postgres.PatchClusterRequest(properties=postgres_cluster_properties)
 
     try:
+        postgres_cluster = postgres_cluster_server.clusters_patch(
+            cluster_id=postgres_cluster_id,
+            patch_cluster_request=postgres_cluster,
+        )
+
+        if module.params.get('wait'):   
+            client.wait_for(
+                fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster_id),
+                fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
+                scaleup=10000
+            )
+
         return {
             'changed': True,
             'failed': False,
             'action': 'update',
-            'backupunit': postgres_cluster_server.clusters_patch(postgres_cluster_id=postgres_cluster_id, patch_cluster_request=postgres_cluster).to_dict()
+            'postgres_cluster': postgres_cluster.to_dict(),
         }
 
     except Exception as e:
-        module.fail_json(msg="failed to update the backupunit: %s" % to_native(e))
+        module.fail_json(msg="failed to update the Postgres Cluster: %s" % to_native(e))
         return {
             'changed': False,
             'failed': True,
@@ -170,8 +203,11 @@ def restore_postgres_cluster(module, client):
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            time=dict(type='str'),
-            day_of_the_week=dict(type='str'),
+            maintenance_window=dict(
+                type='dict',
+                day_of_the_week=dict(type='str'),
+                time=dict(type='str'),
+            ),
             postgres_version=dict(type='str'),
             instances=dict(type='int'),
             cores=dict(type='int'),
@@ -186,24 +222,26 @@ def main():
             synchronization_mode=dict(type='str'),
             backup_id=dict(type='str'),
             recovery_target_time=dict(type='str'),
+            postgres_cluster_id=dict(type='str'),
 
             api_url=dict(type='str', default=None),
             username=dict(
                 type='str',
                 required=True,
                 aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
+                fallback=(env_fallback, ['IONOS_USERNAME']),
             ),
             password=dict(
                 type='str',
                 required=True,
                 aliases=['subscription_password'],
                 fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
+                no_log=True,
             ),
             state=dict(type='str', default='present'),
+            wait=dict(type='bool', default=True),
         ),
-        supports_check_mode=True
+        supports_check_mode=True,
     )
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud_dbaas_postgres is required for this module, run `pip install ionoscloud_dbaas_postgres`')
@@ -216,7 +254,7 @@ def main():
 
     configuration = ionoscloud_dbaas_postgres.Configuration(
         username=username,
-        password=password
+        password=password,
     )
 
     with ionoscloud_dbaas_postgres.ApiClient(configuration) as api_client:
