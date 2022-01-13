@@ -72,7 +72,7 @@
 ## 6.0.0-beta.2 (June, 2021)
 
 ### Features:
-* Added a new module (`image`).  [Here](./api/image.md) you can find the more details about this feature.
+* Added a new module (`image`).  [Here](api/compute-engine/image.md) you can find the more details about this feature.
 * New parameters on `volume` module:
     * image_alias
     * backupunit_id
