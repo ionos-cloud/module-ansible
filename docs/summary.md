@@ -15,24 +15,28 @@
 
 ## API
 
-* [Datacenter](api/datacenter.md)
-* [Server](api/server.md)
-* [Lan](api/lan.md)
-* [Nic](api/nic.md)
-* [Volume](api/volume.md)
-* [Firewall rule](api/firewallrule.md)
-* [IpBlock](api/ipblock.md)
-* [Snapshot](api/snapshot.md)
-* [User](api/user.md)
-* [Group](api/group.md)
-* [Share](api/share.md)
-* [S3key](api/s3key.md)
-* [Kubernetes cluster](api/k8scluster.md)
-* [Kubernetes nodepool](api/k8snodepool.md)
-* [Kubernetes configuration](api/k8sconfig.md)
-* [Backup unit](api/backupunit.md)
-* [Private cross connect](api/pcc.md)
-* [Image](api/image.md)
+* Compute Engine
+    * [Datacenter](api/compute-engine/datacenter.md)
+    * [Firewall rule](api/compute-engine/firewallrule.md)
+    * [Image](api/compute-engine/image.md)
+    * [IpBlock](api/compute-engine/ipblock.md)
+    * [Lan](api/compute-engine/lan.md)
+    * [Nic](api/compute-engine/nic.md)
+    * [Private cross connect](api/compute-engine/pcc.md)
+    * [Server](api/compute-engine/server.md)
+    * [Snapshot](api/compute-engine/snapshot.md)
+    * [Volume](api/compute-engine/volume.md)
+* Managed Kubernetes
+    * [Kubernetes cluster](api/managed-kubernetes/k8scluster.md)
+    * [Kubernetes nodepool](api/managed-kubernetes/k8snodepool.md)
+    * [Kubernetes configuration](api/managed-kubernetes/k8sconfig.md)
+* Managed Backup
+    * [Backup unit](api/managed-backup/backupunit.md)
+* User Management
+    * [User](api/user-management/user.md)
+    * [Group](api/user-management/group.md)
+    * [Share](api/user-management/share.md)
+    * [S3key](api/user-management/s3key.md)
 
 ## Legal
 
