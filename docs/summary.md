@@ -34,7 +34,7 @@
 * NAT Gateway
     * [NAT Gateway](api/natgateway/nat_gateway.md)
     * [NAT Gateway Rule](api/natgateway/nat_gateway_rule.md)
-    * [NAT Gateway Flowlog](api/natgateway/nat_gateway_rule.md)
+    * [NAT Gateway Flowlog](api/natgateway/nat_gateway_flowlog.md)
 * Network Load Balancer
     * [Network Load Balancer](api/networkloadbalancer/network_load_balancer.md)
     * [Network Load Balancer Flowlog](api/networkloadbalancer/network_load_balancer_flowlog.md)
