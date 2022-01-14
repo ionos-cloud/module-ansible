@@ -247,6 +247,12 @@ def delete_ipblock(module, client):
 
     # Locate UUID for the IPBlock
     ipblock_list = ipblock_server.ipblocks_get(depth=2)
+    ipblock = _get_resource(ipblock_list, name)
+
+    if not ipblock:
+        module.exit_json(changed=False)
+
+
     id = _get_resource_id(ipblock_list, name, module, "IP Block")
 
     if module.check_mode:
@@ -276,13 +282,26 @@ def _get_resource_id(resource_list, identity, module, resource_type):
     module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
 
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
+
 def main():
     module = AnsibleModule(
         argument_spec=dict(
             name=dict(type='str'),
             location=dict(type='str', choices=LOCATIONS, default='us/las'),
             size=dict(type='int', default=1),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -310,14 +329,20 @@ def main():
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
     state = module.params.get('state')
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     state = module.params.get('state')
 

@@ -32,7 +32,7 @@
         cores: 1
         ram: 2048
         volume_size: 14
-        image: "{{ image }}"
+        image: "{{ image_alias }}"
         image_password: "{{ password }}"
         location: "gb/lhr"
         cpu_family: INTEL_SKYLAKE
@@ -94,6 +94,17 @@
         server_id: "{{ server_response.machines[0].id }}"
         nic_id: "{{ nic_response.nic.id }}"
         flowlog_id: "{{ flowlog_response.flowlog.id }}"
+        name: "{{ name }}"
+        state: absent
+        wait: true
+      register: flowlog_delete_response
+
+    - name: Delete a nic flowlog
+      nic_flowlog:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        server_id: "{{ server_response.machines[0].id }}"
+        nic_id: "{{ nic_response.nic.id }}"
+        flowlog_id: "invalid-id"
         name: "{{ name }}"
         state: absent
         wait: true

@@ -53,6 +53,12 @@
         wait_timeout: 600
         state: absent
 
+    - name: Delete snapshot
+      snapshot:
+        name: "{{ name }}"
+        wait_timeout: 600
+        state: absent
+
     - name: Remove datacenter
       datacenter:
         name: "{{ datacenter }}"

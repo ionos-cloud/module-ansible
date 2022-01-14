@@ -143,7 +143,14 @@ def create_k8s_cluster_nodepool(module, client):
 def delete_k8s_cluster_nodepool(module, client):
     k8s_cluster_id = module.params.get('k8s_cluster_id')
     nodepool_id = module.params.get('nodepool_id')
+
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
+
+    k8s_nodepool_list = k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=5)
+    k8s_nodepool = _get_resource(k8s_nodepool_list, nodepool_id)
+
+    if not k8s_nodepool:
+        module.exit_json(changed=False)
 
     changed = False
 
@@ -214,7 +221,7 @@ def update_k8s_cluster_nodepool(module, client):
 
         k8s_nodepool = KubernetesNodePoolForPut(properties=k8s_nodepool_properties)
         k8s_response = k8s_server.k8s_nodepools_put(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id,
-                                                               kubernetes_node_pool_for_put=k8s_nodepool)
+                                                               kubernetes_node_pool=k8s_nodepool)
 
         if wait:
             client.wait_for(
@@ -238,6 +245,19 @@ def update_k8s_cluster_nodepool(module, client):
         'action': 'update',
         'nodepool': k8s_response.to_dict()
     }
+
+
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
 
 
 def main():
@@ -269,7 +289,7 @@ def main():
                 max_node_count=dict(type='str')
             ),
             public_ips=dict(type='list', elements='str'),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -295,14 +315,20 @@ def main():
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
     state = module.params.get('state')
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent

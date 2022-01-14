@@ -465,7 +465,9 @@ def delete_firewall_rule(module, client):
     firewall_rule_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id=datacenter_id,
                                                                                server_id=server_id, nic_id=nic_id,
                                                                                depth=2)
-    firewall_rule_id = _get_resource_id(firewall_rule_list, name, module, "Firewall rule")
+    firewall_rule_id = _get_resource(firewall_rule_list, name)
+    if not firewall_rule_id:
+        module.exit_json(changed=False)
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -483,6 +485,19 @@ def delete_firewall_rule(module, client):
         }
     except Exception as e:
         module.fail_json(msg="failed to remove the firewall rule: %s" % to_native(e))
+
+
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
 
 
 def _get_resource_id(resource_list, identity, module, resource_type):
@@ -512,7 +527,7 @@ def main():
             port_range_end=dict(type='int', default=None),
             icmp_type=dict(type='int', default=None),
             icmp_code=dict(type='int', default=None),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -539,14 +554,20 @@ def main():
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
     state = module.params.get('state')
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent

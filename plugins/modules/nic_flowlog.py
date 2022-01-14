@@ -27,6 +27,19 @@ uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
+
 def _update_flowlog(module, client, nic_flowlog_server, datacenter_id, server_id, nic_id, flowlog_id, flowlog_properties):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
@@ -179,32 +192,23 @@ def remove_flowlog(module, client):
     changed = False
 
     try:
-
+        nic_flowlog_list = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id, nic_id=nic_id, server_id=server_id, depth=5)
         if flowlog_id:
-            response = nic_flowlog_server.datacenters_servers_nics_flowlogs_delete_with_http_info(datacenter_id, server_id, nic_id, flowlog_id)
-            (flowlog_id_response, _, headers) = response
+            nic_flowlog = _get_resource(nic_flowlog_list, flowlog_id)
+        else:
+            nic_flowlog = _get_resource(nic_flowlog_list, name)
 
-            if wait:
-                request_id = _get_request_id(headers['Location'])
-                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        if not nic_flowlog:
+            module.exit_json(changed=False)
 
-            changed = True
+        response = nic_flowlog_server.datacenters_servers_nics_flowlogs_delete_with_http_info(datacenter_id, server_id, nic_id, nic_flowlog)
+        (flowlog_id_response, _, headers) = response
 
-        elif name:
-            flowlogs = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id,
-                                                                                nic_id=nic_id, server_id=server_id,
-                                                                                depth=2)
-            for f in flowlogs.items:
-                if name == f.properties.name:
-                    flowlog_id = f.id
-                    response = nic_flowlog_server.datacenters_servers_nics_flowlogs_delete_with_http_info(datacenter_id, server_id, nic_id, flowlog_id)
-                    (flowlog_response, _, headers) = response
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-                    if wait:
-                        request_id = _get_request_id(headers['Location'])
-                        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-                    changed = True
+        changed = True
 
     except Exception as e:
         module.fail_json(
@@ -228,7 +232,7 @@ def main():
             server_id=dict(type='str'),
             nic_id=dict(type='str'),
             flowlog_id=dict(type='str'),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -253,13 +257,21 @@ def main():
 
     username = module.params.get('username')
     password = module.params.get('password')
-    state = module.params.get('state')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    api_url = module.params.get('api_url')
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    state = module.params.get('state')
+
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent

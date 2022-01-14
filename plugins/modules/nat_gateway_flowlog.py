@@ -27,6 +27,19 @@ uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
+
 def _update_nat_gateway_flowlog(module, client, nat_gateway_server, datacenter_id, nat_gateway_id, flowlog_id,
                                 flowlog_properties):
     wait = module.params.get('wait')
@@ -190,29 +203,23 @@ def remove_nat_gateway_flowlog(module, client):
     changed = False
 
     try:
+        nat_gateway_flowlog_list = nat_gateway_server.datacenters_natgateways_flowlogs_get(datacenter_id=datacenter_id, nat_gateway_id=nat_gateway_id, depth=5)
         if flowlog_id:
-            response = nat_gateway_server.datacenters_natgateways_flowlogs_delete_with_http_info(datacenter_id, nat_gateway_id, flowlog_id)
-            (flowlog_response, _, headers) = response
+            flowlog_id = _get_resource(nat_gateway_flowlog_list, flowlog_id)
+        else:
+            flowlog_id = _get_resource(nat_gateway_flowlog_list, name)
 
-            if wait:
-                request_id = _get_request_id(headers['Location'])
-                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        if not flowlog_id:
+            module.exit_json(changed=False)
 
-            changed = True
+        response = nat_gateway_server.datacenters_natgateways_flowlogs_delete_with_http_info(datacenter_id, nat_gateway_id, flowlog_id)
+        (flowlog_response, _, headers) = response
 
-        elif name:
-            flowlogs = nat_gateway_server.datacenters_natgateways_flowlogs_get(datacenter_id=datacenter_id, nat_gateway_id=nat_gateway_id, depth=2)
-            for f in flowlogs.items:
-                if name == f.properties.name:
-                    flowlog_id = f.id
-                    response = nat_gateway_server.datacenters_natgateways_flowlogs_delete_with_http_info(datacenter_id, nat_gateway_id, flowlog_id)
-                    (flowlog_response, _, headers) = response
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-                    if wait:
-                        request_id = _get_request_id(headers['Location'])
-                        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-                    changed = True
+        changed = True
 
     except Exception as e:
         module.fail_json(
@@ -236,7 +243,7 @@ def main():
             server_id=dict(type='str'),
             flowlog_id=dict(type='str'),
             nat_gateway_id=dict(type='str'),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -261,13 +268,21 @@ def main():
 
     username = module.params.get('username')
     password = module.params.get('password')
-    state = module.params.get('state')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    api_url = module.params.get('api_url')
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    state = module.params.get('state')
+
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent

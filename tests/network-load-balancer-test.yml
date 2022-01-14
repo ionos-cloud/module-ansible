@@ -66,6 +66,13 @@
        wait: true
        state: absent
 
+    - name: Remove Network Load Balancer
+      network_load_balancer:
+       network_load_balancer_id: "invalid-id"
+       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       wait: true
+       state: absent
+
     - name: Remove Listener LAN
       lan:
         datacenter: "{{ datacenter }}"

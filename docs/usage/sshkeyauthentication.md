@@ -17,7 +17,7 @@ The Ionos module sets server authentication using the **image\_password** and **
 
   tasks:
   - name: Provision a server
-    server:
+   ionoscloudsdk.ionoscloud.server:
       datacenter: Example
       name: server%02d
       assign_public_ip: true

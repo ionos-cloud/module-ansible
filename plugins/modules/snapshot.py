@@ -408,6 +408,11 @@ def delete_snapshot(module, client):
 
     # Locate UUID for snapshot
     snapshot_list = snapshot_server.snapshots_get(depth=2)
+    snapshot = _get_resource(snapshot_list, name)
+
+    if not snapshot:
+        module.exit_json(changed=False)
+
     snapshot_id = _get_resource_id(snapshot_list, name, module, "Snapshot")
 
     if module.check_mode:
@@ -422,11 +427,6 @@ def delete_snapshot(module, client):
         }
     except Exception as e:
         module.fail_json(msg="failed to remove the snapshot: %s" % to_native(e))
-        return {
-            'action': 'delete',
-            'changed': False,
-            'id': snapshot_id
-        }
 
 
 def _get_resource_id(resource_list, identity, module, resource_type):
@@ -451,6 +451,19 @@ def _get_resource_instance(resource_list, identity):
     return None
 
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
+
 def main():
     module = AnsibleModule(
         argument_spec=dict(
@@ -469,7 +482,7 @@ def main():
             disc_virtio_hot_unplug=dict(type='bool', default=None),
             disc_scsi_hot_plug=dict(type='bool', default=None),
             disc_scsi_hot_unplug=dict(type='bool', default=None),
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -497,14 +510,20 @@ def main():
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
     state = module.params.get('state')
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    configuration = ionoscloud.Configuration(**conf)
 
     with ApiClient(configuration) as api_client:
         api_client.user_agent = user_agent

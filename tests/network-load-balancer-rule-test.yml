@@ -87,6 +87,13 @@
         forwarding_rule_id: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
         state: absent
 
+    - name: Delete Network Load Balancer Forwarding Rule
+      network_load_balancer_rule:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+        forwarding_rule_id: "invalid-id"
+        state: absent
+
     - name: Remove Network Load Balancer
       network_load_balancer:
        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
