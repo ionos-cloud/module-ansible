@@ -3,23 +3,42 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'supported_by': 'community'}
 
 EXAMPLES = '''
-    - name: Create Postgres Cluster
-      postgres_cluster:
-        postgres_cluster_email: "{{ email }}"
-        postgres_cluster_password: "{{ password }}"
-        name: "{{ name }}"
+  - name: Create Postgres Cluster
+    postgres_cluster:
+      postgres_version: 12
+      instances: 1
+      cores: 1
+      ram: 2048
+      storage_size: 20480
+      storage_type: HDD
+      location: de/fra
+      connections:
+        - cidr: 192.168.1.106/24
+          datacenterId: "{{ datacenter_response.datacenter.id }}"
+          lanId: "{{ lan_response1.lan.id }}"
+      display_name: backuptest-04
+      synchronization_mode: ASYNCHRONOUS
+      db_username: test
+      db_password: 7357cluster
+      wait: true
+    register: cluster_response
 
-    - name: Update a Postgres Cluster
-      postgres_cluster:
-        postgres_cluster_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
-        postgres_cluster_email: "{{ updated_email }}"
-        postgres_cluster_password:  "{{ updated_password }}"
-        state: update
+  - name: Update Postgres Cluster
+    postgres_cluster:
+      postgres_cluster_id: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_version: 12
+      instances: 2
+      cores: 2
+      ram: 4096
+      storage_size: 30480
+      state: update
+      wait: true
+    register: updated_cluster_response
 
-    - name: Remove Postgres Cluster
-      postgres_cluster:
-        postgres_cluster_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
-        state: absent
+  - name: Delete Postgres Cluster
+    postgres_cluster:
+      postgres_cluster_id: "{{ cluster_response.postgres_cluster.id }}"
+      state: absent
 '''
 
 from ansible import __version__
@@ -27,12 +46,25 @@ from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 import re
 
+import ionoscloud
+
 HAS_SDK = True
 try:
     import ionoscloud_dbaas_postgres
 except ImportError:
     HAS_SDK = False
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
 
 def create_postgres_cluster(module, client):
     maintenance_window = module.params.get('maintenance_window')
@@ -57,8 +89,17 @@ def create_postgres_cluster(module, client):
             'changed': False,
             'failed': False,
             'action': 'create',
-            'postgres_cluster': existing_postgres_cluster.to_dict()
+            'postgres_cluster': existing_postgres_cluster.to_dict(),
         }
+
+    connection = module.params.get('connections')[0]
+
+    datacenter_id = _get_resource(ionoscloud.DataCentersApi(client).datacenters_get(depth=1), connection['datacenter'])
+    lan_id = _get_resource(ionoscloud.LansApi(client).datacenters_lans_get(datacenter_id, depth=1), connection['lan'])
+
+    connections = [
+        ionoscloud_dbaas_postgres.Connection(datacenter_id=datacenter_id, lan_id=lan_id, cidr=connection['cidr']),
+    ]
 
     postgres_cluster_properties = ionoscloud_dbaas_postgres.CreateClusterProperties(
         postgres_version=module.params.get('postgres_version'),
@@ -67,7 +108,7 @@ def create_postgres_cluster(module, client):
         ram=module.params.get('ram'),
         storage_size=module.params.get('storage_size'),
         storage_type=module.params.get('storage_type'),
-        connections=module.params.get('connections'),
+        connections=connections,
         location=module.params.get('location'),
         display_name=display_name,
         maintenance_window=maintenance_window,
@@ -90,7 +131,7 @@ def create_postgres_cluster(module, client):
             client.wait_for(
                 fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster.id),
                 fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
-                scaleup=10000
+                scaleup=10000,
             )
 
         return {
@@ -104,26 +145,35 @@ def create_postgres_cluster(module, client):
         return {
             'changed': False,
             'failed': True,
-            'action': 'create'
+            'action': 'create',
         }
 
 
 def delete_postgres_cluster(module, client):
-    postgres_cluster_id = module.params.get('postgres_cluster_id')
+    postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(client)
+    postgres_cluster_id = _get_resource(postgres_cluster_server.clusters_get(), module.params.get('postgres_cluster'))
 
     try:
-        ionoscloud_dbaas_postgres.ClustersApi(client).clusters_delete(postgres_cluster_id)
+        postgres_cluster_server.clusters_delete(postgres_cluster_id)
+
+        if module.params.get('wait'):
+            client.wait_for(
+                fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster_id),
+                fn_check=lambda _: False,
+                scaleup=10000,
+            )
+
         return {
             'action': 'delete',
             'changed': True,
-            'id': postgres_cluster_id
+            'id': postgres_cluster_id,
         }
     except Exception as e:
         module.fail_json(msg="failed to delete the Postgres cluster: %s" % to_native(e))
         return {
             'action': 'delete',
             'changed': False,
-            'id': postgres_cluster_id
+            'id': postgres_cluster_id,
         }
 
 
@@ -133,9 +183,8 @@ def update_postgres_cluster(module, client):
         maintenance_window = dict(module.params.get('maintenance_window'))
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
-    postgres_cluster_id = module.params.get('postgres_cluster_id')
-
     postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(client)
+    postgres_cluster_id = _get_resource(postgres_cluster_server.clusters_get(), module.params.get('postgres_cluster'))
 
     postgres_cluster_properties = ionoscloud_dbaas_postgres.PatchClusterProperties(
         postgres_version=module.params.get('postgres_version'),
@@ -154,12 +203,16 @@ def update_postgres_cluster(module, client):
             patch_cluster_request=postgres_cluster,
         )
 
-        if module.params.get('wait'):   
-            client.wait_for(
-                fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster_id),
-                fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
-                scaleup=10000
-            )
+        if module.params.get('wait'):
+            try: 
+                client.wait_for(
+                    fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster_id),
+                    fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
+                    scaleup=10000,
+                )
+            except ionoscloud_dbaas_postgres.ApiException as e:
+                if e.status != 404:
+                    raise e
 
         return {
             'changed': True,
@@ -173,12 +226,14 @@ def update_postgres_cluster(module, client):
         return {
             'changed': False,
             'failed': True,
-            'action': 'update'
+            'action': 'update',
         }
 
 
 def restore_postgres_cluster(module, client):
-    postgres_cluster_id = module.params.get('postgres_cluster_id')
+    postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(client)
+
+    postgres_cluster_id = _get_resource(postgres_cluster_server.clusters_get(), module.params.get('postgres_cluster'))
     restore_request = ionoscloud_dbaas_postgres.CreateRestoreRequest(
         backup_id=module.params.get('backup_id'),
         recovery_target_time=module.params.get('recovery_target_time'),
@@ -189,14 +244,14 @@ def restore_postgres_cluster(module, client):
         return {
             'action': 'restore',
             'changed': True,
-            'id': postgres_cluster_id
+            'id': postgres_cluster_id,
         }
     except Exception as e:
         module.fail_json(msg="failed to restore the Postgres cluster: %s" % to_native(e))
         return {
             'action': 'restore',
             'changed': False,
-            'id': postgres_cluster_id
+            'id': postgres_cluster_id,
         }
 
 
@@ -222,7 +277,7 @@ def main():
             synchronization_mode=dict(type='str'),
             backup_id=dict(type='str'),
             recovery_target_time=dict(type='str'),
-            postgres_cluster_id=dict(type='str'),
+            postgres_cluster=dict(type='str'),
 
             api_url=dict(type='str', default=None),
             username=dict(

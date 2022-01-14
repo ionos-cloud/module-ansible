@@ -93,5 +93,7 @@ ENV/
 .ropeproject
 
 # Ansible
+ansible.cfg
+
 # tests/*.retry
 *.retry

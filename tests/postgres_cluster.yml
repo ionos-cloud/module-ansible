@@ -109,6 +109,7 @@
     postgres_cluster:
       postgres_cluster_id: "{{ cluster_response.postgres_cluster.id }}"
       state: absent
+      wait: true
 
   # - name: Remove datacenter
   #   datacenter:
