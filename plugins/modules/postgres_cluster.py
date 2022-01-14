@@ -14,8 +14,8 @@ EXAMPLES = '''
       location: de/fra
       connections:
         - cidr: 192.168.1.106/24
-          datacenterId: "{{ datacenter_response.datacenter.id }}"
-          lanId: "{{ lan_response1.lan.id }}"
+          datacenter: "{{ datacenter_response.datacenter.id }}"
+          lan: "{{ lan_response1.lan.id }}"
       display_name: backuptest-04
       synchronization_mode: ASYNCHRONOUS
       db_username: test
@@ -25,7 +25,7 @@ EXAMPLES = '''
 
   - name: Update Postgres Cluster
     postgres_cluster:
-      postgres_cluster_id: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
       postgres_version: 12
       instances: 2
       cores: 2
@@ -37,7 +37,7 @@ EXAMPLES = '''
 
   - name: Delete Postgres Cluster
     postgres_cluster:
-      postgres_cluster_id: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
       state: absent
 '''
 

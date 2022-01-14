@@ -14,8 +14,8 @@
       location: de/fra
       connections:
         - cidr: 192.168.1.106/24
-          datacenterId: "{{ datacenter_response.datacenter.id }}"
-          lanId: "{{ lan_response1.lan.id }}"
+          datacenter: "{{ datacenter_response.datacenter.id }}"
+          lan: "{{ lan_response1.lan.id }}"
       display_name: backuptest-04
       synchronization_mode: ASYNCHRONOUS
       db_username: test
@@ -25,7 +25,7 @@
 
   - name: Update Postgres Cluster
     postgres_cluster:
-      postgres_cluster_id: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
       postgres_version: 12
       instances: 2
       cores: 2
@@ -37,7 +37,7 @@
 
   - name: Delete Postgres Cluster
     postgres_cluster:
-      postgres_cluster_id: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
       state: absent
 ```
 
@@ -47,7 +47,6 @@ The following parameters are supported:
 
 | Name | Required | Type | Default | Description |
 | :--- | :---: | :--- | :--- | :--- |
-
 | postgres_version | **yes** | string |  | The PostgreSQL version of your cluster. |
 | instances | **yes** | string |  | The total number of instances in the cluster (one master and n-1 standbys). |
 | cores | **yes** | string |  | The number of CPU cores per instance. |
@@ -55,16 +54,14 @@ The following parameters are supported:
 | storage_size | **yes** | string |  | The amount of storage per instance. |
 | storage_type | **yes** | string |  | The storage type used in your cluster. |
 | connections | **yes** | string |  | Array of VDCs to connect to your cluster. |
-| location | **yes** | string |  | The description of the datacenter. |
-| display_name | **yes** | string |  | The description of the datacenter. |
-| db_username | **yes** | string |  | The description of the datacenter. |
-| db_password | **yes** | string |  | The description of the datacenter. |
-| synchronization_mode | **yes** | string |  | The description of the datacenter. |
-| backup_id | **yes** | string |  | The description of the datacenter. |
-| recovery_target_time | **yes** | string |  | The description of the datacenter. |
-| maintenance\_window | **yes** | dict |  | The day and time for the maintenance. Contains 'dayOfTheWeek' and 'time'. |
-
-
+| location | **yes** | string |  | The physical location where the cluster will be created. This will be where all of your instances live. (disallowed in update requests) |
+| display_name | **yes** | string |  | The friendly name of your cluster. |
+| db_username | **yes** | string |  | The username for the initial postgres user. Some system usernames are restricted (e.g. "postgres", "admin", standby") |
+| db_password | **yes** | string |  | The password for the initial postgres user. |
+| synchronization_mode | **yes** | string |  | Represents different modes of replication. |
+| backup_id | no | string |  | The unique ID of the backup you want to restore. |
+| recovery_target_time | no | string |  | If this value is supplied as ISO 8601 timestamp, the backup will be replayed up until the given timestamp. If empty, the backup will be applied completely. |
+| maintenance\_window | no | dict |  | The day and time for the maintenance. Contains 'dayOfTheWeek' and 'time'. |
 | api\_url | no | string |  | The Ionos API base URL. |
 | username | no | string |  | The Ionos username. Overrides the IONOS\_USERNAME environement variable. |
 | password | no | string |  | The Ionos password. Overrides the IONOS\_PASSWORD environement variable. |
