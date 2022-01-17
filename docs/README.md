@@ -81,7 +81,7 @@ pip install ionoscloud
 
 Bugs & feature requests can be open on the repository issues: [https://github.com/ionos-cloud/module-ansible/issues/new/choose](https://github.com/ionos-cloud/module-ansible/issues/new/choose)
 
-1. Can I contribute to the Ansible Module?
+2. Can I contribute to the Ansible Module?
 
 Sure! Our repository is public, feel free to fork it and file a PR for one of the issues opened in the issues list. We will review it and work together to get it released.
 

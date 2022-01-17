@@ -9,8 +9,8 @@
 
   - name: Create datacenter
     datacenter:
-        name: "{{ datacenter }}"
-        location: de/fra
+      name: "{{ datacenter }}"
+      location: de/fra
     register: datacenter_response
 
   - name: Provision a server
@@ -54,7 +54,7 @@
     nic:
       name: "test_nic1"
       datacenter: "{{ datacenter }}"
-      server: "TestAnsible 01"
+      server: "TestAnsiblev6 01"
       lan: "{{ lan_response1.lan.id }}"
       wait: true
       wait_timeout: "{{ wait_timeout }}"
@@ -65,7 +65,7 @@
     nic:
       name: "test_nic2"
       datacenter: "{{ datacenter }}"
-      server: "TestAnsible 01"
+      server: "TestAnsiblev6 01"
       lan: "{{ lan_response2.lan.id }}"
       wait: true
       wait_timeout: "{{ wait_timeout }}"
@@ -82,19 +82,19 @@
       storage_type: HDD
       location: de/fra
       connections:
-        - cidr: 192.168.1.106/24
-          datacenter: "{{ datacenter_response.datacenter.id }}"
-          lan: "{{ lan_response1.lan.id }}"
+        - cidr: 192.168.1.107/24
+        datacenter: "{{ datacenter }}"
+        lan: "test_lan1"
       display_name: backuptest-04
       synchronization_mode: ASYNCHRONOUS
-      db_username: test
+      db_username: postgres_test
       db_password: 7357cluster
       wait: true
     register: cluster_response
 
   - name: Update Cluster
     postgres_cluster:
-      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_cluster: "{{ cluster_response.postgres_cluster.properties.display_name }}"
       postgres_version: 12
       instances: 2
       cores: 2
@@ -111,10 +111,52 @@
       state: absent
       wait: true
 
-  # - name: Remove datacenter
-  #   datacenter:
-  #     id: "{{ datacenter_response.datacenter.id }}"
-  #     name: "{{ datacenter }}"
-  #     state: absent
-  #     wait: true
-  #   register: deleted_datacenter
+
+  - name: Remove NIC 1
+    nic:
+      name: "test_nic1"
+      datacenter: "{{ datacenter }}"
+      server: "TestAnsiblev6 01"
+      wait: true
+      wait_timeout: "{{ wait_timeout }}"
+      state: absent
+
+
+    - name: Remove NIC 2
+    nic:
+      name: "test_nic2"
+      datacenter: "{{ datacenter }}"
+      server: "TestAnsiblev6 01"
+      wait: true
+      wait_timeout: "{{ wait_timeout }}"
+      state: absent
+
+    - name: Remove server
+    server:
+      datacenter: "{{ datacenter }}"
+      instance_ids:
+        - "TestAnsiblev6 01"
+      remove_boot_volume: yes
+      wait_timeout: "{{ wait_timeout }}"
+      state: absent
+
+    - name: Remove LAN 1
+    lan:
+      datacenter: "{{ datacenter }}"
+      name: "test_lan1"
+      state: absent
+      wait: true
+
+    - name: Remove LAN 2
+    lan:
+      datacenter: "{{ datacenter }}"
+      name: "test_lan2"
+      state: absent
+      wait: true
+
+  - name: Remove datacenter
+    datacenter:
+      id: "{{ datacenter_response.datacenter.id }}"
+      name: "{{ datacenter }}"
+      state: absent
+      wait: true
