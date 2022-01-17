@@ -60,10 +60,10 @@ jobs:
         run: |
          python3 -m pip list
 
-      - name: Run Datacenter tests
+      - name: Run Postgres Cluster tests
         if: github.event.inputs.test == 'yes'
         run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-test.yml
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster.yml
 
       - name: Run Datacenter tests
         if: github.event.inputs.test == 'yes'
