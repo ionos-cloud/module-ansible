@@ -55,7 +55,7 @@ jobs:
 
       - name: Run Postgres Cluster test
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-test.yml
 
       - name: Run Datacenter test
         run: |
