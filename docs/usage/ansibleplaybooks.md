@@ -75,14 +75,14 @@ In this case you should use the UUID of the cluster as the above example will no
 
 If your credentials are not already defined:
 
-```text
+```bash
 export IONOS_USERNAME=username
 export IONOS_PASSWORD=password
 ```
 
 The `ansible-playbook` command will execute the above Playbook.
 
-```text
+```bash
 ansible-playbook example.yml
 ```
 

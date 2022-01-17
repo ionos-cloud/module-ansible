@@ -13,7 +13,7 @@ For create operations, the module returns a dict containing:
 
 Example for datacenter resource:
 
-```text
+```json
 {
     "action": "create",
     "changed": false,

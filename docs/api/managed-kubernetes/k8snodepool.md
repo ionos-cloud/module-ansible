@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Create k8s cluster nodepool
       k8s_nodepools:
         cluster_name: "{{ name }}"

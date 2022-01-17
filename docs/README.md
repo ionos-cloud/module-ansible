@@ -23,7 +23,7 @@ Ansible must also be installed before the IONOS module can be used. Please revie
 
 The IONOS module requires the IONOS SDK for Python to be installed. This can easily be accomplished with Python PyPI:
 
-```text
+```bash
 pip install ionoscloud
 ```
 
@@ -33,13 +33,13 @@ pip install ionoscloud
 
    Download and extract with `curl`:
 
-   ```text
+   ```bash
    mkdir -p ionos-module-ansible && curl -L https://github.com/ionos-cloud/module-ansible/tarball/master | tar zx -C ionos-module-ansible/ --strip-components=1
    ```
 
    Clone the GitHub repository locally:
 
-   ```text
+   ```bash
    git clone https://github.com/ionos-cloud/module-ansible
    ```
 
@@ -51,7 +51,7 @@ pip install ionoscloud
 
    2a. The preferred method is to update the Ansible configuration with the module path. To include the path globally for all users, edit the `/etc/ansible/ansible.cfg` file and add `library = /path/to/module/ionos_cloud` under the **\[default\]** section. For example:
 
-   ```text
+   ```conf
    [default]
    library = /path/to/ionos-module-ansible/ionos_cloud
    ```
@@ -65,13 +65,13 @@ pip install ionoscloud
 
    2b. The module path can also be set using an environment variable. This variable will be lost once the terminal session is closed:
 
-   ```text
+   ```bash
    export ANSIBLE_LIBRARY=/path/to/ionos-module-ansible/ionos_cloud
    ```
 
    2c. The module path can be overridden with an `ansible-playbook` command line parameter:
 
-   ```text
+   ```bash
    ansible-playbook --module-path /path/to/ionos-module-ansible/ionos_cloud playbook.yml
    ```
 

@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Create public LAN
       lan:
         datacenter: Virtual Datacenter

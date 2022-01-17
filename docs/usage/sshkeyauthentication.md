@@ -7,7 +7,7 @@ The Ionos module sets server authentication using the **image\_password** and **
 
 `example.yml`:
 
-```text
+```yaml
   - hosts: localhost 
     connection: local 
     gather_facts: false

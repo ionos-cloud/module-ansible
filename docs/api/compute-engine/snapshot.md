@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Create snapshot
       snapshot:
         datacenter: production DC

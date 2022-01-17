@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Create Network Load Balancer Flowlog
       network_load_balancer_flowlog:
         name: "{{ name }}"

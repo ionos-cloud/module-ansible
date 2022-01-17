@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Get k8s config
       k8s_config:
         k8s_cluster_id: {{k8s.id}}"

@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Create backupunit
       backupunit:
         backupunit_email: "{{ email }}"

@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Create ipblock
       ipblock:
         name:  "{{ name }}"

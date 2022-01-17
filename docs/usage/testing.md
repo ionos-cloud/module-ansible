@@ -2,14 +2,14 @@
 
 Set your IONOS user credentials.
 
-```text
+```bash
 export IONOS_USERNAME=username
 export IONOS_PASSWORD=password
 ```
 
 Change into the `tests` directory and execute the Playbooks.
 
-```text
+```bash
 cd tests
 ansible-playbook server-test.yml
 ```

@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Update image
       image:
         image_id: "916b10ea-be31-11eb-b909-c608708a73fa"

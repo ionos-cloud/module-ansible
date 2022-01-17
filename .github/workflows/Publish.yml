@@ -63,6 +63,11 @@ jobs:
       - name: Run Datacenter tests
         if: github.event.inputs.test == 'yes'
         run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-test.yml
+
+      - name: Run Datacenter tests
+        if: github.event.inputs.test == 'yes'
+        run: |
          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml
 
       - name: Run Backupunit tests

@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Allow SSH access
       firewall_rule:
           datacenter: Example

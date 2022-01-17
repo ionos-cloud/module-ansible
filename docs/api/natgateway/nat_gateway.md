@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
 
     - name: Create NAT Gateway
       nat_gateway:
