@@ -170,16 +170,19 @@ def create_postgres_cluster(module, dbaas_client, cloudapi_client):
 def delete_postgres_cluster(module, dbaas_client):
     postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
     postgres_cluster_id = _get_dbaas_cluser(postgres_cluster_server.clusters_get(), module.params.get('postgres_cluster'))
-
     try:
         postgres_cluster_server.clusters_delete(postgres_cluster_id)
 
         if module.params.get('wait'):
-            dbaas_client.wait_for(
-                fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster_id),
-                fn_check=lambda _: False,
-                scaleup=10000,
-            )
+            try: 
+                dbaas_client.wait_for(
+                    fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster_id),
+                    fn_check=lambda _: False,
+                    scaleup=10000,
+                )
+            except ionoscloud_dbaas_postgres.ApiException as e:
+                if e.status != 404:
+                    raise e
 
         return {
             'action': 'delete',
@@ -222,15 +225,11 @@ def update_postgres_cluster(module, dbaas_client):
         )
 
         if module.params.get('wait'):
-            try: 
-                dbaas_client.wait_for(
-                    fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster_id),
-                    fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
-                    scaleup=10000,
-                )
-            except ionoscloud_dbaas_postgres.ApiException as e:
-                if e.status != 404:
-                    raise e
+            dbaas_client.wait_for(
+                fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster_id),
+                fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
+                scaleup=10000,
+            )
 
         return {
             'changed': True,
