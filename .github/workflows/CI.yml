@@ -42,6 +42,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install ionoscloud
+          python3 -m pip install ionoscloud-dbaas-postgres
 
       - name: Install Ansible
         run: |
