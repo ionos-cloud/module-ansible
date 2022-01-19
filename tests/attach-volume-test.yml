@@ -55,3 +55,9 @@
       register: disk
       tags:
         - create
+
+    - name: Remove datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        state: absent
+        wait: true

@@ -233,12 +233,12 @@ def _create_volume(module, volume_server, datacenter, name, client):
     user_data = module.params.get('user_data')
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
-    image_id = None
 
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
+
         volume_properties = VolumeProperties(name=name, type=disk_type, size=size, availability_zone=availability_zone,
                                              image_password=image_password, ssh_keys=ssh_keys,
                                              bus=bus,
@@ -248,10 +248,11 @@ def _create_volume(module, volume_server, datacenter, name, client):
                                              disc_virtio_hot_unplug=disc_virtio_hot_unplug, backupunit_id=backupunit_id,
                                              user_data=user_data)
 
-        if uuid_match.match(image):
-            volume_properties.image = image
-        else:
-            volume_properties.image_alias = image
+        if image:
+            if uuid_match.match(image):
+                volume_properties.image = image
+            else:
+                volume_properties.image_alias = image
 
         volume = Volume(properties=volume_properties)
 

@@ -377,10 +377,11 @@ def _create_machine(module, client, datacenter, name):
                                          ssh_keys=ssh_keys,
                                          bus=bus)
 
-    if uuid_match.match(image):
-        volume_properties.image = image
-    else:
-        volume_properties.image_alias = image
+    if image:
+        if uuid_match.match(image):
+            volume_properties.image = image
+        else:
+            volume_properties.image_alias = image
 
     volume = Volume(properties=volume_properties)
 
