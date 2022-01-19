@@ -280,7 +280,6 @@ def _update_volume(module, volume_server, api_client, datacenter, volume_id):
     nic_hot_unplug = module.params.get('nic_hot_unplug')
     disc_virtio_hot_plug = module.params.get('disc_virtio_hot_plug')
     disc_virtio_hot_unplug = module.params.get('disc_virtio_hot_unplug')
-    image_id = None
 
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
@@ -290,7 +289,7 @@ def _update_volume(module, volume_server, api_client, datacenter, volume_id):
 
     try:
         volume_properties = VolumeProperties(name=name, size=size, availability_zone=availability_zone,
-                                             image=image_id, bus=bus,
+                                             bus=bus,
                                              cpu_hot_plug=cpu_hot_plug, ram_hot_plug=ram_hot_plug,
                                              nic_hot_plug=nic_hot_plug, nic_hot_unplug=nic_hot_unplug,
                                              disc_virtio_hot_plug=disc_virtio_hot_plug,
