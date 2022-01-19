@@ -19,7 +19,7 @@
         datacenter: "{{ datacenter }}"
         name: "{{ name }} %02d"
         location: "{{ location }}"
-        disk_type: "HDD"
+        disk_type: SSD Premium
         image: "{{ image_alias }}"
         image_password: "{{ password }}"
         count: 2
