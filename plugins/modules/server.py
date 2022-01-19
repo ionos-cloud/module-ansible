@@ -267,7 +267,9 @@ CPU_FAMILIES = ['AMD_OPTERON',
                 'INTEL_SKYLAKE']
 
 DISK_TYPES = ['HDD',
-              'SSD']
+              'SSD',
+              'SSD Premium',
+              'SSD Standard']
 
 BUS_TYPES = ['VIRTIO',
              'IDE']
@@ -279,18 +281,6 @@ AVAILABILITY_ZONES = ['AUTO',
 
 uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
-
-
-def _resolve_image(image_alias, location, disk_type, client):
-    image_client = ionoscloud.api.ImageApi(api_client=client)
-    images = image_client.images_get(depth=5)
-
-    if len(images.items) > 0:
-        for image in images.items:
-            if image_alias in image.properties.image_aliases and location == image.properties.location and disk_type == image.properties.image_type:
-                return image.id
-
-    return None
 
 
 def _get_request_id(headers):
@@ -325,7 +315,6 @@ def _create_machine(module, client, datacenter, name):
     cores = module.params.get('cores')
     ram = module.params.get('ram')
     cpu_family = module.params.get('cpu_family')
-    location = module.params.get('location')
     volume_size = module.params.get('volume_size')
     disk_type = module.params.get('disk_type')
     availability_zone = module.params.get('availability_zone')
@@ -380,23 +369,18 @@ def _create_machine(module, client, datacenter, name):
                 nic.properties.ips = nic_ips
             nics.append(nic)
 
-    if uuid_match.match(image):
-        image_id = image
-    else:
-        image_id = _resolve_image(image, location, disk_type, client)
-
-    if not image_id:
-        module.fail_json(msg="Could not find the image. Please provide either image_id, either image_alias and "
-                             "disk_type parameters")
-
     volume_properties = VolumeProperties(name=str(uuid4()).replace('-', '')[:10],
                                          type=disk_type,
                                          size=volume_size,
-                                         image=image_id,
                                          availability_zone=volume_availability_zone,
                                          image_password=image_password,
                                          ssh_keys=ssh_keys,
                                          bus=bus)
+
+    if uuid_match.match(image):
+        volume_properties.image = image
+    else:
+        volume_properties.image_alias = image
 
     volume = Volume(properties=volume_properties)
 
