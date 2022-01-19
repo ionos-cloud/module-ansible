@@ -61,6 +61,16 @@ jobs:
         run: |
          python3 -m pip list
 
+      - name: Run Postgres Cluster Info test
+        if: github.event.inputs.test == 'yes'
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-info-test.yml
+
+      - name: Run Postgres Cluster Backup Info test
+        if: github.event.inputs.test == 'yes'
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-backup-info-test.yml
+
       - name: Run Postgres Cluster tests
         if: github.event.inputs.test == 'yes'
         run: |

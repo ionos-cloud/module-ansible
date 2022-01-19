@@ -1,0 +1,13 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: List Postgres Cluster Backups
+      postgres_backup_info:
+        postgres_cluster: "backuptest-04"
+      register: postgres_backup_response
+
+    # - name: Show Postgres Cluster Backups
+    #   debug:
+    #     var: postgres_backup_response.result

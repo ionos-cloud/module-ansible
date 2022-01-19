@@ -1,0 +1,12 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: List Postgres Clusters
+      postgres_cluster_info:
+      register: postgres_clusters_response
+
+    # - name: Show Postgres Clusters
+    #   debug:
+    #     var: postgres_clusters_response.result

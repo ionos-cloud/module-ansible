@@ -52,6 +52,14 @@ jobs:
         run: |
           python3 -m pip list
 
+      - name: Run Postgres Cluster Info test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-info-test.yml
+
+      - name: Run Postgres Cluster Backup Info test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-backup-info-test.yml
+
       - name: Run Postgres Cluster test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-test.yml

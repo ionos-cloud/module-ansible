@@ -297,7 +297,7 @@ def main():
             recovery_target_time=dict(type='str'),
             postgres_cluster=dict(type='str'),
 
-            api_url=dict(type='str', default=None),
+            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
                 required=True,
@@ -321,7 +321,8 @@ def main():
 
     username = module.params.get('username')
     password = module.params.get('password')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (ionoscloud_dbaas_postgres.__version__, __version__)
+    api_url = module.params.get('api_url')
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, ionoscloud_dbaas_postgres.__version__)
 
     state = module.params.get('state')
 
@@ -329,6 +330,11 @@ def main():
         'username': username,
         'password': password,
     }
+
+    if api_url is not None:
+        config['host'] = api_url
+        config['server_index'] = None
+
     cloudapi_api_client = ionoscloud.ApiClient(ionoscloud.Configuration(**config))
     dbaas_postgres_api_client = ionoscloud_dbaas_postgres.ApiClient(ionoscloud_dbaas_postgres.Configuration(**config))
 

@@ -104,6 +104,17 @@
       wait: true
     register: updated_cluster_response
 
+  - name: List Postgres Cluster Backups
+    postgres_backup_info:
+      postgres_cluster: "backuptest-04"
+    register: postgres_backup_response
+
+  - name: Restore Cluster
+    postgres_cluster:
+      postgres_cluster: "{{ cluster_response.postgres_cluster.properties.display_name }}"
+      backup_id: "{{ postgres_backup_response.result[0].id }}"
+      state: restore
+      wait: true
 
   - name: Delete Cluster
     postgres_cluster:
