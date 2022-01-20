@@ -246,11 +246,11 @@ def _create_volume(module, volume_server, datacenter, name, client):
                                              nic_hot_unplug=nic_hot_unplug, disc_virtio_hot_plug=disc_virtio_hot_plug,
                                              disc_virtio_hot_unplug=disc_virtio_hot_unplug, backupunit_id=backupunit_id,
                                              user_data=user_data)
-
-        if uuid_match.match(image):
-            volume_properties.image = image
-        else:
-            volume_properties.image_alias = image
+        if image:
+            if uuid_match.match(image):
+                volume_properties.image = image
+            else:
+                volume_properties.image_alias = image
 
         volume = Volume(properties=volume_properties)
 
@@ -279,7 +279,6 @@ def _update_volume(module, volume_server, api_client, datacenter, volume_id):
     nic_hot_unplug = module.params.get('nic_hot_unplug')
     disc_virtio_hot_plug = module.params.get('disc_virtio_hot_plug')
     disc_virtio_hot_unplug = module.params.get('disc_virtio_hot_unplug')
-    image_id = None
 
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
