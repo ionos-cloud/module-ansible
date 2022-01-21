@@ -30,8 +30,6 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-            ref: master
 
       - name: Setup Python ${{ env.python-version }}
         uses: actions/setup-python@v2
