@@ -25,7 +25,7 @@
       volume_size: 20
       cpu_family: INTEL_SKYLAKE
       disk_type: HDD
-      image: b40a2ea5-6aba-11ec-a917-62772f9c5dc0
+      image: "{{ image_alias }}"
       image_password: "{{ password }}"
       location: de/fra
       count: 1
