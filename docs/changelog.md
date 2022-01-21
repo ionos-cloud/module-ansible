@@ -128,3 +128,14 @@
 ### Misc:
 
 * docs: updated the name of the module in examples
+
+
+## 6.0.1
+
+### Bug fixes:
+
+* fix create volume bug that forced disk_type to be always `HDD` 
+
+### Enhancements:
+
+* add support for SSD storage _(new options for volume storage type: SSD Standard, SSD Premium)_ - **SSD Premium is the default** if disk_type=SSD

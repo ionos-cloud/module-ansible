@@ -118,7 +118,7 @@ The following parameters are supported:
 | count | no | integer | 1 | The number of servers to create. |
 | name | **yes**/no | string |  | The name of the server\(s\). Required only for `state='present'`. |
 | template_uuid | **yes**/no | string |  | The UUID of the template for creating a CUBE server; the available templates for CUBE servers can be found on the templates resource. Required only for state = 'present'. |
-| image | **yes**/no | string |  | Image, snapshot ID or image alias to be used as template for the volume of the server. If image alias is used, provide the location and the disk_type too, in order to identify the correct image ID.  Required only for `state='present'`. |
+| image | **yes**/no | string |  | Image, snapshot ID or image alias to be used as template for the volume of the server. |
 | image\_password | no | string |  | Password set for the administrative user. |
 | ssh\_keys | no | list | none | List of public SSH keys allowing access to the server. |
 | datacenter | **yes** | string | none | The datacenter where the server is located. |
@@ -127,7 +127,7 @@ The following parameters are supported:
 | cpu\_family | no | string | AMD\_OPTERON | The CPU family type of the server: **AMD\_OPTERON**, INTEL\_XEON, INTEL\_SKYLAKE |
 | availability\_zone | no | string | AUTO | The availability zone assigned to the server: **AUTO**, ZONE\_1, ZONE\_2 |
 | volume\_size | no | integer | 10 | The size in GB of the boot volume. |
-| disk\_type | no | string | HDD | The type of disk the volume will use: **HDD**, SSD |
+| disk\_type | no | string | HDD | The disk type of the volume: **HDD**, SSD, SSD Standard or SSD Premium. If `SSD` is provided, it will automatically use `SSD Premium` |
 | volume\_availability\_zone | no | string | AUTO | The storage availability zone assigned to the volume: **AUTO**, ZONE\_1, ZONE\_2, ZONE\_3 |
 | bus | no | string | VIRTIO | The bus type for the volume: **VIRTIO**, IDE |
 | type | **yes** | string | ENTERPRISE | The type of the server. Accepted values: ENTERPRISE or CUBE |

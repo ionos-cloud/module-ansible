@@ -183,7 +183,9 @@ from ansible.module_utils.six.moves import xrange
 from ansible.module_utils._text import to_native
 
 DISK_TYPES = ['HDD',
-              'SSD']
+              'SSD',
+              'SSD Premium',
+              'SSD Standard']
 
 BUS_TYPES = ['VIRTIO',
              'IDE']
@@ -212,22 +214,9 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def _resolve_image(image_alias, location, disk_type, client):
-    image_client = ionoscloud.api.ImagesApi(api_client=client)
-    images = image_client.images_get(depth=5)
-
-    if len(images.items) > 0:
-        for image in images.items:
-            if image_alias in image.properties.image_aliases and location == image.properties.location and disk_type == image.properties.image_type:
-                return image.id
-
-    return None
-
-
 def _create_volume(module, volume_server, datacenter, name, client):
     size = module.params.get('size')
     bus = module.params.get('bus')
-    location = module.params.get('location')
     image = module.params.get('image')
     image_password = module.params.get('image_password')
     ssh_keys = module.params.get('ssh_keys')
@@ -244,30 +233,24 @@ def _create_volume(module, volume_server, datacenter, name, client):
     user_data = module.params.get('user_data')
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
-    image_id = None
 
     if module.check_mode:
         module.exit_json(changed=True)
 
-    if image:
-        try:
-            if uuid_match.match(image):
-                image_id = image
-            else:
-                image_id = _resolve_image(image, location, disk_type, client)
-
-            if not image_id:
-                module.fail_json(
-                    msg="Could not find the image. Please provide either image_id, either image alias and disk_type "
-                        "parameters")
-        except Exception as e:
-            module.fail_json(
-                msg="Could not find the image. Please provide either image_id, either image alias and disk_type "
-                    "parameters. Error %s" % to_native(e))
-
-
     try:
-        volume_properties = VolumeProperties(name=name, type=disk_type, size=size, availability_zone=availability_zone, image=image_id, image_password=image_password, ssh_keys=ssh_keys, bus=bus, licence_type=licence_type, cpu_hot_plug=cpu_hot_plug, ram_hot_plug=ram_hot_plug, nic_hot_plug=nic_hot_plug, nic_hot_unplug=nic_hot_unplug, disc_virtio_hot_plug=disc_virtio_hot_plug, disc_virtio_hot_unplug=disc_virtio_hot_unplug, backupunit_id=backupunit_id, user_data=user_data)
+        volume_properties = VolumeProperties(name=name, type=disk_type, size=size, availability_zone=availability_zone,
+                                             image_password=image_password, ssh_keys=ssh_keys,
+                                             bus=bus,
+                                             licence_type=licence_type, cpu_hot_plug=cpu_hot_plug,
+                                             ram_hot_plug=ram_hot_plug, nic_hot_plug=nic_hot_plug,
+                                             nic_hot_unplug=nic_hot_unplug, disc_virtio_hot_plug=disc_virtio_hot_plug,
+                                             disc_virtio_hot_unplug=disc_virtio_hot_unplug, backupunit_id=backupunit_id,
+                                             user_data=user_data)
+        if image:
+            if uuid_match.match(image):
+                volume_properties.image = image
+            else:
+                volume_properties.image_alias = image
 
         volume = Volume(properties=volume_properties)
 
@@ -285,20 +268,17 @@ def _create_volume(module, volume_server, datacenter, name, client):
 
 
 def _update_volume(module, volume_server, api_client, datacenter, volume_id):
+    name = module.params.get('name')
     size = module.params.get('size')
     bus = module.params.get('bus')
-    disk_type = module.params.get('disk_type')
     availability_zone = module.params.get('availability_zone')
     licence_type = module.params.get('licence_type')
-    image = module.params.get('image')
-    location = module.params.get('location')
     cpu_hot_plug = module.params.get('cpu_hot_plug')
     ram_hot_plug = module.params.get('ram_hot_plug')
     nic_hot_plug = module.params.get('nic_hot_plug')
     nic_hot_unplug = module.params.get('nic_hot_unplug')
     disc_virtio_hot_plug = module.params.get('disc_virtio_hot_plug')
     disc_virtio_hot_unplug = module.params.get('disc_virtio_hot_unplug')
-    image_id = None
 
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
@@ -307,16 +287,12 @@ def _update_volume(module, volume_server, api_client, datacenter, volume_id):
         module.exit_json(changed=True)
 
     try:
-        if image:
-            if uuid_match.match(image):
-                image_id = image
-            else:
-                image_id = _resolve_image(image, location, disk_type, api_client)
-        volume_properties = VolumeProperties(size=size, availability_zone=availability_zone, image=image_id, bus=bus,
+        volume_properties = VolumeProperties(name=name, size=size, availability_zone=availability_zone,
+                                             bus=bus,
                                              cpu_hot_plug=cpu_hot_plug, ram_hot_plug=ram_hot_plug,
                                              nic_hot_plug=nic_hot_plug, nic_hot_unplug=nic_hot_unplug,
                                              disc_virtio_hot_plug=disc_virtio_hot_plug,
-                                             disc_virtio_hot_unplug=disc_virtio_hot_unplug)
+                                             disc_virtio_hot_unplug=disc_virtio_hot_unplug, licence_type=licence_type)
         volume = Volume(properties=volume_properties)
         response = volume_server.datacenters_volumes_put_with_http_info(
             datacenter_id=datacenter,
@@ -408,6 +384,7 @@ def create_volume(module, client):
     for name in names:
         # Skip volume creation if a volume with the same name already exists.
         if _get_instance_id(volume_list, name):
+            volumes.append(_get_resource(volume_list, name))
             continue
 
         create_response = _create_volume(module, volume_server, str(datacenter), name, client)
@@ -584,6 +561,16 @@ def _get_instance_id(instance_list, identity):
     return None
 
 
+def _get_resource(instance_list, identity):
+    """
+    Return instance UUID by name or ID, if found.
+    """
+    for i in instance_list.items:
+        if identity in (i.properties.name, i.id):
+            return i
+    return None
+
+
 def main():
     module = AnsibleModule(
         argument_spec=dict(
@@ -592,7 +579,6 @@ def main():
             name=dict(type='str'),
             size=dict(type='int', default=10),
             image=dict(type='str'),
-            location=dict(type='str'),
             backupunit_id=dict(type='str'),
             user_data=dict(type='str'),
             image_password=dict(type='str', default=None, no_log=True),
@@ -638,7 +624,7 @@ def main():
     password = module.params.get('password')
     api_url = module.params.get('api_url')
 
-    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 
     conf = {
         'username': username,
