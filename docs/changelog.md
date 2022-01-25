@@ -139,3 +139,14 @@
 ### Enhancements:
 
 * add support for SSD storage _(new options for volume storage type: SSD Standard, SSD Premium)_ - **SSD Premium is the default** if disk_type=SSD
+
+
+## 6.0.1
+
+### Bug fixes:
+
+* fix create volume bug that forced disk_type to be always `HDD` 
+
+### Enhancements:
+
+* add support for Dbaas Postgres: 3 new modules were added (postgres_cluster, postgres_cluster_info, postgres_backup_info)
