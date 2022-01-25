@@ -46,3 +46,7 @@
     * [Group](api/user-management/group.md)
     * [Share](api/user-management/share.md)
     * [S3key](api/user-management/s3key.md)
+* Dbaas Postgres
+    * [Postgres Cluster](api/dbaas-postgres/postgres_cluster.md)
+    * [Postgres Cluster Info](api/dbaas-postgres/postgres_cluster_info.md)
+    * [Postgres Backup Info](api/dbaas-postgres/postgres_backup_info.md)

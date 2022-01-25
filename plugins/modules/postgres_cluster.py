@@ -259,6 +259,14 @@ def restore_postgres_cluster(module, dbaas_client):
 
     try:
         ionoscloud_dbaas_postgres.RestoresApi(dbaas_client).cluster_restore_post(postgres_cluster_id, restore_request)
+
+        if module.params.get('wait'):
+            dbaas_client.wait_for(
+                fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster_id),
+                fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
+                scaleup=10000,
+            )
+
         return {
             'action': 'restore',
             'changed': True,
