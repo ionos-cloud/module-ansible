@@ -3,7 +3,7 @@
 ## Example
 
 ### ENTERPRISE Server:
-```text
+```yaml
     - name: Provision a server
       server:
          datacenter: "{{ datacenter }}"
@@ -59,7 +59,7 @@
 
 ### CUBE Server
 
-```text
+```yaml
     - name: Provision a server
       server:
          datacenter: "{{ datacenter }}"

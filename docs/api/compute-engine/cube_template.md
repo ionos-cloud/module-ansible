@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: List templates
       cube_template:
         state: present

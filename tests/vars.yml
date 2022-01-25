@@ -1,5 +1,5 @@
 name: TestAnsiblev6
-datacenter: TestAnsiblev6
+datacenter: TestAnsiblev62
 description: Ansible test description
 server: TestAnsiblev6
 nic: TestAnsiblev6

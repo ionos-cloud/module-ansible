@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Create group
       group:
         name: guests

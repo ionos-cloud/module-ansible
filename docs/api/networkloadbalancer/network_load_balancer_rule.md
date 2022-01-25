@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Create Network Load Balancer Forwarding Rule
       network_load_balancer_rule:
         name: "{{ name }}"

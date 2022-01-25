@@ -49,6 +49,7 @@ jobs:
         run: |
          python3 -m pip install --upgrade pip
          python3 -m pip install ionoscloud
+         python3 -m pip install ionoscloud-dbaas-postgres
 
       - name: Install Ansible
         run: |
@@ -57,6 +58,21 @@ jobs:
       - name: Debug pip packages
         run: |
          python3 -m pip list
+
+      - name: Run Postgres Cluster Info test
+        if: github.event.inputs.test == 'yes'
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-info-test.yml
+
+      - name: Run Postgres Cluster Backup Info test
+        if: github.event.inputs.test == 'yes'
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-backup-info-test.yml
+
+      - name: Run Postgres Cluster tests
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-test.yml
 
       - name: Run Datacenter tests
         if: github.event.inputs.test == 'yes'

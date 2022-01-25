@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Create NAT Gateway Rule
       nat_gateway_rule:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"

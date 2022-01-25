@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Create datacenter
       datacenter:
         name: "{{ datacenter }}"

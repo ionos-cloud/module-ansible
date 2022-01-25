@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Create NAT Gateway Flowlog
       nat_gateway_flowlog:
         name: "{{ name }}"

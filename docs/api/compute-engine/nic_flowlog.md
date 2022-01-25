@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Create a nic flowlog
       nic_flowlog:
         name: "{{ name }}"

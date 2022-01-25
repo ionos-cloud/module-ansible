@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Create an s3key
       s3key:
         user_id: "{{ user_id }}"

@@ -2,7 +2,7 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Create Network Load Balancer
       network_load_balancer:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
