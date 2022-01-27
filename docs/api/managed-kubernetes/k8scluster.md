@@ -5,7 +5,7 @@
 ```text
     - name: Create or edit k8s cluster
       k8s_cluster:
-        cluster_name: "hello" # required
+        cluster_name: "{{ cluster_name }}" 
         maintenance_window:
           day_of_the_week: 'Tuesday'
           time: '13:03:00'
