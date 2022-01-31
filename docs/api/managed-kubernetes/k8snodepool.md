@@ -4,12 +4,11 @@
 
 ```text
     - name: Create k8s cluster nodepool
-      k8s_nodepools:
-        cluster_name: "{{ name }}"
+      k8s_nodepool:
         k8s_cluster_id: "{{k8s.id}}"
         datacenter_id: "{{datacenter.id}}"
         node_count: "1"
-        cpu_family: "AMD_OPTERON"
+        cpu_family: "INTEL_SKYLAKE"
         cores_count: "1"
         ram_size: "2048"
         availability_zone: "AUTO"
@@ -18,17 +17,17 @@
         public_ips:
           - 185.132.45.40
           - 217.160.200.52
+        k8s_version: 1.20.10
         state: present
 
     - name: Delete k8s cluster nodepool
-      k8s_nodepools:
+      k8s_nodepool:
         k8s_cluster_id: "{{k8s.id}}"
         nodepool_id: "{{nodepool.id}}"
         state: absent
 
     - name: Update k8s cluster nodepool
-      k8s_nodepools:
-        cluster_name: "{{ name }}"
+      k8s_nodepool:
         k8s_cluster_id: "{{k8s.id}}"
         nodepool_id: "{{nodepool.id}}"
         node_count: 1
@@ -39,6 +38,7 @@
         auto_scaling:
           min_node_count: 1
           max_node_count: 3
+        k8s_version: 1.20.10
         public_ips:
           - 185.132.45.40
           - 217.160.200.52
