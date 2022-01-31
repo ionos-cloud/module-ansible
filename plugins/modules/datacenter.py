@@ -10,6 +10,28 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
 
+DOC_DIRECTORY = 'compute-engine'
+STATES = ['present', 'absent', 'update']
+
+OPTIONS = {
+  'name': {
+    'description': ['The name of the virtual datacenter.'],
+    'required': ['present'],
+    'available': ['present', 'update', 'absent'],
+  },
+  'description': {
+    'description': ['The description of the virtual datacenter.'],
+    'available': ['present', 'update'],
+  },
+  'location': {
+    'description': ['The datacenter location.'],
+    'required': ['present'],
+    'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
+    'default': 'us/las',
+    'available': ['present', 'update'],
+  },
+}
+
 DOCUMENTATION = '''
 ---
 module: datacenter
