@@ -1,20 +1,28 @@
 # Datacenter
 
+{{description}}
+
 ## Example Syntax
 
 
 ```yaml
 {{{ example }}}
 ```
+&nbsp;
 
-## Parameter Reference
+&nbsp;
 
 {{#states}}
 
-  Parameters for state {{ state }}
+## Parameters for state **{{ state }}**
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
   {{#parameters}}
-    {{name}}
-    {{description}}
+  | {{name}} | {{required}} | {{type}} | {{default}} | {{description}} |
   {{/parameters}}
+&nbsp;
+
+&nbsp;
 
 {{/states}}

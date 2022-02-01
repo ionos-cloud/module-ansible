@@ -3,6 +3,9 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+import copy
+import yaml
+import re
 
 __metaclass__ = type
 
@@ -18,19 +21,77 @@ OPTIONS = {
     'description': ['The name of the virtual datacenter.'],
     'required': ['present'],
     'available': ['present', 'update', 'absent'],
+    'type': 'str',
+  },
+  'id': {
+    'description': ['The ID of the virtual datacenter.'],
+    'available': ['update', 'absent'],
+    'type': 'str',
   },
   'description': {
     'description': ['The description of the virtual datacenter.'],
     'available': ['present', 'update'],
+    'type': 'str',
   },
   'location': {
     'description': ['The datacenter location.'],
     'required': ['present'],
     'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
     'default': 'us/las',
-    'available': ['present', 'update'],
+    'available': ['present'],
+    'type': 'str',
+  },
+  'api_url': {
+    'description': ['The Ionos API base URL.'],
+    'version_added': '2.4',
+    'env_fallback': 'IONOS_API_URL',
+    'available': STATES,
+    'type': 'str',
+  },
+  'username': {
+    'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+    'aliases': ['subscription_user'],
+    'required': STATES,
+    'env_fallback': 'IONOS_USERNAME',
+    'available': STATES,
+    'type': 'str',
+  },
+  'password': {
+    'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+    'aliases': ['subscription_password'],
+    'required': STATES,
+    'available': STATES,
+    'no_log': True,
+    'env_fallback': 'IONOS_PASSWORD',
+    'type': 'str',
+  },
+  'wait': {
+    'description': ['Wait for the resource to be created before returning.'],
+    'default': True,
+    'available': STATES,
+    'choices': [True, False],
+    'type': 'bool',
+  },
+  'wait_timeout': {
+    'description': ['How long before wait gives up, in seconds.'],
+    'default': 600,
+    'available': STATES,
+    'type': 'int',
+  },
+  'state': {
+    'description': ['Indicate desired state of the resource.'],
+    'default': 'present',
+    'choices': STATES,
+    'available': STATES,
+    'type': 'str',
   },
 }
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
 
 DOCUMENTATION = '''
 ---
@@ -41,53 +102,7 @@ description:
        This module has a dependency on ionos-cloud >= 1.0.0
 version_added: "2.0"
 options:
-  name:
-    description:
-      - The name of the virtual datacenter.
-    required: true
-  description:
-    description:
-      - The description of the virtual datacenter.
-    required: false
-  location:
-    description:
-      - The datacenter location.
-    required: false
-    default: us/las
-    choices: [ "us/las", "us/ewr", "de/fra", "de/fkb", "de/txl", "gb/lhr" ]
-  api_url:
-    description:
-      - The Ionos API base URL.
-    required: false
-    default: null
-    version_added: "2.4"
-  username:
-    description:
-      - The Ionos username. Overrides the IONOS_USERNAME environment variable.
-    required: false
-    aliases: subscription_user
-  password:
-    description:
-      - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
-    required: false
-    aliases: subscription_password
-  wait:
-    description:
-      - wait for the datacenter to be created before returning
-    required: false
-    default: "yes"
-    choices: [ "yes", "no" ]
-  wait_timeout:
-    description:
-      - how long before wait gives up, in seconds
-    default: 600
-  state:
-    description:
-      - Indicate desired state of the resource
-    required: false
-    default: 'present'
-    choices: ["present", "absent", "update"]
-
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 5.0.0"
@@ -97,7 +112,6 @@ author:
 '''
 
 EXAMPLES = '''
-
 # Create a Datacenter
 - datacenter:
     name: Example DC
@@ -114,12 +128,7 @@ EXAMPLES = '''
 - datacenter:
     name: Example DC
     wait_timeout: 500
-    state: absent
-
-'''
-
-import re
-import json
+    state: absent'''
 
 HAS_SDK = True
 
@@ -135,17 +144,6 @@ except ImportError:
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
-
-uuid_match = re.compile(
-    '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
-
-LOCATIONS = ['us/las',
-             'us/ewr',
-             'de/fra',
-             'de/fkb',
-             'de/txl',
-             'gb/lhr'
-             ]
 
 
 def _get_resource(resource_list, identity):
@@ -344,32 +342,24 @@ def remove_datacenter(module, client):
 
 
 def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            name=dict(type='str'),
-            description=dict(type='str'),
-            location=dict(type='str', choices=LOCATIONS, default='us/las'),
-            id=dict(type='str'),
-            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
+    arguments = {}
+
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log']:
+        if option.get(key):
+          arguments[option_name][key] = option.get(key)
+
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    module = AnsibleModule(argument_spec=arguments, supports_check_mode=True)
+
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
