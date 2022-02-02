@@ -1,4 +1,4 @@
-from plugins.modules.datacenter import OPTIONS, DOCUMENTATION, EXAMPLES, STATES, DOC_DIRECTORY
+from plugins.modules.datacenter import OPTIONS, DOCUMENTATION, EXAMPLES, STATES, DOC_DIRECTORY, EXAMPLE_PER_STATE
 
 import yaml
 import chevron
@@ -13,7 +13,7 @@ def f(val):
     return val
 
 # print(yaml.dump(yaml.safe_load(str({k: f(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False))
-print(DOCUMENTATION)
+print(EXAMPLES)
 parameters = []
 
 description = ''.join(yaml.safe_load(DOCUMENTATION)['description'])
@@ -30,6 +30,7 @@ for state in STATES:
     parameters.append({
         'state': state,
         'parameters': state_parameters,
+        'example': EXAMPLE_PER_STATE.get(state),
     })
 
 with open(os.path.join('docs', os.path.join('templates', 'module.mustache')), 'r') as template_file:
