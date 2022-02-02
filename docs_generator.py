@@ -6,17 +6,8 @@ import copy
 import os
 from pathlib import Path
 
-def f(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
-    del val['available']
-    del val['type']
-    return val
 
-# print(yaml.dump(yaml.safe_load(str({k: f(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False))
-print(EXAMPLES)
 parameters = []
-
-description = ''.join(yaml.safe_load(DOCUMENTATION)['description'])
 
 for state in STATES:
     def available_in_state(option):
@@ -41,7 +32,7 @@ with open(os.path.join('docs', os.path.join('templates', 'module.mustache')), 'r
         target_file.write(chevron.render(
             template_file,
             {
-                'description': description,
+                'description': ''.join(yaml.safe_load(DOCUMENTATION)['description']),
                 'example': EXAMPLES,
                 'states': parameters,
             },

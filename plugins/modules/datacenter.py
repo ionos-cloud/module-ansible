@@ -7,84 +7,101 @@ import copy
 import yaml
 import re
 
+HAS_SDK = True
+
+try:
+    import ionoscloud
+    from ionoscloud import __version__ as sdk_version
+    from ionoscloud.models import Datacenter, DatacenterProperties
+    from ionoscloud.rest import ApiException
+    from ionoscloud import ApiClient
+except ImportError:
+    HAS_SDK = False
+
+from ansible import __version__
+from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils._text import to_native
+
 __metaclass__ = type
 
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
-
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update']
 
 OPTIONS = {
-  'name': {
-    'description': ['The name of the virtual datacenter.'],
-    'required': ['present'],
-    'available': ['present', 'update', 'absent'],
-    'type': 'str',
-  },
-  'id': {
-    'description': ['The ID of the virtual datacenter.'],
-    'available': ['update', 'absent'],
-    'type': 'str',
-  },
-  'description': {
-    'description': ['The description of the virtual datacenter.'],
-    'available': ['present', 'update'],
-    'type': 'str',
-  },
-  'location': {
-    'description': ['The datacenter location.'],
-    'required': ['present'],
-    'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
-    'default': 'us/las',
-    'available': ['present'],
-    'type': 'str',
-  },
-  'api_url': {
-    'description': ['The Ionos API base URL.'],
-    'version_added': '2.4',
-    'env_fallback': 'IONOS_API_URL',
-    'available': STATES,
-    'type': 'str',
-  },
-  'username': {
-    'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
-    'aliases': ['subscription_user'],
-    'required': STATES,
-    'env_fallback': 'IONOS_USERNAME',
-    'available': STATES,
-    'type': 'str',
-  },
-  'password': {
-    'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
-    'aliases': ['subscription_password'],
-    'required': STATES,
-    'available': STATES,
-    'no_log': True,
-    'env_fallback': 'IONOS_PASSWORD',
-    'type': 'str',
-  },
-  'wait': {
-    'description': ['Wait for the resource to be created before returning.'],
-    'default': True,
-    'available': STATES,
-    'choices': [True, False],
-    'type': 'bool',
-  },
-  'wait_timeout': {
-    'description': ['How long before wait gives up, in seconds.'],
-    'default': 600,
-    'available': STATES,
-    'type': 'int',
-  },
-  'state': {
-    'description': ['Indicate desired state of the resource.'],
-    'default': 'present',
-    'choices': STATES,
-    'available': STATES,
-    'type': 'str',
-  },
+    'name': {
+        'description': ['The name of the virtual datacenter.'],
+        'required': ['present'],
+        'available': ['present', 'update', 'absent'],
+        'type': 'str',
+    },
+    'id': {
+        'description': ['The ID of the virtual datacenter.'],
+        'available': ['update', 'absent'],
+        'type': 'str',
+    },
+    'description': {
+        'description': ['The description of the virtual datacenter.'],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'location': {
+        'description': ['The datacenter location.'],
+        'required': ['present'],
+        'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
+        'default': 'us/las',
+        'available': ['present'],
+        'type': 'str',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
 }
 
 def transform_for_documentation(val):
@@ -135,26 +152,10 @@ EXAMPLE_PER_STATE = {
       id: "{{ datacenter_response.datacenter.id }}"
       name: "Example DC"
       state: absent
-    register: deleted_datacenter
   ''',
 }
 
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
-
-HAS_SDK = True
-
-try:
-    import ionoscloud
-    from ionoscloud import __version__ as sdk_version
-    from ionoscloud.models import Datacenter, DatacenterProperties
-    from ionoscloud.rest import ApiException
-    from ionoscloud import ApiClient
-except ImportError:
-    HAS_SDK = False
-
-from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule, env_fallback
-from ansible.module_utils._text import to_native
 
 
 def _get_resource(resource_list, identity):
@@ -338,7 +339,7 @@ def remove_datacenter(module, client):
         module.exit_json(changed=True)
     try:
         response = datacenter_server.datacenters_delete_with_http_info(datacenter_id=datacenter)
-        (datacenter_response, _, headers) = response
+        (_, _, headers) = response
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id)
@@ -348,11 +349,11 @@ def remove_datacenter(module, client):
     return {
         'action': 'delete',
         'changed': True,
-        'id': datacenter_id
+        'id': datacenter_id,
     }
 
 
-def main():
+def get_module_arguments():
     arguments = {}
 
     for option_name, option in OPTIONS.items():
@@ -369,16 +370,13 @@ def main():
       if len(option.get('required', [])) == len(STATES):
         arguments[option_name]['required'] = True
 
-    module = AnsibleModule(argument_spec=arguments, supports_check_mode=True)
+    return arguments
 
-    if not HAS_SDK:
-        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
+def get_sdk_config(module):
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    state = module.params.get('state')
-    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
     conf = {
         'username': username,
@@ -389,13 +387,24 @@ def main():
         conf['host'] = api_url
         conf['server_index'] = None
 
-    configuration = ionoscloud.Configuration(**conf)
+    return ionoscloud.Configuration(**conf)
 
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
+def main():
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+
+    if not HAS_SDK:
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+
+    state = module.params.get('state')
+    with ApiClient(get_sdk_config(module)) as api_client:
+        api_client.user_agent = USER_AGENT
         if state == 'absent':
             if not module.params.get('name') and not module.params.get('id'):
-                module.fail_json(msg='name parameter or id parameter are required deleting a virtual datacenter.')
+                module.fail_json(msg='name parameter or id parameter are required for deleting a virtual datacenter.')
+
+            for option_name, option in OPTIONS.items():
+                if 'absent' in option.get('required', []) and not module.params.get(option_name):
+                    module.fail_json(msg='% parameter is required for deleting a virtual datacenterr'.format(option_name))
 
             try:
                 (result) = remove_datacenter(module, api_client)
@@ -403,11 +412,10 @@ def main():
             except Exception as e:
                 module.fail_json(msg='failed to set datacenter state: %s' % to_native(e))
 
-        elif state == 'present':
-            if not module.params.get('name'):
-                module.fail_json(msg='name parameter is required for a new datacenter')
-            if not module.params.get('location'):
-                module.fail_json(msg='location parameter is required for a new datacenter')
+        elif state == 'present':            
+            for option_name, option in OPTIONS.items():
+                if 'present' in option.get('required', []) and not module.params.get(option_name):
+                    module.fail_json(msg='% parameter is required for a new datacenter'.format(option_name))
 
             if module.check_mode:
                 module.exit_json(changed=True)
@@ -419,6 +427,9 @@ def main():
                 module.fail_json(msg='failed to set datacenter state: %s' % to_native(e))
 
         elif state == 'update':
+            for option_name, option in OPTIONS.items():
+                if 'update' in option.get('required', []) and not module.params.get(option_name):
+                    module.fail_json(msg='% parameter is required for updateing a datacenter'.format(option_name))
             try:
                 (datacenter_dict_array) = update_datacenter(module, api_client)
                 module.exit_json(**datacenter_dict_array)
