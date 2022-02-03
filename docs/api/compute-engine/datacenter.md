@@ -29,7 +29,6 @@ This is a simple module that supports creating or removing vDCs. A vDC is requir
       id: "{{ datacenter_response.datacenter.id }}"
       name: "Example DC"
       state: absent
-    register: deleted_datacenter
   
 ```
 &nbsp;
@@ -61,6 +60,7 @@ This is a simple module that supports creating or removing vDCs. A vDC is requir
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
+
 &nbsp;
 
 &nbsp;
@@ -72,7 +72,6 @@ This is a simple module that supports creating or removing vDCs. A vDC is requir
       id: "{{ datacenter_response.datacenter.id }}"
       name: "Example DC"
       state: absent
-    register: deleted_datacenter
   
 ```
 ### Available parameters for state **absent**:
@@ -88,6 +87,7 @@ This is a simple module that supports creating or removing vDCs. A vDC is requir
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
+
 &nbsp;
 
 &nbsp;
@@ -117,6 +117,7 @@ This is a simple module that supports creating or removing vDCs. A vDC is requir
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
+
 &nbsp;
 
 &nbsp;
