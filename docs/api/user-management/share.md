@@ -4,7 +4,7 @@
 
 ```yaml
     - name: Create shares
-      share:
+      ionoscloudsdk.ionoscloud.share:
         group: Demo
         edit_privilege: true
         share_privilege: true
@@ -14,7 +14,7 @@
         state: present
 
     - name: Update shares
-      share:
+      ionoscloudsdk.ionoscloud.share:
         group: Demo
         edit_privilege: false
         resource_ids:

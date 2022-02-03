@@ -4,7 +4,7 @@
 
 ```yaml
     - name: Create NAT Gateway Rule
-      nat_gateway_rule:
+      ionoscloudsdk.ionoscloud.nat_gateway_rule:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
         name: "{{ name }}"
@@ -20,7 +20,7 @@
       register: nat_gateway_rule_response
 
     - name: Update NAT Gateway Rule
-      nat_gateway_rule:
+      ionoscloudsdk.ionoscloud.nat_gateway_rule:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
         nat_gateway_rule_id: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
@@ -34,7 +34,7 @@
       register: nat_gateway_rule_update_response
 
     - name: Delete NAT Gateway Rule
-      nat_gateway_rule:
+      ionoscloudsdk.ionoscloud.nat_gateway_rule:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
         nat_gateway_rule_id: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"

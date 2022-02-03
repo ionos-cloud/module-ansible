@@ -4,7 +4,7 @@
 
 ```yaml
     - name: Create Network Load Balancer Forwarding Rule
-      network_load_balancer_rule:
+      ionoscloudsdk.ionoscloud.network_load_balancer_rule:
         name: "{{ name }}"
         algorithm: "ROUND_ROBIN"
         protocol: "TCP"
@@ -20,7 +20,7 @@
       register: nlb_forwarding_rule_response
 
     - name: Update Network Load Balancer Forwarding Rule
-      network_load_balancer_rule:
+      ionoscloudsdk.ionoscloud.network_load_balancer_rule:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
         forwarding_rule_id: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
@@ -32,7 +32,7 @@
       register: nlb_forwarding_rule_update_response
 
     - name: Delete Network Load Balancer Forwarding Rule
-      network_load_balancer_rule:
+      ionoscloudsdk.ionoscloud.network_load_balancer_rule:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
         forwarding_rule_id: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"

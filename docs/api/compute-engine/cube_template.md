@@ -4,12 +4,12 @@
 
 ```yaml
     - name: List templates
-      cube_template:
+      ionoscloudsdk.ionoscloud.cube_template:
         state: present
       register: template_list
 
     - name: Get template by template id
-      cube_template:
+      ionoscloudsdk.ionoscloud.cube_template:
         template_id: "{{ template_list.template['items'][0]['id'] }}"
       register: template_response
 

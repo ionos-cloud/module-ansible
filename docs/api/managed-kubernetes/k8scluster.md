@@ -4,16 +4,16 @@
 
 ```yaml
     - name: Create k8s cluster
-      k8s_cluster:
+      ionoscloudsdk.ionoscloud.k8s_cluster:
         name: "{{ cluster_name }}"
 
     - name: Delete k8s cluster
-      k8s_cluster:
+      ionoscloudsdk.ionoscloud.k8s_cluster:
         k8s_cluster_id: "{{k8s.id}}"
         state: absent
 
     - name: Update k8s cluster
-      k8s_cluster:
+      ionoscloudsdk.ionoscloud.k8s_cluster:
         k8s_cluster_id: "{{k8s.id}}"
         maintenance_window:
           day: 'Tuesday'

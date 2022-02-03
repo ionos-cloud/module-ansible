@@ -4,7 +4,7 @@
 
 ```yaml
   - name: Create Postgres Cluster
-    postgres_cluster:
+    ionoscloudsdk.ionoscloud.postgres_cluster:
       postgres_version: 12
       instances: 1
       cores: 1
@@ -24,7 +24,7 @@
     register: cluster_response
 
   - name: Update Postgres Cluster
-    postgres_cluster:
+    ionoscloudsdk.ionoscloud.postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
       postgres_version: 12
       instances: 2
@@ -36,7 +36,7 @@
     register: updated_cluster_response
 
   - name: Delete Postgres Cluster
-    postgres_cluster:
+    ionoscloudsdk.ionoscloud.postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
       state: absent
 ```

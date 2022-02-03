@@ -4,19 +4,19 @@
 
 ```yaml
     - name: Create pcc
-      pcc:
+      ionoscloudsdk.ionoscloud.pcc:
         name: "{{ name }}"
         description: "{{ description }}"
 
     - name: Update pcc
-      pcc:
+      ionoscloudsdk.ionoscloud.pcc:
         pcc_id: "{{pcc.id}}"
         name: "{{ new_name }}"
         description: "{{ new_description }}"
         state: update
 
     - name: Remove pcc
-      pcc:
+      ionoscloudsdk.ionoscloud.pcc:
         pcc_id: "{{pcc.id}}"
         state: absent
 ```

@@ -4,7 +4,7 @@
 
 ```yaml
     - name: Create user
-      user:
+      ionoscloudsdk.ionoscloud.user:
         firstname: John
         lastname: Doe
         email: john.doe@example.com
@@ -12,7 +12,7 @@
         administrator: true
 
     - name: Update user
-      user:
+      ionoscloudsdk.ionoscloud.user:
         firstname: John
         lastname: Doe
         email: john.doe@example.com
@@ -23,20 +23,20 @@
         state: update
 
     - name: Add user to group
-      user:
+      ionoscloudsdk.ionoscloud.user:
         email: "{{ random_user }}"
         groups:
           - "{{ name }}"
         state: update
 
     - name: Remove user from group
-      user:
+      ionoscloudsdk.ionoscloud.user:
         email: "{{ random_user }}"
         groups: []
         state: update
 
     - name: Delete user
-      user:
+      ionoscloudsdk.ionoscloud.user:
         email: "{{ random_user }}"
         state: absent
 ```

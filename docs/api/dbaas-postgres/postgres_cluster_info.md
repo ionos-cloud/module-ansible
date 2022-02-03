@@ -4,7 +4,7 @@
 
 ```yaml
   - name: List Postgres Clusters
-      postgres_cluster_info:
+      ionoscloudsdk.ionoscloud.postgres_cluster_info:
       register: postgres_clusters_response
 
 

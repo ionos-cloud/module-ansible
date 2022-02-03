@@ -4,7 +4,7 @@
 
 ```yaml
   - name: List Postgres Cluster Backups
-    postgres_cluster_info:
+    ionoscloudsdk.ionoscloud.postgres_cluster_info:
       postgres_cluster: {{ postgres_cluster.id }}
     register: postgres_clusters_response
 

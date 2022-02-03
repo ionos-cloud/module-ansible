@@ -4,7 +4,7 @@
 
 ```yaml
     - name: Create Network Load Balancer Flowlog
-      network_load_balancer_flowlog:
+      ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
         name: "{{ name }}"
         action: "ACCEPTED"
         direction: "INGRESS"
@@ -15,7 +15,7 @@
       register: nlb_flowlog_response
 
     - name: Update Network Load Balancer Flowlog
-      network_load_balancer_flowlog:
+      ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
         flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
@@ -28,7 +28,7 @@
       register: nlb_flowlog_update_response
 
     - name: Delete Network Load Balancer Flowlog
-      network_load_balancer_flowlog:
+      ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
         flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
