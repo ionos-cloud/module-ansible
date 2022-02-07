@@ -116,17 +116,17 @@ jobs:
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
 
-      - name: Run NAT Gateway test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-test.yml -vvv
-
-      - name: Run NAT Gateway Flowlog test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-flowlog-test.yml
-
-      - name: Run NAT Gateway Rule test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-rule-test.yml
+#      - name: Run NAT Gateway test
+#        run: |
+#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-test.yml -vvv
+#
+#      - name: Run NAT Gateway Flowlog test
+#        run: |
+#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-flowlog-test.yml
+#
+#      - name: Run NAT Gateway Rule test
+#        run: |
+#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-rule-test.yml
 
       - name: Run Attach Volume test
         run: |
@@ -139,6 +139,10 @@ jobs:
       - name: Run K8s Cluster test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-test.yml
+
+      - name: Run Private K8s Cluster test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/private-k8s-cluster-test.yml
 
       - name: Run K8s Nodepool test
         run: |

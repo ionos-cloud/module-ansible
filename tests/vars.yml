@@ -1,9 +1,9 @@
-name: TestAnsiblev6
-datacenter: TestAnsiblev62
+name: ANSIBLENAMETEST
+datacenter: ANSIBLENAMETEST2
 description: Ansible test description
-server: TestAnsiblev6
-nic: TestAnsiblev6
-lan: TestAnsiblev6
+server: ANSIBLENAMETEST
+nic: ANSIBLENAMETEST
+lan: ANSIBLENAMETEST
 location: gb/lhr
 image: ce08ca15-0adf-11ec-9fa6-1e5ea9024c03
 image_alias: centos:7

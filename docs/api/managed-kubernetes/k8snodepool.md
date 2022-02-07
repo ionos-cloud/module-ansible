@@ -67,5 +67,6 @@ The following parameters are supported:
 | lan\_ids | no | list |  | Array of additional LANs attached to worker nodes |
 | labels | no | dict |  | Map of labels attached to node pool |
 | annotations | no | dict |  | Map of annotations attached to node pool |
-| public\_ips | no | list |  | Optional array of reserved public IP addresses to be used by the nodes. IPs must be from same location as the data center used for the node pool. The array must contain one extra IP than maximum number of nodes could be. \(`nodeCount+1` if fixed node amount or `maxNodeCount+1` if auto scaling is used\). The extra provided IP Will be used during rebuilding of nodes. |
+| public\_ips | no | list |  | Optional array of reserved public IP addresses to be used by the nodes. IPs must be from same location as the data center used for the node pool. The array must contain one extra IP than maximum number of nodes could be. \(`node_count+1` if fixed node amount or `max_node_count+1` if auto scaling is used\). The extra provided IP Will be used during rebuilding of nodes. |
+| gateway_ip | **yes**/no | string |  |Public IP address for the gateway performing source NAT for the node pool's nodes belonging to a private cluster. Required only if the node pool belongs to a private cluster. |
 
