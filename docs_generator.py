@@ -7,7 +7,6 @@ from pathlib import Path
 
 
 def generate_module_docs(module_name):
-  for module_name in modules_to_generate:
     module = importlib.import_module('plugins.modules.' + module_name)
 
     parameters = []
@@ -45,7 +44,8 @@ def generate_module_docs(module_name):
     return module.DOC_DIRECTORY, target_filename
 
 modules_to_generate = [
-  'datacenter'
+  'datacenter',
+  'backupunit',
 ]
 
 for module_name in modules_to_generate:

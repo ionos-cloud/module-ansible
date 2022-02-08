@@ -412,7 +412,7 @@ def main():
             except Exception as e:
                 module.fail_json(msg='failed to set datacenter state: %s' % to_native(e))
 
-        elif state == 'present':            
+        elif state == 'present':
             for option_name, option in OPTIONS.items():
                 if 'present' in option.get('required', []) and not module.params.get(option_name):
                     module.fail_json(msg='% parameter is required for a new datacenter'.format(option_name))
