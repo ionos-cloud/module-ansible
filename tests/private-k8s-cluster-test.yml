@@ -8,14 +8,14 @@
   tasks:
     - name: Create datacenter
       datacenter:
-        name: "{{ datacenter }}"
+        name: "{{ datacenter }}-{{100|random}}"
         description: "{{ description }}"
         location: "{{ location }}"
       register: datacenter_response
 
     - name: Reserve ipblock
       ipblock:
-        name: "{{ name }}"
+        name: "{{ name }}-{{100|random}}"
         location: "{{ location }}"
         size: 2
         state: present
@@ -59,3 +59,16 @@
       k8s_cluster:
         k8s_cluster_id: "{{ cluster_response.cluster.id }}"
         state: absent
+
+    - name: Remove datacenter
+      datacenter:
+        id: "{{ datacenter_response.datacenter.id }}"
+        state: absent
+        wait: true
+      register: deleted_datacenter
+
+    - name: Remove ipblock
+      ipblock:
+        name: "{{ ipblock_response.ipblock.id }}"
+        state: absent
+      register: delete_result
