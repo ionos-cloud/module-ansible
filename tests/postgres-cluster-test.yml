@@ -140,6 +140,7 @@
         - "{{ server_response.machines[0].id }}"
       remove_boot_volume: yes
       wait_timeout: "{{ wait_timeout }}"
+      wait: true
       state: absent
 
   - name: Remove LAN 1
