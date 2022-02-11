@@ -6,8 +6,15 @@ on:
     workflow_dispatch:
     pull_request:
         types: [ assigned, opened, synchronize, reopened ]
+        paths:
+          - 'plugins/**/*'
+          - 'tests/**/*'
+
     push:
       branches: [ master ]
+      paths:
+          - 'plugins/**/*'
+          - 'tests/**/*'
 
 jobs:
 
