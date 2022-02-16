@@ -85,6 +85,7 @@ def create_k8s_cluster_nodepool(module, client):
     annotations = module.params.get('annotations')
     wait = module.params.get('wait')
     public_ips = module.params.get('public_ips')
+    gateway_ip = module.params.get('gateway_ip')
 
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
 
@@ -110,7 +111,7 @@ def create_k8s_cluster_nodepool(module, client):
                                                                maintenance_window=maintenance_window,
                                                                auto_scaling=auto_scaling, lans=lan_ids,
                                                                labels=labels, annotations=annotations,
-                                                               public_ips=public_ips)
+                                                               public_ips=public_ips, gateway_ip=gateway_ip)
 
         k8s_nodepool = KubernetesNodePool(properties=k8s_nodepool_properties)
 
@@ -289,6 +290,7 @@ def main():
                 max_node_count=dict(type='str')
             ),
             public_ips=dict(type='list', elements='str'),
+            gateway_ip=dict(type='str'),
             api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
