@@ -4,20 +4,20 @@
 
 ```yaml
     - name: Create backupunit
-      backupunit:
+      ionoscloudsdk.ionoscloud.backupunit:
         backupunit_email: "{{ email }}"
         backupunit_password: "{{ password }}"
         name: "{{ name }}"
 
     - name: Update a backupunit
-      backupunit:
+      ionoscloudsdk.ionoscloud.backupunit:
         backupunit_id: "{{backupunit.id}}"
         backupunit_email: "{{ updated_email }}"
         backupunit_password:  "{{ updated_password }}"
         state: update
 
     - name: Remove backupunit
-      backupunit:
+      ionoscloudsdk.ionoscloud.backupunit:
         backupunit_id: "{{backupunit.id}}"
         state: absent
 ```

@@ -4,7 +4,7 @@
 
 ```yaml
     - name: Create Network Load Balancer
-      network_load_balancer:
+      ionoscloudsdk.ionoscloud.network_load_balancer:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         ips:
@@ -15,7 +15,7 @@
       register: nlb_response
 
     - name: Update Network Load Balancer
-      network_load_balancer:
+      ionoscloudsdk.ionoscloud.network_load_balancer:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
         name: "{{ name }} - UPDATE"
@@ -26,7 +26,7 @@
       register: nlb_response_update
 
     - name: Remove Network Load Balancer
-      network_load_balancer:
+      ionoscloudsdk.ionoscloud.network_load_balancer:
        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
        datacenter_id: "{{ datacenter_response.datacenter.id }}"
        wait: true

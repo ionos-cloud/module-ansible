@@ -5,7 +5,7 @@
 ```yaml
 
     - name: Create NAT Gateway
-      nat_gateway:
+      ionoscloudsdk.ionoscloud.nat_gateway:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
@@ -16,7 +16,7 @@
       register: nat_gateway_response
 
     - name: Update NAT Gateway
-      nat_gateway:
+      ionoscloudsdk.ionoscloud.nat_gateway:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }} - UPDATED"
         public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
@@ -26,7 +26,7 @@
       register: nat_gateway_response_update
 
     - name: Remove NAT Gateway
-      nat_gateway:
+      ionoscloudsdk.ionoscloud.nat_gateway:
        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
        datacenter_id: "{{ datacenter_response.datacenter.id }}"
        wait: true

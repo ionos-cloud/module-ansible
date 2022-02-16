@@ -4,7 +4,7 @@
 
 ```yaml
     - name: Create k8s cluster nodepool
-      k8s_nodepools:
+      ionoscloudsdk.ionoscloud.k8s_nodepools:
         cluster_name: "{{ name }}"
         k8s_cluster_id: "{{k8s.id}}"
         datacenter_id: "{{datacenter.id}}"
@@ -21,13 +21,13 @@
         state: present
 
     - name: Delete k8s cluster nodepool
-      k8s_nodepools:
+      ionoscloudsdk.ionoscloud.k8s_nodepools:
         k8s_cluster_id: "{{k8s.id}}"
         nodepool_id: "{{nodepool.id}}"
         state: absent
 
     - name: Update k8s cluster nodepool
-      k8s_nodepools:
+      ionoscloudsdk.ionoscloud.k8s_nodepools:
         cluster_name: "{{ name }}"
         k8s_cluster_id: "{{k8s.id}}"
         nodepool_id: "{{nodepool.id}}"

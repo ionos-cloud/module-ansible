@@ -4,7 +4,7 @@
 
 ```yaml
     - name: Create a nic flowlog
-      nic_flowlog:
+      ionoscloudsdk.ionoscloud.nic_flowlog:
         name: "{{ name }}"
         action: "ACCEPTED"
         direction: "INGRESS"
@@ -15,7 +15,7 @@
       register: flowlog_response
 
     - name: Update a nic flowlog
-      nic_flowlog:
+      ionoscloudsdk.ionoscloud.nic_flowlog:
         name: "{{ name }}"
         action: "ALL"
         direction: "INGRESS"
@@ -27,7 +27,7 @@
       register: flowlog_update_response
 
     - name: Delete a nic flowlog
-      nic_flowlog:
+      ionoscloudsdk.ionoscloud.nic_flowlog:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         server_id: "{{ server_response.machines[0].id }}"
         nic_id: "{{ nic_response.nic.id }}"

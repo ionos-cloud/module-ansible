@@ -4,7 +4,7 @@
 
 ```yaml
     - name: Create NAT Gateway Flowlog
-      nat_gateway_flowlog:
+      ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
         name: "{{ name }}"
         action: "ACCEPTED"
         direction: "INGRESS"
@@ -15,7 +15,7 @@
       register: nat_gateway_flowlog_response
 
     - name: Update NAT Gateway Flowlog
-      nat_gateway_flowlog:
+      ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
         flowlog_id: "{{ nat_gateway_flowlog_response.flowlog.id }}"
@@ -28,7 +28,7 @@
       register: nat_gateway_flowlog_update_response
 
     - name: Delete NAT Gateway Flowlog
-      nat_gateway_flowlog:
+      ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
         flowlog_id: "{{ nat_gateway_flowlog_response.flowlog.id }}"
