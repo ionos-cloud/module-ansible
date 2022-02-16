@@ -7,7 +7,7 @@
 
   tasks:
     - name: Create datacenter
-      ionoscloudsdk.ionoscloud.datacenter:
+      datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: de/fra
@@ -18,7 +18,7 @@
         msg: "{{ datacenter_response }}"
 
     - name: Update datacenter
-      ionoscloudsdk.ionoscloud.datacenter:
+      datacenter:
         id: "{{ datacenter_response.datacenter.id }}"
         name: "{{ datacenter }}"
         description: "{{ description }} - RENAMED"
@@ -30,7 +30,7 @@
         msg: "{{ updated_datacenter }}"
 
     - name: Remove datacenter
-      ionoscloudsdk.ionoscloud.datacenter:
+      datacenter:
         id: "{{ datacenter_response.datacenter.id }}"
         name: "{{ datacenter }}"
         state: absent
@@ -38,7 +38,7 @@
       register: deleted_datacenter
 
     - name: Remove datacenter
-      ionoscloudsdk.ionoscloud.datacenter:
+      datacenter:
         id: "{{ datacenter_response.datacenter.id }}"
         name: "{{ datacenter }}"
         state: absent
