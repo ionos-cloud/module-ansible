@@ -360,8 +360,8 @@ def get_module_arguments():
       arguments[option_name] = {
         'type': option['type'],
       }
-      for key in ['choices', 'default', 'aliases', 'no_log']:
-        if option.get(key):
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
           arguments[option_name][key] = option.get(key)
 
       if option.get('env_fallback'):
@@ -404,7 +404,7 @@ def main():
 
             for option_name, option in OPTIONS.items():
                 if 'absent' in option.get('required', []) and not module.params.get(option_name):
-                    module.fail_json(msg='% parameter is required for deleting a virtual datacenterr'.format(option_name))
+                    module.fail_json(msg='% parameter is required for deleting a virtual datacenter'.format(option_name))
 
             try:
                 (result) = remove_datacenter(module, api_client)

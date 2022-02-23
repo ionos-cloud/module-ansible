@@ -275,8 +275,8 @@ def get_module_arguments():
       arguments[option_name] = {
         'type': option['type'],
       }
-      for key in ['choices', 'default', 'aliases', 'no_log']:
-        if option.get(key):
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
           arguments[option_name][key] = option.get(key)
 
       if option.get('env_fallback'):

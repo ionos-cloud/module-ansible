@@ -35,6 +35,7 @@ def generate_module_docs(module_name):
             target_file.write(chevron.render(
                 template_file,
                 {
+                    'module_name': module_name,
                     'description': ''.join(yaml.safe_load(module.DOCUMENTATION)['description']),
                     'example': module.EXAMPLES,
                     'states': parameters,
@@ -46,6 +47,7 @@ def generate_module_docs(module_name):
 modules_to_generate = [
   'datacenter',
   'backupunit',
+  'server',
 ]
 
 for module_name in modules_to_generate:
