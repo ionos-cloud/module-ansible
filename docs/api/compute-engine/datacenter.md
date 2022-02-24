@@ -2,16 +2,16 @@
 
 ## Example Syntax
 
-```text
+```yaml
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: de/fra
       register: datacenter_response
 
     - name: Update datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         id: "{{ datacenter_response.datacenter.id }}"
         name: "{{ datacenter }}"
         description: "{{ description }} - RENAMED"
@@ -23,7 +23,7 @@
         msg: "{{ updated_datacenter }}"
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         id: "{{ datacenter_response.datacenter.id }}"
         name: "{{ datacenter }}"
         state: absent

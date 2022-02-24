@@ -4,7 +4,7 @@
 
 ```text
     - name: Create private NIC
-      nic:
+      ionoscloudsdk.ionoscloud.nic:
           datacenter: Example
           server: "{{ item.id }}"
           lan: 2
@@ -13,7 +13,7 @@
       with_items: "{{ ionos.machines }}"
 
     - name: Update NIC
-      nic:
+      ionoscloudsdk.ionoscloud.nic:
         datacenter: Example
         server: "{{ item.id }}"
         name: 7341c2454f

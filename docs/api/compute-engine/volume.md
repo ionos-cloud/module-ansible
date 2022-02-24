@@ -4,7 +4,7 @@
 
 ```text
     - name: Create volumes
-      volume:
+      ionoscloudsdk.ionoscloud.volume:
         datacenter: "{{ datacenter }}"
         name: "{{ name }} %02d"
         count: 2
@@ -22,7 +22,7 @@
         state: present
 
     - name: Update volumes
-      volume:
+      ionoscloudsdk.ionoscloud.volume:
         datacenter: "{{ datacenter }}"
         instance_ids:
           - "{{ name }} 01"
@@ -39,7 +39,7 @@
         state: update
 
     - name: Delete volumes
-      volume:
+      ionoscloudsdk.ionoscloud.volume:
         datacenter: "{{ datacenter }}"
         instance_ids:
           - "{{ name }} 01"

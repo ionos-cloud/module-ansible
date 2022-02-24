@@ -1,4 +1,4 @@
-
+[![Ansible Galaxy](https://img.shields.io/badge/galaxy-ionoscloudsdk.ionoscloud-660198.svg?style=flat)](https://galaxy.ansible.com/ionoscloudsdk/ionoscloud)
 [![Gitter](https://img.shields.io/gitter/room/ionos-cloud/sdk-general)](https://gitter.im/ionos-cloud/sdk-general)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ansible-module&metric=alert_status)](https://sonarcloud.io/dashboard?id=ansible-module)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ansible-module&metric=bugs)](https://sonarcloud.io/dashboard?id=ansible-module)
@@ -39,7 +39,17 @@ The IONOS module requires the IONOS SDK for Python to be installed. This can eas
 pip install ionoscloud
 ```
 
-### Installation
+# Installation
+
+## I. Using Ansible galaxy _(recommended)_
+
+  Run the following command:
+
+  ```bash
+  ansible-galaxy collection install ionoscloudsdk.ionoscloud
+  ```
+
+## II. Downloading the module from GitHub
 
 1. The IONOS module for Ansible must first be downloaded from GitHub. This can be accomplished a few different ways such as downloading and extracting the archive using `curl` or cloning the GitHub repository locally.
 
