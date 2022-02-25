@@ -50,7 +50,7 @@
 
 The following parameters are supported:
 
-| Name | Required | Type | Default |  | Description |
+| Name | Required | Type | Default | Description |
 | :--- | :---: | :--- | :--- | :--- |
 | nodepool\_name | **yes**/no | string |  | The name of the nodepool. Required only for state = 'present'. Using with state = 'update' renames the nodepool. |
 | nodepool\_id | **yes**/no | string |  | The ID of the nodepool. Required for state = 'update' or state = 'absent'. |
