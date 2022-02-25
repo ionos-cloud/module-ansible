@@ -373,7 +373,7 @@ def get_module_arguments():
     return arguments
 
 
-def get_sdk_config(module):
+def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
@@ -387,7 +387,7 @@ def get_sdk_config(module):
         conf['host'] = api_url
         conf['server_index'] = None
 
-    return ionoscloud.Configuration(**conf)
+    return sdk.Configuration(**conf)
 
 def main():
     module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
@@ -396,7 +396,7 @@ def main():
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
     state = module.params.get('state')
-    with ApiClient(get_sdk_config(module)) as api_client:
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
         api_client.user_agent = USER_AGENT
         if state == 'absent':
             if not module.params.get('name') and not module.params.get('id'):
