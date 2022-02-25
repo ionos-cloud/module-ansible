@@ -1,6 +1,6 @@
 # postgres_cluster
 
-This is a simple module that supports listing existing Postgres Clusters
+This is a module that supports creating, updating, restoring or destroying Postgres Clusters
 
 ## Example Syntax
 

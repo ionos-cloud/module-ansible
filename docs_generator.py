@@ -60,6 +60,7 @@ def generate_module_docs(module_name):
     return module.DOC_DIRECTORY, target_filename
 
 modules_to_generate = [
+    # 'cube_template', commented it before we change it to a regular info module
     'datacenter',
     'backupunit',
     'server',
