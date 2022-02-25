@@ -24,8 +24,8 @@ jobs:
     env:
         python-version: 3.8.0
         ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
-        IONOS_USERNAME: ${{ secrets.IONOS_VDC_USER }}
-        IONOS_PASSWORD: ${{ secrets.IONOS_VDC_PASSWORD }}
+        IONOS_USERNAME: ${{ secrets.IONOS_USER_V5 }}
+        IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V5 }}
 
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
