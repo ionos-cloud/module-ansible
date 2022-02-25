@@ -63,7 +63,7 @@ The following parameters are supported:
 | availability\_zone | **yes**/no | string |  | The availability zone in which the server should exist. Required only for state = 'present'. Ignored when using with state = 'update'. |
 | storage\_type | **yes**/no | string |  | Hardware type of the volume. Required only for state = 'present'. Ignored when using with state = 'update'. |
 | storage\_size | **yes**/no | string |  | The size of the volume in GB. The size should be greater than 10GB. Required only for state = 'present'. Ignored when using with state = 'update'. |
-| maintenance\_window | no | dict |  | The day and time for the maintenance. Contains 'dayOfTheWeek' and 'time'. Using with state = 'update' changes the value. |
+| maintenance\_window | no | dict |  | The day and time for the maintenance. Contains 'day_of_the_week' and 'time'. Using with state = 'update' changes the value. |
 | auto\_scaling | no | dict |  | The minimum and maximum number of worker nodes that the managed node group can scale in. Contains 'min\_node\_count' and 'max\_node\_count'. Allowed only with state = 'present'. When using with state = 'update' an error is occurred. |
 | lan\_ids | no | list |  | Array of additional LANs attached to worker nodes |
 | labels | no | dict |  | Map of labels attached to node pool. Ignored with state = 'update' |
