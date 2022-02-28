@@ -39,6 +39,7 @@ ANSIBLE_METADATA = {
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['running', 'stopped', 'resume', 'suspend', 'absent', 'present', 'update']
+OBJECT_NAME = 'Server'
 
 AVAILABILITY_ZONES = [
     'AUTO',
@@ -72,7 +73,7 @@ OPTIONS = {
         'description': ['The image alias or ID for creating the virtual machine.'],
         'required': ['present'],
         'available': ['present'],
-        'type': 'bool',
+        'type': 'str',
     },
     'image_password': {
         'description': ['Password set for the administrative user.'],
@@ -107,7 +108,7 @@ OPTIONS = {
         'default': 2,
         'type': 'int',
     },
-    'cores': {
+    'ram': {
         'description': ['The amount of memory to allocate to the virtual machine.'],
         'available': ['present', 'update'],
         'default': 2048,
@@ -1013,6 +1014,19 @@ def get_sdk_config(module):
 
     return ionoscloud.Configuration(**conf)
 
+
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
+
+
 def main():
     module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
     if not HAS_SDK:
@@ -1025,71 +1039,26 @@ def main():
         module.fail_json(msg='lan should either be a string or a number')
 
     state = module.params.get('state')
+    check_required_arguments(module, state, OBJECT_NAME)
 
     with ApiClient(get_sdk_config(module)) as api_client:
         api_client.user_agent = USER_AGENT
 
-        if state == 'absent':
-            for option_name, option in OPTIONS.items():
-                if 'absent' in option.get('required', []) and not module.params.get(option_name):
-                    module.fail_json(msg='% parameter is required for deleting machines'.format(option_name))
-
-            try:
-                (result) = remove_virtual_machine(module, api_client)
-                module.exit_json(**result)
-            except Exception as e:
-                module.fail_json(msg='failed to set instance state: %s' % to_native(e),exception=traceback.format_exc())
-
-        elif state in ('running', 'stopped'):
-            for option_name, option in OPTIONS.items():
-                if (
-                    ('running' in option.get('required', []) or 'running' in option.get('stopped', [])) 
-                    and not module.params.get(option_name)
-                ):
-                    module.fail_json(msg='% parameter is required for running or stopping machines'.format(option_name))
-            try:
-                (result) = startstop_machine(module, api_client, state)
-                module.exit_json(**result)
-            except Exception as e:
-                module.fail_json(msg='failed to set instance state: %s' % to_native(e), exception=traceback.format_exc())
-
-        elif state in ('resume', 'suspend'):
-            for option_name, option in OPTIONS.items():
-                if (
-                    ('resume' in option.get('required', []) or 'suspend' in option.get('stopped', [])) 
-                    and not module.params.get(option_name)
-                ):
-                    module.fail_json(msg='% parameter is required for resuming or suspending machines'.format(option_name))
-            try:
-                (result) = resume_suspend_machine(module, api_client, state)
-                module.exit_json(**result)
-            except Exception as e:
-                module.fail_json(msg='failed to set instance state: %s' % to_native(e), exception=traceback.format_exc())
-
-        elif state == 'present':
-            for option_name, option in OPTIONS.items():
-                if 'present' in option.get('required', []) and not module.params.get(option_name):
-                    module.fail_json(msg='% parameter is required for creating machines'.format(option_name))
-
-            if module.check_mode:
-                module.exit_json(changed=True)
-
-            try:
-                (machine_dict_array) = create_virtual_machine(module, api_client)
-                module.exit_json(**machine_dict_array)
-            except Exception as e:
-                module.fail_json(msg='failed to set instance state: %s' % to_native(e), exception=traceback.format_exc())
-
-        elif state == 'update':
-            for option_name, option in OPTIONS.items():
-                if 'update' in option.get('required', []) and not module.params.get(option_name):
-                    module.fail_json(msg='% parameter is required for updating machines'.format(option_name))
-            try:
-                (machine_dict_array) = update_server(module, api_client)
-                module.exit_json(**machine_dict_array)
-            except Exception as e:
-                module.fail_json(msg='failed to update server: %s' % to_native(e), exception=traceback.format_exc())
-
+        try:
+            if state == 'absent':
+                module.exit_json(**remove_virtual_machine(module, api_client))
+            elif state in ('running', 'stopped'):
+                module.exit_json(**startstop_machine(module, api_client, state))
+            elif state in ('resume', 'suspend'):
+                module.exit_json(**resume_suspend_machine(module, api_client, state))
+            elif state == 'present':
+                if module.check_mode:
+                    module.exit_json(changed=True)
+                module.exit_json(**create_virtual_machine(module, api_client))
+            elif state == 'update':
+                module.exit_json(**update_server(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
 
 if __name__ == '__main__':
     main()
