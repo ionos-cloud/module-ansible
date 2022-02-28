@@ -63,8 +63,9 @@ modules_to_generate = [
     # 'cube_template', commented it before we change it to a regular info module
     'datacenter',
     'firewall_rule',
-    'backupunit',
+    'image',
     'server',
+    'backupunit',
     'postgres_cluster',
     'postgres_backup_info',
     'postgres_cluster_info',
