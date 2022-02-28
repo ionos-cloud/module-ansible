@@ -64,6 +64,7 @@ modules_to_generate = [
     'datacenter',
     'firewall_rule',
     'image',
+    'ipblock',
     'server',
     'backupunit',
     'postgres_cluster',
