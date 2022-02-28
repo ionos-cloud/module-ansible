@@ -17,7 +17,7 @@
 * Compute Engine
     * [Cube template](api/compute-engine/cube_template.md)
     * [Datacenter](api/compute-engine/datacenter.md)
-    * [Firewall rule](api/compute-engine/firewallrule.md)
+    * [Firewall rule](api/compute-engine/firewall_rule.md)
     * [Image](api/compute-engine/image.md)
     * [IpBlock](api/compute-engine/ipblock.md)
     * [Lan](api/compute-engine/lan.md)
