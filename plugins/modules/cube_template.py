@@ -30,6 +30,7 @@ ANSIBLE_METADATA = {
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present']
+OBJECT_NAME = 'CUBE template'
 
 OPTIONS = {
     'template_id': {
@@ -187,6 +188,18 @@ def get_sdk_config(module, sdk):
     return sdk.Configuration(**conf)
 
 
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
+
+
 def main():
     module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
@@ -195,15 +208,11 @@ def main():
 
     with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
         api_client.user_agent = USER_AGENT
-
-        for option_name, option in OPTIONS.items():
-            if 'present' in option.get('required', []) and not module.params.get(option_name):
-                module.fail_json(msg='% parameter is required for retrieving Cube templates'.format(option_name))
+        check_required_arguments(module, 'present', OBJECT_NAME)
         try:
-            (template_dict_array) = get_template(module, api_client)
-            module.exit_json(**template_dict_array)
+            module.exit_json(**get_template(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to get template: %s' % to_native(e))
+            module.fail_json(msg='failed to set {object_name} state: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
 
 
 if __name__ == '__main__':

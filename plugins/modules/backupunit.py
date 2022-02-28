@@ -23,6 +23,7 @@ ANSIBLE_METADATA = {
 
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 DOC_DIRECTORY = 'managed-backup'
+OBJECT_NAME = 'Backup Unit'
 STATES = ['present', 'absent', 'update']
 
 OPTIONS = {
@@ -288,7 +289,7 @@ def get_module_arguments():
     return arguments
 
 
-def get_sdk_config(module):
+def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
@@ -302,7 +303,19 @@ def get_sdk_config(module):
         conf['host'] = api_url
         conf['server_index'] = None
 
-    return ionoscloud.Configuration(**conf)
+    return sdk.Configuration(**conf)
+
+
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
 
 
 def main():
@@ -312,43 +325,19 @@ def main():
 
     state = module.params.get('state')
 
-    with ApiClient(get_sdk_config(module)) as api_client:
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
         api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
 
-        if state == 'present':
-            for option_name, option in OPTIONS.items():
-                if 'present' in option.get('required', []) and not module.params.get(option_name):
-                    module.fail_json(msg='% parameter is required for a new Backup Unit'.format(option_name))
-
-            try:
-                (backupunit_dict_array) = create_backupunit(module, api_client)
-                module.exit_json(**backupunit_dict_array)
-
-            except Exception as e:
-                module.fail_json(msg='failed to set Backup Unit state: %s' % to_native(e))
-
-        elif state == 'absent':
-            for option_name, option in OPTIONS.items():
-                if 'present' in option.get('required', []) and not module.params.get(option_name):
-                    module.fail_json(msg='% parameter is required for a new Backup Unit'.format(option_name))
-
-            try:
-                (result) = delete_backupunit(module, api_client)
-                module.exit_json(**result)
-            except Exception as e:
-                module.fail_json(msg='failed to set Backup Unit state: %s' % to_native(e))
-
-        elif state == 'update':
-            for option_name, option in OPTIONS.items():
-                if 'present' in option.get('required', []) and not module.params.get(option_name):
-                    module.fail_json(msg='% parameter is required for a new Backup Unit'.format(option_name))
-
-            try:
-                (backupunit_dict_array) = update_backupunit(module, api_client)
-                module.exit_json(**backupunit_dict_array)
-            except Exception as e:
-                module.fail_json(msg='failed to set Backup Unit state: %s' % to_native(e))
-
+        try:
+            if state == 'present':
+                module.exit_json(**create_backupunit(module, api_client))
+            elif state == 'absent':
+                module.exit_json(**delete_backupunit(module, api_client))
+            elif state == 'update':
+                module.exit_json(**update_backupunit(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
 
 if __name__ == '__main__':
     main()

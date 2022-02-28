@@ -24,9 +24,9 @@ ANSIBLE_METADATA = {
 
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, ionoscloud.__version__)
 DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, ionoscloud_dbaas_postgres.__version__)
-
 DOC_DIRECTORY = 'dbaas-postgres'
 STATES = ['present', 'absent', 'update']
+OBJECT_NAME = 'Postgres Cluster'
 
 OPTIONS = {
     'maintenance_window': {
@@ -510,9 +510,19 @@ def get_sdk_config(module, sdk):
     return sdk.Configuration(**conf)
 
 
-def main():
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
 
-    print(get_module_arguments())
+
+def main():
     module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
     if not HAS_SDK:
@@ -526,54 +536,19 @@ def main():
 
     state = module.params.get('state')
 
-    if state == 'present':
-        for option_name, option in OPTIONS.items():
-            if 'present' in option.get('required', []) and not module.params.get(option_name):
-                module.fail_json(msg='% parameter is required for a new Postgres cluster'.format(option_name))
+    check_required_arguments(module, state, OBJECT_NAME)
 
-        try:
-            (postgres_cluster_dict_array) = create_postgres_cluster(
-                module,
-                dbaas_client=dbaas_postgres_api_client,
-                cloudapi_client=cloudapi_api_client
-            )
-            module.exit_json(**postgres_cluster_dict_array)
-
-        except Exception as e:
-            module.fail_json(msg='failed to set user state: %s' % to_native(e))
-
-    elif state == 'absent':
-        for option_name, option in OPTIONS.items():
-            if 'absent' in option.get('required', []) and not module.params.get(option_name):
-                module.fail_json(msg='% parameter is required for deleting a Postgres cluster'.format(option_name))
-
-        try:
-            (result) = delete_postgres_cluster(module, dbaas_postgres_api_client)
-            module.exit_json(**result)
-        except Exception as e:
-            module.fail_json(msg='failed to set Postgres cluster state: %s' % to_native(e))
-
-    elif state == 'update':
-        for option_name, option in OPTIONS.items():
-            if 'update' in option.get('required', []) and not module.params.get(option_name):
-                module.fail_json(msg='% parameter is required for updating a Postgres cluster'.format(option_name))
-
-        try:
-            (postgres_cluster_dict_array) = update_postgres_cluster(module, dbaas_postgres_api_client)
-            module.exit_json(**postgres_cluster_dict_array)
-        except Exception as e:
-            module.fail_json(msg='failed to set Postgres cluster state: %s' % to_native(e))
-
-    elif state == 'restore':
-        for option_name, option in OPTIONS.items():
-            if 'restore' in option.get('required', []) and not module.params.get(option_name):
-                module.fail_json(msg='% parameter is required for restoring a Postgres cluster'.format(option_name))
-
-        try:
-            (postgres_cluster_dict_array) = restore_postgres_cluster(module, dbaas_postgres_api_client)
-            module.exit_json(**postgres_cluster_dict_array)
-        except Exception as e:
-            module.fail_json(msg='failed to set Postgres cluster state: %s' % to_native(e))
+    try:
+        if state == 'present':
+            module.exit_json(**create_postgres_cluster(module, dbaas_client=dbaas_postgres_api_client, cloudapi_client=cloudapi_api_client))
+        elif state == 'absent':
+            module.exit_json(**delete_postgres_cluster(module, dbaas_postgres_api_client))
+        elif state == 'update':
+            module.exit_json(**update_postgres_cluster(module, dbaas_postgres_api_client))
+        elif state == 'restore':
+            module.exit_json(**restore_postgres_cluster(module, dbaas_postgres_api_client))
+    except Exception as e:
+        module.fail_json(msg='failed to set {object_name} state: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
 
 
 if __name__ == '__main__':

@@ -32,12 +32,13 @@ ANSIBLE_METADATA = {
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update']
+OBJECT_NAME = 'Datacenter'
 
 OPTIONS = {
     'name': {
         'description': ['The name of the virtual datacenter.'],
         'required': ['present'],
-        'available': ['present', 'update', 'absent'],
+        'available': STATES,
         'type': 'str',
     },
     'id': {
@@ -389,6 +390,19 @@ def get_sdk_config(module, sdk):
 
     return sdk.Configuration(**conf)
 
+
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
+
+
 def main():
     module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
@@ -398,43 +412,23 @@ def main():
     state = module.params.get('state')
     with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
         api_client.user_agent = USER_AGENT
-        if state == 'absent':
+        check_required_arguments(module, state, OBJECT_NAME)
+
+        if state in ['absent', 'update']:
             if not module.params.get('name') and not module.params.get('id'):
                 module.fail_json(msg='name parameter or id parameter are required for deleting a virtual datacenter.')
 
-            for option_name, option in OPTIONS.items():
-                if 'absent' in option.get('required', []) and not module.params.get(option_name):
-                    module.fail_json(msg='% parameter is required for deleting a virtual datacenter'.format(option_name))
-
-            try:
-                (result) = remove_datacenter(module, api_client)
-                module.exit_json(**result)
-            except Exception as e:
-                module.fail_json(msg='failed to set datacenter state: %s' % to_native(e))
-
-        elif state == 'present':
-            for option_name, option in OPTIONS.items():
-                if 'present' in option.get('required', []) and not module.params.get(option_name):
-                    module.fail_json(msg='% parameter is required for a new datacenter'.format(option_name))
-
-            if module.check_mode:
-                module.exit_json(changed=True)
-
-            try:
-                (datacenter_dict_array) = create_datacenter(module, api_client)
-                module.exit_json(**datacenter_dict_array)
-            except Exception as e:
-                module.fail_json(msg='failed to set datacenter state: %s' % to_native(e))
-
-        elif state == 'update':
-            for option_name, option in OPTIONS.items():
-                if 'update' in option.get('required', []) and not module.params.get(option_name):
-                    module.fail_json(msg='% parameter is required for updateing a datacenter'.format(option_name))
-            try:
-                (datacenter_dict_array) = update_datacenter(module, api_client)
-                module.exit_json(**datacenter_dict_array)
-            except Exception as e:
-                module.fail_json(msg='failed to update datacenter: %s' % to_native(e))
+        try:
+            if state == 'absent':
+                module.exit_json(**remove_datacenter(module, api_client))
+            elif state == 'present':
+                if module.check_mode:
+                    module.exit_json(changed=True)
+                module.exit_json(**create_datacenter(module, api_client))
+            elif state == 'update':
+                module.exit_json(**update_datacenter(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
 
 
 if __name__ == '__main__':

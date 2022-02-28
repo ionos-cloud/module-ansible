@@ -22,6 +22,7 @@ ANSIBLE_METADATA = {
 DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, ionoscloud_dbaas_postgres.__version__)
 DOC_DIRECTORY = 'dbaas-postgres'
 STATES = ['info']
+OBJECT_NAME = 'Postgres Clusters'
 
 OPTIONS = {
     'api_url': {
@@ -121,6 +122,18 @@ def get_sdk_config(module, sdk):
 
     return sdk.Configuration(**conf)
 
+
+def check_required_arguments(module, object_name):
+    for option_name, option in OPTIONS.items():
+        if 'info' in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for retrieving {object_name}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                ),
+            )
+
+
 def main():
     module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
@@ -130,16 +143,14 @@ def main():
     dbaas_postgres_api_client = ionoscloud_dbaas_postgres.ApiClient(get_sdk_config(module, ionoscloud_dbaas_postgres))
     dbaas_postgres_api_client.user_agent = DBAAS_POSTGRES_USER_AGENT
 
-    for option_name, option in OPTIONS.items():
-        if 'info' in option.get('required', []) and not module.params.get(option_name):
-            module.fail_json(msg='% parameter is required for retrieving Postgres Clusters'.format(option_name))
+    check_required_arguments(module, OBJECT_NAME)
     try:
         results = []
         for cluster in ionoscloud_dbaas_postgres.ClustersApi(dbaas_postgres_api_client).clusters_get().items:
             results.append(cluster.to_dict())
         module.exit_json(result=results)
     except Exception as e:
-            module.fail_json(msg='failed to retrieve Postgres Clusters: %s' % to_native(e))
+        module.fail_json(msg='failed to retrieve {object_name}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
 
 if __name__ == '__main__':
     main()
