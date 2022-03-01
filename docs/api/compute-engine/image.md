@@ -1,6 +1,6 @@
 # image
 
-This is a simple module that supports updating or removing Images. This module has a dependency on ionos-cloud &gt;= 1.0.0
+This is a simple module that supports updating or removing Images. This module has a dependency on ionos-cloud &gt;= 6.0.0
 
 ## Example Syntax
 

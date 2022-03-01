@@ -218,12 +218,13 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | name | True | str |  | The name of the virtual machine. |
   | auto_increment | False | bool | True | Whether or not to increment a single number in the name for created virtual machines. |
   | assign_public_ip | False | bool | False | This will assign the machine to the public LAN. If no LAN exists with public Internet access it is created. |
-  | image | True | bool |  | The image alias or ID for creating the virtual machine. |
+  | image | True | str |  | The image alias or ID for creating the virtual machine. |
   | image_password | False | str |  | Password set for the administrative user. |
   | ssh_keys | False | list |  | Public SSH keys allowing access to the virtual machine. |
   | volume_availability_zone | False | str |  | The storage availability zone assigned to the volume. |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | cores | False | int | 2048 | The amount of memory to allocate to the virtual machine. |
+  | cores | False | int | 2 | The number of CPU cores to allocate to the virtual machine. |
+  | ram | False | int | 2048 | The amount of memory to allocate to the virtual machine. |
   | cpu_family | False | str | AMD_OPTERON | The amount of memory to allocate to the virtual machine. |
   | availability_zone | False | str | AUTO | The availability zone assigned to the server. |
   | volume_size | False | int | 10 | The size in GB of the boot volume. |
@@ -272,7 +273,8 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the virtual machine. |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | cores | False | int | 2048 | The amount of memory to allocate to the virtual machine. |
+  | cores | False | int | 2 | The number of CPU cores to allocate to the virtual machine. |
+  | ram | False | int | 2048 | The amount of memory to allocate to the virtual machine. |
   | boot_volume | False | str |  | The volume used for boot. |
   | boot_cdrom | False | str |  | The CDROM used for boot. |
   | api_url | False | str |  | The Ionos API base URL. |

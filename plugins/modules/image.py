@@ -164,7 +164,7 @@ DOCUMENTATION = '''
 module: image
 short_description: Update or destroy a Ionos Cloud Image.
 description:
-     - This is a simple module that supports updating or removing Images. This module has a dependency on ionos-cloud >= 1.0.0
+     - This is a simple module that supports updating or removing Images. This module has a dependency on ionos-cloud >= 6.0.0
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
