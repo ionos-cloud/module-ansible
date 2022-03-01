@@ -373,9 +373,9 @@ def main():
 
         try:
             if state == 'absent':
-                module.exit_json(changed=delete_image(module, api_client))
+                module.exit_json(**delete_image(module, api_client))
             elif state == 'update':
-                module.exit_json(changed=update_image(module, api_client))
+                module.exit_json(**update_image(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
 

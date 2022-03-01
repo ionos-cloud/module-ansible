@@ -67,6 +67,7 @@ modules_to_generate = [
     'ipblock',
     'lan',
     'nic_flowlog',
+    'nic',
     'server',
     'backupunit',
     'postgres_cluster',
