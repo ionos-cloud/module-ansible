@@ -4,151 +4,9 @@
 
 from __future__ import absolute_import, division, print_function
 
-__metaclass__ = type
-
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
-
-DOCUMENTATION = '''
----
-module: snapshot
-short_description: Create, restore, update or remove a snapshot.
-description:
-     - This module allows you to create or remove a snapshot.
-version_added: "2.4"
-options:
-  datacenter:
-    description:
-      - The datacenter in which the volumes reside.
-    required: true
-  volume:
-    description:
-      - The name or UUID of the volume.
-    required: true
-  name:
-    description:
-      - The name of the snapshot.
-    required: false
-  description:
-    description:
-      - The description of the snapshot.
-    required: false
-  cpu_hot_plug:
-    description:
-      - Boolean value indicating the volume is capable of CPU hot plug (no reboot required).
-    required: false
-    default: None
-  cpu_hot_unplug:
-    description:
-      - Boolean value indicating the volume is capable of CPU hot unplug (no reboot required).
-    required: false
-    default: None
-  ram_hot_plug:
-    description:
-      - Boolean value indicating the volume is capable of memory hot plug (no reboot required).
-    required: false
-    default: None
-  ram_hot_unplug:
-    description:
-      - Boolean value indicating the volume is capable of memory hot unplug (no reboot required).
-    required: false
-    default: None
-  nic_hot_plug:
-    description:
-      - Boolean value indicating the volume is capable of NIC hot plug (no reboot required).
-    required: false
-    default: None
-  nic_hot_unplug:
-    description:
-      - Boolean value indicating the volume is capable of NIC hot unplug (no reboot required).
-    required: false
-    default: None
-  disc_virtio_hot_plug:
-    description:
-      - Boolean value indicating the volume is capable of VirtIO drive hot plug (no reboot required).
-    required: false
-    default: None
-  disc_virtio_hot_unplug:
-    description:
-      - Boolean value indicating the volume is capable of VirtIO drive hot unplug (no reboot required).
-    required: false
-    default: None
-  disc_scsi_hot_plug:
-    description:
-      - Boolean value indicating the volume is capable of SCSI drive hot plug (no reboot required).
-    required: false
-    default: None
-  disc_scsi_hot_unplug:
-    description:
-      - Boolean value indicating the volume is capable of SCSI drive hot unplug (no reboot required).
-    required: false
-    default: None
-  api_url:
-    description:
-      - The Ionos API base URL.
-    required: false
-    default: null
-  username:
-    description:
-      - The Ionos username. Overrides the IONOS_USERNAME environment variable.
-    required: false
-    aliases: subscription_user
-  password:
-    description:
-      - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
-    required: false
-    aliases: subscription_password
-  wait:
-    description:
-      - wait for the operation to complete before returning
-    required: false
-    default: "yes"
-    choices: [ "yes", "no" ]
-  wait_timeout:
-    description:
-      - how long before wait gives up, in seconds
-    default: 600
-  state:
-    description:
-      - Indicate desired state of the resource
-    required: false
-    default: "present"
-    choices: ["present", "absent", "restore", "update"]
-
-requirements:
-    - "python >= 2.6"
-    - "ionoscloud >= 5.0.0"
-author:
-    - Nurfet Becirevic (@nurfet-becirevic)
-    - Ethan Devenport (@edevenport)
-'''
-
-EXAMPLES = '''
-# Create a snapshot
-- name: Create snapshot
-  snapshot:
-    datacenter: production DC
-    volume: master
-    name: boot volume image
-    state: present
-
-# Restore a snapshot
-- name: Restore snapshot
-  snapshot:
-    datacenter: production DC
-    volume: slave
-    name: boot volume image
-    state: restore
-
-# Remove a snapshot
-- name: Remove snapshot
-  snapshot:
-    name: master-Snapshot-11/30/2017
-    state: absent
-'''
-
+import copy
 import re
+import yaml
 
 HAS_SDK = True
 
@@ -165,11 +23,202 @@ from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
-LICENCE_TYPES = ['LINUX',
-                 'WINDOWS',
-                 'UNKNOWN',
-                 'OTHER',
-                 'WINDOWS2016']
+__metaclass__ = type
+
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'compute-engine'
+STATES = ['present', 'absent', 'update', 'restore']
+OBJECT_NAME = 'Snapshot'
+
+LICENCE_TYPES = ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016']
+OPTIONS = {
+    'datacenter': {
+        'description': ['The datacenter in which the volumes reside.'],
+        'available': ['present', 'restore'],
+        'required': ['present', 'restore'],
+        'type': 'str',
+    },
+    'volume': {
+        'description': ['The name or UUID of the volume.'],
+        'available': ['present', 'restore'],
+        'required': ['present', 'restore'],
+        'type': 'str',
+    },
+    'name': {
+        'description': ['The name of the snapshot.'],
+        'available': STATES,
+        'required': ['restore', 'update', 'absent'],
+        'type': 'str',
+    },
+    'description': {
+        'description': ['The description of the snapshot.'],
+        'available': ['present'],
+        'type': 'str',
+    },
+    'licence_type': {
+        'description': ['The license type used'],
+        'choices': ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016'],
+        'available': ['update'],
+        'type': 'str',
+    },
+    'cpu_hot_plug': {
+        'description': ['Hot-plug capable CPU (no reboot required).'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'cpu_hot_unplug': {
+        'description': ['Hot-unplug capable CPU (no reboot required).'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'ram_hot_plug': {
+        'description': ['Hot-plug capable RAM (no reboot required)'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'ram_hot_unplug': {
+        'description': ['Hot-unplug capable RAM (no reboot required).'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'nic_hot_plug': {
+        'description': ['Hot-plug capable NIC (no reboot required).'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'nic_hot_unplug': {
+        'description': ['Hot-unplug capable NIC (no reboot required)'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'disc_scsi_hot_plug': {
+        'description': ['Hot-plug capable SCSI drive (no reboot required).'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'disc_scsi_hot_unplug': {
+        'description': ['Hot-unplug capable SCSI drive (no reboot required). Not supported with Windows VMs.'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'disc_virtio_hot_plug': {
+        'description': ['Hot-plug capable Virt-IO drive (no reboot required).'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'disc_virtio_hot_unplug': {
+        'description': ['Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows VMs.'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
+
+DOCUMENTATION = '''
+---
+module: snapshot
+short_description: Create, restore, update or remove a snapshot.
+description:
+     - This module allows you to create or remove a snapshot.
+version_added: "2.4"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 5.0.0"
+author:
+    - "Matt Baldwin (baldwin@stackpointcloud.com)"
+    - "Ethan Devenport (@edevenport)"
+'''
+
+EXAMPLE_PER_STATE = {
+  'present' : '''# Create a snapshot
+  - name: Create snapshot
+    snapshot:
+      datacenter: production DC
+      volume: master
+      name: boot volume image
+      state: present
+
+  ''',
+  'update' : '''# Update a snapshot
+  - name: Update snapshot
+    snapshot:
+      name: "boot volume image"
+      description: Ansible test snapshot - RENAME
+      state: update
+  ''',
+  'restore' : '''# Restore a snapshot
+  - name: Restore snapshot
+    snapshot:
+      datacenter: production DC
+      volume: slave
+      name: boot volume image
+      state: restore
+  ''',
+  'absent' : '''# Remove a snapshot
+  - name: Remove snapshot
+    snapshot:
+      name: master-Snapshot-11/30/2017
+      state: absent
+  ''',
+}
+
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
 def _get_request_id(headers):
@@ -464,55 +513,30 @@ def _get_resource(resource_list, identity):
     return None
 
 
-def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            datacenter=dict(type='str'),
-            volume=dict(type='str'),
-            name=dict(type='str', default=''),
-            description=dict(type='str', default=''),
-            licence_type=dict(type='str', choices=LICENCE_TYPES, default=None),
-            cpu_hot_plug=dict(type='bool', default=None),
-            cpu_hot_unplug=dict(type='bool', default=None),
-            ram_hot_plug=dict(type='bool', default=None),
-            ram_hot_unplug=dict(type='bool', default=None),
-            nic_hot_plug=dict(type='bool', default=None),
-            nic_hot_unplug=dict(type='bool', default=None),
-            disc_virtio_hot_plug=dict(type='bool', default=None),
-            disc_virtio_hot_unplug=dict(type='bool', default=None),
-            disc_scsi_hot_plug=dict(type='bool', default=None),
-            disc_scsi_hot_unplug=dict(type='bool', default=None),
-            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
+def get_module_arguments():
+    arguments = {}
 
-    if not HAS_SDK:
-        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
 
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-
-    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
-
-    state = module.params.get('state')
 
     conf = {
         'username': username,
@@ -523,49 +547,43 @@ def main():
         conf['host'] = api_url
         conf['server_index'] = None
 
-    configuration = ionoscloud.Configuration(**conf)
+    return sdk.Configuration(**conf)
 
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
 
-        if state == 'absent':
-            try:
-                (changed) = delete_snapshot(module, api_client)
-                module.exit_json(changed=changed)
-            except Exception as e:
-                module.fail_json(msg='failed to set snapshot state: %s' % to_native(e))
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
 
-        elif state == 'present':
-            if not module.params.get('datacenter'):
-                module.fail_json(msg='datacenter parameter is required')
-            if not module.params.get('volume'):
-                module.fail_json(msg='volume parameter is required')
 
-            try:
-                (snapshot_dict) = create_snapshot(module, api_client)
-                module.exit_json(**snapshot_dict)
-            except Exception as e:
-                module.fail_json(msg='failed to set snapshot state: %s' % to_native(e))
+def main():
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
-        elif state == 'restore':
-            if not module.params.get('datacenter'):
-                module.fail_json(msg='datacenter parameter is required')
-            if not module.params.get('volume'):
-                module.fail_json(msg='volume parameter is required')
+    if not HAS_SDK:
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
-            try:
-                (changed) = restore_snapshot(module, api_client)
-                module.exit_json(changed=changed)
-            except Exception as e:
-                module.fail_json(msg='failed to restore snapshot: %s' % to_native(e))
+    state = module.params.get('state')
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
 
-        elif state == 'update':
-            try:
-                (snapshot_dict) = update_snapshot(module, api_client)
-                module.exit_json(**snapshot_dict)
-            except Exception as e:
-                module.fail_json(msg='failed to update snapshot: %s' % to_native(e))
-
+        try:
+            if state == 'absent':
+                module.exit_json(**delete_snapshot(module, api_client))
+            elif state == 'present':
+                module.exit_json(**create_snapshot(module, api_client))
+            elif state == 'restore':
+                module.exit_json(**restore_snapshot(module, api_client))
+            elif state == 'update':
+                module.exit_json(**update_snapshot(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
 
 if __name__ == '__main__':
     main()

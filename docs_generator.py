@@ -70,6 +70,7 @@ modules_to_generate = [
     'nic',
     'pcc',
     'server',
+    'snapshot',
     'backupunit',
     'postgres_cluster',
     'postgres_backup_info',
