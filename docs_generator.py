@@ -71,6 +71,7 @@ modules_to_generate = [
     'pcc',
     'server',
     'snapshot',
+    'volume',
     'backupunit',
     'postgres_cluster',
     'postgres_backup_info',

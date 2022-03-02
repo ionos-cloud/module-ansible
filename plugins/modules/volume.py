@@ -3,164 +3,8 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
-
-__metaclass__ = type
-
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
-
-DOCUMENTATION = '''
----
-module: volume
-short_description: Create, update or destroy a volume.
-description:
-     - Allows you to create, update or remove a volume from a Ionos datacenter.
-version_added: "2.0"
-options:
-  datacenter:
-    description:
-      - The datacenter in which to create the volumes.
-    required: true
-  name:
-    description:
-      - The name of the volumes. You can enumerate the names using auto_increment.
-    required: true
-  size:
-    description:
-      - The size of the volume.
-    required: false
-    default: 10
-  bus:
-    description:
-      - The bus type.
-    required: false
-    default: VIRTIO
-    choices: [ "IDE", "VIRTIO"]
-  image:
-    description:
-      - The image alias or ID for the volume. This can also be a snapshot image ID.
-    required: true
-  image_password:
-    description:
-      - Password set for the administrative user.
-    required: false
-    version_added: "2.2"
-  ssh_keys:
-    description:
-      - Public SSH keys allowing access to the virtual machine.
-    required: false
-    version_added: "2.2"
-  disk_type:
-    description:
-      - The disk type of the volume.
-    required: false
-    default: HDD
-    choices: [ "HDD", "SSD" ]
-  licence_type:
-    description:
-      - The licence type for the volume. This is used when the image is non-standard.
-    required: false
-    default: UNKNOWN
-    choices: ["LINUX", "WINDOWS", "UNKNOWN" , "OTHER", "WINDOWS2016"]
-  availability_zone:
-    description:
-      - The storage availability zone assigned to the volume.
-    required: false
-    default: None
-    choices: [ "AUTO", "ZONE_1", "ZONE_2", "ZONE_3" ]
-    version_added: "2.3"
-  count:
-    description:
-      - The number of volumes you wish to create.
-    required: false
-    default: 1
-  auto_increment:
-    description:
-      - Whether or not to increment a single number in the name for created virtual machines.
-    default: yes
-    choices: ["yes", "no"]
-  instance_ids:
-    description:
-      - list of instance ids, currently only used when state='absent' to remove instances.
-    required: false
-  api_url:
-    description:
-      - The Ionos API base URL.
-    required: false
-    default: null
-    version_added: "2.4"
-  username:
-    description:
-      - The Ionos username. Overrides the IONOS_USERNAME environment variable.
-    required: false
-    aliases: subscription_user
-  password:
-    description:
-      - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
-    required: false
-    aliases: subscription_password
-  wait:
-    description:
-      - wait for the datacenter to be created before returning
-    required: false
-    default: "yes"
-    choices: [ "yes", "no" ]
-  wait_timeout:
-    description:
-      - how long before wait gives up, in seconds
-    default: 600
-  state:
-    description:
-      - Indicate desired state of the resource
-    required: false
-    default: "present"
-    choices: ["present", "absent", "update"]
-
-requirements:
-    - "python >= 2.6"
-    - "ionoscloud >= 5.0.0"
-author:
-    - "Matt Baldwin (baldwin@stackpointcloud.com)"
-    - "Ethan Devenport (@edevenport)"
-'''
-
-EXAMPLES = '''
-
-# Create Multiple Volumes
-
-- volume:
-    datacenter: Tardis One
-    name: vol%02d
-    count: 5
-    auto_increment: yes
-    wait_timeout: 500
-    state: present
-
-# Update Volumes
-
-- volume:
-    datacenter: Tardis One
-    instance_ids:
-      - 'vol01'
-      - 'vol02'
-    size: 50
-    bus: IDE
-    wait_timeout: 500
-    state: update
-
-# Remove Volumes
-
-- volume:
-    datacenter: Tardis One
-    instance_ids:
-      - 'vol01'
-      - 'vol02'
-    wait_timeout: 500
-    state: absent
-
-'''
-
+import copy
+import yaml
 import re
 import traceback
 
@@ -182,27 +26,261 @@ from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils.six.moves import xrange
 from ansible.module_utils._text import to_native
 
-DISK_TYPES = ['HDD',
-              'SSD',
-              'SSD Premium',
-              'SSD Standard']
 
-BUS_TYPES = ['VIRTIO',
-             'IDE']
+__metaclass__ = type
 
-AVAILABILITY_ZONES = ['AUTO',
-                      'ZONE_1',
-                      'ZONE_2',
-                      'ZONE_3']
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'compute-engine'
+STATES = ['present', 'absent', 'update']
+OBJECT_NAME = 'Volume'
 
-LICENCE_TYPES = ['LINUX',
-                 'WINDOWS',
-                 'UNKNOWN',
-                 'OTHER',
-                 'WINDOWS2016']
+OPTIONS = {
+    'datacenter': {
+        'description': ['The datacenter in which to create the volumes.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'server': {
+        'description': ['The server to which to attach the volume.'],
+        'available': ['present'],
+        'type': 'str',
+    },
+    'name': {
+        'description': ['The name of the volumes. You can enumerate the names using auto_increment.'],
+        'required': ['present'],
+        'available': STATES,
+        'type': 'str',
+    },
+    'size': {
+        'description': ['The size of the volume.'],
+        'available': ['update', 'present'],
+        'default': 10,
+        'type': 'int',
+    },
+    'bus': {
+        'description': ['The bus type.'],
+        'choices': ['VIRTIO', 'IDE'],
+        'default': 'VIRTIO',
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'image': {
+        'description': ['The image alias or ID for the volume. This can also be a snapshot image ID.'],
+        'available': ['present'],
+        'type': 'str',
+    },
+    'image_password': {
+        'description': ['Password set for the administrative user.'],
+        'available': ['present'],
+        'type': 'str',
+        'version_added': '2.2',
+    },
+    'ssh_keys': {
+        'description': ['Public SSH keys allowing access to the virtual machine.'],
+        'available': ['present'],
+        'type': 'list',
+        'default': [],
+        'version_added': '2.2',
+    },
+    'disk_type': {
+        'description': ['The disk type of the volume.'],
+        'choices': ['HDD', 'SSD', 'SSD Premium', 'SSD Standard'],
+        'default': 'HDD',
+        'available': ['present'],
+        'type': 'str',
+    },
+    'licence_type': {
+        'description': ['The licence type for the volume. This is used when the image is non-standard.'],
+        'choices': ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016'],
+        'default': 'UNKNOWN',
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'availability_zone': {
+        'description': ['The storage availability zone assigned to the volume.'],
+        'choices': ['AUTO', 'ZONE_1', 'ZONE_2', 'ZONE_3'],
+        'default': 'VIRTIO',
+        'available': ['present', 'update'],
+        'type': 'str',
+        'version_added': '2.3',
+    },
+    'count': {
+        'description': ['The number of volumes you wish to create.'],
+        'available': ['present'],
+        'default': 1,
+        'type': 'int',
+    },
+    'auto_increment': {
+        'description': ['Whether or not to increment a single number in the name for created virtual machines.'],
+        'available': ['present'],
+        'choices': [True, False],
+        'default': True,
+        'type': 'bool',
+    },
+    'instance_ids': {
+        'description': ["list of instance ids, currently only used when state='absent' to remove instances."],
+        'available': ['update', 'absent'],
+        'default': [],
+        'type': 'list',
+    },
+    'backupunit_id': {
+        'description': [
+            "The ID of the backup unit that the user has access to. The property is immutable and is only "
+            "allowed to be set on creation of a new a volume. It is mandatory to provide either 'public image' or 'imageAlias' "
+            "in conjunction with this property.",
+        ],
+        'available': ['present'],
+        'type': 'str',
+    },
+    'user_data': {
+        'description': [
+            "The cloud-init configuration for the volume as base64 encoded string. The property is immutable "
+            "and is only allowed to be set on creation of a new a volume. It is mandatory to provide either 'public image' "
+            "or 'imageAlias' that has cloud-init compatibility in conjunction with this property.",
+        ],
+        'available': ['present'],
+        'type': 'str',
+    },
+    'cpu_hot_plug': {
+        'description': ['Hot-plug capable CPU (no reboot required).'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
+    'ram_hot_plug': {
+        'description': ['Hot-plug capable RAM (no reboot required)'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
+    'nic_hot_plug': {
+        'description': ['Hot-plug capable NIC (no reboot required).'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
+    'nic_hot_unplug': {
+        'description': ['Hot-unplug capable NIC (no reboot required)'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
+    'disc_virtio_hot_plug': {
+        'description': ['Hot-plug capable Virt-IO drive (no reboot required).'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
+    'disc_virtio_hot_unplug': {
+        'description': ['Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows VMs.'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
 
-uuid_match = re.compile(
-    '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
+
+DOCUMENTATION = '''
+---
+module: volume
+short_description: Create, update or destroy a volume.
+description:
+     - Allows you to create, update or remove a volume from a Ionos datacenter.
+version_added: "2.0"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 5.0.0"
+author:
+    - "Matt Baldwin (baldwin@stackpointcloud.com)"
+    - "Ethan Devenport (@edevenport)"
+'''
+
+EXAMPLE_PER_STATE = {
+  'present' : '''# Create Multiple Volumes
+  - volume:
+    datacenter: Tardis One
+    name: vol%02d
+    count: 5
+    auto_increment: yes
+    wait_timeout: 500
+    state: present
+  ''',
+  'update' : '''# Update Volumes
+  - volume:
+      datacenter: Tardis One
+      instance_ids:
+        - 'vol01'
+        - 'vol02'
+      size: 50
+      bus: IDE
+      wait_timeout: 500
+      state: update
+  ''',
+  'absent' : '''# Remove Volumes
+  - volume:
+    datacenter: Tardis One
+    instance_ids:
+      - 'vol01'
+      - 'vol02'
+    wait_timeout: 500
+    state: absent
+  ''',
+}
+
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+
+uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
 def _get_request_id(headers):
@@ -571,60 +649,30 @@ def _get_resource(instance_list, identity):
     return None
 
 
-def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            datacenter=dict(type='str'),
-            server=dict(type='str'),
-            name=dict(type='str'),
-            size=dict(type='int', default=10),
-            image=dict(type='str'),
-            backupunit_id=dict(type='str'),
-            user_data=dict(type='str'),
-            image_password=dict(type='str', default=None, no_log=True),
-            ssh_keys=dict(type='list', default=[]),
-            cpu_hot_plug=dict(type='bool'),
-            ram_hot_plug=dict(type='bool'),
-            nic_hot_plug=dict(type='bool'),
-            nic_hot_unplug=dict(type='bool'),
-            disc_virtio_hot_plug=dict(type='bool'),
-            disc_virtio_hot_unplug=dict(type='bool'),
-            bus=dict(type='str', choices=BUS_TYPES, default='VIRTIO'),
-            disk_type=dict(type='str', choices=DISK_TYPES, default='HDD'),
-            licence_type=dict(type='str', choices=LICENCE_TYPES),
-            availability_zone=dict(type='str', choices=AVAILABILITY_ZONES, default=None),
-            count=dict(type='int', default=1),
-            auto_increment=dict(type='bool', default=True),
-            instance_ids=dict(type='list', default=[]),
-            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
+def get_module_arguments():
+    arguments = {}
 
-    if not HAS_SDK:
-        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
 
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-
-    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 
     conf = {
         'username': username,
@@ -635,41 +683,41 @@ def main():
         conf['host'] = api_url
         conf['server_index'] = None
 
-    configuration = ionoscloud.Configuration(**conf)
+    return sdk.Configuration(**conf)
+
+
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
+
+
+def main():
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+
+    if not HAS_SDK:
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
     state = module.params.get('state')
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
 
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
-
-        if state == 'absent':
-            if not module.params.get('datacenter'):
-                module.fail_json(msg='datacenter parameter is required for creating, updating or deleting volumes.')
-
-            try:
-                (result) = delete_volume(module, api_client)
-                module.exit_json(**result)
-            except Exception as e:
-                module.fail_json(msg='failed to set volume state: %s' % to_native(e))
-
-        elif state == 'present':
-            if not module.params.get('datacenter'):
-                module.fail_json(msg='datacenter parameter is required for new instance')
-            if not module.params.get('name'):
-                module.fail_json(msg='name parameter is required for new instance')
-
-            try:
-                (volume_dict_array) = create_volume(module, api_client)
-                module.exit_json(**volume_dict_array)
-            except Exception as e:
-                module.fail_json(msg='failed to set volume state: %s' % to_native(e))
-
-        elif state == 'update':
-            try:
-                (volume_dict_array) = update_volume(module, api_client)
-                module.exit_json(**volume_dict_array)
-            except Exception as e:
-                module.fail_json(msg='failed to update volume: %s' % to_native(e))
+        try:
+            if state == 'absent':
+                module.exit_json(**delete_volume(module, api_client))
+            elif state == 'present':
+                module.exit_json(**create_volume(module, api_client))
+            elif state == 'update':
+                module.exit_json(**update_volume(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
 
 
 if __name__ == '__main__':
