@@ -72,10 +72,11 @@ modules_to_generate = [
     'server',
     'snapshot',
     'volume',
-    'backupunit',
     'postgres_cluster',
     'postgres_backup_info',
     'postgres_cluster_info',
+    'backupunit',
+    'k8s_cluster',
 ]
 
 for module_name in modules_to_generate:
