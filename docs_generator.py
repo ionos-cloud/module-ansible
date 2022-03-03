@@ -77,6 +77,7 @@ modules_to_generate = [
     'postgres_cluster_info',
     'backupunit',
     'k8s_cluster',
+    'k8s_config',
 ]
 
 for module_name in modules_to_generate:
