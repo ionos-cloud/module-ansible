@@ -1,46 +1,11 @@
 import time
+import re
+import copy
+import yaml
 
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
-
-EXAMPLES = '''
-- name: Create k8s cluster nodepool
-  k8s_nodepools:
-    cluster_name: "{{ name }}"
-    k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-    datacenter_id: "4d495548-e330-434d-83a9-251bfa645875"
-    node_count: "1"
-    cpu_family: "AMD_OPTERON"
-    cores_count: "1"
-    ram_size: "2048"
-    availability_zone: "AUTO"
-    storage_type: "SSD"
-    storage_size: "100"
-
-- name: Delete k8s cluster nodepool
-  k8s_nodepools:
-    k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-    nodepool_id: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
-    state: absent
-
-- name: Update k8s cluster nodepool
-  k8s_nodepools:
-    cluster_name: "{{ name }}"
-    k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
-    nodepool_id: "6e9efcc6-649a-4514-bee5-6165b614c89e"
-    node_count: 1
-    cores_count: "1"
-    maintenance_window:
-      day_of_the_week: 'Tuesday'
-      time: '13:03:00'
-    auto_scaling:
-      min_node_count: 1
-      max_node_count: 3
-    state: update
-'''
 
 HAS_SDK = True
+
 try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
@@ -54,7 +19,239 @@ except ImportError:
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
-import re
+
+
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'managed-kubernetes'
+STATES = ['present', 'absent', 'update']
+OBJECT_NAME = 'K8s Nodepool'
+
+OPTIONS = {
+    'nodepool_name': {
+        'description': ['The name of the K8s Nodepool.'],
+        'available': ['update', 'present'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'k8s_cluster_id': {
+        'description': ['The ID of the K8s cluster.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'k8s_version': {
+        'description': ['The Kubernetes version the nodepool is running.'],
+        'available': ['update', 'present'],
+        'type': 'str',
+    },
+    'nodepool_id': {
+        'description': ['The ID of the K8s nodepool.'],
+        'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
+        'type': 'str',
+    },
+    'datacenter_id': {
+        'description': ['A valid ID of the data center, to which the user has access.'],
+        'available': ['update', 'present'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'lan_ids': {
+        'description': ['Array of additional LANs attached to worker nodes.'],
+        'available': ['update', 'present'],
+        'type': 'list',
+        'elements': 'int',
+    },
+    'node_count': {
+        'description': ['The number of nodes that make up the node pool.'],
+        'available': ['update', 'present'],
+        'type': 'int',
+    },
+    'cpu_family': {
+        'description': ['A valid CPU family name.'],
+        'available': ['present'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'cores_count': {
+        'description': ['The number of cores for the node.'],
+        'available': ['present'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'ram_size': {
+        'description': ['The RAM size for the node. Must be set in multiples of 1024 MB, with minimum size is of 2048 MB.'],
+        'available': ['present'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'availability_zone': {
+        'description': ['The availability zone in which the target VM should be provisioned.'],
+        'available': ['present'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'storage_type': {
+        'description': ['The type of hardware for the volume.'],
+        'available': ['present'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'storage_size': {
+        'description': ['The size of the volume in GB. The size should be greater than 10GB.'],
+        'available': ['present'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'maintenance_window': {
+        'description': [
+            "The maintenance window is used for updating the software on the nodepool's nodes and for "
+            "upgrading the nodepool's K8s version. If no value is given, one is chosen dynamically, so there is no fixed default.",
+        ],
+        'available': ['present', 'update'],
+        'type': 'dict',
+    },
+    'labels': {
+        'description': ['Map of labels attached to node pool.'],
+        'available': ['present',],
+        'type': 'dict',
+    },
+    'annotations': {
+        'description': ['Map of annotations attached to node pool.'],
+        'available': ['present',],
+        'type': 'dict',
+    },
+    'auto_scaling': {
+        'description': ['Property to be set when auto-scaling needs to be enabled for the nodepool. By default, auto-scaling is not enabled.'],
+        'available': ['present', 'update'],
+        'type': 'dict',
+    },
+    'public_ips': {
+        'description': [
+            'Optional array of reserved public IP addresses to be used by the nodes. IPs must be from same location as the data center '
+            'used for the node pool. The array must contain one more IP than maximum number possible number of nodes (nodeCount+1 for '
+            'fixed number of nodes or maxNodeCount+1 when auto scaling is used). The extra IP is used when the nodes are rebuilt.',
+        ],
+        'available': ['present', 'update'],
+        'type': 'list',
+        'elements': 'str',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
+
+DOCUMENTATION = '''
+---
+module: datacenter
+short_description: Create or destroy a Ionos Cloud K8s Nodepool
+description:
+     - This is a simple module that supports creating or removing K8s Nodepools.
+       This module has a dependency on ionos-cloud >= 6.0.0
+version_added: "2.0"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 5.0.0"
+author:
+    - "Matt Baldwin (baldwin@stackpointcloud.com)"
+    - "Ethan Devenport (@edevenport)"
+'''
+
+EXAMPLE_PER_STATE = {
+  'present' : '''
+  - name: Create k8s cluster nodepool
+    k8s_nodepools:
+      cluster_name: "{{ name }}"
+      k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+      datacenter_id: "4d495548-e330-434d-83a9-251bfa645875"
+      node_count: "1"
+      cpu_family: "AMD_OPTERON"
+      cores_count: "1"
+      ram_size: "2048"
+      availability_zone: "AUTO"
+      storage_type: "SSD"
+      storage_size: "100"
+  ''',
+  'update' : '''
+  - name: Update k8s cluster nodepool
+    k8s_nodepools:
+      cluster_name: "{{ name }}"
+      k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+      nodepool_id: "6e9efcc6-649a-4514-bee5-6165b614c89e"
+      node_count: 1
+      cores_count: "1"
+      maintenance_window:
+        day_of_the_week: 'Tuesday'
+        time: '13:03:00'
+      auto_scaling:
+        min_node_count: 1
+        max_node_count: 3
+      state: update
+  ''',
+  'absent' : '''
+  - name: Delete k8s cluster nodepool
+    k8s_nodepools:
+      k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+      nodepool_id: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
+      state: absent
+  ''',
+}
+
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
 def _get_request_id(headers):
@@ -260,64 +457,30 @@ def _get_resource(resource_list, identity):
     return None
 
 
-def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            nodepool_name=dict(type='str'),
-            k8s_cluster_id=dict(type='str'),
-            k8s_version=dict(type='str'),
-            nodepool_id=dict(type='str'),
-            datacenter_id=dict(type='str'),
-            lan_ids=dict(type='list', elements='int'),
-            node_count=dict(type='int'),
-            cpu_family=dict(type='str'),
-            cores_count=dict(type='str'),
-            ram_size=dict(type='str'),
-            availability_zone=dict(type='str'),
-            storage_type=dict(type='str'),
-            storage_size=dict(type='str'),
-            maintenance_window=dict(
-                type='dict',
-                day_of_the_week=dict(type='int'),
-                time=dict(type='int')
-            ),
-            labels=dict(type='dict'),
-            annotations=dict(type='dict'),
-            auto_scaling=dict(
-                type='dict',
-                min_node_count=dict(type='str'),
-                max_node_count=dict(type='str')
-            ),
-            public_ips=dict(type='list', elements='str'),
-            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
-    if not HAS_SDK:
-        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+def get_module_arguments():
+    arguments = {}
 
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
+
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
-
-    state = module.params.get('state')
 
     conf = {
         'username': username,
@@ -328,61 +491,44 @@ def main():
         conf['host'] = api_url
         conf['server_index'] = None
 
-    configuration = ionoscloud.Configuration(**conf)
+    return sdk.Configuration(**conf)
 
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
 
-        if state == 'present':
-            error_message = "%s parameter is required updating a k8s nodepool"
-            if not module.params.get('nodepool_name'):
-                module.fail_json(msg=error_message % 'nodepool_name')
-            if not module.params.get('k8s_cluster_id'):
-                module.fail_json(msg=error_message % 'k8s_cluster_id')
-            if not module.params.get('datacenter_id'):
-                module.fail_json(msg=error_message % 'datacenter_id')
-            if not (module.params.get('node_count') or module.params.get('auto_scaling')) :
-                module.fail_json(msg=error_message % 'node_count or auto_scaling')
-            if not module.params.get('cpu_family'):
-                module.fail_json(msg=error_message % 'cpu_family')
-            if not module.params.get('cores_count'):
-                module.fail_json(msg=error_message % 'cores_count')
-            if not module.params.get('ram_size'):
-                module.fail_json(msg=error_message % 'ram_size')
-            if not module.params.get('availability_zone'):
-                module.fail_json(msg=error_message % 'availability_zone')
-            if not module.params.get('storage_type'):
-                module.fail_json(msg=error_message % 'storage_type')
-            if not module.params.get('storage_size'):
-                module.fail_json(msg=error_message % 'storage_size')
-            try:
-                (k8s_nodepool_dict_array) = create_k8s_cluster_nodepool(module, api_client)
-                module.exit_json(**k8s_nodepool_dict_array)
-            except Exception as e:
-                module.fail_json(msg='failed to set k8s cluster nodepool state: %s' % to_native(e))
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
 
-        elif state == 'absent':
-            if not module.params.get('k8s_cluster_id'):
-                module.fail_json(msg='k8s_cluster_id parameter is required deleting a k8s nodepool.')
-            if not module.params.get('nodepool_id'):
-                module.fail_json(msg='nodepool_id parameter is required deleting a k8s nodepool.')
 
-            try:
-                (result) = delete_k8s_cluster_nodepool(module, api_client)
-                module.exit_json(**result)
-            except Exception as e:
-                module.fail_json(msg='failed to set k8s nodepool state: %s' % to_native(e))
+def main():
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
-        elif state == 'update':
-            if not module.params.get('k8s_cluster_id'):
-                module.fail_json(msg='k8s_cluster_id parameter is required updating a nodepool.')
-            if not module.params.get('nodepool_id'):
-                module.fail_json(msg='nodepool_id parameter is required updating a nodepool.')
-            try:
-                (k8s_nodepool_dict_array) = update_k8s_cluster_nodepool(module, api_client)
-                module.exit_json(**k8s_nodepool_dict_array)
-            except Exception as e:
-                module.fail_json(msg='failed to set k8s nodepool state: %s' % to_native(e))
+    if not HAS_SDK:
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+
+    state = module.params.get('state')
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
+        if state == 'present' and not module.params.get('node_count') and not module.params.get('auto_scaling'):
+            module.fail_json(
+                msg='either node_count or auto_scaling parameter is required for {object_name} state present'.format(object_name=OBJECT_NAME),
+            )
+        try:
+            if state == 'present':
+                module.exit_json(**create_k8s_cluster_nodepool(module, api_client))
+            elif state == 'absent':
+                module.exit_json(**delete_k8s_cluster_nodepool(module, api_client))
+            elif state == 'update':
+                module.exit_json(**update_k8s_cluster_nodepool(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
 
 
 if __name__ == '__main__':

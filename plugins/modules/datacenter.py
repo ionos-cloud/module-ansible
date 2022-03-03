@@ -414,10 +414,8 @@ def main():
         api_client.user_agent = USER_AGENT
         check_required_arguments(module, state, OBJECT_NAME)
 
-        if state in ['absent', 'update']:
-            if not module.params.get('name') and not module.params.get('id'):
-                module.fail_json(msg='name parameter or id parameter are required for deleting a virtual datacenter.')
-
+        if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('id'):
+            module.fail_json(msg='either name or id parameter is required for {object_name} state present'.format(object_name=OBJECT_NAME))
         try:
             if state == 'absent':
                 module.exit_json(**remove_datacenter(module, api_client))
