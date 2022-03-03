@@ -79,6 +79,7 @@ modules_to_generate = [
     'k8s_cluster',
     'k8s_config',
     'k8s_nodepool',
+    'nat_gateway_flowlog',
 ]
 
 for module_name in modules_to_generate:
