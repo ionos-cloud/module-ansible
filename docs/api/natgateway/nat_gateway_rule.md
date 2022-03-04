@@ -76,7 +76,7 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the NAT Gateway rule. |
+  | name | True | str |  | The name of the NAT Gateway rule. |
   | type | True | str |  | Type of the NAT Gateway rule. |
   | protocol | False | str |  | Protocol of the NAT Gateway rule. Defaults to ALL. If protocol is 'ICMP' then targetPortRange start and end cannot be set. |
   | source_subnet | True | str |  | Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets source IP address. |

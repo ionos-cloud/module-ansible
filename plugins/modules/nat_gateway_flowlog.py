@@ -39,6 +39,7 @@ OPTIONS = {
     'name': {
         'description': ['The name of the flowlog.'],
         'available': STATES,
+        'required': ['present'],
         'type': 'str',
     },
     'action': {

@@ -65,7 +65,7 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the flowlog. |
+  | name | True | str |  | The name of the flowlog. |
   | action | True | str |  | Specifies the traffic action pattern. |
   | direction | True | str |  | Specifies the traffic direction pattern. |
   | bucket | True | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |

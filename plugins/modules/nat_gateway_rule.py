@@ -40,6 +40,7 @@ OPTIONS = {
     'name': {
         'description': ['The name of the NAT Gateway rule.'],
         'available': STATES,
+        'required': ['present'],
         'type': 'str',
     },
     'type': {
