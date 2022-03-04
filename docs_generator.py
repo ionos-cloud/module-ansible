@@ -82,6 +82,7 @@ modules_to_generate = [
     'nat_gateway_flowlog',
     'nat_gateway_rule',
     'nat_gateway',
+    'network_load_balancer_flowlog',
 ]
 
 for module_name in modules_to_generate:

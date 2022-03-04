@@ -71,7 +71,6 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
   | bucket | True | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | nat_gateway_id | True | str |  | The ID of the NAT Gateway. |
-  | flowlog_id | False | str |  | The ID of the datacenter. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -101,7 +100,7 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
   | name | False | str |  | The name of the flowlog. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | nat_gateway_id | True | str |  | The ID of the NAT Gateway. |
-  | flowlog_id | False | str |  | The ID of the datacenter. |
+  | flowlog_id | False | str |  | The ID of the Flowlog. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -140,7 +139,7 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
   | bucket | False | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | nat_gateway_id | True | str |  | The ID of the NAT Gateway. |
-  | flowlog_id | True | str |  | The ID of the datacenter. |
+  | flowlog_id | False | str |  | The ID of the Flowlog. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |

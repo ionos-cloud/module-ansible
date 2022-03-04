@@ -72,9 +72,8 @@ OPTIONS = {
         'type': 'str',
     },
     'flowlog_id': {
-        'description': ['The ID of the datacenter.'],
-        'available': STATES,
-        'required': ['update'],
+        'description': ['The ID of the Flowlog.'],
+        'available': ['absent', 'update'],
         'type': 'str',
     },
     'api_url': {
