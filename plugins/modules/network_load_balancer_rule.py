@@ -94,7 +94,7 @@ OPTIONS = {
     },
     'forwarding_rule_id': {
         'description': ['The ID of the Network Loadbalancer forwarding rule.'],
-        'available': STATES,
+        'available': ['update', 'absent'],
         'type': 'str',
     },
 
@@ -152,7 +152,7 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: network_load_balancer_flowlog
+module: network_load_balancer_rule
 short_description: Create or destroy a Ionos Cloud NetworkLoadbalancer Flowlog.
 description:
      - This is a simple module that supports creating or removing NATGateway Flowlogs.

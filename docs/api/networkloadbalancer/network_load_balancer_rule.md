@@ -83,7 +83,6 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
   | targets | True | list |  | Array of targets. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
-  | forwarding_rule_id | False | str |  | The ID of the Network Loadbalancer forwarding rule. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
