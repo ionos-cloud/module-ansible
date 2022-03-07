@@ -1,27 +1,6 @@
 import re
-
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
-
-EXAMPLES = '''
-    - name: Create an s3key
-      s3key:
-        user_id: "{{ user_id }}"
-
-    - name: Update an s3key
-      s3key:
-        user_id: "{{ user_id }}"
-        key_id: "00ca413c94eecc56857d"
-        active: False
-        state: update
-
-    - name: Remove an s3key
-      s3key:
-        user_id: "{{ user_id }}"
-        key_id: "00ca413c94eecc56857d"
-        state: absent
-'''
+import copy
+import yaml
 
 HAS_SDK = True
 try:
@@ -37,6 +16,128 @@ except ImportError:
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
+
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'user-management'
+STATES = ['present', 'absent', 'update']
+OBJECT_NAME = 'S3 Key'
+
+OPTIONS = {
+    'active': {
+        'description': ['Denotes weather the S3 key is active.'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
+    'user_id': {
+        'description': ['The ID of the user'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'key_id': {
+        'description': ['The ID of the S3 key.'],
+        'available': ['absent', 'update'],
+        'required': ['absent', 'update'],
+        'type': 'str',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
+
+DOCUMENTATION = '''
+---
+module: s3key
+short_description: Create or destroy a Ionos Cloud S3Key.
+description:
+     - This is a simple module that supports creating or removing S3Keys.
+version_added: "2.0"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 5.0.0"
+author:
+    - "Matt Baldwin (baldwin@stackpointcloud.com)"
+    - "Ethan Devenport (@edevenport)"
+'''
+
+EXAMPLE_PER_STATE = {
+  'present' : '''
+  - name: Create an s3key
+    s3key:
+      user_id: "{{ user_id }}"
+  ''',
+  'update' : '''
+  - name: Update an s3key
+    s3key:
+      user_id: "{{ user_id }}"
+      key_id: "00ca413c94eecc56857d"
+      active: False
+      state: update
+  ''',
+  'absent' : '''
+  - name: Remove an s3key
+    s3key:
+      user_id: "{{ user_id }}"
+      key_id: "00ca413c94eecc56857d"
+      state: absent
+  ''',
+}
+
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
 def _get_request_id(headers):
@@ -158,42 +259,30 @@ def _get_resource(resource_list, identity):
     return None
 
 
-def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            active=dict(type='bool'),
-            user_id=dict(type='str'),
-            key_id=dict(type='str'),
-            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
-    if not HAS_SDK:
-        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+def get_module_arguments():
+    arguments = {}
 
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
+
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-
-    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
-
-    state = module.params.get('state')
 
     conf = {
         'username': username,
@@ -204,46 +293,41 @@ def main():
         conf['host'] = api_url
         conf['server_index'] = None
 
-    configuration = ionoscloud.Configuration(**conf)
+    return sdk.Configuration(**conf)
+
+
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
+
+
+def main():
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+
+    if not HAS_SDK:
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
     state = module.params.get('state')
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
 
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
-
-        if state == 'present':
-            if not module.params.get('user_id'):
-                module.fail_json(msg='user_id parameter is required for a new s3key')
-            try:
-                (s3key_dict_array) = create_s3key(module, api_client)
-                module.exit_json(**s3key_dict_array)
-            except Exception as e:
-                module.fail_json(msg='failed to set user state: %s' % to_native(e))
-
-        elif state == 'absent':
-            if not module.params.get('user_id'):
-                module.fail_json(msg='user_id parameter is required for deleting an s3key.')
-            if not module.params.get('key_id'):
-                module.fail_json(msg='key_id parameter is required for deleting an s3key.')
-
-            try:
-                (changed) = delete_s3key(module, api_client)
-                module.exit_json(changed=changed)
-            except Exception as e:
-                module.fail_json(msg='failed to set user state: %s' % to_native(e))
-
-        elif state == 'update':
-            if not module.params.get('user_id'):
-                module.fail_json(msg='user_id parameter is required for updating an s3key.')
-            if not module.params.get('key_id'):
-                module.fail_json(msg='key_id parameter is required for updating an s3key.')
-
-            try:
-                (changed) = update_s3key(module, api_client)
-                module.exit_json(
-                    changed=changed)
-            except Exception as e:
-                module.fail_json(msg='failed to set s3key state: %s' % to_native(e))
+        try:
+            if state == 'present':
+                module.exit_json(**create_s3key(module, api_client))
+            elif state == 'absent':
+                module.exit_json(**delete_s3key(module, api_client))
+            elif state == 'update':
+                module.exit_json(**update_s3key(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
 
 
 if __name__ == '__main__':
