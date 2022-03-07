@@ -25,7 +25,7 @@ ANSIBLE_METADATA = {
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, ionoscloud.__version__)
 DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, ionoscloud_dbaas_postgres.__version__)
 DOC_DIRECTORY = 'dbaas-postgres'
-STATES = ['present', 'absent', 'update']
+STATES = ['present', 'absent', 'update', 'restore']
 OBJECT_NAME = 'Postgres Cluster'
 
 OPTIONS = {

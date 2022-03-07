@@ -48,6 +48,9 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   | cluster_name | True | str |  | The name of the K8s cluster. |
   | k8s_version | False | str |  | The description of the virtual datacenter. |
   | maintenance_window | False | dict |  | The datacenter location. |
+  | public | False | dict |  | The datacenter location. |
+  | api_subnet_allow_list | False | list |  | The datacenter location. |
+  | s3_buckets_param | False | list |  | The datacenter location. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -105,6 +108,8 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   | k8s_cluster_id | True | str |  | The ID of the K8s cluster. |
   | k8s_version | True | str |  | The description of the virtual datacenter. |
   | maintenance_window | True | dict |  | The datacenter location. |
+  | api_subnet_allow_list | False | list |  | The datacenter location. |
+  | s3_buckets_param | False | list |  | The datacenter location. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |

@@ -104,7 +104,7 @@ This is a module that supports creating, updating, restoring or destroying Postg
 # state: **absent**
 ```yaml
   - name: Delete Postgres Cluster
-    ionoscloudsdk.ionoscloud.postgres_cluster:
+    postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
       state: absent
   
@@ -152,6 +152,28 @@ This is a module that supports creating, updating, restoring or destroying Postg
   | ram | False | int |  | The amount of memory per instance(should be a multiple of 1024). |
   | storage_size | False | int |  | The amount of storage per instance. |
   | display_name | False | str |  | The friendly name of your cluster. |
+  | postgres_cluster | True | str |  | The ID or name of an existing Postgres Cluster. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;
+# state: **restore**
+```yaml
+  
+```
+### Available parameters for state **restore**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | backup_id | True | str |  | The ID of the backup to be used. |
+  | recovery_target_time | False | str |  | Recovery target time. |
   | postgres_cluster | True | str |  | The ID or name of an existing Postgres Cluster. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
