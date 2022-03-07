@@ -6,126 +6,10 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
-
-DOCUMENTATION = '''
----
-module: user
-short_description: Create, update or remove a user.
-description:
-     - This module allows you to create, update or remove a user.
-version_added: "2.4"
-options:
-  firstname:
-    description:
-      - The user's first name.
-    required: true
-    default: None
-  lastname:
-    description:
-      - The user's last name.
-    required: true
-    default: None
-  email:
-    description:
-      - The user's email.
-    required: true
-    default: None
-  user_password:
-    description:
-      - A password for the user.
-    required: true
-    default: None
-  administrator:
-    description:
-      - Boolean value indicating if the user has administrative rights.
-    required: false
-    default: None
-  force_sec_auth:
-    description:
-      - Boolean value indicating if secure (two-factor) authentication should be forced for the user.
-    required: false
-    default: None
-  groups:
-    description:
-      - A list of group IDs or names where the user (non-administrator) is to be added.
-        Set to empty list ([]) to remove the user from all groups.
-    required: false
-    default: None
-  api_url:
-    description:
-      - The Ionos API base URL.
-    required: false
-    default: null
-  username:
-    description:
-      - The Ionos username. Overrides the IONOS_USERNAME environment variable.
-    required: false
-    aliases: subscription_user
-  password:
-    description:
-      - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
-    required: false
-    aliases: subscription_password
-  wait:
-    description:
-      - wait for the operation to complete before returning
-    required: false
-    default: "yes"
-    choices: [ "yes", "no" ]
-  wait_timeout:
-    description:
-      - how long before wait gives up, in seconds
-    default: 600
-  state:
-    description:
-      - Indicate desired state of the resource
-    required: false
-    default: "present"
-    choices: ["present", "absent", "update"]
-
-requirements:
-    - "python >= 2.6"
-    - "ionoscloud >= 5.0.0"
-author:
-    - Nurfet Becirevic (@nurfet-becirevic)
-    - Ethan Devenport (@edevenport)
-'''
-
-EXAMPLES = '''
-# Create a user
-- name: Create user
-  user:
-    firstname: John
-    lastname: Doe
-    email: john.doe@example.com
-    user_password: secretpassword123
-    administrator: true
-    state: present
-
-# Update a user
-- name: Update user
-  user:
-    firstname: John II
-    lastname: Doe
-    email: john.doe@example.com
-    administrator: false
-    force_sec_auth: false
-    groups:
-      - Developers
-      - Testers
-    state: update
-
-# Remove a user
-- name: Remove user
-  user:
-    email: john.doe@example.com
-    state: absent
-'''
 
 import re
+import copy
+import yaml
 
 HAS_SDK = True
 
@@ -141,6 +25,173 @@ except ImportError:
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
+
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'user-management'
+STATES = ['present', 'absent', 'update']
+OBJECT_NAME = 'User'
+
+OPTIONS = {
+    'firstname': {
+        'description': ["The user's first name."],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'lastname': {
+        'description': ["The user's last name."],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'email': {
+        'description': ["The user's email"],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'user_password': {
+        'description': ['A password for the user.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+        'no_log': True,
+    },
+    'administrator': {
+        'description': ['Boolean value indicating if the user has administrative rights.'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
+    'force_sec_auth': {
+        'description': ['Boolean value indicating if secure (two-factor) authentication should be forced for the user.'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
+    'groups': {
+        'description': [
+            'A list of group IDs or names where the user (non-administrator) is to be added.'
+            'Set to empty list ([]) to remove the user from all groups.',
+        ],
+        'available': ['present', 'update'],
+        'type': 'list',
+    },
+    'sec_auth_active': {
+        'description': ['Indicates if secure authentication is active for the user.'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
+    's3_canonical_user_id': {
+        'description': ['Canonical (S3) ID of the user for a given identity.'],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
+
+DOCUMENTATION = '''
+---
+module: user
+short_description: Create, update or remove a user.
+description:
+     - This module allows you to create, update or remove a user.
+version_added: "2.0"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 5.0.0"
+author:
+    - "Matt Baldwin (baldwin@stackpointcloud.com)"
+    - "Ethan Devenport (@edevenport)"
+'''
+
+EXAMPLE_PER_STATE = {
+  'present' : '''# Create a user
+  - name: Create user
+    user:
+      firstname: John
+      lastname: Doe
+      email: john.doe@example.com
+      user_password: secretpassword123
+      administrator: true
+      state: present
+  ''',
+  'update' : '''# Update a user
+  - name: Update user
+    user:
+      firstname: John II
+      lastname: Doe
+      email: john.doe@example.com
+      administrator: false
+      force_sec_auth: false
+      groups:
+        - Developers
+        - Testers
+      state: update
+  ''',
+  'absent' : '''# Remove a user
+  - name: Remove user
+    user:
+      email: john.doe@example.com
+      state: absent
+  ''',
+}
+
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
 def _get_request_id(headers):
@@ -163,15 +214,9 @@ def create_user(module, client, api_client):
         The user instance
     """
     firstname = module.params.get('firstname')
-    if not firstname:
-        module.fail_json(msg='firstname parameter is required')
     lastname = module.params.get('lastname')
-    if not lastname:
-        module.fail_json(msg='lastname parameter is required')
     email = module.params.get('email')
     user_password = module.params.get('user_password')
-    if not user_password:
-        module.fail_json(msg='user_password parameter is required')
     administrator = module.params.get('administrator')
     force_sec_auth = module.params.get('force_sec_auth')
     wait = module.params.get('wait')
@@ -379,49 +424,30 @@ def _get_resource_id(resource_list, identity, module, resource_type):
     module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
 
 
-def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            firstname=dict(type='str'),
-            lastname=dict(type='str'),
-            email=dict(type='str', required=True),
-            user_password=dict(type='str', default=None, no_log=True),
-            administrator=dict(type='bool', default=None),
-            force_sec_auth=dict(type='bool', default=None),
-            groups=dict(type='list', default=None),
-            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
-            sec_auth_active=dict(type='bool', default=False),
-            s3_canonical_user_id=dict(type='str'),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
+def get_module_arguments():
+    arguments = {}
 
-    if not HAS_SDK:
-        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
 
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-
-    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
-
-    state = module.params.get('state')
 
     conf = {
         'username': username,
@@ -432,32 +458,42 @@ def main():
         conf['host'] = api_url
         conf['server_index'] = None
 
-    configuration = ionoscloud.Configuration(**conf)
+    return sdk.Configuration(**conf)
 
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
+
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
+
+
+def main():
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+
+    if not HAS_SDK:
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+
+    state = module.params.get('state')
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
         api_instance = ionoscloud.UserManagementApi(api_client)
 
-        if state == 'absent':
-            try:
-                (result) = delete_user(module, api_instance)
-                module.exit_json(**result)
-            except Exception as e:
-                module.fail_json(msg='failed to set user state: %s' % to_native(e))
-
-        elif state == 'present':
-            try:
-                (user_dict) = create_user(module, api_instance, api_client)
-                module.exit_json(**user_dict)
-            except Exception as e:
-                module.fail_json(msg='failed to set user state: %s' % to_native(e))
-
-        elif state == 'update':
-            try:
-                (user_dict) = update_user(module, api_instance, api_client)
-                module.exit_json(**user_dict)
-            except Exception as e:
-                module.fail_json(msg='failed to update user: %s' % to_native(e))
+        try:
+            if state == 'absent':
+                module.exit_json(**delete_user(module, api_instance))
+            elif state == 'present':
+                module.exit_json(**create_user(module, api_instance, api_client))
+            elif state == 'update':
+                module.exit_json(**update_user(module, api_instance, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
 
 
 if __name__ == '__main__':

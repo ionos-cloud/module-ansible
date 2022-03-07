@@ -88,7 +88,7 @@ modules_to_generate = [
     'group',
     's3key',
     'share',
-    'share',
+    'user',
 ]
 
 for module_name in modules_to_generate:
