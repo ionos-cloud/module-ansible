@@ -11,7 +11,8 @@ HAS_SDK = True
 try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
-    from ionoscloud.models import KubernetesCluster, KubernetesClusterProperties, KubernetesClusterForPut, KubernetesClusterPropertiesForPut
+    from ionoscloud.models import KubernetesCluster, KubernetesClusterProperties, KubernetesClusterForPut, \
+        KubernetesClusterPropertiesForPut, S3Bucket
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
@@ -52,6 +53,23 @@ OPTIONS = {
         'available': ['present', 'update'],
         'required': ['update'],
         'type': 'dict',
+    },
+    'public': {
+        'description': ['The datacenter location.'],
+        'available': ['present'],
+        'type': 'dict',
+    },
+    'api_subnet_allow_list': {
+        'description': ['The datacenter location.'],
+        'available': ['present', 'update'],
+        'type': 'list',
+        'elements': 'str',
+    },
+    's3_buckets_param': {
+        'description': ['The datacenter location.'],
+        'available': ['present', 'update'],
+        'type': 'list',
+        'elements': 'str',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -164,11 +182,21 @@ def create_k8s_cluster(module, client):
     k8s_version = module.params.get('k8s_version')
     maintenance = module.params.get('maintenance_window')
     wait = module.params.get('wait')
+    public = module.params.get('public')
+    api_subnet_allow_list = module.params.get('api_subnet_allow_list')
+    s3_buckets_param = module.params.get('s3_buckets')
 
     maintenance_window = None
     if maintenance:
         maintenance_window = dict(maintenance)
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
+
+    s3_buckets = None
+    if s3_buckets_param:
+        s3_buckets = []
+        for bucket_name in s3_buckets:
+            bucket = S3Bucket(name=bucket_name)
+            s3_buckets.append(bucket)
 
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
 
@@ -194,7 +222,9 @@ def create_k8s_cluster(module, client):
 
     try:
         k8s_cluster_properties = KubernetesClusterProperties(name=cluster_name, k8s_version=k8s_version,
-                                                             maintenance_window=maintenance_window)
+                                                             maintenance_window=maintenance_window, public=public,
+                                                             api_subnet_allow_list=api_subnet_allow_list,
+                                                             s3_buckets=s3_buckets)
         k8s_cluster = KubernetesCluster(properties=k8s_cluster_properties)
 
         response = k8s_server.k8s_post_with_http_info(kubernetes_cluster=k8s_cluster)
@@ -237,7 +267,6 @@ def delete_k8s_cluster(module, client):
     if not k8s_cluster:
         module.exit_json(changed=False)
 
-
     try:
         response = k8s_server.k8s_delete_with_http_info(k8s_cluster_id=k8s_cluster_id)
         (k8s_response, _, headers) = response
@@ -262,9 +291,18 @@ def update_k8s_cluster(module, client):
     k8s_version = module.params.get('k8s_version')
     k8s_cluster_id = module.params.get('k8s_cluster_id')
     maintenance = module.params.get('maintenance_window')
+    api_subnet_allow_list = module.params.get('api_subnet_allow_list')
+    s3_buckets_param = module.params.get('s3_buckets')
 
     maintenance_window = dict(maintenance)
     maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
+
+    s3_buckets = None
+    if s3_buckets_param:
+        s3_buckets = []
+        for bucket_name in s3_buckets:
+            bucket = S3Bucket(name=bucket_name)
+            s3_buckets.append(bucket)
 
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
     k8s_response = None
@@ -273,7 +311,9 @@ def update_k8s_cluster(module, client):
         module.exit_json(changed=True)
     try:
         kubernetes_cluster_properties = KubernetesClusterPropertiesForPut(name=cluster_name, k8s_version=k8s_version,
-                                                                    maintenance_window=maintenance_window)
+                                                                          s3_buckets=s3_buckets,
+                                                                          api_subnet_allow_list=api_subnet_allow_list,
+                                                                          maintenance_window=maintenance_window)
         kubernetes_cluster = KubernetesClusterForPut(properties=kubernetes_cluster_properties)
         k8s_response = k8s_server.k8s_put(k8s_cluster_id=k8s_cluster_id, kubernetes_cluster=kubernetes_cluster)
 

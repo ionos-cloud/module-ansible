@@ -8,7 +8,7 @@ This is a simple module that supports retrieving one or more Cube templates
 ```yaml
 
     - name: List templates
-      cube_template:
+      ionoscloudsdk.ionoscloud.cube_template:
         state: present
       register: template_list
 
@@ -17,7 +17,7 @@ This is a simple module that supports retrieving one or more Cube templates
         msg: "{{  template_list.template }}"
 
     - name: Get template by template id
-      cube_template:
+      ionoscloudsdk.ionoscloud.cube_template:
         template_id: "{{ template_list.template['items'][0]['id'] }}"
       register: template_response
 

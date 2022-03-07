@@ -104,7 +104,7 @@ This is a module that supports creating, updating, restoring or destroying Postg
 # state: **absent**
 ```yaml
   - name: Delete Postgres Cluster
-    postgres_cluster:
+    ionoscloudsdk.ionoscloud.postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
       state: absent
   

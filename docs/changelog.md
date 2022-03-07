@@ -146,3 +146,13 @@
 ### Enhancements:
 
 * add support for Dbaas Postgres: 3 new modules were added (postgres_cluster, postgres_cluster_info, postgres_backup_info)
+
+
+## 6.1.1
+
+### Enhancements:
+* new parameters on *k8s_cluster* module: `public`, `api_subnet_allow_list` and `s3_buckets`
+* new parameters on *k8s_nodepool* module: `gateway_ip`
+* documentation updates related to Ansible Galaxy installation and usage
+
+
