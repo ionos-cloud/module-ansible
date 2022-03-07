@@ -4,110 +4,14 @@
 
 from __future__ import absolute_import, division, print_function
 
+import yaml
+
 __metaclass__ = type
 
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
-
-DOCUMENTATION = '''
----
-module: share
-short_description: Add, update or remove shares.
-description:
-     - This module allows you to add, update or remove resource shares.
-version_added: "2.4"
-options:
-  group:
-    description:
-      - The name or ID of the group.
-    required: true
-  resource_ids:
-    description:
-      - A list of resource IDs to add, update or remove as shares.
-    required: true
-  edit_privilege:
-    description:
-      - Boolean value indicating that the group has permission to edit privileges on the resource.
-    required: false
-    default: None
-  share_privilege:
-    description:
-      - Boolean value indicating that the group has permission to share the resource.
-    required: false
-    default: None
-  api_url:
-    description:
-      - The Ionos API base URL.
-    required: false
-    default: null
-  username:
-    description:
-      - The Ionos username. Overrides the IONOS_USERNAME environment variable.
-    required: false
-    aliases: subscription_user
-  password:
-    description:
-      - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
-    required: false
-    aliases: subscription_password
-  wait:
-    description:
-      - wait for the operation to complete before returning
-    required: false
-    default: "yes"
-    choices: [ "yes", "no" ]
-  wait_timeout:
-    description:
-      - how long before wait gives up, in seconds
-    default: 600
-  state:
-    description:
-      - Indicate desired state of the resource
-    required: false
-    default: "present"
-    choices: ["present", "absent", "update"]
-
-requirements:
-    - "python >= 2.6"
-    - "ionoscloud >= 5.0.0"
-author:
-    - Nurfet Becirevic (@nurfet-becirevic)
-    - Ethan Devenport (@edevenport)
-'''
-
-EXAMPLES = '''
-# Create shares
-- name: Create share
-  share:
-    group: Demo
-    edit_privilege: true
-    share_privilege: true
-    resource_ids:
-      - b50ba74e-b585-44d6-9b6e-68941b2ce98e
-      - ba7efccb-a761-11e7-90a7-525400f64d8d
-    state: present
-
-# Update shares
-- name: Update shares
-  share:
-    group: Demo
-    edit_privilege: false
-    resource_ids:
-      - b50ba74e-b585-44d6-9b6e-68941b2ce98e
-    state: update
-
-# Remove shares
-- name: Remove shares
-  share:
-    group: Demo
-    resource_ids:
-      - b50ba74e-b585-44d6-9b6e-68941b2ce98e
-      - ba7efccb-a761-11e7-90a7-525400f64d8d
-    state: absent
-'''
 
 import re
+import copy
+import yaml
 
 HAS_SDK = True
 
@@ -123,6 +27,142 @@ except ImportError:
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
+
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'user-management'
+STATES = ['present', 'absent', 'update']
+OBJECT_NAME = 'Share'
+
+OPTIONS = {
+    'edit_privilege': {
+        'description': ['Boolean value indicating that the group has permission to edit privileges on the resource.'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
+    'share_privilege': {
+        'description': ['Boolean value indicating that the group has permission to share the resource.'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
+    'group': {
+        'description': ['The name or ID of the group.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'resource_ids': {
+        'description': ['A list of resource IDs to add, update or remove as shares.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'list',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
+
+DOCUMENTATION = '''
+---
+module: share
+short_description: Add, update or remove shares.
+description:
+     - This module allows you to add, update or remove resource shares.
+version_added: "2.0"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 5.0.0"
+author:
+    - "Matt Baldwin (baldwin@stackpointcloud.com)"
+    - "Ethan Devenport (@edevenport)"
+'''
+
+EXAMPLE_PER_STATE = {
+  'present' : '''# Create shares
+  - name: Create share
+    share:
+      group: Demo
+      edit_privilege: true
+      share_privilege: true
+      resource_ids:
+        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
+        - ba7efccb-a761-11e7-90a7-525400f64d8d
+      state: present
+  ''',
+  'update' : '''# Update shares
+  - name: Update shares
+    share:
+      group: Demo
+      edit_privilege: false
+      resource_ids:
+        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
+      state: update
+  ''',
+  'absent' : '''# Remove shares
+  - name: Remove shares
+    share:
+      group: Demo
+      resource_ids:
+        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
+        - ba7efccb-a761-11e7-90a7-525400f64d8d
+      state: absent
+  ''',
+}
+
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
 def _get_request_id(headers):
@@ -321,43 +361,30 @@ def _get_resource_id(resource_list, identity, module, resource_type):
     module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
 
 
-def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            group=dict(type='str', required=True),
-            edit_privilege=dict(type='bool', default=None),
-            share_privilege=dict(type='bool', default=None),
-            resource_ids=dict(type='list', required=True),
-            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
+def get_module_arguments():
+    arguments = {}
 
-    if not HAS_SDK:
-        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
 
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
-
-    state = module.params.get('state')
 
     conf = {
         'username': username,
@@ -368,31 +395,41 @@ def main():
         conf['host'] = api_url
         conf['server_index'] = None
 
-    configuration = ionoscloud.Configuration(**conf)
+    return sdk.Configuration(**conf)
 
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
 
-        if state == 'absent':
-            try:
-                (result) = delete_shares(module, api_client)
-                module.exit_json(**result)
-            except Exception as e:
-                module.fail_json(msg='failed to set state of the shares: %s' % to_native(e))
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
 
-        elif state == 'present':
-            try:
-                (share_dict) = create_shares(module, api_client)
-                module.exit_json(**share_dict)
-            except Exception as e:
-                module.fail_json(msg='failed to set state of the shares: %s' % to_native(e))
 
-        elif state == 'update':
-            try:
-                (share_dict) = update_shares(module, api_client)
-                module.exit_json(**share_dict)
-            except Exception as e:
-                module.fail_json(msg='failed to update share: %s' % to_native(e))
+def main():
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+
+    if not HAS_SDK:
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+
+    state = module.params.get('state')
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
+
+        try:
+            if state == 'absent':
+                module.exit_json(**delete_shares(module, api_client))
+            elif state == 'present':
+                module.exit_json(**create_shares(module, api_client))
+            elif state == 'update':
+                module.exit_json(**update_shares(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
 
 
 if __name__ == '__main__':
