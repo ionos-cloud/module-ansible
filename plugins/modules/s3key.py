@@ -327,7 +327,7 @@ def main():
             elif state == 'update':
                 module.exit_json(**update_s3key(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
 
 if __name__ == '__main__':

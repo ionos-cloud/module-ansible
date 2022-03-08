@@ -171,7 +171,6 @@ OPTIONS = {
     'lan': {
         'description': ['The ID or name of the LAN you wish to add the servers to (can be a string or a number).'],
         'available': ['present'],
-        'default': '1',
         'type': 'raw',
     },
     'nat': {
@@ -1058,7 +1057,7 @@ def main():
             elif state == 'update':
                 module.exit_json(**update_server(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
 if __name__ == '__main__':
     main()
