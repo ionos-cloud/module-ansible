@@ -63,7 +63,7 @@ OPTIONS = {
     },
     'lan': {
         'description': ["The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create."],
-        'required': ['present', 'update'],
+        'required': ['present'],
         'available': ['update'],
         'type': 'str',
     },
