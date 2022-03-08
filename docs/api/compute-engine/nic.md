@@ -124,7 +124,7 @@ This module allows you to create, update or remove a NIC.
   | id | False | str |  | The ID of the NIC. |
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
   | server | True | str |  | The server name or UUID. |
-  | lan | True | str |  | The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create. |
+  | lan | False | str |  | The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create. |
   | dhcp | False | bool |  | Boolean value indicating if the NIC is using DHCP or not. |
   | firewall_active | False | bool |  | Boolean value indicating if the firewall is active. |
   | ips | False | list |  | A list of IPs to be assigned to the NIC. |

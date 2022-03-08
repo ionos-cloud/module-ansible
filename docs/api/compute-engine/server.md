@@ -232,7 +232,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | instance_ids | False | list |  | list of instance ids, currently only used when state='absent' to remove instances. |
   | count | False | int | 1 | The number of virtual machines to create. |
   | location | False | str | us/las | The datacenter location. Use only if you want to create the Datacenter or else this value is ignored. |
-  | lan | False | raw | 1 | The ID or name of the LAN you wish to add the servers to (can be a string or a number). |
+  | lan | False | raw |  | The ID or name of the LAN you wish to add the servers to (can be a string or a number). |
   | nat | False | bool | False | Boolean value indicating if the private IP address has outbound access to the public Internet. |
   | remove_boot_volume | False | bool | True | Remove the bootVolume of the virtual machine you're destroying. |
   | disk_type | False | str | HDD | The disk type for the volume. |

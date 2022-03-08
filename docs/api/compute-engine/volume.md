@@ -67,7 +67,7 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
   | ssh_keys | False | list |  | Public SSH keys allowing access to the virtual machine. |
   | disk_type | False | str | HDD | The disk type of the volume. |
   | licence_type | False | str | UNKNOWN | The licence type for the volume. This is used when the image is non-standard. |
-  | availability_zone | False | str | VIRTIO | The storage availability zone assigned to the volume. |
+  | availability_zone | False | str |  | The storage availability zone assigned to the volume. |
   | count | False | int | 1 | The number of volumes you wish to create. |
   | auto_increment | False | bool | True | Whether or not to increment a single number in the name for created virtual machines. |
   | backupunit_id | False | str |  | The ID of the backup unit that the user has access to. The property is immutable and is only allowed to be set on creation of a new a volume. It is mandatory to provide either 'public image' or 'imageAlias' in conjunction with this property. |
@@ -142,7 +142,7 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
   | size | False | int | 10 | The size of the volume. |
   | bus | False | str | VIRTIO | The bus type. |
   | licence_type | False | str | UNKNOWN | The licence type for the volume. This is used when the image is non-standard. |
-  | availability_zone | False | str | VIRTIO | The storage availability zone assigned to the volume. |
+  | availability_zone | False | str |  | The storage availability zone assigned to the volume. |
   | instance_ids | False | list |  | list of instance ids, currently only used when state='absent' to remove instances. |
   | cpu_hot_plug | False | bool |  | Hot-plug capable CPU (no reboot required). |
   | ram_hot_plug | False | bool |  | Hot-plug capable RAM (no reboot required) |

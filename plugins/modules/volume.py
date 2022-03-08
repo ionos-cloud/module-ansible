@@ -79,6 +79,7 @@ OPTIONS = {
         'description': ['Password set for the administrative user.'],
         'available': ['present'],
         'type': 'str',
+        'no_log': True,
         'version_added': '2.2',
     },
     'ssh_keys': {
@@ -105,7 +106,6 @@ OPTIONS = {
     'availability_zone': {
         'description': ['The storage availability zone assigned to the volume.'],
         'choices': ['AUTO', 'ZONE_1', 'ZONE_2', 'ZONE_3'],
-        'default': 'VIRTIO',
         'available': ['present', 'update'],
         'type': 'str',
         'version_added': '2.3',
