@@ -105,20 +105,19 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: datacenter
-short_description: Create or destroy a Ionos Cloud Virtual Datacenter.
+module: backupunit
+short_description: Create or remove Backup Units
 description:
-     - This is a simple module that supports creating or removing vDCs. A vDC is required before you can create servers.
+     - This is a simple module that supports creating or removing Backup Units.
        This module has a dependency on ionos-cloud >= 6.0.0
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 5.0.0"
+    - "ionoscloud >= 6.0.0"
 author:
-    - "Matt Baldwin (baldwin@stackpointcloud.com)"
-    - "Ethan Devenport (@edevenport)"
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
 
 EXAMPLE_PER_STATE = {

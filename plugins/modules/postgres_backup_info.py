@@ -63,10 +63,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: datacenter
-short_description: Create or destroy a Ionos Cloud Virtual Datacenter.
+module: postgres_backup_info
+short_description: List Postgres Cluster backups.
 description:
-     - This is a simple module that supports listing existing Postgres Clusters
+     - This is a simple module that supports listing existing Postgres Cluster backups
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
@@ -74,8 +74,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud-dbaas-postgres >= 1.0.0"
 author:
-    - "Matt Baldwin (baldwin@stackpointcloud.com)"
-    - "Ethan Devenport (@edevenport)"
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
 
 EXAMPLES = '''

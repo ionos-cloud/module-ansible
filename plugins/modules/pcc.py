@@ -101,7 +101,7 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: datacenter
+module: pcc
 short_description: Create or destroy a Ionos Cloud Private Cross Connect
 description:
      - This is a simple module that supports creating or removing Private Cross Connects.
@@ -113,8 +113,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.0"
 author:
-    - "Matt Baldwin (baldwin@stackpointcloud.com)"
-    - "Ethan Devenport (@edevenport)"
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
 
 EXAMPLE_PER_STATE = {

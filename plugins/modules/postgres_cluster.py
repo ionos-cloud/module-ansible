@@ -187,7 +187,7 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: datacenter
+module: postgres_cluster
 short_description: Allows operations with Ionos Cloud Postgres Clusters.
 description:
      - This is a module that supports creating, updating, restoring or destroying Postgres Clusters
@@ -199,8 +199,7 @@ requirements:
     - "ionoscloud >= 6.0.0"
     - "ionoscloud-dbaas-postgres >= 1.0.0"
 author:
-    - "Matt Baldwin (baldwin@stackpointcloud.com)"
-    - "Ethan Devenport (@edevenport)"
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
 
 EXAMPLE_PER_STATE = {
