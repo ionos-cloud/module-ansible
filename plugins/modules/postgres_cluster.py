@@ -199,8 +199,7 @@ requirements:
     - "ionoscloud >= 6.0.0"
     - "ionoscloud-dbaas-postgres >= 1.0.0"
 author:
-    - "Matt Baldwin (baldwin@stackpointcloud.com)"
-    - "Ethan Devenport (@edevenport)"
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
 
 EXAMPLE_PER_STATE = {

@@ -70,8 +70,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud-dbaas-postgres >= 1.0.0"
 author:
-    - "Matt Baldwin (baldwin@stackpointcloud.com)"
-    - "Ethan Devenport (@edevenport)"
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
 
 EXAMPLES = '''
