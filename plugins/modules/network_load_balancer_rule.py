@@ -153,9 +153,9 @@ def transform_for_documentation(val):
 DOCUMENTATION = '''
 ---
 module: network_load_balancer_rule
-short_description: Create or destroy a Ionos Cloud NetworkLoadbalancer Flowlog.
+short_description: Create or destroy a Ionos Cloud NetworkLoadbalancer Flowlog rule.
 description:
-     - This is a simple module that supports creating or removing NATGateway Flowlogs.
+     - This is a simple module that supports creating or removing NATGateway Flowlog rules.
        This module has a dependency on ionos-cloud >= 6.0.0
 version_added: "2.0"
 options:

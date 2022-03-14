@@ -131,7 +131,7 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: datacenter
+module: nat_gateway_flowlog
 short_description: Create or destroy a Ionos Cloud NATGateway Flowlog.
 description:
      - This is a simple module that supports creating or removing NATGateway Flowlogs.

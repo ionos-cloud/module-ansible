@@ -59,8 +59,8 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: datacenter
-short_description: Create or destroy a Ionos Cloud Virtual Datacenter.
+module: postgres_cluster_info
+short_description: List Postgres Clusters
 description:
      - This is a simple module that supports listing existing Postgres Clusters
 version_added: "2.0"

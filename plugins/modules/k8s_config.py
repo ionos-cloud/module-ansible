@@ -92,10 +92,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: datacenter
-short_description: Create or destroy a Ionos Cloud Virtual Datacenter.
+module: k8s_config
+short_description: Get K8s cluster configs
 description:
-     - This is a simple module that supports creating or removing vDCs. A vDC is required before you can create servers.
+     - This is a simple module that supports getting config of K8s clusters
        This module has a dependency on ionos-cloud >= 6.0.0
 version_added: "2.0"
 options:

@@ -134,7 +134,7 @@ DOCUMENTATION = '''
 module: network_load_balancer_flowlog
 short_description: Create or destroy a Ionos Cloud NetworkLoadbalancer Flowlog.
 description:
-     - This is a simple module that supports creating or removing NATGateway Flowlogs.
+     - This is a simple module that supports creating or removing NetworkLoadbalancer Flowlogs.
        This module has a dependency on ionos-cloud >= 6.0.0
 version_added: "2.0"
 options:

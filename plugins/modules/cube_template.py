@@ -79,7 +79,7 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: datacenter
+module: cube_template
 short_description: Retrieve one or more Cube templates.
 description:
      - This is a simple module that supports retrieving one or more Cube templates

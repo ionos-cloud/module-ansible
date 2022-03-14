@@ -203,8 +203,8 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: datacenter
-short_description: Create or destroy a Ionos Cloud K8s Nodepool
+module: k8s_nodepool
+short_description: Create or destroy K8s Nodepools
 description:
      - This is a simple module that supports creating or removing K8s Nodepools.
        This module has a dependency on ionos-cloud >= 6.0.0
