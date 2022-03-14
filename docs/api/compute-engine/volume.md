@@ -141,7 +141,6 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
   | name | False | str |  | The name of the volumes. You can enumerate the names using auto_increment. |
   | size | False | int | 10 | The size of the volume. |
   | bus | False | str | VIRTIO | The bus type. |
-  | licence_type | False | str | UNKNOWN | The licence type for the volume. This is used when the image is non-standard. |
   | availability_zone | False | str |  | The storage availability zone assigned to the volume. |
   | instance_ids | False | list |  | list of instance ids, currently only used when state='absent' to remove instances. |
   | cpu_hot_plug | False | bool |  | Hot-plug capable CPU (no reboot required). |

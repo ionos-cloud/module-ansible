@@ -100,7 +100,7 @@ OPTIONS = {
         'description': ['The licence type for the volume. This is used when the image is non-standard.'],
         'choices': ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016'],
         'default': 'UNKNOWN',
-        'available': ['present', 'update'],
+        'available': ['present'],
         'type': 'str',
     },
     'availability_zone': {
@@ -350,7 +350,6 @@ def _update_volume(module, volume_server, api_client, datacenter, volume_id):
     size = module.params.get('size')
     bus = module.params.get('bus')
     availability_zone = module.params.get('availability_zone')
-    licence_type = module.params.get('licence_type')
     cpu_hot_plug = module.params.get('cpu_hot_plug')
     ram_hot_plug = module.params.get('ram_hot_plug')
     nic_hot_plug = module.params.get('nic_hot_plug')
@@ -370,7 +369,7 @@ def _update_volume(module, volume_server, api_client, datacenter, volume_id):
                                              cpu_hot_plug=cpu_hot_plug, ram_hot_plug=ram_hot_plug,
                                              nic_hot_plug=nic_hot_plug, nic_hot_unplug=nic_hot_unplug,
                                              disc_virtio_hot_plug=disc_virtio_hot_plug,
-                                             disc_virtio_hot_unplug=disc_virtio_hot_unplug, licence_type=licence_type)
+                                             disc_virtio_hot_unplug=disc_virtio_hot_unplug)
         volume = Volume(properties=volume_properties)
         response = volume_server.datacenters_volumes_put_with_http_info(
             datacenter_id=datacenter,
