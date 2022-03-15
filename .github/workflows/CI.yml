@@ -6,7 +6,7 @@ name: CI
 on:
     workflow_dispatch:
     pull_request:
-        types: [ assigned, opened, synchronize, reopened ]
+        types: [ opened, synchronize, reopened, ready_for_review ]
         paths:
           - 'plugins/**/*'
           - 'tests/**/*'
@@ -20,7 +20,7 @@ on:
 jobs:
 
   test:
-
+    if: github.event.pull_request.draft == false
     name: Testing the Ansible Module
     env:
         python-version: 3.8.0
