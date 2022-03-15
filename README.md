@@ -6,6 +6,7 @@
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=ansible-module&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=ansible-module)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ansible-module&metric=security_rating)](https://sonarcloud.io/dashboard?id=ansible-module)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=ansible-module&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=ansible-module)
+[![Workflow status](https://github.com/ionos-cloud/module-ansible/workflows/CI/badge.svg?branch=release/v5)](https://github.com/ionos-cloud/module-ansible/actions/workflows/CI.yml)
 
 ![Alt text](.github/IONOS.CLOUD.BLU.svg?raw=true "Title")
 
