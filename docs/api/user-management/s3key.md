@@ -4,18 +4,18 @@
 
 ```text
     - name: Create an s3key
-      s3key:
+      ionoscloudsdk.ionoscloud.s3key:
         user_id: "{{ user_id }}"
 
     - name: Update an s3key
-      s3key:
+      ionoscloudsdk.ionoscloud.s3key:
         user_id: "{{ user_id }}"
         key_id: "00ca413c94eecc56857d"
         active: False
         state: update
 
     - name: Remove an s3key
-      s3key:
+      ionoscloudsdk.ionoscloud.s3key:
         user_id: "{{ user_id }}"
         key_id: "00ca413c94eecc56857d"
         state: absent

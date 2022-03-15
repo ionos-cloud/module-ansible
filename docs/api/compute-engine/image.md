@@ -4,7 +4,7 @@
 
 ```text
     - name: Update image
-      image:
+      ionoscloudsdk.ionoscloud.image:
         image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
         name: "CentOS-8.3.2011-x86_64-boot-renamed.iso"
         description: "An image used for testing the Ansible Module"
@@ -23,7 +23,7 @@
         state: update
 
     - name: Delete image
-      image:
+      ionoscloudsdk.ionoscloud.image:
         image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
         state: absent
 ```

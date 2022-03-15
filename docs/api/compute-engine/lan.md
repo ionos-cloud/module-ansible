@@ -4,14 +4,14 @@
 
 ```text
     - name: Create public LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: Virtual Datacenter
         name: nameoflan
         public: true
         state: present
 
     - name: Update LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: Virtual Datacenter
         name: nameoflan
         public: true

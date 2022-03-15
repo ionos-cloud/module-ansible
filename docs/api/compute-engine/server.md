@@ -4,7 +4,7 @@
 
 ```text
     - name: Provision a server
-      server:
+      ionoscloudsdk.ionoscloud.server:
          datacenter: "{{ datacenter }}"
          name: "{{ name }} %02d"
          auto_increment: true
@@ -28,7 +28,7 @@
          state: present
 
     - name: Update server
-      server:
+      ionoscloudsdk.ionoscloud.server:
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} 01"
@@ -38,7 +38,7 @@
          state: update
 
     - name: Stop server
-      server:
+      ionoscloudsdk.ionoscloud.server:
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} 01"
@@ -46,7 +46,7 @@
          state: stopped
 
     - name: Start server
-      server:
+      ionoscloudsdk.ionoscloud.server:
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} 01"

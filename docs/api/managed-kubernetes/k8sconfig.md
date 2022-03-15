@@ -4,7 +4,7 @@
 
 ```text
     - name: Get k8s config
-      k8s_config:
+      ionoscloudsdk.ionoscloud.k8s_config:
         k8s_cluster_id: {{k8s.id}}"
         config_file: 'config.yaml'
         state: present

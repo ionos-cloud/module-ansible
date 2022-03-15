@@ -4,7 +4,7 @@
 
 ```text
     - name: Allow SSH access
-      firewall_rule:
+      ionoscloudsdk.ionoscloud.firewall_rule:
           datacenter: Example
           server: server01
           nic: nic01
