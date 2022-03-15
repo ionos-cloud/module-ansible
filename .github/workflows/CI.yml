@@ -63,6 +63,34 @@ jobs:
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml
 
+      - name: Run Private K8s Cluster test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/private-k8s-cluster-test.yml
+
+      - name: Run K8s Nodepool test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-nodepool-test.yml
+
+      - name: Run User test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
+
+      - name: Run Group test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
+
+      - name: Run Postgres Cluster Info test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-info-test.yml
+
+      - name: Run Postgres Cluster Backup Info test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-backup-info-test.yml
+
+      - name: Run Postgres Cluster test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-test.yml
+
       - name: Run Backupunit test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/backupunit-test.yml
@@ -134,32 +162,4 @@ jobs:
       - name: Run K8s Cluster test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-test.yml
-
-      - name: Run Private K8s Cluster test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/private-k8s-cluster-test.yml
-
-      - name: Run K8s Nodepool test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-nodepool-test.yml
-
-      - name: Run User test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
-
-      - name: Run Group test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
-
-      - name: Run Postgres Cluster Info test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-info-test.yml
-
-      - name: Run Postgres Cluster Backup Info test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-backup-info-test.yml
-
-      - name: Run Postgres Cluster test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-test.yml
 
