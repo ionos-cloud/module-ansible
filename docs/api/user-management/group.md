@@ -4,7 +4,7 @@
 
 ```text
     - name: Create group
-      group:
+      ionoscloudsdk.ionoscloud.group:
         name: guests
         create_datacenter: true
         create_snapshot: true
@@ -12,7 +12,7 @@
         access_activity_log: false
 
     - name: Update group
-      group:
+      ionoscloudsdk.ionoscloud.group:
         name: guests
         create_datacenter: false
         users:

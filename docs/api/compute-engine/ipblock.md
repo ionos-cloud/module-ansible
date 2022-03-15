@@ -4,20 +4,20 @@
 
 ```text
     - name: Create ipblock
-      ipblock:
+      ionoscloudsdk.ionoscloud.ipblock:
         name:  "{{ name }}"
         location: "{{ location }}"
         size: 2
         state: present
 
     - name: Update ipblock
-      ipblock:
+      ionoscloudsdk.ionoscloud.ipblock:
         name: "{{ name }}"
         location: "{{ location }}"
         state: update
 
     - name: Remove ipblock
-      ipblock:
+      ionoscloudsdk.ionoscloud.ipblock:
         name: "{{ name }}"
         state: absent
       register: delete_result

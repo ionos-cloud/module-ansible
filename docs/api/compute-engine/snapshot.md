@@ -4,13 +4,13 @@
 
 ```text
     - name: Create snapshot
-      snapshot:
+      ionoscloudsdk.ionoscloud.snapshot:
         datacenter: production DC
         volume: master
         name: boot volume snapshot
 
     - name: Restore snapshot
-      snapshot:
+      ionoscloudsdk.ionoscloud.snapshot:
         datacenter: production DC
         volume: slave
         name: boot volume snapshot

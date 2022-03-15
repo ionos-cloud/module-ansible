@@ -4,7 +4,7 @@
 
 ```text
     - name: Create or edit k8s cluster
-      k8s_cluster:
+      ionoscloudsdk.ionoscloud.k8s_cluster:
         cluster_name: "{{ cluster_name }}" 
         maintenance_window:
           day_of_the_week: 'Tuesday'
@@ -13,13 +13,13 @@
       register: k8s_response
 
     - name: Update k8s version of cluster above
-      k8s_cluster:
+      ionoscloudsdk.ionoscloud.k8s_cluster:
         k8s_cluster_id: "{{ k8s_response.cluster.id }}"
         cluster_name: "{{ k8s_response.cluster.properties.name }}"
         state: update
 
     - name: Delete a k8s cluster
-      k8s_cluster:
+      ionoscloudsdk.ionoscloud.k8s_cluster:
         k8s_cluster_id: "{{ k8s.id }}"
         state: absent
 
