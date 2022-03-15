@@ -1,6 +1,6 @@
 # postgres_backup_info
 
-This is a simple module that supports listing existing Postgres Clusters
+This is a simple module that supports listing existing Postgres Cluster backups
 
 ## Example Syntax
 

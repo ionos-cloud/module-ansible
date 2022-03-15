@@ -1,6 +1,6 @@
 # network_load_balancer_flowlog
 
-This is a simple module that supports creating or removing NATGateway Flowlogs. This module has a dependency on ionos-cloud &gt;= 6.0.0
+This is a simple module that supports creating or removing NetworkLoadbalancer Flowlogs. This module has a dependency on ionos-cloud &gt;= 6.0.0
 
 ## Example Syntax
 

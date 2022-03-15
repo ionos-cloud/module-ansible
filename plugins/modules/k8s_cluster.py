@@ -57,7 +57,7 @@ OPTIONS = {
     'public': {
         'description': ['The datacenter location.'],
         'available': ['present'],
-        'type': 'dict',
+        'type': 'bool',
     },
     'api_subnet_allow_list': {
         'description': ['The datacenter location.'],

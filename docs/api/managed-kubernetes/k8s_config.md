@@ -1,6 +1,6 @@
 # k8s_config
 
-This is a simple module that supports creating or removing vDCs. A vDC is required before you can create servers. This module has a dependency on ionos-cloud &gt;= 6.0.0
+This is a simple module that supports getting config of K8s clusters This module has a dependency on ionos-cloud &gt;= 6.0.0
 
 ## Example Syntax
 
