@@ -51,7 +51,7 @@
         storage_type: "HDD"
         storage_size: "100"
         public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
-        k8s_version: "1.21.4"
+        k8s_version: "1.21.9"
         wait: true
       register: result
 
