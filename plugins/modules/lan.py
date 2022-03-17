@@ -343,6 +343,12 @@ def main():
                 fallback=(env_fallback, ['IONOS_PASSWORD']),
                 no_log=True
             ),
+            token=dict(
+                type='str',
+                required=True,
+                fallback=(env_fallback, ['IONOS_TOKEN']),
+                no_log=True
+            ),
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
             state=dict(type='str', default='present'),
@@ -355,6 +361,7 @@ def main():
 
     username = module.params.get('username')
     password = module.params.get('password')
+    token = module.params.get('token')
     api_url = module.params.get('api_url')
     user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
