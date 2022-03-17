@@ -520,25 +520,25 @@ def _startstop_machine(module, client, datacenter_id, server_id, current_state):
     changed = False
     try:
         if state == 'running':
-            if current_state != 'RUNNING':
+            if current_state != 'AVAILABLE':
                 response = server_server.datacenters_servers_start_post_with_http_info(datacenter_id, server_id)
                 (_, _, headers) = response
                 request_id = _get_request_id(headers['Location'])
                 client.wait_for_completion(request_id=request_id)
 
                 server_response = server_server.datacenters_servers_find_by_id(datacenter_id, server_id)
-                if server_response.properties.vm_state == 'RUNNING':
+                if server_response.metadata.state == 'AVAILABLE':
                     changed = True
                     server = server_response
         else:
-            if current_state != 'SHUTOFF':
+            if current_state != 'INACTIVE':
                 response = server_server.datacenters_servers_stop_post_with_http_info(datacenter_id, server_id)
                 (_, _, headers) = response
                 request_id = _get_request_id(headers['Location'])
                 client.wait_for_completion(request_id=request_id)
 
                 server_response = server_server.datacenters_servers_find_by_id(datacenter_id, server_id)
-                if server_response.properties.vm_state == 'SHUTOFF':
+                if server_response.metadata.state == 'INACTIVE':
                     changed = True
                     server = server_response
 
@@ -875,8 +875,8 @@ def startstop_machine(module, client, state):
                 module.exit_json(changed=True)
 
             server = _get_instance(server_list, server_id)
-            state = server.properties.vm_state
-            changed, server = _startstop_machine(module, client, datacenter_id, server_id, state)
+            server_state = server.metadata.state
+            changed, server = _startstop_machine(module, client, datacenter_id, server_id, server_state)
             if changed:
                 matched_instances.append(server)
 
