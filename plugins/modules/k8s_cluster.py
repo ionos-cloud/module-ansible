@@ -216,20 +216,20 @@ def main():
             api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
             username=dict(
                 type='str',
-                required=True,
+                required=False, # required only if no token, manual check
                 aliases=['subscription_user'],
                 fallback=(env_fallback, ['IONOS_USERNAME'])
             ),
             password=dict(
                 type='str',
-                required=True,
+                required=False, # required only if no token, manual check
                 aliases=['subscription_password'],
                 fallback=(env_fallback, ['IONOS_PASSWORD']),
                 no_log=True
             ),
             token=dict(
                 type='str',
-                required=True,
+                required=False,
                 fallback=(env_fallback, ['IONOS_TOKEN']),
                 no_log=True
             ),
@@ -250,6 +250,12 @@ def main():
     user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 
     state = module.params.get('state')
+
+    if (
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
+    ):
+        module.fail_json(msg='Token or username & password are required')
 
     if token is not None:
         # use the token instead of username & password
