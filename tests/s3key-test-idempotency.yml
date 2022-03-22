@@ -1,0 +1,52 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - set_fact:
+        random_user: "no-reply{{100000000 |random}}@example.com"
+      run_once: yes
+
+    - name: Create user
+      user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: true
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        state: present
+      register: user_response
+
+    - name: Create an s3key with idempotency
+      s3key:
+        user_id: "{{ user_response.user.id }}"
+        idempotency: True
+      register: s3key_created_one
+
+    - name: Create a second s3key with idempotency
+      s3key:
+        user_id: "{{ user_response.user.id }}"
+        idempotency: True
+      register: s3key_created_two
+
+    - name: Testing if only one s3key exists
+      assert:
+        that:
+          - s3key_created_one == s3key_created_two
+        msg: "only one s3key must be created if using idempotency"  
+
+    - name: Remove an s3key
+      s3key:
+        user_id: "{{ user_response.user.id }}"
+        key_id: "{{ s3key_created_one.s3key.id }}"
+        state: absent
+
+    - name: Remove an s3key - non existent
+      s3key:
+        user_id: "{{ user_response.user.id }}"
+        key_id: "not-existent-key"
+        state: absent
