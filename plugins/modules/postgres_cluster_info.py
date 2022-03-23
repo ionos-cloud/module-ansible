@@ -76,7 +76,7 @@ options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud-dbaas-postgres >= 1.0.0"
+    - "ionoscloud-dbaas-postgres >= 1.0.1"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
