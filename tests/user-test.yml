@@ -51,6 +51,11 @@
         email: "{{ random_user }}"
         state: absent
 
+    - name: Delete user
+      user:
+        email: "non-existent-user"
+        state: absent
+
     - name: Delete group
       group:
         name: "{{ name }}"

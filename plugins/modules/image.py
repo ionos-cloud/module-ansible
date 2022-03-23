@@ -2,10 +2,8 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible import __version__
 import re
-
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
+import copy
+import yaml
 
 HAS_SDK = True
 
@@ -17,6 +15,209 @@ try:
     from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
+
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'compute-engine'
+STATES = ['absent', 'update']
+OBJECT_NAME = 'Image'
+
+
+
+OPTIONS = {
+    'image_id': {
+        'description': ['The ID of the image.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'name': {
+        'description': ['The name of the image.'],
+        'available': STATES,
+        'type': 'str',
+    },
+    'description': {
+        'description': ['The description of the image.'],
+        'available': ['update'],
+        'type': 'str',
+    },
+    'cpu_hot_plug': {
+        'description': ['Hot-plug capable CPU (no reboot required).'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'cpu_hot_unplug': {
+        'description': ['Hot-unplug capable CPU (no reboot required).'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'ram_hot_plug': {
+        'description': ['Hot-plug capable RAM (no reboot required)'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'ram_hot_unplug': {
+        'description': ['Hot-unplug capable RAM (no reboot required).'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'nic_hot_plug': {
+        'description': ['Hot-plug capable NIC (no reboot required).'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'nic_hot_unplug': {
+        'description': ['Hot-unplug capable NIC (no reboot required)'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'disc_scsi_hot_plug': {
+        'description': ['Hot-plug capable SCSI drive (no reboot required).'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'disc_scsi_hot_unplug': {
+        'description': ['Hot-unplug capable SCSI drive (no reboot required). Not supported with Windows VMs.'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'disc_virtio_hot_plug': {
+        'description': ['Hot-plug capable Virt-IO drive (no reboot required).'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'disc_virtio_hot_unplug': {
+        'description': ['Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows VMs.'],
+        'available': ['update'],
+        'type': 'bool',
+    },
+    'licence_type': {
+        'description': ['OS type for this image.'],
+        'available': ['update'],
+        'required': ['update'],
+        'type': 'str',
+    },
+    'cloud_init': {
+        'description': ['Cloud init compatibility.'],
+        'available': ['update'],
+        'type': 'str',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
+
+DOCUMENTATION = '''
+---
+module: image
+short_description: Update or destroy a Ionos Cloud Image.
+description:
+     - This is a simple module that supports updating or removing Images. This module has a dependency on ionos-cloud >= 6.0.0
+version_added: "2.0"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 6.0.0"
+author:
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+'''
+
+EXAMPLE_PER_STATE = {
+  'update' : '''# Update an image
+  - name: Update image
+      image:
+        image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
+        name: "CentOS-8.3.2011-x86_64-boot-renamed.iso"
+        description: "An image used for testing the Ansible Module"
+        cpu_hot_plug: true
+        cpu_hot_unplug: false
+        ram_hot_plug: true
+        ram_hot_unplug: true
+        nic_hot_plug: true
+        nic_hot_unplug: true
+        disc_virtio_hot_plug: true
+        disc_virtio_hot_unplug: true
+        disc_scsi_hot_plug: true
+        disc_scsi_hot_unplug: false
+        licence_type: "LINUX"
+        cloud_init: V1
+        state: update
+  ''',
+  'absent' : '''# Destroy an image
+  - name: Delete image
+      image:
+        image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
+        state: absent
+  ''',
+}
+
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+
+
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
 
 
 def _get_request_id(headers):
@@ -34,6 +235,13 @@ def delete_image(module, client):
     changed = False
 
     image_server = ionoscloud.ImagesApi(api_client=client)
+
+    images_list = image_server.images_get(depth=5)
+    image = _get_resource(images_list, image_id)
+
+    if not image:
+        module.exit_json(changed=False)
+
 
     try:
         response = image_server.images_delete_with_http_info(image_id=image_id)
@@ -103,89 +311,72 @@ def update_image(module, client):
     }
 
 
-def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            image_id=dict(type='str'),
-            name=dict(type='str'),
-            description=dict(type='str'),
-            cpu_hot_plug=dict(type='bool'),
-            cpu_hot_unplug=dict(type='bool'),
-            ram_hot_plug=dict(type='bool'),
-            ram_hot_unplug=dict(type='bool'),
-            nic_hot_plug=dict(type='bool'),
-            nic_hot_unplug=dict(type='bool'),
-            disc_scsi_hot_plug=dict(type='str'),
-            disc_scsi_hot_unplug=dict(type='bool'),
-            disc_virtio_hot_plug=dict(type='bool'),
-            disc_virtio_hot_unplug=dict(type='bool'),
-            licence_type=dict(type='str'),
-            cloud_init=dict(type='str'),
-            api_url=dict(type='str', default=None),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str'),
-        ),
-        supports_check_mode=True
-    )
-    if not HAS_SDK:
-        module.fail_json(
-            msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+def get_module_arguments():
+    arguments = {}
 
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
+
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    api_url = module.params.get('api_url')
+
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    return sdk.Configuration(**conf)
+
+
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
+
+def main():
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+
+    if not HAS_SDK:
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
     state = module.params.get('state')
-    if not state:
-        module.fail_json(msg='state parameter is required')
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
-
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
-
-        if state == 'absent':
-            if not module.params.get('image_id'):
-                module.fail_json(
-                    msg='image_id parameter is required for deleting an image.')
-            try:
-                (changed) = delete_image(module, api_client)
-                module.exit_json(changed=changed)
-            except Exception as e:
-                module.fail_json(
-                    msg='failed to set image state: %s' % to_native(e))
-
-        elif state == 'update':
-            error_message = "%s parameter is required for updating an image."
-            if not module.params.get('image_id'):
-                module.fail_json(msg=error_message % 'image_id')
-            if not module.params.get('licence_type'):
-                module.fail_json(msg=error_message % 'licence_type')
-
-            try:
-                (changed) = update_image(module, api_client)
-                module.exit_json(
-                    changed=changed)
-            except Exception as e:
-                module.fail_json(
-                    msg='failed to set image state: %s' % to_native(e))
+        try:
+            if state == 'absent':
+                module.exit_json(**delete_image(module, api_client))
+            elif state == 'update':
+                module.exit_json(**update_image(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
 
 if __name__ == '__main__':

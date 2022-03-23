@@ -74,6 +74,13 @@
         flowlog_id: "{{ nat_gateway_flowlog_response.flowlog.id }}"
         state: absent
 
+    - name: Delete NAT Gateway Flowlog
+      nat_gateway_flowlog:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+        flowlog_id: "invalid-id"
+        state: absent
+
     - name: Remove NAT Gateway
       nat_gateway:
        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"

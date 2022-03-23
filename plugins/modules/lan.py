@@ -3,107 +3,9 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
-
-__metaclass__ = type
-
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
-
-DOCUMENTATION = '''
----
-module: lan
-short_description: Create, update or remove a LAN.
-description:
-     - This module allows you to create or remove a LAN.
-version_added: "2.4"
-options:
-  datacenter:
-    description:
-      - The datacenter name or UUID in which to operate.
-    required: true
-  name:
-    description:
-      - The name or ID of the LAN.
-    required: false
-  public:
-    description:
-      - If true, the LAN will have public Internet access.
-    required: false
-    default: true
-  ip_failover:
-    description:
-      - The IP failover group.
-    required: false
-  api_url:
-    description:
-      - The Ionos Cloud API base URL.
-    required: false
-    default: null
-  username:
-    description:
-      - The Ionos Cloud username. Overrides the IONOS_USERNAME environment variable.
-    required: false
-    aliases: subscription_user
-  password:
-    description:
-      - The Ionos Cloud password. Overrides the IONOS_PASSWORD environment variable.
-    required: false
-    aliases: subscription_password
-  wait:
-    description:
-      - wait for the operation to complete before returning
-    required: false
-    default: "yes"
-    choices: [ "yes", "no" ]
-  wait_timeout:
-    description:
-      - how long before wait gives up, in seconds
-    default: 600
-  state:
-    description:
-      - Indicate desired state of the resource
-    required: false
-    default: "present"
-    choices: ["present", "absent", "update"]
-
-requirements:
-    - "python >= 2.6"
-    - "ionoscloud >= 5.0.0"
-author:
-    - Nurfet Becirevic (@nurfet-becirevic)
-    - Ethan Devenport (@edevenport)
-'''
-
-EXAMPLES = '''
-# Create a LAN
-- name: Create private LAN
-  lan:
-    datacenter: Virtual Datacenter
-    name: nameoflan
-    public: false
-    state: present
-
-# Update a LAN
-- name: Update LAN
-  lan:
-    datacenter: Virtual Datacenter
-    name: nameoflan
-    public: true
-    ip_failover:
-          208.94.38.167: 1de3e6ae-da16-4dc7-845c-092e8a19fded
-          208.94.38.168: 8f01cbd3-bec4-46b7-b085-78bb9ea0c77c
-    state: update
-
-# Remove a LAN
-- name: Remove LAN
-  lan:
-    datacenter: Virtual Datacenter
-    name: nameoflan
-    state: absent
-'''
-
+import copy
 import re
+import yaml
 
 HAS_SDK = True
 
@@ -119,6 +21,147 @@ except ImportError:
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
+
+__metaclass__ = type
+
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'compute-engine'
+STATES = ['present', 'absent', 'update']
+OBJECT_NAME = 'LAN'
+
+OPTIONS = {
+    'datacenter': {
+        'description': ['The datacenter name or UUID in which to operate.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'name': {
+        'description': ['The name or ID of the LAN.'],
+        'required': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+    'pcc_id': {
+        'description': ['The ID of the PCC.'],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'ip_failover': {
+        'description': ['The IP failover group.'],
+        'available': ['present', 'update'],
+        'type': 'list',
+        'elements': 'dict',
+    },
+    'public': {
+        'description': ['If true, the LAN will have public Internet access.'],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
+
+DOCUMENTATION = '''
+---
+module: lan
+short_description: Create, update or remove a LAN.
+description:
+     - This module allows you to create or remove a LAN.
+version_added: "2.4"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 6.0.0"
+author:
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+'''
+
+EXAMPLE_PER_STATE = {
+  'present' : '''# Create a LAN
+- name: Create private LAN
+  lan:
+    datacenter: Virtual Datacenter
+    name: nameoflan
+    public: false
+    state: present
+  ''',
+  'update' : '''# Update a LAN
+- name: Update LAN
+  lan:
+    datacenter: Virtual Datacenter
+    name: nameoflan
+    public: true
+    ip_failover:
+          208.94.38.167: 1de3e6ae-da16-4dc7-845c-092e8a19fded
+          208.94.38.168: 8f01cbd3-bec4-46b7-b085-78bb9ea0c77c
+    state: update
+  ''',
+  'absent' : '''# Remove a LAN
+- name: Remove LAN
+  lan:
+    datacenter: Virtual Datacenter
+    name: nameoflan
+    state: absent
+  ''',
+}
+
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
 def _get_request_id(headers):
@@ -147,7 +190,7 @@ def create_lan(module, client):
     wait_timeout = module.params.get('wait_timeout')
 
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    lan_server = ionoscloud.LansApi(api_client=client)
+    lan_server = ionoscloud.LANsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -215,7 +258,7 @@ def update_lan(module, client):
     wait_timeout = module.params.get('wait_timeout')
 
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    lan_server = ionoscloud.LansApi(api_client=client)
+    lan_server = ionoscloud.LANsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -268,14 +311,19 @@ def delete_lan(module, client):
     name = module.params.get('name')
 
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    lan_server = ionoscloud.LansApi(api_client=client)
+    lan_server = ionoscloud.LANsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
 
     # Locate ID for LAN
-    lan_list = lan_server.datacenters_lans_get(datacenter_id, depth=2)
+    lan_list = lan_server.datacenters_lans_get(datacenter_id=datacenter_id, depth=5)
+    lan = _get_resource(lan_list, name)
+
+    if not lan:
+        module.exit_json(changed=False)
+
     lan_id = _get_resource_id(lan_list, name, module, "LAN")
 
     if module.check_mode:
@@ -304,73 +352,88 @@ def _get_resource_id(resource_list, identity, module, resource_type):
     module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
 
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
+
+def get_module_arguments():
+    arguments = {}
+
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
+
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
+    username = module.params.get('username')
+    password = module.params.get('password')
+    api_url = module.params.get('api_url')
+
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    return sdk.Configuration(**conf)
+
+
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
+
+
 def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            datacenter=dict(type='str', required=True),
-            name=dict(type='str'),
-            pcc_id=dict(type='str'),
-            public=dict(type='bool', default=False),
-            ip_failover=dict(type='list', elements='dict'),
-            api_url=dict(type='str', default=None),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
-    username = module.params.get('username')
-    password = module.params.get('password')
-    api_url = module.params.get('api_url')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
-
     state = module.params.get('state')
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
-
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
-
-        if state == 'absent':
-            try:
-                (result) = delete_lan(module, api_client)
-                module.exit_json(**result)
-            except Exception as e:
-                module.fail_json(msg='failed to set LAN state: %s' % to_native(e))
-
-        elif state == 'present':
-            try:
-                (lan_dict) = create_lan(module, api_client)
-                module.exit_json(**lan_dict)
-            except Exception as e:
-                module.fail_json(msg='failed to set LANs state: %s' % to_native(e))
-
-        elif state == 'update':
-            try:
-                (lan_dict) = update_lan(module, api_client)
-                module.exit_json(**lan_dict)
-            except Exception as e:
-                module.fail_json(msg='failed to update LAN: %s' % to_native(e))
+        try:
+            if state == 'absent':
+                module.exit_json(**delete_lan(module, api_client))
+            elif state == 'present':
+                module.exit_json(**create_lan(module, api_client))
+            elif state == 'update':
+                module.exit_json(**update_lan(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
 
 if __name__ == '__main__':

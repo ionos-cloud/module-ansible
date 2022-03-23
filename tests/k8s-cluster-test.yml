@@ -12,7 +12,7 @@
         maintenance_window:
           day_of_the_week: "Wednesday"
           time: "12:02:00"
-        k8s_version: "1.20.6"
+        k8s_version: "1.21.9"
       register: cluster_response
 
     - name: Update k8s cluster
@@ -22,10 +22,15 @@
         maintenance_window:
           day_of_the_week: "Wednesday"
           time: "12:02:00"
-        k8s_version: "1.20.6"
+        k8s_version: "1.21.9"
         state: update
 
     - name: Delete k8s cluster
       k8s_cluster:
         k8s_cluster_id: "{{ cluster_response.cluster.id }}"
+        state: absent
+
+    - name: Delete k8s cluster
+      k8s_cluster:
+        k8s_cluster_id: "non-existent-cluster-id"
         state: absent

@@ -83,6 +83,13 @@
         flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
         state: absent
 
+    - name: Delete Network Load Balancer Flowlog
+      network_load_balancer_flowlog:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+        flowlog_id: "invalid-id"
+        state: absent
+
     - name: Remove Network Load Balancer
       network_load_balancer:
        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"

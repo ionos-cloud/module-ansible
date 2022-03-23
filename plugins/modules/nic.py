@@ -4,129 +4,9 @@
 
 from __future__ import absolute_import, division, print_function
 
-__metaclass__ = type
-
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
-
-DOCUMENTATION = '''
----
-module: nic
-short_description: Create, Update or Remove a NIC.
-description:
-     - This module allows you to create, update or remove a NIC.
-version_added: "2.0"
-options:
-  datacenter:
-    description:
-      - The datacenter in which to operate.
-    required: true
-  server:
-    description:
-      - The server name or ID.
-    required: true
-  name:
-    description:
-      - The name or ID of the NIC. This is only required on deletes, but not on create.
-    required: true
-  lan:
-    description:
-      - The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create.
-    required: true
-    default: None
-  dhcp:
-    description:
-      - Boolean value indicating if the NIC is using DHCP or not.
-    required: false
-    default: None
-    version_added: "2.4"
-  firewall_active:
-    description:
-      - Boolean value indicating if the firewall is active.
-    required: false
-    default: None
-    version_added: "2.4"
-  ips:
-    description:
-      - A list of IPs to be assigned to the NIC.
-    required: false
-    default: None
-    version_added: "2.4"
-  api_url:
-    description:
-      - The Ionos API base URL.
-    required: false
-    default: null
-    version_added: "2.4"
-  username:
-    description:
-      - The Ionos username. Overrides the IONOS_USERNAME environment variable.
-    required: false
-    aliases: subscription_user
-  password:
-    description:
-      - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
-    required: false
-    aliases: subscription_password
-  wait:
-    description:
-      - wait for the operation to complete before returning
-    required: false
-    default: "yes"
-    choices: [ "yes", "no" ]
-  wait_timeout:
-    description:
-      - how long before wait gives up, in seconds
-    default: 600
-  state:
-    description:
-      - Indicate desired state of the resource
-    required: false
-    default: "present"
-    choices: ["present", "absent", "update"]
-
-requirements:
-    - "python >= 2.6"
-    - "ionoscloud >= 5.0.0"
-author:
-    - "Matt Baldwin (baldwin@stackpointcloud.com)"
-    - "Ethan Devenport (@edevenport)"
-'''
-
-EXAMPLES = '''
-
-# Create a NIC
-- nic:
-    datacenter: Tardis One
-    server: node002
-    lan: 2
-    wait_timeout: 500
-    state: present
-
-# Update a NIC
-- nic:
-    datacenter: Tardis One
-    server: node002
-    name: 7341c2454f
-    lan: 1
-    ips:
-      - 158.222.103.23
-      - 158.222.103.24
-    dhcp: false
-    state: update
-
-# Remove a NIC
-- nic:
-    datacenter: Tardis One
-    server: node002
-    name: 7341c2454f
-    wait_timeout: 500
-    state: absent
-
-'''
-
+import copy
 import re
+import yaml
 
 from uuid import uuid4
 
@@ -145,8 +25,182 @@ from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
+__metaclass__ = type
+
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'compute-engine'
+STATES = ['present', 'absent', 'update']
+OBJECT_NAME = 'NIC'
+
+OPTIONS = {
+    'name': {
+        'description': ['The name of the NIC.'],
+        'available': STATES,
+        'required': ['absent'],
+        'type': 'str',
+    },
+    'id': {
+        'description': ['The ID of the NIC.'],
+        'available': ['update'],
+        'type': 'str',
+    },
+    'datacenter': {
+        'description': ['The datacenter name or UUID in which to operate.'],
+        'required': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+    'server': {
+        'description': ['The server name or UUID.'],
+        'required': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+    'lan': {
+        'description': ["The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create."],
+        'required': ['present'],
+        'available': ['update'],
+        'type': 'str',
+    },
+    'dhcp': {
+        'description': ['Boolean value indicating if the NIC is using DHCP or not.'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+        'version_added': '2.4',
+    },
+    'firewall_active': {
+        'description': ['Boolean value indicating if the firewall is active.'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+        'version_added': '2.4',
+    },
+    'ips': {
+        'description': ['A list of IPs to be assigned to the NIC.'],
+        'available': ['present', 'update'],
+        'type': 'list',
+        'version_added': '2.4',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
+
+DOCUMENTATION = '''
+---
+module: nic
+short_description: Create, Update or Remove a NIC.
+description:
+     - This module allows you to create, update or remove a NIC.
+version_added: "2.0"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 6.0.0"
+author:
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+'''
+
+EXAMPLE_PER_STATE = {
+  'present' : '''# Create a NIC
+  - nic:
+    datacenter: Tardis One
+    server: node002
+    lan: 2
+    wait_timeout: 500
+    state: present
+  ''',
+  'update' : '''# Update a NIC
+  - nic:
+    datacenter: Tardis One
+    server: node002
+    name: 7341c2454f
+    lan: 1
+    ips:
+      - 158.222.103.23
+      - 158.222.103.24
+    dhcp: false
+    state: update
+  ''',
+  'absent' : '''# Remove a NIC
+  - nic:
+    datacenter: Tardis One
+    server: node002
+    name: 7341c2454f
+    wait_timeout: 500
+    state: absent
+  ''',
+}
+
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+
 uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
+
+
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
 
 
 def _get_request_id(headers):
@@ -171,7 +225,7 @@ def create_nic(module, client):
     datacenter = module.params.get('datacenter')
     server = module.params.get('server')
     lan = module.params.get('lan')
-    dhcp = module.params.get('dhcp') or False
+    dhcp = module.params.get('dhcp')
     firewall_active = module.params.get('firewall_active')
     ips = module.params.get('ips')
     name = module.params.get('name')
@@ -230,6 +284,9 @@ def create_nic(module, client):
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            nic_response = nic_server.datacenters_servers_nics_find_by_id(datacenter_id=datacenter, server_id=server,
+                                                                     nic_id=nic_response.id)
+
 
         return {
             'changed': True,
@@ -316,6 +373,8 @@ def update_nic(module, client):
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            nic_response = nic_server.datacenters_servers_nics_find_by_id(datacenter_id=datacenter, server_id=server,
+                                                                     nic_id=nic_response.id)
 
         return {
             'changed': True,
@@ -385,17 +444,13 @@ def delete_nic(module, client):
                 break
 
         if not nic_found:
-            return {
-                'action': 'delete',
-                'changed': False,
-                'id': name
-            }
+            module.exit_json(changed=False)
 
     if module.check_mode:
         module.exit_json(changed=True)
     try:
         response = nic_server.datacenters_servers_nics_delete_with_http_info(datacenter_id=datacenter, server_id=server,
-                                                                  nic_id=name)
+                                                                             nic_id=name)
         (nic_response, _, headers) = response
 
         if wait:
@@ -409,94 +464,77 @@ def delete_nic(module, client):
         }
     except Exception as e:
         module.fail_json(msg="failed to remove the NIC: %s" % to_native(e))
-        return {
-            'action': 'delete',
-            'changed': False,
-            'id': name
-        }
+
+
+def get_module_arguments():
+    arguments = {}
+
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
+
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
+    username = module.params.get('username')
+    password = module.params.get('password')
+    api_url = module.params.get('api_url')
+
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    return sdk.Configuration(**conf)
+
+
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
 
 
 def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            datacenter=dict(type='str'),
-            server=dict(type='str'),
-            name=dict(type='str'),
-            id=dict(type='str', default=str(uuid4()).replace('-', '')[:10]),
-            lan=dict(type='int', default=None),
-            dhcp=dict(type='bool', default=None),
-            firewall_active=dict(type='bool', default=None),
-            ips=dict(type='list', default=None),
-            api_url=dict(type='str', default=None),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
-    if not module.params.get('datacenter'):
-        module.fail_json(msg='datacenter parameter is required')
-    if not module.params.get('server'):
-        module.fail_json(msg='server parameter is required')
-
-    username = module.params.get('username')
-    password = module.params.get('password')
-    api_url = module.params.get('api_url')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
-
     state = module.params.get('state')
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
-
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
-
-        if state == 'absent':
-            if not module.params.get('name'):
-                module.fail_json(msg='name parameter is required')
-
-            try:
-                (changed) = delete_nic(module, api_client)
-                module.exit_json(changed=changed)
-            except Exception as e:
-                module.fail_json(msg='failed to set nic state: %s' % to_native(e))
-
-        elif state == 'present':
-            if not module.params.get('lan'):
-                module.fail_json(msg='lan parameter is required')
-
-            try:
-                (nic_dict) = create_nic(module, api_client)
-                module.exit_json(**nic_dict)
-            except Exception as e:
-                module.fail_json(msg='failed to set nic state: %s' % to_native(e))
-
-        elif state == 'update':
-            try:
-                (nic_dict) = update_nic(module, api_client)
-                module.exit_json(**nic_dict)
-            except Exception as e:
-                module.fail_json(msg='failed to update nic: %s' % to_native(e))
+        try:
+            if state == 'absent':
+                module.exit_json(**delete_nic(module, api_client))
+            elif state == 'present':
+                module.exit_json(**create_nic(module, api_client))
+            elif state == 'update':
+                module.exit_json(**update_nic(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
 
 if __name__ == '__main__':

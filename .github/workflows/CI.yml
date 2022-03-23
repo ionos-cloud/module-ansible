@@ -7,8 +7,15 @@ on:
     workflow_dispatch:
     pull_request:
         types: [ assigned, opened, synchronize, reopened ]
+        paths:
+          - 'plugins/**/*'
+          - 'tests/**/*'
+
     push:
-      branches: [ master ]
+      branches: [ release/v6 ]
+      paths:
+          - 'plugins/**/*'
+          - 'tests/**/*'
 
 jobs:
 
@@ -17,10 +24,10 @@ jobs:
     name: Testing the Ansible Module
     env:
         python-version: 3.8.0
-        ionoscloud-version: 6.0.0b12
+        ionoscloud-version: 6.0.0b1
         ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
-        IONOS_USERNAME: ${{ secrets.IONOS_VDC_USER }}
-        IONOS_PASSWORD: ${{ secrets.IONOS_VDC_PASSWORD }}
+        IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
+        IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
 
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -29,11 +36,9 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    
+
       - name: Checkout
         uses: actions/checkout@v2
-#        with:
-#            ref: release/v6
 
       - name: Setup Python ${{ env.python-version }}
         uses: actions/setup-python@v2
@@ -44,21 +49,45 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install ionoscloud
-          python3 -m pip install -i https://test.pypi.org/simple/ ionoscloud==${{ env.ionoscloud-version }}
-      
+          python3 -m pip install ionoscloud-dbaas-postgres
+
       - name: Install Ansible
         run: |
             python3 -m pip install ansible
-      
+
       - name: Debug pip packages
         run: |
           python3 -m pip list
-          
-      - name: Run Datacenter tests
+
+      - name: Run Datacenter test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml
-          
-      - name: Run Backupunit tests
+
+      - name: Run K8s Nodepool test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-nodepool-test.yml
+
+      - name: Run User test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
+
+      - name: Run Group test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
+
+      - name: Run Postgres Cluster Info test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-info-test.yml
+
+      - name: Run Postgres Cluster Backup Info test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-backup-info-test.yml
+
+      - name: Run Postgres Cluster test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-test.yml
+
+      - name: Run Backupunit test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/backupunit-test.yml
           
@@ -106,30 +135,22 @@ jobs:
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
 
-      - name: Run NAT Gateway test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-test.yml -vvv
+#      - name: Run NAT Gateway test
+#        run: |
+#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-test.yml -vvv
+#
+#      - name: Run NAT Gateway Flowlog test
+#        run: |
+#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-flowlog-test.yml
+#
+#      - name: Run NAT Gateway Rule test
+#        run: |
+#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-rule-test.yml
 
-      - name: Run NAT Gateway Flowlog test
+      - name: Run Attach Volume test
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-flowlog-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/attach-volume-test.yml
 
-      - name: Run NAT Gateway Rule test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-rule-test.yml
-
-      - name: Run Network Load Balancer test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
-
-      - name: Run Network Load Balancer Flowlog test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-flowlog-test.yml
-
-      - name: Run Network Load Balancer Forwarding Rule test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-rule-test.yml
-          
       - name: Run Kubeconfig test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-config-test.yml
@@ -137,21 +158,11 @@ jobs:
       - name: Run K8s Cluster test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-test.yml
-          
-      - name: Run K8s Nodepool test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-nodepool-test.yml
-                    
-      - name: Run User test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
 
-      - name: Run Group test
+      - name: Run Private K8s Cluster test
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
-
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/private-k8s-cluster-test.yml
 
       - name: Run Target Group test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/target-group-test.yml
-

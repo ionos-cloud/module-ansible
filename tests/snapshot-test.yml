@@ -19,7 +19,7 @@
         datacenter: "{{ datacenter }}"
         name: "{{ name }}"
         count: 1
-        image: "{{ image }}"
+        image: "{{ image_alias }}"
         image_password: "{{ password }}"
         availability_zone: ZONE_3
         auto_increment: no
@@ -45,6 +45,12 @@
         volume: "{{ name }}"
         name: "{{ name }}"
         state: restore
+
+    - name: Delete snapshot
+      snapshot:
+        name: "{{ name }}"
+        wait_timeout: 600
+        state: absent
 
     - name: Delete snapshot
       snapshot:

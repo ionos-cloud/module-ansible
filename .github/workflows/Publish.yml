@@ -9,6 +9,7 @@ on:
       ionoscloud-version:
         description: 'Python SDK client version to use '
         required: true
+        default: 6.0.0b1
       test:
         description: 'Whether to run tests or not'
         required: true
@@ -24,7 +25,6 @@ jobs:
     name: Testing the Ansible Module
     env:
         python-version: 3.8.0
-        ionoscloud-version: 6.0.0b0
         ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
         IONOS_USERNAME: ${{ secrets.IONOS_VDC_USER }}
         IONOS_PASSWORD: ${{ secrets.IONOS_VDC_PASSWORD }}
@@ -39,8 +39,6 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-            ref: release/v6
 
       - name: Setup Python ${{ env.python-version }}
         uses: actions/setup-python@v2
@@ -51,7 +49,7 @@ jobs:
         run: |
          python3 -m pip install --upgrade pip
          python3 -m pip install ionoscloud
-         python3 -m pip install ionoscloud==${{ github.event.inputs.ionoscloud-version }}
+         python3 -m pip install ionoscloud-dbaas-postgres
 
       - name: Install Ansible
         run: |
@@ -126,36 +124,40 @@ jobs:
         run: |
          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
 
-      - name: Run NAT Gateway test
+      - name: Run Attach Volume test
         if: github.event.inputs.test == 'yes'
         run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/attach-volume-test.yml
 
-      - name: Run NAT Gateway Flowlog test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-flowlog-test.yml
+#      - name: Run NAT Gateway test
+#        if: github.event.inputs.test == 'yes'
+#        run: |
+#         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-test.yml
+#
+#      - name: Run NAT Gateway Flowlog test
+#        if: github.event.inputs.test == 'yes'
+#        run: |
+#         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-flowlog-test.yml
+#
+#      - name: Run NAT Gateway Rule test
+#        if: github.event.inputs.test == 'yes'
+#        run: |
+#         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-rule-test.yml
 
-      - name: Run NAT Gateway Rule test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-rule-test.yml
-
-      - name: Run Network Load Balancer test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
-
-      - name: Run Network Load Balancer Flowlog test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
-
-      - name: Run Network Load Balancer Forwarding Rule test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
-
+#      - name: Run Network Load Balancer test
+#        if: github.event.inputs.test == 'yes'
+#        run: |
+#         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
+#
+#      - name: Run Network Load Balancer Flowlog test
+#        if: github.event.inputs.test == 'yes'
+#        run: |
+#         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
+#
+#      - name: Run Network Load Balancer Forwarding Rule test
+#        if: github.event.inputs.test == 'yes'
+#        run: |
+#         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
 
       - name: Run Kubeconfig test
         if: github.event.inputs.test == 'yes'
@@ -166,6 +168,11 @@ jobs:
         if: github.event.inputs.test == 'yes'
         run: |
          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-test.yml
+
+      - name: Run Private K8s Cluster test
+        if: github.event.inputs.test == 'yes'
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/private-k8s-cluster-test.yml
 
       - name: Run K8s Nodepool test
         if: github.event.inputs.test == 'yes'
@@ -182,6 +189,21 @@ jobs:
         run: |
          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
 
+      - name: Run Postgres Cluster Info test
+        if: github.event.inputs.test == 'yes'
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-info-test.yml
+
+      - name: Run Postgres Cluster Backup Info test
+        if: github.event.inputs.test == 'yes'
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-backup-info-test.yml
+
+      - name: Run Postgres Cluster tests
+        if: github.event.inputs.test == 'yes'
+        run: |
+         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-test.yml
+
 
   publish:
       name: Publishing the Module
@@ -192,7 +214,7 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v2
           with:
-            ref: release/v6
+            ref: master
 
         - name: Get current version
           id: cversion

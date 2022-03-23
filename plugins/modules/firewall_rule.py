@@ -3,12 +3,165 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+import copy
+import re
+import time
+import yaml
+
+
+HAS_SDK = True
+
+try:
+    import ionoscloud
+    from ionoscloud import __version__ as sdk_version
+    from ionoscloud.models import FirewallRule, FirewallruleProperties, Nic, NicProperties
+    from ionoscloud.rest import ApiException
+    from ionoscloud import ApiClient
+except ImportError:
+    HAS_SDK = False
+
+from ansible import __version__
+from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils._text import to_native
 
 __metaclass__ = type
 
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
+
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'compute-engine'
+STATES = ['present', 'absent', 'update']
+OBJECT_NAME = 'Firewall Rule'
+
+OPTIONS = {
+    'datacenter': {
+        'description': ['The datacenter name or UUID in which to operate.'],
+        'required': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+    'server': {
+        'description': ['The server name or UUID.'],
+        'required': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+    'nic': {
+        'description': ['The NIC name or UUID.'],
+        'required': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+    'name': {
+        'description': ['The name or UUID of the firewall rule.'],
+        'required': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+    'protocol': {
+        'description': ['The protocol for the firewall rule.'],
+        'required': ['present'],
+        'available': ['present', 'update'],
+        'choices': ['TCP', 'UDP', 'ICMP', 'ANY'],
+        'type': 'str',
+    },
+    'source_mac': {
+        'description': ['Only traffic originating from the respective MAC address is allowed. No value allows all source MAC addresses.'],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'source_ip': {
+        'description': ['Only traffic originating from the respective IPv4 address is allowed. No value allows all source IPs.'],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'target_ip': {
+        'description': [
+            'In case the target NIC has multiple IP addresses, only traffic directed to the respective IP address of the NIC is allowed.'
+            'No value allows all target IPs.',
+        ],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'port_range_start': {
+        'description': [
+            'Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave value empty to allow all ports.',
+        ],
+        'available': ['present', 'update'],
+        'type': 'int',
+    },
+    'port_range_end': {
+        'description': [
+            'Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave value empty to allow all ports.',
+        ],
+        'available': ['present', 'update'],
+        'type': 'int',
+    },
+    'icmp_type': {
+        'description': ['Defines the allowed type (from 0 to 254) if the protocol ICMP is chosen. No value allows all types.'],
+        'available': ['present', 'update'],
+        'type': 'int',
+    },
+    'icmp_code': {
+        'description': ['Defines the allowed code (from 0 to 254) if protocol ICMP is chosen. No value allows all codes.'],
+        'available': ['present', 'update'],
+        'type': 'int',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
 
 DOCUMENTATION = '''
 ---
@@ -18,99 +171,16 @@ description:
      - This module allows you to create, update or remove a firewall rule.
 version_added: "2.2"
 options:
-  datacenter:
-    description:
-      - The datacenter name or UUID in which to operate.
-    required: true
-  server:
-    description:
-      - The server name or UUID.
-    required: true
-  nic:
-    description:
-      - The NIC name or UUID.
-    required: true
-  name:
-    description:
-      - The name or UUID of the firewall rule.
-    required: false
-  protocol:
-    description:
-      - The protocol for the firewall rule.
-    choices: [ "TCP", "UDP", "ICMP", "ANY" ]
-    required: true
-  source_mac:
-    description:
-      - Only traffic originating from the respective MAC address is allowed. No value allows all source MAC addresses.
-    required: false
-  source_ip:
-    description:
-      - Only traffic originating from the respective IPv4 address is allowed. No value allows all source IPs.
-    required: false
-  target_ip:
-    description:
-      - In case the target NIC has multiple IP addresses, only traffic directed to the respective IP address of the NIC is allowed.
-        No value allows all target IPs.
-    required: false
-  port_range_start:
-    description:
-      - Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave value empty to allow all ports.
-    required: false
-  port_range_end:
-    description:
-      - Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave value empty to allow all ports.
-    required: false
-  icmp_type:
-    description:
-      - Defines the allowed type (from 0 to 254) if the protocol ICMP is chosen. No value allows all types.
-    required: false
-  icmp_code:
-    description:
-      - Defines the allowed code (from 0 to 254) if protocol ICMP is chosen. No value allows all codes.
-    required: false
-  api_url:
-    description:
-      - The Ionos API base URL.
-    required: false
-    default: null
-    version_added: "2.4"
-  username:
-    description:
-      - The Ionos username. Overrides the IONOS_USERNAME environment variable.
-    required: false
-    aliases: subscription_user
-  password:
-    description:
-      - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
-    required: false
-    aliases: subscription_password
-  wait:
-    description:
-      - wait for the operation to complete before returning
-    required: false
-    default: "yes"
-    choices: [ "yes", "no" ]
-  wait_timeout:
-    description:
-      - how long before wait gives up, in seconds
-    default: 600
-  state:
-    description:
-      - Indicate desired state of the resource
-    required: false
-    default: "present"
-    choices: ["present", "absent", "update"]
-
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 5.0.0"
+    - "ionoscloud >= 6.0.0"
 author:
-    - "Matt Baldwin (baldwin@stackpointcloud.com)"
-    - "Ethan Devenport (@edevenport)"
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
 
-EXAMPLES = '''
-# Create a firewall rule
+EXAMPLE_PER_STATE = {
+  'present' : '''# Create a firewall rule
 - name: Create SSH firewall rule
   firewall_rule:
     datacenter: Virtual Datacenter
@@ -134,8 +204,8 @@ EXAMPLES = '''
     icmp_type: 8
     icmp_code: 0
     state: present
-
-# Update a firewall rule
+  ''',
+  'update' : '''# Update a firewall rule
 - name: Allow SSH access
   firewall_rule:
       datacenter: Virtual Datacenter
@@ -145,8 +215,8 @@ EXAMPLES = '''
       source_ip: 162.254.27.217
       source_mac: 01:23:45:67:89:00
       state: update
-
-# Remove a firewall rule
+  ''',
+  'absent' : '''# Remove a firewall rule
 - name: Remove public ping firewall rule
   firewall_rule:
     datacenter: Virtual Datacenter
@@ -154,84 +224,10 @@ EXAMPLES = '''
     nic: aa6c261b9c
     name: Allow Ping
     state: absent
-'''
+  ''',
+}
 
-RETURN = '''
----
-id:
-  description: UUID of the firewall rule.
-  returned: success
-  type: string
-  sample: be60aa97-d9c7-4c22-bebe-f5df7d6b675d
-name:
-  description: Name of the firewall rule.
-  returned: success
-  type: string
-  sample: Allow SSH
-protocol:
-  description: Protocol of the firewall rule.
-  returned: success
-  type: string
-  sample: TCP
-source_mac:
-  description: MAC address of the firewall rule.
-  returned: success
-  type: string
-  sample: 02:01:97:d7:ed:49
-source_ip:
-  description: Source IP of the firewall rule.
-  returned: success
-  type: string
-  sample: tcp
-target_ip:
-  description: Target IP of the firewall rule.
-  returned: success
-  type: string
-  sample: 10.0.0.1
-port_range_start:
-  description: Start port of the firewall rule.
-  returned: success
-  type: int
-  sample: 80
-port_range_end:
-  description: End port of the firewall rule.
-  returned: success
-  type: int
-  sample: 80
-icmp_type:
-  description: ICMP type of the firewall rule.
-  returned: success
-  type: int
-  sample: 8
-icmp_code:
-  description: ICMP code of the firewall rule.
-  returned: success
-  type: int
-  sample: 0
-'''
-
-import time
-import re
-
-HAS_SDK = True
-
-try:
-    import ionoscloud
-    from ionoscloud import __version__ as sdk_version
-    from ionoscloud.models import FirewallRule, FirewallruleProperties, Nic, NicProperties
-    from ionoscloud.rest import ApiException
-    from ionoscloud import ApiClient
-except ImportError:
-    HAS_SDK = False
-
-from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule, env_fallback
-from ansible.module_utils._text import to_native
-
-PROTOCOLS = ['TCP',
-             'UDP',
-             'ICMP',
-             'ANY']
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
 def _get_request_id(headers):
@@ -465,7 +461,9 @@ def delete_firewall_rule(module, client):
     firewall_rule_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id=datacenter_id,
                                                                                server_id=server_id, nic_id=nic_id,
                                                                                depth=2)
-    firewall_rule_id = _get_resource_id(firewall_rule_list, name, module, "Firewall rule")
+    firewall_rule_id = _get_resource(firewall_rule_list, name)
+    if not firewall_rule_id:
+        module.exit_json(changed=False)
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -485,6 +483,19 @@ def delete_firewall_rule(module, client):
         module.fail_json(msg="failed to remove the firewall rule: %s" % to_native(e))
 
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
+
 def _get_resource_id(resource_list, identity, module, resource_type):
     """
     Fetch and return the UUID of a resource regardless of whether the name or
@@ -497,80 +508,75 @@ def _get_resource_id(resource_list, identity, module, resource_type):
     module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
 
 
+def get_module_arguments():
+    arguments = {}
+
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
+
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
+    username = module.params.get('username')
+    password = module.params.get('password')
+    api_url = module.params.get('api_url')
+
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    return sdk.Configuration(**conf)
+
+
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
+
+
 def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            datacenter=dict(type='str', required=True),
-            server=dict(type='str', required=True),
-            nic=dict(type='str', required=True),
-            name=dict(type='str', required=True),
-            protocol=dict(type='str', choices=PROTOCOLS, required=False),
-            source_mac=dict(type='str', default=None),
-            source_ip=dict(type='str', default=None),
-            target_ip=dict(type='str', default=None),
-            port_range_start=dict(type='int', default=None),
-            port_range_end=dict(type='int', default=None),
-            icmp_type=dict(type='int', default=None),
-            icmp_code=dict(type='int', default=None),
-            api_url=dict(type='str', default=None),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
-    username = module.params.get('username')
-    password = module.params.get('password')
-    api_url = module.params.get('api_url')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
-
     state = module.params.get('state')
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
-
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
-
-        if state == 'absent':
-            try:
-                (result) = delete_firewall_rule(module, api_client)
-                module.exit_json(**result)
-            except Exception as e:
-                module.fail_json(msg='failed to set firewall rule state: %s' % to_native(e))
-
-        elif state == 'present':
-            try:
-                (firewall_rule_dict) = create_firewall_rule(module, api_client)
-                module.exit_json(**firewall_rule_dict)
-            except Exception as e:
-                module.fail_json(msg='failed to set firewall rules state: %s' % to_native(e))
-
-        elif state == 'update':
-            try:
-                (firewall_rule_dict) = update_firewall_rule(module, api_client)
-                module.exit_json(**firewall_rule_dict)
-            except Exception as e:
-                module.fail_json(msg='failed to update firewall rule: %s' % to_native(e))
+        try:
+            if state == 'absent':
+                module.exit_json(**delete_firewall_rule(module, api_client))
+            elif state == 'present':
+                module.exit_json(**create_firewall_rule(module, api_client))
+            elif state == 'update':
+                module.exit_json(**update_firewall_rule(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
 
 if __name__ == '__main__':

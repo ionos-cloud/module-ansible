@@ -51,7 +51,7 @@
         storage_type: "HDD"
         storage_size: "100"
         public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
-        k8s_version: 1.19.10
+        k8s_version: "1.21.9"
         wait: true
       register: result
 
@@ -82,6 +82,13 @@
         wait: true
         state: absent
 
+    - name: Delete non-existent k8s cluster nodepool
+      k8s_nodepool:
+        k8s_cluster_id: "{{ cluster.cluster.id }}"
+        nodepool_id: "non-existent-nodepool"
+        wait: true
+        state: absent
+
     - name: Delete k8s cluster
       k8s_cluster:
         k8s_cluster_id: "{{ cluster.cluster.id }}"
@@ -97,3 +104,4 @@
       ipblock:
         name: "{{ name }} - update"
         state: absent
+

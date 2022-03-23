@@ -1,25 +1,6 @@
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
-
-EXAMPLES = '''
-    - name: Create pcc
-      pcc:
-        name: "{{ name }}"
-        description: "{{ description }}"
-
-    - name: Update pcc
-      pcc:
-        pcc_id: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
-        name: "{{ new_name }}"
-        description: "{{ new_description }}"
-        state: update
-
-    - name: Remove pcc
-      pcc:
-        pcc_id: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
-        state: absent
-'''
+import copy
+import re
+import yaml
 
 HAS_SDK = True
 try:
@@ -36,7 +17,142 @@ from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
-import re
+
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'compute-engine'
+STATES = ['present', 'absent', 'update']
+OBJECT_NAME = 'PCC'
+
+OPTIONS = {
+    'name': {
+        'description': ['The name of the PCC.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'pcc_id': {
+        'description': ['The ID of the PCC.'],
+        'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
+        'type': 'str',
+    },
+    'description': {
+        'description': ['The description of the PCC.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
+
+DOCUMENTATION = '''
+---
+module: pcc
+short_description: Create or destroy a Ionos Cloud Private Cross Connect
+description:
+     - This is a simple module that supports creating or removing Private Cross Connects.
+       This module has a dependency on ionos-cloud >= 6.0.0
+version_added: "2.0"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 6.0.0"
+author:
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+'''
+
+EXAMPLE_PER_STATE = {
+  'present' : '''
+  - name: Create pcc
+    pcc:
+      name: "{{ name }}"
+      description: "{{ description }}"
+  ''',
+  'update' : '''
+  - name: Update pcc
+    pcc:
+      pcc_id: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
+      name: "{{ new_name }}"
+      description: "{{ new_description }}"
+      state: update
+  ''',
+  'absent' : '''
+  - name: Remove pcc
+    pcc:
+      pcc_id: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
+      state: absent
+  ''',
+}
+
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+
+
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
 
 
 def _get_request_id(headers):
@@ -82,6 +198,13 @@ def delete_pcc(module, client):
     pcc_id = module.params.get('pcc_id')
     pcc_server = ionoscloud.PrivateCrossConnectsApi(client)
 
+    pcc_list = pcc_server.pccs_get(depth=5)
+    pcc = _get_resource(pcc_list, pcc_id)
+
+    if not pcc:
+        module.exit_json(changed=False)
+
+
     try:
         pcc_server.pccs_delete(pcc_id)
         return {
@@ -91,11 +214,6 @@ def delete_pcc(module, client):
         }
     except Exception as e:
         module.fail_json(msg="failed to delete the pcc: %s" % to_native(e))
-        return {
-            'action': 'delete',
-            'changed': False,
-            'id': pcc_id
-        }
 
 
 def update_pcc(module, client):
@@ -135,79 +253,75 @@ def update_pcc(module, client):
         }
 
 
-def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            pcc_id=dict(type='str'),
-            name=dict(type='str'),
-            description=dict(type='str'),
-            api_url=dict(type='str', default=None),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
-    if not HAS_SDK:
-        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+def get_module_arguments():
+    arguments = {}
 
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
+
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    return sdk.Configuration(**conf)
+
+
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
+
+
+def main():
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+
+    if not HAS_SDK:
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
     state = module.params.get('state')
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
 
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
-
-        if state == 'present':
-            if not module.params.get('name'):
-                module.fail_json(msg='name parameter is required for a new pcc')
-            if not module.params.get('description'):
-                module.fail_json(msg='description parameter is required for a new pcc')
-            try:
-                (pcc_dict_array) = create_pcc(module, api_client)
-                module.exit_json(**pcc_dict_array)
-            except Exception as e:
-                module.fail_json(msg='failed to set user state: %s' % to_native(e))
-
-        elif state == 'absent':
-            if not module.params.get('pcc_id'):
-                module.fail_json(msg='pcc_id parameter is required for deleting a pcc.')
-            try:
-                (changed) = delete_pcc(module, api_client)
-                module.exit_json(changed=changed)
-            except Exception as e:
-                module.fail_json(msg='failed to set pcc state: %s' % to_native(e))
-
-        elif state == 'update':
-            if not module.params.get('pcc_id'):
-                module.fail_json(msg='pcc_id parameter is required for updating a pcc.')
-            try:
-                (changed) = update_pcc(module, api_client)
-                module.exit_json(
-                    changed=changed)
-            except Exception as e:
-                module.fail_json(msg='failed to set pcc state: %s' % to_native(e))
+        try:
+            if state == 'present':
+                module.exit_json(**create_pcc(module, api_client))
+            elif state == 'absent':
+                module.exit_json(**delete_pcc(module, api_client))
+            elif state == 'update':
+                module.exit_json(**update_pcc(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
 
 if __name__ == '__main__':

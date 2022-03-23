@@ -7,6 +7,8 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import re
+import copy
+import yaml
 
 HAS_SDK = True
 
@@ -23,8 +25,215 @@ from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
-uuid_match = re.compile(
-    '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
+
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'natgateway'
+STATES = ['present', 'absent', 'update']
+OBJECT_NAME = 'NAT Gateway rule'
+
+OPTIONS = {
+    'name': {
+        'description': ['The name of the NAT Gateway rule.'],
+        'available': STATES,
+        'required': ['present'],
+        'type': 'str',
+    },
+    'type': {
+        'description': ['Type of the NAT Gateway rule.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'protocol': {
+        'description': ["Protocol of the NAT Gateway rule. Defaults to ALL. If protocol is 'ICMP' then targetPortRange start and end cannot be set."],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'source_subnet': {
+        'description': [
+            'Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this '
+            'translation rule applies to based on the packets source IP address.',
+        ],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'public_ip': {
+        'description': [
+            'Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing '
+            'packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource.',
+        ],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'target_subnet': {
+        'description': [
+            'Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets '
+            'this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address.',
+        ],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'target_port_range': {
+        'description': [
+            'Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation '
+            'rule applies to based on destination port. If none is provided, rule will match any port.',
+        ],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'datacenter_id': {
+        'description': ['The ID of the datacenter.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'nat_gateway_id': {
+        'description': ['The ID of the NAT Gateway.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'nat_gateway_rule_id': {
+        'description': ['The ID of the NAT Gateway rule.'],
+        'available': ['update', 'absent'],
+        'type': 'str',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
+
+DOCUMENTATION = '''
+---
+module: nat_gateway_rule
+short_description: Create or destroy a Ionos Cloud NATGateway rule.
+description:
+     - This is a simple module that supports creating or removing NATGateway rules.
+       This module has a dependency on ionos-cloud >= 6.0.0
+version_added: "2.0"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 6.0.0"
+author:
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+'''
+
+EXAMPLE_PER_STATE = {
+  'present' : '''
+  - name: Create NAT Gateway Rule
+    nat_gateway_rule:
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      name: "{{ name }}"
+      type: "SNAT"
+      protocol: "TCP"
+      source_subnet: "10.0.1.0/24"
+      target_subnet: "10.0.1.0"
+      target_port_range:
+        start: 10000
+        end: 20000
+      public_ip: "{{ ipblock_response.ipblock.properties.ips[0] }}"
+      wait: true
+    register: nat_gateway_rule_response
+  ''',
+  'update' : '''
+  - name: Update NAT Gateway Rule
+    nat_gateway_rule:
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      nat_gateway_rule_id: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
+      public_ip: "{{ ipblock_response.ipblock.properties.ips[1] }}"
+      name: "{{ name }} - UPDATED"
+      type: "SNAT"
+      protocol: "TCP"
+      source_subnet: "10.0.1.0/24"
+      wait: true
+      state: update
+    register: nat_gateway_rule_update_response
+  ''',
+  'absent' : '''
+  - name: Delete NAT Gateway Rule
+    nat_gateway_rule:
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      nat_gateway_rule_id: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
+      state: absent
+  ''',
+}
+
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+
+uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
+
+
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
 
 
 def _update_nat_gateway_rule(module, client, nat_gateway_server, datacenter_id, nat_gateway_id, nat_gateway_rule_id,
@@ -203,35 +412,25 @@ def remove_nat_gateway_rule(module, client):
     changed = False
 
     try:
+        nat_gateway_rule_list = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id=datacenter_id, nat_gateway_id=nat_gateway_id, depth=5)
         if nat_gateway_rule_id:
-            response = nat_gateway_server.datacenters_natgateways_rules_delete_with_http_info(datacenter_id,
-                                                                                              nat_gateway_id,
-                                                                                              nat_gateway_rule_id)
-            (nat_gateway_rule_response, _, headers) = response
+            nat_gateway_rule = _get_resource(nat_gateway_rule_list, nat_gateway_rule_id)
+        else:
+            nat_gateway_rule = _get_resource(nat_gateway_rule_list, name)
 
-            if wait:
-                request_id = _get_request_id(headers['Location'])
-                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        if not nat_gateway_rule:
+            module.exit_json(changed=False)
 
-            changed = True
+        response = nat_gateway_server.datacenters_natgateways_rules_delete_with_http_info(datacenter_id,
+                                                                                          nat_gateway_id,
+                                                                                          nat_gateway_rule)
+        (nat_gateway_rule_response, _, headers) = response
 
-        elif name:
-            nat_gateway_rules = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id=datacenter_id,
-                                                                                     nat_gateway_id=nat_gateway_id,
-                                                                                     depth=2)
-            for rule in nat_gateway_rules.items:
-                if name == rule.properties.name:
-                    nat_gateway_rule_id = rule.id
-                    response = nat_gateway_server.datacenters_natgateways_rules_delete_with_http_info(datacenter_id,
-                                                                                                      nat_gateway_id,
-                                                                                                      nat_gateway_rule_id)
-                    (nat_gateway_rule_response, _, headers) = response
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-                    if wait:
-                        request_id = _get_request_id(headers['Location'])
-                        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-                    changed = True
+        changed = True
 
     except Exception as e:
         module.fail_json(
@@ -244,107 +443,80 @@ def remove_nat_gateway_rule(module, client):
     }
 
 
+def get_module_arguments():
+    arguments = {}
+
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
+
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
+    username = module.params.get('username')
+    password = module.params.get('password')
+    api_url = module.params.get('api_url')
+
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    return sdk.Configuration(**conf)
+
+
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
+
+
 def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            name=dict(type='str'),
-            type=dict(type='str'),
-            protocol=dict(type='str'),
-            source_subnet=dict(type='str'),
-            public_ip=dict(type='str'),
-            target_subnet=dict(type='str'),
-            datacenter_id=dict(type='str'),
-            nat_gateway_id=dict(type='str'),
-            nat_gateway_rule_id=dict(type='str'),
-            target_port_range=dict(
-                type='dict',
-                start=dict(type='int'),
-                end=dict(type='int')
-            ),
-            api_url=dict(type='str', default=None),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
-    username = module.params.get('username')
-    password = module.params.get('password')
     state = module.params.get('state')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+        if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('nat_gateway_rule_id'):
+            module.fail_json(
+                msg='either name or nat_gateway_rule_id parameter is required for {object_name} state present'.format(object_name=OBJECT_NAME),
+            )
 
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
-
-        if state == 'present':
-            if not module.params.get('name'):
-                module.fail_json(msg='name parameter is required for a new NAT Gateway Rule')
-            if not module.params.get('source_subnet'):
-                module.fail_json(msg='source_subnet parameter is required for a new NAT Gateway Rule')
-            if not module.params.get('public_ip'):
-                module.fail_json(msg='public_ip parameter is required for a new NAT Gateway Rule')
-            if not module.params.get('nat_gateway_id'):
-                module.fail_json(msg='nat_gateway_id parameter is required for a new NAT Gateway Rule')
-            if not module.params.get('datacenter_id'):
-                module.fail_json(msg='datacenter_id parameter is required for a new NAT Gateway Rule')
-
-            try:
-                (nat_gateway_rule_dict) = create_nat_gateway_rule(module, api_client)
-                module.exit_json(**nat_gateway_rule_dict)
-            except Exception as e:
-                module.fail_json(msg='failed to set NAT Gateway Rule state: %s' % to_native(e))
-
-        elif state == 'update':
-            if not (module.params.get('name') or module.params.get('nat_gateway_id')):
-                module.fail_json(
-                    msg='name parameter or nat_gateway_id parameter are required for updating a NAT Gateway Rule.')
-            if not module.params.get('nat_gateway_rule_id'):
-                module.fail_json(msg='nat_gateway_rule_id parameter is required for updating a NAT Gateway Rule.')
-            if not module.params.get('datacenter_id'):
-                module.fail_json(msg='datacenter_id parameter is required for updating a NAT Gateway Rule.')
-            try:
-                (nat_gateway_rule_dict) = update_nat_gateway_rule(module, api_client)
-                module.exit_json(**nat_gateway_rule_dict)
-            except Exception as e:
-                module.fail_json(msg='failed to update the NAT Gateway: %s' % to_native(e))
-
-        elif state == 'absent':
-            if not (module.params.get('name') or module.params.get('nat_gateway_id')):
-                module.fail_json(
-                    msg='name parameter or nat_gateway_id parameter are required for deleting a NAT Gateway Rule.')
-            if not module.params.get('nat_gateway_rule_id'):
-                module.fail_json(msg='nat_gateway_rule_id parameter is required for deleting a NAT Gateway Rule.')
-            if not module.params.get('datacenter_id'):
-                module.fail_json(msg='datacenter_id parameter is required for deleting a NAT Gateway Rule.')
-
-            try:
-                (result) = remove_nat_gateway_rule(module, api_client)
-                module.exit_json(**result)
-
-            except Exception as e:
-                module.fail_json(msg='failed to set NAT Gateway Rule state: %s' % to_native(e))
-
+        try:
+            if state == 'present':
+                module.exit_json(**create_nat_gateway_rule(module, api_client))
+            elif state == 'update':
+                module.exit_json(**update_nat_gateway_rule(module, api_client))
+            elif state == 'absent':
+                module.exit_json(**remove_nat_gateway_rule(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
 if __name__ == '__main__':
     main()

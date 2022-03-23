@@ -11,15 +11,18 @@
   tasks:
     - name: Create datacenter
       datacenter:
-          name: "{{ datacenter }}"
-          location: "{{ location }}"
+        name: "{{ datacenter }}"
+        location: "{{ location }}"
 
     - name: Create volumes
       volume:
         datacenter: "{{ datacenter }}"
         name: "{{ name }} %02d"
+        disk_type: SSD Premium
+        image: "{{ image_alias }}"
+        image_password: "{{ password }}"
         count: 2
-        size: 2
+        size: 6
         availability_zone: ZONE_3
         auto_increment: yes
         cpu_hot_plug: false
@@ -38,7 +41,7 @@
         instance_ids:
           - "{{ name }} 01"
           - "{{ name }} 02"
-        size: 5
+        size: 10
         cpu_hot_plug: false
         ram_hot_plug: true
         nic_hot_plug: true
