@@ -7,6 +7,8 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import re
+import yaml
+import copy
 
 HAS_SDK = True
 
@@ -23,8 +25,166 @@ from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
-uuid_match = re.compile(
-    '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'applicationloadbalancer'
+STATES = ['present', 'absent', 'update']
+OBJECT_NAME = 'Flowlog'
+
+OPTIONS = {
+    'name': {
+        'description': ['The name of the flowlog.'],
+        'available': STATES,
+        'required': ['present'],
+        'type': 'str',
+    },
+    'action': {
+        'description': ['Specifies the traffic action pattern.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'direction': {
+        'description': ['Specifies the traffic direction pattern.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'bucket': {
+        'description': ['S3 bucket name of an existing IONOS Cloud S3 bucket.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'datacenter_id': {
+        'description': ['The ID of the datacenter.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'application_load_balancer_id': {
+        'description': ['The ID of the Application Loadbalancer.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'flowlog_id': {
+        'description': ['The ID of the Flowlog.'],
+        'available': STATES,
+        'type': 'str',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
+
+DOCUMENTATION = '''
+---
+module: application_balancer_flowlog
+short_description: Create or destroy a Ionos Cloud Application Loadbalancer Flowlog.
+description:
+     - This is a simple module that supports creating or removing Application Loadbalancer Flowlogs.
+version_added: "2.0"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 6.0.0"
+author:
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+'''
+
+EXAMPLE_PER_STATE = {
+  'present' : '''
+  - name: Create Application Load Balancer Flowlog
+    application_load_balancer_flowlog:
+      name: "{{ name }}"
+      action: "ACCEPTED"
+      direction: "INGRESS"
+      bucket: "sdktest"
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      wait: true
+    register: alb_flowlog_response
+  ''',
+  'update' : '''
+  - name: Update Application Load Balancer Flowlog
+    application_load_balancer_flowlog:
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      flowlog_id: "{{ alb_flowlog_response.flowlog.id }}"
+      name: "{{ name }}"
+      action: "ALL"
+      direction: "INGRESS"
+      bucket: "sdktest"
+      wait: true
+      state: update
+    register: alb_flowlog_update_response
+  ''',
+  'absent' : '''
+  - name: Delete Application Load Balancer Flowlog
+    application_load_balancer_flowlog:
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      flowlog_id: "{{ alb_flowlog_response.flowlog.id }}"
+      state: absent
+  ''',
+}
+
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+
+uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
 def _update_alb_flowlog(module, client, alb_server, datacenter_id, application_load_balancer_id, flowlog_id,
@@ -233,96 +393,82 @@ def remove_alb_flowlog(module, client):
     }
 
 
+def get_module_arguments():
+    arguments = {}
+
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
+
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
+    username = module.params.get('username')
+    password = module.params.get('password')
+    api_url = module.params.get('api_url')
+
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    return sdk.Configuration(**conf)
+
+
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
+
+
 def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            name=dict(type='str'),
-            action=dict(type='str'),
-            direction=dict(type='str'),
-            bucket=dict(type='str'),
-            datacenter_id=dict(type='str'),
-            server_id=dict(type='str'),
-            flowlog_id=dict(type='str'),
-            application_load_balancer_id=dict(type='str'),
-            api_url=dict(type='str', default=None),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
-    username = module.params.get('username')
-    password = module.params.get('password')
     state = module.params.get('state')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+        if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('flowlog_id'):
+            module.fail_json(msg='either name or flowlog_id parameter is required for {object_name} state absent'.format(object_name=OBJECT_NAME))
 
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
         if state == 'absent':
-            if not (module.params.get('name') or module.params.get('application_load_balancer_id')):
-                module.fail_json(
-                    msg='name parameter or application_load_balancer_id parameter are required deleting a Application Load Balancer Flowlog.')
             try:
-                (result) = remove_alb_flowlog(module, api_client)
-                module.exit_json(**result)
-
+                module.exit_json(**remove_alb_flowlog(module, api_client))
             except Exception as e:
                 module.fail_json(msg='failed to set Application Load Balancer state: %s' % to_native(e))
-
         elif state == 'present':
-            if not module.params.get('name'):
-                module.fail_json(msg='name parameter is required for a new Application Load Balancer Flowlog')
-            if not module.params.get('action'):
-                module.fail_json(msg='action parameter is required for a new Application Load Balancer Flowlog')
-            if not module.params.get('direction'):
-                module.fail_json(msg='direction parameter is required for a new Application Load Balancer Flowlog')
-            if not module.params.get('bucket'):
-                module.fail_json(msg='bucket parameter is required for a new Application Load Balancer Flowlog')
-            if not module.params.get('datacenter_id'):
-                module.fail_json(msg='datacenter_id parameter is required for a new Application Load Balancer Flowlog')
-            if not module.params.get('application_load_balancer_id'):
-                module.fail_json(
-                    msg='application_load_balancer_id parameter is required for a new Application Load Balancer Flowlog')
-
             try:
-                (alb_flowlog_dict) = create_alb_flowlog(module, api_client)
-                module.exit_json(**alb_flowlog_dict)
+                module.exit_json(**create_alb_flowlog(module, api_client))
             except Exception as e:
                 module.fail_json(msg='failed to set Application Load Balancer Flowlog state: %s' % to_native(e))
-
         elif state == 'update':
-            if not module.params.get('datacenter_id'):
-                module.fail_json(msg='datacenter_id parameter is required for updating a Application Load Balancer Flowlog')
-            if not module.params.get('application_load_balancer_id'):
-                module.fail_json(
-                    msg='application_load_balancer_id parameter is required for updating a Application Load Balancer '
-                        'Flowlog')
-            if not module.params.get('flowlog_id'):
-                module.fail_json(msg='flowlog_id parameter is required for updating a Application Load Balancer Flowlog')
             try:
-                (alb_dict) = update_alb_flowlog(module, api_client)
-                module.exit_json(**alb_dict)
+                module.exit_json(**update_alb_flowlog(module, api_client))
             except Exception as e:
                 module.fail_json(msg='failed to update the Application Load Balancer Flowlog: %s' % to_native(e))
 

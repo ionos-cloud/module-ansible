@@ -7,6 +7,8 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import re
+import yaml
+import copy
 
 HAS_SDK = True
 
@@ -16,7 +18,7 @@ try:
     from ionoscloud.models import ApplicationLoadBalancer, ApplicationLoadBalancerProperties, \
         ApplicationLoadBalancerForwardingRule, \
         ApplicationLoadBalancerForwardingRuleProperties, ApplicationLoadBalancerHttpRule, \
-        ApplicationLoadBalancerHttpRuleCondition, ApplicationLoadBalancerForwardingRuleHealthCheck
+        ApplicationLoadBalancerHttpRuleCondition
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
@@ -26,8 +28,197 @@ from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
-uuid_match = re.compile(
-    '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
+
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'applicationloadbalancer'
+STATES = ['present', 'absent', 'update']
+OBJECT_NAME = 'Application Loadbalancer forwarding rule'
+
+OPTIONS = {
+    'name': {
+        'description': ['The name of the Application Load Balancer forwarding rule.'],
+        'available': STATES,
+        'required': ['present'],
+        'type': 'str',
+    },
+    'algorithm': {
+        'description': ['Balancing algorithm.'],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'protocol': {
+        'description': ['Balancing protocol.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'listener_ip': {
+        'description': ['Listening (inbound) IP.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'listener_port': {
+        'description': ['Listening (inbound) port number; valid range is 1 to 65535.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'client_timeout': {
+        'description': ['The maximum time in milliseconds to wait for the client to acknowledge or send data; default is 50,000 (50 seconds).'],
+        'available': ['present', 'update'],
+        'type': 'int',
+    },
+    'http_rules': {
+        'description': [
+          'An array of items in the collection. The original order of rules is perserved during processing, except for '
+          'Forward-type rules are processed after the rules with other action defined. The relative order of Forward-type '
+          'rules is also preserved during the processing.',
+        ],
+        'available': ['present', 'update'],
+        'type': 'list',
+        'elements': 'dict',
+    },
+    'server_certificates': {
+        'description': ['An array of items in the collection.'],
+        'available': ['present', 'update'],
+        'type': 'list',
+    },
+    'datacenter_id': {
+        'description': ['The ID of the datacenter.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'application_load_balancer_id': {
+        'description': ['The ID of the Application Loadbalancer.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'forwarding_rule_id': {
+        'description': ['The ID of the Application Loadbalancer forwarding rule.'],
+        'available': ['update', 'absent'],
+        'type': 'str',
+    },
+
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
+
+DOCUMENTATION = '''
+---
+module: application_load_balancer_rule
+short_description: Create or destroy a Ionos Cloud Application Loadbalancer Flowlog rule.
+description:
+     - This is a simple module that supports creating or removing Application Loadbalancer Flowlog rules.
+version_added: "2.0"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 6.0.0"
+author:
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+'''
+
+EXAMPLE_PER_STATE = {
+  'present' : '''
+  - name: Create Network Load Balancer Forwarding Rule
+    network_load_balancer_rule:
+      name: "{{ name }}"
+      algorithm: "ROUND_ROBIN"
+      protocol: "TCP"
+      listener_ip: "10.12.118.224"
+      listener_port: "8081"
+      targets:
+        - ip: "22.231.2.2"
+          port: "8080"
+          weight: "123"
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      wait: true
+    register: nlb_forwarding_rule_response
+  ''',
+  'update' : '''
+  - name: Update Network Load Balancer Forwarding Rule
+    network_load_balancer_rule:
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      forwarding_rule_id: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
+      name: "{{ name }} - UPDATED"
+      algorithm: "ROUND_ROBIN"
+      protocol: "TCP"
+      wait: true
+      state: update
+    register: nlb_forwarding_rule_update_response
+  ''',
+  'absent' : '''
+  - name: Delete Network Load Balancer Forwarding Rule
+    network_load_balancer_rule:
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      forwarding_rule_id: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
+      state: absent
+  ''',
+}
+
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+
+uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
 def _update_alb_forwarding_rule(module, client, alb_server, datacenter_id, application_load_balancer_id,
@@ -93,13 +284,6 @@ def get_http_rule(http_rule):
     return http_rule_object
 
 
-def get_health_check(health_check):
-    health_check_object = ApplicationLoadBalancerForwardingRuleHealthCheck()
-    if health_check['client_timeout']:
-        health_check_object.client_timeout = health_check['client_timeout']
-    return health_check_object
-
-
 def create_alb_forwarding_rule(module, client):
     """
     Creates a Application Load Balancer Forwarding Rule
@@ -116,12 +300,11 @@ def create_alb_forwarding_rule(module, client):
     protocol = module.params.get('protocol')
     listener_ip = module.params.get('listener_ip')
     listener_port = module.params.get('listener_port')
-    health_check = module.params.get('health_check')
+    client_timeout = module.params.get('client_timeout')
     server_certificates = module.params.get('server_certificates')
     http_rules = module.params.get('http_rules')
     datacenter_id = module.params.get('datacenter_id')
     application_load_balancer_id = module.params.get('application_load_balancer_id')
-
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
@@ -129,9 +312,6 @@ def create_alb_forwarding_rule(module, client):
     if http_rules:
         for rule in http_rules:
             http_rules_list.append(get_http_rule(rule))
-
-    if health_check:
-        health_check = get_health_check(health_check)
 
     alb_server = ionoscloud.ApplicationLoadBalancersApi(client)
     alb_forwarding_rules = alb_server.datacenters_applicationloadbalancers_forwardingrules_get(
@@ -152,7 +332,7 @@ def create_alb_forwarding_rule(module, client):
     alb_forwarding_rule_properties = ApplicationLoadBalancerForwardingRuleProperties(name=name, protocol=protocol,
                                                                                      listener_ip=listener_ip,
                                                                                      listener_port=listener_port,
-                                                                                     health_check=health_check,
+                                                                                     client_timeout=client_timeout,
                                                                                      server_certificates=server_certificates,
                                                                                      http_rules=http_rules_list)
     alb_forwarding_rule = ApplicationLoadBalancerForwardingRule(properties=alb_forwarding_rule_properties)
@@ -194,7 +374,7 @@ def update_alb_forwarding_rule(module, client):
     protocol = module.params.get('protocol')
     listener_ip = module.params.get('listener_ip')
     listener_port = module.params.get('listener_port')
-    health_check = module.params.get('health_check')
+    client_timeout = module.params.get('client_timeout')
     server_certificates = module.params.get('server_certificates')
     http_rules = module.params.get('http_rules')
     datacenter_id = module.params.get('datacenter_id')
@@ -205,9 +385,6 @@ def update_alb_forwarding_rule(module, client):
     changed = False
     forwarding_rule_response = None
 
-    if health_check:
-        health_check = get_health_check(health_check)
-
     http_rules_list = []
     if http_rules:
         for rule in http_rules:
@@ -217,7 +394,7 @@ def update_alb_forwarding_rule(module, client):
         alb_forwarding_rule_properties = ApplicationLoadBalancerForwardingRuleProperties(name=name, protocol=protocol,
                                                                                          listener_ip=listener_ip,
                                                                                          listener_port=listener_port,
-                                                                                         health_check=health_check,
+                                                                                         client_timeout=client_timeout,
                                                                                          server_certificates=server_certificates,
                                                                                          http_rules=http_rules_list)
         forwarding_rule_response = _update_alb_forwarding_rule(module, client, alb_server, datacenter_id,
@@ -236,7 +413,7 @@ def update_alb_forwarding_rule(module, client):
                                                                                                  protocol=protocol,
                                                                                                  listener_ip=listener_ip,
                                                                                                  listener_port=listener_port,
-                                                                                                 health_check=health_check,
+                                                                                                 client_timeout=client_timeout,
                                                                                                  server_certificates=server_certificates,
                                                                                                  http_rules=http_rules_list)
                 forwarding_rule_response = _update_alb_forwarding_rule(module, client, alb_server, datacenter_id,
@@ -324,115 +501,82 @@ def remove_alb_forwarding_rule(module, client):
     }
 
 
+def get_module_arguments():
+    arguments = {}
+
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
+
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
+    username = module.params.get('username')
+    password = module.params.get('password')
+    api_url = module.params.get('api_url')
+
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    return sdk.Configuration(**conf)
+
+
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
+
+
 def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            name=dict(type='str'),
-            algorithm=dict(type='str'),
-            protocol=dict(type='str'),
-            listener_ip=dict(type='str'),
-            listener_port=dict(type='str'),
-            health_check=dict(type='dict',
-                              client_timeout=dict(type='str'),
-                              connect_timeout=dict(type='str'),
-                              target_timeout=dict(type='str'),
-                              retries=dict(type='str')
-                              ),
-            http_rules=dict(type='list'),
-            server_certificates=dict(type='list'),
-            datacenter_id=dict(type='str'),
-            forwarding_rule_id=dict(type='str'),
-            application_load_balancer_id=dict(type='str'),
-            api_url=dict(type='str', default=None),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
-    username = module.params.get('username')
-    password = module.params.get('password')
     state = module.params.get('state')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+        if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('forwarding_rule_id'):
+            module.fail_json(msg='either name or forwarding_rule_id parameter is required for {object_name} state absent'.format(object_name=OBJECT_NAME))
 
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
         if state == 'absent':
-            if not module.params.get('datacenter_id'):
-                module.fail_json(
-                    msg='datacenter_id parameter is required for deleting a Application Load Balancer Forwarding Rule')
-            if not module.params.get('application_load_balancer_id'):
-                module.fail_json(
-                    msg='application_load_balancer_id parameter is required for deleting a Application Load Balancer Forwarding Rule')
-            if not (module.params.get('name') or module.params.get('forwarding_rule_id')):
-                module.fail_json(
-                    msg='name parameter or forwarding_rule_id parameter are required for deleting a Application Load Balancer Forwarding Rule.')
             try:
-                (result) = remove_alb_forwarding_rule(module, api_client)
-                module.exit_json(**result)
-
+                module.exit_json(**remove_alb_forwarding_rule(module, api_client))
             except Exception as e:
                 module.fail_json(msg='failed to delete the Application Load Balancer: %s' % to_native(e))
-
         elif state == 'present':
-            if not module.params.get('name'):
-                module.fail_json(msg='name parameter is required for a new Application Load Balancer Forwarding Rule')
-            if not module.params.get('protocol'):
-                module.fail_json(
-                    msg='protocol parameter is required for a new Application Load Balancer Forwarding Rule')
-            if not module.params.get('listener_ip'):
-                module.fail_json(
-                    msg='listener_ip parameter is required for a new Application Load Balancer Forwarding Rule')
-            if not module.params.get('listener_port'):
-                module.fail_json(
-                    msg='listener_port parameter is required for a new Application Load Balancer Forwarding Rule')
-            if not module.params.get('datacenter_id'):
-                module.fail_json(
-                    msg='datacenter_id parameter is required for a new Application Load Balancer Forwarding Rule')
-            if not module.params.get('application_load_balancer_id'):
-                module.fail_json(
-                    msg='application_load_balancer_id parameter is required for a new Application Load Balancer Forwarding Rule')
-
             try:
-                (alb_forwarding_rule_dict) = create_alb_forwarding_rule(module, api_client)
-                module.exit_json(**alb_forwarding_rule_dict)
+                module.exit_json(**create_alb_forwarding_rule(module, api_client))
             except Exception as e:
                 module.fail_json(msg='failed to set Application Load Balancer Forwarding Rule state: %s' % to_native(e))
-
         elif state == 'update':
-            if not module.params.get('datacenter_id'):
-                module.fail_json(
-                    msg='datacenter_id parameter is required for updating a Application Load Balancer Forwarding Rule')
-            if not module.params.get('application_load_balancer_id'):
-                module.fail_json(
-                    msg='application_load_balancer_id parameter is required for updating a Application Load Balancer Forwarding Rule')
-            if not (module.params.get('name') or module.params.get('forwarding_rule_id')):
-                module.fail_json(
-                    msg='name parameter or forwarding_rule_id parameter are required deleting a Application Load Balancer Forwarding Rule.')
             try:
-                (alb_dict) = update_alb_forwarding_rule(module, api_client)
-                module.exit_json(**alb_dict)
+                module.exit_json(**update_alb_forwarding_rule(module, api_client))
             except Exception as e:
                 module.fail_json(
                     msg='failed to update the Application Load Balancer Forwarding Rule: %s' % to_native(e))

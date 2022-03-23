@@ -37,7 +37,7 @@ OBJECT_NAME = 'Network Loadbalancer'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the Network Loadbalancer forwarding rule.'],
+        'description': ['The name of the Network Loadbalancer.'],
         'available': STATES,
         'required': ['present', 'update'],
         'type': 'str',
