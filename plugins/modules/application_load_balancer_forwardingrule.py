@@ -185,8 +185,7 @@ EXAMPLE_PER_STATE = {
       protocol: "HTTP"
       listener_ip: "10.12.118.224"
       listener_port: "8081"
-      health_check:
-        client_timeout: 50
+      client_timeout: 50
       http_rules:
         - name: "Ansible HTTP Rule"
           type : static

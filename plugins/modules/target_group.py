@@ -7,6 +7,8 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import re
+import yaml
+import copy
 
 HAS_SDK = True
 
@@ -14,7 +16,7 @@ try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import TargetGroup, TargetGroupPut, TargetGroupTarget, TargetGroupProperties, TargetGroups, \
-        TargetGroupTargetHealthCheck, TargetGroupHealthCheck, TargetGroupHttpHealthCheck
+        TargetGroupHealthCheck, TargetGroupHttpHealthCheck
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
@@ -24,8 +26,177 @@ from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
-uuid_match = re.compile(
-    '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
+
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'applicationloadbalancer'
+STATES = ['present', 'absent', 'update']
+OBJECT_NAME = 'Target Group'
+
+
+OPTIONS = {
+    'name': {
+        'description': ['The name of the Target Group.'],
+        'available': STATES,
+        'required': ['present'],
+        'type': 'str',
+    },
+    'algorithm': {
+        'description': ['Balancing algorithm.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'protocol': {
+        'description': ['Balancing protocol.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'health_check': {
+        'description': ['Health check properties for target group.'],
+        'available': ['present', 'update'],
+        'type': 'dict',
+    },
+    'http_health_check': {
+        'description': ['HTTP health check properties for target group.'],
+        'available': ['present', 'update'],
+        'type': 'dict',
+    },
+    'targets': {
+        'description': ['An array of items in the collection.'],
+        'available': ['present', 'update'],
+        'type': 'list',
+        'elements': 'dict',
+    },
+    'target_group_id': {
+        'description': ['The ID of the Target Group.'],
+        'available': ['update', 'absent'],
+        'type': 'str',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
+
+DOCUMENTATION = '''
+---
+module: target_hroup
+short_description: Create or destroy a Ionos Cloud Target Group.
+description:
+     - This is a simple module that supports creating or removing Target Groups.
+version_added: "2.0"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 6.0.0"
+author:
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+'''
+
+EXAMPLE_PER_STATE = {
+  'present' : '''
+  - name: Create Target Group
+    target_group:
+      name: "{{ name }}"
+      algorithm: "ROUND_ROBIN"
+      protocol: "HTTP"
+      targets:
+        - ip: "22.231.2.2"
+          port: 8080
+          weight: 123
+          health_check_enabled: true
+          maintenance_enabled: false
+      health_check:
+        check_timeout: 2000
+        check_interval: 1000
+        retries: 3
+      http_health_check:
+        path: "./"
+        method: "GET"
+        match_type: "STATUS_CODE"
+        response: 200
+        regex: false
+        negate: false
+      wait: true
+    register: target_group_response
+  ''',
+  'update' : '''
+  - name: Update Target Group
+    target_group:
+      name: "{{ name }} - UPDATED"
+      algorithm: "ROUND_ROBIN"
+      protocol: "HTTP"
+      target_group_id: "{{ target_group_response.target_group.id }}"
+      wait: true
+      state: update
+    register: target_group_response_update
+  ''',
+  'absent' : '''
+  - name: Remove Target Group
+    target_group:
+      target_group_id: "{{ target_group_response.target_group.id }}"
+      wait: true
+      wait_timeout: 2000
+      state: absent
+  ''',
+}
+
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+
+uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
 def _update_target_group(module, client, target_group_server, target_group_id, target_group_properties):
@@ -57,14 +228,10 @@ def get_target(target):
         target_object.port = target['port']
     if target['weight']:
         target_object.weight = target['weight']
-    if target['health_check']:
-        target_object.health_check = TargetGroupTargetHealthCheck()
-        if target['health_check']['check']:
-            target_object.health_check.check = target['health_check']['check']
-        if target['health_check']['check_interval']:
-            target_object.health_check.check_interval = target['health_check']['check_interval']
-        if target['health_check']['maintenance']:
-            target_object.health_check.maintenance = target['health_check']['maintenance']
+    if target['health_check_enabled']:
+        target_object.health_check_enabled = target['health_check_enabled']
+    if target['maintenance_enabled']:
+        target_object.maintenance_enabled = target['maintenance_enabled']
     return target_object
 
 
@@ -90,10 +257,8 @@ def get_health_check(health_check):
     health_check_object = TargetGroupHealthCheck()
     if health_check['check_timeout']:
         health_check_object.check_timeout = health_check['check_timeout']
-    if health_check['connect_timeout']:
-        health_check_object.connect_timeout = health_check['connect_timeout']
-    if health_check['target_timeout']:
-        health_check_object.target_timeout = health_check['target_timeout']
+    if health_check['check_interval']:
+        health_check_object.check_interval = health_check['check_interval']
     if health_check['retries']:
         health_check_object.retries = health_check['retries']
     return health_check_object
@@ -296,99 +461,82 @@ def remove_target_group(module, client):
     }
 
 
+def get_module_arguments():
+    arguments = {}
+
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
+
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
+    username = module.params.get('username')
+    password = module.params.get('password')
+    api_url = module.params.get('api_url')
+
+    conf = {
+        'username': username,
+        'password': password,
+    }
+
+    if api_url is not None:
+        conf['host'] = api_url
+        conf['server_index'] = None
+
+    return sdk.Configuration(**conf)
+
+
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
+
+
 def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            name=dict(type='str'),
-            algorithm=dict(type='str'),
-            protocol=dict(type='str'),
-            target_group_id=dict(type='str'),
-            targets=dict(type='list',
-                         elements=dict()
-                         ),
-            health_check=dict(
-                type='dict',
-                check_timeout=dict(type='int'),
-                connect_timeout=dict(type='int'),
-                target_timeout=dict(type='int'),
-                retries=dict(type='int')
-            ),
-            http_health_check=dict(
-                type='dict',
-                path=dict(type='str'),
-                method=dict(type='str'),
-                match_type=dict(type='str'),
-                response=dict(type='str'),
-                regex=dict(type='bool', default=False),
-                negate=dict(type='bool', default=False)
-            ),
-            api_url=dict(type='str', default=None),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
-    username = module.params.get('username')
-    password = module.params.get('password')
     state = module.params.get('state')
-    user_agent = 'ionoscloud-python/%s Ansible/%s' % (sdk_version, __version__)
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
 
-    configuration = ionoscloud.Configuration(
-        username=username,
-        password=password
-    )
+        if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('target_group_id'):
+            module.fail_json(msg='either name or target_group_id parameter is required for {object_name} state absent'.format(object_name=OBJECT_NAME))
 
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
         if state == 'absent':
-            if not (module.params.get('name') or module.params.get('target_group_id')):
-                module.fail_json(
-                    msg='name parameter or target_group_id parameter are required deleting a Target Group.')
             try:
-                (result) = remove_target_group(module, api_client)
-                module.exit_json(**result)
-
+                module.exit_json(**remove_target_group(module, api_client))
             except Exception as e:
                 module.fail_json(msg='failed to set Target Group state: %s' % to_native(e))
-
         elif state == 'present':
-            if not module.params.get('name'):
-                module.fail_json(msg='name parameter is required for a new Target Group')
-            if not module.params.get('algorithm'):
-                module.fail_json(msg='algorithm parameter is required for a new Target Group')
-            if not module.params.get('protocol'):
-                module.fail_json(msg='protocol parameter is required for a new Target Group')
-
             try:
-                (target_group_dict) = create_target_group(module, api_client)
-                module.exit_json(**target_group_dict)
+                module.exit_json(**create_target_group(module, api_client))
             except Exception as e:
                 module.fail_json(msg='failed to set Target Group state: %s' % to_native(e))
-
         elif state == 'update':
-            if not (module.params.get('name') or module.params.get('target_group_id')):
-                module.fail_json(
-                    msg='name parameter or target_group_id parameter are required for updating a Target Group.')
             try:
-                (target_group_dict_array) = update_target_group(module, api_client)
-                module.exit_json(**target_group_dict_array)
+                module.exit_json(**update_target_group(module, api_client))
             except Exception as e:
                 module.fail_json(msg='failed to update the Target Group: %s' % to_native(e))
 
