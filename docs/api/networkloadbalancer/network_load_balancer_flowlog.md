@@ -1,58 +1,153 @@
-# Network Load Balancer Flowlog
+# network_load_balancer_flowlog
+
+This is a simple module that supports creating or removing NetworkLoadbalancer Flowlogs. This module has a dependency on ionos-cloud &gt;= 6.0.0
 
 ## Example Syntax
 
+
 ```yaml
-    - name: Create Network Load Balancer Flowlog
-      ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
-        name: "{{ name }}"
-        action: "ACCEPTED"
-        direction: "INGRESS"
-        bucket: "sdktest"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-        wait: true
-      register: nlb_flowlog_response
 
-    - name: Update Network Load Balancer Flowlog
-      ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-        flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
-        name: "{{ name }}"
-        action: "ALL"
-        direction: "INGRESS"
-        bucket: "sdktest"
-        wait: true
-        state: update
-      register: nlb_flowlog_update_response
+  - name: Create Network Load Balancer Flowlog
+    network_load_balancer_flowlog:
+      name: "{{ name }}"
+      action: "ACCEPTED"
+      direction: "INGRESS"
+      bucket: "sdktest"
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      wait: true
+    register: nlb_flowlog_response
+  
 
-    - name: Delete Network Load Balancer Flowlog
-      ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-        flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
-        state: absent
+  - name: Update Network Load Balancer Flowlog
+    network_load_balancer_flowlog:
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
+      name: "{{ name }}"
+      action: "ALL"
+      direction: "INGRESS"
+      bucket: "sdktest"
+      wait: true
+      state: update
+    register: nlb_flowlog_update_response
+  
+
+  - name: Delete Network Load Balancer Flowlog
+    network_load_balancer_flowlog:
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
+      state: absent
+  
 ```
+&nbsp;
 
-## Parameter Reference
+&nbsp;
 
-The following parameters are supported:
+# state: **present**
+```yaml
+  
+  - name: Create Network Load Balancer Flowlog
+    network_load_balancer_flowlog:
+      name: "{{ name }}"
+      action: "ACCEPTED"
+      direction: "INGRESS"
+      bucket: "sdktest"
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      wait: true
+    register: nlb_flowlog_response
+  
+```
+### Available parameters for state **present**:
+&nbsp;
 
-| Name | Required | Type | Default | Description |
-| :--- | :---: | :--- | :--- | :--- |
-| name | **yes**/no | string |  | The name of the Flowlog. Required only for state = 'present'. |
-| action | **yes**/no | string |  | Specifies the traffic action pattern. Accepted values: "ACCEPTED", "REJECTED" or "ALL". Required only for state = 'present'.|
-| direction | **yes**/no | string |  | Specifies the traffic direction pattern. Accepted values: "INGRESS", "EGRESS", "BIDIRECTIONAL". Required only for state = 'present'. |
-| bucket | **yes**/no | string |  | S3 bucket name of an existing IONOS Cloud S3 bucket. Required only for state = 'present'. |
-| datacenter_id | **yes** | string |  | The ID of the datacenter. |
-| server_id | **yes** | string |  | The ID of the server. |
-| flowlog_id | **yes**/no | string |  | The ID of the flowlog. Required when state = 'update' or state = 'absent'.|
-| network_load_balancer_id | **yes** | string |  | The ID of the Network Load Balancer. |
-| api\_url | no | string |  | The Ionos API base URL. |
-| username | no | string |  | The Ionos username. Overrides the IONOS\_USERNAME environement variable. |
-| password | no | string |  | The Ionos password. Overrides the IONOS\_PASSWORD environement variable. |
-| wait | no | boolean | true | Wait for the operation to complete before continuing. |
-| wait\_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | name | True | str |  | The name of the flowlog. |
+  | action | True | str |  | Specifies the traffic action pattern. |
+  | direction | True | str |  | Specifies the traffic direction pattern. |
+  | bucket | True | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |
+  | datacenter_id | True | str |  | The ID of the datacenter. |
+  | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
+  | flowlog_id | False | str |  | The ID of the Flowlog. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
 
+&nbsp;
+
+&nbsp;
+# state: **absent**
+```yaml
+  
+  - name: Delete Network Load Balancer Flowlog
+    network_load_balancer_flowlog:
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
+      state: absent
+  
+```
+### Available parameters for state **absent**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | name | False | str |  | The name of the flowlog. |
+  | datacenter_id | True | str |  | The ID of the datacenter. |
+  | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
+  | flowlog_id | False | str |  | The ID of the Flowlog. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;
+# state: **update**
+```yaml
+  
+  - name: Update Network Load Balancer Flowlog
+    network_load_balancer_flowlog:
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
+      name: "{{ name }}"
+      action: "ALL"
+      direction: "INGRESS"
+      bucket: "sdktest"
+      wait: true
+      state: update
+    register: nlb_flowlog_update_response
+  
+```
+### Available parameters for state **update**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | name | False | str |  | The name of the flowlog. |
+  | action | False | str |  | Specifies the traffic action pattern. |
+  | direction | False | str |  | Specifies the traffic direction pattern. |
+  | bucket | False | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |
+  | datacenter_id | True | str |  | The ID of the datacenter. |
+  | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
+  | flowlog_id | False | str |  | The ID of the Flowlog. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;

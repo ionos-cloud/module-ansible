@@ -1,0 +1,32 @@
+# {{module_name}}
+
+{{description}}
+
+## Example Syntax
+
+
+```yaml
+{{{ example }}}
+```
+&nbsp;
+
+&nbsp;
+
+{{#states_parameters}}
+# state: **{{ state }}**
+```yaml
+  {{{ example }}}
+```
+### Available parameters for state **{{ state }}**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  {{#parameters}}
+  | {{name}} | {{required}} | {{type}} | {{default}} | {{description}} |
+  {{/parameters}}
+
+&nbsp;
+
+&nbsp;
+{{/states_parameters}}

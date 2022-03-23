@@ -7,6 +7,8 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import re
+import copy
+import yaml
 
 HAS_SDK = True
 
@@ -23,8 +25,156 @@ from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
-uuid_match = re.compile(
-    '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
+
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'natgateway'
+STATES = ['present', 'absent', 'update']
+OBJECT_NAME = 'NAT Gateway'
+
+OPTIONS = {
+    'name': {
+        'description': ['The name of the NAT Gateway.'],
+        'available': STATES,
+        'required': ['present'],
+        'type': 'str',
+    },
+    'public_ips': {
+        'description': ['Collection of public IP addresses of the NAT Gateway. Should be customer reserved IP addresses in that location.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'list',
+    },
+    'lans': {
+        'description': [
+            'Collection of LANs connected to the NAT Gateway. IPs must contain a valid subnet mask. '
+            'If no IP is provided, the system will generate an IP with /24 subnet.',
+        ],
+        'available': ['present', 'update'],
+        'type': 'list',
+    },
+    'datacenter_id': {
+        'description': ['The ID of the datacenter.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'nat_gateway_id': {
+        'description': ['The ID of the NAT Gateway.'],
+        'available': ['update', 'absent'],
+        'type': 'str',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
+
+DOCUMENTATION = '''
+---
+module: nat_gateway
+short_description: Create or destroy a Ionos Cloud NATGateway.
+description:
+     - This is a simple module that supports creating or removing NATGateways.
+       This module has a dependency on ionos-cloud >= 6.0.0
+version_added: "2.0"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 6.0.0"
+author:
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+'''
+
+EXAMPLE_PER_STATE = {
+  'present' : '''
+  - name: Create NAT Gateway
+    nat_gateway:
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      name: "{{ name }}"
+      public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
+      lans:
+        - id: "{{ lan_response.lan.id }}"
+          gateway_ips: "10.11.2.5/24"
+      wait: true
+    register: nat_gateway_response
+  ''',
+  'update' : '''
+  - name: Update NAT Gateway
+    nat_gateway:
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      name: "{{ name }} - UPDATED"
+      public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
+      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      wait: true
+      state: update
+    register: nat_gateway_response_update
+  ''',
+  'absent' : '''
+  - name: Remove NAT Gateway
+    nat_gateway:
+      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      wait: true
+      wait_timeout: 2000
+      state: absent
+  ''',
+}
+
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+
+uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
 def _get_resource(resource_list, identity):
@@ -223,43 +373,30 @@ def remove_nat_gateway(module, client):
     }
 
 
-def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            name=dict(type='str'),
-            datacenter_id=dict(type='str'),
-            nat_gateway_id=dict(type='str'),
-            public_ips=dict(type='list', default=None),
-            lans=dict(type='list', default=None),
-            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
-    if not HAS_SDK:
-        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+def get_module_arguments():
+    arguments = {}
 
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
+
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
-
-    state = module.params.get('state')
 
     conf = {
         'username': username,
@@ -270,48 +407,46 @@ def main():
         conf['host'] = api_url
         conf['server_index'] = None
 
-    configuration = ionoscloud.Configuration(**conf)
+    return sdk.Configuration(**conf)
 
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
-        if state == 'absent':
-            if not module.params.get('datacenter_id'):
-                module.fail_json(msg='datacenter_id parameter is required for a deleting a NAT Gateway')
-            if not (module.params.get('name') or module.params.get('nat_gateway_id')):
-                module.fail_json(msg='name parameter or nat_gateway_id parameter are required deleting a NAT Gateway.')
-            try:
-                (result) = remove_nat_gateway(module, api_client)
-                module.exit_json(**result)
 
-            except Exception as e:
-                module.fail_json(msg='failed to set NAT Gateway state: %s' % to_native(e))
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
 
-        elif state == 'present':
-            if not module.params.get('name'):
-                module.fail_json(msg='name parameter is required for a new NAT Gateway')
-            if not module.params.get('public_ips'):
-                module.fail_json(msg='public_ips parameter is required for a new NAT Gateway')
-            if not module.params.get('datacenter_id'):
-                module.fail_json(msg='datacenter_id parameter is required for a new NAT Gateway')
 
-            try:
-                (nat_gateway_dict) = create_nat_gateway(module, api_client)
-                module.exit_json(**nat_gateway_dict)
-            except Exception as e:
-                module.fail_json(msg='failed to set NAT Gateway state: %s' % to_native(e))
+def main():
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
-        elif state == 'update':
-            if not (module.params.get('name') or module.params.get('nat_gateway_id')):
-                module.fail_json(
-                    msg='name parameter or nat_gateway_id parameter are required for updating a NAT Gateway.')
-            if not module.params.get('datacenter_id'):
-                module.fail_json(msg='datacenter_id parameter is required for updating a NAT Gateway.')
-            try:
-                (nat_gateway_dict_array) = update_nat_gateway(module, api_client)
-                module.exit_json(**nat_gateway_dict_array)
-            except Exception as e:
-                module.fail_json(msg='failed to update the NAT Gateway: %s' % to_native(e))
+    if not HAS_SDK:
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
+    state = module.params.get('state')
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
+        check_required_arguments(module, state, OBJECT_NAME)
+
+        if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('nat_gateway_id'):
+            module.fail_json(
+                msg='either name or nat_gateway_id parameter is required for {object_name} state present'.format(object_name=OBJECT_NAME),
+            )
+
+        try:
+            if state == 'absent':
+                module.exit_json(**remove_nat_gateway(module, api_client))
+            elif state == 'present':
+                module.exit_json(**create_nat_gateway(module, api_client))
+            elif state == 'update':
+                module.exit_json(**update_nat_gateway(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
 if __name__ == '__main__':
     main()

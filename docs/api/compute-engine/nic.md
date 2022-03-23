@@ -1,49 +1,140 @@
-# Nic
+# nic
+
+This module allows you to create, update or remove a NIC.
 
 ## Example Syntax
 
+
 ```yaml
-    - name: Create private NIC
-      ionoscloudsdk.ionoscloud.nic:
-          datacenter: Example
-          server: "{{ item.id }}"
-          lan: 2
-          state: present
-      register: private_nic
-      with_items: "{{ ionos.machines }}"
-
-    - name: Update NIC
-      ionoscloudsdk.ionoscloud.nic:
-        datacenter: Example
-        server: "{{ item.id }}"
-        name: 7341c2454f
-        lan: 1
-        ips:
-          - 158.222.103.23
-          - 158.222.103.24
-        dhcp: false
-        state: update
+# Create a NIC
+  - nic:
+    datacenter: Tardis One
+    server: node002
+    lan: 2
+    wait_timeout: 500
+    state: present
+  
+# Update a NIC
+  - nic:
+    datacenter: Tardis One
+    server: node002
+    name: 7341c2454f
+    lan: 1
+    ips:
+      - 158.222.103.23
+      - 158.222.103.24
+    dhcp: false
+    state: update
+  
+# Remove a NIC
+  - nic:
+    datacenter: Tardis One
+    server: node002
+    name: 7341c2454f
+    wait_timeout: 500
+    state: absent
+  
 ```
+&nbsp;
 
-## Parameter Reference
+&nbsp;
 
-The following parameters are supported:
+# state: **present**
+```yaml
+  # Create a NIC
+  - nic:
+    datacenter: Tardis One
+    server: node002
+    lan: 2
+    wait_timeout: 500
+    state: present
+  
+```
+### Available parameters for state **present**:
+&nbsp;
 
-| Name | Required | Type | Default | Description |
-| :--- | :---: | :--- | :--- | :--- |
-| datacenter | **yes** | string |  | The datacenter in which to operate. |
-| server | **yes** | string |  | The server name or UUID. |
-| name | no | string |  | The name of the NIC. |
-| id | **yes** | string |  | The id of the NIC. |
-| lan | **yes** | integer |  | The LAN to connect the NIC. The LAN will be created if it does not exist. Only required on creates. |
-| dhcp | no | boolean |  | Indicates if the NIC is using DHCP or not. |
-| nat | no | boolean |  | Allow the private IP address outbound Internet access. |
-| firewall\_active | no | boolean |  | Indicates if the firewall is active. |
-| ips | no | list |  | A list of IPs to be assigned to the NIC. |
-| api\_url | no | string |  | The Ionos API base URL. |
-| username | no | string |  | The Ionos username. Overrides the IONOS\_USERNAME environement variable. |
-| password | no | string |  | The Ionos password. Overrides the IONOS\_PASSWORD environement variable. |
-| wait | no | boolean | true | Wait for the operation to complete before continuing. |
-| wait\_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| state | no | string | present | Indicate desired state of the resource: **present**, absent, update |
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | name | False | str |  | The name of the NIC. |
+  | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
+  | server | True | str |  | The server name or UUID. |
+  | dhcp | False | bool |  | Boolean value indicating if the NIC is using DHCP or not. |
+  | firewall_active | False | bool |  | Boolean value indicating if the firewall is active. |
+  | ips | False | list |  | A list of IPs to be assigned to the NIC. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
 
+&nbsp;
+
+&nbsp;
+# state: **absent**
+```yaml
+  # Remove a NIC
+  - nic:
+    datacenter: Tardis One
+    server: node002
+    name: 7341c2454f
+    wait_timeout: 500
+    state: absent
+  
+```
+### Available parameters for state **absent**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | name | True | str |  | The name of the NIC. |
+  | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
+  | server | True | str |  | The server name or UUID. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;
+# state: **update**
+```yaml
+  # Update a NIC
+  - nic:
+    datacenter: Tardis One
+    server: node002
+    name: 7341c2454f
+    lan: 1
+    ips:
+      - 158.222.103.23
+      - 158.222.103.24
+    dhcp: false
+    state: update
+  
+```
+### Available parameters for state **update**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | name | False | str |  | The name of the NIC. |
+  | id | False | str |  | The ID of the NIC. |
+  | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
+  | server | True | str |  | The server name or UUID. |
+  | lan | False | str |  | The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create. |
+  | dhcp | False | bool |  | Boolean value indicating if the NIC is using DHCP or not. |
+  | firewall_active | False | bool |  | Boolean value indicating if the firewall is active. |
+  | ips | False | list |  | A list of IPs to be assigned to the NIC. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;
