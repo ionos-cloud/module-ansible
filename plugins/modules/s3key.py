@@ -46,7 +46,7 @@ OPTIONS = {
         'type': 'str', 
     },
     'idempotency': {
-        'description': ['If a key already exists, don\'t create any more on create requests'],
+        'description': ['Flag that dictates respecting idempotency. If an s3key already exists, returns with already existing key instead of creating more.'],
         'default': False,
         'available': 'present',
         'choices': [True, False],
