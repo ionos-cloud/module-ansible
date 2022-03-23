@@ -1,7 +1,63 @@
-# Postgres Cluster
+# postgres_cluster
+
+This is a module that supports creating, updating, restoring or destroying Postgres Clusters
 
 ## Example Syntax
 
+
+```yaml
+<<<<<<< HEAD
+  - name: Create Postgres Cluster
+=======
+- name: Create Postgres Cluster
+>>>>>>> 00db8fa... feat: generate docs (#61)
+    postgres_cluster:
+      postgres_version: 12
+      instances: 1
+      cores: 1
+      ram: 2048
+      storage_size: 20480
+      storage_type: HDD
+      location: de/fra
+      connections:
+        - cidr: 192.168.1.106/24
+          datacenter: "{{ datacenter_response.datacenter.id }}"
+          lan: "{{ lan_response1.lan.id }}"
+      display_name: backuptest-04
+      synchronization_mode: ASYNCHRONOUS
+      db_username: test
+      db_password: 7357cluster
+      wait: true
+    register: cluster_response
+<<<<<<< HEAD
+
+  - name: Update Postgres Cluster
+=======
+  
+- name: Update Postgres Cluster
+>>>>>>> 00db8fa... feat: generate docs (#61)
+    postgres_cluster:
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_version: 12
+      instances: 2
+      cores: 2
+      ram: 4096
+      storage_size: 30480
+      state: update
+      wait: true
+    register: updated_cluster_response
+  
+- name: Delete Postgres Cluster
+    postgres_cluster:
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      state: absent
+  
+```
+&nbsp;
+
+&nbsp;
+
+# state: **present**
 ```yaml
   - name: Create Postgres Cluster
     postgres_cluster:
@@ -22,7 +78,64 @@
       db_password: 7357cluster
       wait: true
     register: cluster_response
+  
+```
+### Available parameters for state **present**:
+&nbsp;
 
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | maintenance_window | False | dict |  | Dict containing &quot;time&quot; (the time of the day when to perform the maintenance) and &quot;day_of_the_week&quot; (the Day Of the week when to perform the maintenance). |
+  | postgres_version | True | str |  | The PostgreSQL version of your cluster |
+  | instances | True | int |  | The total number of instances in the cluster (one master and n-1 standbys). |
+  | cores | True | int |  | The number of CPU cores per instance. |
+  | ram | True | int |  | The amount of memory per instance(should be a multiple of 1024). |
+  | storage_size | True | int |  | The amount of storage per instance. |
+  | storage_type | True | str |  | The storage type used in your cluster. |
+  | connections | True | list |  | Array of VDCs to connect to your cluster. |
+  | location | True | str |  | The physical location where the cluster will be created. This will be where all of your instances live. Property cannot be modified after datacenter creation (disallowed in update requests) |
+  | display_name | True | str |  | The friendly name of your cluster. |
+  | db_username | True | str |  | The username for the initial postgres user. Some system usernames are restricted (e.g. &quot;postgres&quot;, &quot;admin&quot;, &quot;standby&quot;) |
+  | db_password | True | str |  | The username for the initial postgres user. |
+  | synchronization_mode | True | str |  | Represents different modes of replication. |
+  | backup_id | False | str |  | The ID of the backup to be used. |
+  | recovery_target_time | False | str |  | Recovery target time. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;
+# state: **absent**
+```yaml
+  - name: Delete Postgres Cluster
+    postgres_cluster:
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      state: absent
+  
+```
+### Available parameters for state **absent**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | postgres_cluster | True | str |  | The ID or name of an existing Postgres Cluster. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;
+# state: **update**
+```yaml
   - name: Update Postgres Cluster
     postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
@@ -34,38 +147,50 @@
       state: update
       wait: true
     register: updated_cluster_response
-
-  - name: Delete Postgres Cluster
-    postgres_cluster:
-      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
-      state: absent
+  
 ```
+### Available parameters for state **update**:
+&nbsp;
 
-## Parameter Reference
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | maintenance_window | False | dict |  | Dict containing &quot;time&quot; (the time of the day when to perform the maintenance) and &quot;day_of_the_week&quot; (the Day Of the week when to perform the maintenance). |
+  | postgres_version | False | str |  | The PostgreSQL version of your cluster |
+  | instances | False | int |  | The total number of instances in the cluster (one master and n-1 standbys). |
+  | cores | False | int |  | The number of CPU cores per instance. |
+  | ram | False | int |  | The amount of memory per instance(should be a multiple of 1024). |
+  | storage_size | False | int |  | The amount of storage per instance. |
+  | display_name | False | str |  | The friendly name of your cluster. |
+  | postgres_cluster | True | str |  | The ID or name of an existing Postgres Cluster. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
 
-The following parameters are supported:
+&nbsp;
 
-| Name | Required | Type | Default | Description |
-| :--- | :---: | :--- | :--- | :--- |
-| postgres_version | **yes**/no | string |  | The PostgreSQL version of your cluster. Required only for state = 'present' |
-| instances | **yes**/no | string |  | The total number of instances in the cluster (one master and n-1 standbys). Required only for state = 'present' |
-| cores | **yes**/no | string |  | The number of CPU cores per instance. Required only for state = 'present' |
-| ram | **yes**/no | string |  | The amount of memory per instance(should be a multiple of 1024). Required only for state = 'present' |
-| storage_size | **yes**/no | string |  | The amount of storage per instance. Required only for state = 'present' |
-| storage_type | **yes**/no | string |  | The storage type used in your cluster. Required only for state = 'present' |
-| connections | **yes**/no | string |  | Array of VDCs to connect to your cluster. A VDC is described as a dict containing 'datacenter', 'lan' and 'cidr'. For datacenter and lan either name or UUID may be specified. Required only for state = 'present' |
-| location | **yes**/no | string |  | The physical location where the cluster will be created. This will be where all of your instances live. (disallowed in update requests). Required only for state = 'present' |
-| display_name | **yes**/no | string |  | The friendly name of your cluster. Required only for state = 'present' |
-| db_username | **yes**/no | string |  | The username for the initial postgres user. Some system usernames are restricted (e.g. "postgres", "admin", standby"). Required only for state = 'present' |
-| db_password | **yes**/no | string |  | The password for the initial postgres user. Required only for state = 'present' |
-| synchronization_mode | **yes**/no | string |  | Represents different modes of replication. Required only for state = 'present' |
-| backup_id | no | string |  | The unique ID of the backup you want to restore. |
-| recovery_target_time | no | string |  | If this value is supplied as ISO 8601 timestamp, the backup will be replayed up until the given timestamp. If empty, the backup will be applied completely. |
-| maintenance\_window | no | dict |  | The day and time for the maintenance. Contains 'dayOfTheWeek' and 'time'. |
-| postgres_cluster | **yes**/no | string |  | Either a UUID or a display name of the Postgres cluster. Required only for state = 'absent', state = 'update' or state = 'restore' |
-| api\_url | no | string |  | The Ionos API base URL. |
-| username | no | string |  | The Ionos username. Overrides the IONOS\_USERNAME environement variable. |
-| password | no | string |  | The Ionos password. Overrides the IONOS\_PASSWORD environement variable. |
-| wait | no | boolean | true | Wait for the operation to complete before continuing. |
-| state | no | string | present | Indicate desired state of the resource: **present**, absent, update or restore |
+&nbsp;
+# state: **restore**
+```yaml
+  
+```
+### Available parameters for state **restore**:
+&nbsp;
 
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | backup_id | True | str |  | The ID of the backup to be used. |
+  | recovery_target_time | False | str |  | Recovery target time. |
+  | postgres_cluster | True | str |  | The ID or name of an existing Postgres Cluster. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;

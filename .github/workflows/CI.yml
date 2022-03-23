@@ -52,10 +52,29 @@ jobs:
         run: |
           python3 -m pip list
 
+      - name: Run Datacenter test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml
+
+<<<<<<< HEAD
+=======
+      - name: Run K8s Nodepool test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-nodepool-test.yml
+
+      - name: Run User test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
+
+      - name: Run Group test
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
+
       - name: Run Postgres Cluster Info test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-info-test.yml
 
+>>>>>>> 00db8fa... feat: generate docs (#61)
       - name: Run Postgres Cluster Backup Info test
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-backup-info-test.yml
@@ -64,12 +83,15 @@ jobs:
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-test.yml
 
-      - name: Run Datacenter test
+      - name: Run Backupunit test
         run: |
+<<<<<<< HEAD
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml
 
       - name: Run Backupunit test
         run: |
+=======
+>>>>>>> 00db8fa... feat: generate docs (#61)
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/backupunit-test.yml
           
       - name: Run Nic Flowlog test
@@ -140,15 +162,6 @@ jobs:
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-test.yml
 
-      - name: Run K8s Nodepool test
+      - name: Run Private K8s Cluster test
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-nodepool-test.yml
-
-      - name: Run User test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
-
-      - name: Run Group test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
-
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/private-k8s-cluster-test.yml

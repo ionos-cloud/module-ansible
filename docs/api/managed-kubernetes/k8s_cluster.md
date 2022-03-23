@@ -1,30 +1,30 @@
-# backupunit
+# k8s_cluster
 
-This is a simple module that supports creating or removing Backup Units. This module has a dependency on ionos-cloud &gt;= 6.0.0
+This is a simple module that supports creating or removing K8s Clusters. This module has a dependency on ionos-cloud &gt;= 6.0.0
 
 ## Example Syntax
 
 
 ```yaml
-# Create a Backup Unit
-  - name: Create Backup Unit
-    backupunit:
-      backupunit_email: "{{ email }}"
-      backupunit_password: "{{ password }}"
-      name: "{{ name }}"
+
+  - name: Create k8s cluster
+    k8s_cluster:
+      name: "{{ cluster_name }}"
   
-# Update a Backup Unit
-  - name: Update a Backup Unit
-    backupunit:
-      backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
-      backupunit_email: "{{ updated_email }}"
-      backupunit_password:  "{{ updated_password }}"
+
+  - name: Update k8s cluster
+    k8s_cluster:
+      k8s_cluster_id: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
+      maintenance_window:
+        day_of_the_week: 'Tuesday'
+        time: '13:03:00'
+      k8s_version: 1.17.8
       state: update
   
-# Destroy a Backup Unit.
-  - name: Remove Backup Unit
-    backupunit:
-      backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+
+  - name: Delete k8s cluster
+    k8s_cluster:
+      k8s_cluster_id: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
       state: absent
   
 ```
@@ -34,42 +34,23 @@ This is a simple module that supports creating or removing Backup Units. This mo
 
 # state: **present**
 ```yaml
-<<<<<<< HEAD
-    - name: Create backupunit
-      backupunit:
-        backupunit_email: "{{ email }}"
-        backupunit_password: "{{ password }}"
-        name: "{{ name }}"
-
-    - name: Update a backupunit
-      backupunit:
-        backupunit_id: "{{backupunit.id}}"
-        backupunit_email: "{{ updated_email }}"
-        backupunit_password:  "{{ updated_password }}"
-        state: update
-
-    - name: Remove backupunit
-      backupunit:
-        backupunit_id: "{{backupunit.id}}"
-        state: absent
-=======
-  # Create a Backup Unit
-  - name: Create Backup Unit
-    backupunit:
-      backupunit_email: "{{ email }}"
-      backupunit_password: "{{ password }}"
-      name: "{{ name }}"
   
->>>>>>> 00db8fa... feat: generate docs (#61)
+  - name: Create k8s cluster
+    k8s_cluster:
+      name: "{{ cluster_name }}"
+  
 ```
 ### Available parameters for state **present**:
 &nbsp;
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the virtual Backup Unit. |
-  | backupunit_password | False | str |  | The password of the Backup Unit. |
-  | backupunit_email | True | str |  | The email of the Backup Unit. |
+  | cluster_name | True | str |  | The name of the K8s cluster. |
+  | k8s_version | False | str |  | The description of the virtual datacenter. |
+  | maintenance_window | False | dict |  | The datacenter location. |
+  | public | False | bool |  | The datacenter location. |
+  | api_subnet_allow_list | False | list |  | The datacenter location. |
+  | s3_buckets_param | False | list |  | The datacenter location. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -82,10 +63,10 @@ This is a simple module that supports creating or removing Backup Units. This mo
 &nbsp;
 # state: **absent**
 ```yaml
-  # Destroy a Backup Unit.
-  - name: Remove Backup Unit
-    backupunit:
-      backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+  
+  - name: Delete k8s cluster
+    k8s_cluster:
+      k8s_cluster_id: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
       state: absent
   
 ```
@@ -94,8 +75,7 @@ This is a simple module that supports creating or removing Backup Units. This mo
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the virtual Backup Unit. |
-  | backupunit_id | True | str |  | The ID of the virtual Backup Unit. |
+  | k8s_cluster_id | True | str |  | The ID of the K8s cluster. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -108,12 +88,14 @@ This is a simple module that supports creating or removing Backup Units. This mo
 &nbsp;
 # state: **update**
 ```yaml
-  # Update a Backup Unit
-  - name: Update a Backup Unit
-    backupunit:
-      backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
-      backupunit_email: "{{ updated_email }}"
-      backupunit_password:  "{{ updated_password }}"
+  
+  - name: Update k8s cluster
+    k8s_cluster:
+      k8s_cluster_id: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
+      maintenance_window:
+        day_of_the_week: 'Tuesday'
+        time: '13:03:00'
+      k8s_version: 1.17.8
       state: update
   
 ```
@@ -122,8 +104,12 @@ This is a simple module that supports creating or removing Backup Units. This mo
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the virtual Backup Unit. |
-  | backupunit_id | True | str |  | The ID of the virtual Backup Unit. |
+  | cluster_name | True | str |  | The name of the K8s cluster. |
+  | k8s_cluster_id | True | str |  | The ID of the K8s cluster. |
+  | k8s_version | True | str |  | The description of the virtual datacenter. |
+  | maintenance_window | True | dict |  | The datacenter location. |
+  | api_subnet_allow_list | False | list |  | The datacenter location. |
+  | s3_buckets_param | False | list |  | The datacenter location. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |

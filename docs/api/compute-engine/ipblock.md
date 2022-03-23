@@ -1,8 +1,40 @@
-# IpBlock
+# ipblock
+
+This module allows you to create or remove an IPBlock.
 
 ## Example Syntax
 
+
 ```yaml
+# Create an IPBlock
+- name: Create IPBlock
+  ipblock:
+    name: staging
+    location: us/ewr
+    size: 2
+    state: present
+  
+# Update an IPBlock
+- name: Update ipblock
+  ipblock:
+    name: "staging - updated"
+    location: "us/ewr"
+    state: update
+  
+# Remove an IPBlock
+- name: Remove IPBlock
+  ipblock:
+    name: staging
+    state: absent
+  
+```
+&nbsp;
+
+&nbsp;
+
+# state: **present**
+```yaml
+<<<<<<< HEAD
     - name: Create ipblock
       ipblock:
         name:  "{{ name }}"
@@ -21,21 +53,83 @@
         name: "{{ name }}"
         state: absent
       register: delete_result
+=======
+  # Create an IPBlock
+- name: Create IPBlock
+  ipblock:
+    name: staging
+    location: us/ewr
+    size: 2
+    state: present
+  
+>>>>>>> 00db8fa... feat: generate docs (#61)
 ```
+### Available parameters for state **present**:
+&nbsp;
 
-## Parameter Reference
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | name | True | str |  | The name or ID of the IPBlock. |
+  | location | True | str | us/las | The IP Block location. |
+  | size | False | int | 1 | The number of IP addresses to allocate in the IPBlock. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
 
-The following parameters are supported:
+&nbsp;
 
-| Name | Required | Type | Default | Description |
-| :--- | :---: | :--- | :--- | :--- |
-| name | **yes** | string |  | The name of the IPBlock. |
-| location | no | string | us/las | The IPBlock location: us/las, us/ewr, de/fra, de/fkb, de/txl, gb/lhr |
-| size | no | integer | 1 | The number of IP addresses to allocate in the IPBlock. |
-| api\_url | no | string |  | The Ionos API base URL. |
-| username | no | string |  | The Ionos username. Overrides the IONOS\_USERNAME environement variable. |
-| password | no | string |  | The Ionos password. Overrides the IONOS\_PASSWORD environement variable. |
-| wait | no | boolean | true | Wait for the operation to complete before continuing. |
-| wait\_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| state | no | string | present | Indicates desired state of the resource: **present**, absent |
+&nbsp;
+# state: **update**
+```yaml
+  # Update an IPBlock
+- name: Update ipblock
+  ipblock:
+    name: "staging - updated"
+    location: "us/ewr"
+    state: update
+  
+```
+### Available parameters for state **update**:
+&nbsp;
 
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | name | True | str |  | The name or ID of the IPBlock. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;
+# state: **absent**
+```yaml
+  # Remove an IPBlock
+- name: Remove IPBlock
+  ipblock:
+    name: staging
+    state: absent
+  
+```
+### Available parameters for state **absent**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | name | True | str |  | The name or ID of the IPBlock. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;

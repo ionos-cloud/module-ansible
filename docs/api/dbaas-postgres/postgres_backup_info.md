@@ -1,8 +1,12 @@
-# Postgres Backup Info
+# postgres_backup_info
+
+This is a simple module that supports listing existing Postgres Cluster backups
 
 ## Example Syntax
 
+
 ```yaml
+<<<<<<< HEAD
   - name: List Postgres Cluster Backups
     postgres_cluster_info:
       postgres_cluster: {{ postgres_cluster.id }}
@@ -12,14 +16,25 @@
     debug:
       var: postgres_clusters_response.result
 ```
+=======
+>>>>>>> 00db8fa... feat: generate docs (#61)
 
-## Parameter Reference
+    - name: List Postgres Cluster Backups
+        postgres_cluster_info:
+            postgres_cluster: {{ postgres_cluster.id }}
+        register: postgres_clusters_response
 
-The following parameters are supported:
+    - name: Show Postgres Cluster Backups
+        debug:
+            var: postgres_clusters_response.result
+
+```
+### Available parameters:
+&nbsp;
 
 | Name | Required | Type | Default | Description |
 | :--- | :---: | :--- | :--- | :--- |
-| postgres_cluster | no | string |  | Either a UUID or a display name of the Postgres cluster. |
-| api\_url | no | string |  | The Ionos API base URL. |
-| username | no | string |  | The Ionos username. Overrides the IONOS\_USERNAME environement variable. |
-| password | no | string |  | The Ionos password. Overrides the IONOS\_PASSWORD environement variable. |
+| postgres_cluster | True | str |  | The ID or name of an existing Postgres Cluster. |
+| api_url | True | str |  | The Ionos API base URL. |
+| username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+| password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |

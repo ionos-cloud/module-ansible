@@ -1,9 +1,209 @@
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
+import copy
+import yaml
 
-EXAMPLES = '''
-  - name: Create Postgres Cluster
+
+from ansible import __version__
+from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils._text import to_native
+import re
+
+
+HAS_SDK = True
+try:
+    import ionoscloud
+    import ionoscloud_dbaas_postgres
+except ImportError:
+    HAS_SDK = False
+
+
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, ionoscloud.__version__)
+DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, ionoscloud_dbaas_postgres.__version__)
+DOC_DIRECTORY = 'dbaas-postgres'
+STATES = ['present', 'absent', 'update', 'restore']
+OBJECT_NAME = 'Postgres Cluster'
+
+OPTIONS = {
+    'maintenance_window': {
+        'description': [
+            'Dict containing "time" (the time of the day when to perform the maintenance) '
+        'and "day_of_the_week" (the Day Of the week when to perform the maintenance).',
+        ],
+        'available': ['present', 'update'],
+        'type': 'dict',
+    },
+    'postgres_version': {
+        'description': ['The PostgreSQL version of your cluster'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'instances': {
+        'description': ['The total number of instances in the cluster (one master and n-1 standbys).'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'int',
+    },
+    'cores': {
+        'description': ['The number of CPU cores per instance.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'int',
+    },
+    'ram': {
+        'description': ['The amount of memory per instance(should be a multiple of 1024).'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'int',
+    },
+    'storage_size': {
+        'description': ['The amount of storage per instance.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'int',
+    },
+    'storage_type': {
+        'description': ['The storage type used in your cluster.'],
+        'available': ['present'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'connections': {
+        'description': ['Array of VDCs to connect to your cluster.'],
+        'available': ['present'],
+        'required': ['present'],
+        'type': 'list',
+        'elements': 'dict',
+    },
+    'location': {
+        'description': [
+            'The physical location where the cluster will be created. This will be where all of your instances live. Property cannot be modified '
+            'after datacenter creation (disallowed in update requests)',
+        ],
+        'available': ['present'],
+        'required': ['present'],
+        'type': 'str',
+    },
+
+    'display_name': {
+        'description': ['The friendly name of your cluster.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'db_username': {
+        'description': ['The username for the initial postgres user. Some system usernames are restricted (e.g. "postgres", "admin", "standby")'],
+        'available': ['present'],
+        'required': ['present'],
+        'type': 'str',
+        'no_log': True,
+    },
+    'db_password': {
+        'description': ['The username for the initial postgres user.'],
+        'available': ['present'],
+        'required': ['present'],
+        'type': 'str',
+        'no_log': True,
+    },
+    'synchronization_mode': {
+        'description': ['Represents different modes of replication.'],
+        'available': ['present'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'backup_id': {
+        'description': ['The ID of the backup to be used.'],
+        'available': ['present', 'restore'],
+        'required': ['restore'],
+        'type': 'str',
+    },
+    'recovery_target_time': {
+        'description': ['Recovery target time.'],
+        'available': ['present', 'restore'],
+        'type': 'str',
+    },
+    'postgres_cluster': {
+        'description': ['The ID or name of an existing Postgres Cluster.'],
+        'available': ['update', 'absent', 'restore'],
+        'required': ['update', 'absent', 'restore'],
+        'type': 'str',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'available': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
+
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
+
+DOCUMENTATION = '''
+---
+module: postgres_cluster
+short_description: Allows operations with Ionos Cloud Postgres Clusters.
+description:
+     - This is a module that supports creating, updating, restoring or destroying Postgres Clusters
+version_added: "2.0"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionoscloud >= 6.0.0"
+    - "ionoscloud-dbaas-postgres >= 1.0.0"
+author:
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+'''
+
+EXAMPLE_PER_STATE = {
+  'present' : '''- name: Create Postgres Cluster
     postgres_cluster:
       postgres_version: 12
       instances: 1
@@ -22,8 +222,8 @@ EXAMPLES = '''
       db_password: 7357cluster
       wait: true
     register: cluster_response
-
-  - name: Update Postgres Cluster
+  ''',
+  'update' : '''- name: Update Postgres Cluster
     postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
       postgres_version: 12
@@ -34,25 +234,16 @@ EXAMPLES = '''
       state: update
       wait: true
     register: updated_cluster_response
-
-  - name: Delete Postgres Cluster
+  ''',
+  'absent' : '''- name: Delete Postgres Cluster
     postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
       state: absent
-'''
+  ''',
+}
 
-from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule, env_fallback
-from ansible.module_utils._text import to_native
-import re
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
-import ionoscloud
-
-HAS_SDK = True
-try:
-    import ionoscloud_dbaas_postgres
-except ImportError:
-    HAS_SDK = False
 
 def _get_resource(resource_list, identity):
     """
@@ -281,123 +472,82 @@ def restore_postgres_cluster(module, dbaas_client):
         }
 
 
-def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            maintenance_window=dict(
-                type='dict',
-                day_of_the_week=dict(type='str'),
-                time=dict(type='str'),
-            ),
-            postgres_version=dict(type='str'),
-            instances=dict(type='int'),
-            cores=dict(type='int'),
-            ram=dict(type='int'),
-            storage_size=dict(type='int'),
-            storage_type=dict(type='str'),
-            connections=dict(type='list', elements='dict'),
-            location=dict(type='str'),
-            display_name=dict(type='str'),
-            db_username=dict(type='str', no_log=True),
-            db_password=dict(type='str', no_log=True),
-            synchronization_mode=dict(type='str'),
-            backup_id=dict(type='str'),
-            recovery_target_time=dict(type='str'),
-            postgres_cluster=dict(type='str'),
+def get_module_arguments():
+    arguments = {}
 
-            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME']),
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True,
-            ),
-            state=dict(type='str', default='present'),
-            wait=dict(type='bool', default=True),
-        ),
-        supports_check_mode=True,
-    )
-    if not HAS_SDK:
-        module.fail_json(msg='ionoscloud_dbaas_postgres is required for this module, run `pip install ionoscloud_dbaas_postgres`')
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
 
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, ionoscloud_dbaas_postgres.__version__)
 
-    state = module.params.get('state')
-
-    config = {
+    conf = {
         'username': username,
         'password': password,
     }
 
     if api_url is not None:
-        config['host'] = api_url
-        config['server_index'] = None
+        conf['host'] = api_url
+        conf['server_index'] = None
 
-    cloudapi_api_client = ionoscloud.ApiClient(ionoscloud.Configuration(**config))
-    dbaas_postgres_api_client = ionoscloud_dbaas_postgres.ApiClient(ionoscloud_dbaas_postgres.Configuration(**config))
+    return sdk.Configuration(**conf)
 
-    for api_client in [cloudapi_api_client, dbaas_postgres_api_client]:
-        api_client.user_agent = user_agent
 
-    if state == 'present':
-        required_options = [
-            'postgres_version', 'instances', 'cores', 'ram', 'storage_size', 'storage_type',
-            'connections', 'location', 'display_name', 'synchronization_mode', 'db_username', 'db_password',
-        ]
-        for required_option in required_options:
-            if not module.params.get(required_option):
-                module.fail_json(msg='{} parameter is required for a new Postgres cluster'.format(required_option))
-
-        try:
-            (postgres_cluster_dict_array) = create_postgres_cluster(
-                module,
-                dbaas_client=dbaas_postgres_api_client,
-                cloudapi_client=cloudapi_api_client
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
             )
-            module.exit_json(**postgres_cluster_dict_array)
 
-        except Exception as e:
-            module.fail_json(msg='failed to set user state: %s' % to_native(e))
 
-    elif state == 'absent':
-        if not module.params.get('postgres_cluster'):
-            module.fail_json(msg='postgres_cluster parameter is required for deleting a Postgres cluster.')
+def main():
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
-        try:
-            (result) = delete_postgres_cluster(module, dbaas_postgres_api_client)
-            module.exit_json(**result)
-        except Exception as e:
-            module.fail_json(msg='failed to set Postgres cluster state: %s' % to_native(e))
+    if not HAS_SDK:
+        module.fail_json(msg='both ionoscloud and ionoscloud_dbaas_postgres are required for this module, '
+        'run `pip install ionoscloud ionoscloud_dbaas_postgres`')
 
-    elif state == 'update':
-        if not module.params.get('postgres_cluster'):
-            module.fail_json(msg='postgres_cluster parameter is required for updating a Postgres cluster.')
+    cloudapi_api_client = ionoscloud.ApiClient(get_sdk_config(module, ionoscloud))
+    cloudapi_api_client.user_agent = USER_AGENT
+    dbaas_postgres_api_client = ionoscloud_dbaas_postgres.ApiClient(get_sdk_config(module, ionoscloud_dbaas_postgres))
+    dbaas_postgres_api_client.user_agent = DBAAS_POSTGRES_USER_AGENT
 
-        try:
-            (postgres_cluster_dict_array) = update_postgres_cluster(module, dbaas_postgres_api_client)
-            module.exit_json(**postgres_cluster_dict_array)
-        except Exception as e:
-            module.fail_json(msg='failed to set Postgres cluster state: %s' % to_native(e))
+    state = module.params.get('state')
 
-    elif state == 'restore':
-        if not module.params.get('postgres_cluster'):
-            module.fail_json(msg='postgres_cluster parameter is required for restoring a Postgres cluster.')
+    check_required_arguments(module, state, OBJECT_NAME)
 
-        try:
-            (postgres_cluster_dict_array) = restore_postgres_cluster(module, dbaas_postgres_api_client)
-            module.exit_json(**postgres_cluster_dict_array)
-        except Exception as e:
-            module.fail_json(msg='failed to set Postgres cluster state: %s' % to_native(e))
+    try:
+        if state == 'present':
+            module.exit_json(**create_postgres_cluster(module, dbaas_client=dbaas_postgres_api_client, cloudapi_client=cloudapi_api_client))
+        elif state == 'absent':
+            module.exit_json(**delete_postgres_cluster(module, dbaas_postgres_api_client))
+        elif state == 'update':
+            module.exit_json(**update_postgres_cluster(module, dbaas_postgres_api_client))
+        elif state == 'restore':
+            module.exit_json(**restore_postgres_cluster(module, dbaas_postgres_api_client))
+    except Exception as e:
+        module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
 
 if __name__ == '__main__':

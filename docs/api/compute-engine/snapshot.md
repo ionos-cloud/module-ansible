@@ -1,8 +1,105 @@
-# Snapshot
+# snapshot
+
+This module allows you to create or remove a snapshot.
 
 ## Example Syntax
 
+
 ```yaml
+# Create a snapshot
+  - name: Create snapshot
+    snapshot:
+      datacenter: production DC
+      volume: master
+      name: boot volume image
+      state: present
+
+  
+# Update a snapshot
+  - name: Update snapshot
+    snapshot:
+      name: "boot volume image"
+      description: Ansible test snapshot - RENAME
+      state: update
+  
+# Restore a snapshot
+  - name: Restore snapshot
+    snapshot:
+      datacenter: production DC
+      volume: slave
+      name: boot volume image
+      state: restore
+  
+# Remove a snapshot
+  - name: Remove snapshot
+    snapshot:
+      name: master-Snapshot-11/30/2017
+      state: absent
+  
+```
+&nbsp;
+
+&nbsp;
+
+# state: **present**
+```yaml
+  # Create a snapshot
+  - name: Create snapshot
+    snapshot:
+      datacenter: production DC
+      volume: master
+      name: boot volume image
+      state: present
+
+  
+```
+### Available parameters for state **present**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | datacenter | True | str |  | The datacenter in which the volumes reside. |
+  | volume | True | str |  | The name or UUID of the volume. |
+  | name | False | str |  | The name of the snapshot. |
+  | description | False | str |  | The description of the snapshot. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;
+# state: **absent**
+```yaml
+  # Remove a snapshot
+  - name: Remove snapshot
+    snapshot:
+      name: master-Snapshot-11/30/2017
+      state: absent
+  
+```
+### Available parameters for state **absent**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | name | True | str |  | The name of the snapshot. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;
+# state: **update**
+```yaml
+<<<<<<< HEAD
     - name: Create snapshot
       snapshot:
         datacenter: production DC
@@ -15,33 +112,69 @@
         volume: slave
         name: boot volume snapshot
         state: restore
+=======
+  # Update a snapshot
+  - name: Update snapshot
+    snapshot:
+      name: "boot volume image"
+      description: Ansible test snapshot - RENAME
+      state: update
+  
+>>>>>>> 00db8fa... feat: generate docs (#61)
 ```
+### Available parameters for state **update**:
+&nbsp;
 
-## Parameter Reference
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | name | True | str |  | The name of the snapshot. |
+  | licence_type | False | str |  | The license type used |
+  | cpu_hot_plug | False | bool |  | Hot-plug capable CPU (no reboot required). |
+  | cpu_hot_unplug | False | bool |  | Hot-unplug capable CPU (no reboot required). |
+  | ram_hot_plug | False | bool |  | Hot-plug capable RAM (no reboot required) |
+  | ram_hot_unplug | False | bool |  | Hot-unplug capable RAM (no reboot required). |
+  | nic_hot_plug | False | bool |  | Hot-plug capable NIC (no reboot required). |
+  | nic_hot_unplug | False | bool |  | Hot-unplug capable NIC (no reboot required) |
+  | disc_scsi_hot_plug | False | bool |  | Hot-plug capable SCSI drive (no reboot required). |
+  | disc_scsi_hot_unplug | False | bool |  | Hot-unplug capable SCSI drive (no reboot required). Not supported with Windows VMs. |
+  | disc_virtio_hot_plug | False | bool |  | Hot-plug capable Virt-IO drive (no reboot required). |
+  | disc_virtio_hot_unplug | False | bool |  | Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows VMs. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
 
-The following parameters are supported:
+&nbsp;
 
-| Name | Required | Type | Default | Description |
-| :--- | :---: | :--- | :--- | :--- |
-| datacenter | **yes**/no | string |  | The datacenter in which the volume resides. Required for `state='present'` or `state='restore'` to create or restore a snapshot. |
-| volume | **yes**/no | string |  | The volume to create or restore the snapshot. Required for `state='present'` or `state='restore'`. |
-| name | **yes**/no | string |  | The name of the snapshot. Required for `state='update'` or `state='absent'` to update or remove a snapshot. |
-| description | no | string |  | The description of the snapshot. |
-| licence\_type | no | string |  | The licence type for the volume. This is used when updating the snapshot: LINUX, WINDOWS, UNKNOWN, OTHER, WINDOWS2016 |
-| cpu\_hot\_plug | no | boolean |  | Indicates the volume is capable of CPU hot plug \(no reboot required\). |
-| cpu\_hot\_unplug | no | boolean |  | Indicates the volume is capable of CPU hot unplug \(no reboot required\). |
-| ram\_hot\_plug | no | boolean |  | Indicates the volume is capable of memory hot plug. |
-| ram\_hot\_unplug | no | boolean |  | Indicates the volume is capable of memory hot unplug. |
-| nic\_hot\_plug | no | boolean |  | Indicates the volume is capable of NIC hot plug. |
-| nic\_hot\_unplug | no | boolean |  | Indicates the volume is capable of NIC hot unplug. |
-| disc\_virtio\_hot\_plug | no | boolean |  | Indicates the volume is capable of VirtIO drive hot plug. |
-| disc\_virtio\_hot\_unplug | no | boolean |  | Indicates the volume is capable of VirtIO drive hot unplug. |
-| disc\_scsi\_hot\_plug | no | boolean |  | Indicates the volume is capable of SCSI drive hot plug. |
-| disc\_scsi\_hot\_unplug | no | boolean |  | Indicates the volume is capable of SCSI drive hot unplug. |
-| api\_url | no | string |  | The Ionos API base URL. |
-| username | no | string |  | The Ionos username. Overrides the IONOS\_USERNAME environment variable. |
-| password | no | string |  | The Ionos password. Overrides the IONOS\_PASSWORD environment variable. |
-| wait | no | boolean | true | Wait for the resource to be created before continuing. |
-| wait\_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| state | no | string | present | Indicate desired state of the resource: **present**, absent, restore, update |
+&nbsp;
+# state: **restore**
+```yaml
+  # Restore a snapshot
+  - name: Restore snapshot
+    snapshot:
+      datacenter: production DC
+      volume: slave
+      name: boot volume image
+      state: restore
+  
+```
+### Available parameters for state **restore**:
+&nbsp;
 
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | datacenter | True | str |  | The datacenter in which the volumes reside. |
+  | volume | True | str |  | The name or UUID of the volume. |
+  | name | True | str |  | The name of the snapshot. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;

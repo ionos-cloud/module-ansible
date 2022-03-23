@@ -1,9 +1,132 @@
-# Server
+# server
 
-## Example
+Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine. When the virtual machine is created it can optionally wait for it to be 'running' before returning.
 
-### ENTERPRISE Server:
+## Example Syntax
+
+
 ```yaml
+# Provisioning example. This will create three servers and enumerate their names.
+    - server:
+        datacenter: Tardis One
+        name: web%02d.stackpointcloud.com
+        cores: 4
+        ram: 2048
+        volume_size: 50
+        cpu_family: INTEL_XEON
+        image: ubuntu:latest
+        location: us/las
+        count: 3
+        assign_public_ip: true
+  
+# Update Virtual machines
+    - server:
+        datacenter: Tardis One
+        instance_ids:
+        - web001.stackpointcloud.com
+        - web002.stackpointcloud.com
+        cores: 4
+        ram: 4096
+        cpu_family: INTEL_XEON
+        availability_zone: ZONE_1
+        state: update
+  
+# Removing Virtual machines
+    - server:
+        datacenter: Tardis One
+        instance_ids:
+        - 'web001.stackpointcloud.com'
+        - 'web002.stackpointcloud.com'
+        - 'web003.stackpointcloud.com'
+        wait_timeout: 500
+        state: absent
+  
+# Starting Virtual Machines.
+    - server:
+        datacenter: Tardis One
+        instance_ids:
+        - 'web001.stackpointcloud.com'
+        - 'web002.stackpointcloud.com'
+        - 'web003.stackpointcloud.com'
+        wait_timeout: 500
+        state: running
+  
+# Stopping Virtual Machines
+    - server:
+        datacenter: Tardis One
+        instance_ids:
+        - 'web001.stackpointcloud.com'
+        - 'web002.stackpointcloud.com'
+        - 'web003.stackpointcloud.com'
+        wait_timeout: 500
+        state: stopped
+  
+```
+&nbsp;
+
+&nbsp;
+
+# state: **running**
+```yaml
+  # Starting Virtual Machines.
+    - server:
+        datacenter: Tardis One
+        instance_ids:
+        - 'web001.stackpointcloud.com'
+        - 'web002.stackpointcloud.com'
+        - 'web003.stackpointcloud.com'
+        wait_timeout: 500
+        state: running
+  
+```
+### Available parameters for state **running**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;
+# state: **stopped**
+```yaml
+  # Stopping Virtual Machines
+    - server:
+        datacenter: Tardis One
+        instance_ids:
+        - 'web001.stackpointcloud.com'
+        - 'web002.stackpointcloud.com'
+        - 'web003.stackpointcloud.com'
+        wait_timeout: 500
+        state: stopped
+  
+```
+### Available parameters for state **stopped**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;
+# state: **resume**
+```yaml
+<<<<<<< HEAD
     - name: Provision a server
       server:
          datacenter: "{{ datacenter }}"
@@ -54,95 +177,166 @@
          wait_timeout: "{{ timeout }}"
          state: running
          
-
+=======
+  
 ```
+### Available parameters for state **resume**:
+&nbsp;
 
-### CUBE Server
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
 
+&nbsp;
+
+&nbsp;
+# state: **suspend**
 ```yaml
-    - name: Provision a server
-      server:
-         datacenter: "{{ datacenter }}"
-         name: "{{ name }} %02d"
-         auto_increment: true
-         cpu_family: INTEL_SKYLAKE
-         disk_type: DAS
-         image: "912139a4-c283-11eb-a028-52d578831bb3"
-         image_password: "{{ password }}"
-         location: "de/txl"
-         count: 1
-         assign_public_ip: true
-         remove_boot_volume: true
-         template_uuid: "15c6dd2f-02d2-4987-b439-9a58dd59ecc3"
-         type: "CUBE"
-         wait: true
-         wait_timeout: "{{ wait_timeout }}"
-         state: present
-
-    - name: Update server
-      server:
-         datacenter: "{{ datacenter }}"
-         name: "{{ name }} - UPDATED"
-         instance_ids:
-           - "{{ name }} 01"
-         type: CUBE
-         wait: true
-         wait_timeout: "{{ wait_timeout }}"
-         state: update
-
-    - name: Suspend server
-      server:
-         datacenter: "{{ datacenter }}"
-         instance_ids:
-           - "{{ name }} 01"
-         wait_timeout: "{{ wait_timeout }}"
-         state: suspend
-
-    - name: Resume server
-      server:
-         datacenter: "{{ datacenter }}"
-         instance_ids:
-           - "{{ name }} 01"
-         wait_timeout: "{{ wait_timeout }}"
-         state: resume
-
+  
 ```
+### Available parameters for state **suspend**:
+&nbsp;
 
-## Parameter Reference
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
 
-The following parameters are supported:
+&nbsp;
+>>>>>>> 00db8fa... feat: generate docs (#61)
 
-| Name | Required | Type | Default | Description |
-| :--- | :---: | :--- | :--- | :--- |
-| auto\_increment | no | boolean | true | Whether or not to increment created servers. |
-| count | no | integer | 1 | The number of servers to create. |
-| name | **yes**/no | string |  | The name of the server\(s\). Required only for `state='present'`. |
-| template_uuid | **yes**/no | string |  | The UUID of the template for creating a CUBE server; the available templates for CUBE servers can be found on the templates resource. Required only for state = 'present'. |
-| image | **yes**/no | string |  | Image, snapshot ID or image alias to be used as template for the volume of the server. |
-| image\_password | no | string |  | Password set for the administrative user. |
-| ssh\_keys | no | list | none | List of public SSH keys allowing access to the server. |
-| datacenter | **yes** | string | none | The datacenter where the server is located. |
-| cores | no | integer | 2 | The number of CPU cores to allocate to the server. |
-| ram | no | integer | 2048 | The amount of memory to allocate to the server. |
-| cpu\_family | no | string | AMD\_OPTERON | The CPU family type of the server: **AMD\_OPTERON**, INTEL\_XEON, INTEL\_SKYLAKE |
-| availability\_zone | no | string | AUTO | The availability zone assigned to the server: **AUTO**, ZONE\_1, ZONE\_2 |
-| volume\_size | no | integer | 10 | The size in GB of the boot volume. |
-| disk\_type | no | string | HDD | The disk type of the volume: **HDD**, SSD, SSD Standard or SSD Premium. If `SSD` is provided, it will automatically use `SSD Premium` |
-| volume\_availability\_zone | no | string | AUTO | The storage availability zone assigned to the volume: **AUTO**, ZONE\_1, ZONE\_2, ZONE\_3 |
-| bus | no | string | VIRTIO | The bus type for the volume: **VIRTIO**, IDE |
-| type | **yes** | string | ENTERPRISE | The type of the server. Accepted values: ENTERPRISE or CUBE |
-| instance\_ids | **yes**/no | list |  | List of instance IDs or names. **Not required** for `state='present'`. |
-| location | no | string | us/las | The datacenter location used only if the module creates a default datacenter: us/las, us/ewr, de/fra, de/fkb, de/txl, gb/lhr |
-| boot_volume | no | string |  | The boot volume. |
-| boot_cdrom | no | string |  | The boot CDROM. |
-| assign\_public\_ip | no | boolean | false | This will assign the server to the public LAN. The LAN is created if no LAN exists with public Internet access. |
-| lan | no | string / integer | 1 | The LAN ID / Name for the server. |
-| nat | no | boolean | false | The private IP address has outbound access to the Internet. |
-| nic\_ips | no | list | false | List of IPs to be set in the included NIC of the server. |
-| api\_url | no | string |  | The Ionos API base URL. |
-| username | no | string |  | The Ionos username. Overrides the IONOS\_USERNAME environment variable. |
-| password | no | string |  | The Ionos password. Overrides the IONOS\_PASSWORD environment variable. |
-| wait | no | boolean | true | Wait for the instance to be in state 'running' before continuing. |
-| wait\_timeout | no | integer | 600 | The number of seconds until the wait ends. |
-| remove\_boot\_volume | no | boolean | true | Remove the boot volume of the server being deleted. |
-| state | no | string | present | Indicate desired state of the resource: **present**, absent, running, stopped, update |
+&nbsp;
+# state: **absent**
+```yaml
+  # Removing Virtual machines
+    - server:
+        datacenter: Tardis One
+        instance_ids:
+        - 'web001.stackpointcloud.com'
+        - 'web002.stackpointcloud.com'
+        - 'web003.stackpointcloud.com'
+        wait_timeout: 500
+        state: absent
+  
+```
+### Available parameters for state **absent**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | name | False | str |  | The name of the virtual machine. |
+  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;
+# state: **present**
+```yaml
+  # Provisioning example. This will create three servers and enumerate their names.
+    - server:
+        datacenter: Tardis One
+        name: web%02d.stackpointcloud.com
+        cores: 4
+        ram: 2048
+        volume_size: 50
+        cpu_family: INTEL_XEON
+        image: ubuntu:latest
+        location: us/las
+        count: 3
+        assign_public_ip: true
+  
+```
+### Available parameters for state **present**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | name | True | str |  | The name of the virtual machine. |
+  | auto_increment | False | bool | True | Whether or not to increment a single number in the name for created virtual machines. |
+  | assign_public_ip | False | bool | False | This will assign the machine to the public LAN. If no LAN exists with public Internet access it is created. |
+  | image | True | str |  | The image alias or ID for creating the virtual machine. |
+  | image_password | False | str |  | Password set for the administrative user. |
+  | ssh_keys | False | list |  | Public SSH keys allowing access to the virtual machine. |
+  | volume_availability_zone | False | str |  | The storage availability zone assigned to the volume. |
+  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
+  | cores | False | int | 2 | The number of CPU cores to allocate to the virtual machine. |
+  | ram | False | int | 2048 | The amount of memory to allocate to the virtual machine. |
+  | cpu_family | False | str | AMD_OPTERON | The amount of memory to allocate to the virtual machine. |
+  | availability_zone | False | str | AUTO | The availability zone assigned to the server. |
+  | volume_size | False | int | 10 | The size in GB of the boot volume. |
+  | bus | False | str | VIRTIO | The bus type for the volume. |
+  | instance_ids | False | list |  | list of instance ids, currently only used when state='absent' to remove instances. |
+  | count | False | int | 1 | The number of virtual machines to create. |
+  | location | False | str | us/las | The datacenter location. Use only if you want to create the Datacenter or else this value is ignored. |
+  | lan | False | raw |  | The ID or name of the LAN you wish to add the servers to (can be a string or a number). |
+  | nat | False | bool | False | Boolean value indicating if the private IP address has outbound access to the public Internet. |
+  | remove_boot_volume | False | bool | True | Remove the bootVolume of the virtual machine you're destroying. |
+  | disk_type | False | str | HDD | The disk type for the volume. |
+  | nic_ips | False | list |  | The list of IPS for the NIC. |
+  | template_uuid | False | str |  | The template used when crating a CUBE server. |
+  | boot_volume | False | str |  | The volume used for boot. |
+  | boot_cdrom | False | str |  | The CDROM used for boot. |
+  | type | False | str | ENTERPRISE | The type of the virtual machine. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;
+# state: **update**
+```yaml
+  # Update Virtual machines
+    - server:
+        datacenter: Tardis One
+        instance_ids:
+        - web001.stackpointcloud.com
+        - web002.stackpointcloud.com
+        cores: 4
+        ram: 4096
+        cpu_family: INTEL_XEON
+        availability_zone: ZONE_1
+        state: update
+  
+```
+### Available parameters for state **update**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | name | False | str |  | The name of the virtual machine. |
+  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
+  | cores | False | int | 2 | The number of CPU cores to allocate to the virtual machine. |
+  | ram | False | int | 2048 | The amount of memory to allocate to the virtual machine. |
+  | boot_volume | False | str |  | The volume used for boot. |
+  | boot_cdrom | False | str |  | The CDROM used for boot. |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;

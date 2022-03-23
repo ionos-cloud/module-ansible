@@ -4,239 +4,14 @@
 
 from __future__ import absolute_import, division, print_function
 
-__metaclass__ = type
-
-ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
-
-DOCUMENTATION = '''
----
-module: server
-short_description: Create, update, destroy, start, stop, and reboot a Ionos virtual machine.
-description:
-     - Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine.
-       When the virtual machine is created it can optionally wait for it to be 'running' before returning.
-version_added: "2.0"
-options:
-  auto_increment:
-    description:
-      - Whether or not to increment a single number in the name for created virtual machines.
-    default: yes
-    choices: ["yes", "no"]
-  name:
-    description:
-      - The name of the virtual machine.
-    required: true
-  image:
-    description:
-      - The image alias or ID for creating the virtual machine.
-    required: true
-  image_password:
-    description:
-      - Password set for the administrative user.
-    required: false
-    version_added: "2.2"
-  ssh_keys:
-    description:
-      - Public SSH keys allowing access to the virtual machine.
-    required: false
-    version_added: "2.2"
-  volume_availability_zone:
-    description:
-      - The storage availability zone assigned to the volume.
-    required: false
-    default: None
-    choices: [ "AUTO", "ZONE_1", "ZONE_2", "ZONE_3" ]
-    version_added: "2.3"
-  datacenter:
-    description:
-      - The datacenter to provision this virtual machine.
-    required: false
-    default: null
-  cores:
-    description:
-      - The number of CPU cores to allocate to the virtual machine.
-    required: false
-    default: 2
-  ram:
-    description:
-      - The amount of memory to allocate to the virtual machine.
-    required: false
-    default: 2048
-  cpu_family:
-    description:
-      - The CPU family type to allocate to the virtual machine.
-    required: false
-    default: AMD_OPTERON
-    choices: [ "AMD_OPTERON", "INTEL_XEON", "INTEL_SKYLAKE" ]
-    version_added: "2.2"
-  availability_zone:
-    description:
-      - The availability zone assigned to the server.
-    required: false
-    default: AUTO
-    choices: [ "AUTO", "ZONE_1", "ZONE_2" ]
-    version_added: "2.3"
-  volume_size:
-    description:
-      - The size in GB of the boot volume.
-    required: false
-    default: 10
-  bus:
-    description:
-      - The bus type for the volume.
-    required: false
-    default: VIRTIO
-    choices: [ "IDE", "VIRTIO"]
-  instance_ids:
-    description:
-      - list of instance ids, currently only used when state='absent' to remove instances.
-    required: false
-  count:
-    description:
-      - The number of virtual machines to create.
-    required: false
-    default: 1
-  location:
-    description:
-      - The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.
-    required: false
-    default: us/las
-    choices: [ "us/las", "us/ewr", "de/fra", "de/fkb", "de/txl", "gb/lhr" ]
-  assign_public_ip:
-    description:
-      - This will assign the machine to the public LAN. If no LAN exists with public Internet access it is created.
-    required: false
-    default: false
-  lan:
-    description:
-      - The ID or name of the LAN you wish to add the servers to (can be a string or a number).
-    required: false
-    default: 1
-  nat:
-    description:
-      - Boolean value indicating if the private IP address has outbound access to the public Internet.
-    required: false
-    default: false
-    version_added: "2.3"
-  api_url:
-    description:
-      - The Ionos API base URL.
-    required: false
-    default: null
-    version_added: "2.4"
-  username:
-    description:
-      - The Ionos username. Overrides the IONOS_USERNAME environment variable.
-    required: false
-    aliases: subscription_user
-  password:
-    description:
-      - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
-    required: false
-    aliases: subscription_password
-  wait:
-    description:
-      - wait for the instance to be in state 'running' before returning
-    required: false
-    default: "yes"
-    choices: [ "yes", "no" ]
-  wait_timeout:
-    description:
-      - how long before wait gives up, in seconds
-    default: 600
-  remove_boot_volume:
-    description:
-      - remove the bootVolume of the virtual machine you're destroying.
-    required: false
-    default: "yes"
-    choices: ["yes", "no"]
-  state:
-    description:
-      - Indicate desired state of the resource
-    required: false
-    default: "present"
-    choices: [ "running", "stopped", "absent", "present", "update" ]
-
-requirements:
-    - "python >= 2.6"
-    - "ionos-cloud >= 5.2.0"
-author:
-    - "Matt Baldwin (baldwin@stackpointcloud.com)"
-    - "Ethan Devenport (@edevenport)"
-'''
-
-EXAMPLES = '''
-
-# Provisioning example. This will create three servers and enumerate their names.
-
-- server:
-    datacenter: Tardis One
-    name: web%02d.stackpointcloud.com
-    cores: 4
-    ram: 2048
-    volume_size: 50
-    cpu_family: INTEL_XEON
-    image: ubuntu:latest
-    location: us/las
-    count: 3
-    assign_public_ip: true
-
-# Update Virtual machines
-
-- server:
-    datacenter: Tardis One
-    instance_ids:
-      - web001.stackpointcloud.com
-      - web002.stackpointcloud.com
-    cores: 4
-    ram: 4096
-    cpu_family: INTEL_XEON
-    availability_zone: ZONE_1
-    state: update
-
-# Removing Virtual machines
-
-- server:
-    datacenter: Tardis One
-    instance_ids:
-      - 'web001.stackpointcloud.com'
-      - 'web002.stackpointcloud.com'
-      - 'web003.stackpointcloud.com'
-    wait_timeout: 500
-    state: absent
-
-# Starting Virtual Machines.
-
-- server:
-    datacenter: Tardis One
-    instance_ids:
-      - 'web001.stackpointcloud.com'
-      - 'web002.stackpointcloud.com'
-      - 'web003.stackpointcloud.com'
-    wait_timeout: 500
-    state: running
-
-# Stopping Virtual Machines
-
-- server:
-    datacenter: Tardis One
-    instance_ids:
-      - 'web001.stackpointcloud.com'
-      - 'web002.stackpointcloud.com'
-      - 'web003.stackpointcloud.com'
-    wait_timeout: 500
-    state: stopped
-
-'''
-
+import copy
 import re
 import traceback
+import yaml
 
 from uuid import (uuid4, UUID)
 
-HAS_PB_SDK = True
+HAS_SDK = True
 
 try:
     import ionoscloud
@@ -247,45 +22,337 @@ try:
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
-    HAS_PB_SDK = False
+    HAS_SDK = False
 
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils.six.moves import xrange
 from ansible.module_utils._text import to_native
 
-LOCATIONS = ['us/las',
-             'us/ewr',
-             'de/fra',
-             'de/fkb',
-             'de/txl',
-             'gb/lhr'
-             ]
+__metaclass__ = type
 
-CPU_FAMILIES = ['AMD_OPTERON',
-                'INTEL_XEON',
-                'INTEL_SKYLAKE']
+ANSIBLE_METADATA = {
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+}
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+DOC_DIRECTORY = 'compute-engine'
+STATES = ['running', 'stopped', 'resume', 'suspend', 'absent', 'present', 'update']
+OBJECT_NAME = 'Server'
 
-DISK_TYPES = ['HDD',
-              'SSD',
-              'SSD Standard',
-              'SSD Premium',
-              'DAS'
-              ]
+AVAILABILITY_ZONES = [
+    'AUTO',
+    'ZONE_1',
+    'ZONE_2',
+    'ZONE_3',
+]
 
-BUS_TYPES = ['VIRTIO',
-             'IDE']
+OPTIONS = {
+    'name': {
+        'description': ['The name of the virtual machine.'],
+        'required': ['present'],
+        'available': ['present', 'update', 'absent'],
+        'type': 'str',
+    },
+    'auto_increment': {
+        'description': ['Whether or not to increment a single number in the name for created virtual machines.'],
+        'available': ['present'],
+        'choices': [True, False],
+        'default': True,
+        'type': 'bool',
+    },
+    'assign_public_ip': {
+        'description': ['This will assign the machine to the public LAN. If no LAN exists with public Internet access it is created.'],
+        'available': ['present'],
+        'choices': [True, False],
+        'default': False,
+        'type': 'bool',
+    },
+    'image': {
+        'description': ['The image alias or ID for creating the virtual machine.'],
+        'required': ['present'],
+        'available': ['present'],
+        'type': 'str',
+    },
+    'image_password': {
+        'description': ['Password set for the administrative user.'],
+        'available': ['present'],
+        'version_added': '2.2',
+        'no_log': True,
+        'type': 'str',
+    },
+    'ssh_keys': {
+        'description': ['Public SSH keys allowing access to the virtual machine.'],
+        'available': ['present'],
+        'version_added': '2.2',
+        'default': [],
+        'type': 'list',
+    },
+    'volume_availability_zone': {
+        'description': ['The storage availability zone assigned to the volume.'],
+        'available': ['present'],
+        'choices': AVAILABILITY_ZONES,
+        'type': 'str',
+        'version_added': '2.3',
+    },
+    'datacenter': {
+        'description': ['The datacenter to provision this virtual machine.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'cores': {
+        'description': ['The number of CPU cores to allocate to the virtual machine.'],
+        'available': ['present', 'update'],
+        'default': 2,
+        'type': 'int',
+    },
+    'ram': {
+        'description': ['The amount of memory to allocate to the virtual machine.'],
+        'available': ['present', 'update'],
+        'default': 2048,
+        'type': 'int',
+    },
+    'cpu_family': {
+        'description': ['The amount of memory to allocate to the virtual machine.'],
+        'available': ['present'],
+        'choices': ['AMD_OPTERON', 'INTEL_XEON', 'INTEL_SKYLAKE'],
+        'default': 'AMD_OPTERON',
+        'type': 'str',
+        'version_added': '2.2',
+    },
+    'availability_zone': {
+        'description': ['The availability zone assigned to the server.'],
+        'available': ['present'],
+        'choices': AVAILABILITY_ZONES,
+        'default': 'AUTO',
+        'type': 'str',
+        'version_added': '2.3',
+    },
+    'volume_size': {
+        'description': ['The size in GB of the boot volume.'],
+        'available': ['present'],
+        'default': 10,
+        'type': 'int',
+    },
+    'bus': {
+        'description': ['The bus type for the volume.'],
+        'available': ['present'],
+        'choices': ['IDE', 'VIRTIO'],
+        'default': 'VIRTIO',
+        'type': 'str',
+    },
+    'instance_ids': {
+        'description': ["list of instance ids, currently only used when state='absent' to remove instances."],
+        'available': ['present'],
+        'default': [],
+        'type': 'list',
+    },
+    'count': {
+        'description': ['The number of virtual machines to create.'],
+        'available': ['present'],
+        'default': 1,
+        'type': 'int',
+    },
+    'location': {
+        'description': ['The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.'],
+        'available': ['present'],
+        'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
+        'default': 'us/las',
+        'type': 'str',
+    },
+    'lan': {
+        'description': ['The ID or name of the LAN you wish to add the servers to (can be a string or a number).'],
+        'available': ['present'],
+        'default': '1',
+        'type': 'str',
+    },
+    'lan': {
+        'description': ['The ID or name of the LAN you wish to add the servers to (can be a string or a number).'],
+        'available': ['present'],
+        'type': 'raw',
+    },
+    'nat': {
+        'description': ['Boolean value indicating if the private IP address has outbound access to the public Internet.'],
+        'available': ['present'],
+        'choices': [True, False],
+        'default': False,
+        'type': 'bool',
+        'version_added': '2.3',
+    },
+    'remove_boot_volume': {
+        'description': ["Remove the bootVolume of the virtual machine you're destroying."],
+        'available': ['present'],
+        'choices': [True, False],
+        'default': True,
+        'type': 'bool',
+    },
+    'disk_type': {
+        'description': ['The disk type for the volume.'],
+        'available': ['present'],
+        'choices': ['HDD', 'SSD', 'SSD Standard', 'SSD Premium', 'DAS'],
+        'default': 'HDD',
+        'type': 'str',
+    },
+    'nic_ips': {
+        'description': ['The list of IPS for the NIC.'],
+        'available': ['present'],
+        'type': 'list',
+        'elements': 'str',
+    },
+    'template_uuid': {
+        'description': ['The template used when crating a CUBE server.'],
+        'available': ['present'],
+        'type': 'str',
+    },
+    'boot_volume': {
+        'description': ['The volume used for boot.'],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'boot_cdrom': {
+        'description': ['The CDROM used for boot.'],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'type': {
+        'description': ['The type of the virtual machine.'],
+        'available': ['present'],
+        'choices': ['ENTERPRISE', 'CUBE'],
+        'default': 'ENTERPRISE',
+        'type': 'str',
+    },
+    'api_url': {
+        'description': ['The Ionos API base URL.'],
+        'version_added': '2.4',
+        'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'username': {
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'required': STATES,
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'required': STATES,
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'wait': {
+        'description': ['Wait for the resource to be created before returning.'],
+        'default': True,
+        'available': STATES,
+        'choices': [True, False],
+        'type': 'bool',
+    },
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 600,
+        'available': STATES,
+        'type': 'int',
+    },
+    'state': {
+        'description': ['Indicate desired state of the resource.'],
+        'default': 'present',
+        'choices': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+}
 
-AVAILABILITY_ZONES = ['AUTO',
-                      'ZONE_1',
-                      'ZONE_2',
-                      'ZONE_3']
+def transform_for_documentation(val):
+    val['required'] = len(val.get('required', [])) == len(STATES) 
+    del val['available']
+    del val['type']
+    return val
 
-SERVER_TYPES = ['ENTERPRISE',
-                'CUBE']
+DOCUMENTATION = '''
+---
+module: server
+short_description: Create, update, destroy, start, stop, and reboot a Ionos virtual machine.
+description:
+     - Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine.
+       When the virtual machine is created it can optionally wait for it to be 'running' before returning.
+version_added: "2.0"
+options:
+''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+requirements:
+    - "python >= 2.6"
+    - "ionos-cloud >= 5.2.0"
+author:
+    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+'''
 
-uuid_match = re.compile(
-    '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
+EXAMPLE_PER_STATE = {
+  'present' : '''# Provisioning example. This will create three servers and enumerate their names.
+    - server:
+        datacenter: Tardis One
+        name: web%02d.stackpointcloud.com
+        cores: 4
+        ram: 2048
+        volume_size: 50
+        cpu_family: INTEL_XEON
+        image: ubuntu:latest
+        location: us/las
+        count: 3
+        assign_public_ip: true
+  ''',
+  'update' : '''# Update Virtual machines
+    - server:
+        datacenter: Tardis One
+        instance_ids:
+        - web001.stackpointcloud.com
+        - web002.stackpointcloud.com
+        cores: 4
+        ram: 4096
+        cpu_family: INTEL_XEON
+        availability_zone: ZONE_1
+        state: update
+  ''',
+  'absent' : '''# Removing Virtual machines
+    - server:
+        datacenter: Tardis One
+        instance_ids:
+        - 'web001.stackpointcloud.com'
+        - 'web002.stackpointcloud.com'
+        - 'web003.stackpointcloud.com'
+        wait_timeout: 500
+        state: absent
+  ''',
+  'running' : '''# Starting Virtual Machines.
+    - server:
+        datacenter: Tardis One
+        instance_ids:
+        - 'web001.stackpointcloud.com'
+        - 'web002.stackpointcloud.com'
+        - 'web003.stackpointcloud.com'
+        wait_timeout: 500
+        state: running
+  ''',
+  'stopped' : '''# Stopping Virtual Machines
+    - server:
+        datacenter: Tardis One
+        instance_ids:
+        - 'web001.stackpointcloud.com'
+        - 'web002.stackpointcloud.com'
+        - 'web003.stackpointcloud.com'
+        wait_timeout: 500
+        state: stopped
+  ''',
+}
+
+EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+
+uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
 def _get_request_id(headers):
@@ -909,69 +976,30 @@ def _get_instance(instance_list, identity):
     return None
 
 
-def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            datacenter=dict(type='str'),
-            name=dict(type='str'),
-            image=dict(type='str'),
-            cores=dict(type='int', default=2),
-            ram=dict(type='int', default=2048),
-            cpu_family=dict(type='str', choices=CPU_FAMILIES, default='AMD_OPTERON'),
-            volume_size=dict(type='int', default=10),
-            disk_type=dict(type='str', choices=DISK_TYPES, default='HDD'),
-            availability_zone=dict(type='str', choices=AVAILABILITY_ZONES, default='AUTO'),
-            volume_availability_zone=dict(type='str', choices=AVAILABILITY_ZONES, default=None),
-            image_password=dict(type='str', default=None, no_log=True),
-            ssh_keys=dict(type='list', default=[]),
-            bus=dict(type='str', choices=BUS_TYPES, default='VIRTIO'),
-            nic_ips=dict(type='list', elements='str'),
-            lan=dict(type='raw', required=False),
-            nat=dict(type='bool', default=None),
-            template_uuid=dict(type='str'),
-            boot_volume=dict(type='str'),
-            boot_cdrom=dict(type='str'),
-            type=dict(type='str', choices=SERVER_TYPES, default='ENTERPRISE'),
-            count=dict(type='int', default=1),
-            auto_increment=dict(type='bool', default=True),
-            instance_ids=dict(type='list', default=[]),
-            api_url=dict(type='str', default=None, fallback=(env_fallback, ['IONOS_API_URL'])),
-            username=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_user'],
-                fallback=(env_fallback, ['IONOS_USERNAME'])
-            ),
-            password=dict(
-                type='str',
-                required=True,
-                aliases=['subscription_password'],
-                fallback=(env_fallback, ['IONOS_PASSWORD']),
-                no_log=True
-            ),
-            location=dict(type='str', choices=LOCATIONS, default='us/las'),
-            assign_public_ip=dict(type='bool', default=False),
-            wait=dict(type='bool', default=True),
-            wait_timeout=dict(type='int', default=600),
-            remove_boot_volume=dict(type='bool', default=True),
-            state=dict(type='str', default='present'),
-        ),
-        supports_check_mode=True
-    )
+def get_module_arguments():
+    arguments = {}
 
-    if module.params.get('lan') is not None and not (
-            isinstance(module.params.get('lan'), str) or isinstance(module.params.get('lan'), int)):
-        module.fail_json(msg='lan should either be a string or a number')
+    for option_name, option in OPTIONS.items():
+      arguments[option_name] = {
+        'type': option['type'],
+      }
+      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+        if option.get(key) is not None:
+          arguments[option_name][key] = option.get(key)
 
-    if not HAS_PB_SDK:
-        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+      if option.get('env_fallback'):
+        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
 
+      if len(option.get('required', [])) == len(STATES):
+        arguments[option_name]['required'] = True
+
+    return arguments
+
+
+def get_sdk_config(module):
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
-    user_agent = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
-
-    state = module.params.get('state')
 
     conf = {
         'username': username,
@@ -982,65 +1010,53 @@ def main():
         conf['host'] = api_url
         conf['server_index'] = None
 
-    configuration = ionoscloud.Configuration(**conf)
+    return ionoscloud.Configuration(**conf)
 
-    with ApiClient(configuration) as api_client:
-        api_client.user_agent = user_agent
 
-        if state == 'absent':
-            if not module.params.get('datacenter'):
-                module.fail_json(msg='datacenter parameter is required for running or stopping machines.')
+def check_required_arguments(module, state, object_name):
+    for option_name, option in OPTIONS.items():
+        if state in option.get('required', []) and not module.params.get(option_name):
+            module.fail_json(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
+                    option_name=option_name,
+                    object_name=object_name,
+                    state=state,
+                ),
+            )
 
-            try:
-                (result) = remove_virtual_machine(module, api_client)
-                module.exit_json(**result)
-            except Exception as e:
-                module.fail_json(msg='failed to set instance state: %s' % to_native(e),
-                                 exception=traceback.format_exc())
 
-        elif state in ('running', 'stopped'):
-            if not module.params.get('datacenter'):
-                module.fail_json(msg='datacenter parameter is required for running or stopping machines.')
-            try:
-                (result) = startstop_machine(module, api_client, state)
-                module.exit_json(**result)
-            except Exception as e:
-                module.fail_json(msg='failed to set instance state: %s' % to_native(e),
-                                 exception=traceback.format_exc())
+def main():
+    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+    if not HAS_SDK:
+        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
-        elif state in ('resume', 'suspend'):
-            if not module.params.get('datacenter'):
-                module.fail_json(msg='datacenter parameter is required for resuming or suspending machines.')
-            try:
-                (result) = resume_suspend_machine(module, api_client, state)
-                module.exit_json(**result)
-            except Exception as e:
-                module.fail_json(msg='failed to set instance state: %s' % to_native(e),
-                                 exception=traceback.format_exc())
+    if (
+        module.params.get('lan') is not None 
+        and not (isinstance(module.params.get('lan'), str) or isinstance(module.params.get('lan'), int))
+    ):
+        module.fail_json(msg='lan should either be a string or a number')
 
-        elif state == 'present':
-            if not module.params.get('name'):
-                module.fail_json(msg='name parameter is required for new instance')
-            if not module.params.get('image'):
-                module.fail_json(msg='image parameter is required for new instance')
+    state = module.params.get('state')
+    check_required_arguments(module, state, OBJECT_NAME)
 
-            if module.check_mode:
-                module.exit_json(changed=True)
+    with ApiClient(get_sdk_config(module)) as api_client:
+        api_client.user_agent = USER_AGENT
 
-            try:
-                (machine_dict_array) = create_virtual_machine(module, api_client)
-                module.exit_json(**machine_dict_array)
-            except Exception as e:
-                module.fail_json(msg='failed to set instance state: %s' % to_native(e),
-                                 exception=traceback.format_exc())
-
-        elif state == 'update':
-            try:
-                (machine_dict_array) = update_server(module, api_client)
-                module.exit_json(**machine_dict_array)
-            except Exception as e:
-                module.fail_json(msg='failed to update server: %s' % to_native(e), exception=traceback.format_exc())
-
+        try:
+            if state == 'absent':
+                module.exit_json(**remove_virtual_machine(module, api_client))
+            elif state in ('running', 'stopped'):
+                module.exit_json(**startstop_machine(module, api_client, state))
+            elif state in ('resume', 'suspend'):
+                module.exit_json(**resume_suspend_machine(module, api_client, state))
+            elif state == 'present':
+                if module.check_mode:
+                    module.exit_json(changed=True)
+                module.exit_json(**create_virtual_machine(module, api_client))
+            elif state == 'update':
+                module.exit_json(**update_server(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
 if __name__ == '__main__':
     main()
