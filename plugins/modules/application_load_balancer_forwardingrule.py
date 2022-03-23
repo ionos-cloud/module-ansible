@@ -177,41 +177,47 @@ author:
 
 EXAMPLE_PER_STATE = {
   'present' : '''
-  - name: Create Network Load Balancer Forwarding Rule
-    network_load_balancer_rule:
+  - name: Create Application Load Balancer Forwarding Rule
+    application_load_balancer_forwardingrule:
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
       name: "{{ name }}"
-      algorithm: "ROUND_ROBIN"
-      protocol: "TCP"
+      protocol: "HTTP"
       listener_ip: "10.12.118.224"
       listener_port: "8081"
-      targets:
-        - ip: "22.231.2.2"
-          port: "8080"
-          weight: "123"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      health_check:
+        client_timeout: 50
+      http_rules:
+        - name: "Ansible HTTP Rule"
+          type : static
+          response_message: "<>"
+          content_type: "application/json"
+          conditions:
+            - type: "HEADER"
+              condition: "STARTS_WITH"
+              value: "Friday"
+
       wait: true
-    register: nlb_forwarding_rule_response
+    register: alb_forwarding_rule_response
   ''',
   'update' : '''
-  - name: Update Network Load Balancer Forwarding Rule
-    network_load_balancer_rule:
+  - name: Update Application Load Balancer Forwarding Rule
+    application_load_balancer_forwardingrule:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-      forwarding_rule_id: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
+      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      forwarding_rule_id: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
       name: "{{ name }} - UPDATED"
-      algorithm: "ROUND_ROBIN"
-      protocol: "TCP"
+      protocol: "HTTP"
       wait: true
       state: update
-    register: nlb_forwarding_rule_update_response
+    register: alb_forwarding_rule_update_response
   ''',
   'absent' : '''
-  - name: Delete Network Load Balancer Forwarding Rule
-    network_load_balancer_rule:
+  - name: Delete Application Load Balancer Forwarding Rule
+    application_load_balancer_forwardingrule:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-      forwarding_rule_id: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
+      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      forwarding_rule_id: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
       state: absent
   ''',
 }
