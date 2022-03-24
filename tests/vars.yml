@@ -1,9 +1,9 @@
-name: ANSIBLEAUTOTEST
-datacenter: ANSIBLEAUTOTEST
+name: "AnsibleAutoTest-{{ 100 |random}}"
+datacenter: "AnsibleAutoTest-{{ 100 |random}}"
 description: Ansible test description
-server: ANSIBLEAUTOTEST
-nic: ANSIBLEAUTOTEST
-lan: ANSIBLEAUTOTEST
+server: "AnsibleAutoTest-{{ 100 |random}}"
+nic: "AnsibleAutoTest-{{ 100 |random}}"
+lan: "AnsibleAutoTest-{{ 100 |random}}"
 location: gb/lhr
 image: ce08ca15-0adf-11ec-9fa6-1e5ea9024c03
 image_alias: centos:7
