@@ -118,12 +118,12 @@ OPTIONS = {
     },
     'labels': {
         'description': ['Map of labels attached to node pool.'],
-        'available': ['present',],
+        'available': ['present', 'update'],
         'type': 'dict',
     },
     'annotations': {
         'description': ['Map of annotations attached to node pool.'],
-        'available': ['present',],
+        'available': ['present','update'],
         'type': 'dict',
     },
     'auto_scaling': {
@@ -404,6 +404,9 @@ def update_k8s_cluster_nodepool(module, client):
     lan_ids = module.params.get('lan_ids')
     k8s_version = module.params.get('k8s_version')
     public_ips = module.params.get('public_ips')
+    labels = module.params.get('labels')
+    annotations = module.params.get('annotations')
+
 
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
 
@@ -430,7 +433,8 @@ def update_k8s_cluster_nodepool(module, client):
         k8s_nodepool_properties = KubernetesNodePoolPropertiesForPut(
             name=nodepool_name, node_count=node_count,
             k8s_version=k8s_version, maintenance_window=maintenance_window,
-            auto_scaling=auto_scaling, lans=lan_ids, public_ips=public_ips)
+            auto_scaling=auto_scaling, lans=lan_ids, public_ips=public_ips,
+            labels=labels, annotations=annotations)
 
         k8s_nodepool = KubernetesNodePoolForPut(properties=k8s_nodepool_properties)
         k8s_response = k8s_server.k8s_nodepools_put(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id,

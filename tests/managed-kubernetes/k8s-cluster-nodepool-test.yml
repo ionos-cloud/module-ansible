@@ -31,7 +31,7 @@
 
     - name: Create k8s cluster
       k8s_cluster:
-        cluster_name: "{{ name }}"
+        cluster_name: "my-cluster-{{ 100 |random}}"
         maintenance_window:
           day_of_the_week: "Wednesday"
           time: "12:02:00"
@@ -40,7 +40,7 @@
 
     - name: Create k8s cluster nodepool
       k8s_nodepool:
-        nodepool_name: "{{ name }}"
+        nodepool_name: "my-nodepool-{{ 100 |random}}"
         k8s_cluster_id:  "{{ cluster.cluster.id }}"
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         node_count: 2
@@ -52,6 +52,13 @@
         storage_size: "100"
         public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
         k8s_version: "1.21.9"
+        labels:
+          foo: bar
+          color: red
+          size: "10"
+        annotations:
+          ann1: value1
+          ann2: value2
         wait: true
       register: result
 
@@ -72,6 +79,12 @@
         storage_type: "HDD"
         storage_size: "100"
         public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
+        labels:
+          color: blue
+          size: "11"
+        annotations:
+          ann1: updatedvalue1
+          ann2: updatedvalue2
         wait: true
         state: update
 

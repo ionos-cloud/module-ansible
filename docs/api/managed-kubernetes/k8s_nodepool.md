@@ -159,6 +159,8 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   | lan_ids | False | list |  | Array of additional LANs attached to worker nodes. |
   | node_count | False | int |  | The number of nodes that make up the node pool. |
   | maintenance_window | False | dict |  | The maintenance window is used for updating the software on the nodepool's nodes and for upgrading the nodepool's K8s version. If no value is given, one is chosen dynamically, so there is no fixed default. |
+  | labels | False | dict |  | Map of labels attached to node pool. |
+  | annotations | False | dict |  | Map of annotations attached to node pool. |
   | auto_scaling | False | dict |  | Property to be set when auto-scaling needs to be enabled for the nodepool. By default, auto-scaling is not enabled. |
   | public_ips | False | list |  | Optional array of reserved public IP addresses to be used by the nodes. IPs must be from same location as the data center used for the node pool. The array must contain one more IP than maximum number possible number of nodes (nodeCount+1 for fixed number of nodes or maxNodeCount+1 when auto scaling is used). The extra IP is used when the nodes are rebuilt. |
   | api_url | False | str |  | The Ionos API base URL. |
