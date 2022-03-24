@@ -17,7 +17,7 @@
       ipblock:
         name: "{{ name }} - create"
         location: "{{ location }}"
-        size: 3
+        size: 4
         state: present
       register: ipblock_response_create
 
@@ -25,7 +25,7 @@
       ipblock:
         name: "{{ name }} - update"
         location: "{{ location }}"
-        size: 3
+        size: 5
         state: present
       register: ipblock_response_update
 
@@ -52,6 +52,9 @@
         storage_size: "100"
         public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
         k8s_version: "1.21.9"
+        auto_scaling:
+          min_node_count: 1
+          max_node_count: 3
         labels:
           foo: bar
           color: red
@@ -85,6 +88,9 @@
         annotations:
           ann1: updatedvalue1
           ann2: updatedvalue2
+        auto_scaling:
+          min_node_count: 2
+          max_node_count: 4
         wait: true
         state: update
 
