@@ -87,6 +87,7 @@ modules_to_generate = [
     'network_load_balancer',
     'group',
     's3key',
+    's3key_info',
     'share',
     'user',
 ]
