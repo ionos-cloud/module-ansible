@@ -1,4 +1,4 @@
-name: "AnsibleAutoTest-{{ 100 |random}}"
+name: "AnsibleAutoTest"
 datacenter: "AnsibleAutoTest-{{ 100 |random}}"
 description: Ansible test description
 server: "AnsibleAutoTest-{{ 100 |random}}"
