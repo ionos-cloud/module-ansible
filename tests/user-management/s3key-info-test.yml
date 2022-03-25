@@ -1,0 +1,44 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+    - set_fact:
+        random_user: "no-reply{{100000000 |random}}@example.com"
+      run_once: yes
+
+    - name: Create user
+      user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: true
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        state: present
+      register: user_response
+
+    - name: Create a first s3key
+      s3key:
+        user_id: "{{ user_response.user.id }}"
+
+    - name: Create a second s3key
+      s3key:
+        user_id: "{{ user_response.user.id }}"
+
+    - name: List S3Keys
+      s3key_info:
+        user_id: "{{ user_response.user.id }}"
+      register: s3keys_info_response
+
+    - name: Debug - Show response of s3keys_info
+      debug:
+        msg: "{{ s3keys_info_response }}"
+
+    - name: Delete user
+      user:
+        email: "{{ random_user }}"
+        state: absent
