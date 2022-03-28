@@ -10,12 +10,14 @@ on:
         paths:
           - 'plugins/**/*'
           - 'tests/**/*'
+          - '.github/workflows/CI.yml'
 
     push:
-      branches: [ release/v6 ]
+      branches: [ master ]
       paths:
           - 'plugins/**/*'
           - 'tests/**/*'
+          - '.github/workflows/CI.yml'
 
 jobs:
 
