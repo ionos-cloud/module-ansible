@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.0.11 (Upcoming release)
+
+### Bug fixes:
+
+* fix #9: remove deprecated `nat` parameter from server module; the parameter is available on v6 only.
+
 
 ## 5.0.10 (15 March, 2022)
 
