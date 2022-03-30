@@ -79,7 +79,6 @@ The following parameters are supported:
 | location | no | string | us/las | The datacenter location used only if the module creates a default datacenter: us/las, us/ewr, de/fra, de/fkb, de/txl, gb/lhr |
 | assign\_public\_ip | no | boolean | false | This will assign the server to the public LAN. The LAN is created if no LAN exists with public Internet access. |
 | lan | no | string / integer | 1 | The LAN ID / Name for the server. |
-| nat | no | boolean | false | The private IP address has outbound access to the Internet. |
 | nic\_ips | no | list | false | List of IPs to be set in the included NIC of the server. |
 | api\_url | no | string |  | The Ionos API base URL. |
 | username | no | string |  | The Ionos username. Overrides the IONOS\_USERNAME environment variable. |
