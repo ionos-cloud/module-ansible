@@ -1,0 +1,6 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+- name: Run Backupunit Test
+  import_playbook: backupunit-test.yml

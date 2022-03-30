@@ -1,0 +1,15 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+- name: Run User Test
+  import_playbook: user-test.yml
+
+- name: Run Group Test
+  import_playbook: group-test.yml
+
+- name: Run S3Key Test
+  import_playbook: s3key-test.yml
+
+- name: Run Share Test
+  import_playbook: share-test.yml

@@ -1,0 +1,13 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+- name: Run Network Load Balancer Test
+  import_playbook: network-load-balancer-test.yml
+
+- name: Run Network Load Balancer Rule Test
+  import_playbook: network-load-balancer-rule-test.yml
+
+- name: Run Network Load Balancer Flowlog Test
+  import_playbook: network-load-balancer-flowlog-test.yml
+

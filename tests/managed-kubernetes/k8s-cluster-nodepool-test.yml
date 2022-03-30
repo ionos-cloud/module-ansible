@@ -1,0 +1,107 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+    - name: Create datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        description: "{{ description }}"
+        location: "{{ location }}"
+      register: datacenter_response
+
+    - name: Create ipblock for create nodepool
+      ipblock:
+        name: "{{ name }} - create"
+        location: "{{ location }}"
+        size: 3
+        state: present
+      register: ipblock_response_create
+
+    - name: Create ipblock for update nodepool
+      ipblock:
+        name: "{{ name }} - update"
+        location: "{{ location }}"
+        size: 3
+        state: present
+      register: ipblock_response_update
+
+    - name: Create k8s cluster
+      k8s_cluster:
+        cluster_name: "{{ name }}"
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+          time: "12:02:00"
+        wait: true
+      register: cluster
+
+    - name: Create k8s cluster nodepool
+      k8s_nodepool:
+        nodepool_name: "{{ name }}"
+        k8s_cluster_id:  "{{ cluster.cluster.id }}"
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        node_count: 2
+        cpu_family: "INTEL_SKYLAKE"
+        cores_count: "1"
+        ram_size: "2048"
+        availability_zone: "AUTO"
+        storage_type: "HDD"
+        storage_size: "100"
+        public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
+        k8s_version: "1.21.9"
+        wait: true
+      register: result
+
+    - name: Debug - Show nodepool
+      debug:
+         msg: "{{ result.nodepool }}"
+
+    - name: Update k8s cluster nodepool
+      k8s_nodepool:
+        k8s_cluster_id: "{{ cluster.cluster.id }}"
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        nodepool_id: "{{ result.nodepool.id }}"
+        node_count: 2
+        cpu_family: "INTEL_SKYLAKE"
+        cores_count: "1"
+        ram_size: "2048"
+        availability_zone: "AUTO"
+        storage_type: "HDD"
+        storage_size: "100"
+        public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
+        wait: true
+        state: update
+
+    - name: Delete k8s cluster nodepool
+      k8s_nodepool:
+        k8s_cluster_id: "{{ cluster.cluster.id }}"
+        nodepool_id: "{{ result.nodepool.id }}"
+        wait: true
+        state: absent
+
+    - name: Delete non-existent k8s cluster nodepool
+      k8s_nodepool:
+        k8s_cluster_id: "{{ cluster.cluster.id }}"
+        nodepool_id: "non-existent-nodepool"
+        wait: true
+        state: absent
+
+    - name: Delete k8s cluster
+      k8s_cluster:
+        k8s_cluster_id: "{{ cluster.cluster.id }}"
+        wait: true
+        state: absent
+
+    - name: Remove ipblock for create nodepool
+      ipblock:
+        name: "{{ name }} - create"
+        state: absent
+
+    - name: Remove ipblock for update nodepool
+      ipblock:
+        name: "{{ name }} - update"
+        state: absent
+

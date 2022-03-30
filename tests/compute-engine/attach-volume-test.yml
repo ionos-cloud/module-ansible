@@ -1,0 +1,57 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+
+    - name: Create datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        location: "{{ location }}"
+        state: present
+      register: dc
+      tags:
+        - create
+
+    - name: Create server
+      server:
+        auto_increment: false
+        count: 1
+        name: "{{ server }}"
+        image: "{{ image_alias }}"
+        location: "{{ location }}"
+        image_password: "{{ password }}"
+        datacenter: "{{ datacenter }}"
+        cores: 2
+        ram: 2048
+        cpu_family: INTEL_SKYLAKE
+        volume_size: 20
+        disk_type: HDD
+        state: present
+      register: srv
+      tags:
+        - create
+
+    - name: Show details
+      debug:
+        var: srv
+      tags:
+        - create
+
+    - name: Create data volume
+      volume:
+        count: 1
+        auto_increment: false
+        datacenter: "{{ datacenter }}"
+        server: "{{ srv.machines[0].id }}"
+        name: "{{ server }}-data"
+        size: 20
+        disk_type: HDD
+        licence_type: OTHER
+        state: present
+      register: disk
+      tags:
+        - create
