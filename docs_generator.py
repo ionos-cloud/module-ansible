@@ -36,7 +36,7 @@ def generate_module_docs(module_name):
         for el in list(module.OPTIONS.items()):
             el[1]['name'] = el[0]
             el[1]['description'] = ''.join(el[1]['description'])
-            el[1]['required'] = el[1].get('required', []) is not []
+            el[1]['required'] = el[1].get('required', []) != []
             state_parameters.append(el[1])
         
         target_filename = generate_doc_file(module, module_name, state_parameters, 'info_module.mustache')
