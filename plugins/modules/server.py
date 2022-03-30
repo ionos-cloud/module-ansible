@@ -1008,6 +1008,7 @@ def get_sdk_config(module):
     username = module.params.get('username')
     password = module.params.get('password')
     api_url = module.params.get('api_url')
+    token = module.params.get('token')
 
     if token is not None:
         # use the token instead of username & password
