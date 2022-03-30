@@ -169,10 +169,10 @@ jobs:
         run: |
          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-test.yml
 
-      - name: Run Private K8s Cluster test
-        if: github.event.inputs.test == 'yes'
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/private-k8s-cluster-test.yml
+      # - name: Run Private K8s Cluster test
+      #   if: github.event.inputs.test == 'yes'
+      #   run: |
+      #     ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/private-k8s-cluster-test.yml
 
       - name: Run K8s Nodepool test
         if: github.event.inputs.test == 'yes'
