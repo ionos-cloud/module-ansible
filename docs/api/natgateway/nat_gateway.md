@@ -1,6 +1,6 @@
 # nat_gateway
 
-This is a simple module that supports creating or removing NATGateways. This module has a dependency on ionos-cloud &gt;= 6.0.0
+This is a simple module that supports creating or removing NATGateways. This module has a dependency on ionoscloud &gt;= 6.0.2
 
 ## Example Syntax
 
@@ -68,8 +68,9 @@ This is a simple module that supports creating or removing NATGateways. This mod
   | lans | False | list |  | Collection of LANs connected to the NAT Gateway. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -98,8 +99,9 @@ This is a simple module that supports creating or removing NATGateways. This mod
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | nat_gateway_id | False | str |  | The ID of the NAT Gateway. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -132,8 +134,9 @@ This is a simple module that supports creating or removing NATGateways. This mod
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | nat_gateway_id | False | str |  | The ID of the NAT Gateway. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
