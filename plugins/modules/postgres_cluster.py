@@ -306,12 +306,12 @@ def create_postgres_cluster(module, dbaas_client, cloudapi_client):
     datacenter_id = _get_resource_id(ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1), connection['datacenter'])
 
     if datacenter_id is None:
-      raise Exception('Datacenter {} not found.'.format(connection['datacenter']))
+        module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))
     
     lan_id = _get_resource_id(ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1), connection['lan'])
 
-    if datacenter_id is None:
-      raise Exception('LAN {} not found.'.format(connection['lan']))
+    if lan_id is None:
+        module.fail_json('LAN {} not found.'.format(connection['lan']))
 
     connections = [
         ionoscloud_dbaas_postgres.Connection(datacenter_id=datacenter_id, lan_id=lan_id, cidr=connection['cidr']),
