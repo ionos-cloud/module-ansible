@@ -36,7 +36,7 @@
 
     - name: Debug - Show response of s3keys_info
       debug:
-        msg: "{{ s3keys_info_response }}"
+        msg: "{{ s3keys_info_response.s3keys }}"
 
     - name: Delete user
       user:

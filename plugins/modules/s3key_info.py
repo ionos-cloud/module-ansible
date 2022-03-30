@@ -99,11 +99,13 @@ def get_s3keys(module, client):
     user_s3keys_server = ionoscloud.UserS3KeysApi(client)
 
     try:
-        s3key_response = user_s3keys_server.um_users_s3keys_get(user_id, depth=5)
+        results = []
+        for s3key in user_s3keys_server.um_users_s3keys_get(user_id).items:
+            results.append(s3key.to_dict())
         return {
             'action': 'info',
             'changed': False,
-            's3keys': s3key_response.to_dict()
+            's3keys': results
         }
 
     except Exception as e:
