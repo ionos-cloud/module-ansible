@@ -245,7 +245,7 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
-def _get_resource(resource_list, identity):
+def _get_resource_id(resource_list, identity):
     """
     Fetch and return a resource regardless of whether the name or
     UUID is passed. Returns None error otherwise.
@@ -303,8 +303,15 @@ def create_postgres_cluster(module, dbaas_client, cloudapi_client):
 
     connection = module.params.get('connections')[0]
 
-    datacenter_id = _get_resource(ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1), connection['datacenter'])
-    lan_id = _get_resource(ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1), connection['lan'])
+    datacenter_id = _get_resource_id(ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1), connection['datacenter'])
+
+    if datacenter_id is None:
+      raise Exception('Datacenter {} not found.'.format(connection['datacenter']))
+    
+    lan_id = _get_resource_id(ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1), connection['lan'])
+
+    if datacenter_id is None:
+      raise Exception('LAN {} not found.'.format(connection['lan']))
 
     connections = [
         ionoscloud_dbaas_postgres.Connection(datacenter_id=datacenter_id, lan_id=lan_id, cidr=connection['cidr']),
