@@ -81,6 +81,7 @@
       storage_size: 20480
       storage_type: HDD
       location: de/fra
+      backup_location: eu-central-2
       connections:
         - cidr: 192.168.1.106/24
           datacenter: "{{ datacenter }}"
