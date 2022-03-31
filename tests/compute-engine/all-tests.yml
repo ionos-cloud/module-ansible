@@ -18,7 +18,7 @@
   import_playbook: image-test.yml
 
 - name: Run IP Block Test
-  import_playbook: iplock-test.yml
+  import_playbook: ipblock-test.yml
 
 - name: Run Lan Test
   import_playbook: lan-test.yml
@@ -40,37 +40,3 @@
 
 - name: Run Volume Test
   import_playbook: volume-test.yml
-
-- name: Run  Test
-  import_playbook: -test.yml
-
-- name: Run  Test
-  import_playbook: -test.yml
-
-- name: Run  Test
-  import_playbook: -test.yml
-
-- name: Run  Test
-  import_playbook: -test.yml
-
-- name: Run  Test
-  import_playbook: -test.yml
-
-- name: Run  Test
-  import_playbook: -test.yml
-
-- name: Run  Test
-  import_playbook: -test.yml
-
-- name: Run  Test
-  import_playbook: -test.yml
-
-- name: Run  Test
-  import_playbook: -test.yml
-
-- name: Run  Test
-  import_playbook: -test.yml
-
-- name: Run  Test
-  import_playbook: -test.yml
-
