@@ -9,13 +9,13 @@
 
   - name: Create datacenter
     datacenter:
-      name: "{{ datacenter }}"
+      name: "{{ datacenter }} - DBaaS"
       location: de/fra
     register: datacenter_response
 
   - name: Provision a server
     server:
-      datacenter: "{{ datacenter }}"
+      datacenter: "{{ datacenter }} - DBaaS"
       name: "{{ name }}"
       auto_increment: false
       cores: 2
@@ -38,14 +38,14 @@
 
   - name: Create LAN 1
     lan:
-      datacenter: "{{ datacenter }}"
+      datacenter: "{{ datacenter }} - DBaaS"
       name: "test_lan1"
       public: false
     register: lan_response1
 
   - name: Create LAN 2
     lan:
-      datacenter: "{{ datacenter }}"
+      datacenter: "{{ datacenter }} - DBaaS"
       name: "test_lan2"
       public: true
     register: lan_response2
@@ -53,7 +53,7 @@
   - name: Create NIC 1
     nic:
       name: "test_nic1"
-      datacenter: "{{ datacenter }}"
+      datacenter: "{{ datacenter }} - DBaaS"
       server: "{{ server_response.machines[0].id }}"
       lan: "{{ lan_response1.lan.id }}"
       wait: true
@@ -64,7 +64,7 @@
   - name: Create NIC 2
     nic:
       name: "test_nic2"
-      datacenter: "{{ datacenter }}"
+      datacenter: "{{ datacenter }} - DBaaS"
       server: "{{ server_response.machines[0].id }}"
       lan: "{{ lan_response2.lan.id }}"
       wait: true
@@ -83,7 +83,7 @@
       location: de/fra
       connections:
         - cidr: 192.168.1.106/24
-          datacenter: "{{ datacenter }}"
+          datacenter: "{{ datacenter }} - DBaaS"
           lan: "test_lan1"
       display_name: backuptest-04
       synchronization_mode: ASYNCHRONOUS
@@ -118,7 +118,7 @@
   - name: Remove NIC 1
     nic:
       name: "test_nic1"
-      datacenter: "{{ datacenter }}"
+      datacenter: "{{ datacenter }} - DBaaS"
       server: "{{ server_response.machines[0].id }}"
       wait: true
       wait_timeout: "{{ wait_timeout }}"
@@ -127,7 +127,7 @@
   - name: Remove NIC 2
     nic:
       name: "test_nic2"
-      datacenter: "{{ datacenter }}"
+      datacenter: "{{ datacenter }} - DBaaS"
       server: "{{ server_response.machines[0].id }}"
       wait: true
       wait_timeout: "{{ wait_timeout }}"
@@ -135,7 +135,7 @@
 
   - name: Remove server
     server:
-      datacenter: "{{ datacenter }}"
+      datacenter: "{{ datacenter }} - DBaaS"
       instance_ids:
         - "{{ server_response.machines[0].id }}"
       remove_boot_volume: yes
@@ -145,14 +145,14 @@
 
   - name: Remove LAN 1
     lan:
-      datacenter: "{{ datacenter }}"
+      datacenter: "{{ datacenter }} - DBaaS"
       name: "test_lan1"
       state: absent
       wait: true
 
   - name: Remove LAN 2
     lan:
-      datacenter: "{{ datacenter }}"
+      datacenter: "{{ datacenter }} - DBaaS"
       name: "test_lan2"
       state: absent
       wait: true
@@ -160,6 +160,6 @@
   - name: Remove datacenter
     datacenter:
       id: "{{ datacenter_response.datacenter.id }}"
-      name: "{{ datacenter }}"
+      name: "{{ datacenter }} - DBaaS"
       state: absent
       wait: true
