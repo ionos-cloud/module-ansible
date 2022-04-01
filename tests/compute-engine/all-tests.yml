@@ -15,8 +15,10 @@
 - name: Run Firewall Test
   import_playbook: firewall-test.yml
 
-- name: Run Image Test
-  import_playbook: image-test.yml
+# Skipped because we can't automatically upload an image using Cloud API
+# and the test needs an image to be uploaded
+#- name: Run Image Test
+#  import_playbook: image-test.yml
 
 - name: Run IP Block Test
   import_playbook: ipblock-test.yml
