@@ -77,9 +77,9 @@ jobs:
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-backup/all-tests.yml
 
-      - name: Run NAT Gateway tests
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/natgateway/all-tests.yml
+#      - name: Run NAT Gateway tests
+#        run: |
+#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/natgateway/all-tests.yml
 
       - name: Run Network Load Balancer tests
         run: |
