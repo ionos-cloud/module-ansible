@@ -22,7 +22,7 @@
          auto_increment: true
          cpu_family: INTEL_SKYLAKE
          disk_type: DAS
-         image: "15c6dd2f-02d2-4987-b439-9a58dd59ecc3"
+         image: "{{ image_alias }}"
          image_password: "{{ password }}"
          location: "de/txl"
          count: 1
