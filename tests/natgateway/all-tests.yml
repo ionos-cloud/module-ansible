@@ -10,5 +10,3 @@
 
 - name: Run Nat Gateway Flowlog Test
   import_playbook: nat-gateway-flowlog-test.yml
-
-
