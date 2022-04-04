@@ -48,3 +48,8 @@
         user_id: "{{ user_response.user.id }}"
         key_id: "not-existent-key"
         state: absent
+    
+    - name: Delete user
+      user:
+        email: "{{ random_user }}"
+        state: absent
