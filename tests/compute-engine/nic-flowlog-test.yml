@@ -1,0 +1,140 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+    - name: Create datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        location: "gb/lhr"
+        wait: True
+      register: datacenter_response
+
+    - name: Create LAN
+      lan:
+        datacenter: "{{ datacenter }}"
+        name: "{{ lan }}"
+        public: true
+      register: lan_response
+
+    - name: Debug - Show LAN
+      debug:
+        msg: "{{ lan_response }}"
+
+    - name: Provision server
+      server:
+        datacenter: "{{ datacenter }}"
+        name: "{{ server }}"
+        auto_increment: false
+        cores: 1
+        ram: 2048
+        volume_size: 14
+        image: "{{ image_alias }}"
+        image_password: "{{ password }}"
+        location: "gb/lhr"
+        cpu_family: INTEL_SKYLAKE
+        wait: true
+        wait_timeout: "{{ wait_timeout }}"
+        state: present
+      register: server_response
+
+    - name: Create NIC
+      nic:
+       datacenter: "{{ datacenter }}"
+       server: "{{ server }}"
+       name: "{{ nic }}"
+       lan: 1
+       dhcp: true
+       firewall_active: true
+       wait: true
+       wait_timeout: "{{ wait_timeout }}"
+       state: present
+      register: nic_response
+
+    - name: Create a nic flowlog
+      nic_flowlog:
+        name: "{{ name }}"
+        action: "ACCEPTED"
+        direction: "INGRESS"
+        bucket: "sdktest"
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        server_id: "{{ server_response.machines[0].id }}"
+        nic_id: "{{ nic_response.nic.id }}"
+      register: flowlog_response
+
+    - name: Debug - Show Created Flowlog
+      debug:
+        msg: "{{ flowlog_response }}"
+
+
+    - name: Update a nic flowlog
+      nic_flowlog:
+        name: "{{ name }}"
+        action: "ALL"
+        direction: "INGRESS"
+        bucket: "sdktest"
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        server_id: "{{ server_response.machines[0].id }}"
+        nic_id: "{{ nic_response.nic.id }}"
+        flowlog_id: "{{ flowlog_response.flowlog.id }}"
+      register: flowlog_update_response
+
+
+    - name: Debug - Show Updated Flowlog
+      debug:
+        msg: "{{ flowlog_update_response }}"
+
+
+    - name: Delete a nic flowlog
+      nic_flowlog:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        server_id: "{{ server_response.machines[0].id }}"
+        nic_id: "{{ nic_response.nic.id }}"
+        flowlog_id: "{{ flowlog_response.flowlog.id }}"
+        name: "{{ name }}"
+        state: absent
+        wait: true
+      register: flowlog_delete_response
+
+    - name: Delete a nic flowlog
+      nic_flowlog:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        server_id: "{{ server_response.machines[0].id }}"
+        nic_id: "{{ nic_response.nic.id }}"
+        flowlog_id: "invalid-id"
+        name: "{{ name }}"
+        state: absent
+        wait: true
+      register: flowlog_delete_response
+
+    - name: Debug - Show Deleted Flowlog
+      debug:
+        msg: "{{ flowlog_delete_response }}"
+
+    - name: Remove NIC
+      nic:
+        name: "{{ nic_response.nic.id }}"
+        datacenter: "{{ datacenter }}"
+        server: "{{ server_response.machines[0].id }}"
+        wait: true
+        wait_timeout: "{{ wait_timeout }}"
+        state: absent
+
+    - name: Remove server
+      server:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ name }} 01"
+         remove_boot_volume: yes
+         wait_timeout: "{{ wait_timeout }}"
+         state: absent
+
+
+    - name: Remove datacenter
+      datacenter:
+        name: "{{ datacenter_response.datacenter.id }}"
+        state: absent
+        wait: true

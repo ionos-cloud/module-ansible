@@ -1,0 +1,121 @@
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+    - name: Create datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        description: "{{ description }}"
+        location: "{{ location }}"
+        wait: true
+      register: datacenter_response
+
+    - name: Create Listener LAN
+      lan:
+        datacenter: "{{ datacenter }}"
+        name: "listener_lan"
+        public: false
+      register: listener_lan
+
+    - name: Create Target LAN
+      lan:
+        datacenter: "{{ datacenter }}"
+        name: "target_lan"
+        public: false
+      register: target_lan
+
+    - name: Create Network Load Balancer
+      network_load_balancer:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        name: "{{ name }}"
+        ips:
+          - "10.12.118.224"
+        listener_lan: "{{ listener_lan.lan.id }}"
+        target_lan: "{{ target_lan.lan.id }}"
+        wait: true
+      register: nlb_response
+
+    - name: Debug - Show Network Load Balancer
+      debug:
+         msg: "{{ nlb_response }}"
+
+    - name: Create Network Load Balancer Forwarding Rule
+      network_load_balancer_rule:
+        name: "{{ name }}"
+        algorithm: "ROUND_ROBIN"
+        protocol: "TCP"
+        listener_ip: "10.12.118.224"
+        listener_port: "8081"
+        targets:
+          - ip: "22.231.2.2"
+            port: "8080"
+            weight: "123"
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+        wait: true
+      register: nlb_forwarding_rule_response
+
+    - name: Debug - Show Network Load Balancer Forwarding Rule
+      debug:
+         msg: "{{ nlb_forwarding_rule_response }}"
+
+    - name: Update Network Load Balancer Forwarding Rule
+      network_load_balancer_rule:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+        forwarding_rule_id: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
+        name: "{{ name }} - UPDATED"
+        algorithm: "ROUND_ROBIN"
+        protocol: "TCP"
+        wait: true
+        state: update
+      register: nlb_forwarding_rule_update_response
+
+    - name: Debug - Show Updated Network Load Balancer Forwarding Rule
+      debug:
+         msg: "{{ nlb_forwarding_rule_update_response }}"
+
+    - name: Delete Network Load Balancer Forwarding Rule
+      network_load_balancer_rule:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+        forwarding_rule_id: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
+        state: absent
+
+    - name: Delete Network Load Balancer Forwarding Rule
+      network_load_balancer_rule:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+        forwarding_rule_id: "invalid-id"
+        state: absent
+
+    - name: Remove Network Load Balancer
+      network_load_balancer:
+       network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       wait: true
+       wait_timeout: 2000
+       state: absent
+
+    - name: Remove Listener LAN
+      lan:
+        datacenter: "{{ datacenter }}"
+        name: "listener_lan"
+        state: absent
+
+    - name: Remove Target LAN
+      lan:
+        datacenter: "{{ datacenter }}"
+        name: "target_lan"
+        state: absent
+
+    - name: Remove datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        wait: true
+        state: absent

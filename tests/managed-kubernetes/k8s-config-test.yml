@@ -1,0 +1,23 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+    - name: Create k8s cluster
+      k8s_cluster:
+        cluster_name: "my-cluster"
+      register: cluster_result
+
+    - name: Get k8s config
+      k8s_config:
+        k8s_cluster_id: "{{ cluster_result.cluster.id }}"
+        config_file: 'config.yaml'
+        state: present
+
+    - name: Delete k8s cluster
+      k8s_cluster:
+        k8s_cluster_id: "{{ cluster_result.cluster.id }}"
+        state: absent

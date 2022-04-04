@@ -1,0 +1,98 @@
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+    - name: Create datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        location: "{{ location }}"
+        wait: True
+
+    - name: Provision server
+      server:
+         datacenter: "{{ datacenter }}"
+         name: "{{ server }}"
+         auto_increment: false
+         cores: 1
+         ram: 2048
+         volume_size: 10
+         image: "{{ image_alias }}"
+         image_password: "{{ password }}"
+         location: "{{ location }}"
+         cpu_family: "INTEL_SKYLAKE"
+         wait: true
+         wait_timeout: "{{ wait_timeout }}"
+         state: present
+      register: ionos_cloud
+
+    - name: Create LAN
+      lan:
+        datacenter: "{{ datacenter }}"
+        name: "{{ lan }}"
+        public: true
+
+    - name: Create NIC
+      nic:
+         datacenter: "{{ datacenter }}"
+         server: "{{ server }}"
+         name: "{{ nic }}"
+         lan: 1
+         dhcp: true
+         firewall_active: true
+         wait: true
+         wait_timeout: "{{ wait_timeout }}"
+         state: present
+      register: ionos_cloud_nic
+
+    - name: Create a firewall rule
+      firewall_rule:
+          datacenter: "{{ datacenter }}"
+          server: "{{ server }}"
+          nic: "{{ nic }}"
+          name: "SSH"
+          protocol: "TCP"
+          source_mac: "01:23:45:67:89:00"
+          port_range_start: 22
+          port_range_end: 24
+          state: present
+
+    - name: Update firewall rule
+      firewall_rule:
+          datacenter: "{{ datacenter }}"
+          server: "{{ server }}"
+          nic: "{{ nic }}"
+          name: "SSH"
+          port_range_start: 22
+          port_range_end: 23
+          state: update
+
+    - name: Remove firewall rule
+      firewall_rule:
+         datacenter: "{{ datacenter }}"
+         server: "{{ server }}"
+         nic: "{{ nic }}"
+         name: "SSH"
+         wait: true
+         wait_timeout: "{{ wait_timeout }}"
+         state: absent
+
+    - name: Remove firewall rule
+      firewall_rule:
+         datacenter: "{{ datacenter }}"
+         server: "{{ server }}"
+         nic: "{{ nic }}"
+         name: "SSH2"
+         wait: true
+         wait_timeout: "{{ wait_timeout }}"
+         state: absent
+
+    - name: Remove datacenter
+      datacenter:
+        wait: true
+        name: "{{ datacenter }}"
+        state: absent

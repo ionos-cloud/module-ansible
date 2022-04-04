@@ -61,106 +61,31 @@ jobs:
         run: |
           python3 -m pip list
 
-      - name: Run Postgres Cluster Info test
+      - name: Run DBaaS Postgres tests
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-info-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/dbaas-postgres/all-tests.yml
 
-      - name: Run Postgres Cluster Backup Info test
+      - name: Run Managed Kubernetes tests
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-backup-info-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-kubernetes/all-tests.yml
 
-      - name: Run Postgres Cluster test
+      - name: Run Compute Engine tests
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/compute-engine/all-tests.yml
 
-      - name: Run Datacenter test
+      - name: Run Managed Backup tests
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-backup/all-tests.yml
 
-      - name: Run K8s Nodepool test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-nodepool-test.yml
-
-      - name: Run User test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
-
-      - name: Run Group test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
-
-      - name: Run Backupunit test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/backupunit-test.yml
-          
-      - name: Run Nic Flowlog test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-flowlog-test.yml
-
-      - name: Run Firewall test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/firewall-test.yml
-
-      - name: Run IP Block test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/ipblock-test.yml
-
-      - name: Run LAN test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/lan-test.yml
-
-      - name: Run Nic test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-test.yml
-
-      - name: Run PCC test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/pcc-test.yml
-
-      - name: Run S3key test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/s3key-test.yml
-
-      - name: Run Server test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/server-test.yml
-
-      - name: Run Snapshot test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/snapshot-test.yml
-
-      - name: Run Template test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/template-test.yml
-
-      - name: Run Volume test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
-
-#      - name: Run NAT Gateway test
+#      - name: Run NAT Gateway tests
 #        run: |
-#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-test.yml -vvv
-#
-#      - name: Run NAT Gateway Flowlog test
+#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/natgateway/all-tests.yml
+
+#      - name: Run Network Load Balancer tests
 #        run: |
-#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-flowlog-test.yml
-#
-#      - name: Run NAT Gateway Rule test
-#        run: |
-#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-rule-test.yml
+#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/networkloadbalancer/all-tests.yml
 
-      - name: Run Attach Volume test
+      - name: Run User Management tests
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/attach-volume-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-management/all-tests.yml
 
-      - name: Run Kubeconfig test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-config-test.yml
-
-      - name: Run K8s Cluster test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-test.yml
-
-      # - name: Run Private K8s Cluster test
-      #   run: |
-      #     ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/private-k8s-cluster-test.yml

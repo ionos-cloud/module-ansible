@@ -1,0 +1,74 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+    - name: Create datacenter
+      datacenter:
+        name: "{{ datacenter }}-{{100|random}}"
+        description: "{{ description }}"
+        location: "{{ location }}"
+      register: datacenter_response
+
+    - name: Reserve ipblock
+      ipblock:
+        name: "{{ name }}-{{100|random}}"
+        location: "{{ location }}"
+        size: 2
+        state: present
+      register: ipblock_response
+
+    - name: Create k8s cluster
+      k8s_cluster:
+        cluster_name: "ansible-cluster-{{100|random}}"
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+          time: "12:02:00"
+        k8s_version: "1.21.9"
+        public: False
+      register: cluster_response
+
+    - name: Create k8s cluster nodepool
+      k8s_nodepool:
+        nodepool_name: "ansible-nodepool-{{100|random}}"
+        k8s_cluster_id: "{{ cluster_response.cluster.id }}"
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        node_count: 2
+        cpu_family: "INTEL_SKYLAKE"
+        cores_count: "1"
+        ram_size: "2048"
+        availability_zone: "AUTO"
+        storage_type: "HDD"
+        storage_size: "100"
+        k8s_version: "1.21.9"
+        gateway_ip: "{{ ipblock_response.ipblock.properties.ips[0] }}"
+        wait: true
+      register: nodepool_response
+
+    - name: Delete k8s cluster nodepool
+      k8s_nodepool:
+        k8s_cluster_id: "{{ cluster_response.cluster.id }}"
+        nodepool_id: "{{ nodepool_response.nodepool.id }}"
+        wait: true
+        state: absent
+
+    - name: Delete k8s cluster
+      k8s_cluster:
+        k8s_cluster_id: "{{ cluster_response.cluster.id }}"
+        state: absent
+
+    - name: Remove datacenter
+      datacenter:
+        id: "{{ datacenter_response.datacenter.id }}"
+        state: absent
+        wait: true
+      register: deleted_datacenter
+
+    - name: Remove ipblock
+      ipblock:
+        name: "{{ ipblock_response.ipblock.id }}"
+        state: absent
+      register: delete_result

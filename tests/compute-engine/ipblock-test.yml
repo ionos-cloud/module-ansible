@@ -1,0 +1,36 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+    - name: Create ipblock
+      ipblock:
+        name:  "{{ name }}"
+        location: "{{ location }}"
+        size: 2
+        state: present
+
+    - name: Update ipblock
+      ipblock:
+        name: "{{ name }}"
+        location: "{{ location }}"
+        state: update
+
+    - name: Remove ipblock
+      ipblock:
+        name: "{{ name }}"
+        state: absent
+      register: delete_result
+
+    - name: Remove ipblock
+      ipblock:
+        name: "{{ name }}"
+        state: absent
+      register: delete_result
+
+    - name: Debug - Show ipblock
+      debug:
+        msg: "{{ delete_result }}"
