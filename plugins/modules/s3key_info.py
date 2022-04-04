@@ -117,10 +117,6 @@ def get_s3keys(module, client):
 
     except Exception as e:
         module.fail_json(msg="failed to list the s3keys: %s" % to_native(e))
-        return {
-            'action': 'info',
-            'changed': False,
-        }
 
 
 def get_module_arguments():
