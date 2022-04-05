@@ -21,34 +21,37 @@
         state: present
       register: user_response
 
-    - name: Create an s3key
+    - name: Create a first s3key
       s3key:
         user_id: "{{ user_response.user.id }}"
-      register: result
+      register: s3key_response_first
 
-    - name: Debug - Show S3key
+    - name: Create a second s3key
+      s3key:
+        user_id: "{{ user_response.user.id }}"
+      register: s3key_response_second
+
+    - name: List S3Keys
+      s3key_info:
+        user_id: "{{ user_response.user.id }}"
+      register: s3keys_info_response
+
+    - name: Debug - Show response of s3keys_info
       debug:
-        msg: "{{ result }}"
+        msg: "{{ s3keys_info_response.s3keys }}"
 
-    - name: Update an s3key
+    - name: Delete first s3key
       s3key:
         user_id: "{{ user_response.user.id }}"
-        key_id: "{{ result.s3key.id }}"
-        active: False
-        state: update
-
-    - name: Remove an s3key
-      s3key:
-        user_id: "{{ user_response.user.id }}"
-        key_id: "{{ result.s3key.id }}"
+        key_id: "{{ s3key_response_first.s3key.id }}"
         state: absent
 
-    - name: Remove an s3key - non existent
+    - name: Delete second s3key
       s3key:
         user_id: "{{ user_response.user.id }}"
-        key_id: "not-existent-key"
+        key_id: "{{ s3key_response_second.s3key.id }}"
         state: absent
-    
+
     - name: Delete user
       user:
         email: "{{ random_user }}"

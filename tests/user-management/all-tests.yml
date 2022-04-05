@@ -11,5 +11,8 @@
 - name: Run S3Key Test
   import_playbook: s3key-test.yml
 
+- name: Run S3Key Info Test
+  import_playbook: s3key-info-test.yml
+
 - name: Run Share Test
   import_playbook: share-test.yml
