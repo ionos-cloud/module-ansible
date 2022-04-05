@@ -30,4 +30,4 @@ The following parameters are supported:
 | user\_id | **yes** | string |  | The unique ID of the user. |
 | key\_id | **yes** | string |  | The ID of the key. Required only for state = 'update' or state = 'absent' |
 | active | no | boolean |  | State of the key. |
-
+| idempotency | no | boolean | False | Flag that dictates respecting idempotency. If an s3key already exists, returns with already existing key instead of creating more |
