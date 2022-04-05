@@ -114,12 +114,6 @@ options:
       - The ID or name of the LAN you wish to add the servers to (can be a string or a number).
     required: false
     default: 1
-  nat:
-    description:
-      - Boolean value indicating if the private IP address has outbound access to the public Internet.
-    required: false
-    default: false
-    version_added: "2.3"
   api_url:
     description:
       - The Ionos API base URL.
@@ -327,7 +321,6 @@ def _create_machine(module, client, datacenter, name):
     ssh_keys = module.params.get('ssh_keys')
     bus = module.params.get('bus')
     lan = module.params.get('lan')
-    nat = module.params.get('nat')
     image = module.params.get('image')
     assign_public_ip = module.boolean(module.params.get('assign_public_ip'))
     nic_ips = module.params.get('nic_ips')
@@ -356,7 +349,7 @@ def _create_machine(module, client, datacenter, name):
 
             public_ip_lan_id = lan_response.id
 
-        nic = Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10], nat=nat,
+        nic = Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10],
                                            lan=int(public_ip_lan_id)))
         if nic_ips:
             nic.properties.ips = nic_ips
@@ -367,7 +360,7 @@ def _create_machine(module, client, datacenter, name):
         matching_lan = _get_lan_by_id_or_properties(lans_list, lan, name=lan)
 
         if (not any(n.properties.lan == int(matching_lan.id) for n in nics)) or len(nics) < 1:
-            nic = Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10], nat=nat,
+            nic = Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10],
                                                lan=int(int(matching_lan.id))))
             if nic_ips:
                 nic.properties.ips = nic_ips
@@ -808,7 +801,6 @@ def main():
             bus=dict(type='str', choices=BUS_TYPES, default='VIRTIO'),
             nic_ips=dict(type='list', elements='str'),
             lan=dict(type='raw', required=False),
-            nat=dict(type='bool', default=None),
             count=dict(type='int', default=1),
             auto_increment=dict(type='bool', default=True),
             instance_ids=dict(type='list', default=[]),
