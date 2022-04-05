@@ -50,7 +50,7 @@
         availability_zone: "AUTO"
         storage_type: "HDD"
         storage_size: "100"
-        public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
+#        public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
         wait: true
       register: result
 
@@ -70,7 +70,7 @@
         availability_zone: "AUTO"
         storage_type: "HDD"
         storage_size: "100"
-        public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
+#        public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
         wait: true
         state: update
 
