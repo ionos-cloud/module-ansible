@@ -43,7 +43,14 @@ OPTIONS = {
         'description': ['The ID of the S3 key.'],
         'available': ['absent', 'update'],
         'required': ['absent', 'update'],
-        'type': 'str',
+        'type': 'str', 
+    },
+    'idempotency': {
+        'description': ['Flag that dictates respecting idempotency. If an s3key already exists, returns with already existing key instead of creating more.'],
+        'default': False,
+        'available': 'present',
+        'choices': [True, False],
+        'type': 'bool',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -159,11 +166,22 @@ def _get_request_id(headers):
 def create_s3key(module, client):
     user_id = module.params.get('user_id')
     wait = module.params.get('wait')
+    do_idempotency = module.params.get('idempotency')
     wait_timeout = int(module.params.get('wait_timeout'))
 
     user_s3keys_server = ionoscloud.UserS3KeysApi(client)
+    s3key_list = user_s3keys_server.um_users_s3keys_get(user_id=user_id, depth=5)
 
     try:
+        if (do_idempotency and len(s3key_list.items) > 0):
+            s3key_response = s3key_list.items[0]
+            return {
+                'changed': False,
+                'failed': False,
+                'action': 'create',
+                's3key': s3key_response.to_dict()
+            }
+
         response = user_s3keys_server.um_users_s3keys_post_with_http_info(user_id=user_id)
         (s3key_response, _, headers) = response
 

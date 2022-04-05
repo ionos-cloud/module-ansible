@@ -11,6 +11,9 @@
 - name: Run S3Key Test
   import_playbook: s3key-test.yml
 
+- name: Run S3Key Idempotency Test
+  import_playbook: s3key-idempotency-test.yml
+
 - name: Run S3Key Info Test
   import_playbook: s3key-info-test.yml
 
