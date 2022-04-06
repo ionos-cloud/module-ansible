@@ -79,7 +79,7 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
   | protocol | True | str |  | Balancing protocol. |
   | listener_ip | True | str |  | Listening (inbound) IP. |
   | listener_port | True | str |  | Listening (inbound) port number; valid range is 1 to 65535. |
-  | health_check | True | dict |  | Health check properties for Network Load Balancer forwarding rule. |
+  | health_check | False | dict |  | Health check properties for Network Load Balancer forwarding rule. |
   | targets | True | list |  | Array of targets. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
