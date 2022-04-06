@@ -70,7 +70,6 @@ OPTIONS = {
     'health_check': {
         'description': ['Health check properties for Network Load Balancer forwarding rule.'],
         'available': ['present', 'update'],
-        'required': ['present'],
         'type': 'dict',
     },
     'targets': {
@@ -97,7 +96,6 @@ OPTIONS = {
         'available': ['update', 'absent'],
         'type': 'str',
     },
-
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -260,6 +258,23 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
+def _get_health_check(health_check_param):
+    health_check = None
+    if health_check_param:
+        health_check = ionoscloud.models.NetworkLoadBalancerForwardingRuleHealthCheck()
+        if 'client_timeout' in health_check_param:
+            health_check.client_timeout = health_check_param.get('client_timeout')
+        if 'connect_timeout' in health_check_param:
+            health_check.connect_timeout = health_check_param.get('connect_timeout')
+        if 'target_timeout' in health_check_param:
+            health_check.target_timeout = health_check_param.get('target_timeout')
+        if 'retries' in health_check_param:
+            health_check.retries = health_check_param.get('retries')
+
+    return health_check
+
+
+
 def create_nlb_forwarding_rule(module, client):
     """
     Creates a Network Load Balancer Forwarding Rule
@@ -277,7 +292,7 @@ def create_nlb_forwarding_rule(module, client):
     protocol = module.params.get('protocol')
     listener_ip = module.params.get('listener_ip')
     listener_port = module.params.get('listener_port')
-    health_check = module.params.get('health_check')
+    health_check_param = module.params.get('health_check')
     targets = module.params.get('targets')
     datacenter_id = module.params.get('datacenter_id')
     network_load_balancer_id = module.params.get('network_load_balancer_id')
@@ -299,6 +314,8 @@ def create_nlb_forwarding_rule(module, client):
                 'action': 'create',
                 'forwarding_rule': forwarding_rule.to_dict()
             }
+
+    health_check = _get_health_check(health_check_param)
 
     nlb_forwarding_rule_properties = NetworkLoadBalancerForwardingRuleProperties(name=name, algorithm=algorithm,
                                                                                  protocol=protocol,
@@ -346,11 +363,13 @@ def update_nlb_forwarding_rule(module, client):
     protocol = module.params.get('protocol')
     listener_ip = module.params.get('listener_ip')
     listener_port = module.params.get('listener_port')
-    health_check = module.params.get('health_check')
+    health_check_param = module.params.get('health_check')
     targets = module.params.get('targets')
     datacenter_id = module.params.get('datacenter_id')
     network_load_balancer_id = module.params.get('network_load_balancer_id')
     forwarding_rule_id = module.params.get('forwarding_rule_id')
+
+    health_check = _get_health_check(health_check_param)
 
     nlb_server = ionoscloud.NetworkLoadBalancersApi(client)
     changed = False

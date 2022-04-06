@@ -81,9 +81,9 @@ jobs:
 #        run: |
 #          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/natgateway/all-tests.yml
 
-#      - name: Run Network Load Balancer tests
-#        run: |
-#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/networkloadbalancer/all-tests.yml
+      - name: Run Network Load Balancer tests
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/networkloadbalancer/all-tests.yml
 
       - name: Run User Management tests
         run: |

@@ -55,6 +55,11 @@
           - ip: "22.231.2.2"
             port: "8080"
             weight: "123"
+        health_check:
+          client_timeout: 50
+          connect_timeout: 5000
+          target_timeout: 5000
+          retries: 1
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
         wait: true
