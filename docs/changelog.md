@@ -1,10 +1,19 @@
 # Changelog
 
-## 5.0.11 (Upcoming release)
+## 5.0.11 (7 April, 2022)
 
 ### Bug fixes:
 
 * fix #9: remove deprecated `nat` parameter from server module; the parameter is available on v6 only.
+
+### Features
+* fix #63: implemented support for Token Authentication: can be used with `token` parameter or `IONOS_TOKEN` env variable
+* fix #67: added new parameter on s3key module `idempotency` that ensures that If an s3key already exists, returns with already existing key instead of creating more
+
+### Enhancements
+* documentation updates related to Ansible Galaxy installation and usage
+* fix #1: added support for http proxies _(only for `ionoscloud` python package >= 5.0.8)_
+  * using _**IONOS_HTTP_PROXY**_ and _**IONOS_HTTP_PROXY_HEADERS**_ environment variables
 
 
 ## 5.0.10 (15 March, 2022)
