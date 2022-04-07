@@ -1,5 +1,21 @@
 # Changelog
 
+## 6.1.3
+### Bug fixes
+* **network_load_balancer_rule** module: fixed `health_check` parameter _(the dict now supports snake case items instead of camel case)_
+
+### Enhancements
+* refactored the documentation based on states
+* fix #1: added support for http proxies _(only for `ionoscloud` python package >= 6.0.3)_
+  * using _**IONOS_HTTP_PROXY**_ and _**IONOS_HTTP_PROXY_HEADERS**_ environment variables
+
+### Features
+* fix #63: implemented support for Token Authentication: can be used with `token` parameter or `IONOS_TOKEN` env variable
+* new info module: **s3key_info** - can be used to list all the s3keys
+* **k8s_nodepool** module: add support for updating labels and annotations
+* fix #67: added new parameter on s3key module `idempotency` that ensures that If an s3key already exists, returns with already existing key instead of creating more
+
+
 ## 6.1.2
 
 ### Bug fixes:
