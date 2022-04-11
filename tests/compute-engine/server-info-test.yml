@@ -12,35 +12,35 @@
   tasks:
     - name: Create datacenter
       datacenter:
-          name: "{{ datacenter }}"
-          location: "{{ location }}"
+        name: "{{ datacenter }}"
+        location: "{{ location }}"
 
     - name: Provision a server
       server:
-         datacenter: "{{ datacenter }}"
-         name: "{{ name }} %02d"
-         auto_increment: true
-         cores: 1
-         ram: 1024
-         availability_zone: ZONE_1
-         volume_availability_zone: ZONE_3
-         volume_size: 5
-         cpu_family: INTEL_SKYLAKE
-         disk_type: SSD Standard
-         image: "{{ image_alias }}"
-         image_password: "{{ password }}"
-         location: "{{ location }}"
-         count: 1
-         assign_public_ip: true
-         remove_boot_volume: true
-         wait: true
-         wait_timeout: "{{ wait_timeout }}"
-         state: present
+        datacenter: "{{ datacenter }}"
+        name: "{{ name }} %02d"
+        auto_increment: true
+        cores: 1
+        ram: 1024
+        availability_zone: ZONE_1
+        volume_availability_zone: ZONE_3
+        volume_size: 5
+        cpu_family: INTEL_SKYLAKE
+        disk_type: SSD Standard
+        image: "{{ image_alias }}"
+        image_password: "{{ password }}"
+        location: "{{ location }}"
+        count: 1
+        assign_public_ip: true
+        remove_boot_volume: true
+        wait: true
+        wait_timeout: "{{ wait_timeout }}"
+        state: present
 
     - name: Get all servers for given datacenter
       server_info:
         datacenter: "{{ datacenter }}"
-        register: server_list_response
+      register: server_list_response
 
     - name: Get only the servers that need to be upgraded
       server_info:
@@ -50,11 +50,11 @@
 
     - name: Show all servers for the created datacenter
       debug:
-        var: server_list_response.result
+        var: server_list_response
 
     - name: Show servers that need an upgrade
       debug:
-        var: servers_list_upgrade_response.result
+        var: servers_list_upgrade_response
 
     - name: Remove server
       server:
