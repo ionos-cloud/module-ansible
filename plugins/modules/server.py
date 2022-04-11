@@ -165,13 +165,7 @@ OPTIONS = {
     'lan': {
         'description': ['The ID or name of the LAN you wish to add the servers to (can be a string or a number).'],
         'available': ['present'],
-        'default': '1',
         'type': 'str',
-    },
-    'lan': {
-        'description': ['The ID or name of the LAN you wish to add the servers to (can be a string or a number).'],
-        'available': ['present'],
-        'type': 'raw',
     },
     'nat': {
         'description': ['Boolean value indicating if the private IP address has outbound access to the public Internet.'],
