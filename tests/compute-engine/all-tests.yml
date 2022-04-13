@@ -49,3 +49,6 @@
 
 - name: Run Volume Test
   import_playbook: volume-test.yml
+
+- name: Run Volume Info Test
+  import_playbook: volume-info-test.yml
