@@ -96,7 +96,6 @@
   - name: Update Cluster
     postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.properties.display_name }}"
-      postgres_version: 12
       instances: 2
       cores: 2
       ram: 4096
