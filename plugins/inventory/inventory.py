@@ -157,8 +157,33 @@ class IonosCloudInventory(object):
         else:
             print_data = self.get_from_api_source()
 
-        print(print_data)
-        # print(json.dumps(print_data, sort_keys=False, indent=2, separators=(',', ': ')))
+        if self.args.datacenters:
+            print_data['datacenters']['datacenters']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['datacenters']['datacenters']))
+        elif self.args.fwrules:
+            print_data['firewallrules']['firewallrules']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['firewallrules']['firewallrules']))
+        elif self.args.images:
+            print_data['images']['images']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['images']['images']))
+        elif self.args.lans:
+            print_data['lans']['lans']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['lans']['lans']))
+        elif self.args.locations:
+            print_data['locations']['locations']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['locations']['locations']))
+        elif self.args.nics:
+            print_data['nics']['nics']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['nics']['nics']))
+        elif self.args.servers:
+            print_data['servers']['servers']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['servers']['servers']))
+            print_data['servers']['lans']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['servers']['lans']))
+        elif self.args.volumes:
+            print_data['volumes']['volumes']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['volumes']['volumes']))
+        elif self.args.host:
+            print_data = self.client.sanitize_for_serialization(print_data)
+        else:
+            for host in print_data['_meta']['hostvars']:
+                print_data['_meta']['hostvars'][host] = self.client.sanitize_for_serialization(print_data['_meta']['hostvars'][host])
+
+        if self.args.pretty:
+            print(json.dumps(print_data, indent=int(self.args.indent), sort_keys=True))
+        else:
+            print(json.dumps(print_data))
 
     def read_settings(self):
         """ Reads the settings from the inventory.ini file """
@@ -249,6 +274,8 @@ class IonosCloudInventory(object):
 
         parser.add_argument('--refresh', '-r', action='store_true', default=False,
                             help='Force refresh of cache by making API calls to Ionos')
+        parser.add_argument('--pretty', action='store_true', default=False, help='Pretty print the JSON')
+        parser.add_argument('--indent', action='store', default=2, help='Indent used for pretty print')
 
         self.args = parser.parse_args()
 
@@ -326,7 +353,7 @@ class IonosCloudInventory(object):
             instance_data['lans'] = lans
 
         if resource == 'locations' or resource == 'all':
-            instance_data['locations'] = location_server.locations_get().items
+            instance_data['locations'] = location_server.locations_get(depth=1).items
 
         if resource == 'images' or resource == 'all':
             instance_data['images'] = image_server.images_get().items
@@ -388,8 +415,7 @@ class IonosCloudInventory(object):
             self.inventory['_meta']['hostvars'][host] = server
             if self.server_name_as_inventory_hostname:
                 self.inventory['_meta']['hostvars'][host]['ansible_host'] = host_ip
-
-            datacenter_id = self._parse_id_from_href(server['href'], 2)
+            datacenter_id = self._parse_id_from_href(server.href, 2)
 
             if self.group_by_datacenter_id:
                 if datacenter_id not in self.inventory:
@@ -407,7 +433,7 @@ class IonosCloudInventory(object):
                 self.inventory[location]['hosts'].append(host)
 
             if self.group_by_availability_zone:
-                zone = server.properties.availabilityZone
+                zone = server.properties.availability_zone
                 if zone not in self.inventory:
                     self.inventory[zone] = {'hosts': [], 'vars': self.vars}
                 self.inventory[zone]['hosts'].append(host)
@@ -416,12 +442,12 @@ class IonosCloudInventory(object):
                 boot_device = {}
                 image_key = 'image'
                 key = None
-                if server.properties.bootVolume is not None:
-                    boot_device = server.properties.bootVolume
+                if server.properties.boot_volume is not None:
+                    boot_device = server.properties.boot_volume
                 elif server.properties.bootCdrom is not None:
-                    boot_device = server.properties.bootCdrom
+                    boot_device = server.properties.boot_cdrom
                     image_key = 'name'
-                if 'properties' in boot_device and image_key in boot_device['properties']:
+                try:
                     if image_key == 'image':
                         key = boot_device.properties.image
                     elif image_key == 'name':
@@ -433,17 +459,22 @@ class IonosCloudInventory(object):
                                 self.inventory[image_name] = {'hosts': [], 'vars': self.vars}
                             self.inventory[image_name]['hosts'].append(host)
                             break
+                except AttributeError:
+                    pass
 
             if self.group_by_licence_type:
-                license = None
-                if server.properties.bootVolume is not None:
-                    license = server.properties.bootVolume.properties.licenceType
-                elif server.properties.bootCdrom is not None:
-                    license = server.properties.bootCdrom.properties.licenceType
-                if license is not None:
-                    if license not in self.inventory:
-                        self.inventory[license] = {'hosts': [], 'vars': self.vars}
-                    self.inventory[license]['hosts'].append(host)
+                try:
+                    license = None
+                    if server.properties.boot_volume is not None:
+                        license = server.properties.boot_volume.properties.licence_type
+                    elif server.properties.bootCdrom is not None:
+                        license = server.properties.bootCdrom.properties.licence_type
+                    if license is not None:
+                        if license not in self.inventory:
+                            self.inventory[license] = {'hosts': [], 'vars': self.vars}
+                        self.inventory[license]['hosts'].append(host)
+                except AttributeError:
+                    pass
 
     def get_host_info(self):
         """Generate a JSON response to a --host call"""
@@ -453,7 +484,7 @@ class IonosCloudInventory(object):
             for server in self.data['servers']:
                 if host == server.id:
                     datacenter_id = self._parse_id_from_href(server['href'], 2)
-                    return ionoscloud.ServersApi(self.client).datacenters_servers_get(datacenter_id=datacenter_id, depth=5)
+                    return ionoscloud.ServersApi(self.client).datacenters_servers_find_by_id(datacenter_id, server.id)
         else:
             for server in self.data.servers:
                 for nic in server.entities.nics.items:
@@ -461,8 +492,7 @@ class IonosCloudInventory(object):
                         if host == ip:
                             datacenter_id = self._parse_id_from_href(server['href'], 2)
                             server_id = self._parse_id_from_href(server['href'], 0)
-                            return ionoscloud.ServersApi(self.client).datacenters_servers_get(datacenter_id=datacenter_id,
-                                                                                           depth=5)
+                            return ionoscloud.ServersApi(self.client).datacenters_servers_find_by_id(datacenter_id, server_id)
 
         return {}
 
