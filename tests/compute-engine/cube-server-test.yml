@@ -1,0 +1,77 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    ssh_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+    - name: Create datacenter
+      datacenter:
+          name: "{{ datacenter }}"
+          location: "de/txl"
+
+    - name: Provision a server
+      server:
+         datacenter: "{{ datacenter }}"
+         name: "{{ name }} %02d"
+         auto_increment: true
+         cpu_family: INTEL_SKYLAKE
+         disk_type: DAS
+         image: "{{ image_alias }}"
+         image_password: "{{ password }}"
+         location: "de/txl"
+         count: 1
+         assign_public_ip: true
+         remove_boot_volume: true
+         template_uuid: "15c6dd2f-02d2-4987-b439-9a58dd59ecc3"
+         type: "CUBE"
+         wait: true
+         wait_timeout: "{{ wait_timeout }}"
+         state: present
+
+    - name: Update server
+      server:
+         datacenter: "{{ datacenter }}"
+         name: "{{ name }} - UPDATED"
+         instance_ids:
+           - "{{ name }} 01"
+         type: CUBE
+         wait: true
+         wait_timeout: "{{ wait_timeout }}"
+         state: update
+
+    - name: Suspend server
+      server:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ name }} 01"
+         wait_timeout: "{{ wait_timeout }}"
+         state: suspend
+
+    - name: Resume server
+      server:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ name }} 01"
+         wait_timeout: "{{ wait_timeout }}"
+         state: resume
+
+    - name: Remove server
+      server:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ name }} 01"
+         remove_boot_volume: yes
+         wait_timeout: "{{ wait_timeout }}"
+         state: absent
+
+    - name: Remove datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        state: absent
+        wait: true
