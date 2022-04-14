@@ -483,15 +483,15 @@ class IonosCloudInventory(object):
         if re.match('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', host, re.I):
             for server in self.data['servers']:
                 if host == server.id:
-                    datacenter_id = self._parse_id_from_href(server['href'], 2)
+                    datacenter_id = self._parse_id_from_href(server.href, 2)
                     return ionoscloud.ServersApi(self.client).datacenters_servers_find_by_id(datacenter_id, server.id)
         else:
-            for server in self.data.servers:
+            for server in self.data['servers']:
                 for nic in server.entities.nics.items:
                     for ip in nic.properties.ips:
                         if host == ip:
-                            datacenter_id = self._parse_id_from_href(server['href'], 2)
-                            server_id = self._parse_id_from_href(server['href'], 0)
+                            datacenter_id = self._parse_id_from_href(server.href, 2)
+                            server_id = self._parse_id_from_href(server.href, 0)
                             return ionoscloud.ServersApi(self.client).datacenters_servers_find_by_id(datacenter_id, server_id)
 
         return {}
