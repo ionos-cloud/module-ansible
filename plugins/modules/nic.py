@@ -247,26 +247,15 @@ def create_nic(module, client):
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
         datacenter_list = datacenter_server.datacenters_get(depth=2)
-        for d in datacenter_list.items:
-            dc = datacenter_server.datacenters_find_by_id(datacenter_id=d.id)
-            if datacenter == dc.properties.name:
-                datacenter = d.id
-                break
+        datacenter = _get_resource(datacenter_list, datacenter)
 
     # Locate UUID for Server
     if not (uuid_match.match(server)):
         server_list = server_server.datacenters_servers_get(datacenter, depth=2)
-        for s in server_list.items:
-            if server == s.properties.name:
-                server = s.id
-                break
+        server = _get_resource(server_list, server)
 
     nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server, depth=2)
-    nic = None
-    for n in nic_list.items:
-        if name == n.properties.name:
-            nic = n
-            break
+    nic = _get_resource(nic_list, name)
 
     should_change = nic is None
 
