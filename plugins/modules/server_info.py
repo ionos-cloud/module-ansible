@@ -120,6 +120,17 @@ EXAMPLES = '''
 uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
 
 def get_servers(module, client):
     datacenter = module.params.get('datacenter')
@@ -130,11 +141,7 @@ def get_servers(module, client):
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
         datacenter_list = datacenter_server.datacenters_get(depth=2)
-        for d in datacenter_list.items:
-            dc = datacenter_server.datacenters_find_by_id(datacenter_id=d.id)
-            if datacenter == dc.properties.name:
-                datacenter = d.id
-                break
+        datacenter = _get_resource(datacenter_list, datacenter)
 
     try:
         results = []
