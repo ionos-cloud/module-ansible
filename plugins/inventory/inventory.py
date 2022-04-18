@@ -227,14 +227,12 @@ class IonosCloudInventory(object):
             'group_by_datacenter_id',
             'group_by_location',
             'group_by_availability_zone',
-            'group_by_image_name',
-            'group_by_licence_type'
         ]
         for option in group_by_options:
             if config.has_option('ionos', option):
                 setattr(self, option, config.getboolean('ionos', option))
             else:
-                setattr(self, option, True)
+                setattr(self, option, False)
 
         # Inventory Hostname
         option = 'server_name_as_inventory_hostname'
@@ -437,44 +435,6 @@ class IonosCloudInventory(object):
                 if zone not in self.inventory:
                     self.inventory[zone] = {'hosts': [], 'vars': self.vars}
                 self.inventory[zone]['hosts'].append(host)
-
-            if self.group_by_image_name:
-                boot_device = {}
-                image_key = 'image'
-                key = None
-                if server.properties.boot_volume is not None:
-                    boot_device = server.properties.boot_volume
-                elif server.properties.bootCdrom is not None:
-                    boot_device = server.properties.boot_cdrom
-                    image_key = 'name'
-                try:
-                    if image_key == 'image':
-                        key = boot_device.properties.image
-                    elif image_key == 'name':
-                        key = boot_device.properties.name
-                    for image in self.data['images']:
-                        if key == image.id or key == image.properties.name:
-                            image_name = self.to_safe(image.properties.name)
-                            if image_name not in self.inventory:
-                                self.inventory[image_name] = {'hosts': [], 'vars': self.vars}
-                            self.inventory[image_name]['hosts'].append(host)
-                            break
-                except AttributeError:
-                    pass
-
-            if self.group_by_licence_type:
-                try:
-                    license = None
-                    if server.properties.boot_volume is not None:
-                        license = server.properties.boot_volume.properties.licence_type
-                    elif server.properties.bootCdrom is not None:
-                        license = server.properties.bootCdrom.properties.licence_type
-                    if license is not None:
-                        if license not in self.inventory:
-                            self.inventory[license] = {'hosts': [], 'vars': self.vars}
-                        self.inventory[license]['hosts'].append(host)
-                except AttributeError:
-                    pass
 
     def get_host_info(self):
         """Generate a JSON response to a --host call"""
