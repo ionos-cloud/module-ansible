@@ -20,16 +20,21 @@ ANSIBLE_METADATA = {
     'supported_by': 'community',
 }
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
-DOC_DIRECTORY = 'user-management'
+DOC_DIRECTORY = 'compute-engine'
 STATES = ['info']
-OBJECT_NAME = 'S3 Keys'
+OBJECT_NAME = 'Servers'
 
 OPTIONS = {
-    'user_id': {
-        'description': ['The ID of the user'],
+    'datacenter': {
+        'description': ['The ID of the datacenter.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
+    },
+    'upgrade_needed': {
+        'description': ['Filter servers that can or that cannot be upgraded.'],
+        'available': STATES,
+        'type': 'bool',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -75,13 +80,15 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: s3key_info
-short_description: List Ionos Cloud S3Keys of a given user.
+module: server_info
+short_description: List Ionos Cloud servers of a given datacenter.
 description:
-     - This is a simple module that supports listing S3Keys.
+     - This is a simple module that supports listing servers.
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+''' + '  ' + yaml.dump(
+    yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})),
+    default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -90,33 +97,64 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: List S3Keys for user
-      s3key_info:
-        user_id: "{{ user_id }}"
-        register: s3key_info_response
+    - name: Get all servers for given datacenter
+      server_info:
+        datacenter: "{{ datacenter }}"
+      register: server_list_response
 
-    - name: Show S3Keys
+    - name: Get only the servers that need to be upgraded
+      server_info:
+        datacenter: "{{ datacenter }}"
+        upgrade_needed: true
+      register: servers_list_upgrade_response
+
+    - name: Show all servers for the created datacenter
       debug:
-        var: s3key_info_response.result
+        var: server_list_response
+
+    - name: Show servers that need an upgrade
+      debug:
+        var: servers_list_upgrade_response
 '''
 
+uuid_match = re.compile(
+    '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
-def get_s3keys(module, client):
-    user_id = module.params.get('user_id')
-    user_s3keys_server = ionoscloud.UserS3KeysApi(client)
+def _get_resource(resource_list, identity):
+    """
+    Fetch and return a resource regardless of whether the name or
+    UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
+            return resource.id
+
+    return None
+
+def get_servers(module, client):
+    datacenter = module.params.get('datacenter')
+    servers_api = ionoscloud.ServersApi(client)
+    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
+    upgrade_needed = module.params.get('upgrade_needed')
+
+    # Locate UUID for Datacenter
+    if not (uuid_match.match(datacenter)):
+        datacenter_list = datacenter_server.datacenters_get(depth=2)
+        datacenter = _get_resource(datacenter_list, datacenter)
 
     try:
         results = []
-        for s3key in user_s3keys_server.um_users_s3keys_get(user_id).items:
-            results.append(s3key.to_dict())
+        for server in servers_api.datacenters_servers_get(datacenter, upgrade_needed=upgrade_needed).items:
+            results.append(server.to_dict())
         return {
             'action': 'info',
             'changed': False,
-            's3keys': results
+            'servers': results
         }
 
     except Exception as e:
-        module.fail_json(msg="failed to list the s3keys: %s" % to_native(e))
+        module.fail_json(msg="failed to list the servers: %s" % to_native(e))
 
 
 def get_module_arguments():
@@ -167,8 +205,8 @@ def get_sdk_config(module, sdk):
 def check_required_arguments(module, object_name):
     # manually checking if token or username & password provided
     if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
+            not module.params.get("token")
+            and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name}'.format(
@@ -198,7 +236,7 @@ def main():
         check_required_arguments(module, OBJECT_NAME)
 
         try:
-            module.exit_json(**get_s3keys(module, api_client))
+            module.exit_json(**get_servers(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
                                                                                              error=to_native(e),

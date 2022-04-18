@@ -35,6 +35,12 @@
 - name: Run PCC Test
   import_playbook: pcc-test.yml
 
+- name: Run Server Test
+  import_playbook: server-test.yml
+
+- name: Run Server-info Test
+  import_playbook: server-info-test.yml
+
 - name: Run Snapshot Test
   import_playbook: snapshot-test.yml
 

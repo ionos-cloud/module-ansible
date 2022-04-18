@@ -70,6 +70,7 @@ modules_to_generate = [
     'nic',
     'pcc',
     'server',
+    'server_info',
     'snapshot',
     'volume',
     'postgres_cluster',
