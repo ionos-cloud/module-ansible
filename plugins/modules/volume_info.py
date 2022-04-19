@@ -31,6 +31,11 @@ OPTIONS = {
         'required': STATES,
         'type': 'str',
     },
+    'server': {
+        'description': ['The ID or name of the server.'],
+        'available': STATES,
+        'type': 'str',
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -96,6 +101,12 @@ EXAMPLES = '''
       volume_info:
         datacenter: "{{ datacenter }}"
       register: volume_list_response
+      
+    - name: Get all volumes for given server
+      volume_info:
+        datacenter: "{{ datacenter }}"
+        server: "{{ server }}"
+      register: volume_list_server_response
 
     - name: Show all volumes for the datacenter
       debug:
@@ -119,17 +130,30 @@ def _get_resource(resource_list, identity):
 
 def get_volumes(module, client):
     datacenter = module.params.get('datacenter')
+    server = module.params.get('server')
     volumes_api = ionoscloud.VolumesApi(api_client=client)
-    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
+    servers_api = ionoscloud.ServersApi(api_client=client)
+    datacenters_api = ionoscloud.DataCentersApi(api_client=client)
 
     # Locate UUID for Datacenter
-    if not (uuid_match.match(datacenter)):
-        datacenter_list = datacenter_server.datacenters_get(depth=2)
+    if not uuid_match.match(datacenter):
+        datacenter_list = datacenters_api.datacenters_get(depth=2)
         datacenter = _get_resource(datacenter_list, datacenter)
+
+    # Locate UUID for Server
+    if server is not None and not uuid_match.match(datacenter):
+        server_list = servers_api.datacenters_servers_get(depth=2, datacenter_id=datacenter)
+        server = _get_resource(server_list, server)
+
+    volume_items = []
+    if server is not None:
+        volume_items = servers_api.datacenters_servers_volumes_get(datacenter, server).items
+    else:
+        volume_items = volumes_api.datacenters_volumes_get(datacenter).items
 
     try:
         results = []
-        for volume in volumes_api.datacenters_volumes_get(datacenter).items:
+        for volume in volume_items:
             results.append(volume.to_dict())
         return {
             'action': 'info',

@@ -35,12 +35,12 @@
         wait: true
         state: present
 
-    - name: Get all volumes
+    - name: Get all volumes for datacenter
       volume_info:
         datacenter: "{{ datacenter }}"
       register: volume_list_response
 
-    - name: Show response of all volumes
+    - name: Show response of all volumes for datacenter
       debug:
         var: volume_list_response
 

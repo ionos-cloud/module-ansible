@@ -11,6 +11,12 @@ This is a simple module that supports listing volumes.
       volume_info:
         datacenter: "{{ datacenter }}"
       register: volume_list_response
+      
+    - name: Get all volumes for given server
+      volume_info:
+        datacenter: "{{ datacenter }}"
+        server: "{{ server }}"
+      register: volume_list_server_response
 
     - name: Show all volumes for the datacenter
       debug:
@@ -23,6 +29,7 @@ This is a simple module that supports listing volumes.
 | Name | Required | Type | Default | Description |
 | :--- | :---: | :--- | :--- | :--- |
 | datacenter | True | str |  | The ID or name of the datacenter. |
+| server | False | str |  | The ID or name of the server. |
 | api_url | False | str |  | The Ionos API base URL. |
 | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
 | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
