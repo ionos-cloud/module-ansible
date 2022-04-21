@@ -35,22 +35,14 @@
         wait: true
         state: present
 
-    - name: Update volumes
-      volume:
+    - name: Get all volumes for datacenter
+      volume_info:
         datacenter: "{{ datacenter }}"
-        instance_ids:
-          - "{{ name }} 01"
-          - "{{ name }} 02"
-        size: 10
-        cpu_hot_plug: false
-        ram_hot_plug: true
-        nic_hot_plug: true
-        nic_hot_unplug: true
-        disc_virtio_hot_plug: true
-        disc_virtio_hot_unplug: true
-        wait_timeout: 600
-        wait: true
-        state: update
+      register: volume_list_response
+
+    - name: Show response of all volumes for datacenter
+      debug:
+        var: volume_list_response
 
     - name: Delete volumes
       volume:

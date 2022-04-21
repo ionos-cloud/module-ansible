@@ -73,6 +73,7 @@ modules_to_generate = [
     'server_info',
     'snapshot',
     'volume',
+    'volume_info',
     'postgres_cluster',
     'postgres_backup_info',
     'postgres_cluster_info',
