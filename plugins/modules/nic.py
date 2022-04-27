@@ -206,6 +206,18 @@ def _get_resource(resource_list, identity):
 
     for resource in resource_list.items:
         if identity in (resource.properties.name, resource.id):
+            return resource
+
+    return None
+
+def _get_resource_id(resource_list, identity):
+    """
+    Fetch and return a resource's UUID regardless of whether
+    the name or UUID is passed. Returns None error otherwise.
+    """
+
+    for resource in resource_list.items:
+        if identity in (resource.properties.name, resource.id):
             return resource.id
 
     return None
@@ -247,12 +259,12 @@ def create_nic(module, client):
     # Locate UUID for Datacenter
     if not (uuid_match.match(datacenter)):
         datacenter_list = datacenter_server.datacenters_get(depth=2)
-        datacenter = _get_resource(datacenter_list, datacenter)
+        datacenter = _get_resource_id(datacenter_list, datacenter)
 
     # Locate UUID for Server
     if not (uuid_match.match(server)):
         server_list = server_server.datacenters_servers_get(datacenter, depth=2)
-        server = _get_resource(server_list, server)
+        server = _get_resource_id(server_list, server)
 
     nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server, depth=2)
     nic = _get_resource(nic_list, name)
