@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import, division, print_function
 import copy
+from tabnanny import check
 import yaml
 import re
 
@@ -166,17 +167,41 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
-def _get_resource(resource_list, identity):
+def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
     """
 
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
 
-    return None
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None, check=False):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json("found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        if check:
+            return None
+        else:
+            module.fail_json("found no resources of type {} for '{}'".format(resource_list.id, identity))
 
 
 def _get_request_id(headers):
@@ -230,16 +255,16 @@ def create_datacenter(module, client):
     wait_timeout = int(module.params.get('wait_timeout'))
 
     datacenter_server = ionoscloud.DataCentersApi(client)
-    datacenters = datacenter_server.datacenters_get(depth=2)
 
-    for dc in datacenters.items:
-        if name == dc.properties.name and location == dc.properties.location:
-            return {
-                'changed': False,
-                'failed': False,
-                'action': 'create',
-                'datacenter': dc.to_dict()
-            }
+    existing_dc = get_resource(module, datacenter_server.datacenters_get(depth=1), name, check=True)
+
+    if existing_dc:
+        return {
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'datacenter': existing_dc.to_dict()
+        }
 
     datacenter_properties = DatacenterProperties(name=name, description=description, location=location)
     datacenter = Datacenter(properties=datacenter_properties)
@@ -292,19 +317,12 @@ def update_datacenter(module, client):
     changed = False
     response = None
 
-    if datacenter_id:
-        datacenter = Datacenter(properties={'name': name, 'description': description})
-        response = _update_datacenter(module, datacenter_server, client, datacenter_id, datacenter, wait)
-        changed = response['changed']
-    else:
-        datacenters = datacenter_server.datacenters_get(depth=2)
-        for d in datacenters.items:
-            vdc = datacenter_server.datacenters_find_by_id(d.id)
-            if name == vdc.properties.name:
-                datacenter = Datacenter(
-                    properties={'name': name, 'description': description})
-                response = _update_datacenter(module, datacenter_server, client, datacenter_id, datacenter, wait)
-                changed = response['changed']
+    if datacenter_id is None:
+        datacenter_id = get_resource(module, datacenter_server.datacenters_get(depth=1), name)
+
+    datacenter = Datacenter(properties={'name': name, 'description': description})
+    response = _update_datacenter(module, datacenter_server, client, datacenter_id, datacenter, wait)
+    changed = response['changed']
 
     if not changed:
         module.fail_json(msg="failed to update the datacenter: The resource does not exist")
@@ -331,23 +349,24 @@ def remove_datacenter(module, client):
     """
     name = module.params.get('name')
     datacenter_id = module.params.get('id')
-    datacenter_server = ionoscloud.DataCentersApi(client)
     wait = module.params.get('wait')
+    datacenter_server = ionoscloud.DataCentersApi(client)
 
-    datacenters_list = datacenter_server.datacenters_get(depth=5)
-    if datacenter_id:
-        datacenter = _get_resource(datacenters_list, datacenter_id)
+    datacenters_list = datacenter_server.datacenters_get(depth=1)
+
+    if datacenter_id is None:
+        datacenter = get_resource(module, datacenters_list, name, check=True)
     else:
-        datacenter = _get_resource(datacenters_list, name)
+        datacenter = get_resource(module, datacenters_list, datacenter_id, check=True)
 
-    if not datacenter:
+    if datacenter is None:
         module.exit_json(changed=False)
-
+    
     if module.check_mode:
         module.exit_json(changed=True)
+
     try:
-        response = datacenter_server.datacenters_delete_with_http_info(datacenter_id=datacenter)
-        (_, _, headers) = response
+        _, _, headers = datacenter_server.datacenters_delete_with_http_info(datacenter_id=datacenter.id)
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id)
@@ -357,7 +376,7 @@ def remove_datacenter(module, client):
     return {
         'action': 'delete',
         'changed': True,
-        'id': datacenter_id,
+        'id': datacenter.id,
     }
 
 
