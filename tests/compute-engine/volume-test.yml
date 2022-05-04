@@ -22,7 +22,7 @@
         image: "{{ image_alias }}"
         image_password: "{{ password }}"
         count: 2
-        size: 6
+        size: 20
         availability_zone: ZONE_3
         auto_increment: yes
         cpu_hot_plug: false
@@ -41,7 +41,7 @@
         instance_ids:
           - "{{ name }} 01"
           - "{{ name }} 02"
-        size: 10
+        size: 25
         cpu_hot_plug: false
         ram_hot_plug: true
         nic_hot_plug: true
