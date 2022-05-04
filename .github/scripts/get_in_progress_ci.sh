@@ -1,7 +1,7 @@
 #!/bin/bash
 
 api_resp_raw=$( curl -s 'https://api.github.com/repos/ionos-cloud/module-ansible/actions/runs?status=in_progress' )
-api_resp_only_name=$( echo "$api_resp_raw" | jq -r '.workflow_runs[]|"\(.name)"' )
+api_resp_only_name=$( echo "$api_resp_raw" | jq -r '.workflow_runs[] | select(.head_branch != "release/v5") | "\(.name)"' )
 
 running_banned_workflows=0
 for banned_workflow in "$@"
