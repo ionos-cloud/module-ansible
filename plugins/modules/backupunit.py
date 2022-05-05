@@ -155,17 +155,44 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
-def _get_resource(resource_list, identity):
+
+def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
     """
 
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
 
-    return None
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json("found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(*args, **kwargs):
+    resource = get_resource(*args, **kwargs)
+    return resource.id if resource is not None else None
 
 
 def _get_request_id(headers):
@@ -185,6 +212,16 @@ def create_backupunit(module, client):
     wait_timeout = module.params.get('wait_timeout')
 
     backupunit_server = ionoscloud.BackupUnitsApi(client)
+
+    existing_backupunit = get_resource(module, backupunit_server.backupunits_get(depth=1), name)
+
+    if existing_backupunit:
+        return {
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'datacenter': existing_backupunit.to_dict()
+        }
 
     backupunit_properties = BackupUnitProperties(name=name, password=password, email=email)
     backupunit = BackupUnit(properties=backupunit_properties)
@@ -217,8 +254,7 @@ def delete_backupunit(module, client):
     backupunit_id = module.params.get('backupunit_id')
     backupunit_server = ionoscloud.BackupUnitsApi(client)
 
-    backupunits_list = backupunit_server.backupunits_get(depth=5)
-    backupunit = _get_resource(backupunits_list, backupunit_id)
+    backupunit = get_resource(module, backupunit_server.backupunits_get(depth=1), backupunit_id)
 
     if not backupunit:
         module.exit_json(changed=False)
