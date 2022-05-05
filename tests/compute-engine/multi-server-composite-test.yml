@@ -19,7 +19,7 @@
          ram: 2048
          availability_zone: ZONE_1
          volume_availability_zone: ZONE_3
-         volume_size: 5
+         volume_size: 20
          cpu_family: AMD_OPTERON
          disk_type: HDD
          image: "{{ image_alias }}"

@@ -24,7 +24,7 @@
          ram: 1024
          availability_zone: ZONE_1
          volume_availability_zone: ZONE_3
-         volume_size: 5
+         volume_size: 20
          cpu_family: INTEL_SKYLAKE
          disk_type: SSD Standard
          image: "{{ image_alias }}"
