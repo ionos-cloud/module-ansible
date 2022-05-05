@@ -190,7 +190,7 @@ def _get_matched_resources(resource_list, identity, identity_paths=None):
     return list(filter(check_identity_method, resource_list.items))
 
 
-def get_resource(module, resource_list, identity, identity_paths=None, check=False):
+def get_resource(module, resource_list, identity, identity_paths=None):
     matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
 
     if len(matched_resources) == 1:
@@ -198,10 +198,12 @@ def get_resource(module, resource_list, identity, identity_paths=None, check=Fal
     elif len(matched_resources) > 1:
         module.fail_json("found more resources of type {} for '{}'".format(resource_list.id, identity))
     else:
-        if check:
-            return None
-        else:
-            module.fail_json("found no resources of type {} for '{}'".format(resource_list.id, identity))
+        return None
+
+
+def get_resource_id(*args, **kwargs):
+    resource = get_resource(*args, **kwargs)
+    return resource.id if resource is not None else None
 
 
 def _get_request_id(headers):
@@ -256,7 +258,7 @@ def create_datacenter(module, client):
 
     datacenter_server = ionoscloud.DataCentersApi(client)
 
-    existing_dc = get_resource(module, datacenter_server.datacenters_get(depth=1), name, check=True)
+    existing_dc = get_resource(module, datacenter_server.datacenters_get(depth=1), name)
 
     if existing_dc:
         return {
@@ -317,8 +319,12 @@ def update_datacenter(module, client):
     changed = False
     response = None
 
-    if datacenter_id is None:
-        datacenter_id = get_resource(module, datacenter_server.datacenters_get(depth=1), name)
+    existing_dc_id_by_name = get_resource_id(module, datacenter_server.datacenters_get(depth=1), name)
+
+    if datacenter_id is not None and existing_dc_id_by_name is not None and existing_dc_id_by_name != datacenter_id:
+        module.fail_json(msg='failed to update the datacenter: Another resource with the desired name ({}) exists'.format(name))
+
+    datacenter_id = existing_dc_id_by_name if datacenter_id is None else datacenter_id
 
     datacenter = Datacenter(properties={'name': name, 'description': description})
     response = _update_datacenter(module, datacenter_server, client, datacenter_id, datacenter, wait)
@@ -354,19 +360,16 @@ def remove_datacenter(module, client):
 
     datacenters_list = datacenter_server.datacenters_get(depth=1)
 
-    if datacenter_id is None:
-        datacenter = get_resource(module, datacenters_list, name, check=True)
-    else:
-        datacenter = get_resource(module, datacenters_list, datacenter_id, check=True)
+    datacenter_id = get_resource_id(module, datacenters_list, datacenter_id if datacenter_id is not None else name)
 
-    if datacenter is None:
+    if datacenter_id is None:
         module.exit_json(changed=False)
-    
+
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        _, _, headers = datacenter_server.datacenters_delete_with_http_info(datacenter_id=datacenter.id)
+        _, _, headers = datacenter_server.datacenters_delete_with_http_info(datacenter_id=datacenter_id)
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id)
@@ -376,7 +379,7 @@ def remove_datacenter(module, client):
     return {
         'action': 'delete',
         'changed': True,
-        'id': datacenter.id,
+        'id': datacenter_id,
     }
 
 
