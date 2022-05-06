@@ -13,12 +13,6 @@
         size: 2
         state: present
 
-    - name: Update ipblock
-      ipblock:
-        name: "{{ name }}"
-        location: "{{ location }}"
-        state: update
-
     - name: Remove ipblock
       ipblock:
         name: "{{ name }}"
