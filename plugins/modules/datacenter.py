@@ -322,7 +322,7 @@ def update_datacenter(module, client):
     existing_dc_id_by_name = get_resource_id(module, datacenter_server.datacenters_get(depth=1), name)
 
     if datacenter_id is not None and existing_dc_id_by_name is not None and existing_dc_id_by_name != datacenter_id:
-        module.fail_json(msg='failed to update the datacenter: Another resource with the desired name ({}) exists'.format(name))
+            module.fail_json(msg='failed to update the {}}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
 
     datacenter_id = existing_dc_id_by_name if datacenter_id is None else datacenter_id
 
