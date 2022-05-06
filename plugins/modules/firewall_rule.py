@@ -337,7 +337,7 @@ def create_firewall_rule(module, client):
             'changed': False,
             'failed': False,
             'action': 'create',
-            'datacenter': existing_firewallrule.to_dict()
+            'firewall_rule': existing_firewallrule.to_dict()
         }
 
     if module.check_mode:

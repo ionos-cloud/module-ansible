@@ -225,19 +225,11 @@ def reserve_ipblock(module, client):
             'changed': False,
             'failed': False,
             'action': 'create',
-            'datacenter': existing_ipblock.to_dict()
+            'ipblock': existing_ipblock.to_dict()
         }
 
     if module.check_mode:
         module.exit_json(changed=False)
-
-    if existing_ipblock:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'ipblock': existing_ipblock.to_dict()
-        }
 
     try:
         ipblock_properties = IpBlockProperties(location=location, size=size, name=name)

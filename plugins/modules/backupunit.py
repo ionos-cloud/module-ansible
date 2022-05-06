@@ -220,7 +220,7 @@ def create_backupunit(module, client):
             'changed': False,
             'failed': False,
             'action': 'create',
-            'datacenter': existing_backupunit.to_dict()
+            'backupunit': existing_backupunit.to_dict()
         }
 
     backupunit_properties = BackupUnitProperties(name=name, password=password, email=email)
