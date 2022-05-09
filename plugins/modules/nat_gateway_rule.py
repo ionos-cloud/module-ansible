@@ -86,7 +86,7 @@ OPTIONS = {
             'rule applies to based on destination port. If none is provided, rule will match any port.',
         ],
         'available': ['present', 'update'],
-        'type': 'str',
+        'type': 'dict',
     },
     'datacenter_id': {
         'description': ['The ID of the datacenter.'],
@@ -230,18 +230,43 @@ EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
-def _get_resource(resource_list, identity):
+def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
     """
 
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
 
-    return None
+    def check_identity_method(resource):
+      resource_identity = []
 
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json("found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(*args, **kwargs):
+    resource = get_resource(*args, **kwargs)
+    return resource.id if resource is not None else None
 
 
 def _update_nat_gateway_rule(module, client, nat_gateway_server, datacenter_id, nat_gateway_id, nat_gateway_rule_id,
@@ -249,10 +274,12 @@ def _update_nat_gateway_rule(module, client, nat_gateway_server, datacenter_id, 
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    response = nat_gateway_server.datacenters_natgateways_rules_patch_with_http_info(datacenter_id, nat_gateway_id,
-                                                                                     nat_gateway_rule_id,
-                                                                                     nat_gateway_rule_properties)
-    (nat_gateway_rule_response, _, headers) = response
+    nat_gateway_rule_response, _, headers = nat_gateway_server.datacenters_natgateways_rules_patch_with_http_info(
+        datacenter_id,
+        nat_gateway_id,
+        nat_gateway_rule_id,
+        nat_gateway_rule_properties,
+    )
 
     if wait:
         request_id = _get_request_id(headers['Location'])
@@ -296,28 +323,30 @@ def create_nat_gateway_rule(module, client):
     wait_timeout = int(module.params.get('wait_timeout'))
 
     nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-    nat_gateway_rules = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id=datacenter_id,
-                                                                             nat_gateway_id=nat_gateway_id, depth=2)
+    nat_gateway_rules = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id, nat_gateway_id, depth=2)
 
-    for rule in nat_gateway_rules.items:
-        if name == rule.properties.name:
-            return {
-                'changed': False,
-                'failed': False,
-                'action': 'create',
-                'nat_gateway_rule': rule.to_dict()
-            }
+    existing_rule = get_resource(module, nat_gateway_rules, name)
 
-    nat_gateway_rule_properties = NatGatewayRuleProperties(name=name, type=type, protocol=protocol,
-                                                           source_subnet=source_subnet, public_ip=public_ip,
-                                                           target_subnet=target_subnet,
-                                                           target_port_range=target_port_range)
+    if existing_rule:
+        return {
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'nat_gateway_rule': existing_rule.to_dict(),
+        }
+
+    nat_gateway_rule_properties = NatGatewayRuleProperties(
+        name=name, type=type, protocol=protocol,
+        source_subnet=source_subnet, public_ip=public_ip,
+        target_subnet=target_subnet,
+        target_port_range=target_port_range,
+    )
     nat_gateway_rule = NatGatewayRule(properties=nat_gateway_rule_properties)
 
     try:
-        response = nat_gateway_server.datacenters_natgateways_rules_post_with_http_info(datacenter_id, nat_gateway_id,
-                                                                                        nat_gateway_rule)
-        (nat_gateway_rule_response, _, headers) = response
+        nat_gateway_rule_response, _, headers = nat_gateway_server.datacenters_natgateways_rules_post_with_http_info(
+            datacenter_id, nat_gateway_id, nat_gateway_rule,
+        )
 
         if wait:
             request_id = _get_request_id(headers['Location'])
@@ -362,27 +391,34 @@ def update_nat_gateway_rule(module, client):
     nat_gateway_rule_response = None
 
     if nat_gateway_rule_id:
-        nat_gateway_rule_properties = NatGatewayRuleProperties(name=name, type=type, protocol=protocol,
-                                                               source_subnet=source_subnet, public_ip=public_ip,
-                                                               target_subnet=target_subnet,
-                                                               target_port_range=target_port_range)
-        nat_gateway_rule_response = _update_nat_gateway_rule(module, client, nat_gateway_server, datacenter_id,
-                                                             nat_gateway_id, nat_gateway_rule_id,
-                                                             nat_gateway_rule_properties)
+        nat_gateway_rule_properties = NatGatewayRuleProperties(
+            name=name, type=type, protocol=protocol,
+            source_subnet=source_subnet, public_ip=public_ip,
+            target_subnet=target_subnet,
+            target_port_range=target_port_range,
+        )
+        nat_gateway_rule_response = _update_nat_gateway_rule(
+            module, client, nat_gateway_server, datacenter_id,
+            nat_gateway_id, nat_gateway_rule_id,
+            nat_gateway_rule_properties,
+        )
         changed = True
 
     else:
-        nat_gateway_rules = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id=datacenter_id,
-                                                                                 nat_gateway_id=nat_gateway_id, depth=2)
+        nat_gateway_rules = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id, nat_gateway_id, depth=2)
         for rule in nat_gateway_rules.items:
             if name == rule.properties.name:
-                nat_gateway_rule_properties = NatGatewayRuleProperties(name=name, type=type, protocol=protocol,
-                                                                       source_subnet=source_subnet, public_ip=public_ip,
-                                                                       target_subnet=target_subnet,
-                                                                       target_port_range=target_port_range)
-                nat_gateway_rule_response = _update_nat_gateway_rule(module, client, nat_gateway_server, datacenter_id,
-                                                                     nat_gateway_id, rule.id,
-                                                                     nat_gateway_rule_properties)
+                nat_gateway_rule_properties = NatGatewayRuleProperties(
+                    name=name, type=type, protocol=protocol,
+                    source_subnet=source_subnet, public_ip=public_ip,
+                    target_subnet=target_subnet,
+                    target_port_range=target_port_range,
+                )
+                nat_gateway_rule_response = _update_nat_gateway_rule(
+                    module, client, nat_gateway_server, datacenter_id,
+                    nat_gateway_id, rule.id,
+                    nat_gateway_rule_properties,
+                )
                 changed = True
 
     if not changed:
@@ -420,19 +456,17 @@ def remove_nat_gateway_rule(module, client):
     changed = False
 
     try:
-        nat_gateway_rule_list = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id=datacenter_id, nat_gateway_id=nat_gateway_id, depth=5)
+        nat_gateway_rule_list = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id, nat_gateway_id, depth=5)
         if nat_gateway_rule_id:
-            nat_gateway_rule = _get_resource(nat_gateway_rule_list, nat_gateway_rule_id)
+            nat_gateway_rule = get_resource(module, nat_gateway_rule_list, nat_gateway_rule_id)
         else:
-            nat_gateway_rule = _get_resource(nat_gateway_rule_list, name)
+            nat_gateway_rule = get_resource(module, nat_gateway_rule_list, name)
 
         if not nat_gateway_rule:
             module.exit_json(changed=False)
 
-        response = nat_gateway_server.datacenters_natgateways_rules_delete_with_http_info(datacenter_id,
-                                                                                          nat_gateway_id,
-                                                                                          nat_gateway_rule)
-        (nat_gateway_rule_response, _, headers) = response
+        response = nat_gateway_server.datacenters_natgateways_rules_delete_with_http_info(datacenter_id, nat_gateway_id, nat_gateway_rule.id)
+        _, _, headers = response
 
         if wait:
             request_id = _get_request_id(headers['Location'])
@@ -447,7 +481,7 @@ def remove_nat_gateway_rule(module, client):
     return {
         'action': 'delete',
         'changed': changed,
-        'id': nat_gateway_rule_id
+        'id': nat_gateway_rule.id
     }
 
 
