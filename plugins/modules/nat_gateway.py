@@ -185,17 +185,43 @@ EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
-def _get_resource(resource_list, identity):
+def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
     """
 
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
 
-    return None
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json("found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(*args, **kwargs):
+    resource = get_resource(*args, **kwargs)
+    return resource.id if resource is not None else None
 
 
 def _update_nat_gateway(module, client, nat_gateway_server, datacenter_id, nat_gateway_id, nat_gateway_properties):
@@ -245,14 +271,15 @@ def create_nat_gateway(module, client):
     nat_gateways = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=2)
     nat_gateway_response = None
 
-    for nat_gateway in nat_gateways.items:
-        if name == nat_gateway.properties.name:
-            return {
-                'changed': False,
-                'failed': False,
-                'action': 'create',
-                'nat_gateway': nat_gateway.to_dict()
-            }
+    existing_nat_gateway = get_resource(module, nat_gateways, name)
+
+    if existing_nat_gateway:
+        return {
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'nat_gateway': existing_nat_gateway.to_dict()
+        }
 
     nat_gateway_lans = []
     if lans:
@@ -263,8 +290,7 @@ def create_nat_gateway(module, client):
     nat_gateway = NatGateway(properties=nat_gateway_properties)
 
     try:
-        response = nat_gateway_server.datacenters_natgateways_post_with_http_info(datacenter_id, nat_gateway)
-        (nat_gateway_response, _, headers) = response
+        nat_gateway_response, _, headers = nat_gateway_server.datacenters_natgateways_post_with_http_info(datacenter_id, nat_gateway)
 
         if wait:
             request_id = _get_request_id(headers['Location'])
@@ -305,8 +331,9 @@ def update_nat_gateway(module, client):
 
     if nat_gateway_id:
         nat_gateway_properties = NatGatewayProperties(name=name, public_ips=public_ips, lans=lans)
-        nat_gateway_response = _update_nat_gateway(module, client, nat_gateway_server, datacenter_id, nat_gateway_id,
-                                                   nat_gateway_properties)
+        nat_gateway_response = _update_nat_gateway(
+            module, client, nat_gateway_server, datacenter_id, nat_gateway_id, nat_gateway_properties,
+        )
         changed = True
 
     else:
@@ -314,8 +341,9 @@ def update_nat_gateway(module, client):
         for n in nat_gateways.items:
             if name == n.properties.name:
                 nat_gateway_properties = NatGatewayProperties(name=name, public_ips=public_ips, lans=lans)
-                nat_gateway_response = _update_nat_gateway(module, client, nat_gateway_server, datacenter_id, n.id,
-                                                           nat_gateway_properties)
+                nat_gateway_response = _update_nat_gateway(
+                    module, client, nat_gateway_server, datacenter_id, n.id, nat_gateway_properties,
+                )
                 changed = True
 
     if not changed:
@@ -354,9 +382,9 @@ def remove_nat_gateway(module, client):
     try:
         nat_gateway_list = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=5)
         if nat_gateway_id:
-            nat_gateway = _get_resource(nat_gateway_list, nat_gateway_id)
+            nat_gateway = get_resource(module, nat_gateway_list, nat_gateway_id)
         else:
-            nat_gateway = _get_resource(nat_gateway_list, name)
+            nat_gateway = get_resource(module, nat_gateway_list, name)
 
         if not nat_gateway:
             module.exit_json(changed=False)
