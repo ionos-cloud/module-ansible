@@ -289,6 +289,44 @@ EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+        identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+        resource_identity = []
+
+        for identity_path in identity_paths:
+            current = resource
+            for el in identity_path:
+                current = getattr(current, el)
+            resource_identity.append(current)
+
+        return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json("found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
+
 
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
@@ -423,19 +461,13 @@ def create_volume(module, client):
     datacenter_server = ionoscloud.DataCentersApi(client)
     servers_server = ionoscloud.ServersApi(client)
 
-    datacenter_found = False
     volumes = []
     instance_ids = []
 
     datacenter_list = datacenter_server.datacenters_get(depth=2)
-    for d in datacenter_list.items:
-        dc = datacenter_server.datacenters_find_by_id(d.id)
-        if datacenter in [dc.properties.name, dc.id]:
-            datacenter = d.id
-            datacenter_found = True
-            break
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
-    if not datacenter_found:
+    if datacenter_id is None:
         module.fail_json(msg='datacenter could not be found.')
 
     if auto_increment:
@@ -467,8 +499,8 @@ def create_volume(module, client):
 
     for name in names:
         # Skip volume creation if a volume with the same name already exists.
-        if _get_instance_id(volume_list, name):
-            volumes.append(_get_resource(volume_list, name))
+        if get_resource_id(module, volume_list, name) is not None:
+            volumes.append(get_resource(module, volume_list, name))
             continue
 
         create_response = _create_volume(module, volume_server, str(datacenter), name, client)
@@ -506,41 +538,27 @@ def update_volume(module, client):
     volume_server = ionoscloud.VolumesApi(client)
     datacenter_server = ionoscloud.DataCentersApi(client)
 
-    datacenter_found = False
-    failed = True
     changed = False
     volumes = []
 
     datacenter_list = datacenter_server.datacenters_get(depth=2)
-    for d in datacenter_list.items:
-        dc = datacenter_server.datacenters_find_by_id(d.id)
-        if datacenter in [dc.properties.name, dc.id]:
-            datacenter = d.id
-            datacenter_found = True
-            break
-
-    if not datacenter_found:
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
+    if datacenter_id is None:
         module.fail_json(msg='datacenter could not be found.')
 
+    volume_list = volume_server.datacenters_volumes_get(datacenter, depth=2)
     for n in instance_ids:
         update_response = None
-        if (uuid_match.match(n)):
-            update_response = _update_volume(module, volume_server, client, datacenter, n)
-            changed = True
-        else:
-            volume_list = volume_server.datacenters_volumes_get(datacenter, depth=2)
-            for v in volume_list.items:
-                if n == v.properties.name:
-                    volume_id = v.id
-                    update_response = _update_volume(module, volume_server, client, datacenter, volume_id)
-                    changed = True
-
+        volume_id = get_resource_id(module, volume_list, n)
+        if volume_id is not None:
+            update_response = _update_volume(module, volume_server, client, datacenter, volume_id)
         volumes.append(update_response)
-        failed = False
+        changed = True
+
 
     results = {
         'changed': changed,
-        'failed': failed,
+        'failed': not changed,
         'volumes': [v.to_dict() for v in volumes],
         'action': 'update',
         'instance_ids': {
@@ -577,25 +595,15 @@ def delete_volume(module, client):
     volume_id = None
 
     # Locate UUID for Datacenter
-    if not (uuid_match.match(datacenter)):
-        datacenter_list = datacenter_server.datacenters_get(depth=2)
-        for d in datacenter_list.items:
-            dc = datacenter_server.datacenters_find_by_id(d.id)
-            if datacenter in [dc.properties.name, dc.id]:
-                datacenter = d.id
-                break
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
+    volumes = volume_server.datacenters_volumes_get(datacenter_id, depth=2)
     for n in instance_ids:
-        if (uuid_match.match(n)):
-            _delete_volume(module, volume_server, datacenter, n)
+        volume_id = get_resource_id(module, volumes, n)
+        if volume_id is not None:
+            _delete_volume(module, volume_server, datacenter_id, n)
             changed = True
-        else:
-            volumes = volume_server.datacenters_volumes_get(datacenter, depth=2)
-            for v in volumes.items:
-                if n == v.properties.name:
-                    volume_id = v.id
-                    _delete_volume(module, volume_server, datacenter, volume_id)
-                    changed = True
 
     return {
         'action': 'delete',
@@ -620,39 +628,15 @@ def _attach_volume(module, server_client, datacenter, volume_id):
 
     # Locate UUID for Server
     if server:
-        if not (uuid_match.match(server)):
-            server_list = server_client.datacenters_servers_get(datacenter_id=datacenter, depth=2)
-            for s in server_list.items:
-                if server == s.properties.name:
-                    server = s.id
-                    break
+        server_list = server_client.datacenters_servers_get(datacenter_id=datacenter, depth=2)
+        server_id = get_resource_id(module, server_list, server)
 
         try:
             volume = Volume(id=volume_id)
-            return server_client.datacenters_servers_volumes_post(datacenter_id=datacenter, server_id=server,
+            return server_client.datacenters_servers_volumes_post(datacenter_id=datacenter, server_id=server_id,
                                                                   volume=volume)
         except Exception as e:
             module.fail_json(msg='failed to attach volume: %s' % to_native(e))
-
-
-def _get_instance_id(instance_list, identity):
-    """
-    Return instance UUID by name or ID, if found.
-    """
-    for i in instance_list.items:
-        if identity in (i.properties.name, i.id):
-            return i.id
-    return None
-
-
-def _get_resource(instance_list, identity):
-    """
-    Return instance UUID by name or ID, if found.
-    """
-    for i in instance_list.items:
-        if identity in (i.properties.name, i.id):
-            return i
-    return None
 
 
 def get_module_arguments():
