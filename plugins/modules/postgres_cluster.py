@@ -216,7 +216,7 @@ options:
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
-    - "ionoscloud-dbaas-postgres >= 1.0.1"
+    - "ionoscloud-dbaas-postgres >= 1.0.2"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
