@@ -265,14 +265,14 @@ EXAMPLE_PER_STATE = {
   ''',
   'update' : '''# Update Volumes
   - volume:
-      datacenter: Tardis One
-      instance_ids:
-        - 'vol01'
-        - 'vol02'
-      size: 50
-      bus: IDE
-      wait_timeout: 500
-      state: update
+    datacenter: Tardis One
+    instance_ids:
+    - 'vol01'
+    - 'vol02'
+    size: 50
+    bus: IDE
+    wait_timeout: 500
+    state: update
   ''',
   'absent' : '''# Remove Volumes
   - volume:
@@ -288,6 +288,7 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
+
 
 def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
