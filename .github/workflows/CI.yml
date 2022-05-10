@@ -20,21 +20,55 @@ on:
           - '.github/workflows/CI.yml'
 
 jobs:
+  check_runs:
+    name: Making sure no other CI is running
+    env:
+      # Workflow names that cannot run in parallel with this workflow, separated by spaces
+      # Example: incompatible_parallel_workflows: 'CI Build Name OtherName Foo Bar FooBar'
+      incompatible_parallel_workflows: 'CI'
+
+    runs-on: ubuntu-latest
+    outputs:
+      runs: ${{ steps.get-runs_in_progress.outputs.runs }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python ${{ env.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.python-version }}
+
+      - name: Wait for Github API to register this as a running workflow
+        run: sleep 10s
+        shell: bash
+
+      - name: Checking no other incompatible workflow is running
+        id: runs_in_progress
+        run: |
+          bash .github/scripts/get_in_progress_ci.sh ${{ env.incompatible_parallel_workflows }}
+
+      - name: Assert that this is the only running CI
+        uses: nick-fields/assert-action@v1
+        with:
+          expected: false
+          actual: ${{ steps.runs_in_progress.outputs.is_banned_running }}
 
   test:
     if: github.event.pull_request.draft == false
+    needs: check_runs
     name: Testing the Ansible Module
     env:
-        python-version: 3.8.0
-        ionoscloud-version: 6.0.0b1
-        ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
-        IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
-        IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
+      python-version: 3.8.0
+      ionoscloud-version: 6.0.0b1
+      ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
+      IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
+      IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
 
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     outputs:
-        python-version: ${{ env.python-version }}
+      python-version: ${{ env.python-version }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -52,31 +86,24 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install ionoscloud
           python3 -m pip install ionoscloud-dbaas-postgres
-
       - name: Install Ansible
         run: |
-            python3 -m pip install ansible
-
+          python3 -m pip install ansible
       - name: Debug pip packages
         run: |
           python3 -m pip list
-
       - name: Run DBaaS Postgres tests
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/dbaas-postgres/all-tests.yml
-
       - name: Run Managed Kubernetes tests
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-kubernetes/all-tests.yml
-
       - name: Run Compute Engine tests
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/compute-engine/all-tests.yml
-
       - name: Run Managed Backup tests
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-backup/all-tests.yml
-
 #      - name: Run NAT Gateway tests
 #        run: |
 #          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/natgateway/all-tests.yml
@@ -84,8 +111,6 @@ jobs:
       - name: Run Network Load Balancer tests
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/networkloadbalancer/all-tests.yml
-
       - name: Run User Management tests
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-management/all-tests.yml
-
