@@ -82,7 +82,7 @@ This is a module that supports creating, updating, restoring or destroying Postg
   | cores | True | int |  | The number of CPU cores per instance. |
   | ram | True | int |  | The amount of memory per instance(should be a multiple of 1024). |
   | storage_size | True | int |  | The amount of storage per instance. |
-  | storage_type | True | str |  | The storage type used in your cluster. |
+  | storage_type | True | str |  | The storage type used in your cluster. Value &quot;SSD&quot; is deprecated. Use the equivalent &quot;SSD Premium&quot; instead. |
   | connections | True | list |  | Array of VDCs to connect to your cluster. |
   | location | True | str |  | The physical location where the cluster will be created. This will be where all of your instances live. Property cannot be modified after datacenter creation (disallowed in update requests) |
   | display_name | True | str |  | The friendly name of your cluster. |
