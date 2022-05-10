@@ -8,7 +8,6 @@ import yaml
 
 __metaclass__ = type
 
-
 import re
 import copy
 import yaml
@@ -33,7 +32,7 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 DOC_DIRECTORY = 'user-management'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Share'
@@ -115,11 +114,13 @@ OPTIONS = {
     },
 }
 
+
 def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
+    val['required'] = len(val.get('required', [])) == len(STATES)
     del val['available']
     del val['type']
     return val
+
 
 DOCUMENTATION = '''
 ---
@@ -129,7 +130,9 @@ description:
      - This module allows you to add, update or remove resource shares.
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+''' + '  ' + yaml.dump(
+    yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})),
+    default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -138,7 +141,7 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''# Create shares
+    'present': '''# Create shares
   - name: Create share
     share:
       group: Demo
@@ -149,7 +152,7 @@ EXAMPLE_PER_STATE = {
         - ba7efccb-a761-11e7-90a7-525400f64d8d
       state: present
   ''',
-  'update' : '''# Update shares
+    'update': '''# Update shares
   - name: Update shares
     share:
       group: Demo
@@ -158,7 +161,7 @@ EXAMPLE_PER_STATE = {
         - b50ba74e-b585-44d6-9b6e-68941b2ce98e
       state: update
   ''',
-  'absent' : '''# Remove shares
+    'absent': '''# Remove shares
   - name: Remove shares
     share:
       group: Demo
@@ -170,6 +173,31 @@ EXAMPLE_PER_STATE = {
 }
 
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+
+
+def _get_request_id(headers):
+    match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
+    if match:
+        return match.group(1)
+    else:
+        raise Exception("Failed to extract request ID from response "
+                        "header 'location': '{location}'".format(location=headers['location']))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json("found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
 
 
 def _get_request_id(headers):
@@ -196,7 +224,7 @@ def create_shares(module, client):
 
     # Locate UUID for the group
     group_list = user_management_server.um_groups_get(depth=2)
-    group_id = _get_resource_id(group_list, group, module, "Group")
+    group_id = get_resource_id(module, group_list, group)
 
     edit_privilege = module.params.get('edit_privilege')
     share_privilege = module.params.get('share_privilege')
@@ -267,7 +295,7 @@ def update_shares(module, client):
 
     # Locate UUID for the group
     group_list = user_management_server.um_groups_get(depth=2)
-    group_id = _get_resource_id(group_list, group, module, "Group")
+    group_id = get_resource_id(module, group_list, group)
 
     edit_privilege = module.params.get('edit_privilege')
     share_privilege = module.params.get('share_privilege')
@@ -332,7 +360,7 @@ def delete_shares(module, client):
 
     # Locate UUID for the group
     group_list = user_management_server.um_groups_get(depth=2)
-    group_id = _get_resource_id(group_list, group, module, "Group")
+    group_id = get_resource_id(module, group_list, group)
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -356,34 +384,22 @@ def delete_shares(module, client):
         }
 
 
-def _get_resource_id(resource_list, identity, module, resource_type):
-    """
-    Fetch and return the UUID of a resource regardless of whether the name or
-    UUID is passed. Throw an error otherwise.
-    """
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
-
-    module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
-
-
 def get_module_arguments():
     arguments = {}
 
     for option_name, option in OPTIONS.items():
-      arguments[option_name] = {
-        'type': option['type'],
-      }
-      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
-        if option.get(key) is not None:
-          arguments[option_name][key] = option.get(key)
+        arguments[option_name] = {
+            'type': option['type'],
+        }
+        for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+            if option.get(key) is not None:
+                arguments[option_name][key] = option.get(key)
 
-      if option.get('env_fallback'):
-        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+        if option.get('env_fallback'):
+            arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
 
-      if len(option.get('required', [])) == len(STATES):
-        arguments[option_name]['required'] = True
+        if len(option.get('required', [])) == len(STATES):
+            arguments[option_name]['required'] = True
 
     return arguments
 
@@ -416,8 +432,8 @@ def get_sdk_config(module, sdk):
 def check_required_arguments(module, state, object_name):
     # manually checking if token or username & password provided
     if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
+            not module.params.get("token")
+            and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name} state {state}'.format(
@@ -456,7 +472,9 @@ def main():
             elif state == 'update':
                 module.exit_json(**update_shares(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
+                                                                                             error=to_native(e),
+                                                                                             state=state))
 
 
 if __name__ == '__main__':
