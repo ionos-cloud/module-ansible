@@ -6,7 +6,6 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-
 import re
 import copy
 import yaml
@@ -31,7 +30,7 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 DOC_DIRECTORY = 'user-management'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'User'
@@ -68,7 +67,8 @@ OPTIONS = {
         'type': 'bool',
     },
     'force_sec_auth': {
-        'description': ['Boolean value indicating if secure (two-factor) authentication should be forced for the user.'],
+        'description': [
+            'Boolean value indicating if secure (two-factor) authentication should be forced for the user.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
@@ -144,11 +144,13 @@ OPTIONS = {
     },
 }
 
+
 def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
+    val['required'] = len(val.get('required', [])) == len(STATES)
     del val['available']
     del val['type']
     return val
+
 
 DOCUMENTATION = '''
 ---
@@ -158,7 +160,9 @@ description:
      - This module allows you to create, update or remove a user.
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+''' + '  ' + yaml.dump(
+    yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})),
+    default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -167,7 +171,7 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''# Create a user
+    'present': '''# Create a user
   - name: Create user
     user:
       firstname: John
@@ -177,7 +181,7 @@ EXAMPLE_PER_STATE = {
       administrator: true
       state: present
   ''',
-  'update' : '''# Update a user
+    'update': '''# Update a user
   - name: Update user
     user:
       firstname: John II
@@ -190,7 +194,7 @@ EXAMPLE_PER_STATE = {
         - Testers
       state: update
   ''',
-  'absent' : '''# Remove a user
+    'absent': '''# Remove a user
   - name: Remove user
     user:
       email: john.doe@example.com
@@ -199,6 +203,45 @@ EXAMPLE_PER_STATE = {
 }
 
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+
+
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+        identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+        resource_identity = []
+
+        for identity_path in identity_paths:
+            current = resource
+            for el in identity_path:
+                current = getattr(current, el)
+            resource_identity.append(current)
+
+        return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json("found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
 
 
 def _get_request_id(headers):
@@ -229,13 +272,8 @@ def create_user(module, client, api_client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    user = None
-
     users = client.um_users_get(depth=2)
-    for u in users.items:
-        if email == u.properties.email:
-            user = u
-            break
+    user = get_resource(module, users, email, [['id'], ['properties', 'email']])
 
     should_change = user is None
 
@@ -294,15 +332,10 @@ def update_user(module, client, api_client):
     wait_timeout = module.params.get('wait_timeout')
     user_password = module.params.get('user_password')
 
-
     try:
-        user = None
         user_response = None
         users = client.um_users_get(depth=2)
-        for resource in users.items:
-            if email in (resource.properties.email, resource.id):
-                user = resource
-                break
+        user = get_resource(module, users, email, [['id'], ['properties', 'email']])
 
         if user:
             if module.check_mode:
@@ -337,16 +370,19 @@ def update_user(module, client, api_client):
 
         if module.params.get('groups') is not None:
             user = client.um_users_find_by_id(user_id=user_response.id, depth=2)
+            # Get IDs of current groups of the user
             old_ug = []
             for g in user.entities.groups.items:
                 old_ug.append(g.id)
 
             all_groups = client.um_groups_get(depth=2)
+            # Get IDs of groups that user needs to have at the end of update
             new_ug = []
             for g in module.params.get('groups'):
-                group_id = _get_resource_id(all_groups, g, module, "Group")
+                group_id = get_resource_id(module, all_groups, g)
                 new_ug.append(group_id)
 
+            # Delete groups not in new_ug
             for group_id in old_ug:
                 if group_id not in new_ug:
                     client.um_groups_users_delete(
@@ -354,6 +390,7 @@ def update_user(module, client, api_client):
                         user_id=user.id
                     )
 
+            # Post groups that weren't assigned to the user before
             for group_id in new_ug:
                 if group_id not in old_ug:
                     response = client.um_groups_users_post_with_http_info(
@@ -389,7 +426,7 @@ def delete_user(module, client):
 
     # Locate UUID for the user
     user_list = client.um_users_get(depth=2)
-    user_id = _get_user_id(user_list, email)
+    user_id = get_resource_id(module, user_list, email, [['id'], ['properties', 'email']])
 
     if not user_id:
         module.exit_json(changed=False)
@@ -408,45 +445,22 @@ def delete_user(module, client):
         module.fail_json(msg="failed to remove the user: %s" % to_native(e))
 
 
-def _get_user_id(resource_list, identity):
-    """
-    Fetch and return the UUID of a user regardless of whether the email or
-    UUID is passed.
-    """
-    for resource in resource_list.items:
-        if identity in (resource.properties.email, resource.id):
-            return resource.id
-    return None
-
-
-def _get_resource_id(resource_list, identity, module, resource_type):
-    """
-    Fetch and return the UUID of a resource regardless of whether the name or
-    UUID is passed. Throw an error otherwise.
-    """
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
-
-    module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
-
-
 def get_module_arguments():
     arguments = {}
 
     for option_name, option in OPTIONS.items():
-      arguments[option_name] = {
-        'type': option['type'],
-      }
-      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
-        if option.get(key) is not None:
-          arguments[option_name][key] = option.get(key)
+        arguments[option_name] = {
+            'type': option['type'],
+        }
+        for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+            if option.get(key) is not None:
+                arguments[option_name][key] = option.get(key)
 
-      if option.get('env_fallback'):
-        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+        if option.get('env_fallback'):
+            arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
 
-      if len(option.get('required', [])) == len(STATES):
-        arguments[option_name]['required'] = True
+        if len(option.get('required', [])) == len(STATES):
+            arguments[option_name]['required'] = True
 
     return arguments
 
@@ -479,8 +493,8 @@ def get_sdk_config(module, sdk):
 def check_required_arguments(module, state, object_name):
     # manually checking if token or username & password provided
     if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
+            not module.params.get("token")
+            and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name} state {state}'.format(
@@ -520,7 +534,9 @@ def main():
             elif state == 'update':
                 module.exit_json(**update_user(module, api_instance, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
+                                                                                             error=to_native(e),
+                                                                                             state=state))
 
 
 if __name__ == '__main__':
