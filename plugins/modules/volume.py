@@ -52,7 +52,7 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name of the volumes. You can enumerate the names using auto_increment.'],
+        'description': ['The name of the volumes. Names are enumerated if count > 1.'],
         'required': ['present'],
         'available': STATES,
         'type': 'str',
@@ -116,18 +116,17 @@ OPTIONS = {
         'default': 1,
         'type': 'int',
     },
-    'auto_increment': {
-        'description': ['Whether or not to increment a single number in the name for created virtual machines.'],
-        'available': ['present'],
-        'choices': [True, False],
-        'default': True,
-        'type': 'bool',
-    },
     'instance_ids': {
         'description': ["list of instance ids, currently only used when state='absent' to remove instances."],
-        'available': ['update', 'absent'],
+        'available': ['absent'],
         'default': [],
         'type': 'list',
+    },
+    'id': {
+        'description': ["instance id, currently only used when state='update' to update the instance."],
+        'available': ['update'],
+        'required': ['update'],
+        'type': 'str',
     },
     'backupunit_id': {
         'description': [
@@ -259,16 +258,14 @@ EXAMPLE_PER_STATE = {
     datacenter: Tardis One
     name: vol%02d
     count: 5
-    auto_increment: yes
     wait_timeout: 500
     state: present
   ''',
   'update' : '''# Update Volumes
   - volume:
+    name: 'new_vol_name'
     datacenter: Tardis One
-    instance_ids:
-    - 'vol01'
-    - 'vol02'
+    instance_id: 'vol01'
     size: 50
     bus: IDE
     wait_timeout: 500
@@ -455,7 +452,6 @@ def create_volume(module, client):
     """
     datacenter = module.params.get('datacenter')
     name = module.params.get('name')
-    auto_increment = module.params.get('auto_increment')
     count = module.params.get('count')
 
     volume_server = ionoscloud.VolumesApi(client)
@@ -471,7 +467,8 @@ def create_volume(module, client):
     if datacenter_id is None:
         module.fail_json(msg='datacenter could not be found.')
 
-    if auto_increment:
+    # Provide unique names by appending an auto incremented value at end of name
+    if count > 1:
         numbers = set()
         count_offset = 1
 
@@ -489,21 +486,19 @@ def create_volume(module, client):
         numbers_to_use = available_numbers[:count]
         for number in numbers_to_use:
             names.append(name % number)
-
     else:
-        names = [name] * count
-
-    changed = False
+        names.append(name)
 
     # Prefetch a list of volumes for later comparison.
     volume_list = volume_server.datacenters_volumes_get(datacenter, depth=2)
 
     for name in names:
-        # Skip volume creation if a volume with the same name already exists.
+        # Fail volume creation if a volume with this name and int combination already exists.
         if get_resource_id(module, volume_list, name) is not None:
-            volumes.append(get_resource(module, volume_list, name))
-            continue
+            module.fail_json(msg="Volume with name %s already exists" % name, exception=traceback.format_exc())
 
+    changed = False
+    for name in names:
         create_response = _create_volume(module, volume_server, str(datacenter), name, client)
         volumes.append(create_response)
         instance_ids.append(create_response.id)
@@ -525,22 +520,22 @@ def update_volume(module, client):
     """
     Update volumes.
 
-    This will update one or more volumes in a datacenter.
+    This will update a volume in a datacenter.
 
     module : AnsibleModule object
     client: authenticated ionoscloud object.
 
     Returns:
-        dict of updated volumes
+        updated volume
     """
     datacenter = module.params.get('datacenter')
-    instance_ids = module.params.get('instance_ids')
+    id = module.params.get('id')
+    name = module.params.get('name')
 
     volume_server = ionoscloud.VolumesApi(client)
     datacenter_server = ionoscloud.DataCentersApi(client)
 
     changed = False
-    volumes = []
 
     datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
@@ -548,23 +543,22 @@ def update_volume(module, client):
         module.fail_json(msg='datacenter could not be found.')
 
     volume_list = volume_server.datacenters_volumes_get(datacenter, depth=2)
-    for n in instance_ids:
-        update_response = None
-        volume_id = get_resource_id(module, volume_list, n)
-        if volume_id is not None:
-            update_response = _update_volume(module, volume_server, client, datacenter, volume_id)
-        volumes.append(update_response)
-        changed = True
 
+    existing_volume = get_resource(module, volume_list, name)
+    if existing_volume is not None:
+        module.fail_json(msg='A volume with the name %s already exists.' % name)
+
+    volume_id = get_resource_id(module, volume_list, id)
+    update_response = None
+    if volume_id is not None:
+        update_response = _update_volume(module, volume_server, client, datacenter, volume_id)
+        changed = True
 
     results = {
         'changed': changed,
-        'failed': not changed,
-        'volumes': [v.to_dict() for v in volumes],
-        'action': 'update',
-        'instance_ids': {
-            'instances': [i.id for i in volumes],
-        }
+        'failed': False,
+        'volume': update_response,
+        'action': 'update'
     }
 
     return results
