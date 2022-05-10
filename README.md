@@ -26,7 +26,8 @@ The IONOS module for Ansible requires the following:
 * IONOS Cloud account
 * Python >= 3.5
 * [Ansible](https://www.ansible.com/)
-* [Ionos SDK for Python](https://pypi.org/project/ionoscloud/)
+* [IONOS SDK for Python](https://pypi.org/project/ionoscloud/) >= 6.0.2
+* [IONOS DBaaS SDK for Python](https://pypi.org/project/ionoscloud-dbaas-postgres/) >= 1.0.2
 
 > **_NOTE:_**  The Ansible module does not support Python 2. It only supports Python >= 3.5.
 
@@ -34,10 +35,11 @@ Before you begin you will need an IONOS account. The credentials from your regis
 
 Ansible must also be installed before the IONOS module can be used. Please review the official [Ansible Documentation](http://docs.ansible.com/ansible/intro_installation.html) for more information on installing Ansible.
 
-The IONOS module requires the IONOS SDK for Python to be installed. This can easily be accomplished with Python PyPI:
+The IONOS module requires some IONOS SDKs for Python to be installed. This can easily be accomplished with Python PyPI:
 
 ```text
 pip install ionoscloud
+pip install ionoscloud-dbaas-postgres
 ```
 
 # Installation
