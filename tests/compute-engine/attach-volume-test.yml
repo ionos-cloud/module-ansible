@@ -44,7 +44,6 @@
     - name: Create data volume
       volume:
         count: 1
-        auto_increment: false
         datacenter: "{{ datacenter }}"
         server: "{{ srv.machines[0].id }}"
         name: "{{ server }}-data"

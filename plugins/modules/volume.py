@@ -408,8 +408,7 @@ def _update_volume(module, volume_server, api_client, datacenter, volume_id):
 
     try:
         volume_properties = VolumeProperties(name=name, size=size, availability_zone=availability_zone,
-                                             bus=bus,
-                                             cpu_hot_plug=cpu_hot_plug, ram_hot_plug=ram_hot_plug,
+                                             bus=bus, cpu_hot_plug=cpu_hot_plug, ram_hot_plug=ram_hot_plug,
                                              nic_hot_plug=nic_hot_plug, nic_hot_unplug=nic_hot_unplug,
                                              disc_virtio_hot_plug=disc_virtio_hot_plug,
                                              disc_virtio_hot_unplug=disc_virtio_hot_unplug)
@@ -487,10 +486,10 @@ def create_volume(module, client):
         for number in numbers_to_use:
             names.append(name % number)
     else:
-        names.append(name)
+        names = list(name)
 
     # Prefetch a list of volumes for later comparison.
-    volume_list = volume_server.datacenters_volumes_get(datacenter, depth=2)
+    volume_list = volume_server.datacenters_volumes_get(datacenter_id, depth=2)
 
     for name in names:
         # Fail volume creation if a volume with this name and int combination already exists.
@@ -499,10 +498,10 @@ def create_volume(module, client):
 
     changed = False
     for name in names:
-        create_response = _create_volume(module, volume_server, str(datacenter), name, client)
+        create_response = _create_volume(module, volume_server, str(datacenter_id), name, client)
         volumes.append(create_response)
         instance_ids.append(create_response.id)
-        _attach_volume(module, servers_server, datacenter, create_response.id)
+        _attach_volume(module, servers_server, datacenter_id, create_response.id)
         changed = True
 
     results = {
@@ -542,7 +541,7 @@ def update_volume(module, client):
     if datacenter_id is None:
         module.fail_json(msg='datacenter could not be found.')
 
-    volume_list = volume_server.datacenters_volumes_get(datacenter, depth=2)
+    volume_list = volume_server.datacenters_volumes_get(datacenter_id, depth=2)
 
     existing_volume = get_resource(module, volume_list, name)
     if existing_volume is not None:
@@ -551,7 +550,7 @@ def update_volume(module, client):
     volume_id = get_resource_id(module, volume_list, id)
     update_response = None
     if volume_id is not None:
-        update_response = _update_volume(module, volume_server, client, datacenter, volume_id)
+        update_response = _update_volume(module, volume_server, client, datacenter_id, volume_id)
         changed = True
 
     results = {
