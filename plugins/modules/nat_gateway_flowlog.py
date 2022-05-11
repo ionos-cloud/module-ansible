@@ -346,32 +346,28 @@ def update_nat_gateway_flowlog(module, client):
     flowlog_id = module.params.get('flowlog_id')
 
     nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-    changed = False
     flowlog_response = None
 
-    if flowlog_id:
-        flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
-        flowlog_response = _update_nat_gateway_flowlog(
-            module, client, nat_gateway_server, datacenter_id,
-            nat_gateway_id, flowlog_id, flowlog_properties,
-        )
-        changed = True
-    else:
-        flowlogs = nat_gateway_server.datacenters_natgateways_flowlogs_get(datacenter_id, nat_gateway_id, depth=2)
-        for f in flowlogs.items:
-            if name == f.properties.name:
-                flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
-                flowlog_response = _update_nat_gateway_flowlog(
-                    module, client, nat_gateway_server, datacenter_id,
-                    nat_gateway_id, f.id, flowlog_properties,
-                )
-                changed = True
+    flowlogs = nat_gateway_server.datacenters_natgateways_flowlogs_get(datacenter_id, nat_gateway_id, depth=2)
+    existing_flowlog_id_by_name = get_resource_id(module, flowlogs, name)
 
-    if not changed:
+    if flowlog_id is not None and existing_flowlog_id_by_name is not None and existing_flowlog_id_by_name != flowlog_id:
+            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
+
+    flowlog_id = existing_flowlog_id_by_name if flowlog_id is None else flowlog_id
+
+    flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
+
+    if not flowlog_id:
         module.fail_json(msg="failed to update the NAT Gateway Flowlog: The resource does not exist")
 
+    flowlog_response = _update_nat_gateway_flowlog(
+        module, client, nat_gateway_server, datacenter_id,
+        nat_gateway_id, flowlog_id, flowlog_properties,
+    )
+
     return {
-        'changed': changed,
+        'changed': True,
         'action': 'update',
         'failed': False,
         'flowlog': flowlog_response.to_dict()

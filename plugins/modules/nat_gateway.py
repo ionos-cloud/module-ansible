@@ -326,34 +326,28 @@ def update_nat_gateway(module, client):
     lans = module.params.get('lans')
 
     nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-    changed = False
     nat_gateway_response = None
 
-    if nat_gateway_id:
-        nat_gateway_properties = NatGatewayProperties(name=name, public_ips=public_ips, lans=lans)
-        nat_gateway_response = _update_nat_gateway(
-            module, client, nat_gateway_server, datacenter_id, nat_gateway_id, nat_gateway_properties,
-        )
-        changed = True
+    nat_gateways = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=2)
+    existing_nat_gateway_id_by_name = get_resource_id(module, nat_gateways, name)
 
-    else:
-        nat_gateways = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=2)
-        for n in nat_gateways.items:
-            if name == n.properties.name:
-                nat_gateway_properties = NatGatewayProperties(name=name, public_ips=public_ips, lans=lans)
-                nat_gateway_response = _update_nat_gateway(
-                    module, client, nat_gateway_server, datacenter_id, n.id, nat_gateway_properties,
-                )
-                changed = True
+    if nat_gateway_id is not None and existing_nat_gateway_id_by_name is not None and existing_nat_gateway_id_by_name != nat_gateway_id:
+            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
 
-    if not changed:
-        module.fail_json(msg="failed to update the nat gateway: The resource does not exist")
+    nat_gateway_id = existing_nat_gateway_id_by_name if nat_gateway_id is None else nat_gateway_id
+
+    nat_gateway_properties = NatGatewayProperties(name=name, public_ips=public_ips, lans=lans)
+
+    if not nat_gateway_id:
+        module.fail_json(msg="failed to update the NAT Gateway: The resource does not exist")
+
+    nat_gateway_response = _update_nat_gateway(module, client, nat_gateway_server, datacenter_id, nat_gateway_id, nat_gateway_properties)
 
     return {
-        'changed': changed,
+        'changed': True,
         'action': 'update',
         'failed': False,
-        'nat_gateway': nat_gateway_response.to_dict()
+        'nat_gateway': nat_gateway_response.to_dict(),
     }
 
 

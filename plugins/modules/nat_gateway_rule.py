@@ -387,45 +387,34 @@ def update_nat_gateway_rule(module, client):
     nat_gateway_rule_id = module.params.get('nat_gateway_rule_id')
 
     nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-    changed = False
     nat_gateway_rule_response = None
 
-    if nat_gateway_rule_id:
-        nat_gateway_rule_properties = NatGatewayRuleProperties(
-            name=name, type=type, protocol=protocol,
-            source_subnet=source_subnet, public_ip=public_ip,
-            target_subnet=target_subnet,
-            target_port_range=target_port_range,
-        )
-        nat_gateway_rule_response = _update_nat_gateway_rule(
-            module, client, nat_gateway_server, datacenter_id,
-            nat_gateway_id, nat_gateway_rule_id,
-            nat_gateway_rule_properties,
-        )
-        changed = True
+    nat_gateway_rules = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id, nat_gateway_id, depth=2)
+    existing_rule_id_by_name = get_resource_id(module, nat_gateway_rules, name)
 
-    else:
-        nat_gateway_rules = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id, nat_gateway_id, depth=2)
-        for rule in nat_gateway_rules.items:
-            if name == rule.properties.name:
-                nat_gateway_rule_properties = NatGatewayRuleProperties(
-                    name=name, type=type, protocol=protocol,
-                    source_subnet=source_subnet, public_ip=public_ip,
-                    target_subnet=target_subnet,
-                    target_port_range=target_port_range,
-                )
-                nat_gateway_rule_response = _update_nat_gateway_rule(
-                    module, client, nat_gateway_server, datacenter_id,
-                    nat_gateway_id, rule.id,
-                    nat_gateway_rule_properties,
-                )
-                changed = True
+    if nat_gateway_rule_id is not None and existing_rule_id_by_name is not None and existing_rule_id_by_name != nat_gateway_rule_id:
+            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
 
-    if not changed:
+    nat_gateway_rule_id = existing_rule_id_by_name if nat_gateway_rule_id is None else nat_gateway_rule_id
+
+    nat_gateway_rule_properties = NatGatewayRuleProperties(
+        name=name, type=type, protocol=protocol,
+        source_subnet=source_subnet, public_ip=public_ip,
+        target_subnet=target_subnet,
+        target_port_range=target_port_range,
+    )
+
+    if not nat_gateway_rule_id:
         module.fail_json(msg="failed to update the NAT Gateway Rule: The resource does not exist")
 
+    nat_gateway_rule_response = _update_nat_gateway_rule(
+        module, client, nat_gateway_server, datacenter_id,
+        nat_gateway_id, nat_gateway_rule_id,
+        nat_gateway_rule_properties,
+    )
+
     return {
-        'changed': changed,
+        'changed': True,
         'action': 'update',
         'failed': False,
         'nat_gateway_rule': nat_gateway_rule_response.to_dict()
