@@ -357,14 +357,14 @@ def update_nic(module, client):
     server_id = get_resource_id(module, server_list, server)
 
     # Locate NIC to update
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server_id, depth=2)
+    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=2)
     existing_nic_by_name = get_resource(module, nic_list, name)
     if existing_nic_by_name is not None:
         module.fail_json(msg="Failed to update NIC: NIC with name \'%s\' already exists." % name)
 
-    nic_id = get_resource_id(module, nic_list, id)
+    nic = get_resource(module, nic_list, id)
 
-    if not nic_id:
+    if not nic:
         module.fail_json(msg="NIC could not be found.")
 
     if module.check_mode:
@@ -372,22 +372,22 @@ def update_nic(module, client):
 
     try:
         if lan is None:
-            lan = nic_id.properties.lan
+            lan = nic.properties.lan
         if firewall_active is None:
-            firewall_active = nic_id.properties.firewall_active
+            firewall_active = nic.properties.firewall_active
         if dhcp is None:
-            dhcp = nic_id.properties.dhcp
+            dhcp = nic.properties.dhcp
 
         nic_properties = NicProperties(ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active, name=name)
 
-        response = nic_server.datacenters_servers_nics_patch_with_http_info(datacenter_id=datacenter, server_id=server,
-                                                                            nic_id=nic_id, nic=nic_properties)
+        response = nic_server.datacenters_servers_nics_patch_with_http_info(datacenter_id=datacenter_id, server_id=server_id,
+                                                                            nic_id=nic.id, nic=nic_properties)
         (nic_response, _, headers) = response
 
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-            nic_response = nic_server.datacenters_servers_nics_find_by_id(datacenter_id=datacenter, server_id=server,
+            nic_response = nic_server.datacenters_servers_nics_find_by_id(datacenter_id=datacenter_id, server_id=server_id,
                                                                           nic_id=nic_response.id)
 
         return {
