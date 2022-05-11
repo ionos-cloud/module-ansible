@@ -97,17 +97,43 @@ EXAMPLES = '''
 '''
 
 
-def _get_dbaas_cluser(resource_list, identity):
+def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
-    Fetch and return a resource regardless of whether the display name or
-    UUID is passed. Returns None error otherwise.
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
     """
 
-    for resource in resource_list.items:
-        if identity in (resource.properties.display_name, resource.id):
-            return resource.id
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
 
-    return None
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json("found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
 
 
 def get_module_arguments():
@@ -194,7 +220,12 @@ def main():
 
         if postgres_cluster:
             postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(dbaas_postgres_api_client)
-            postgres_cluster_id = _get_dbaas_cluser(postgres_cluster_server.clusters_get(), postgres_cluster)
+            postgres_cluster_id = get_resource_id(
+                module,
+                postgres_cluster_server.clusters_get(),
+                postgres_cluster,
+                [['id'], ['properties', 'display_name']],
+            )
 
             backups = ionoscloud_dbaas_postgres.BackupsApi(dbaas_postgres_api_client).cluster_backups_get(postgres_cluster_id).items
         else:

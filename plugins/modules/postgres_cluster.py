@@ -1,4 +1,5 @@
 import copy
+from operator import mod
 import yaml
 
 
@@ -253,29 +254,44 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
-def _get_resource_id(resource_list, identity):
+def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
-    """
-
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
-
-    return None
-
-def _get_dbaas_cluser(resource_list, identity):
-    """
-    Fetch and return a resource regardless of whether the display name or
-    UUID is passed. Returns None error otherwise.
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
     """
 
-    for resource in resource_list.items:
-        if identity in (resource.properties.display_name, resource.id):
-            return resource.id
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
 
-    return None
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json("found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
+
 
 def create_postgres_cluster(module, dbaas_client, cloudapi_client):
     maintenance_window = module.params.get('maintenance_window')
@@ -288,35 +304,35 @@ def create_postgres_cluster(module, dbaas_client, cloudapi_client):
 
     postgres_clusters = postgres_cluster_server.clusters_get()
 
-    existing_postgres_cluster = None
+    existing_postgres_cluster_by_name = get_resource(module, postgres_clusters, display_name, [['properties', 'display_name']])
 
-    for postgres_cluster in postgres_clusters.items:
-        if display_name == postgres_cluster.properties.display_name:
-            existing_postgres_cluster = postgres_cluster
-            if existing_postgres_cluster.metadata.state != 'AVAILABLE' and module.params.get('wait'):
-                dbaas_client.wait_for(
-                    fn_request=lambda: postgres_cluster_server.clusters_find_by_id(existing_postgres_cluster.id),
-                    fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
-                    scaleup=10000,
-                )
-            break
+    if (
+        existing_postgres_cluster_by_name is not None
+        and existing_postgres_cluster_by_name.metadata.state != 'AVAILABLE'
+        and module.params.get('wait')
+    ):
+        dbaas_client.wait_for(
+            fn_request=lambda: postgres_cluster_server.clusters_find_by_id(existing_postgres_cluster_by_name.id),
+            fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
+            scaleup=10000,
+        )
 
-    if existing_postgres_cluster is not None:
+    if existing_postgres_cluster_by_name is not None:
         return {
             'changed': False,
             'failed': False,
             'action': 'create',
-            'postgres_cluster': existing_postgres_cluster.to_dict(),
+            'postgres_cluster': existing_postgres_cluster_by_name.to_dict(),
         }
 
     connection = module.params.get('connections')[0]
 
-    datacenter_id = _get_resource_id(ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1), connection['datacenter'])
+    datacenter_id = get_resource_id(module, ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1), connection['datacenter'])
 
     if datacenter_id is None:
         module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))
     
-    lan_id = _get_resource_id(ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1), connection['lan'])
+    lan_id = get_resource_id(module, ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1), connection['lan'])
 
     if lan_id is None:
         module.fail_json('LAN {} not found.'.format(connection['lan']))
@@ -375,7 +391,14 @@ def create_postgres_cluster(module, dbaas_client, cloudapi_client):
 
 def delete_postgres_cluster(module, dbaas_client):
     postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
-    postgres_cluster_id = _get_dbaas_cluser(postgres_cluster_server.clusters_get(), module.params.get('postgres_cluster'))
+
+    postgres_cluster_id = get_resource_id(
+        module,
+        postgres_cluster_server.clusters_get(),
+        module.params.get('postgres_cluster'),
+        [['id'], ['properties', 'display_name']],
+    )
+
     try:
         postgres_cluster_server.clusters_delete(postgres_cluster_id)
 
@@ -410,8 +433,23 @@ def update_postgres_cluster(module, dbaas_client):
         maintenance_window = dict(module.params.get('maintenance_window'))
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
+    display_name=module.params.get('display_name')
+
     postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
-    postgres_cluster_id = _get_dbaas_cluser(postgres_cluster_server.clusters_get(), module.params.get('postgres_cluster'))
+    postgres_clusters = postgres_cluster_server.clusters_get()
+
+    postgres_cluster_id = get_resource_id(
+        module, postgres_clusters, module.params.get('postgres_cluster'), [['id'], ['properties', 'display_name']],
+    )
+
+    existing_pg_cluster_id_by_name = get_resource_id(module, postgres_clusters, display_name, [['properties', 'display_name']])
+
+    if (
+        postgres_cluster_id is not None and 
+        existing_pg_cluster_id_by_name is not None and
+        existing_pg_cluster_id_by_name != postgres_cluster_id
+    ):
+        module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, display_name))
 
     postgres_cluster_properties = ionoscloud_dbaas_postgres.PatchClusterProperties(
         postgres_version=module.params.get('postgres_version'),
@@ -419,7 +457,7 @@ def update_postgres_cluster(module, dbaas_client):
         cores=module.params.get('cores'),
         ram=module.params.get('ram'),
         storage_size=module.params.get('storage_size'),
-        display_name=module.params.get('display_name'),
+        display_name=display_name,
         maintenance_window=maintenance_window,
     )
     postgres_cluster = ionoscloud_dbaas_postgres.PatchClusterRequest(properties=postgres_cluster_properties)
@@ -456,7 +494,12 @@ def update_postgres_cluster(module, dbaas_client):
 def restore_postgres_cluster(module, dbaas_client):
     postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
 
-    postgres_cluster_id = _get_dbaas_cluser(postgres_cluster_server.clusters_get(), module.params.get('postgres_cluster'))
+    postgres_cluster_id = get_resource_id(
+        module,
+        postgres_cluster_server.clusters_get(),
+        module.params.get('postgres_cluster'),
+        [['id'], ['properties', 'display_name']],
+    )
 
     restore_request = ionoscloud_dbaas_postgres.CreateRestoreRequest(
         backup_id=module.params.get('backup_id'),
