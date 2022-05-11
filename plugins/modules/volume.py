@@ -556,7 +556,7 @@ def update_volume(module, client):
     results = {
         'changed': changed,
         'failed': False,
-        'volume': update_response,
+        'volume': update_response.to_dict(),
         'action': 'update'
     }
 
@@ -583,20 +583,20 @@ def delete_volume(module, client):
         module.fail_json(msg='instance_ids should be a list of volume ids or names, aborting')
 
     datacenter = module.params.get('datacenter')
-    changed = False
     instance_ids = module.params.get('instance_ids')
-
-    volume_id = None
 
     # Locate UUID for Datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     volumes = volume_server.datacenters_volumes_get(datacenter_id, depth=2)
+
+    changed = False
+    volume_id = None
     for n in instance_ids:
         volume_id = get_resource_id(module, volumes, n)
         if volume_id is not None:
-            _delete_volume(module, volume_server, datacenter_id, n)
+            _delete_volume(module, volume_server, datacenter_id, volume_id)
             changed = True
 
     return {
