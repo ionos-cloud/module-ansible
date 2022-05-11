@@ -471,7 +471,7 @@ def update_k8s_cluster_nodepool(module, client):
     existing_nodepool_by_name = get_resource(module, nodepool_list, nodepool_name)
 
     if nodepool_id is not None and existing_nodepool_by_name is not None and existing_nodepool_by_name.id != nodepool_id:
-        module.fail_json(msg='failed to update the {}}: Another resource with the desired name ({}) exists'.format(
+        module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
             OBJECT_NAME, nodepool_name,
         ))
 

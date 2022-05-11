@@ -264,7 +264,7 @@ def get_resource(module, resource_list, identity, identity_paths=None):
         return None
 
 
-def get_resource_id(module, resource_list, identity, identity_paths):
+def get_resource_id(module, resource_list, identity, identity_paths=None):
     resource = get_resource(module, resource_list, identity, identity_paths)
     return resource.id if resource is not None else None
 

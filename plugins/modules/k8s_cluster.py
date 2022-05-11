@@ -337,7 +337,7 @@ def update_k8s_cluster(module, client):
     existing_cluster_id_by_name = get_resource_id(module, k8s_server.k8s_get(depth=1), cluster_name)
 
     if k8s_cluster_id is not None and existing_cluster_id_by_name is not None and existing_cluster_id_by_name != k8s_cluster_id:
-            module.fail_json(msg='failed to update the {}}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, cluster_name))
+            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, cluster_name))
 
     if module.check_mode:
         module.exit_json(changed=True)
