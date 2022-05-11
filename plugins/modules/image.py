@@ -320,7 +320,7 @@ def update_image(module, client):
         existing_image_id_by_name = get_resource_id(module, image_server.images_get(depth=1), name)
 
         if image_id is not None and existing_image_id_by_name is not None and existing_image_id_by_name != image_id:
-            module.fail_json(msg='failed to update the {}}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
+            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
 
         image_properties = ImageProperties(
             name=name,
