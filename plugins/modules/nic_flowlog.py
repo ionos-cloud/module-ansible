@@ -25,13 +25,12 @@ from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
-
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
     'status': ['preview'],
     'supported_by': 'community',
 }
-USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Flowflog'
@@ -138,11 +137,13 @@ OPTIONS = {
     },
 }
 
+
 def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
+    val['required'] = len(val.get('required', [])) == len(STATES)
     del val['available']
     del val['type']
     return val
+
 
 DOCUMENTATION = '''
 ---
@@ -153,7 +154,9 @@ description:
        This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+''' + '  ' + yaml.dump(
+    yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})),
+    default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -162,7 +165,7 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''- name: Create a nic flowlog
+    'present': '''- name: Create a nic flowlog
   nic_flowlog:
     name: "{{ name }}"
     action: "ACCEPTED"
@@ -173,7 +176,7 @@ EXAMPLE_PER_STATE = {
     nic_id: "{{ nic_response.nic.id }}"
   register: flowlog_response
   ''',
-  'update' : '''- name: Update a nic flowlog
+    'update': '''- name: Update a nic flowlog
   nic_flowlog:
     name: "{{ name }}"
     action: "ALL"
@@ -185,7 +188,7 @@ EXAMPLE_PER_STATE = {
     flowlog_id: "{{ flowlog_response.flowlog.id }}"
   register: flowlog_update_response
   ''',
-  'absent' : '''- name: Delete a nic flowlog
+    'absent': '''- name: Delete a nic flowlog
   nic_flowlog:
     datacenter_id: "{{ datacenter_response.datacenter.id }}"
     server_id: "{{ server_response.machines[0].id }}"
@@ -200,28 +203,56 @@ EXAMPLE_PER_STATE = {
 
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
-
 uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
-def _get_resource(resource_list, identity):
+def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches
+    are found an error is printed and None is returned.
     """
 
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
+    if identity_paths is None:
+        identity_paths = [['id'], ['properties', 'name']]
 
-    return None
+    def check_identity_method(resource):
+        resource_identity = []
+
+        for identity_path in identity_paths:
+            current = resource
+            for el in identity_path:
+                current = getattr(current, el)
+            resource_identity.append(current)
+
+        return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
 
 
-def _update_flowlog(module, client, nic_flowlog_server, datacenter_id, server_id, nic_id, flowlog_id, flowlog_properties):
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json("found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
+
+
+def _update_flowlog(module, client, nic_flowlog_server, datacenter_id, server_id, nic_id, flowlog_id,
+                    flowlog_properties):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
-    response = nic_flowlog_server.datacenters_servers_nics_flowlogs_patch_with_http_info(datacenter_id, server_id, nic_id, flowlog_id, flowlog_properties)
+    response = nic_flowlog_server.datacenters_servers_nics_flowlogs_patch_with_http_info(datacenter_id, server_id,
+                                                                                         nic_id, flowlog_id,
+                                                                                         flowlog_properties)
     (flowlog_response, _, headers) = response
 
     if wait:
@@ -264,29 +295,31 @@ def create_flowlog(module, client):
     wait_timeout = int(module.params.get('wait_timeout'))
 
     nic_flowlog_server = ionoscloud.FlowLogsApi(client)
-    flowlogs = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id, server_id=server_id, nic_id=nic_id, depth=2)
+    flowlogs = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id,
+                                                                        server_id=server_id, nic_id=nic_id, depth=2)
 
-    for flowlog in flowlogs.items:
-        if name == flowlog.properties.name:
-            return {
-                'changed': False,
-                'failed': False,
-                'action': 'create',
-                'flowlog': flowlog.to_dict()
-            }
+    existing_nic_flowlog = get_resource(module, flowlogs.items, name)
+    if existing_nic_flowlog is not None:
+        return {
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'flowlog': existing_nic_flowlog.to_dict()
+        }
 
     flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
     flowlog = FlowLog(properties=flowlog_properties)
 
     try:
-        response = nic_flowlog_server.datacenters_servers_nics_flowlogs_post_with_http_info(datacenter_id, server_id, nic_id, flowlog)
+        response = nic_flowlog_server.datacenters_servers_nics_flowlogs_post_with_http_info(datacenter_id, server_id,
+                                                                                            nic_id, flowlog)
         (flowlog_response, _, headers) = response
 
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-        return{
+        return {
             'changed': True,
             'failed': False,
             'action': 'create',
@@ -319,20 +352,30 @@ def update_flowlog(module, client):
     flowlog_id = module.params.get('flowlog_id')
 
     nic_flowlog_server = ionoscloud.FlowLogsApi(client)
+    flowlogs = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id,
+                                                                        server_id=server_id, nic_id=nic_id, depth=2)
+
+    existing_nic_flowlog = get_resource(module, flowlogs.items, name)
+    if existing_nic_flowlog is not None:
+        module.fail_json(msg="failed to update the flowlog: flowlog with name \'%s\' already exists" % name)
+
     changed = False
     flowlog_response = None
 
     if flowlog_id:
         flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
-        flowlog_response = _update_flowlog(module, client, nic_flowlog_server, datacenter_id, server_id, nic_id, flowlog_id, flowlog_properties)
+        flowlog_response = _update_flowlog(module, client, nic_flowlog_server, datacenter_id, server_id, nic_id,
+                                           flowlog_id, flowlog_properties)
         changed = True
 
     else:
-        flowlogs = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id, nic_id=nic_id, server_id=server_id, depth=2)
+        flowlogs = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id, nic_id=nic_id,
+                                                                            server_id=server_id, depth=2)
         for f in flowlogs.items:
             if name == f.properties.name:
                 flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
-                flowlog_response = _update_flowlog(module, client, nic_flowlog_server, datacenter_id, server_id, nic_id, f.id, flowlog_properties)
+                flowlog_response = _update_flowlog(module, client, nic_flowlog_server, datacenter_id, server_id, nic_id,
+                                                   f.id, flowlog_properties)
                 changed = True
 
     if not changed:
@@ -370,16 +413,17 @@ def remove_flowlog(module, client):
     changed = False
 
     try:
-        nic_flowlog_list = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id, nic_id=nic_id, server_id=server_id, depth=5)
-        if flowlog_id:
-            nic_flowlog = _get_resource(nic_flowlog_list, flowlog_id)
-        else:
-            nic_flowlog = _get_resource(nic_flowlog_list, name)
+        nic_flowlog_list = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id,
+                                                                                    nic_id=nic_id, server_id=server_id,
+                                                                                    depth=5)
 
-        if not nic_flowlog:
+        nic_flowlog_id = get_resource_id(module, nic_flowlog_list, flowlog_id if flowlog_id is not None else name)
+
+        if not nic_flowlog_id:
             module.exit_json(changed=False)
 
-        response = nic_flowlog_server.datacenters_servers_nics_flowlogs_delete_with_http_info(datacenter_id, server_id, nic_id, nic_flowlog)
+        response = nic_flowlog_server.datacenters_servers_nics_flowlogs_delete_with_http_info(datacenter_id, server_id,
+                                                                                              nic_id, nic_flowlog_id)
         (flowlog_id_response, _, headers) = response
 
         if wait:
@@ -403,18 +447,18 @@ def get_module_arguments():
     arguments = {}
 
     for option_name, option in OPTIONS.items():
-      arguments[option_name] = {
-        'type': option['type'],
-      }
-      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
-        if option.get(key) is not None:
-          arguments[option_name][key] = option.get(key)
+        arguments[option_name] = {
+            'type': option['type'],
+        }
+        for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+            if option.get(key) is not None:
+                arguments[option_name][key] = option.get(key)
 
-      if option.get('env_fallback'):
-        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+        if option.get('env_fallback'):
+            arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
 
-      if len(option.get('required', [])) == len(STATES):
-        arguments[option_name]['required'] = True
+        if len(option.get('required', [])) == len(STATES):
+            arguments[option_name]['required'] = True
 
     return arguments
 
@@ -447,8 +491,8 @@ def get_sdk_config(module, sdk):
 def check_required_arguments(module, state, object_name):
     # manually checking if token or username & password provided
     if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
+            not module.params.get("token")
+            and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name} state {state}'.format(
@@ -487,7 +531,10 @@ def main():
             elif state == 'update':
                 module.exit_json(**update_flowlog(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
+                                                                                             error=to_native(e),
+                                                                                             state=state))
+
 
 if __name__ == '__main__':
     main()
