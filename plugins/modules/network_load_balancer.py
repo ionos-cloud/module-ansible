@@ -198,17 +198,43 @@ EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
-def _get_resource(resource_list, identity):
+def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
     """
 
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
 
-    return None
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json("found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
 
 
 def _update_nlb(module, client, nlb_server, datacenter_id, network_load_balancer_id, nlb_properties):
@@ -260,14 +286,15 @@ def create_nlb(module, client):
     nlb_list = nlb_server.datacenters_networkloadbalancers_get(datacenter_id=datacenter_id, depth=2)
     nlb_response = None
 
-    for nlb in nlb_list.items:
-        if name == nlb.properties.name:
-            return {
-                'changed': False,
-                'failed': False,
-                'action': 'create',
-                'network_load_balancer': nlb.to_dict()
-            }
+    existing_nlb = get_resource(module, nlb_list, name)
+
+    if existing_nlb:
+        return {
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'network_load_balancer': existing_nlb.to_dict()
+        }
 
     nlb_properties = NetworkLoadBalancerProperties(name=name, listener_lan=listener_lan, ips=ips, target_lan=target_lan,
                                                    lb_private_ips=lb_private_ips)
@@ -314,32 +341,27 @@ def update_nlb(module, client):
 
     nlb_server = ionoscloud.NetworkLoadBalancersApi(client)
     nlb_response = None
-    changed = False
 
-    if network_load_balancer_id:
-        nlb_properties = NetworkLoadBalancerProperties(name=name, listener_lan=listener_lan, ips=ips,
-                                                       target_lan=target_lan,
-                                                       lb_private_ips=lb_private_ips)
-        nlb_response = _update_nlb(module, client, nlb_server, datacenter_id, network_load_balancer_id,
-                                   nlb_properties)
-        changed = True
+    nlb_list = nlb_server.datacenters_networkloadbalancers_get(datacenter_id=datacenter_id, depth=2)
+    existing_nlb_id_by_name = get_resource_id(module, nlb_list, name)
 
-    else:
-        nlb_list = nlb_server.datacenters_networkloadbalancers_get(datacenter_id=datacenter_id, depth=2)
-        for nlb in nlb_list.items:
-            if name == nlb.properties.name:
-                nlb_properties = NetworkLoadBalancerProperties(name=name, listener_lan=listener_lan, ips=ips,
-                                                               target_lan=target_lan,
-                                                               lb_private_ips=lb_private_ips)
-                nlb_response = _update_nlb(module, client, nlb_server, datacenter_id, nlb.id,
-                                           nlb_properties)
-                changed = True
+    if network_load_balancer_id is not None and existing_nlb_id_by_name is not None and existing_nlb_id_by_name != network_load_balancer_id:
+            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
 
-    if not changed:
+    network_load_balancer_id = existing_nlb_id_by_name if network_load_balancer_id is None else network_load_balancer_id
+
+    nlb_properties = NetworkLoadBalancerProperties(
+        name=name, listener_lan=listener_lan, ips=ips,
+        target_lan=target_lan, lb_private_ips=lb_private_ips,
+    )
+
+    if not network_load_balancer_id:
         module.fail_json(msg="failed to update the Network Load Balancer: The resource does not exist")
 
+    nlb_response = _update_nlb(module, client, nlb_server, datacenter_id, network_load_balancer_id, nlb_properties)
+
     return {
-        'changed': changed,
+        'changed': True,
         'action': 'update',
         'failed': False,
         'network_load_balancer': nlb_response.to_dict()
@@ -370,17 +392,16 @@ def remove_nlb(module, client):
 
     try:
 
-        network_load_balancer_list = nlb_server.datacenters_networkloadbalancers_get(datacenter_id=datacenter_id, depth=5)
+        network_load_balancer_list = nlb_server.datacenters_networkloadbalancers_get(datacenter_id, depth=1)
         if network_load_balancer_id:
-            network_load_balancer = _get_resource(network_load_balancer_list, network_load_balancer_id)
+            network_load_balancer = get_resource(module, network_load_balancer_list, network_load_balancer_id)
         else:
-            network_load_balancer = _get_resource(network_load_balancer_list, name)
+            network_load_balancer = get_resource(module, network_load_balancer_list, name)
 
         if not network_load_balancer:
             module.exit_json(changed=False)
 
-        response = nlb_server.datacenters_networkloadbalancers_delete_with_http_info(datacenter_id, network_load_balancer)
-        (nlb_response, _, headers) = response
+        _, _, headers = nlb_server.datacenters_networkloadbalancers_delete_with_http_info(datacenter_id, network_load_balancer.id)
 
         if wait:
             request_id = _get_request_id(headers['Location'])

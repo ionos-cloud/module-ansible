@@ -445,7 +445,7 @@ def remove_nat_gateway_rule(module, client):
     changed = False
 
     try:
-        nat_gateway_rule_list = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id, nat_gateway_id, depth=5)
+        nat_gateway_rule_list = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id, nat_gateway_id, depth=1)
         if nat_gateway_rule_id:
             nat_gateway_rule = get_resource(module, nat_gateway_rule_list, nat_gateway_rule_id)
         else:
@@ -454,8 +454,9 @@ def remove_nat_gateway_rule(module, client):
         if not nat_gateway_rule:
             module.exit_json(changed=False)
 
-        response = nat_gateway_server.datacenters_natgateways_rules_delete_with_http_info(datacenter_id, nat_gateway_id, nat_gateway_rule.id)
-        _, _, headers = response
+        _, _, headers = nat_gateway_server.datacenters_natgateways_rules_delete_with_http_info(
+            datacenter_id, nat_gateway_id, nat_gateway_rule.id,
+        )
 
         if wait:
             request_id = _get_request_id(headers['Location'])

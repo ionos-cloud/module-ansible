@@ -383,8 +383,7 @@ def remove_nat_gateway(module, client):
         if not nat_gateway:
             module.exit_json(changed=False)
 
-        response = nat_gateway_server.datacenters_natgateways_delete_with_http_info(datacenter_id, nat_gateway_id)
-        (nat_gateway_response, _, headers) = response
+        _, _, headers = nat_gateway_server.datacenters_natgateways_delete_with_http_info(datacenter_id, nat_gateway.id)
 
         if wait:
             request_id = _get_request_id(headers['Location'])

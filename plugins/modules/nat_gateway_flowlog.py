@@ -400,9 +400,9 @@ def remove_nat_gateway_flowlog(module, client):
     try:
         nat_gateway_flowlog_list = nat_gateway_server.datacenters_natgateways_flowlogs_get(datacenter_id, nat_gateway_id, depth=1)
         if flowlog_id:
-            flowlog_id = get_resource(module, nat_gateway_flowlog_list, flowlog_id)
+            flowlog_id = get_resource_id(module, nat_gateway_flowlog_list, flowlog_id)
         else:
-            flowlog_id = get_resource(module, nat_gateway_flowlog_list, name)
+            flowlog_id = get_resource_id(module, nat_gateway_flowlog_list, name)
 
         if not flowlog_id:
             module.exit_json(changed=False)
