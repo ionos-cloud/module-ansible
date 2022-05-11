@@ -24,7 +24,6 @@
         count: 2
         size: 20
         availability_zone: ZONE_3
-        auto_increment: yes
         cpu_hot_plug: false
         ram_hot_plug: true
         nic_hot_plug: true

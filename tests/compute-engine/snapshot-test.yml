@@ -22,7 +22,6 @@
         image: "{{ image_alias }}"
         image_password: "{{ password }}"
         availability_zone: ZONE_3
-        auto_increment: no
         state: present
 
     - name: Create snapshot
