@@ -9,12 +9,6 @@
     - ../vars.yml
 
   tasks:
-    - name: Remove datacenter if exists to avoid failing for already existing volumes
-      datacenter:
-        name: "{{ datacenter }}"
-        state: absent
-        wait: true
-
     - name: Create datacenter
       datacenter:
         name: "{{ datacenter }}"

@@ -46,6 +46,7 @@ OPTIONS = {
     'id': {
         'description': ['The ID of the NIC.'],
         'available': ['update', 'absent'],
+        'required': ['update'],
         'type': 'str',
     },
     'datacenter': {
@@ -178,7 +179,8 @@ EXAMPLE_PER_STATE = {
   - nic:
     datacenter: Tardis One
     server: node002
-    name: 7341c2454f
+    id: 7341c2454f
+    name: name-to-be-set
     lan: 1
     ips:
       - 158.222.103.23
@@ -278,9 +280,15 @@ def create_nic(module, client):
     datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter = get_resource_id(module, datacenter_list, datacenter)
 
+    if datacenter is None:
+        module.fail_json("Datacenter doesn't exist")
+
     # Locate UUID for Server
     server_list = server_server.datacenters_servers_get(datacenter, depth=2)
     server = get_resource_id(module, server_list, server)
+
+    if server is None:
+        module.fail_json("Server doesn't exist")
 
     nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server, depth=2)
     nic = get_resource(module, nic_list, name)

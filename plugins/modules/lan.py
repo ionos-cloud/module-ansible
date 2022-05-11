@@ -305,7 +305,7 @@ def update_lan(module, client):
 
     # Prefetch a list of LANs.
     lan_list = lan_server.datacenters_lans_get(datacenter_id, depth=2)
-    lan_id = get_resource_id(module, lan_list, name, module)
+    lan_id = get_resource_id(module, lan_list, name)
 
     if module.check_mode:
         module.exit_json(changed=True)
