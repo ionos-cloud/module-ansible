@@ -32,7 +32,7 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'NIC'
@@ -41,12 +41,11 @@ OPTIONS = {
     'name': {
         'description': ['The name of the NIC.'],
         'available': STATES,
-        'required': ['absent'],
         'type': 'str',
     },
     'id': {
         'description': ['The ID of the NIC.'],
-        'available': ['update'],
+        'available': ['update', 'absent'],
         'type': 'str',
     },
     'datacenter': {
@@ -62,7 +61,8 @@ OPTIONS = {
         'type': 'str',
     },
     'lan': {
-        'description': ["The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create."],
+        'description': [
+            "The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create."],
         'required': ['present'],
         'available': ['update'],
         'type': 'str',
@@ -139,11 +139,13 @@ OPTIONS = {
     },
 }
 
+
 def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
+    val['required'] = len(val.get('required', [])) == len(STATES)
     del val['available']
     del val['type']
     return val
+
 
 DOCUMENTATION = '''
 ---
@@ -153,7 +155,9 @@ description:
      - This module allows you to create, update or remove a NIC.
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+''' + '  ' + yaml.dump(
+    yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})),
+    default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -162,7 +166,7 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''# Create a NIC
+    'present': '''# Create a NIC
   - nic:
     datacenter: Tardis One
     server: node002
@@ -170,7 +174,7 @@ EXAMPLE_PER_STATE = {
     wait_timeout: 500
     state: present
   ''',
-  'update' : '''# Update a NIC
+    'update': '''# Update a NIC
   - nic:
     datacenter: Tardis One
     server: node002
@@ -182,7 +186,7 @@ EXAMPLE_PER_STATE = {
     dhcp: false
     state: update
   ''',
-  'absent' : '''# Remove a NIC
+    'absent': '''# Remove a NIC
   - nic:
     datacenter: Tardis One
     server: node002
@@ -198,29 +202,43 @@ uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
-def _get_resource(resource_list, identity):
+def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
-    """
-
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource
-
-    return None
-
-def _get_resource_id(resource_list, identity):
-    """
-    Fetch and return a resource's UUID regardless of whether
-    the name or UUID is passed. Returns None error otherwise.
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches
+    are found an error is printed and None is returned.
     """
 
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
+    if identity_paths is None:
+        identity_paths = [['id'], ['properties', 'name']]
 
-    return None
+    def check_identity_method(resource):
+        resource_identity = []
+
+        for identity_path in identity_paths:
+            current = resource
+            for el in identity_path:
+                current = getattr(current, el)
+            resource_identity.append(current)
+
+        return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json("found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
 
 
 def _get_request_id(headers):
@@ -257,17 +275,15 @@ def create_nic(module, client):
     nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
 
     # Locate UUID for Datacenter
-    if not (uuid_match.match(datacenter)):
-        datacenter_list = datacenter_server.datacenters_get(depth=2)
-        datacenter = _get_resource_id(datacenter_list, datacenter)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for Server
-    if not (uuid_match.match(server)):
-        server_list = server_server.datacenters_servers_get(datacenter, depth=2)
-        server = _get_resource_id(server_list, server)
+    server_list = server_server.datacenters_servers_get(datacenter, depth=2)
+    server = get_resource_id(module, server_list, server)
 
     nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server, depth=2)
-    nic = _get_resource(nic_list, name)
+    nic = get_resource(module, nic_list, name)
 
     should_change = nic is None
 
@@ -294,8 +310,7 @@ def create_nic(module, client):
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
             nic_response = nic_server.datacenters_servers_nics_find_by_id(datacenter_id=datacenter, server_id=server,
-                                                                     nic_id=nic_response.id)
-
+                                                                          nic_id=nic_response.id)
 
         return {
             'changed': True,
@@ -334,31 +349,22 @@ def update_nic(module, client):
     nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
 
     # Locate UUID for Datacenter
-    if not (uuid_match.match(datacenter)):
-        datacenter_list = datacenter_server.datacenters_get(depth=2)
-        for d in datacenter_list.items:
-            dc = datacenter_server.datacenters_find_by_id(datacenter_id=d.id)
-            if datacenter == dc.properties.name:
-                datacenter = d.id
-                break
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for Server
-    if not (uuid_match.match(server)):
-        server_list = server_server.datacenters_servers_get(datacenter, depth=2)
-        for s in server_list.items:
-            if server == s.properties.name:
-                server = s.id
-                break
+    server_list = server_server.datacenters_servers_get(datacenter_id, depth=2)
+    server_id = get_resource_id(module, server_list, server)
 
-    nic = None
     # Locate NIC to update
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server, depth=2)
-    for n in nic_list.items:
-        if name == n.properties.name or id == n.id:
-            nic = n
-            break
+    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server_id, depth=2)
+    existing_nic_by_name = get_resource(module, nic_list, name)
+    if existing_nic_by_name is not None:
+        module.fail_json(msg="Failed to update NIC: NIC with name \'%s\' already exists." % name)
 
-    if not nic:
+    nic_id = get_resource_id(module, nic_list, id)
+
+    if not nic_id:
         module.fail_json(msg="NIC could not be found.")
 
     if module.check_mode:
@@ -366,24 +372,23 @@ def update_nic(module, client):
 
     try:
         if lan is None:
-            lan = nic.properties.lan
+            lan = nic_id.properties.lan
         if firewall_active is None:
-            firewall_active = nic.properties.firewall_active
+            firewall_active = nic_id.properties.firewall_active
         if dhcp is None:
-            dhcp = nic.properties.dhcp
+            dhcp = nic_id.properties.dhcp
 
-        nic_properties = NicProperties(ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active,
-                                       name=name)
+        nic_properties = NicProperties(ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active, name=name)
 
         response = nic_server.datacenters_servers_nics_patch_with_http_info(datacenter_id=datacenter, server_id=server,
-                                                                            nic_id=nic.id, nic=nic_properties)
+                                                                            nic_id=nic_id, nic=nic_properties)
         (nic_response, _, headers) = response
 
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
             nic_response = nic_server.datacenters_servers_nics_find_by_id(datacenter_id=datacenter, server_id=server,
-                                                                     nic_id=nic_response.id)
+                                                                          nic_id=nic_response.id)
 
         return {
             'changed': True,
@@ -408,6 +413,7 @@ def delete_nic(module, client):
     """
     datacenter = module.params.get('datacenter')
     server = module.params.get('server')
+    id = module.params.get('id')
     name = module.params.get('name')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
@@ -416,50 +422,24 @@ def delete_nic(module, client):
     server_server = ionoscloud.ServersApi(api_client=client)
     nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
 
-    # Locate UUID for Datacenter
-    if not (uuid_match.match(datacenter)):
-        datacenter_list = datacenter_server.datacenters_get(depth=2)
-        for d in datacenter_list.items:
-            dc = datacenter_server.datacenters_find_by_id(datacenter_id=d.id)
-            if datacenter == dc.properties.name:
-                datacenter = d.id
-                break
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
-    # Locate UUID for Server
-    server_found = False
-    if not (uuid_match.match(server)):
-        server_list = server_server.datacenters_servers_get(datacenter, depth=2)
-        for s in server_list.items:
-            if server == s.properties.name:
-                server_found = True
-                server = s.id
-                break
-
-        if not server_found:
-            return {
-                'action': 'delete',
-                'changed': False,
-                'id': name
-            }
+    server_list = server_server.datacenters_servers_get(datacenter_id, depth=2)
+    server_id = get_resource_id(module, server_list, server)
 
     # Locate UUID for NIC
-    nic_found = False
-    if not (uuid_match.match(name)):
-        nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server, depth=2)
-        for n in nic_list.items:
-            if name == n.properties.name:
-                nic_found = True
-                name = n.id
-                break
+    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=2)
+    nic_id = get_resource_id(module, nic_list, id if id is not None else name)
 
-        if not nic_found:
-            module.exit_json(changed=False)
+    if nic_id is None:
+        module.exit_json(changed=False)
 
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        response = nic_server.datacenters_servers_nics_delete_with_http_info(datacenter_id=datacenter, server_id=server,
-                                                                             nic_id=name)
+        response = nic_server.datacenters_servers_nics_delete_with_http_info(datacenter_id=datacenter_id,
+                                                                             server_id=server_id, nic_id=nic_id)
         (nic_response, _, headers) = response
 
         if wait:
@@ -469,7 +449,7 @@ def delete_nic(module, client):
         return {
             'action': 'delete',
             'changed': True,
-            'id': name
+            'id': nic_id
         }
     except Exception as e:
         module.fail_json(msg="failed to remove the NIC: %s" % to_native(e))
@@ -479,18 +459,18 @@ def get_module_arguments():
     arguments = {}
 
     for option_name, option in OPTIONS.items():
-      arguments[option_name] = {
-        'type': option['type'],
-      }
-      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
-        if option.get(key) is not None:
-          arguments[option_name][key] = option.get(key)
+        arguments[option_name] = {
+            'type': option['type'],
+        }
+        for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+            if option.get(key) is not None:
+                arguments[option_name][key] = option.get(key)
 
-      if option.get('env_fallback'):
-        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+        if option.get('env_fallback'):
+            arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
 
-      if len(option.get('required', [])) == len(STATES):
-        arguments[option_name]['required'] = True
+        if len(option.get('required', [])) == len(STATES):
+            arguments[option_name]['required'] = True
 
     return arguments
 
@@ -523,8 +503,8 @@ def get_sdk_config(module, sdk):
 def check_required_arguments(module, state, object_name):
     # manually checking if token or username & password provided
     if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
+            not module.params.get("token")
+            and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name} state {state}'.format(
@@ -563,7 +543,9 @@ def main():
             elif state == 'update':
                 module.exit_json(**update_nic(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
+                                                                                             error=to_native(e),
+                                                                                             state=state))
 
 
 if __name__ == '__main__':
