@@ -168,7 +168,7 @@ def get_servers(module, client):
 
     # Locate UUID for Datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter = get_resource_id(datacenter_list, datacenter)
+    datacenter = get_resource_id(module, datacenter_list, datacenter)
 
     try:
         results = []
