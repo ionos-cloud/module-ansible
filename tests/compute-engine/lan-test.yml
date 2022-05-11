@@ -37,7 +37,7 @@
         cores: 1
         ram: 2048
         cpu_family: INTEL_SKYLAKE
-        volume_size: 5
+        volume_size: 20
         image: "{{ image_alias }}"
         image_password: "{{ password }}"
         location: "{{ location }}"
@@ -77,10 +77,15 @@
       nic:
         datacenter: "{{ datacenter }}"
         server: "{{ server }}"
-        name: "{{ name }}"
+        id: "{{ ionos_cloud_nic.nic.id }}"
+        name: "new-nic"
         dhcp: false
         ips: "{{ ipblock_response.ipblock.properties.ips }}"
         state: update
+
+    - name: Debug show result of Create NIC
+      debug:
+        msg: "{{ ionos_cloud_nic }}"
 
     - name: Update LAN
       lan:

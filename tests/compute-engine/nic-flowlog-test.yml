@@ -31,7 +31,7 @@
         auto_increment: false
         cores: 1
         ram: 2048
-        volume_size: 14
+        volume_size: 20
         image: "{{ image_alias }}"
         image_password: "{{ password }}"
         location: "gb/lhr"

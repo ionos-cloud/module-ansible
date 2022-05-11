@@ -12,13 +12,13 @@ try:
 except ImportError:
     HAS_SDK = False
 
-
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
     'status': ['preview'],
     'supported_by': 'community',
 }
-DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, ionoscloud_dbaas_postgres.__version__)
+DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (
+__version__, ionoscloud_dbaas_postgres.__version__)
 DOC_DIRECTORY = 'dbaas-postgres'
 STATES = ['info']
 OBJECT_NAME = 'Postgres Cluster Backups'
@@ -63,11 +63,13 @@ OPTIONS = {
     },
 }
 
+
 def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
+    val['required'] = len(val.get('required', [])) == len(STATES)
     del val['available']
     del val['type']
     return val
+
 
 DOCUMENTATION = '''
 ---
@@ -77,7 +79,9 @@ description:
      - This is a simple module that supports listing existing Postgres Cluster backups
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+''' + '  ' + yaml.dump(
+    yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})),
+    default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
     - "ionoscloud-dbaas-postgres >= 1.0.0"
@@ -140,18 +144,18 @@ def get_module_arguments():
     arguments = {}
 
     for option_name, option in OPTIONS.items():
-      arguments[option_name] = {
-        'type': option['type'],
-      }
-      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
-        if option.get(key) is not None:
-          arguments[option_name][key] = option.get(key)
+        arguments[option_name] = {
+            'type': option['type'],
+        }
+        for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+            if option.get(key) is not None:
+                arguments[option_name][key] = option.get(key)
 
-      if option.get('env_fallback'):
-        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+        if option.get('env_fallback'):
+            arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
 
-      if len(option.get('required', [])) == len(STATES):
-        arguments[option_name]['required'] = True
+        if len(option.get('required', [])) == len(STATES):
+            arguments[option_name]['required'] = True
 
     return arguments
 
@@ -184,8 +188,8 @@ def get_sdk_config(module, sdk):
 def check_required_arguments(module, object_name):
     # manually checking if token or username & password provided
     if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
+            not module.params.get("token")
+            and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name}'.format(
@@ -206,7 +210,8 @@ def check_required_arguments(module, object_name):
 def main():
     module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
     if not HAS_SDK:
-        module.fail_json(msg='ionoscloud_dbaas_postgres is required for this module, run `pip install ionoscloud_dbaas_postgres`')
+        module.fail_json(
+            msg='ionoscloud_dbaas_postgres is required for this module, run `pip install ionoscloud_dbaas_postgres`')
 
     dbaas_postgres_api_client = ionoscloud_dbaas_postgres.ApiClient(get_sdk_config(module, ionoscloud_dbaas_postgres))
     dbaas_postgres_api_client.user_agent = DBAAS_POSTGRES_USER_AGENT
@@ -227,7 +232,8 @@ def main():
                 [['id'], ['properties', 'display_name']],
             )
 
-            backups = ionoscloud_dbaas_postgres.BackupsApi(dbaas_postgres_api_client).cluster_backups_get(postgres_cluster_id).items
+            backups = ionoscloud_dbaas_postgres.BackupsApi(dbaas_postgres_api_client).cluster_backups_get(
+                postgres_cluster_id).items
         else:
             backups = ionoscloud_dbaas_postgres.BackupsApi(dbaas_postgres_api_client).clusters_backups_get().items
 
@@ -236,7 +242,9 @@ def main():
 
         module.exit_json(result=results)
     except Exception as e:
-        module.fail_json(msg='failed to retrieve {object_name}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
+        module.fail_json(
+            msg='failed to retrieve {object_name}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
+
 
 if __name__ == '__main__':
     main()
