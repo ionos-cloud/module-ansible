@@ -18,7 +18,6 @@
 
     - name: Create server
       server:
-        auto_increment: false
         count: 1
         name: "{{ server }}"
         image: "{{ image_alias }}"

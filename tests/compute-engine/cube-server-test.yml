@@ -19,7 +19,6 @@
       server:
          datacenter: "{{ datacenter }}"
          name: "{{ name }} %02d"
-         auto_increment: true
          cpu_family: INTEL_SKYLAKE
          disk_type: DAS
          image: "{{ image_alias }}"

@@ -33,7 +33,6 @@
       server:
         datacenter: "{{ datacenter }}"
         name: "{{ server }}"
-        auto_increment: false
         cores: 1
         ram: 2048
         cpu_family: INTEL_SKYLAKE

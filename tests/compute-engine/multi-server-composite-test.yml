@@ -14,7 +14,6 @@
       server:
          datacenter: "{{ datacenter }}"
          name: "{{ name }} %02d"
-         auto_increment: true
          cores: 1
          ram: 2048
          availability_zone: ZONE_1
