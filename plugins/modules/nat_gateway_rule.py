@@ -249,29 +249,9 @@ def _get_matched_resources(resource_list, identity, identity_paths=None):
         resource_identity.append(current)
 
       return identity in resource_identity
-<<<<<<< HEAD
-
-    return list(filter(check_identity_method, resource_list.items))
-=======
 
     return list(filter(check_identity_method, resource_list.items))
 
->>>>>>> 54f8b98b035d1ef63d74ead8f1a2923b0eb27ea6
-
-def get_resource(module, resource_list, identity, identity_paths=None):
-    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
-
-    if len(matched_resources) == 1:
-        return matched_resources[0]
-    elif len(matched_resources) > 1:
-        module.fail_json("found more resources of type {} for '{}'".format(resource_list.id, identity))
-    else:
-        return None
-
-
-def get_resource_id(module, resource_list, identity, identity_paths=None):
-    resource = get_resource(module, resource_list, identity, identity_paths)
-    return resource.id if resource is not None else None
 
 def get_resource(module, resource_list, identity, identity_paths=None):
     matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
@@ -465,11 +445,7 @@ def remove_nat_gateway_rule(module, client):
     changed = False
 
     try:
-<<<<<<< HEAD
         nat_gateway_rule_list = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id, nat_gateway_id, depth=1)
-=======
-        nat_gateway_rule_list = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id, nat_gateway_id, depth=5)
->>>>>>> 54f8b98b035d1ef63d74ead8f1a2923b0eb27ea6
         if nat_gateway_rule_id:
             nat_gateway_rule = get_resource(module, nat_gateway_rule_list, nat_gateway_rule_id)
         else:
@@ -478,14 +454,8 @@ def remove_nat_gateway_rule(module, client):
         if not nat_gateway_rule:
             module.exit_json(changed=False)
 
-<<<<<<< HEAD
-        _, _, headers = nat_gateway_server.datacenters_natgateways_rules_delete_with_http_info(
-            datacenter_id, nat_gateway_id, nat_gateway_rule.id,
-        )
-=======
         response = nat_gateway_server.datacenters_natgateways_rules_delete_with_http_info(datacenter_id, nat_gateway_id, nat_gateway_rule.id)
         _, _, headers = response
->>>>>>> 54f8b98b035d1ef63d74ead8f1a2923b0eb27ea6
 
         if wait:
             request_id = _get_request_id(headers['Location'])
