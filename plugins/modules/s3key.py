@@ -189,7 +189,7 @@ def get_resource(module, resource_list, identity, identity_paths=None):
     if len(matched_resources) == 1:
         return matched_resources[0]
     elif len(matched_resources) > 1:
-        module.fail_json("found more resources of type {} for '{}'".format(resource_list.id, identity))
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
     else:
         return None
 
