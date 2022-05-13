@@ -137,15 +137,10 @@ OPTIONS = {
         'type': 'str',
     },
     'instance_ids': {
-        'description': ["list of instance ids"],
-        'available': ['present'],
+        'description': ["list of instance ids. Should only contain one ID if renaming in update state"],
+        'available': ['running', 'stopped', 'resume', 'suspend', 'absent', 'update'],
         'default': [],
         'type': 'list',
-    },
-    'id': {
-        'description': ['The ID of the server which to update.'],
-        'available': ['update'],
-        'type': 'str',
     },
     'count': {
         'description': ['The number of virtual machines to create.'],
@@ -317,7 +312,17 @@ EXAMPLE_PER_STATE = {
         cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
-  ''',
+  # Rename virtual machine
+    - server:
+        datacenter: Tardis One
+        instance_ids: web001.stackpointcloud.com
+        name: web101.stackpointcloud.com
+        cores: 4
+        ram: 4096
+        cpu_family: INTEL_XEON
+        availability_zone: ZONE_1
+        state: update
+''',
   'absent' : '''# Removing Virtual machines
     - server:
         datacenter: Tardis One
@@ -698,11 +703,11 @@ def create_virtual_machine(module, client):
         for number in numbers_to_use:
             names.append(name % number)
     else:
-        names = list(name)
+        names = [name]
 
     server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=3)
     for name in names:
-        # Fail volume creation if a volume with this name and int combination already exists.
+        # Fail server creation if a server with this name and int combination already exists.
         if get_resource_id(module, server_list, name) is not None:
             module.fail_json(msg="Server with name %s already exists" % name, exception=traceback.format_exc())
 
@@ -739,13 +744,17 @@ def update_server(module, client):
     boot_cdrom = module.params.get('boot_cdrom')
     boot_volume = module.params.get('boot_volume')
     type = module.params.get('type')
-    server_id = module.params.get('id')
+    instance_ids = module.params.get('instance_ids')
 
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
     server_server = ionoscloud.ServersApi(api_client=client)
 
-    if not isinstance(module.params.get('instance_ids'), list) or len(module.params.get('instance_ids')) < 1:
-        module.fail_json(msg='instance_ids should be a list of virtual machine ids or names, aborting')
+    if name is None:
+        if not isinstance(instance_ids, list) or len(instance_ids) < 1:
+            module.fail_json(msg='instance_ids should be a list of virtual machine ids or names, aborting')
+    else:
+        if isinstance(instance_ids, list) and len(instance_ids) > 1:
+            module.fail_json(msg='when renaming, instance_ids can only have one id at most')
 
     # Locate UUID for datacenter if referenced by name.
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -753,42 +762,45 @@ def update_server(module, client):
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
 
-    updated_servers = []
-
     cores = module.params.get('cores')
     ram = module.params.get('ram')
     cpu_family = module.params.get('cpu_family')
     availability_zone = module.params.get('availability_zone')
 
     server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=2)
-    existing_server_by_name = get_resource_id(module, server_list, name)
 
-    if existing_server_by_name is not None:
-        module.fail_json(msg='A server with name \'%s\' already exists.' % str(name))
+    # Fail early if one of the ids provided doesn't match any server
+    checked_instances = []
+    for instance in instance_ids:
+        server = get_resource(module, server_list, instance)
+        if server is None:
+            module.fail_json(msg='Server \'%s\' not found.' % str(instance))
+        checked_instances.append(server)
 
-    server = get_resource(module, server_list, server_id)
+    updated_servers = []
+    for instance in checked_instances:
+        existing_server_by_name = None if name is None else get_resource_id(module, server_list, name)
+        if existing_server_by_name is not None:
+            module.fail_json(msg='A server with name \'%s\' already exists.' % str(name))
 
-    if not server:
-        module.fail_json(msg='Server \'%s\' not found.' % str(server_id))
+        if module.check_mode:
+            module.exit_json(changed=True)
 
-    if module.check_mode:
-        module.exit_json(changed=True)
+        if type == 'CUBE':
+            server_properties = ServerProperties(name=name if name is not None else instance.name, boot_cdrom=boot_cdrom, boot_volume=boot_volume)
+        else:
+            server_properties = ServerProperties(cores=cores, ram=ram, availability_zone=availability_zone,
+                                                 cpu_family=cpu_family)
 
-    if type == 'CUBE':
-        server_properties = ServerProperties(name=name, boot_cdrom=boot_cdrom, boot_volume=boot_volume)
-    else:
-        server_properties = ServerProperties(cores=cores, ram=ram, availability_zone=availability_zone,
-                                             cpu_family=cpu_family)
+        new_server = Server(properties=server_properties)
+        try:
+            server_response = server_server.datacenters_servers_put(datacenter_id=datacenter_id, server_id=instance.id,
+                                                                    server=new_server)
 
-    new_server = Server(properties=server_properties)
-    try:
-        server_response = server_server.datacenters_servers_put(datacenter_id=datacenter_id, server_id=server.id,
-                                                                server=new_server)
-
-    except Exception as e:
-        module.fail_json(msg="failed to update the server: %s" % to_native(e), exception=traceback.format_exc())
-    else:
-        updated_servers.append(server_response)
+        except Exception as e:
+            module.fail_json(msg="failed to update the server: %s" % to_native(e), exception=traceback.format_exc())
+        else:
+            updated_servers.append(server_response)
 
     return {
         'failed': False,

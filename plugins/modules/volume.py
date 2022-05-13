@@ -117,16 +117,10 @@ OPTIONS = {
         'type': 'int',
     },
     'instance_ids': {
-        'description': ["list of instance ids, currently only used when state='absent' to remove instances."],
-        'available': ['absent'],
+        'description': ["list of instance ids. Should only contain one ID if renaming in update state"],
+        'available': ['absent', 'update'],
         'default': [],
         'type': 'list',
-    },
-    'id': {
-        'description': ["instance id, currently only used when state='update' to update the instance."],
-        'available': ['update'],
-        'required': ['update'],
-        'type': 'str',
     },
     'backupunit_id': {
         'description': [
@@ -265,7 +259,8 @@ EXAMPLE_PER_STATE = {
   - volume:
     name: 'new_vol_name'
     datacenter: Tardis One
-    instance_id: 'vol01'
+    instance_ids: # Must only have one ID if renaming
+     - 'vol01'
     size: 50
     bus: IDE
     wait_timeout: 500
@@ -388,7 +383,7 @@ def _create_volume(module, volume_server, datacenter, name, client):
         module.fail_json(msg="failed to create the volume: %s" % to_native(e))
 
 
-def _update_volume(module, volume_server, api_client, datacenter, volume_id):
+def _update_volume(module, volume_server, api_client, datacenter, volume):
     name = module.params.get('name')
     size = module.params.get('size')
     bus = module.params.get('bus')
@@ -407,15 +402,15 @@ def _update_volume(module, volume_server, api_client, datacenter, volume_id):
         module.exit_json(changed=True)
 
     try:
-        volume_properties = VolumeProperties(name=name, size=size, availability_zone=availability_zone,
-                                             bus=bus, cpu_hot_plug=cpu_hot_plug, ram_hot_plug=ram_hot_plug,
-                                             nic_hot_plug=nic_hot_plug, nic_hot_unplug=nic_hot_unplug,
-                                             disc_virtio_hot_plug=disc_virtio_hot_plug,
+        volume_properties = VolumeProperties(name=name if name is not None else volume.name, size=size,
+                                             availability_zone=availability_zone, bus=bus, cpu_hot_plug=cpu_hot_plug,
+                                             ram_hot_plug=ram_hot_plug, nic_hot_plug=nic_hot_plug,
+                                             nic_hot_unplug=nic_hot_unplug, disc_virtio_hot_plug=disc_virtio_hot_plug,
                                              disc_virtio_hot_unplug=disc_virtio_hot_unplug)
         volume = Volume(properties=volume_properties)
         response = volume_server.datacenters_volumes_put_with_http_info(
             datacenter_id=datacenter,
-            volume_id=volume_id,
+            volume_id=volume.id,
             volume=volume
         )
         (volume_response, _, headers) = response
@@ -486,7 +481,7 @@ def create_volume(module, client):
         for number in numbers_to_use:
             names.append(name % number)
     else:
-        names = list(name)
+        names = [name]
 
     # Prefetch a list of volumes for later comparison.
     volume_list = volume_server.datacenters_volumes_get(datacenter_id, depth=2)
@@ -519,7 +514,7 @@ def update_volume(module, client):
     """
     Update volumes.
 
-    This will update a volume in a datacenter.
+    This will update one or more volumes in a datacenter.
 
     module : AnsibleModule object
     client: authenticated ionoscloud object.
@@ -528,11 +523,18 @@ def update_volume(module, client):
         updated volume
     """
     datacenter = module.params.get('datacenter')
-    id = module.params.get('id')
+    instance_ids = module.params.get('instance_ids')
     name = module.params.get('name')
 
     volume_server = ionoscloud.VolumesApi(client)
     datacenter_server = ionoscloud.DataCentersApi(client)
+
+    if name is None:
+        if not isinstance(instance_ids, list) or len(instance_ids) < 1:
+            module.fail_json(msg='instance_ids should be a list of volume ids or names, aborting')
+    else:
+        if isinstance(instance_ids, list) and len(instance_ids) > 1:
+            module.fail_json(msg='when renaming, instance_ids can only have one id at most')
 
     changed = False
 
@@ -543,20 +545,30 @@ def update_volume(module, client):
 
     volume_list = volume_server.datacenters_volumes_get(datacenter_id, depth=2)
 
-    existing_volume = get_resource(module, volume_list, name)
-    if existing_volume is not None:
-        module.fail_json(msg='A volume with the name %s already exists.' % name)
+    # Fail early if one of the ids provided doesn't match any volume
+    checked_instances = []
+    for instance in instance_ids:
+        volume = get_resource(module, volume_list, instance)
+        if volume is None:
+            module.fail_json(msg='Volume \'%s\' not found.' % str(instance))
+        checked_instances.append(volume)
 
-    volume_id = get_resource_id(module, volume_list, id)
-    update_response = None
-    if volume_id is not None:
-        update_response = _update_volume(module, volume_server, client, datacenter_id, volume_id)
-        changed = True
+    updated_volumes = []
+    for instance in checked_instances:
+        existing_volume_by_name = None if name is None else get_resource_id(module, volume_list, name)
+        if existing_volume_by_name is not None:
+            module.fail_json(msg='A volume with the name %s already exists.' % name)
+
+        volume = get_resource(module, volume_list, instance)
+        if volume is not None:
+            update_response = _update_volume(module, volume_server, client, datacenter_id, volume)
+            changed = True
+            updated_volumes.append(update_response)
 
     results = {
         'changed': changed,
         'failed': False,
-        'volume': update_response.to_dict(),
+        'volume': [v.to_dict() for v in updated_volumes],
         'action': 'update'
     }
 
