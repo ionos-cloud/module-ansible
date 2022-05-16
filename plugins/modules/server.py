@@ -496,10 +496,7 @@ def _create_machine(module, client, datacenter, name):
                                              boot_cdrom=boot_cdrom, boot_volume=boot_volume,
                                              cpu_family=cpu_family, type=type)
 
-        volume_properties = VolumeProperties(type=disk_type, image=image,
-                                             image_password=image_password)
-        volume = Volume(properties=volume_properties)
-        server_entities = ServerEntities(volumes=AttachedVolumes(items=[volume]))
+        volume_properties = VolumeProperties(type=disk_type, image_password=image_password)
 
     else:
         server_properties = ServerProperties(name=name, cores=cores, ram=ram, availability_zone=availability_zone,
@@ -512,15 +509,14 @@ def _create_machine(module, client, datacenter, name):
                                              ssh_keys=ssh_keys,
                                              bus=bus)
 
-        if image:
-            if uuid_match.match(image):
-                volume_properties.image = image
-            else:
-                volume_properties.image_alias = image
+    if image:
+        if uuid_match.match(image):
+            volume_properties.image = image
+        else:
+            volume_properties.image_alias = image
 
-        volume = Volume(properties=volume_properties)
-
-        server_entities = ServerEntities(volumes=Volumes(items=[volume]), nics=Nics(items=nics))
+    volume = Volume(properties=volume_properties)
+    server_entities = ServerEntities(volumes=Volumes(items=[volume]), nics=Nics(items=nics))
 
     server = Server(properties=server_properties, entities=server_entities)
 
