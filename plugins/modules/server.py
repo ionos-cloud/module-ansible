@@ -787,10 +787,11 @@ def update_server(module, client):
             module.exit_json(changed=True)
 
         if type == 'CUBE':
-            server_properties = ServerProperties(name=name if name is not None else instance.name, boot_cdrom=boot_cdrom, boot_volume=boot_volume)
+            server_properties = ServerProperties(name=name if name is not None else instance.name,
+                                                 boot_cdrom=boot_cdrom, boot_volume=boot_volume)
         else:
-            server_properties = ServerProperties(cores=cores, ram=ram, availability_zone=availability_zone,
-                                                 cpu_family=cpu_family)
+            server_properties = ServerProperties(name=name if name is not None else instance.name, cores=cores, ram=ram,
+                                                 availability_zone=availability_zone, cpu_family=cpu_family)
 
         new_server = Server(properties=server_properties)
         try:
