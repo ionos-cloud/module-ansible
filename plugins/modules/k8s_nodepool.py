@@ -403,6 +403,9 @@ def delete_k8s_cluster_nodepool(module, client):
     if not k8s_nodepool:
         module.exit_json(changed=False)
 
+    if k8s_nodepool.metadata.state != 'ACTIVE':
+        module.exit_json(msg="failed to delete the K8s Nodepool: current state should be ACTIVE, it is now %s" % k8s_nodepool.metadata.state)
+
     changed = False
 
     try:
@@ -420,7 +423,7 @@ def delete_k8s_cluster_nodepool(module, client):
         changed = True
 
     except Exception as e:
-        module.fail_json(msg="failed to delete the k8s cluster: %s" % to_native(e))
+        module.fail_json(msg="failed to delete the K8s Nodepool: %s" % to_native(e))
 
     return {
         'action': 'delete',

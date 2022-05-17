@@ -295,6 +295,9 @@ def delete_k8s_cluster(module, client):
     if not k8s_cluster:
         module.exit_json(changed=False)
 
+    if k8s_cluster.metadata.state != 'ACTIVE':
+        module.exit_json(msg="failed to delete the k8s cluster: current state should be ACTIVE, it is now %s" % k8s_cluster.metadata.state)
+
     try:
         _, _, headers = k8s_server.k8s_delete_with_http_info(k8s_cluster_id=k8s_cluster_id)
 
