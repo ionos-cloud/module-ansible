@@ -54,11 +54,6 @@ OPTIONS = {
         'required': ['update'],
         'type': 'dict',
     },
-    'public': {
-        'description': ['The datacenter location.'],
-        'available': ['present'],
-        'type': 'bool',
-    },
     'api_subnet_allow_list': {
         'description': ['The datacenter location.'],
         'available': ['present', 'update'],
@@ -229,7 +224,6 @@ def create_k8s_cluster(module, client):
     k8s_version = module.params.get('k8s_version')
     maintenance = module.params.get('maintenance_window')
     wait = module.params.get('wait')
-    public = module.params.get('public')
     api_subnet_allow_list = module.params.get('api_subnet_allow_list')
     s3_buckets = list(map(lambda bucket_name: S3Bucket(name=bucket_name))) if module.params.get('s3_buckets') else None
 
@@ -258,7 +252,6 @@ def create_k8s_cluster(module, client):
             name=cluster_name,
             k8s_version=k8s_version,
             maintenance_window=maintenance_window,
-            public=public,
             api_subnet_allow_list=api_subnet_allow_list,
             s3_buckets=s3_buckets,
         )

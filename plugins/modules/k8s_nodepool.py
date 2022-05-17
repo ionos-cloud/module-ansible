@@ -141,14 +141,6 @@ OPTIONS = {
         'type': 'list',
         'elements': 'str',
     },
-    'gateway_ip': {
-        'description': [
-            "Public IP address for the gateway performing source NAT for the node pool's nodes belonging to a private cluster. "
-            "Required only if the node pool belongs to a private cluster.",
-        ],
-        'available': ['present'],
-        'type': 'str',
-    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -327,7 +319,6 @@ def create_k8s_cluster_nodepool(module, client):
     annotations = module.params.get('annotations')
     wait = module.params.get('wait')
     public_ips = module.params.get('public_ips')
-    gateway_ip = module.params.get('gateway_ip')
 
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
 
@@ -372,7 +363,6 @@ def create_k8s_cluster_nodepool(module, client):
             labels=labels,
             annotations=annotations,
             public_ips=public_ips,
-            gateway_ip=gateway_ip,
         )
 
         k8s_nodepool = KubernetesNodePool(properties=k8s_nodepool_properties)
@@ -452,7 +442,6 @@ def update_k8s_cluster_nodepool(module, client):
     public_ips = module.params.get('public_ips')
     labels = module.params.get('labels')
     annotations = module.params.get('annotations')
-
 
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
 
