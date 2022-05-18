@@ -159,7 +159,6 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
-
 def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
     Fetch and return a resource based on an identity supplied for it, if none or more than one matches
@@ -257,13 +256,13 @@ def delete_s3key(module, client):
     user_s3keys_server = ionoscloud.UserS3KeysApi(client)
 
     s3key_list = user_s3keys_server.um_users_s3keys_get(user_id=user_id, depth=1)
-    s3key = get_resource_id(module, s3key_list, key_id)
+    s3key_id = get_resource_id(module, s3key_list, key_id, [['id']])
 
-    if not s3key:
+    if not s3key_id:
         module.exit_json(changed=False)
 
     try:
-        user_s3keys_server.um_users_s3keys_delete(user_id, key_id)
+        user_s3keys_server.um_users_s3keys_delete(user_id, s3key_id)
         return {
             'action': 'delete',
             'changed': True,
@@ -288,9 +287,9 @@ def update_s3key(module, client):
 
     user_s3keys_server = ionoscloud.UserS3KeysApi(client)
     s3key_list = user_s3keys_server.um_users_s3keys_get(user_id=user_id, depth=1)
-    s3key = get_resource_id(module, s3key_list, key_id)
+    s3key_id = get_resource_id(module, s3key_list, key_id, [['id']])
 
-    if not s3key:
+    if not s3key_id:
         module.exit_json(changed=False)
 
     properties = S3KeyProperties(active=active)
@@ -298,7 +297,7 @@ def update_s3key(module, client):
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        response = user_s3keys_server.um_users_s3keys_put_with_http_info(user_id, s3key, S3Key(properties=properties))
+        response = user_s3keys_server.um_users_s3keys_put_with_http_info(user_id, s3key_id, S3Key(properties=properties))
         (s3key_response, _, headers) = response
 
         if wait:
