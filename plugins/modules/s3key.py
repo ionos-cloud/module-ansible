@@ -57,7 +57,7 @@ def create_s3key(module, client):
     s3key_list = user_management_server.um_users_s3keys_get(user_id=user_id, depth=5)
 
     try:
-        if (do_idempotency and len(s3key_list.items) > 0):
+        if do_idempotency and len(s3key_list.items) > 0:
             s3key_response = s3key_list.items[0]
             return {
                 'changed': False,
@@ -196,6 +196,7 @@ def main():
             ),
             wait=dict(type='bool', default=True),
             wait_timeout=dict(type='int', default=600),
+            idempotency=dict(type='bool', default=False),
             state=dict(type='str', default='present'),
         ),
         supports_check_mode=True
