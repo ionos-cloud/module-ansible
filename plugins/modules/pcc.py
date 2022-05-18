@@ -276,7 +276,7 @@ def update_pcc(module, client):
 
     existing_pcc_with_name = get_resource(module, pcc_list, name)
     if existing_pcc_with_name is not None:
-        modue.fail_json(msg="failed to update the pcc: pcc with name \'%s\' already exists!" % name)
+        module.fail_json(msg="failed to update the pcc: pcc with name \'%s\' already exists!" % name)
 
     pcc_properties = PrivateCrossConnectProperties(name=name, description=description)
 
