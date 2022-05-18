@@ -403,13 +403,11 @@ def delete_k8s_cluster_nodepool(module, client):
     if not k8s_nodepool:
         module.exit_json(changed=False)
 
-    if k8s_nodepool.metadata.state != 'ACTIVE':
-        module.exit_json(msg="failed to delete the K8s Nodepool: current state should be ACTIVE, it is now %s" % k8s_nodepool.metadata.state)
-
     changed = False
 
     try:
-        k8s_server.k8s_nodepools_delete_with_http_info(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id)
+        if k8s_nodepool.metadata.state != 'DESTRYOING':
+            k8s_server.k8s_nodepools_delete_with_http_info(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id)
         if module.params.get('wait'):
             client.wait_for(
                 fn_request=lambda: k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=2),

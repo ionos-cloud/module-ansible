@@ -374,13 +374,13 @@ def remove_nat_gateway(module, client):
     changed = False
 
     try:
-        nat_gateway_list = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=5)
+        nat_gateway_list = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=1)
         if nat_gateway_id:
             nat_gateway = get_resource(module, nat_gateway_list, nat_gateway_id)
         else:
             nat_gateway = get_resource(module, nat_gateway_list, name)
 
-        if not nat_gateway:
+        if not nat_gateway or nat_gateway.metadata.state != 'AVAILABLE':
             module.exit_json(changed=False)
 
         _, _, headers = nat_gateway_server.datacenters_natgateways_delete_with_http_info(datacenter_id, nat_gateway.id)
