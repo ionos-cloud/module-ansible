@@ -26,7 +26,7 @@
          auto_increment: false
          cores: 1
          ram: 2048
-         volume_size: 5
+         volume_size: 20
          image: "{{ image_alias }}"
          image_password: "{{ password }}"
          location: "{{ location }}"
