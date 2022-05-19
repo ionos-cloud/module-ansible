@@ -41,7 +41,7 @@
         instance_ids:
           - "{{ name }} 01"
           - "{{ name }} 02"
-        size: 10
+        size: 25
         cpu_hot_plug: false
         ram_hot_plug: true
         nic_hot_plug: true
