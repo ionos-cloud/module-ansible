@@ -29,6 +29,13 @@
       k8s_cluster:
         k8s_cluster_id: "{{ cluster_response.cluster.id }}"
         state: absent
+        wait: false
+
+    - name: Delete k8s cluster
+      k8s_cluster:
+        k8s_cluster_id: "{{ cluster_response.cluster.id }}"
+        state: absent
+        wait: true
 
     - name: Delete k8s cluster
       k8s_cluster:

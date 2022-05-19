@@ -112,6 +112,12 @@
     postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
       state: absent
+      wait: false
+
+  - name: Delete Cluster
+    postgres_cluster:
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      state: absent
       wait: true
 
   - name: Remove NIC 1
