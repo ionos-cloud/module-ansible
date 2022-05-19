@@ -1,5 +1,19 @@
 # Changelog
 
+## 6.2.0
+
+### Bug fixes
+* for s3key-info module, username & password parameters "required" status was too strict: now only required if no token provided
+* remove duplicate lan arg in server module (now lan is a 'str')
+
+
+### Features
+* remove public, gateway_ip params for k8s_cluster and k8s_nodepool (removed from python sdk)
+* dbaas updates: added backup_location to postgres_cluster
+* volume info module (#23)
+* server info module (#22)
+
+
 ## 6.1.3
 ### Bug fixes
 * **network_load_balancer_rule** module: fixed `health_check` parameter _(the dict now supports snake case items instead of camel case)_
