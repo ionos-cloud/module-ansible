@@ -81,6 +81,7 @@
       storage_size: 20480
       storage_type: HDD
       location: de/fra
+      backup_location: eu-central-2
       connections:
         - cidr: 192.168.1.106/24
           datacenter: "{{ datacenter }} - DBaaS"
@@ -95,7 +96,6 @@
   - name: Update Cluster
     postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.properties.display_name }}"
-      postgres_version: 12
       instances: 2
       cores: 2
       ram: 4096

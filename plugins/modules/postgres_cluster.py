@@ -116,6 +116,11 @@ OPTIONS = {
         'required': ['present'],
         'type': 'str',
     },
+    'backup_location': {
+        'description': ['The S3 location where the backups will be stored. One of ["de", "eu-south-2", "eu-central-2"]'],
+        'available': ['present'],
+        'type': 'str',
+    },
     'backup_id': {
         'description': ['The ID of the backup to be used.'],
         'available': ['present', 'restore'],
@@ -334,6 +339,7 @@ def create_postgres_cluster(module, dbaas_client, cloudapi_client):
         storage_type=module.params.get('storage_type'),
         connections=connections,
         location=module.params.get('location'),
+        backup_location=module.params.get('backup_location'),
         display_name=display_name,
         maintenance_window=maintenance_window,
         credentials=ionoscloud_dbaas_postgres.DBUser(
