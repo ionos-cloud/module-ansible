@@ -378,7 +378,7 @@ def restore_snapshot(module, client):
 
     # Locate UUID for volume
     volume_list = volume_server.datacenters_volumes_get(datacenter_id=datacenter_id, depth=2)
-    volume_id = get_resource_id(module, volume, volume_list)
+    volume_id = get_resource_id(module, volume_list, volume)
 
     # Locate UUID for snapshot
     snapshot_list = snapshot_server.snapshots_get(depth=2)
