@@ -1,5 +1,12 @@
 # Changelog
 
+## 5.0.12 (23 May, 2022)
+
+### Bug fixes:
+
+* close #67: fixed s3key module not accepting 'idempotency' param 
+
+
 ## 5.0.11 (7 April, 2022)
 
 ### Bug fixes:
