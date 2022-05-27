@@ -174,9 +174,9 @@ def get_volumes(module, client):
         server_id = get_resource_id(module, server_list, server)
 
     if server_id is not None:
-        volume_items = servers_api.datacenters_servers_volumes_get(datacenter, server_id).items
+        volume_items = servers_api.datacenters_servers_volumes_get(datacenter_id, server_id).items
     else:
-        volume_items = volumes_api.datacenters_volumes_get(datacenter).items
+        volume_items = volumes_api.datacenters_volumes_get(datacenter_id).items
 
     try:
         results = []
