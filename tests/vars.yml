@@ -1,4 +1,5 @@
 name: "AnsibleAutoTest"
+registry_name: "ansibletest"
 datacenter: "AnsibleAutoTest"
 description: Ansible test description
 server: "AnsibleAutoTest"

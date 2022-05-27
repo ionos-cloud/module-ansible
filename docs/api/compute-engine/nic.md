@@ -18,7 +18,8 @@ This module allows you to create, update or remove a NIC.
   - nic:
     datacenter: Tardis One
     server: node002
-    name: 7341c2454f
+    id: 7341c2454f
+    name: name-to-be-set
     lan: 1
     ips:
       - 158.222.103.23
@@ -108,7 +109,8 @@ This module allows you to create, update or remove a NIC.
   - nic:
     datacenter: Tardis One
     server: node002
-    name: 7341c2454f
+    id: 7341c2454f
+    name: name-to-be-set
     lan: 1
     ips:
       - 158.222.103.23

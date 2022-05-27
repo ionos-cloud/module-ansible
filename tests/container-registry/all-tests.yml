@@ -1,0 +1,6 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+- name: Run Registry Test
+  import_playbook: registry-test.yml
