@@ -28,7 +28,6 @@
       server:
         datacenter: "{{ datacenter }}"
         name: "{{ server }}"
-        auto_increment: false
         cores: 1
         ram: 2048
         volume_size: 20

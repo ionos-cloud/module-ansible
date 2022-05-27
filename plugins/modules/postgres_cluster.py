@@ -1,12 +1,11 @@
 import copy
+from operator import mod
 import yaml
-
 
 from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 import re
-
 
 HAS_SDK = True
 try:
@@ -15,15 +14,15 @@ try:
 except ImportError:
     HAS_SDK = False
 
-
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
     'status': ['preview'],
     'supported_by': 'community',
 }
 
-USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, ionoscloud.__version__)
-DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, ionoscloud_dbaas_postgres.__version__)
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, ionoscloud.__version__)
+DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (
+    __version__, ionoscloud_dbaas_postgres.__version__)
 DOC_DIRECTORY = 'dbaas-postgres'
 STATES = ['present', 'absent', 'update', 'restore']
 OBJECT_NAME = 'Postgres Cluster'
@@ -32,7 +31,7 @@ OPTIONS = {
     'maintenance_window': {
         'description': [
             'Dict containing "time" (the time of the day when to perform the maintenance) '
-        'and "day_of_the_week" (the Day Of the week when to perform the maintenance).',
+            'and "day_of_the_week" (the Day Of the week when to perform the maintenance).',
         ],
         'available': ['present', 'update'],
         'type': 'dict',
@@ -82,14 +81,13 @@ OPTIONS = {
     },
     'location': {
         'description': [
-            'The physical location where the cluster will be created. This will be where all of your instances live. Property cannot be modified '
-            'after datacenter creation (disallowed in update requests)',
+            'The physical location where the cluster will be created. This will be where all of your instances live. '
+            'Property cannot be modified after datacenter creation (disallowed in update requests)'
         ],
         'available': ['present'],
         'required': ['present'],
         'type': 'str',
     },
-
     'display_name': {
         'description': ['The friendly name of your cluster.'],
         'available': ['present', 'update'],
@@ -97,7 +95,10 @@ OPTIONS = {
         'type': 'str',
     },
     'db_username': {
-        'description': ['The username for the initial postgres user. Some system usernames are restricted (e.g. "postgres", "admin", "standby")'],
+        'description': [
+            'The username for the initial postgres user. Some system usernames are restricted (e.g. "postgres", '
+            '"admin", "standby")'
+        ],
         'available': ['present'],
         'required': ['present'],
         'type': 'str',
@@ -192,11 +193,13 @@ OPTIONS = {
     },
 }
 
+
 def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
+    val['required'] = len(val.get('required', [])) == len(STATES)
     del val['available']
     del val['type']
     return val
+
 
 DOCUMENTATION = '''
 ---
@@ -206,7 +209,9 @@ description:
      - This is a module that supports creating, updating, restoring or destroying Postgres Clusters
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+''' + '  ' + yaml.dump(
+    yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})),
+    default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -216,7 +221,7 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''- name: Create Postgres Cluster
+    'present': '''- name: Create Postgres Cluster
     postgres_cluster:
       postgres_version: 12
       instances: 1
@@ -236,7 +241,7 @@ EXAMPLE_PER_STATE = {
       wait: true
     register: cluster_response
   ''',
-  'update' : '''- name: Update Postgres Cluster
+    'update': '''- name: Update Postgres Cluster
     postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
       postgres_version: 12
@@ -248,7 +253,7 @@ EXAMPLE_PER_STATE = {
       wait: true
     register: updated_cluster_response
   ''',
-  'absent' : '''- name: Delete Postgres Cluster
+    'absent': '''- name: Delete Postgres Cluster
     postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
       state: absent
@@ -258,70 +263,85 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
-def _get_resource_id(resource_list, identity):
+def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
-    """
-
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
-
-    return None
-
-def _get_dbaas_cluser(resource_list, identity):
-    """
-    Fetch and return a resource regardless of whether the display name or
-    UUID is passed. Returns None error otherwise.
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
     """
 
-    for resource in resource_list.items:
-        if identity in (resource.properties.display_name, resource.id):
-            return resource.id
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
 
-    return None
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
+
 
 def create_postgres_cluster(module, dbaas_client, cloudapi_client):
     maintenance_window = module.params.get('maintenance_window')
     if maintenance_window:
         maintenance_window = dict(module.params.get('maintenance_window'))
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
-    display_name=module.params.get('display_name')
+    display_name = module.params.get('display_name')
 
     postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
 
     postgres_clusters = postgres_cluster_server.clusters_get()
 
-    existing_postgres_cluster = None
+    existing_postgres_cluster_by_name = get_resource(module, postgres_clusters, display_name, [['properties', 'display_name']])
 
-    for postgres_cluster in postgres_clusters.items:
-        if display_name == postgres_cluster.properties.display_name:
-            existing_postgres_cluster = postgres_cluster
-            if existing_postgres_cluster.metadata.state != 'AVAILABLE' and module.params.get('wait'):
-                dbaas_client.wait_for(
-                    fn_request=lambda: postgres_cluster_server.clusters_find_by_id(existing_postgres_cluster.id),
-                    fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
-                    scaleup=10000,
-                )
-            break
+    if (
+        existing_postgres_cluster_by_name is not None
+        and existing_postgres_cluster_by_name.metadata.state != 'AVAILABLE'
+        and module.params.get('wait')
+    ):
+        dbaas_client.wait_for(
+            fn_request=lambda: postgres_cluster_server.clusters_find_by_id(existing_postgres_cluster_by_name.id),
+            fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
+            scaleup=10000,
+        )
 
-    if existing_postgres_cluster is not None:
+    if existing_postgres_cluster_by_name is not None:
         return {
             'changed': False,
             'failed': False,
             'action': 'create',
-            'postgres_cluster': existing_postgres_cluster.to_dict(),
+            'postgres_cluster': existing_postgres_cluster_by_name.to_dict(),
         }
 
     connection = module.params.get('connections')[0]
 
-    datacenter_id = _get_resource_id(ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1), connection['datacenter'])
+    datacenter_id = get_resource_id(module, ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1), connection['datacenter'])
 
     if datacenter_id is None:
         module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))
     
-    lan_id = _get_resource_id(ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1), connection['lan'])
+    lan_id = get_resource_id(module, ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1), connection['lan'])
 
     if lan_id is None:
         module.fail_json('LAN {} not found.'.format(connection['lan']))
@@ -381,12 +401,19 @@ def create_postgres_cluster(module, dbaas_client, cloudapi_client):
 
 def delete_postgres_cluster(module, dbaas_client):
     postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
-    postgres_cluster_id = _get_dbaas_cluser(postgres_cluster_server.clusters_get(), module.params.get('postgres_cluster'))
+
+    postgres_cluster_id = get_resource_id(
+        module,
+        postgres_cluster_server.clusters_get(),
+        module.params.get('postgres_cluster'),
+        [['id'], ['properties', 'display_name']],
+    )
+
     try:
         postgres_cluster_server.clusters_delete(postgres_cluster_id)
 
         if module.params.get('wait'):
-            try: 
+            try:
                 dbaas_client.wait_for(
                     fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster_id),
                     fn_check=lambda _: False,
@@ -416,8 +443,23 @@ def update_postgres_cluster(module, dbaas_client):
         maintenance_window = dict(module.params.get('maintenance_window'))
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
+    display_name=module.params.get('display_name')
+
     postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
-    postgres_cluster_id = _get_dbaas_cluser(postgres_cluster_server.clusters_get(), module.params.get('postgres_cluster'))
+    postgres_clusters = postgres_cluster_server.clusters_get()
+
+    postgres_cluster_id = get_resource_id(
+        module, postgres_clusters, module.params.get('postgres_cluster'), [['id'], ['properties', 'display_name']],
+    )
+
+    existing_pg_cluster_id_by_name = get_resource_id(module, postgres_clusters, display_name, [['properties', 'display_name']])
+
+    if (
+        postgres_cluster_id is not None and 
+        existing_pg_cluster_id_by_name is not None and
+        existing_pg_cluster_id_by_name != postgres_cluster_id
+    ):
+        module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, display_name))
 
     postgres_cluster_properties = ionoscloud_dbaas_postgres.PatchClusterProperties(
         postgres_version=module.params.get('postgres_version'),
@@ -425,7 +467,7 @@ def update_postgres_cluster(module, dbaas_client):
         cores=module.params.get('cores'),
         ram=module.params.get('ram'),
         storage_size=module.params.get('storage_size'),
-        display_name=module.params.get('display_name'),
+        display_name=display_name,
         maintenance_window=maintenance_window,
     )
     postgres_cluster = ionoscloud_dbaas_postgres.PatchClusterRequest(properties=postgres_cluster_properties)
@@ -462,7 +504,12 @@ def update_postgres_cluster(module, dbaas_client):
 def restore_postgres_cluster(module, dbaas_client):
     postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
 
-    postgres_cluster_id = _get_dbaas_cluser(postgres_cluster_server.clusters_get(), module.params.get('postgres_cluster'))
+    postgres_cluster_id = get_resource_id(
+        module,
+        postgres_cluster_server.clusters_get(),
+        module.params.get('postgres_cluster'),
+        [['id'], ['properties', 'display_name']],
+    )
 
     restore_request = ionoscloud_dbaas_postgres.CreateRestoreRequest(
         backup_id=module.params.get('backup_id'),
@@ -497,18 +544,18 @@ def get_module_arguments():
     arguments = {}
 
     for option_name, option in OPTIONS.items():
-      arguments[option_name] = {
-        'type': option['type'],
-      }
-      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
-        if option.get(key) is not None:
-          arguments[option_name][key] = option.get(key)
+        arguments[option_name] = {
+            'type': option['type'],
+        }
+        for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+            if option.get(key) is not None:
+                arguments[option_name][key] = option.get(key)
 
-      if option.get('env_fallback'):
-        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+        if option.get('env_fallback'):
+            arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
 
-      if len(option.get('required', [])) == len(STATES):
-        arguments[option_name]['required'] = True
+        if len(option.get('required', [])) == len(STATES):
+            arguments[option_name]['required'] = True
 
     return arguments
 
@@ -541,8 +588,8 @@ def get_sdk_config(module, sdk):
 def check_required_arguments(module, state, object_name):
     # manually checking if token or username & password provided
     if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
+            not module.params.get("token")
+            and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name} state {state}'.format(
@@ -567,7 +614,7 @@ def main():
 
     if not HAS_SDK:
         module.fail_json(msg='both ionoscloud and ionoscloud_dbaas_postgres are required for this module, '
-        'run `pip install ionoscloud ionoscloud_dbaas_postgres`')
+                             'run `pip install ionoscloud ionoscloud_dbaas_postgres`')
 
     cloudapi_api_client = ionoscloud.ApiClient(get_sdk_config(module, ionoscloud))
     cloudapi_api_client.user_agent = USER_AGENT
@@ -580,7 +627,8 @@ def main():
 
     try:
         if state == 'present':
-            module.exit_json(**create_postgres_cluster(module, dbaas_client=dbaas_postgres_api_client, cloudapi_client=cloudapi_api_client))
+            module.exit_json(**create_postgres_cluster(module, dbaas_client=dbaas_postgres_api_client,
+                                                       cloudapi_client=cloudapi_api_client))
         elif state == 'absent':
             module.exit_json(**delete_postgres_cluster(module, dbaas_postgres_api_client))
         elif state == 'update':
@@ -588,7 +636,9 @@ def main():
         elif state == 'restore':
             module.exit_json(**restore_postgres_cluster(module, dbaas_postgres_api_client))
     except Exception as e:
-        module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
+        module.fail_json(
+            msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e),
+                                                                            state=state))
 
 
 if __name__ == '__main__':

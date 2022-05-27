@@ -18,7 +18,6 @@
 
     - name: Create server
       server:
-        auto_increment: false
         count: 1
         name: "{{ server }}"
         image: "{{ image_alias }}"
@@ -44,7 +43,6 @@
     - name: Create data volume
       volume:
         count: 1
-        auto_increment: false
         datacenter: "{{ datacenter }}"
         server: "{{ srv.machines[0].id }}"
         name: "{{ server }}-data"
@@ -55,3 +53,26 @@
       register: disk
       tags:
         - create
+
+    - name: Delete volumes
+      volume:
+        datacenter: "{{ datacenter }}"
+        instance_ids:
+          - "{{ server }}-data"
+        wait_timeout: 600
+        state: absent
+
+    - name: Remove server
+      server:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ server }}"
+         remove_boot_volume: yes
+         wait_timeout: "{{ wait_timeout }}"
+         state: absent
+
+    - name: Remove datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        state: absent
+        wait: true

@@ -116,17 +116,45 @@ EXAMPLES = '''
 uuid_match = re.compile(
     '[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
-def _get_resource(resource_list, identity):
+
+def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches
+    are found an error is printed and None is returned.
     """
 
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
+    if identity_paths is None:
+        identity_paths = [['id'], ['properties', 'name']]
 
-    return None
+    def check_identity_method(resource):
+        resource_identity = []
+
+        for identity_path in identity_paths:
+            current = resource
+            for el in identity_path:
+                current = getattr(current, el)
+            resource_identity.append(current)
+
+        return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
+
 
 def get_volumes(module, client):
     datacenter = module.params.get('datacenter')
@@ -136,18 +164,17 @@ def get_volumes(module, client):
     datacenters_api = ionoscloud.DataCentersApi(api_client=client)
 
     # Locate UUID for Datacenter
-    if not uuid_match.match(datacenter):
-        datacenter_list = datacenters_api.datacenters_get(depth=2)
-        datacenter = _get_resource(datacenter_list, datacenter)
+    datacenter_list = datacenters_api.datacenters_get(depth=2)
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for Server
-    if server is not None and not uuid_match.match(datacenter):
-        server_list = servers_api.datacenters_servers_get(depth=2, datacenter_id=datacenter)
-        server = _get_resource(server_list, server)
-
-    volume_items = []
+    server_id = None
     if server is not None:
-        volume_items = servers_api.datacenters_servers_volumes_get(datacenter, server).items
+        server_list = servers_api.datacenters_servers_get(depth=2, datacenter_id=datacenter_id)
+        server_id = get_resource_id(module, server_list, server)
+
+    if server_id is not None:
+        volume_items = servers_api.datacenters_servers_volumes_get(datacenter, server_id).items
     else:
         volume_items = volumes_api.datacenters_volumes_get(datacenter).items
 
