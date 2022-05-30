@@ -59,7 +59,6 @@ OPTIONS = {
     'registry_id': {
         'description': ['The ID of an existing Registry.'],
         'available': ['update', 'absent'],
-        'required': [],
         'type': 'str',
     },
     'api_url': {
