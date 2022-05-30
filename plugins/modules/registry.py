@@ -72,6 +72,7 @@ OPTIONS = {
         # If provided, then username and password no longer required
         'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
         'available': STATES,
+        'required': STATES,
         'no_log': True,
         'env_fallback': 'IONOS_TOKEN',
         'type': 'str',
@@ -120,7 +121,7 @@ options:
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
-    - "ionoscloud-container-registry >= 1.0.1"
+    - "ionoscloud-container-registry >= 1.0.0"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
@@ -139,7 +140,7 @@ EXAMPLE_PER_STATE = {
         days: 
             - Wednesday
         time: 04:17:00+00:00
-    register: cluster_response
+    register: registry_response
   ''',
     'update': '''- name: Update Registry
     registry:
@@ -153,7 +154,7 @@ EXAMPLE_PER_STATE = {
         days: 
             - Wednesday
         time: 04:17:00+00:00
-    register: updated_cluster_response
+    register: updated_registry_response
   ''',
     'absent': '''- name: Delete Registry
     registry:
@@ -403,15 +404,6 @@ def get_sdk_config(module, sdk):
 
 
 def check_required_arguments(module, state, object_name):
-    # manually checking if token is provided
-    if not module.params.get('token'):
-        module.fail_json(
-            msg='Token is required for {object_name} state {state}'.format(
-                object_name=object_name,
-                state=state,
-            ),
-        )
-
     for option_name, option in OPTIONS.items():
         if state in option.get('required', []) and not module.params.get(option_name):
             module.fail_json(

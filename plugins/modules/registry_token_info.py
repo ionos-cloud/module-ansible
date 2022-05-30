@@ -7,7 +7,7 @@ from ansible.module_utils._text import to_native
 
 HAS_SDK = True
 try:
-    import ionoscloud_dbaas_postgres
+    import ionoscloud_container_registry
 except ImportError:
     HAS_SDK = False
 
@@ -16,13 +16,19 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (
-__version__, ionoscloud_dbaas_postgres.__version__)
-DOC_DIRECTORY = 'dbaas-postgres'
+CONTAINER_REGISTRY_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (
+__version__, ionoscloud_container_registry.__version__)
+DOC_DIRECTORY = 'container-registry'
 STATES = ['info']
-OBJECT_NAME = 'Postgres Clusters'
+OBJECT_NAME = 'Registry Tokens'
 
 OPTIONS = {
+    'registry_id': {
+        'description': ['The ID of an existing Registry.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -30,27 +36,11 @@ OPTIONS = {
         'available': STATES,
         'type': 'str',
     },
-    'username': {
-        # Required if no token, checked manually
-        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
-        'aliases': ['subscription_user'],
-        'env_fallback': 'IONOS_USERNAME',
-        'available': STATES,
-        'type': 'str',
-    },
-    'password': {
-        # Required if no token, checked manually
-        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
-        'aliases': ['subscription_password'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_PASSWORD',
-        'type': 'str',
-    },
     'token': {
         # If provided, then username and password no longer required
         'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
         'available': STATES,
+        'required': STATES,
         'no_log': True,
         'env_fallback': 'IONOS_TOKEN',
         'type': 'str',
@@ -67,10 +57,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: postgres_cluster_info
-short_description: List Postgres Clusters
+module: registry_token_info
+short_description: List Registry Token
 description:
-     - This is a simple module that supports listing existing Postgres Clusters
+     - This is a simple module that supports listing existing Registry Tokens
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -78,20 +68,20 @@ options:
     default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud-dbaas-postgres >= 1.0.1"
+    - "ionoscloud-container-registry >= 1.0.0"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
 
 EXAMPLES = '''
-    - name: List Postgres Clusters
-        postgres_cluster_info:
-        register: postgres_clusters_response
+    - name: List Registry Tokens
+        registry_token_info:
+        register: registry_tokens_response
 
 
-    - name: Show Postgres Clusters
+    - name: Show Registry Tokens
         debug:
-            var: postgres_clusters_response.result
+            var: registry_tokens_response.result
 '''
 
 
@@ -141,17 +131,6 @@ def get_sdk_config(module, sdk):
 
 
 def check_required_arguments(module, object_name):
-    # manually checking if token or username & password provided
-    if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
-    ):
-        module.fail_json(
-            msg='Token or username & password are required for {object_name}'.format(
-                object_name=object_name,
-            ),
-        )
-
     for option_name, option in OPTIONS.items():
         if 'info' in option.get('required', []) and not module.params.get(option_name):
             module.fail_json(
@@ -167,16 +146,16 @@ def main():
 
     if not HAS_SDK:
         module.fail_json(
-            msg='ionoscloud_dbaas_postgres is required for this module, run `pip install ionoscloud_dbaas_postgres`')
+            msg='ionoscloud_container_registry is required for this module, run `pip install ionoscloud_container_registry`')
 
-    dbaas_postgres_api_client = ionoscloud_dbaas_postgres.ApiClient(get_sdk_config(module, ionoscloud_dbaas_postgres))
-    dbaas_postgres_api_client.user_agent = DBAAS_POSTGRES_USER_AGENT
+    container_registry_api_client = ionoscloud_container_registry.ApiClient(get_sdk_config(module, ionoscloud_container_registry))
+    container_registry_api_client.user_agent = CONTAINER_REGISTRY_USER_AGENT
 
     check_required_arguments(module, OBJECT_NAME)
     try:
         results = []
-        for cluster in ionoscloud_dbaas_postgres.ClustersApi(dbaas_postgres_api_client).clusters_get().items:
-            results.append(cluster.to_dict())
+        for registry in ionoscloud_container_registry.RegistryApi(container_registry_api_client).registries_get().items:
+            results.append(registry.to_dict())
         module.exit_json(result=results)
     except Exception as e:
         module.fail_json(

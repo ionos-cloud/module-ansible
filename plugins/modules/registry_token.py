@@ -72,6 +72,7 @@ OPTIONS = {
         # If provided, then username and password no longer required
         'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
         'available': STATES,
+        'required': STATES,
         'no_log': True,
         'env_fallback': 'IONOS_TOKEN',
         'type': 'str',
@@ -126,40 +127,36 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-    'present': '''- name: Create Registry
-    registry:
-      name: test_registry
-      location: de
-      maintenance_window:
-        days: 
-            - Tuesday
-            - Sunday
-        time: 01:23:00+00:00
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: cluster_response
+    'present': '''- name: Create Registry Token
+    registry_token:
+        name: test_registry_token
+        scopes:
+            - actions: 
+                    - pull
+                      push
+                      delete
+                name: repo1
+                type: repositry
+        status: enabled
+        expiry_date: 2022-06-24T17:04:10+03:00
+    register: registry_token_response
   ''',
-    'update': '''- name: Update Registry
-    registry:
-      name: test_registry
-      maintenance_window:
-        days: 
-            - Tuesday
-            - Sunday
-        time: 01:23:00+00:00
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: updated_cluster_response
+    'update': '''- name: Update Registry Token
+    registry_token:
+        name: test_registry_token
+        scopes:
+            - actions: 
+                    - pull
+                name: repo2
+                type: repositry
+        status: disbled
+        expiry_date: 2022-07-24T17:04:10+03:00
+    register: updated_registry_token_response
   ''',
-    'absent': '''- name: Delete Registry
-    registry:
-      name: test_registry
-      wait: true
-      state: absent
+    'absent': '''- name: Delete Registry Token
+    registry_token:
+        name: test_registry_token
+        state: absent
   ''',
 }
 
@@ -377,15 +374,6 @@ def get_sdk_config(module, sdk):
 
 
 def check_required_arguments(module, state, object_name):
-    # manually checking if token is provided
-    if not module.params.get('token'):
-        module.fail_json(
-            msg='Token is required for {object_name} state {state}'.format(
-                object_name=object_name,
-                state=state,
-            ),
-        )
-
     for option_name, option in OPTIONS.items():
         if state in option.get('required', []) and not module.params.get(option_name):
             module.fail_json(
