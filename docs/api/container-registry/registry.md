@@ -19,7 +19,7 @@ This is a module that supports creating, updating or destroying Registries
         days: 
             - Wednesday
         time: 04:17:00+00:00
-    register: cluster_response
+    register: registry_response
   
 - name: Update Registry
     registry:
@@ -33,7 +33,7 @@ This is a module that supports creating, updating or destroying Registries
         days: 
             - Wednesday
         time: 04:17:00+00:00
-    register: updated_cluster_response
+    register: updated_registry_response
   
 - name: Delete Registry
     registry:
@@ -61,7 +61,7 @@ This is a module that supports creating, updating or destroying Registries
         days: 
             - Wednesday
         time: 04:17:00+00:00
-    register: cluster_response
+    register: registry_response
   
 ```
 ### Available parameters for state **present**:
@@ -74,7 +74,7 @@ This is a module that supports creating, updating or destroying Registries
   | location | True | str |  | The location of your registry |
   | name | True | str |  | The name of your registry. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | token | True | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -99,7 +99,7 @@ This is a module that supports creating, updating or destroying Registries
   | name | False | str |  | The name of your registry. |
   | registry_id | False | str |  | The ID of an existing Registry. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | token | True | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -121,7 +121,7 @@ This is a module that supports creating, updating or destroying Registries
         days: 
             - Wednesday
         time: 04:17:00+00:00
-    register: updated_cluster_response
+    register: updated_registry_response
   
 ```
 ### Available parameters for state **update**:
@@ -134,7 +134,7 @@ This is a module that supports creating, updating or destroying Registries
   | name | False | str |  | The name of your registry. |
   | registry_id | False | str |  | The ID of an existing Registry. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | token | True | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
