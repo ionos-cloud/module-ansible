@@ -22,6 +22,14 @@
         time: 04:17:00+00:00
     register: registry_response
 
+  - name: List Registries
+    registry_info:
+    register: registries_response
+
+  # - name: Show Registries
+  #   debug:
+  #     var: registries_response.result
+
   - name: Update Registry
     registry:
       name: "{{ registry_response.registry.properties.name }}"
