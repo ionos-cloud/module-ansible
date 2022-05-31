@@ -25,20 +25,20 @@
   - name: Create Registry Token
     registry_token:
       registry_id: "{{ registry_response.registry.id }}"
-      name: test_registry_token
+      name: testRegistryToken
       scopes:
-        - actions: 
-          - pull
-            push
-            delete
-        name: repo1
-        type: repositry
+      - actions:
+        - pull
+        - push
+        name: nume
+        type: repo
       status: enabled
       expiry_date: "2022-06-24T17:04:10+03:00"
     register: registry_token_response
 
   - name: List Registry Tokens
     registry_token_info:
+      registry_id: "{{ registry_response.registry.id }}"
     register: registry_tokens_response
 
   # - name: Show Registry Tokens
@@ -50,11 +50,12 @@
       registry_id: "{{ registry_response.registry.id }}"
       name: "{{ registry_token_response.registry_token.properties.name }}"
       scopes:
-        - actions: 
-          - pull
-            push
-        name: repo1
-        type: repositry
+      - actions:
+        - pull
+        - push
+        - delete
+        name: nume
+        type: repo1
       status: disabled
       expiry_date: "2022-07-24T17:04:10+03:00"
       state: update

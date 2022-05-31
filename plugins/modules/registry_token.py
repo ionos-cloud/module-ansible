@@ -226,17 +226,17 @@ def create_registry_token(module, container_registry_client):
             'changed': False,
             'failed': False,
             'action': 'create',
-            'token': existing_token_by_name.to_dict(),
+            'registry_token': existing_token_by_name.to_dict(),
         }
 
-    registry_properties = ionoscloud_container_registry.PostRegistryProperties(
+    registry_properties = ionoscloud_container_registry.PostTokenProperties(
         name=name,
         expiry_date=module.params.get('expiry_date'),
         status=module.params.get('status'),
         scopes=list(map(scope_dict_to_object, module.params.get('scopes'))),
     )
 
-    token = ionoscloud_container_registry.PostRegistryInput(properties=registry_properties)
+    token = ionoscloud_container_registry.PostTokenInput(properties=registry_properties)
 
     try:
         token = tokens_server.registries_tokens_post(registry_id, token)
@@ -245,7 +245,7 @@ def create_registry_token(module, container_registry_client):
             'changed': True,
             'failed': False,
             'action': 'create',
-            'token': token.to_dict(),
+            'registry_token': token.to_dict(),
         }
     except Exception as e:
         module.fail_json(msg="failed to create the Token: %s" % to_native(e))
@@ -309,17 +309,17 @@ def update_registry_token(module, container_registry_client):
     )
 
     try:
-        token = tokens_server.registries_patch(
+        token = tokens_server.registries_tokens_patch(
             registry_id=registry_id,
             token_id=token.id,
-            patch_registry_input=token_properties,
+            patch_token_input=token_properties,
         )
 
         return {
             'changed': True,
             'failed': False,
             'action': 'update',
-            'token': token.to_dict(),
+            'registry_token': token.to_dict(),
         }
 
     except Exception as e:
@@ -394,6 +394,7 @@ def main():
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud_container_registry is required for this module, '
                              'run `pip install ionoscloud_container_registry`')
+
 
     container_registry_api_client = ionoscloud_container_registry.ApiClient(get_sdk_config(module, ionoscloud_container_registry))
     container_registry_api_client.user_agent = CONTAINER_REGISTRY_USER_AGENT

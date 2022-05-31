@@ -148,7 +148,7 @@ def main():
     check_required_arguments(module, OBJECT_NAME)
     try:
         results = []
-        for registry in ionoscloud_container_registry.RegistryApi(container_registry_api_client).registries_get().items:
+        for registry in ionoscloud_container_registry.RegistriesApi(container_registry_api_client).registries_get().items:
             results.append(registry.to_dict())
         module.exit_json(result=results)
     except Exception as e:

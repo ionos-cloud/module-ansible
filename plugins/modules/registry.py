@@ -422,6 +422,7 @@ def main():
         module.fail_json(msg='ionoscloud_container_registry is required for this module, '
                              'run `pip install ionoscloud_container_registry`')
 
+
     container_registry_api_client = ionoscloud_container_registry.ApiClient(get_sdk_config(module, ionoscloud_container_registry))
     container_registry_api_client.user_agent = CONTAINER_REGISTRY_USER_AGENT
 
