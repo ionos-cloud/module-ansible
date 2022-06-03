@@ -41,12 +41,12 @@ OPTIONS = {
     'name': {
         'description': ['The name of the NIC.'],
         'available': STATES,
+        'required': ['absent'],
         'type': 'str',
     },
     'id': {
         'description': ['The ID of the NIC.'],
-        'available': ['update', 'absent'],
-        'required': ['update'],
+        'available': ['update'],
         'type': 'str',
     },
     'datacenter': {
@@ -421,7 +421,6 @@ def delete_nic(module, client):
     """
     datacenter = module.params.get('datacenter')
     server = module.params.get('server')
-    id = module.params.get('id')
     name = module.params.get('name')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
@@ -438,7 +437,7 @@ def delete_nic(module, client):
 
     # Locate UUID for NIC
     nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=2)
-    nic_id = get_resource_id(module, nic_list, id if id is not None else name)
+    nic_id = get_resource_id(module, nic_list, name)
 
     if nic_id is None:
         module.exit_json(changed=False)

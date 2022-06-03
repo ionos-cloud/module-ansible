@@ -298,7 +298,7 @@ def create_flowlog(module, client):
     flowlogs = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id,
                                                                         server_id=server_id, nic_id=nic_id, depth=2)
 
-    existing_nic_flowlog = get_resource(module, flowlogs.items, name)
+    existing_nic_flowlog = get_resource(module, flowlogs, name)
     if existing_nic_flowlog is not None:
         return {
             'changed': False,
@@ -355,7 +355,7 @@ def update_flowlog(module, client):
     flowlogs = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id,
                                                                         server_id=server_id, nic_id=nic_id, depth=2)
 
-    existing_nic_flowlog = get_resource(module, flowlogs.items, name)
+    existing_nic_flowlog = get_resource(module, flowlogs, name)
     if existing_nic_flowlog is not None:
         module.fail_json(msg="failed to update the flowlog: flowlog with name \'%s\' already exists" % name)
 
@@ -371,7 +371,7 @@ def update_flowlog(module, client):
     else:
         flowlogs = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id, nic_id=nic_id,
                                                                             server_id=server_id, depth=2)
-        for f in flowlogs.items:
+        for f in flowlogs:
             if name == f.properties.name:
                 flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
                 flowlog_response = _update_flowlog(module, client, nic_flowlog_server, datacenter_id, server_id, nic_id,

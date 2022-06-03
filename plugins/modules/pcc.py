@@ -272,18 +272,22 @@ def update_pcc(module, client):
     wait_timeout = module.params.get('wait_timeout')
 
     pcc_server = ionoscloud.PrivateCrossConnectsApi(client)
-    pcc_list = pcc_server.pccs_get()
+    pcc_list = pcc_server.pccs_get(depth=3)
 
     existing_pcc_with_name = get_resource(module, pcc_list, name)
     if existing_pcc_with_name is not None:
-        modue.fail_json(msg="failed to update the pcc: pcc with name \'%s\' already exists!" % name)
+        module.fail_json(msg="failed to update the pcc: pcc with name \'%s\' already exists!" % name)
+
+    pcc = get_resource(module, pcc_list, pcc_id)
+    if pcc is None:
+        module.fail_json(msg="failed to update the pcc: pcc with id \'%s\' does not exist!" % pcc_id)
 
     pcc_properties = PrivateCrossConnectProperties(name=name, description=description)
 
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        response = pcc_server.pccs_patch_with_http_info(pcc_id=pcc_id, pcc=pcc_properties)
+        response = pcc_server.pccs_patch_with_http_info(pcc_id=pcc.id, pcc=pcc_properties)
         (pcc_response, _, headers) = response
 
         if wait:
