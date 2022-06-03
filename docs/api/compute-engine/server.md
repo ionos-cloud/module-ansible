@@ -240,6 +240,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | image | True | str |  | The image alias or ID for creating the virtual machine. |
   | image_password | False | str |  | Password set for the administrative user. |
   | ssh_keys | False | list |  | Public SSH keys allowing access to the virtual machine. |
+  | user_data | False | str |  | The cloud-init configuration for the volume as base64 encoded string. |
   | volume_availability_zone | False | str |  | The storage availability zone assigned to the volume. |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | cores | False | int | 2 | The number of CPU cores to allocate to the virtual machine. |
