@@ -226,6 +226,45 @@ EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
+
+
 def _update_alb_forwarding_rule(module, client, alb_server, datacenter_id, application_load_balancer_id,
                                 forwarding_rule_id,
                                 forwarding_rule_properties):
@@ -322,35 +361,36 @@ def create_alb_forwarding_rule(module, client):
     alb_forwarding_rules = alb_server.datacenters_applicationloadbalancers_forwardingrules_get(
         datacenter_id=datacenter_id,
         application_load_balancer_id=application_load_balancer_id,
-        depth=2)
-    alb_forwarding_rule_response = None
+        depth=2,
+    )
 
-    for forwarding_rule in alb_forwarding_rules.items:
-        if name == forwarding_rule.properties.name:
-            return {
-                'changed': False,
-                'failed': False,
-                'action': 'create',
-                'forwarding_rule': forwarding_rule.to_dict()
-            }
+    existing_forwarding_rule = get_resource(module, alb_forwarding_rules, name)
 
-    alb_forwarding_rule_properties = ApplicationLoadBalancerForwardingRuleProperties(name=name, protocol=protocol,
-                                                                                     listener_ip=listener_ip,
-                                                                                     listener_port=listener_port,
-                                                                                     client_timeout=client_timeout,
-                                                                                     server_certificates=server_certificates,
-                                                                                     http_rules=http_rules_list)
+    if existing_forwarding_rule:
+        return {
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'forwarding_rule': existing_forwarding_rule.to_dict()
+        }
+
+    alb_forwarding_rule_properties = ApplicationLoadBalancerForwardingRuleProperties(
+        name=name, protocol=protocol,
+        listener_ip=listener_ip,
+        listener_port=listener_port,
+        client_timeout=client_timeout,
+        server_certificates=server_certificates,
+        http_rules=http_rules_list,
+    )
     alb_forwarding_rule = ApplicationLoadBalancerForwardingRule(properties=alb_forwarding_rule_properties)
 
     try:
-        response = alb_server.datacenters_applicationloadbalancers_forwardingrules_post_with_http_info(datacenter_id,
-                                                                                                       application_load_balancer_id,
-                                                                                                       alb_forwarding_rule)
-        (alb_forwarding_rule_response, _, headers) = response
+        response, _, headers = alb_server.datacenters_applicationloadbalancers_forwardingrules_post_with_http_info(
+            datacenter_id, application_load_balancer_id, alb_forwarding_rule,
+        )
 
         if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=_get_request_id(headers['Location']), timeout=wait_timeout)
 
     except ApiException as e:
         module.fail_json(msg="failed to create the new Application Load Balancer Forwarding Rule: %s" % to_native(e))
@@ -359,7 +399,7 @@ def create_alb_forwarding_rule(module, client):
         'changed': True,
         'failed': False,
         'action': 'create',
-        'forwarding_rule': alb_forwarding_rule_response.to_dict()
+        'forwarding_rule': response.to_dict()
     }
 
 
@@ -387,7 +427,6 @@ def update_alb_forwarding_rule(module, client):
     forwarding_rule_id = module.params.get('forwarding_rule_id')
 
     alb_server = ionoscloud.ApplicationLoadBalancersApi(client)
-    changed = False
     forwarding_rule_response = None
 
     http_rules_list = []
@@ -395,43 +434,39 @@ def update_alb_forwarding_rule(module, client):
         for rule in http_rules:
             http_rules_list.append(get_http_rule(rule))
 
+    alb_forwarding_rule_properties = ApplicationLoadBalancerForwardingRuleProperties(
+        name=name,
+        protocol=protocol,
+        listener_ip=listener_ip,
+        listener_port=listener_port,
+        client_timeout=client_timeout,
+        server_certificates=server_certificates,
+        http_rules=http_rules_list,
+    )
+
+    forwarding_rules = alb_server.datacenters_applicationloadbalancers_forwardingrules_get(
+        datacenter_id=datacenter_id,
+        application_load_balancer_id=application_load_balancer_id,
+        depth=2,
+    )
+    existing_alb_fw_id_by_name = get_resource_id(module, forwarding_rules, name)
+
+    if forwarding_rule_id is not None and existing_alb_fw_id_by_name is not None and existing_alb_fw_id_by_name != forwarding_rule_id:
+            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
+
+    forwarding_rule_id = forwarding_rule_id if forwarding_rule_id else existing_alb_fw_id_by_name
+
     if forwarding_rule_id:
-        alb_forwarding_rule_properties = ApplicationLoadBalancerForwardingRuleProperties(name=name, protocol=protocol,
-                                                                                         listener_ip=listener_ip,
-                                                                                         listener_port=listener_port,
-                                                                                         client_timeout=client_timeout,
-                                                                                         server_certificates=server_certificates,
-                                                                                         http_rules=http_rules_list)
-        forwarding_rule_response = _update_alb_forwarding_rule(module, client, alb_server, datacenter_id,
-                                                               application_load_balancer_id, forwarding_rule_id,
-                                                               alb_forwarding_rule_properties)
-        changed = True
-
+        forwarding_rule_response = _update_alb_forwarding_rule(
+            module, client, alb_server, datacenter_id,
+            application_load_balancer_id, forwarding_rule_id,
+            alb_forwarding_rule_properties,
+        )
     else:
-        forwarding_rules = alb_server.datacenters_applicationloadbalancers_forwardingrules_get(
-            datacenter_id=datacenter_id,
-            application_load_balancer_id=application_load_balancer_id,
-            depth=2)
-        for rule in forwarding_rules.items:
-            if name == rule.properties.name:
-                alb_forwarding_rule_properties = ApplicationLoadBalancerForwardingRuleProperties(name=name,
-                                                                                                 protocol=protocol,
-                                                                                                 listener_ip=listener_ip,
-                                                                                                 listener_port=listener_port,
-                                                                                                 client_timeout=client_timeout,
-                                                                                                 server_certificates=server_certificates,
-                                                                                                 http_rules=http_rules_list)
-                forwarding_rule_response = _update_alb_forwarding_rule(module, client, alb_server, datacenter_id,
-                                                                       application_load_balancer_id, rule.id,
-                                                                       alb_forwarding_rule_properties)
-                changed = True
-
-    if not changed:
-        module.fail_json(
-            msg="failed to update the Application Load Balancer Forwarding Rule: The resource does not exist")
+        module.fail_json(msg="failed to update the Application Load Balancer Forwarding Rule: The resource does not exist")
 
     return {
-        'changed': changed,
+        'changed': True,
         'action': 'update',
         'failed': False,
         'forwarding_rule': forwarding_rule_response.to_dict()
@@ -459,41 +494,24 @@ def remove_alb_forwarding_rule(module, client):
     wait_timeout = module.params.get('wait_timeout')
 
     alb_server = ionoscloud.ApplicationLoadBalancersApi(client)
-    changed = False
+
+
+    forwarding_rules = alb_server.datacenters_applicationloadbalancers_forwardingrules_get(
+        datacenter_id=datacenter_id,
+        application_load_balancer_id=application_load_balancer_id,
+        depth=2,
+    )
+    existing_alb_fw_id_by_name = get_resource_id(module, forwarding_rules, name)
+
+    forwarding_rule_id = forwarding_rule_id if forwarding_rule_id else existing_alb_fw_id_by_name
 
     try:
-        if forwarding_rule_id:
-            response = alb_server.datacenters_applicationloadbalancers_forwardingrules_delete_with_http_info(
-                datacenter_id,
-                application_load_balancer_id,
-                forwarding_rule_id)
-            (forwarding_rule_response, _, headers) = response
+        _, _, headers = alb_server.datacenters_applicationloadbalancers_forwardingrules_delete_with_http_info(
+            datacenter_id, application_load_balancer_id, forwarding_rule_id,
+        )
 
-            if wait:
-                request_id = _get_request_id(headers['Location'])
-                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-            changed = True
-
-        elif name:
-            forwarding_rules = alb_server.datacenters_applicationloadbalancers_forwardingrules_get(
-                datacenter_id=datacenter_id,
-                application_load_balancer_id=application_load_balancer_id,
-                depth=2)
-            for rule in forwarding_rules.items:
-                if name == rule.properties.name:
-                    forwarding_rule_id = rule.id
-                    response = alb_server.datacenters_applicationloadbalancers_forwardingrules_delete_with_http_info(
-                        datacenter_id,
-                        application_load_balancer_id,
-                        forwarding_rule_id)
-                    (forwarding_rule_response, _, headers) = response
-
-                    if wait:
-                        request_id = _get_request_id(headers['Location'])
-                        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-                    changed = True
+        if wait:
+            client.wait_for_completion(request_id=_get_request_id(headers['Location']), timeout=wait_timeout)
 
     except Exception as e:
         module.fail_json(
@@ -501,7 +519,7 @@ def remove_alb_forwarding_rule(module, client):
 
     return {
         'action': 'delete',
-        'changed': changed,
+        'changed': True,
         'id': forwarding_rule_id
     }
 
@@ -529,12 +547,20 @@ def get_module_arguments():
 def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
+    token = module.params.get('token')
     api_url = module.params.get('api_url')
 
-    conf = {
-        'username': username,
-        'password': password,
-    }
+    if token is not None:
+        # use the token instead of username & password
+        conf = {
+            'token': token
+        }
+    else:
+        # use the username & password
+        conf = {
+            'username': username,
+            'password': password,
+        }
 
     if api_url is not None:
         conf['host'] = api_url
@@ -544,6 +570,18 @@ def get_sdk_config(module, sdk):
 
 
 def check_required_arguments(module, state, object_name):
+    # manually checking if token or username & password provided
+    if (
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
+    ):
+        module.fail_json(
+            msg='Token or username & password are required for {object_name} state {state}'.format(
+                object_name=object_name,
+                state=state,
+            ),
+        )
+
     for option_name, option in OPTIONS.items():
         if state in option.get('required', []) and not module.params.get(option_name):
             module.fail_json(

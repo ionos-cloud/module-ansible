@@ -18,7 +18,10 @@ try:
     from ionoscloud.models import ApplicationLoadBalancer, ApplicationLoadBalancerProperties
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
-except ImportError:
+except ImportError as e:
+    with open('debug.txt', 'a') as f:
+        f.write(str(['ceva', e]))
+    raise e
     HAS_SDK = False
 
 from ansible import __version__
@@ -189,6 +192,45 @@ EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
+
+
 def _update_alb(module, client, alb_server, datacenter_id, application_load_balancer_id, alb_properties):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
@@ -238,14 +280,15 @@ def create_alb(module, client):
     alb_list = alb_server.datacenters_applicationloadbalancers_get(datacenter_id=datacenter_id, depth=2)
     alb_response = None
 
-    for alb in alb_list.items:
-        if name == alb.properties.name:
-            return {
-                'changed': False,
-                'failed': False,
-                'action': 'create',
-                'application_load_balancer': alb.to_dict()
-            }
+    existing_alb = get_resource(module, alb_list, name)
+
+    if existing_alb:
+        return {
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'application_load_balancer': existing_alb.to_dict()
+        }
 
     alb_properties = ApplicationLoadBalancerProperties(name=name, listener_lan=listener_lan, ips=ips, target_lan=target_lan,
                                                    lb_private_ips=lb_private_ips)
@@ -256,8 +299,7 @@ def create_alb(module, client):
         (alb_response, _, headers) = response
 
         if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=_get_request_id(headers['Location']), timeout=wait_timeout)
 
     except ApiException as e:
         module.fail_json(msg="failed to create the new Application Load Balancer: %s" % to_native(e))
@@ -292,32 +334,28 @@ def update_alb(module, client):
 
     alb_server = ionoscloud.ApplicationLoadBalancersApi(client)
     alb_response = None
-    changed = False
+
+    alb_list = alb_server.datacenters_applicationloadbalancers_get(datacenter_id=datacenter_id, depth=2)
+    existing_alb_id_by_name = get_resource_id(module, alb_list, name)
+
+    if application_load_balancer_id is not None and existing_alb_id_by_name is not None and existing_alb_id_by_name != application_load_balancer_id:
+            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
+
+    alb_properties = ApplicationLoadBalancerProperties(
+        name=name, listener_lan=listener_lan, ips=ips,
+        target_lan=target_lan,
+        lb_private_ips=lb_private_ips,
+    )
+
+    application_load_balancer_id = application_load_balancer_id if application_load_balancer_id else existing_alb_id_by_name
 
     if application_load_balancer_id:
-        alb_properties = ApplicationLoadBalancerProperties(name=name, listener_lan=listener_lan, ips=ips,
-                                                       target_lan=target_lan,
-                                                       lb_private_ips=lb_private_ips)
-        alb_response = _update_alb(module, client, alb_server, datacenter_id, application_load_balancer_id,
-                                   alb_properties)
-        changed = True
-
+        alb_response = _update_alb(module, client, alb_server, datacenter_id, application_load_balancer_id, alb_properties)
     else:
-        alb_list = alb_server.datacenters_applicationloadbalancers_get(datacenter_id=datacenter_id, depth=2)
-        for alb in alb_list.items:
-            if name == alb.properties.name:
-                alb_properties = ApplicationLoadBalancerProperties(name=name, listener_lan=listener_lan, ips=ips,
-                                                               target_lan=target_lan,
-                                                               lb_private_ips=lb_private_ips)
-                alb_response = _update_alb(module, client, alb_server, datacenter_id, alb.id,
-                                           alb_properties)
-                changed = True
-
-    if not changed:
         module.fail_json(msg="failed to update the Application Load Balancer: The resource does not exist")
 
     return {
-        'changed': changed,
+        'changed': True,
         'action': 'update',
         'failed': False,
         'application_load_balancer': alb_response.to_dict()
@@ -344,33 +382,18 @@ def remove_alb(module, client):
     wait_timeout = module.params.get('wait_timeout')
 
     alb_server = ionoscloud.ApplicationLoadBalancersApi(client)
-    changed = False
 
+
+    alb_list = alb_server.datacenters_applicationloadbalancers_get(datacenter_id=datacenter_id, depth=2)
+    existing_alb_id_by_name = get_resource_id(module, alb_list, name)
+
+    application_load_balancer_id = application_load_balancer_id if application_load_balancer_id else existing_alb_id_by_name
     try:
-        if application_load_balancer_id:
-            response = alb_server.datacenters_applicationloadbalancers_delete_with_http_info(datacenter_id, application_load_balancer_id)
-            (alb_response, _, headers) = response
 
-            if wait:
-                request_id = _get_request_id(headers['Location'])
-                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        _, _, headers = alb_server.datacenters_applicationloadbalancers_delete_with_http_info(datacenter_id, application_load_balancer_id)
 
-            changed = True
-
-        elif name:
-            alb_list = alb_server.datacenters_applicationloadbalancers_get_with_http_info(datacenter_id=datacenter_id, depth=2)
-            for alb in alb_list.items:
-                if name == alb.properties.name:
-                    application_load_balancer_id = alb.id
-                    response = alb_server.datacenters_applicationloadbalancers_delete_with_http_info(datacenter_id,
-                                                                                                application_load_balancer_id)
-                    (alb_response, _, headers) = response
-
-                    if wait:
-                        request_id = _get_request_id(headers['Location'])
-                        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-                    changed = True
+        if wait:
+            client.wait_for_completion(request_id=_get_request_id(headers['Location']), timeout=wait_timeout)
 
     except Exception as e:
         module.fail_json(
@@ -378,7 +401,7 @@ def remove_alb(module, client):
 
     return {
         'action': 'delete',
-        'changed': changed,
+        'changed': True,
         'id': application_load_balancer_id
     }
 
@@ -406,12 +429,20 @@ def get_module_arguments():
 def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
+    token = module.params.get('token')
     api_url = module.params.get('api_url')
 
-    conf = {
-        'username': username,
-        'password': password,
-    }
+    if token is not None:
+        # use the token instead of username & password
+        conf = {
+            'token': token
+        }
+    else:
+        # use the username & password
+        conf = {
+            'username': username,
+            'password': password,
+        }
 
     if api_url is not None:
         conf['host'] = api_url
@@ -421,6 +452,18 @@ def get_sdk_config(module, sdk):
 
 
 def check_required_arguments(module, state, object_name):
+    # manually checking if token or username & password provided
+    if (
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
+    ):
+        module.fail_json(
+            msg='Token or username & password are required for {object_name} state {state}'.format(
+                object_name=object_name,
+                state=state,
+            ),
+        )
+
     for option_name, option in OPTIONS.items():
         if state in option.get('required', []) and not module.params.get(option_name):
             module.fail_json(
