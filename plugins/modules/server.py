@@ -82,6 +82,11 @@ OPTIONS = {
         'default': [],
         'type': 'list',
     },
+    'user_data': {
+        'description': ['The cloud-init configuration for the volume as base64 encoded string.'],
+        'available': ['present'],
+        'type': 'str',
+    },
     'volume_availability_zone': {
         'description': ['The storage availability zone assigned to the volume.'],
         'available': ['present'],
@@ -437,6 +442,7 @@ def _create_machine(module, client, datacenter, name):
     volume_availability_zone = module.params.get('volume_availability_zone')
     image_password = module.params.get('image_password')
     ssh_keys = module.params.get('ssh_keys')
+    user_data = module.params.get('user_data')
     bus = module.params.get('bus')
     lan = module.params.get('lan')
     nat = module.params.get('nat')
@@ -507,6 +513,7 @@ def _create_machine(module, client, datacenter, name):
                                              availability_zone=volume_availability_zone,
                                              image_password=image_password,
                                              ssh_keys=ssh_keys,
+                                             user_data=user_data,
                                              bus=bus)
 
     if image:
