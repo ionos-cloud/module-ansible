@@ -28,7 +28,6 @@ STATES = ['absent', 'update']
 OBJECT_NAME = 'Image'
 
 
-
 OPTIONS = {
     'image_id': {
         'description': ['The ID of the image.'],
@@ -115,20 +114,28 @@ OPTIONS = {
         'type': 'str',
     },
     'username': {
+        # Required if no token, checked manually
         'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
         'aliases': ['subscription_user'],
-        'required': STATES,
         'env_fallback': 'IONOS_USERNAME',
         'available': STATES,
         'type': 'str',
     },
     'password': {
+        # Required if no token, checked manually
         'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
         'aliases': ['subscription_password'],
-        'required': STATES,
         'available': STATES,
         'no_log': True,
         'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'token': {
+        # If provided, then username and password no longer required
+        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_TOKEN',
         'type': 'str',
     },
     'wait': {
@@ -164,13 +171,13 @@ DOCUMENTATION = '''
 module: image
 short_description: Update or destroy a Ionos Cloud Image.
 description:
-     - This is a simple module that supports updating or removing Images. This module has a dependency on ionos-cloud >= 6.0.0
+     - This is a simple module that supports updating or removing Images. This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 6.0.0"
+    - "ionoscloud >= 6.0.2"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
@@ -207,17 +214,43 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
-def _get_resource(resource_list, identity):
+def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
     """
 
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
 
-    return None
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
 
 
 def _get_request_id(headers):
@@ -236,16 +269,13 @@ def delete_image(module, client):
 
     image_server = ionoscloud.ImagesApi(api_client=client)
 
-    images_list = image_server.images_get(depth=5)
-    image = _get_resource(images_list, image_id)
+    image = get_resource(module, image_server.images_get(depth=1), image_id)
 
     if not image:
         module.exit_json(changed=False)
 
-
     try:
-        response = image_server.images_delete_with_http_info(image_id=image_id)
-        (image_response, _, headers) = response
+        _, _, headers = image_server.images_delete_with_http_info(image_id=image_id)
 
         if wait:
             request_id = _get_request_id(headers['Location'])
@@ -287,11 +317,27 @@ def update_image(module, client):
         module.exit_json(changed=True)
     try:
 
-        image_properties = ImageProperties(name=name, description=description, cpu_hot_plug=cpu_hot_plug,
-                                           cpu_hot_unplug=cpu_hot_unplug, ram_hot_plug=ram_hot_plug, ram_hot_unplug=ram_hot_unplug,
-                                           nic_hot_plug=nic_hot_plug, nic_hot_unplug=nic_hot_unplug, disc_virtio_hot_plug=disc_virtio_hot_plug,
-                                           disc_virtio_hot_unplug=disc_virtio_hot_unplug, disc_scsi_hot_plug=disc_scsi_hot_plug,
-                                           disc_scsi_hot_unplug=disc_scsi_hot_unplug, licence_type=licence_type, cloud_init=cloud_init)
+        existing_image_id_by_name = get_resource_id(module, image_server.images_get(depth=1), name)
+
+        if image_id is not None and existing_image_id_by_name is not None and existing_image_id_by_name != image_id:
+            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
+
+        image_properties = ImageProperties(
+            name=name,
+            description=description,
+            cpu_hot_plug=cpu_hot_plug,
+            cpu_hot_unplug=cpu_hot_unplug,
+            ram_hot_plug=ram_hot_plug,
+            ram_hot_unplug=ram_hot_unplug,
+            nic_hot_plug=nic_hot_plug,
+            nic_hot_unplug=nic_hot_unplug,
+            disc_virtio_hot_plug=disc_virtio_hot_plug,
+            disc_virtio_hot_unplug=disc_virtio_hot_unplug,
+            disc_scsi_hot_plug=disc_scsi_hot_plug,
+            disc_scsi_hot_unplug=disc_scsi_hot_unplug,
+            licence_type=licence_type,
+            cloud_init=cloud_init,
+        )
 
         image_response, _, headers = image_server.images_patch_with_http_info(image_id=image_id, image=image_properties)
         if wait:
@@ -334,12 +380,20 @@ def get_module_arguments():
 def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
+    token = module.params.get('token')
     api_url = module.params.get('api_url')
 
-    conf = {
-        'username': username,
-        'password': password,
-    }
+    if token is not None:
+        # use the token instead of username & password
+        conf = {
+            'token': token
+        }
+    else:
+        # use the username & password
+        conf = {
+            'username': username,
+            'password': password,
+        }
 
     if api_url is not None:
         conf['host'] = api_url
@@ -349,6 +403,18 @@ def get_sdk_config(module, sdk):
 
 
 def check_required_arguments(module, state, object_name):
+    # manually checking if token or username & password provided
+    if (
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
+    ):
+        module.fail_json(
+            msg='Token or username & password are required for {object_name} state {state}'.format(
+                object_name=object_name,
+                state=state,
+            ),
+        )
+
     for option_name, option in OPTIONS.items():
         if state in option.get('required', []) and not module.params.get(option_name):
             module.fail_json(

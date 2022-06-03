@@ -22,7 +22,8 @@ This is a simple module that supports listing existing Postgres Cluster backups
 
 | Name | Required | Type | Default | Description |
 | :--- | :---: | :--- | :--- | :--- |
-| postgres_cluster | True | str |  | The ID or name of an existing Postgres Cluster. |
-| api_url | True | str |  | The Ionos API base URL. |
-| username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-| password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+| postgres_cluster | False | str |  | The ID or name of an existing Postgres Cluster. |
+| api_url | False | str |  | The Ionos API base URL. |
+| username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+| password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+| token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

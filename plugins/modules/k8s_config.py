@@ -46,20 +46,28 @@ OPTIONS = {
         'type': 'str',
     },
     'username': {
+        # Required if no token, checked manually
         'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
         'aliases': ['subscription_user'],
-        'required': STATES,
         'env_fallback': 'IONOS_USERNAME',
         'available': STATES,
         'type': 'str',
     },
     'password': {
+        # Required if no token, checked manually
         'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
         'aliases': ['subscription_password'],
-        'required': STATES,
         'available': STATES,
         'no_log': True,
         'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'token': {
+        # If provided, then username and password no longer required
+        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_TOKEN',
         'type': 'str',
     },
     'wait': {
@@ -96,13 +104,13 @@ module: k8s_config
 short_description: Get K8s cluster configs
 description:
      - This is a simple module that supports getting config of K8s clusters
-       This module has a dependency on ionos-cloud >= 6.0.0
+       This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 6.0.0"
+    - "ionoscloud >= 6.0.2"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
@@ -161,12 +169,20 @@ def get_module_arguments():
 def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
+    token = module.params.get('token')
     api_url = module.params.get('api_url')
 
-    conf = {
-        'username': username,
-        'password': password,
-    }
+    if token is not None:
+        # use the token instead of username & password
+        conf = {
+            'token': token
+        }
+    else:
+        # use the username & password
+        conf = {
+            'username': username,
+            'password': password,
+        }
 
     if api_url is not None:
         conf['host'] = api_url
@@ -176,6 +192,18 @@ def get_sdk_config(module, sdk):
 
 
 def check_required_arguments(module, state, object_name):
+    # manually checking if token or username & password provided
+    if (
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
+    ):
+        module.fail_json(
+            msg='Token or username & password are required for {object_name} state {state}'.format(
+                object_name=object_name,
+                state=state,
+            ),
+        )
+
     for option_name, option in OPTIONS.items():
         if state in option.get('required', []) and not module.params.get(option_name):
             module.fail_json(

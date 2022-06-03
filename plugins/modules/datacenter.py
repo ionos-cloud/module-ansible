@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import, division, print_function
 import copy
+from tabnanny import check
 import yaml
 import re
 
@@ -67,20 +68,28 @@ OPTIONS = {
         'type': 'str',
     },
     'username': {
+        # Required if no token, checked manually
         'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
         'aliases': ['subscription_user'],
-        'required': STATES,
         'env_fallback': 'IONOS_USERNAME',
         'available': STATES,
         'type': 'str',
     },
     'password': {
+        # Required if no token, checked manually
         'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
         'aliases': ['subscription_password'],
-        'required': STATES,
         'available': STATES,
         'no_log': True,
         'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'token': {
+        # If provided, then username and password no longer required
+        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_TOKEN',
         'type': 'str',
     },
     'wait': {
@@ -117,13 +126,13 @@ module: datacenter
 short_description: Create or destroy a Ionos Cloud Virtual Datacenter.
 description:
      - This is a simple module that supports creating or removing vDCs. A vDC is required before you can create servers.
-       This module has a dependency on ionos-cloud >= 6.0.0
+       This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 6.0.0"
+    - "ionoscloud >= 6.0.2"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
@@ -158,17 +167,43 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
-def _get_resource(resource_list, identity):
+def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
     """
 
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
 
-    return None
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
 
 
 def _get_request_id(headers):
@@ -222,16 +257,16 @@ def create_datacenter(module, client):
     wait_timeout = int(module.params.get('wait_timeout'))
 
     datacenter_server = ionoscloud.DataCentersApi(client)
-    datacenters = datacenter_server.datacenters_get(depth=2)
 
-    for dc in datacenters.items:
-        if name == dc.properties.name and location == dc.properties.location:
-            return {
-                'changed': False,
-                'failed': False,
-                'action': 'create',
-                'datacenter': dc.to_dict()
-            }
+    existing_dc = get_resource(module, datacenter_server.datacenters_get(depth=1), name)
+
+    if existing_dc:
+        return {
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'datacenter': existing_dc.to_dict()
+        }
 
     datacenter_properties = DatacenterProperties(name=name, description=description, location=location)
     datacenter = Datacenter(properties=datacenter_properties)
@@ -284,19 +319,16 @@ def update_datacenter(module, client):
     changed = False
     response = None
 
-    if datacenter_id:
-        datacenter = Datacenter(properties={'name': name, 'description': description})
-        response = _update_datacenter(module, datacenter_server, client, datacenter_id, datacenter, wait)
-        changed = response['changed']
-    else:
-        datacenters = datacenter_server.datacenters_get(depth=2)
-        for d in datacenters.items:
-            vdc = datacenter_server.datacenters_find_by_id(d.id)
-            if name == vdc.properties.name:
-                datacenter = Datacenter(
-                    properties={'name': name, 'description': description})
-                response = _update_datacenter(module, datacenter_server, client, datacenter_id, datacenter, wait)
-                changed = response['changed']
+    existing_dc_id_by_name = get_resource_id(module, datacenter_server.datacenters_get(depth=1), name)
+
+    if datacenter_id is not None and existing_dc_id_by_name is not None and existing_dc_id_by_name != datacenter_id:
+            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
+
+    datacenter_id = existing_dc_id_by_name if datacenter_id is None else datacenter_id
+
+    datacenter = Datacenter(properties={'name': name, 'description': description})
+    response = _update_datacenter(module, datacenter_server, client, datacenter_id, datacenter, wait)
+    changed = response['changed']
 
     if not changed:
         module.fail_json(msg="failed to update the datacenter: The resource does not exist")
@@ -323,23 +355,21 @@ def remove_datacenter(module, client):
     """
     name = module.params.get('name')
     datacenter_id = module.params.get('id')
-    datacenter_server = ionoscloud.DataCentersApi(client)
     wait = module.params.get('wait')
+    datacenter_server = ionoscloud.DataCentersApi(client)
 
-    datacenters_list = datacenter_server.datacenters_get(depth=5)
-    if datacenter_id:
-        datacenter = _get_resource(datacenters_list, datacenter_id)
-    else:
-        datacenter = _get_resource(datacenters_list, name)
+    datacenters_list = datacenter_server.datacenters_get(depth=1)
 
-    if not datacenter:
+    datacenter_id = get_resource_id(module, datacenters_list, datacenter_id if datacenter_id is not None else name)
+
+    if datacenter_id is None:
         module.exit_json(changed=False)
 
     if module.check_mode:
         module.exit_json(changed=True)
+
     try:
-        response = datacenter_server.datacenters_delete_with_http_info(datacenter_id=datacenter)
-        (_, _, headers) = response
+        _, _, headers = datacenter_server.datacenters_delete_with_http_info(datacenter_id=datacenter_id)
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id)
@@ -376,12 +406,20 @@ def get_module_arguments():
 def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
+    token = module.params.get('token')
     api_url = module.params.get('api_url')
 
-    conf = {
-        'username': username,
-        'password': password,
-    }
+    if token is not None:
+        # use the token instead of username & password
+        conf = {
+            'token': token
+        }
+    else:
+        # use the username & password
+        conf = {
+            'username': username,
+            'password': password,
+        }
 
     if api_url is not None:
         conf['host'] = api_url
@@ -391,6 +429,18 @@ def get_sdk_config(module, sdk):
 
 
 def check_required_arguments(module, state, object_name):
+    # manually checking if token or username & password provided
+    if (
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
+    ):
+        module.fail_json(
+            msg='Token or username & password are required for {object_name} state {state}'.format(
+                object_name=object_name,
+                state=state,
+            ),
+        )
+
     for option_name, option in OPTIONS.items():
         if state in option.get('required', []) and not module.params.get(option_name):
             module.fail_json(

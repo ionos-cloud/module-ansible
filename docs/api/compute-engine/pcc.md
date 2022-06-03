@@ -1,6 +1,6 @@
 # pcc
 
-This is a simple module that supports creating or removing Private Cross Connects. This module has a dependency on ionos-cloud &gt;= 6.0.0
+This is a simple module that supports creating or removing Private Cross Connects. This module has a dependency on ionoscloud &gt;= 6.0.2
 
 ## Example Syntax
 
@@ -48,8 +48,9 @@ This is a simple module that supports creating or removing Private Cross Connect
   | name | True | str |  | The name of the PCC. |
   | description | True | str |  | The description of the PCC. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -73,8 +74,9 @@ This is a simple module that supports creating or removing Private Cross Connect
   | :--- | :---: | :--- | :--- | :--- |
   | pcc_id | True | str |  | The ID of the PCC. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -102,8 +104,9 @@ This is a simple module that supports creating or removing Private Cross Connect
   | pcc_id | True | str |  | The ID of the PCC. |
   | description | False | str |  | The description of the PCC. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |

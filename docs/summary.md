@@ -6,6 +6,7 @@
 ## Usage
 
 * [Authentication](usage/authentication.md)
+* [Using proxies](usage/http_proxy.md)
 * [Ansible Playbooks](usage/ansibleplaybooks.md)
 * [Wait for Services](usage/waitforservices.md)
 * [Incrementing servers](usage/incrementingservers.md)

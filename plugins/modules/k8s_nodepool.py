@@ -118,12 +118,12 @@ OPTIONS = {
     },
     'labels': {
         'description': ['Map of labels attached to node pool.'],
-        'available': ['present',],
+        'available': ['present', 'update'],
         'type': 'dict',
     },
     'annotations': {
         'description': ['Map of annotations attached to node pool.'],
-        'available': ['present',],
+        'available': ['present','update'],
         'type': 'dict',
     },
     'auto_scaling': {
@@ -141,14 +141,6 @@ OPTIONS = {
         'type': 'list',
         'elements': 'str',
     },
-    'gateway_ip': {
-        'description': [
-            "Public IP address for the gateway performing source NAT for the node pool's nodes belonging to a private cluster. "
-            "Required only if the node pool belongs to a private cluster.",
-        ],
-        'available': ['present'],
-        'type': 'str',
-    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -157,20 +149,28 @@ OPTIONS = {
         'type': 'str',
     },
     'username': {
+        # Required if no token, checked manually
         'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
         'aliases': ['subscription_user'],
-        'required': STATES,
         'env_fallback': 'IONOS_USERNAME',
         'available': STATES,
         'type': 'str',
     },
     'password': {
+        # Required if no token, checked manually
         'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
         'aliases': ['subscription_password'],
-        'required': STATES,
         'available': STATES,
         'no_log': True,
         'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'token': {
+        # If provided, then username and password no longer required
+        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_TOKEN',
         'type': 'str',
     },
     'wait': {
@@ -207,13 +207,13 @@ module: k8s_nodepool
 short_description: Create or destroy K8s Nodepools
 description:
      - This is a simple module that supports creating or removing K8s Nodepools.
-       This module has a dependency on ionos-cloud >= 6.0.0
+       This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 6.0.0"
+    - "ionoscloud >= 6.0.2"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
@@ -261,13 +261,43 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
-def _get_request_id(headers):
-    match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
-    if match:
-        return match.group(1)
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
     else:
-        raise Exception("Failed to extract request ID from response "
-                        "header 'location': '{location}'".format(location=headers['location']))
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
 
 
 def create_k8s_cluster_nodepool(module, client):
@@ -289,7 +319,6 @@ def create_k8s_cluster_nodepool(module, client):
     annotations = module.params.get('annotations')
     wait = module.params.get('wait')
     public_ips = module.params.get('public_ips')
-    gateway_ip = module.params.get('gateway_ip')
 
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
 
@@ -304,24 +333,41 @@ def create_k8s_cluster_nodepool(module, client):
         maintenance_window = dict(maintenance)
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
+    nodepool_list = k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=1)
+
+    existing_nodepool = get_resource(module, nodepool_list, nodepool_name)
+
+    if existing_nodepool:
+        return {
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'datacenter': existing_nodepool.to_dict()
+        }
+
     try:
-        k8s_nodepool_properties = KubernetesNodePoolProperties(name=nodepool_name, datacenter_id=datacenter_id,
-                                                               node_count=node_count,
-                                                               cpu_family=cpu_family, cores_count=cores_count,
-                                                               ram_size=ram_size,
-                                                               availability_zone=availability_zone,
-                                                               storage_type=storage_type,
-                                                               storage_size=storage_size, k8s_version=k8s_version,
-                                                               maintenance_window=maintenance_window,
-                                                               auto_scaling=auto_scaling, lans=lan_ids,
-                                                               labels=labels, annotations=annotations,
-                                                               public_ips=public_ips, gateway_ip=gateway_ip)
+        k8s_nodepool_properties = KubernetesNodePoolProperties(
+            name=nodepool_name,
+            datacenter_id=datacenter_id,
+            node_count=node_count,
+            cpu_family=cpu_family,
+            cores_count=cores_count,
+            ram_size=ram_size,
+            availability_zone=availability_zone,
+            storage_type=storage_type,
+            storage_size=storage_size,
+            k8s_version=k8s_version,
+            maintenance_window=maintenance_window,
+            auto_scaling=auto_scaling,
+            lans=lan_ids,
+            labels=labels,
+            annotations=annotations,
+            public_ips=public_ips,
+        )
 
         k8s_nodepool = KubernetesNodePool(properties=k8s_nodepool_properties)
 
-        response = k8s_server.k8s_nodepools_post_with_http_info(k8s_cluster_id=k8s_cluster_id,
-                                                                kubernetes_node_pool=k8s_nodepool)
-        (k8s_response, _, headers) = response
+        k8s_response= k8s_server.k8s_nodepools_post(k8s_cluster_id=k8s_cluster_id, kubernetes_node_pool=k8s_nodepool)
 
         if wait:
             client.wait_for(
@@ -351,8 +397,8 @@ def delete_k8s_cluster_nodepool(module, client):
 
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
 
-    k8s_nodepool_list = k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=5)
-    k8s_nodepool = _get_resource(k8s_nodepool_list, nodepool_id)
+    k8s_nodepool_list = k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=1)
+    k8s_nodepool = get_resource(module, k8s_nodepool_list, nodepool_id)
 
     if not k8s_nodepool:
         module.exit_json(changed=False)
@@ -360,9 +406,7 @@ def delete_k8s_cluster_nodepool(module, client):
     changed = False
 
     try:
-        response = k8s_server.k8s_nodepools_delete_with_http_info(k8s_cluster_id=k8s_cluster_id,
-                                                                  nodepool_id=nodepool_id)
-        (k8s_response, _, headers) = response
+        k8s_server.k8s_nodepools_delete_with_http_info(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id)
         if module.params.get('wait'):
             client.wait_for(
                 fn_request=lambda: k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=2),
@@ -396,6 +440,8 @@ def update_k8s_cluster_nodepool(module, client):
     lan_ids = module.params.get('lan_ids')
     k8s_version = module.params.get('k8s_version')
     public_ips = module.params.get('public_ips')
+    labels = module.params.get('labels')
+    annotations = module.params.get('annotations')
 
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
 
@@ -410,9 +456,16 @@ def update_k8s_cluster_nodepool(module, client):
         maintenance_window = dict(maintenance)
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
+    nodepool_list = k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=1)
+    existing_nodepool_by_name = get_resource(module, nodepool_list, nodepool_name)
+
+    if nodepool_id is not None and existing_nodepool_by_name is not None and existing_nodepool_by_name.id != nodepool_id:
+        module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+            OBJECT_NAME, nodepool_name,
+        ))
+
     if not node_count:
-        nodepool = k8s_server.k8s_nodepools_find_by_id(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id, depth=2)
-        node_count = nodepool.properties.nodeCount
+        node_count = existing_nodepool_by_name.properties.node_count
 
     k8s_response = None
 
@@ -420,13 +473,23 @@ def update_k8s_cluster_nodepool(module, client):
         module.exit_json(changed=True)
     try:
         k8s_nodepool_properties = KubernetesNodePoolPropertiesForPut(
-            name=nodepool_name, node_count=node_count,
-            k8s_version=k8s_version, maintenance_window=maintenance_window,
-            auto_scaling=auto_scaling, lans=lan_ids, public_ips=public_ips)
+            name=nodepool_name,
+            node_count=node_count,
+            k8s_version=k8s_version,
+            maintenance_window=maintenance_window,
+            auto_scaling=auto_scaling,
+            lans=lan_ids,
+            public_ips=public_ips,
+            labels=labels,
+            annotations=annotations,
+        )
 
         k8s_nodepool = KubernetesNodePoolForPut(properties=k8s_nodepool_properties)
-        k8s_response = k8s_server.k8s_nodepools_put(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id,
-                                                               kubernetes_node_pool=k8s_nodepool)
+        k8s_response = k8s_server.k8s_nodepools_put(
+            k8s_cluster_id=k8s_cluster_id,
+            nodepool_id=nodepool_id,
+            kubernetes_node_pool=k8s_nodepool,
+        )
 
         if wait:
             client.wait_for(
@@ -452,19 +515,6 @@ def update_k8s_cluster_nodepool(module, client):
     }
 
 
-def _get_resource(resource_list, identity):
-    """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
-    """
-
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
-
-    return None
-
-
 def get_module_arguments():
     arguments = {}
 
@@ -488,12 +538,20 @@ def get_module_arguments():
 def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
+    token = module.params.get('token')
     api_url = module.params.get('api_url')
 
-    conf = {
-        'username': username,
-        'password': password,
-    }
+    if token is not None:
+        # use the token instead of username & password
+        conf = {
+            'token': token
+        }
+    else:
+        # use the username & password
+        conf = {
+            'username': username,
+            'password': password,
+        }
 
     if api_url is not None:
         conf['host'] = api_url
@@ -503,6 +561,18 @@ def get_sdk_config(module, sdk):
 
 
 def check_required_arguments(module, state, object_name):
+    # manually checking if token or username & password provided
+    if (
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
+    ):
+        module.fail_json(
+            msg='Token or username & password are required for {object_name} state {state}'.format(
+                object_name=object_name,
+                state=state,
+            ),
+        )
+
     for option_name, option in OPTIONS.items():
         if state in option.get('required', []) and not module.params.get(option_name):
             module.fail_json(

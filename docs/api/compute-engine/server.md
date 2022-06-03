@@ -86,8 +86,9 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -115,8 +116,9 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -135,8 +137,9 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -155,8 +158,9 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -185,8 +189,9 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | name | False | str |  | The name of the virtual machine. |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -232,7 +237,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | instance_ids | False | list |  | list of instance ids, currently only used when state='absent' to remove instances. |
   | count | False | int | 1 | The number of virtual machines to create. |
   | location | False | str | us/las | The datacenter location. Use only if you want to create the Datacenter or else this value is ignored. |
-  | lan | False | raw |  | The ID or name of the LAN you wish to add the servers to (can be a string or a number). |
+  | lan | False | str |  | The ID or name of the LAN you wish to add the servers to (can be a string or a number). |
   | nat | False | bool | False | Boolean value indicating if the private IP address has outbound access to the public Internet. |
   | remove_boot_volume | False | bool | True | Remove the bootVolume of the virtual machine you're destroying. |
   | disk_type | False | str | HDD | The disk type for the volume. |
@@ -242,8 +247,9 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | boot_cdrom | False | str |  | The CDROM used for boot. |
   | type | False | str | ENTERPRISE | The type of the virtual machine. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -278,8 +284,9 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | boot_volume | False | str |  | The volume used for boot. |
   | boot_cdrom | False | str |  | The CDROM used for boot. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |

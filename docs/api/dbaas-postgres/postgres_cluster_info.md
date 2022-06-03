@@ -22,6 +22,7 @@ This is a simple module that supports listing existing Postgres Clusters
 
 | Name | Required | Type | Default | Description |
 | :--- | :---: | :--- | :--- | :--- |
-| api_url | True | str |  | The Ionos API base URL. |
-| username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-| password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+| api_url | False | str |  | The Ionos API base URL. |
+| username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+| password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+| token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

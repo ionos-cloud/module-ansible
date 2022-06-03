@@ -121,20 +121,28 @@ OPTIONS = {
         'type': 'str',
     },
     'username': {
+        # Required if no token, checked manually
         'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
         'aliases': ['subscription_user'],
-        'required': STATES,
         'env_fallback': 'IONOS_USERNAME',
         'available': STATES,
         'type': 'str',
     },
     'password': {
+        # Required if no token, checked manually
         'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
         'aliases': ['subscription_password'],
-        'required': STATES,
         'available': STATES,
         'no_log': True,
         'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'token': {
+        # If provided, then username and password no longer required
+        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_TOKEN',
         'type': 'str',
     },
     'wait': {
@@ -176,7 +184,7 @@ options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 6.0.0"
+    - "ionoscloud >= 6.0.2"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
@@ -210,6 +218,45 @@ EXAMPLE_PER_STATE = {
 }
 
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+
+
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
 
 
 def _get_request_id(headers):
@@ -249,25 +296,18 @@ def create_group(module, client):
 
     user_management_server = ionoscloud.UserManagementApi(client)
 
-    group = None
-    groups = user_management_server.um_groups_get(depth=2)
-    for g in groups.items:
-        if name == g.properties.name:
-            group = g
-            break
+    existing_group = get_resource(module, user_management_server.um_groups_get(depth=1), name)
 
-    should_change = group is None
-
-    if module.check_mode:
-        module.exit_json(changed=should_change)
-
-    if not should_change:
+    if existing_group:
         return {
             'changed': False,
             'failed': False,
             'action': 'create',
-            'group': group.to_dict()
+            'group': existing_group.to_dict()
         }
+
+    if module.check_mode:
+        module.exit_json(changed=False)
 
     try:
         group_properties = GroupProperties(name=name,
@@ -333,14 +373,8 @@ def update_group(module, client):
     user_management_server = ionoscloud.UserManagementApi(client)
 
     try:
-        group = None
-        group_id = None
-        groups = user_management_server.um_groups_get(depth=2)
-        for g in groups.items:
-            if name == g.properties.name:
-                group = g
-                group_id = g.id
-                break
+        group = get_resource(module, user_management_server.um_groups_get(depth=2), name)
+        group_id = group.id
 
         if group:
             if module.check_mode:
@@ -371,24 +405,25 @@ def update_group(module, client):
             if access_and_manage_certificates is None:
                 access_and_manage_certificates = group.properties.access_and_manage_certificates
 
-            group_properties = GroupProperties(name=name,
-                                               create_data_center=create_datacenter,
-                                               create_snapshot=create_snapshot,
-                                               reserve_ip=reserve_ip,
-                                               access_activity_log=access_activity_log,
-                                               create_pcc=create_pcc,
-                                               s3_privilege=s3_privilege,
-                                               create_backup_unit=create_backup_unit,
-                                               create_internet_access=create_internet_access,
-                                               create_k8s_cluster=create_k8s_cluster,
-                                               create_flow_log=create_flow_log,
-                                               access_and_manage_monitoring=access_and_manage_monitoring,
-                                               access_and_manage_certificates=access_and_manage_certificates)
+            group_properties = GroupProperties(
+                name=name,
+                create_data_center=create_datacenter,
+                create_snapshot=create_snapshot,
+                reserve_ip=reserve_ip,
+                access_activity_log=access_activity_log,
+                create_pcc=create_pcc,
+                s3_privilege=s3_privilege,
+                create_backup_unit=create_backup_unit,
+                create_internet_access=create_internet_access,
+                create_k8s_cluster=create_k8s_cluster,
+                create_flow_log=create_flow_log,
+                access_and_manage_monitoring=access_and_manage_monitoring,
+                access_and_manage_certificates=access_and_manage_certificates,
+            )
 
             group = Group(properties=group_properties)
 
-            response = user_management_server.um_groups_put_with_http_info(group_id=group_id, group=group)
-            (group_response, _, headers) = response
+            group_response, _, headers = user_management_server.um_groups_put_with_http_info(group_id=group_id, group=group)
 
             if wait:
                 request_id = _get_request_id(headers['Location'])
@@ -405,7 +440,9 @@ def update_group(module, client):
                 new_gu = []
 
                 for u in module.params.get('users'):
-                    user_id = _get_user_id(all_users, u)
+                    user_id = get_resource_id(module, all_users, u, [['id'], ['properties', 'email']])
+                    if user_id is None:
+                        module.fail_json(msg="User '{}' not found!".format(u))
                     new_gu.append(user_id)
 
                 for user_id in old_gu:
@@ -417,11 +454,11 @@ def update_group(module, client):
 
                 for user_id in new_gu:
                     if user_id not in old_gu:
-                        response = user_management_server.um_groups_users_post_with_http_info(
+                        _, _, headers = user_management_server.um_groups_users_post_with_http_info(
                             group_id=group.id,
                             user=User(id=user_id)
                         )
-                        (user_response, _, headers) = response
+
                         request_id = _get_request_id(headers['Location'])
                         client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
             return {
@@ -450,8 +487,7 @@ def delete_group(module, client):
     name = module.params.get('name')
 
     # Locate UUID for the group
-    group_list = client.um_groups_get(depth=2)
-    group_id = _get_resource_id(group_list, name, module, "Group")
+    group_id = get_resource_id(module, client.um_groups_get(depth=1), name)
 
     if not group_id:
         module.exit_json(changed=False)
@@ -469,29 +505,6 @@ def delete_group(module, client):
 
     except Exception as e:
         module.fail_json(msg="failed to remove the group: %s" % to_native(e))
-
-
-def _get_user_id(resource_list, identity):
-    """
-    Return the UUID of a user regardless of whether the email or UUID is passed.
-    """
-    for resource in resource_list.items:
-        if identity in (resource.properties.email, resource.id):
-            return resource.id
-    return None
-
-
-def _get_resource_id(resource_list, identity, module, resource_type):
-    """
-    Fetch and return the UUID of a resource regardless of whether the name or
-    UUID is passed. Throw an error otherwise.
-    """
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
-
-    return None
-
 
 def get_module_arguments():
     arguments = {}
@@ -516,12 +529,20 @@ def get_module_arguments():
 def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
+    token = module.params.get('token')
     api_url = module.params.get('api_url')
 
-    conf = {
-        'username': username,
-        'password': password,
-    }
+    if token is not None:
+        # use the token instead of username & password
+        conf = {
+            'token': token
+        }
+    else:
+        # use the username & password
+        conf = {
+            'username': username,
+            'password': password,
+        }
 
     if api_url is not None:
         conf['host'] = api_url
@@ -531,6 +552,18 @@ def get_sdk_config(module, sdk):
 
 
 def check_required_arguments(module, state, object_name):
+    # manually checking if token or username & password provided
+    if (
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
+    ):
+        module.fail_json(
+            msg='Token or username & password are required for {object_name} state {state}'.format(
+                object_name=object_name,
+                state=state,
+            ),
+        )
+
     for option_name, option in OPTIONS.items():
         if state in option.get('required', []) and not module.params.get(option_name):
             module.fail_json(

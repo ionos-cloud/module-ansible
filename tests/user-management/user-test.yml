@@ -1,0 +1,62 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+    - set_fact:
+        random_user: "no-reply{{100000000 |random}}@example.com"
+      run_once: yes
+
+    - name: Create user
+      user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: true
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        state: present
+
+    - name: Update user
+      user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: false
+        force_sec_auth: false
+        state: update
+
+    - name: Create group
+      group:
+        name: "{{ name }}"
+
+    - name: Add user to group
+      user:
+        email: "{{ random_user }}"
+        groups:
+          - "{{ name }}"
+        state: update
+
+    - name: Remove user from group
+      user:
+        email: "{{ random_user }}"
+        groups: []
+        state: update
+
+    - name: Delete user
+      user:
+        email: "{{ random_user }}"
+        state: absent
+
+    - name: Delete user
+      user:
+        email: "non-existent-user"
+        state: absent
+
+    - name: Delete group
+      group:
+        name: "{{ name }}"
+        state: absent

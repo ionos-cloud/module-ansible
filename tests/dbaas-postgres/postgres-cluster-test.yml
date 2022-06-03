@@ -1,0 +1,164 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+
+  - name: Create datacenter
+    datacenter:
+      name: "{{ datacenter }} - DBaaS"
+      location: de/fra
+    register: datacenter_response
+
+  - name: Provision a server
+    server:
+      datacenter: "{{ datacenter }} - DBaaS"
+      name: "{{ name }}"
+      cores: 2
+      ram: 4096
+      availability_zone: ZONE_1
+      volume_availability_zone: ZONE_3
+      volume_size: 20
+      cpu_family: INTEL_SKYLAKE
+      disk_type: HDD
+      image: "{{ image_alias }}"
+      image_password: "{{ password }}"
+      location: de/fra
+      count: 1
+      assign_public_ip: true
+      remove_boot_volume: true
+      wait: true
+      wait_timeout: "{{ wait_timeout }}"
+      state: present
+    register: server_response
+
+  - name: Create LAN 1
+    lan:
+      datacenter: "{{ datacenter }} - DBaaS"
+      name: "test_lan1"
+      public: false
+    register: lan_response1
+
+  - name: Create LAN 2
+    lan:
+      datacenter: "{{ datacenter }} - DBaaS"
+      name: "test_lan2"
+      public: true
+    register: lan_response2
+
+  - name: Create NIC 1
+    nic:
+      name: "test_nic1"
+      datacenter: "{{ datacenter }} - DBaaS"
+      server: "{{ server_response.machines[0].id }}"
+      lan: "{{ lan_response1.lan.id }}"
+      wait: true
+      wait_timeout: "{{ wait_timeout }}"
+      state: present
+    register: nic_response1
+
+  - name: Create NIC 2
+    nic:
+      name: "test_nic2"
+      datacenter: "{{ datacenter }} - DBaaS"
+      server: "{{ server_response.machines[0].id }}"
+      lan: "{{ lan_response2.lan.id }}"
+      wait: true
+      wait_timeout: "{{ wait_timeout }}"
+      state: present
+    register: nic_response2
+
+  - name: Create Cluster
+    postgres_cluster:
+      postgres_version: 12
+      instances: 1
+      cores: 1
+      ram: 2048
+      storage_size: 20480
+      storage_type: HDD
+      location: de/fra
+      connections:
+        - cidr: 192.168.1.106/24
+          datacenter: "{{ datacenter }} - DBaaS"
+          lan: "test_lan1"
+      display_name: backuptest-04
+      synchronization_mode: ASYNCHRONOUS
+      db_username: clusteruser
+      db_password: 7357cluster
+      wait: true
+    register: cluster_response
+
+  - name: Update Cluster
+    postgres_cluster:
+      postgres_cluster: "{{ cluster_response.postgres_cluster.properties.display_name }}"
+      postgres_version: 12
+      instances: 2
+      cores: 2
+      ram: 4096
+      storage_size: 30480
+      state: update
+      wait: true
+    register: updated_cluster_response
+
+  - name: List Postgres Cluster Backups
+    postgres_backup_info:
+      postgres_cluster: "backuptest-04"
+    register: postgres_backup_response
+
+  - name: Delete Cluster
+    postgres_cluster:
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      state: absent
+      wait: true
+
+  - name: Remove NIC 1
+    nic:
+      name: "test_nic1"
+      datacenter: "{{ datacenter }} - DBaaS"
+      server: "{{ server_response.machines[0].id }}"
+      wait: true
+      wait_timeout: "{{ wait_timeout }}"
+      state: absent
+
+  - name: Remove NIC 2
+    nic:
+      name: "test_nic2"
+      datacenter: "{{ datacenter }} - DBaaS"
+      server: "{{ server_response.machines[0].id }}"
+      wait: true
+      wait_timeout: "{{ wait_timeout }}"
+      state: absent
+
+  - name: Remove server
+    server:
+      datacenter: "{{ datacenter }} - DBaaS"
+      instance_ids:
+        - "{{ server_response.machines[0].id }}"
+      remove_boot_volume: yes
+      wait_timeout: "{{ wait_timeout }}"
+      wait: true
+      state: absent
+
+  - name: Remove LAN 1
+    lan:
+      datacenter: "{{ datacenter }} - DBaaS"
+      name: "test_lan1"
+      state: absent
+      wait: true
+
+  - name: Remove LAN 2
+    lan:
+      datacenter: "{{ datacenter }} - DBaaS"
+      name: "test_lan2"
+      state: absent
+      wait: true
+
+  - name: Remove datacenter
+    datacenter:
+      id: "{{ datacenter_response.datacenter.id }}"
+      name: "{{ datacenter }} - DBaaS"
+      state: absent
+      wait: true

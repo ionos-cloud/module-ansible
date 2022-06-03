@@ -1,0 +1,104 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    ssh_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+    - name: Create datacenter
+      datacenter:
+          name: "{{ datacenter }}"
+          location: "{{ location }}"
+
+    - name: Provision a server
+      server:
+         datacenter: "{{ datacenter }}"
+         name: "{{ name }} %02d"
+         cores: 1
+         ram: 1024
+         availability_zone: ZONE_1
+         volume_availability_zone: ZONE_3
+         volume_size: 20
+         cpu_family: INTEL_SKYLAKE
+         disk_type: SSD Standard
+         image: "{{ image_alias }}"
+         image_password: "{{ password }}"
+         location: "{{ location }}"
+         count: 2
+         assign_public_ip: true
+         remove_boot_volume: true
+         wait: true
+         wait_timeout: "{{ wait_timeout }}"
+         state: present
+
+    - name: Update servers
+      server:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ name }} 01"
+           - "{{ name }} 02"
+         cores: 2
+         cpu_family: INTEL_SKYLAKE
+         ram: 2048
+         wait_timeout: "{{ wait_timeout }}"
+         state: update
+
+    - name: Update server with new name
+      server:
+          datacenter: "{{ datacenter }}"
+          instance_ids:
+           - "{{ name }} 01"
+          name: "{{ name }}"
+          cores: 2
+          cpu_family: INTEL_SKYLAKE
+          ram: 2048
+          wait_timeout: "{{ wait_timeout }}"
+          state: update
+
+    - name: Stop server
+      server:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ name }}"
+           - "{{ name }} 02"
+         wait_timeout: "{{ wait_timeout }}"
+         state: stopped
+
+    - name: Start server
+      server:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ name }}"
+           - "{{ name }} 02"
+         wait_timeout: "{{ wait_timeout }}"
+         state: running
+
+    - name: Start server
+      server:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ name }}"
+           - "{{ name }} 02"
+         wait_timeout: "{{ wait_timeout }}"
+         state: running
+
+    - name: Remove server
+      server:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+           - "{{ name }}"
+           - "{{ name }} 02"
+         remove_boot_volume: yes
+         wait_timeout: "{{ wait_timeout }}"
+         state: absent
+
+    - name: Remove datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        state: absent
+        wait: true

@@ -1,6 +1,6 @@
 # network_load_balancer_flowlog
 
-This is a simple module that supports creating or removing NetworkLoadbalancer Flowlogs. This module has a dependency on ionos-cloud &gt;= 6.0.0
+This is a simple module that supports creating or removing NetworkLoadbalancer Flowlogs. This module has a dependency on ionoscloud &gt;= 6.0.2
 
 ## Example Syntax
 
@@ -73,8 +73,9 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
   | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
   | flowlog_id | False | str |  | The ID of the Flowlog. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -103,8 +104,9 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
   | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
   | flowlog_id | False | str |  | The ID of the Flowlog. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -142,8 +144,9 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
   | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
   | flowlog_id | False | str |  | The ID of the Flowlog. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |

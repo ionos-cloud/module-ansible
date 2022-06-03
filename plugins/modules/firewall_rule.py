@@ -119,20 +119,28 @@ OPTIONS = {
         'type': 'str',
     },
     'username': {
+        # Required if no token, checked manually
         'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
         'aliases': ['subscription_user'],
-        'required': STATES,
         'env_fallback': 'IONOS_USERNAME',
         'available': STATES,
         'type': 'str',
     },
     'password': {
+        # Required if no token, checked manually
         'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
         'aliases': ['subscription_password'],
-        'required': STATES,
         'available': STATES,
         'no_log': True,
         'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'token': {
+        # If provided, then username and password no longer required
+        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_TOKEN',
         'type': 'str',
     },
     'wait': {
@@ -174,7 +182,7 @@ options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 6.0.0"
+    - "ionoscloud >= 6.0.2"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
@@ -230,6 +238,45 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
+
+
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -271,36 +318,30 @@ def create_firewall_rule(module, client):
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for server
     server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=2)
-    server_id = _get_resource_id(server_list, server, module, "Server")
+    server_id = get_resource_id(module, server_list, server)
 
     # Locate UUID for NIC
     nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=2)
-    nic_id = _get_resource_id(nic_list, nic, module, "NIC")
+    nic_id = get_resource_id(module, nic_list, nic)
 
-    fw_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id, server_id,
-                                                                    nic_id, depth=2)
-    f = None
-    for fw in fw_list.items:
-        if name == fw.properties.name:
-            f = fw
-            break
+    fw_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id, server_id, nic_id, depth=2)
 
-    should_change = f is None
+    existing_firewallrule = get_resource(module, fw_list, name)
 
-    if module.check_mode:
-        module.exit_json(changed=should_change)
-
-    if not should_change:
+    if existing_firewallrule:
         return {
-            'changed': should_change,
+            'changed': False,
             'failed': False,
             'action': 'create',
-            'firewall_rule': f.to_dict()
+            'firewall_rule': existing_firewallrule.to_dict()
         }
+
+    if module.check_mode:
+        module.exit_json(changed=False)
 
     try:
 
@@ -373,20 +414,20 @@ def update_firewall_rule(module, client):
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for server
     server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=2)
-    server_id = _get_resource_id(server_list, server, module, "Server")
+    server_id = get_resource_id(module, server_list, server)
 
     # Locate UUID for NIC
     nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=2)
-    nic_id = _get_resource_id(nic_list, nic, module, "NIC")
+    nic_id = get_resource_id(module, nic_list, nic)
 
     # Locate UUID for firewall rule
     fw_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id=datacenter_id, server_id=server_id,
                                                                     nic_id=nic_id, depth=2)
-    fw_id = _get_resource_id(fw_list, name, module, "Firewall rule")
+    fw_id = get_resource_id(module, fw_list, name)
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -447,21 +488,22 @@ def delete_firewall_rule(module, client):
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Datacenter")
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for server
     server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=2)
-    server_id = _get_resource_id(server_list, server, module, "Server")
+    server_id = get_resource_id(module, server_list, server)
 
     # Locate UUID for NIC
     nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=2)
-    nic_id = _get_resource_id(nic_list, nic, module, "NIC")
+    nic_id = get_resource_id(module, nic_list, nic)
 
     # Locate UUID for firewall rule
     firewall_rule_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id=datacenter_id,
                                                                                server_id=server_id, nic_id=nic_id,
                                                                                depth=2)
-    firewall_rule_id = _get_resource(firewall_rule_list, name)
+    firewall_rule_id = get_resource_id(module, firewall_rule_list, name)
+
     if not firewall_rule_id:
         module.exit_json(changed=False)
 
@@ -481,31 +523,6 @@ def delete_firewall_rule(module, client):
         }
     except Exception as e:
         module.fail_json(msg="failed to remove the firewall rule: %s" % to_native(e))
-
-
-def _get_resource(resource_list, identity):
-    """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
-    """
-
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
-
-    return None
-
-
-def _get_resource_id(resource_list, identity, module, resource_type):
-    """
-    Fetch and return the UUID of a resource regardless of whether the name or
-    UUID is passed. Throw an error otherwise.
-    """
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
-
-    module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
 
 
 def get_module_arguments():
@@ -531,12 +548,20 @@ def get_module_arguments():
 def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
+    token = module.params.get('token')
     api_url = module.params.get('api_url')
 
-    conf = {
-        'username': username,
-        'password': password,
-    }
+    if token is not None:
+        # use the token instead of username & password
+        conf = {
+            'token': token
+        }
+    else:
+        # use the username & password
+        conf = {
+            'username': username,
+            'password': password,
+        }
 
     if api_url is not None:
         conf['host'] = api_url
@@ -546,6 +571,18 @@ def get_sdk_config(module, sdk):
 
 
 def check_required_arguments(module, state, object_name):
+    # manually checking if token or username & password provided
+    if (
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
+    ):
+        module.fail_json(
+            msg='Token or username & password are required for {object_name} state {state}'.format(
+                object_name=object_name,
+                state=state,
+            ),
+        )
+
     for option_name, option in OPTIONS.items():
         if state in option.get('required', []) and not module.params.get(option_name):
             module.fail_json(

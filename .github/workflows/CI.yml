@@ -6,33 +6,69 @@ name: CI
 on:
     workflow_dispatch:
     pull_request:
-        types: [ assigned, opened, synchronize, reopened ]
+        types: [ opened, synchronize, reopened, ready_for_review ]
         paths:
           - 'plugins/**/*'
           - 'tests/**/*'
+          - '.github/workflows/CI.yml'
 
     push:
-      branches: [ release/v6 ]
+      branches: [ master ]
       paths:
           - 'plugins/**/*'
           - 'tests/**/*'
+          - '.github/workflows/CI.yml'
 
 jobs:
+  check_runs:
+    name: Making sure no other CI is running
+    env:
+      # Workflow names that cannot run in parallel with this workflow, separated by spaces
+      # Example: incompatible_parallel_workflows: 'CI Build Name OtherName Foo Bar FooBar'
+      incompatible_parallel_workflows: 'CI'
+
+    runs-on: ubuntu-latest
+    outputs:
+      runs: ${{ steps.get-runs_in_progress.outputs.runs }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python ${{ env.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.python-version }}
+
+      - name: Wait for Github API to register this as a running workflow
+        run: sleep 10s
+        shell: bash
+
+      - name: Checking no other incompatible workflow is running
+        id: runs_in_progress
+        run: |
+          bash .github/scripts/get_in_progress_ci.sh ${{ env.incompatible_parallel_workflows }}
+
+      - name: Assert that this is the only running CI
+        uses: nick-fields/assert-action@v1
+        with:
+          expected: false
+          actual: ${{ steps.runs_in_progress.outputs.is_banned_running }}
 
   test:
-
+    if: github.event.pull_request.draft == false
+    needs: check_runs
     name: Testing the Ansible Module
     env:
-        python-version: 3.8.0
-        ionoscloud-version: 6.0.0b1
-        ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
-        IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
-        IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
+      python-version: 3.8.0
+      ionoscloud-version: 6.0.0b1
+      ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
+      IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
+      IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
 
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     outputs:
-        python-version: ${{ env.python-version }}
+      python-version: ${{ env.python-version }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -50,118 +86,36 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install ionoscloud
           python3 -m pip install ionoscloud-dbaas-postgres
-
       - name: Install Ansible
         run: |
-            python3 -m pip install ansible
-
+          python3 -m pip install ansible
       - name: Debug pip packages
         run: |
           python3 -m pip list
-
-      - name: Run Datacenter test
+      - name: Run DBaaS Postgres tests
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml
-
-      - name: Run K8s Nodepool test
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/dbaas-postgres/all-tests.yml
+      - name: Run Managed Kubernetes tests
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-nodepool-test.yml
-
-      - name: Run User test
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-kubernetes/all-tests.yml
+      - name: Run Compute Engine tests
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
-
-      - name: Run Group test
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/compute-engine/all-tests.yml
+      - name: Run Managed Backup tests
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-backup/all-tests.yml
 
-      - name: Run Postgres Cluster Info test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-info-test.yml
-
-      - name: Run Postgres Cluster Backup Info test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-backup-info-test.yml
-
-      - name: Run Postgres Cluster test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-test.yml
-
-      - name: Run Backupunit test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/backupunit-test.yml
-          
-      - name: Run Nic Flowlog test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-flowlog-test.yml
-
-      - name: Run Firewall test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/firewall-test.yml
-
-      - name: Run IP Block test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/ipblock-test.yml
-
-      - name: Run LAN test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/lan-test.yml
-
-      - name: Run Nic test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-test.yml
-
-      - name: Run PCC test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/pcc-test.yml
-
-      - name: Run S3key test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/s3key-test.yml
-
-      - name: Run Server test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/server-test.yml
-
-      - name: Run Snapshot test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/snapshot-test.yml
-
-      - name: Run Template test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/template-test.yml
-
-      - name: Run Volume test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
-
-#      - name: Run NAT Gateway test
+#      - name: Run NAT Gateway tests
 #        run: |
-#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-test.yml -vvv
-#
-#      - name: Run NAT Gateway Flowlog test
-#        run: |
-#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-flowlog-test.yml
-#
-#      - name: Run NAT Gateway Rule test
-#        run: |
-#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-rule-test.yml
+#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/natgateway/all-tests.yml
 
-      - name: Run Attach Volume test
+      - name: Run Network Load Balancer tests
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/attach-volume-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/networkloadbalancer/all-tests.yml
 
-      - name: Run Kubeconfig test
+      - name: Run User Management tests
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-config-test.yml
-
-      - name: Run K8s Cluster test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-test.yml
-
-      - name: Run Private K8s Cluster test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/private-k8s-cluster-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-management/all-tests.yml
 
       - name: Run Target Group test
         run: |

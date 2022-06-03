@@ -1,0 +1,67 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+      ssh_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+  vars_files:
+    - ../vars.yml
+
+  tasks:
+    - name: Create datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        location: "{{ location }}"
+
+    - name: Create volumes
+      volume:
+        datacenter: "{{ datacenter }}"
+        name: "{{ name }} %02d"
+        disk_type: SSD Premium
+        image: "{{ image_alias }}"
+        image_password: "{{ password }}"
+        count: 2
+        size: 20
+        availability_zone: ZONE_3
+        cpu_hot_plug: false
+        ram_hot_plug: true
+        nic_hot_plug: true
+        nic_hot_unplug: true
+        disc_virtio_hot_plug: true
+        disc_virtio_hot_unplug: true
+        wait_timeout: 600
+        wait: true
+        state: present
+
+    - name: Update volume
+      volume:
+        datacenter: "{{ datacenter }}"
+        instance_ids:
+          - "{{ name }} 01"
+        name: "{{ name }} modified"
+        size: 25
+        cpu_hot_plug: false
+        ram_hot_plug: true
+        nic_hot_plug: true
+        nic_hot_unplug: true
+        disc_virtio_hot_plug: true
+        disc_virtio_hot_unplug: true
+        wait_timeout: 600
+        wait: true
+        state: update
+
+    - name: Delete volumes
+      volume:
+        datacenter: "{{ datacenter }}"
+        instance_ids:
+          - "{{ name }} modified"
+          - "{{ name }} 02"
+        wait_timeout: 600
+        state: absent
+
+    - name: Remove datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        state: absent
+        wait: true

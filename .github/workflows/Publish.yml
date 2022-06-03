@@ -59,150 +59,40 @@ jobs:
         run: |
          python3 -m pip list
 
-      - name: Run Datacenter tests
+      - name: Run DBaaS Postgres tests
         if: github.event.inputs.test == 'yes'
         run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/datacenter-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/dbaas-postgres/all-tests.yml
 
-      - name: Run Backupunit tests
+      - name: Run Managed Kubernetes tests
         if: github.event.inputs.test == 'yes'
         run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/backupunit-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-kubernetes/all-tests.yml
 
-      - name: Run Nic Flowlog test
+      - name: Run Compute Engine tests
         if: github.event.inputs.test == 'yes'
         run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-flowlog-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/compute-engine/all-tests.yml
 
-      - name: Run Firewall test
+      - name: Run Managed Backup tests
         if: github.event.inputs.test == 'yes'
         run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/firewall-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-backup/all-tests.yml
 
-      - name: Run IP Block test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/ipblock-test.yml
-
-      - name: Run LAN test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/lan-test.yml
-
-      - name: Run Nic test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nic-test.yml
-
-      - name: Run PCC test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/pcc-test.yml
-
-      - name: Run S3key test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/s3key-test.yml
-
-      - name: Run Server test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/server-test.yml
-
-      - name: Run Snapshot test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/snapshot-test.yml
-
-      - name: Run Template test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/template-test.yml
-
-      - name: Run Volume test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/volume-test.yml
-
-      - name: Run Attach Volume test
-        if: github.event.inputs.test == 'yes'
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/attach-volume-test.yml
-
-#      - name: Run NAT Gateway test
+#      - name: Run NAT Gateway tests
 #        if: github.event.inputs.test == 'yes'
 #        run: |
-#         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-test.yml
-#
-#      - name: Run NAT Gateway Flowlog test
-#        if: github.event.inputs.test == 'yes'
-#        run: |
-#         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-flowlog-test.yml
-#
-#      - name: Run NAT Gateway Rule test
-#        if: github.event.inputs.test == 'yes'
-#        run: |
-#         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/nat-gateway-rule-test.yml
+#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/natgateway/all-tests.yml
 
-#      - name: Run Network Load Balancer test
-#        if: github.event.inputs.test == 'yes'
-#        run: |
-#         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
-#
-#      - name: Run Network Load Balancer Flowlog test
-#        if: github.event.inputs.test == 'yes'
-#        run: |
-#         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
-#
-#      - name: Run Network Load Balancer Forwarding Rule test
-#        if: github.event.inputs.test == 'yes'
-#        run: |
-#         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/network-load-balancer-test.yml
-
-      - name: Run Kubeconfig test
+      - name: Run Network Load Balancer tests
         if: github.event.inputs.test == 'yes'
         run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-config-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/networkloadbalancer/all-tests.yml
 
-      - name: Run K8s Cluster test
+      - name: Run User Management tests
         if: github.event.inputs.test == 'yes'
         run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-test.yml
-
-      - name: Run Private K8s Cluster test
-        if: github.event.inputs.test == 'yes'
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/private-k8s-cluster-test.yml
-
-      - name: Run K8s Nodepool test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/k8s-cluster-nodepool-test.yml
-
-      - name: Run User test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-test.yml
-
-      - name: Run Group test
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/group-test.yml
-
-      - name: Run Postgres Cluster Info test
-        if: github.event.inputs.test == 'yes'
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-info-test.yml
-
-      - name: Run Postgres Cluster Backup Info test
-        if: github.event.inputs.test == 'yes'
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-backup-info-test.yml
-
-      - name: Run Postgres Cluster tests
-        if: github.event.inputs.test == 'yes'
-        run: |
-         ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/postgres-cluster-test.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-management/all-tests.yml
 
 
   publish:

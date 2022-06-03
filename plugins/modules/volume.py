@@ -52,7 +52,7 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name of the volumes. You can enumerate the names using auto_increment.'],
+        'description': ['The name of the volumes. Names are enumerated if count > 1.'],
         'required': ['present'],
         'available': STATES,
         'type': 'str',
@@ -116,16 +116,9 @@ OPTIONS = {
         'default': 1,
         'type': 'int',
     },
-    'auto_increment': {
-        'description': ['Whether or not to increment a single number in the name for created virtual machines.'],
-        'available': ['present'],
-        'choices': [True, False],
-        'default': True,
-        'type': 'bool',
-    },
     'instance_ids': {
-        'description': ["list of instance ids, currently only used when state='absent' to remove instances."],
-        'available': ['update', 'absent'],
+        'description': ["list of instance ids. Should only contain one ID if renaming in update state"],
+        'available': ['absent', 'update'],
         'default': [],
         'type': 'list',
     },
@@ -185,20 +178,28 @@ OPTIONS = {
         'type': 'str',
     },
     'username': {
+        # Required if no token, checked manually
         'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
         'aliases': ['subscription_user'],
-        'required': STATES,
         'env_fallback': 'IONOS_USERNAME',
         'available': STATES,
         'type': 'str',
     },
     'password': {
+        # Required if no token, checked manually
         'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
         'aliases': ['subscription_password'],
-        'required': STATES,
         'available': STATES,
         'no_log': True,
         'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
+    'token': {
+        # If provided, then username and password no longer required
+        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_TOKEN',
         'type': 'str',
     },
     'wait': {
@@ -240,7 +241,7 @@ options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 6.0.0"
+    - "ionoscloud >= 6.0.2"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
@@ -251,20 +252,19 @@ EXAMPLE_PER_STATE = {
     datacenter: Tardis One
     name: vol%02d
     count: 5
-    auto_increment: yes
     wait_timeout: 500
     state: present
   ''',
   'update' : '''# Update Volumes
   - volume:
-      datacenter: Tardis One
-      instance_ids:
-        - 'vol01'
-        - 'vol02'
-      size: 50
-      bus: IDE
-      wait_timeout: 500
-      state: update
+    name: 'new_vol_name'
+    datacenter: Tardis One
+    instance_ids: # Must only have one ID if renaming
+     - 'vol01'
+    size: 50
+    bus: IDE
+    wait_timeout: 500
+    state: update
   ''',
   'absent' : '''# Remove Volumes
   - volume:
@@ -280,6 +280,45 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
+
+
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+        identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+        resource_identity = []
+
+        for identity_path in identity_paths:
+            current = resource
+            for el in identity_path:
+                current = getattr(current, el)
+            resource_identity.append(current)
+
+        return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
 
 
 def _get_request_id(headers):
@@ -344,7 +383,7 @@ def _create_volume(module, volume_server, datacenter, name, client):
         module.fail_json(msg="failed to create the volume: %s" % to_native(e))
 
 
-def _update_volume(module, volume_server, api_client, datacenter, volume_id):
+def _update_volume(module, volume_server, api_client, datacenter, volume):
     name = module.params.get('name')
     size = module.params.get('size')
     bus = module.params.get('bus')
@@ -363,16 +402,15 @@ def _update_volume(module, volume_server, api_client, datacenter, volume_id):
         module.exit_json(changed=True)
 
     try:
-        volume_properties = VolumeProperties(name=name, size=size, availability_zone=availability_zone,
-                                             bus=bus,
-                                             cpu_hot_plug=cpu_hot_plug, ram_hot_plug=ram_hot_plug,
-                                             nic_hot_plug=nic_hot_plug, nic_hot_unplug=nic_hot_unplug,
-                                             disc_virtio_hot_plug=disc_virtio_hot_plug,
+        volume_properties = VolumeProperties(name=name if name is not None else volume.name, size=size,
+                                             availability_zone=availability_zone, bus=bus, cpu_hot_plug=cpu_hot_plug,
+                                             ram_hot_plug=ram_hot_plug, nic_hot_plug=nic_hot_plug,
+                                             nic_hot_unplug=nic_hot_unplug, disc_virtio_hot_plug=disc_virtio_hot_plug,
                                              disc_virtio_hot_unplug=disc_virtio_hot_unplug)
         volume = Volume(properties=volume_properties)
         response = volume_server.datacenters_volumes_put_with_http_info(
             datacenter_id=datacenter,
-            volume_id=volume_id,
+            volume_id=volume.id,
             volume=volume
         )
         (volume_response, _, headers) = response
@@ -408,29 +446,23 @@ def create_volume(module, client):
     """
     datacenter = module.params.get('datacenter')
     name = module.params.get('name')
-    auto_increment = module.params.get('auto_increment')
     count = module.params.get('count')
 
     volume_server = ionoscloud.VolumesApi(client)
     datacenter_server = ionoscloud.DataCentersApi(client)
     servers_server = ionoscloud.ServersApi(client)
 
-    datacenter_found = False
     volumes = []
     instance_ids = []
 
     datacenter_list = datacenter_server.datacenters_get(depth=2)
-    for d in datacenter_list.items:
-        dc = datacenter_server.datacenters_find_by_id(d.id)
-        if datacenter in [dc.properties.name, dc.id]:
-            datacenter = d.id
-            datacenter_found = True
-            break
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
-    if not datacenter_found:
+    if datacenter_id is None:
         module.fail_json(msg='datacenter could not be found.')
 
-    if auto_increment:
+    # Provide unique names by appending an auto incremented value at end of name
+    if count > 1:
         numbers = set()
         count_offset = 1
 
@@ -448,25 +480,23 @@ def create_volume(module, client):
         numbers_to_use = available_numbers[:count]
         for number in numbers_to_use:
             names.append(name % number)
-
     else:
-        names = [name] * count
-
-    changed = False
+        names = [name]
 
     # Prefetch a list of volumes for later comparison.
-    volume_list = volume_server.datacenters_volumes_get(datacenter, depth=2)
+    volume_list = volume_server.datacenters_volumes_get(datacenter_id, depth=2)
 
     for name in names:
-        # Skip volume creation if a volume with the same name already exists.
-        if _get_instance_id(volume_list, name):
-            volumes.append(_get_resource(volume_list, name))
-            continue
+        # Fail volume creation if a volume with this name and int combination already exists.
+        if get_resource_id(module, volume_list, name) is not None:
+            module.fail_json(msg="Volume with name %s already exists" % name, exception=traceback.format_exc())
 
-        create_response = _create_volume(module, volume_server, str(datacenter), name, client)
+    changed = False
+    for name in names:
+        create_response = _create_volume(module, volume_server, str(datacenter_id), name, client)
         volumes.append(create_response)
         instance_ids.append(create_response.id)
-        _attach_volume(module, servers_server, datacenter, create_response.id)
+        _attach_volume(module, servers_server, datacenter_id, create_response.id)
         changed = True
 
     results = {
@@ -490,54 +520,56 @@ def update_volume(module, client):
     client: authenticated ionoscloud object.
 
     Returns:
-        dict of updated volumes
+        updated volume
     """
     datacenter = module.params.get('datacenter')
     instance_ids = module.params.get('instance_ids')
+    name = module.params.get('name')
 
     volume_server = ionoscloud.VolumesApi(client)
     datacenter_server = ionoscloud.DataCentersApi(client)
 
-    datacenter_found = False
-    failed = True
+    if name is None:
+        if not isinstance(instance_ids, list) or len(instance_ids) < 1:
+            module.fail_json(msg='instance_ids should be a list of volume ids or names, aborting')
+    else:
+        if isinstance(instance_ids, list) and len(instance_ids) > 1:
+            module.fail_json(msg='when renaming, instance_ids can only have one id at most')
+
     changed = False
-    volumes = []
 
     datacenter_list = datacenter_server.datacenters_get(depth=2)
-    for d in datacenter_list.items:
-        dc = datacenter_server.datacenters_find_by_id(d.id)
-        if datacenter in [dc.properties.name, dc.id]:
-            datacenter = d.id
-            datacenter_found = True
-            break
-
-    if not datacenter_found:
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
+    if datacenter_id is None:
         module.fail_json(msg='datacenter could not be found.')
 
-    for n in instance_ids:
-        update_response = None
-        if (uuid_match.match(n)):
-            update_response = _update_volume(module, volume_server, client, datacenter, n)
-            changed = True
-        else:
-            volume_list = volume_server.datacenters_volumes_get(datacenter, depth=2)
-            for v in volume_list.items:
-                if n == v.properties.name:
-                    volume_id = v.id
-                    update_response = _update_volume(module, volume_server, client, datacenter, volume_id)
-                    changed = True
+    volume_list = volume_server.datacenters_volumes_get(datacenter_id, depth=2)
 
-        volumes.append(update_response)
-        failed = False
+    # Fail early if one of the ids provided doesn't match any volume
+    checked_instances = []
+    for instance in instance_ids:
+        volume = get_resource(module, volume_list, instance)
+        if volume is None:
+            module.fail_json(msg='Volume \'%s\' not found.' % str(instance))
+        checked_instances.append(volume)
+
+    updated_volumes = []
+    for instance in checked_instances:
+        existing_volume_by_name = None if name is None else get_resource_id(module, volume_list, name)
+        if existing_volume_by_name is not None:
+            module.fail_json(msg='A volume with the name %s already exists.' % name)
+
+        volume = get_resource(module, volume_list, instance)
+        if volume is not None:
+            update_response = _update_volume(module, volume_server, client, datacenter_id, volume)
+            changed = True
+            updated_volumes.append(update_response)
 
     results = {
         'changed': changed,
-        'failed': failed,
-        'volumes': [v.to_dict() for v in volumes],
-        'action': 'update',
-        'instance_ids': {
-            'instances': [i.id for i in volumes],
-        }
+        'failed': False,
+        'volume': [v.to_dict() for v in updated_volumes],
+        'action': 'update'
     }
 
     return results
@@ -563,31 +595,21 @@ def delete_volume(module, client):
         module.fail_json(msg='instance_ids should be a list of volume ids or names, aborting')
 
     datacenter = module.params.get('datacenter')
-    changed = False
     instance_ids = module.params.get('instance_ids')
 
-    volume_id = None
-
     # Locate UUID for Datacenter
-    if not (uuid_match.match(datacenter)):
-        datacenter_list = datacenter_server.datacenters_get(depth=2)
-        for d in datacenter_list.items:
-            dc = datacenter_server.datacenters_find_by_id(d.id)
-            if datacenter in [dc.properties.name, dc.id]:
-                datacenter = d.id
-                break
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
+    volumes = volume_server.datacenters_volumes_get(datacenter_id, depth=2)
+
+    changed = False
+    volume_id = None
     for n in instance_ids:
-        if (uuid_match.match(n)):
-            _delete_volume(module, volume_server, datacenter, n)
+        volume_id = get_resource_id(module, volumes, n)
+        if volume_id is not None:
+            _delete_volume(module, volume_server, datacenter_id, volume_id)
             changed = True
-        else:
-            volumes = volume_server.datacenters_volumes_get(datacenter, depth=2)
-            for v in volumes.items:
-                if n == v.properties.name:
-                    volume_id = v.id
-                    _delete_volume(module, volume_server, datacenter, volume_id)
-                    changed = True
 
     return {
         'action': 'delete',
@@ -612,39 +634,15 @@ def _attach_volume(module, server_client, datacenter, volume_id):
 
     # Locate UUID for Server
     if server:
-        if not (uuid_match.match(server)):
-            server_list = server_client.datacenters_servers_get(datacenter_id=datacenter, depth=2)
-            for s in server_list.items:
-                if server == s.properties.name:
-                    server = s.id
-                    break
+        server_list = server_client.datacenters_servers_get(datacenter_id=datacenter, depth=2)
+        server_id = get_resource_id(module, server_list, server)
 
         try:
             volume = Volume(id=volume_id)
-            return server_client.datacenters_servers_volumes_post(datacenter_id=datacenter, server_id=server,
+            return server_client.datacenters_servers_volumes_post(datacenter_id=datacenter, server_id=server_id,
                                                                   volume=volume)
         except Exception as e:
             module.fail_json(msg='failed to attach volume: %s' % to_native(e))
-
-
-def _get_instance_id(instance_list, identity):
-    """
-    Return instance UUID by name or ID, if found.
-    """
-    for i in instance_list.items:
-        if identity in (i.properties.name, i.id):
-            return i.id
-    return None
-
-
-def _get_resource(instance_list, identity):
-    """
-    Return instance UUID by name or ID, if found.
-    """
-    for i in instance_list.items:
-        if identity in (i.properties.name, i.id):
-            return i
-    return None
 
 
 def get_module_arguments():
@@ -670,12 +668,20 @@ def get_module_arguments():
 def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
+    token = module.params.get('token')
     api_url = module.params.get('api_url')
 
-    conf = {
-        'username': username,
-        'password': password,
-    }
+    if token is not None:
+        # use the token instead of username & password
+        conf = {
+            'token': token
+        }
+    else:
+        # use the username & password
+        conf = {
+            'username': username,
+            'password': password,
+        }
 
     if api_url is not None:
         conf['host'] = api_url
@@ -685,6 +691,18 @@ def get_sdk_config(module, sdk):
 
 
 def check_required_arguments(module, state, object_name):
+    # manually checking if token or username & password provided
+    if (
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
+    ):
+        module.fail_json(
+            msg='Token or username & password are required for {object_name} state {state}'.format(
+                object_name=object_name,
+                state=state,
+            ),
+        )
+
     for option_name, option in OPTIONS.items():
         if state in option.get('required', []) and not module.params.get(option_name):
             module.fail_json(
