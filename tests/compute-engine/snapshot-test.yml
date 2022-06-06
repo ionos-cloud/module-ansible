@@ -34,8 +34,7 @@
 
     - name: Update snapshot
       snapshot:
-        id: "{{ name }}"
-        name: "{{ name }} - RENAMED"
+        name: "{{ name }}"
         description: Ansible test snapshot - RENAME
         state: update
 
@@ -43,18 +42,18 @@
       snapshot:
         datacenter: "{{ datacenter }}"
         volume: "{{ name }}"
-        name: "{{ name }} - RENAMED"
+        name: "{{ name }}"
         state: restore
 
     - name: Delete snapshot
       snapshot:
-        name: "{{ name }} - RENAMED"
+        name: "{{ name }}"
         wait_timeout: 600
         state: absent
 
     - name: Delete snapshot
       snapshot:
-        name: "{{ name }} - RENAMED"
+        name: "{{ name }}"
         wait_timeout: 600
         state: absent
 
