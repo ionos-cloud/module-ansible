@@ -5,6 +5,7 @@
 
   vars:
     ssh_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    cloud_init_file: ../_resources/cloud-init.txt
 
   vars_files:
     - ../vars.yml
@@ -14,6 +15,10 @@
       datacenter:
           name: "{{ datacenter }}"
           location: "{{ location }}"
+
+    - name: Base64 encode the cloud-init config file '{{ cloud_init_file }}' for user_data in server provisioning
+      shell: base64 -w 0 "{{ cloud_init_file }}"
+      register: cloud_init_config
 
     - name: Provision a server
       server:
@@ -29,6 +34,7 @@
          image: "{{ image_alias }}"
          image_password: "{{ password }}"
          location: "{{ location }}"
+         user_data: "{{ cloud_init_config.stdout }}"
          count: 2
          assign_public_ip: true
          remove_boot_volume: true
