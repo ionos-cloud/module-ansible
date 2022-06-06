@@ -34,6 +34,32 @@
         wait: true
         state: present
 
+    - name: Create volumes (idempotency)
+      volume:
+        datacenter: "{{ datacenter }}"
+        name: "{{ name }} %02d"
+        disk_type: SSD Premium
+        image: "{{ image_alias }}"
+        image_password: "{{ password }}"
+        count: 2
+        size: 20
+        availability_zone: ZONE_3
+        cpu_hot_plug: false
+        ram_hot_plug: true
+        nic_hot_plug: true
+        nic_hot_unplug: true
+        disc_virtio_hot_plug: true
+        disc_virtio_hot_unplug: true
+        wait_timeout: 600
+        wait: true
+        state: present
+      register: create_volumes_idempotency
+
+    - name: "Debug: print result"
+      debug:
+        msg: "{{  create_volumes_idempotency }}"
+
+
     - name: Update volume
       volume:
         datacenter: "{{ datacenter }}"

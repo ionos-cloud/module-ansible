@@ -26,7 +26,6 @@ from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils.six.moves import xrange
 from ansible.module_utils._text import to_native
 
-
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
@@ -34,7 +33,7 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Volume'
@@ -224,11 +223,13 @@ OPTIONS = {
     },
 }
 
+
 def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
+    val['required'] = len(val.get('required', [])) == len(STATES)
     del val['available']
     del val['type']
     return val
+
 
 DOCUMENTATION = '''
 ---
@@ -238,7 +239,9 @@ description:
      - Allows you to create, update or remove a volume from a Ionos datacenter.
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+''' + '  ' + yaml.dump(
+    yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})),
+    default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -247,7 +250,7 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''# Create Multiple Volumes
+    'present': '''# Create Multiple Volumes
   - volume:
     datacenter: Tardis One
     name: vol%02d
@@ -255,7 +258,7 @@ EXAMPLE_PER_STATE = {
     wait_timeout: 500
     state: present
   ''',
-  'update' : '''# Update Volumes - only one ID if renaming
+    'update': '''# Update Volumes - only one ID if renaming
   - volume:
     name: 'new_vol_name'
     datacenter: Tardis One
@@ -265,7 +268,7 @@ EXAMPLE_PER_STATE = {
     wait_timeout: 500
     state: update
   ''',
-  'absent' : '''# Remove Volumes
+    'absent': '''# Remove Volumes
   - volume:
     datacenter: Tardis One
     instance_ids:
@@ -329,23 +332,7 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def _create_volume(module, volume_server, datacenter, name, client):
-    size = module.params.get('size')
-    bus = module.params.get('bus')
-    image = module.params.get('image')
-    image_password = module.params.get('image_password')
-    ssh_keys = module.params.get('ssh_keys')
-    disk_type = module.params.get('disk_type')
-    availability_zone = module.params.get('availability_zone')
-    licence_type = module.params.get('licence_type')
-    cpu_hot_plug = module.params.get('cpu_hot_plug')
-    ram_hot_plug = module.params.get('ram_hot_plug')
-    nic_hot_plug = module.params.get('nic_hot_plug')
-    nic_hot_unplug = module.params.get('nic_hot_unplug')
-    disc_virtio_hot_plug = module.params.get('disc_virtio_hot_plug')
-    disc_virtio_hot_unplug = module.params.get('disc_virtio_hot_unplug')
-    backupunit_id = module.params.get('backupunit_id')
-    user_data = module.params.get('user_data')
+def _create_volume(module, volume_server, volume_properties, datacenter, client):
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
 
@@ -353,20 +340,6 @@ def _create_volume(module, volume_server, datacenter, name, client):
         module.exit_json(changed=True)
 
     try:
-        volume_properties = VolumeProperties(name=name, type=disk_type, size=size, availability_zone=availability_zone,
-                                             image_password=image_password, ssh_keys=ssh_keys,
-                                             bus=bus,
-                                             licence_type=licence_type, cpu_hot_plug=cpu_hot_plug,
-                                             ram_hot_plug=ram_hot_plug, nic_hot_plug=nic_hot_plug,
-                                             nic_hot_unplug=nic_hot_unplug, disc_virtio_hot_plug=disc_virtio_hot_plug,
-                                             disc_virtio_hot_unplug=disc_virtio_hot_unplug, backupunit_id=backupunit_id,
-                                             user_data=user_data)
-        if image:
-            if uuid_match.match(image):
-                volume_properties.image = image
-            else:
-                volume_properties.image_alias = image
-
         volume = Volume(properties=volume_properties)
 
         response = volume_server.datacenters_volumes_post_with_http_info(datacenter_id=datacenter, volume=volume)
@@ -431,6 +404,41 @@ def _delete_volume(module, volume_server, datacenter, volume):
         module.fail_json(msg="failed to remove the volume: %s" % to_native(e))
 
 
+def _get_volume_properties(module, name):
+    size = module.params.get('size')
+    bus = module.params.get('bus')
+    image = module.params.get('image')
+    image_password = module.params.get('image_password')
+    ssh_keys = module.params.get('ssh_keys')
+    disk_type = module.params.get('disk_type')
+    availability_zone = module.params.get('availability_zone')
+    licence_type = module.params.get('licence_type')
+    cpu_hot_plug = module.params.get('cpu_hot_plug')
+    ram_hot_plug = module.params.get('ram_hot_plug')
+    nic_hot_plug = module.params.get('nic_hot_plug')
+    nic_hot_unplug = module.params.get('nic_hot_unplug')
+    disc_virtio_hot_plug = module.params.get('disc_virtio_hot_plug')
+    disc_virtio_hot_unplug = module.params.get('disc_virtio_hot_unplug')
+    backupunit_id = module.params.get('backupunit_id')
+    user_data = module.params.get('user_data')
+
+    volume_properties = VolumeProperties(name=name, type=disk_type, size=size, availability_zone=availability_zone,
+                                         image_password=image_password, ssh_keys=ssh_keys, bus=bus,
+                                         licence_type=licence_type, cpu_hot_plug=cpu_hot_plug,
+                                         ram_hot_plug=ram_hot_plug, nic_hot_plug=nic_hot_plug,
+                                         nic_hot_unplug=nic_hot_unplug, disc_virtio_hot_plug=disc_virtio_hot_plug,
+                                         disc_virtio_hot_unplug=disc_virtio_hot_unplug, backupunit_id=backupunit_id,
+                                         user_data=user_data)
+
+    if image:
+        if uuid_match.match(image):
+            volume_properties.image = image
+        else:
+            volume_properties.image_alias = image
+
+    return volume_properties
+
+
 def create_volume(module, client):
     """
     Create volumes.
@@ -451,7 +459,6 @@ def create_volume(module, client):
     datacenter_server = ionoscloud.DataCentersApi(client)
     servers_server = ionoscloud.ServersApi(client)
 
-    volumes = []
     instance_ids = []
 
     datacenter_list = datacenter_server.datacenters_get(depth=2)
@@ -485,14 +492,35 @@ def create_volume(module, client):
     # Prefetch a list of volumes for later comparison.
     volume_list = volume_server.datacenters_volumes_get(datacenter_id, depth=2)
 
+    volumes = []
+    volumes_to_create = []
     for name in names:
-        # Fail volume creation if a volume with this name and int combination already exists.
-        if get_resource_id(module, volume_list, name) is not None:
-            module.fail_json(msg="Volume with name %s already exists" % name, exception=traceback.format_exc())
+        # Fail (if needed) - and fetch list of volume properties that need to be created
+        # Only start creating after made sure no fail
+        volume_properties = _get_volume_properties(module, name)
+
+        existing_volume = get_resource(module, volume_list, name)
+        if existing_volume is not None:
+            # A volume with this name and int combination already exists.
+            if set(existing_volume.properties.to_dict()) ^ set(volume_properties.to_dict()):
+                # Fail: Volume already exists (different properties)
+                module.fail_json(msg="Volume with name %s already exists and has different properties"
+                                     % existing_volume.properties.name, exception=traceback.format_exc())
+
+            else:
+                # Not yet changed: Volume exists (same properties) => Respect idempotency
+                create_response = volume_server.datacenters_volumes_find_by_id(
+                    datacenter_id, existing_volume.id, depth=1)
+                volumes.append(create_response)
+                instance_ids.append(create_response.id)
+        else:
+            # Volume doesn't exist, mark for creation
+            volumes_to_create.append(volume_properties)
 
     changed = False
-    for name in names:
-        create_response = _create_volume(module, volume_server, str(datacenter_id), name, client)
+    for volume_properties in volumes_to_create:
+        # at this point we're sure we won't fail: safe to create volumes marked for creation
+        create_response = _create_volume(module, volume_server, volume_properties, str(datacenter_id), client)
         volumes.append(create_response)
         instance_ids.append(create_response.id)
         _attach_volume(module, servers_server, datacenter_id, create_response.id)
@@ -648,18 +676,18 @@ def get_module_arguments():
     arguments = {}
 
     for option_name, option in OPTIONS.items():
-      arguments[option_name] = {
-        'type': option['type'],
-      }
-      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
-        if option.get(key) is not None:
-          arguments[option_name][key] = option.get(key)
+        arguments[option_name] = {
+            'type': option['type'],
+        }
+        for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+            if option.get(key) is not None:
+                arguments[option_name][key] = option.get(key)
 
-      if option.get('env_fallback'):
-        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+        if option.get('env_fallback'):
+            arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
 
-      if len(option.get('required', [])) == len(STATES):
-        arguments[option_name]['required'] = True
+        if len(option.get('required', [])) == len(STATES):
+            arguments[option_name]['required'] = True
 
     return arguments
 
@@ -692,8 +720,8 @@ def get_sdk_config(module, sdk):
 def check_required_arguments(module, state, object_name):
     # manually checking if token or username & password provided
     if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
+            not module.params.get("token")
+            and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name} state {state}'.format(
@@ -732,7 +760,9 @@ def main():
             elif state == 'update':
                 module.exit_json(**update_volume(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
+                                                                                             error=to_native(e),
+                                                                                             state=state))
 
 
 if __name__ == '__main__':
