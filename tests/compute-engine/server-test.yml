@@ -51,8 +51,7 @@
     - name: Update server with new name
       server:
           datacenter: "{{ datacenter }}"
-          instance_ids:
-           - "{{ name }} 01"
+          instance_ids: "{{ name }} 01"
           name: "{{ name }}"
           cores: 2
           cpu_family: INTEL_SKYLAKE

@@ -255,12 +255,11 @@ EXAMPLE_PER_STATE = {
     wait_timeout: 500
     state: present
   ''',
-  'update' : '''# Update Volumes
+  'update' : '''# Update Volumes - only one ID if renaming
   - volume:
     name: 'new_vol_name'
     datacenter: Tardis One
-    instance_ids: # Must only have one ID if renaming
-     - 'vol01'
+    instance_ids: 'vol01'
     size: 50
     bus: IDE
     wait_timeout: 500
