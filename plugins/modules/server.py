@@ -36,7 +36,7 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['running', 'stopped', 'resume', 'suspend', 'absent', 'present', 'update']
 OBJECT_NAME = 'Server'
@@ -56,7 +56,8 @@ OPTIONS = {
         'type': 'str',
     },
     'assign_public_ip': {
-        'description': ['This will assign the machine to the public LAN. If no LAN exists with public Internet access it is created.'],
+        'description': [
+            'This will assign the machine to the public LAN. If no LAN exists with public Internet access it is created.'],
         'available': ['present'],
         'choices': [True, False],
         'default': False,
@@ -149,7 +150,8 @@ OPTIONS = {
         'type': 'int',
     },
     'location': {
-        'description': ['The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.'],
+        'description': [
+            'The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.'],
         'available': ['present'],
         'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
         'default': 'us/las',
@@ -161,7 +163,8 @@ OPTIONS = {
         'type': 'str',
     },
     'nat': {
-        'description': ['Boolean value indicating if the private IP address has outbound access to the public Internet.'],
+        'description': [
+            'Boolean value indicating if the private IP address has outbound access to the public Internet.'],
         'available': ['present'],
         'choices': [True, False],
         'default': False,
@@ -264,11 +267,13 @@ OPTIONS = {
     },
 }
 
+
 def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
+    val['required'] = len(val.get('required', [])) == len(STATES)
     del val['available']
     del val['type']
     return val
+
 
 DOCUMENTATION = '''
 ---
@@ -279,7 +284,9 @@ description:
        When the virtual machine is created it can optionally wait for it to be 'running' before returning.
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+''' + '  ' + yaml.dump(
+    yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})),
+    default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
     - "ionos-cloud >= 5.2.0"
@@ -288,7 +295,7 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''# Provisioning example. This will create three servers and enumerate their names.
+    'present': '''# Provisioning example. This will create three servers and enumerate their names.
     - server:
         datacenter: Tardis One
         name: web%02d.stackpointcloud.com
@@ -301,7 +308,7 @@ EXAMPLE_PER_STATE = {
         count: 3
         assign_public_ip: true
   ''',
-  'update' : '''# Update Virtual machines
+    'update': '''# Update Virtual machines
     - server:
         datacenter: Tardis One
         instance_ids:
@@ -323,7 +330,7 @@ EXAMPLE_PER_STATE = {
         availability_zone: ZONE_1
         state: update
 ''',
-  'absent' : '''# Removing Virtual machines
+    'absent': '''# Removing Virtual machines
     - server:
         datacenter: Tardis One
         instance_ids:
@@ -333,7 +340,7 @@ EXAMPLE_PER_STATE = {
         wait_timeout: 500
         state: absent
   ''',
-  'running' : '''# Starting Virtual Machines.
+    'running': '''# Starting Virtual Machines.
     - server:
         datacenter: Tardis One
         instance_ids:
@@ -343,7 +350,7 @@ EXAMPLE_PER_STATE = {
         wait_timeout: 500
         state: running
   ''',
-  'stopped' : '''# Stopping Virtual Machines
+    'stopped': '''# Stopping Virtual Machines
     - server:
         datacenter: Tardis One
         instance_ids:
@@ -427,30 +434,13 @@ def _get_lan_by_id_or_properties(networks, id=None, **kwargs):
     return matched_lan
 
 
-def _create_machine(module, client, datacenter, name):
-    cores = module.params.get('cores')
-    ram = module.params.get('ram')
-    cpu_family = module.params.get('cpu_family')
-    volume_size = module.params.get('volume_size')
-    disk_type = module.params.get('disk_type')
-    availability_zone = module.params.get('availability_zone')
-    volume_availability_zone = module.params.get('volume_availability_zone')
-    image_password = module.params.get('image_password')
-    ssh_keys = module.params.get('ssh_keys')
-    bus = module.params.get('bus')
+def _get_server_nics(module, client, datacenter):
     lan = module.params.get('lan')
-    nat = module.params.get('nat')
-    image = module.params.get('image')
     assign_public_ip = module.boolean(module.params.get('assign_public_ip'))
     nic_ips = module.params.get('nic_ips')
-    template_uuid = module.params.get('template_uuid')
-    type = module.params.get('type')
-    boot_cdrom = module.params.get('boot_cdrom')
-    boot_volume = module.params.get('boot_volume')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    server_server = ionoscloud.ServersApi(api_client=client)
     lan_server = ionoscloud.LANsApi(api_client=client)
 
     nics = []
@@ -489,25 +479,24 @@ def _create_machine(module, client, datacenter, name):
                 nic.properties.ips = nic_ips
             nics.append(nic)
 
+    return nics
 
-    if type == 'CUBE':
-        server_properties = ServerProperties(template_uuid=template_uuid, name=name,
-                                             availability_zone=availability_zone,
-                                             boot_cdrom=boot_cdrom, boot_volume=boot_volume,
-                                             cpu_family=cpu_family, type=type)
 
+def _get_volume_properties(module):
+    disk_type = module.params.get('disk_type')
+    image_password = module.params.get('image_password')
+    bus = module.params.get('bus')
+    image = module.params.get('image')
+
+    if type == "CUBE":
         volume_properties = VolumeProperties(type=disk_type, image_password=image_password)
-
     else:
-        server_properties = ServerProperties(name=name, cores=cores, ram=ram, availability_zone=availability_zone,
-                                             cpu_family=cpu_family)
+        volume_availability_zone = module.params.get('volume_availability_zone')
+        volume_size = module.params.get('volume_size')
+        ssh_keys = module.params.get('ssh_keys')
         volume_properties = VolumeProperties(name=str(uuid4()).replace('-', '')[:10],
-                                             type=disk_type,
-                                             size=volume_size,
-                                             availability_zone=volume_availability_zone,
-                                             image_password=image_password,
-                                             ssh_keys=ssh_keys,
-                                             bus=bus)
+                                             availability_zone=volume_availability_zone, type=disk_type, bus=bus,
+                                             size=volume_size, image_password=image_password, ssh_keys=ssh_keys)
 
     if image:
         if uuid_match.match(image):
@@ -515,8 +504,41 @@ def _create_machine(module, client, datacenter, name):
         else:
             volume_properties.image_alias = image
 
+    return volume_properties
+
+
+def _get_server_properties(module, name):
+    availability_zone = module.params.get('availability_zone')
+    cpu_family = module.params.get('cpu_family')
+    type = module.params.get('type')
+
+    if type == "CUBE":
+        boot_cdrom = module.params.get('boot_cdrom')
+        boot_volume = module.params.get('boot_volume')
+        template_uuid = module.params.get('template_uuid')
+        return ServerProperties(template_uuid=template_uuid, name=name, availability_zone=availability_zone,
+                                boot_cdrom=boot_cdrom, boot_volume=boot_volume, cpu_family=cpu_family, type=type)
+    else:
+        cores = module.params.get('cores')
+        ram = module.params.get('ram')
+        return ServerProperties(name=name, cores=cores, ram=ram,
+                                availability_zone=availability_zone, cpu_family=cpu_family)
+
+
+def _create_machine(module, client, datacenter, name):
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    server_server = ionoscloud.ServersApi(api_client=client)
+
+    server_properties = _get_server_properties(module, name)
+    volume_properties = _get_volume_properties(module)
+
+    nics = _get_server_nics(module, client, datacenter)
+
     volume = Volume(properties=volume_properties)
-    server_entities = ServerEntities(volumes=Volumes(items=[volume]), nics=Nics(items=nics))
+    server_entities = ServerEntities(volumes=Volumes(items=[volume]),
+                                     nics=Nics(items=nics))
 
     server = Server(properties=server_properties, entities=server_entities)
 
@@ -540,7 +562,6 @@ def _create_machine(module, client, datacenter, name):
                         len(r.entities.volumes.items) > 0)
                                    and (r.entities.nics is not None) and (r.entities.nics.items is not None) and (
                                            len(r.entities.nics.items) == len(nics)), scaleup=10000)
-
 
         server = server_server.datacenters_servers_find_by_id(datacenter_id=datacenter,
                                                               server_id=server_response.id, depth=2)
@@ -588,6 +609,7 @@ def _startstop_machine(module, client, datacenter_id, server_id, current_state):
 
     return changed, server
 
+
 def _resume_suspend_machine(module, client, datacenter_id, server_id, current_state):
     state = module.params.get('state')
     server_server = ionoscloud.ServersApi(api_client=client)
@@ -620,7 +642,8 @@ def _resume_suspend_machine(module, client, datacenter_id, server_id, current_st
 
     except Exception as e:
         module.fail_json(
-            msg="failed to resume or suspend the virtual machine %s at %s: %s" % (server_id, datacenter_id, to_native(e)))
+            msg="failed to resume or suspend the virtual machine %s at %s: %s" % (
+            server_id, datacenter_id, to_native(e)))
 
     return changed, server
 
@@ -708,7 +731,6 @@ def create_virtual_machine(module, client):
             module.fail_json(msg="Server with name %s already exists" % name, exception=traceback.format_exc())
 
     changed = False
-    # Prefetch a list of servers for later comparison.
     for name in names:
         create_response = _create_machine(module, client, str(datacenter_id), name)
         changed = True
@@ -937,6 +959,7 @@ def startstop_machine(module, client, state):
         'machines': [m.to_dict() for m in matched_instances]
     }
 
+
 def resume_suspend_machine(module, client, state):
     """
     Reusmes or Suspend a CUBE virtual machine.
@@ -994,18 +1017,18 @@ def get_module_arguments():
     arguments = {}
 
     for option_name, option in OPTIONS.items():
-      arguments[option_name] = {
-        'type': option['type'],
-      }
-      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
-        if option.get(key) is not None:
-          arguments[option_name][key] = option.get(key)
+        arguments[option_name] = {
+            'type': option['type'],
+        }
+        for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+            if option.get(key) is not None:
+                arguments[option_name][key] = option.get(key)
 
-      if option.get('env_fallback'):
-        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+        if option.get('env_fallback'):
+            arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
 
-      if len(option.get('required', [])) == len(STATES):
-        arguments[option_name]['required'] = True
+        if len(option.get('required', [])) == len(STATES):
+            arguments[option_name]['required'] = True
 
     return arguments
 
@@ -1038,8 +1061,8 @@ def get_sdk_config(module):
 def check_required_arguments(module, state, object_name):
     # manually checking if token or username & password provided
     if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
+            not module.params.get("token")
+            and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name} state {state}'.format(
@@ -1065,8 +1088,8 @@ def main():
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
     if (
-        module.params.get('lan') is not None 
-        and not (isinstance(module.params.get('lan'), str) or isinstance(module.params.get('lan'), int))
+            module.params.get('lan') is not None
+            and not (isinstance(module.params.get('lan'), str) or isinstance(module.params.get('lan'), int))
     ):
         module.fail_json(msg='lan should either be a string or a number')
 
@@ -1090,7 +1113,10 @@ def main():
             elif state == 'update':
                 module.exit_json(**update_server(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
+                                                                                             error=to_native(e),
+                                                                                             state=state))
+
 
 if __name__ == '__main__':
     main()
