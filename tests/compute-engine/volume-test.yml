@@ -24,7 +24,6 @@
         count: 2
         size: 20
         availability_zone: ZONE_3
-        auto_increment: yes
         cpu_hot_plug: false
         ram_hot_plug: true
         nic_hot_plug: true
@@ -35,12 +34,12 @@
         wait: true
         state: present
 
-    - name: Update volumes
+    - name: Update volume
       volume:
         datacenter: "{{ datacenter }}"
         instance_ids:
           - "{{ name }} 01"
-          - "{{ name }} 02"
+        name: "{{ name }} modified"
         size: 25
         cpu_hot_plug: false
         ram_hot_plug: true
@@ -56,7 +55,7 @@
       volume:
         datacenter: "{{ datacenter }}"
         instance_ids:
-          - "{{ name }} 01"
+          - "{{ name }} modified"
           - "{{ name }} 02"
         wait_timeout: 600
         state: absent

@@ -17,13 +17,12 @@ from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
-
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
     'status': ['preview'],
     'supported_by': 'community',
 }
-USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'PCC'
@@ -101,11 +100,13 @@ OPTIONS = {
     },
 }
 
+
 def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
+    val['required'] = len(val.get('required', [])) == len(STATES)
     del val['available']
     del val['type']
     return val
+
 
 DOCUMENTATION = '''
 ---
@@ -116,7 +117,9 @@ description:
        This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+''' + '  ' + yaml.dump(
+    yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})),
+    default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -125,13 +128,13 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''
+    'present': '''
   - name: Create pcc
     pcc:
       name: "{{ name }}"
       description: "{{ description }}"
   ''',
-  'update' : '''
+    'update': '''
   - name: Update pcc
     pcc:
       pcc_id: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
@@ -139,7 +142,7 @@ EXAMPLE_PER_STATE = {
       description: "{{ new_description }}"
       state: update
   ''',
-  'absent' : '''
+    'absent': '''
   - name: Remove pcc
     pcc:
       pcc_id: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
@@ -150,17 +153,43 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
-def _get_resource(resource_list, identity):
+def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches
+    are found an error is printed and None is returned.
     """
 
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
+    if identity_paths is None:
+        identity_paths = [['id'], ['properties', 'name']]
 
-    return None
+    def check_identity_method(resource):
+        resource_identity = []
+
+        for identity_path in identity_paths:
+            current = resource
+            for el in identity_path:
+                current = getattr(current, el)
+            resource_identity.append(current)
+
+        return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
 
 
 def _get_request_id(headers):
@@ -179,6 +208,18 @@ def create_pcc(module, client):
     wait_timeout = module.params.get('wait_timeout')
 
     pcc_server = ionoscloud.PrivateCrossConnectsApi(client)
+
+    # Locate pcc by name/UUID
+    pcc_list = pcc_server.pccs_get(depth=1)
+    existing_pcc = get_resource(module, pcc_list, name)
+
+    if existing_pcc is not None:
+        return {
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'pcc': existing_pcc.to_dict()
+        }
 
     pcc_properties = PrivateCrossConnectProperties(name=name, description=description)
     pcc = PrivateCrossConnect(properties=pcc_properties)
@@ -207,11 +248,10 @@ def delete_pcc(module, client):
     pcc_server = ionoscloud.PrivateCrossConnectsApi(client)
 
     pcc_list = pcc_server.pccs_get(depth=5)
-    pcc = _get_resource(pcc_list, pcc_id)
+    pcc = get_resource_id(module, pcc_list, pcc_id)
 
     if not pcc:
         module.exit_json(changed=False)
-
 
     try:
         pcc_server.pccs_delete(pcc_id)
@@ -232,13 +272,22 @@ def update_pcc(module, client):
     wait_timeout = module.params.get('wait_timeout')
 
     pcc_server = ionoscloud.PrivateCrossConnectsApi(client)
+    pcc_list = pcc_server.pccs_get(depth=3)
+
+    existing_pcc_with_name = get_resource(module, pcc_list, name)
+    if existing_pcc_with_name is not None:
+        module.fail_json(msg="failed to update the pcc: pcc with name \'%s\' already exists!" % name)
+
+    pcc = get_resource(module, pcc_list, pcc_id)
+    if pcc is None:
+        module.fail_json(msg="failed to update the pcc: pcc with id \'%s\' does not exist!" % pcc_id)
 
     pcc_properties = PrivateCrossConnectProperties(name=name, description=description)
 
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        response = pcc_server.pccs_patch_with_http_info(pcc_id=pcc_id, pcc=pcc_properties)
+        response = pcc_server.pccs_patch_with_http_info(pcc_id=pcc.id, pcc=pcc_properties)
         (pcc_response, _, headers) = response
 
         if wait:
@@ -265,18 +314,18 @@ def get_module_arguments():
     arguments = {}
 
     for option_name, option in OPTIONS.items():
-      arguments[option_name] = {
-        'type': option['type'],
-      }
-      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
-        if option.get(key) is not None:
-          arguments[option_name][key] = option.get(key)
+        arguments[option_name] = {
+            'type': option['type'],
+        }
+        for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+            if option.get(key) is not None:
+                arguments[option_name][key] = option.get(key)
 
-      if option.get('env_fallback'):
-        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+        if option.get('env_fallback'):
+            arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
 
-      if len(option.get('required', [])) == len(STATES):
-        arguments[option_name]['required'] = True
+        if len(option.get('required', [])) == len(STATES):
+            arguments[option_name]['required'] = True
 
     return arguments
 
@@ -309,8 +358,8 @@ def get_sdk_config(module, sdk):
 def check_required_arguments(module, state, object_name):
     # manually checking if token or username & password provided
     if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
+            not module.params.get("token")
+            and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name} state {state}'.format(
@@ -349,7 +398,9 @@ def main():
             elif state == 'update':
                 module.exit_json(**update_pcc(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
+                                                                                             error=to_native(e),
+                                                                                             state=state))
 
 
 if __name__ == '__main__':

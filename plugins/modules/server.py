@@ -55,13 +55,6 @@ OPTIONS = {
         'available': ['present', 'update', 'absent'],
         'type': 'str',
     },
-    'auto_increment': {
-        'description': ['Whether or not to increment a single number in the name for created virtual machines.'],
-        'available': ['present'],
-        'choices': [True, False],
-        'default': True,
-        'type': 'bool',
-    },
     'assign_public_ip': {
         'description': ['This will assign the machine to the public LAN. If no LAN exists with public Internet access it is created.'],
         'available': ['present'],
@@ -144,8 +137,8 @@ OPTIONS = {
         'type': 'str',
     },
     'instance_ids': {
-        'description': ["list of instance ids, currently only used when state='absent' to remove instances."],
-        'available': ['present'],
+        'description': ["list of instance ids. Should only contain one ID if renaming in update state"],
+        'available': ['running', 'stopped', 'resume', 'suspend', 'absent', 'update'],
         'default': [],
         'type': 'list',
     },
@@ -319,7 +312,17 @@ EXAMPLE_PER_STATE = {
         cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
-  ''',
+  # Rename virtual machine
+    - server:
+        datacenter: Tardis One
+        instance_ids: web001.stackpointcloud.com
+        name: web101.stackpointcloud.com
+        cores: 4
+        ram: 4096
+        cpu_family: INTEL_XEON
+        availability_zone: ZONE_1
+        state: update
+''',
   'absent' : '''# Removing Virtual machines
     - server:
         datacenter: Tardis One
@@ -355,6 +358,45 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
+
+
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+        identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+        resource_identity = []
+
+        for identity_path in identity_paths:
+            current = resource
+            for el in identity_path:
+                current = getattr(current, el)
+            resource_identity.append(current)
+
+        return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
 
 
 def _get_request_id(headers):
@@ -438,7 +480,7 @@ def _create_machine(module, client, datacenter, name):
 
     if lan is not None:
         lans_list = lan_server.datacenters_lans_get(datacenter_id=datacenter, depth=2).items
-        matching_lan = _get_lan_by_id_or_properties(lans_list, lan, name=lan)
+        matching_lan = get_resource(module, lans_list, lan)
 
         if (not any(n.properties.lan == int(matching_lan.id) for n in nics)) or len(nics) < 1:
             nic = Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10],
@@ -454,10 +496,7 @@ def _create_machine(module, client, datacenter, name):
                                              boot_cdrom=boot_cdrom, boot_volume=boot_volume,
                                              cpu_family=cpu_family, type=type)
 
-        volume_properties = VolumeProperties(type=disk_type, image=image,
-                                             image_password=image_password)
-        volume = Volume(properties=volume_properties)
-        server_entities = ServerEntities(volumes=AttachedVolumes(items=[volume]))
+        volume_properties = VolumeProperties(type=disk_type, image_password=image_password)
 
     else:
         server_properties = ServerProperties(name=name, cores=cores, ram=ram, availability_zone=availability_zone,
@@ -470,15 +509,14 @@ def _create_machine(module, client, datacenter, name):
                                              ssh_keys=ssh_keys,
                                              bus=bus)
 
-        if image:
-            if uuid_match.match(image):
-                volume_properties.image = image
-            else:
-                volume_properties.image_alias = image
+    if image:
+        if uuid_match.match(image):
+            volume_properties.image = image
+        else:
+            volume_properties.image_alias = image
 
-        volume = Volume(properties=volume_properties)
-
-        server_entities = ServerEntities(volumes=Volumes(items=[volume]), nics=Nics(items=nics))
+    volume = Volume(properties=volume_properties)
+    server_entities = ServerEntities(volumes=Volumes(items=[volume]), nics=Nics(items=nics))
 
     server = Server(properties=server_properties, entities=server_entities)
 
@@ -620,7 +658,6 @@ def create_virtual_machine(module, client):
     """
     datacenter = module.params.get('datacenter')
     name = module.params.get('name')
-    auto_increment = module.params.get('auto_increment')
     count = module.params.get('count')
     lan = module.params.get('lan')
     wait_timeout = module.params.get('wait_timeout')
@@ -634,7 +671,7 @@ def create_virtual_machine(module, client):
 
     # Locate UUID for datacenter if referenced by name.
     datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter_id = _get_datacenter_id(datacenter_list, datacenter)
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if datacenter_id:
         datacenter_found = True
 
@@ -642,7 +679,7 @@ def create_virtual_machine(module, client):
         datacenter_response = _create_datacenter(module, client)
         datacenter_id = datacenter_response.id
 
-    if auto_increment:
+    if count > 1:
         numbers = set()
         count_offset = 1
 
@@ -664,17 +701,15 @@ def create_virtual_machine(module, client):
     else:
         names = [name]
 
-    changed = False
-
-    # Prefetch a list of servers for later comparison.
     server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=3)
     for name in names:
-        # Skip server creation if the server already exists.
-        server = _get_instance(server_list, name)
-        if server is not None:
-            virtual_machines.append(server)
-            continue
+        # Fail server creation if a server with this name and int combination already exists.
+        if get_resource_id(module, server_list, name) is not None:
+            module.fail_json(msg="Server with name %s already exists" % name, exception=traceback.format_exc())
 
+    changed = False
+    # Prefetch a list of servers for later comparison.
+    for name in names:
         create_response = _create_machine(module, client, str(datacenter_id), name)
         changed = True
 
@@ -710,16 +745,18 @@ def update_server(module, client):
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
     server_server = ionoscloud.ServersApi(api_client=client)
 
-    if not isinstance(module.params.get('instance_ids'), list) or len(module.params.get('instance_ids')) < 1:
-        module.fail_json(msg='instance_ids should be a list of virtual machine ids or names, aborting')
+    if name is None:
+        if not isinstance(instance_ids, list) or len(instance_ids) < 1:
+            module.fail_json(msg='instance_ids should be a list of virtual machine ids or names, aborting')
+    else:
+        if isinstance(instance_ids, list) and len(instance_ids) > 1:
+            module.fail_json(msg='when renaming, instance_ids can only have one id at most')
 
     # Locate UUID for datacenter if referenced by name.
     datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter_id = _get_datacenter_id(datacenter_list, datacenter)
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
-
-    updated_servers = []
 
     cores = module.params.get('cores')
     ram = module.params.get('ram')
@@ -727,28 +764,35 @@ def update_server(module, client):
     availability_zone = module.params.get('availability_zone')
 
     server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=2)
-    for instance in instance_ids:
-        server = None
-        for s in server_list.items:
-            if instance in (s.properties.name, s.id):
-                server = s
-                break
 
-        if not server:
+    # Fail early if one of the ids provided doesn't match any server
+    checked_instances = []
+    for instance in instance_ids:
+        server = get_resource(module, server_list, instance)
+        if server is None:
             module.fail_json(msg='Server \'%s\' not found.' % str(instance))
+        checked_instances.append(server)
+
+    updated_servers = []
+    for instance in checked_instances:
+        existing_server_by_name = None if name is None else get_resource_id(module, server_list, name)
+        if existing_server_by_name is not None:
+            module.fail_json(msg='A server with name \'%s\' already exists.' % str(name))
 
         if module.check_mode:
             module.exit_json(changed=True)
 
         if type == 'CUBE':
-            server_properties = ServerProperties(name=name, boot_cdrom=boot_cdrom, boot_volume=boot_volume)
+            server_properties = ServerProperties(name=name if name is not None else instance.properties.name,
+                                                 boot_cdrom=boot_cdrom, boot_volume=boot_volume)
         else:
-            server_properties = ServerProperties(cores=cores, ram=ram, availability_zone=availability_zone,
+            server_properties = ServerProperties(name=name if name is not None else instance.properties.name,
+                                                 cores=cores, ram=ram, availability_zone=availability_zone,
                                                  cpu_family=cpu_family)
 
         new_server = Server(properties=server_properties)
         try:
-            server_response = server_server.datacenters_servers_put(datacenter_id=datacenter_id, server_id=server.id,
+            server_response = server_server.datacenters_servers_put(datacenter_id=datacenter_id, server_id=instance.id,
                                                                     server=new_server)
 
         except Exception as e:
@@ -793,7 +837,7 @@ def remove_virtual_machine(module, client):
 
     # Locate UUID for datacenter if referenced by name.
     datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter_id = _get_datacenter_id(datacenter_list, datacenter)
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
 
@@ -801,7 +845,7 @@ def remove_virtual_machine(module, client):
     server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=2)
     for instance in instance_ids:
         # Locate UUID for server if referenced by name.
-        server_id = _get_server_id(server_list, instance)
+        server_id = get_resource_id(module, server_list, instance)
         if server_id:
             if module.check_mode:
                 module.exit_json(changed=True)
@@ -862,7 +906,7 @@ def startstop_machine(module, client, state):
 
     # Locate UUID for datacenter if referenced by name.
     datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter_id = _get_datacenter_id(datacenter_list, datacenter)
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
 
@@ -871,14 +915,13 @@ def startstop_machine(module, client, state):
     matched_instances = []
     for instance in instance_ids:
         # Locate UUID of server if referenced by name.
-        server_id = _get_server_id(server_list, instance)
-        if server_id:
+        server = get_resource(module, server_list, instance)
+        if server:
             if module.check_mode:
                 module.exit_json(changed=True)
 
-            server = _get_instance(server_list, server_id)
             server_state = server.metadata.state
-            changed, server = _startstop_machine(module, client, datacenter_id, server_id, server_state)
+            changed, server = _startstop_machine(module, client, datacenter_id, server.id, server_state)
             if changed:
                 matched_instances.append(server)
 
@@ -915,7 +958,7 @@ def resume_suspend_machine(module, client, state):
 
     # Locate UUID for datacenter if referenced by name.
     datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter_id = _get_datacenter_id(datacenter_list, datacenter)
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
 
@@ -924,14 +967,13 @@ def resume_suspend_machine(module, client, state):
     matched_instances = []
     for instance in instance_ids:
         # Locate UUID of server if referenced by name.
-        server_id = _get_server_id(server_list, instance)
-        if server_id:
+        server = get_resource(module, server_list, instance)
+        if server:
             if module.check_mode:
                 module.exit_json(changed=True)
 
-            server = _get_instance(server_list, server_id)
             state = server.properties.vm_state
-            changed, server = _resume_suspend_machine(module, client, datacenter_id, server_id, state)
+            changed, server = _resume_suspend_machine(module, client, datacenter_id, server.id, state)
             if changed:
                 matched_instances.append(server)
 
@@ -946,36 +988,6 @@ def resume_suspend_machine(module, client, state):
         'failed': False,
         'machines': [m.to_dict() for m in matched_instances]
     }
-
-
-def _get_datacenter_id(datacenters, identity):
-    """
-    Fetch and return datacenter UUID by datacenter name if found.
-    """
-    for datacenter in datacenters.items:
-        if identity in (datacenter.properties.name, datacenter.id):
-            return datacenter.id
-    return None
-
-
-def _get_server_id(servers, identity):
-    """
-    Fetch and return server UUID by server name if found.
-    """
-    for server in servers.items:
-        if identity in (server.properties.name, server.id):
-            return server.id
-    return None
-
-
-def _get_instance(instance_list, identity):
-    """
-    Find and return the resource instance regardless of whether the name or UUID is passed.
-    """
-    for resource in instance_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource
-    return None
 
 
 def get_module_arguments():

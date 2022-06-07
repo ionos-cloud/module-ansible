@@ -30,7 +30,7 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update', 'restore']
 OBJECT_NAME = 'Snapshot'
@@ -170,11 +170,13 @@ OPTIONS = {
     },
 }
 
+
 def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
+    val['required'] = len(val.get('required', [])) == len(STATES)
     del val['available']
     del val['type']
     return val
+
 
 DOCUMENTATION = '''
 ---
@@ -184,7 +186,9 @@ description:
      - This module allows you to create or remove a snapshot.
 version_added: "2.4"
 options:
-''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+''' + '  ' + yaml.dump(
+    yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})),
+    default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -193,7 +197,7 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''# Create a snapshot
+    'present': '''# Create a snapshot
   - name: Create snapshot
     snapshot:
       datacenter: production DC
@@ -202,14 +206,14 @@ EXAMPLE_PER_STATE = {
       state: present
 
   ''',
-  'update' : '''# Update a snapshot
+    'update': '''# Update a snapshot
   - name: Update snapshot
     snapshot:
       name: "boot volume image"
       description: Ansible test snapshot - RENAME
       state: update
   ''',
-  'restore' : '''# Restore a snapshot
+    'restore': '''# Restore a snapshot
   - name: Restore snapshot
     snapshot:
       datacenter: production DC
@@ -217,7 +221,7 @@ EXAMPLE_PER_STATE = {
       name: boot volume image
       state: restore
   ''',
-  'absent' : '''# Remove a snapshot
+    'absent': '''# Remove a snapshot
   - name: Remove snapshot
     snapshot:
       name: master-Snapshot-11/30/2017
@@ -226,6 +230,45 @@ EXAMPLE_PER_STATE = {
 }
 
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+
+
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+        identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+        resource_identity = []
+
+        for identity_path in identity_paths:
+            current = resource
+            for el in identity_path:
+                current = getattr(current, el)
+            resource_identity.append(current)
+
+        return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
 
 
 def _get_request_id(headers):
@@ -260,18 +303,15 @@ def create_snapshot(module, client):
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for volume
     volume_list = volume_server.datacenters_volumes_get(datacenter_id=datacenter_id, depth=2)
-    volume_id = _get_resource_id(volume_list, volume, module, "Volume")
+    volume_id = get_resource_id(module, volume_list, volume)
 
+    # Locate snapshot by name/UUID
     snapshot_list = snapshot_server.snapshots_get(depth=2)
-    snapshot = None
-    for s in snapshot_list.items:
-        if name == s.properties.name:
-            snapshot = s
-            break
+    snapshot = get_resource(module, snapshot_list, name)
 
     should_change = snapshot is None
 
@@ -291,8 +331,10 @@ def create_snapshot(module, client):
                                                                                          volume_id=volume_id, name=name,
                                                                                          description=description)
         (snapshot_response, _, headers) = response
-        request_id = _get_request_id(headers['Location'])
-        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
         return {
             'changed': True,
@@ -326,15 +368,15 @@ def restore_snapshot(module, client):
 
     # Locate UUID for virtual datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter_id = _get_resource_id(datacenter_list, datacenter, module, "Data center")
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for volume
     volume_list = volume_server.datacenters_volumes_get(datacenter_id=datacenter_id, depth=2)
-    volume_id = _get_resource_id(volume_list, volume, module, "Volume")
+    volume_id = get_resource_id(module, volume_list, volume)
 
     # Locate UUID for snapshot
     snapshot_list = snapshot_server.snapshots_get(depth=2)
-    snapshot_id = _get_resource_id(snapshot_list, name, module, "Snapshot")
+    snapshot_id = get_resource_id(module, snapshot_list, name)
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -373,11 +415,10 @@ def update_snapshot(module, client):
 
     name = module.params.get('name')
 
-    # Locate UUID for snapshot
+    # Locate snapshot by name
     snapshot_list = snapshot_server.snapshots_get(depth=2)
-    snapshot = _get_resource_instance(snapshot_list, name)
-    if not snapshot:
-        module.fail_json(msg='Snapshot \'%s\' not found.' % name)
+
+    snapshot = get_resource(module, snapshot_list, name)
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -462,14 +503,12 @@ def delete_snapshot(module, client):
     snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
     name = module.params.get('name')
 
-    # Locate UUID for snapshot
+    # Locate snapshot UUID
     snapshot_list = snapshot_server.snapshots_get(depth=2)
-    snapshot = _get_resource(snapshot_list, name)
+    snapshot_id = get_resource_id(module, snapshot_list, name)
 
-    if not snapshot:
+    if not snapshot_id:
         module.exit_json(changed=False)
-
-    snapshot_id = _get_resource_id(snapshot_list, name, module, "Snapshot")
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -485,57 +524,22 @@ def delete_snapshot(module, client):
         module.fail_json(msg="failed to remove the snapshot: %s" % to_native(e))
 
 
-def _get_resource_id(resource_list, identity, module, resource_type):
-    """
-    Fetch and return the UUID of a resource regardless of whether the name or
-    UUID is passed. Throw an error otherwise.
-    """
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
-
-    module.fail_json(msg='%s \'%s\' could not be found.' % (resource_type, identity))
-
-
-def _get_resource_instance(resource_list, identity):
-    """
-    Find and return the resource instance regardless of whether the name or UUID is passed.
-    """
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource
-    return None
-
-
-def _get_resource(resource_list, identity):
-    """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
-    """
-
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
-
-    return None
-
-
 def get_module_arguments():
     arguments = {}
 
     for option_name, option in OPTIONS.items():
-      arguments[option_name] = {
-        'type': option['type'],
-      }
-      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
-        if option.get(key) is not None:
-          arguments[option_name][key] = option.get(key)
+        arguments[option_name] = {
+            'type': option['type'],
+        }
+        for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
+            if option.get(key) is not None:
+                arguments[option_name][key] = option.get(key)
 
-      if option.get('env_fallback'):
-        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
+        if option.get('env_fallback'):
+            arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
 
-      if len(option.get('required', [])) == len(STATES):
-        arguments[option_name]['required'] = True
+        if len(option.get('required', [])) == len(STATES):
+            arguments[option_name]['required'] = True
 
     return arguments
 
@@ -568,8 +572,8 @@ def get_sdk_config(module, sdk):
 def check_required_arguments(module, state, object_name):
     # manually checking if token or username & password provided
     if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
+            not module.params.get("token")
+            and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name} state {state}'.format(
@@ -610,7 +614,10 @@ def main():
             elif state == 'update':
                 module.exit_json(**update_snapshot(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
+                                                                                             error=to_native(e),
+                                                                                             state=state))
+
 
 if __name__ == '__main__':
     main()

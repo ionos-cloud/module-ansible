@@ -17,7 +17,6 @@
     server:
       datacenter: "{{ datacenter }} - DBaaS"
       name: "{{ name }}"
-      auto_increment: false
       cores: 2
       ram: 4096
       availability_zone: ZONE_1

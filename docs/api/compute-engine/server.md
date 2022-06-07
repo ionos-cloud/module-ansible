@@ -30,7 +30,17 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
         cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
-  
+  # Rename virtual machine
+    - server:
+        datacenter: Tardis One
+        instance_ids: web001.stackpointcloud.com
+        name: web101.stackpointcloud.com
+        cores: 4
+        ram: 4096
+        cpu_family: INTEL_XEON
+        availability_zone: ZONE_1
+        state: update
+
 # Removing Virtual machines
     - server:
         datacenter: Tardis One
@@ -85,6 +95,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
+  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -115,6 +126,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
+  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -136,6 +148,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
+  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -157,6 +170,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
+  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -188,6 +202,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the virtual machine. |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
+  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -221,7 +236,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | True | str |  | The name of the virtual machine. |
-  | auto_increment | False | bool | True | Whether or not to increment a single number in the name for created virtual machines. |
   | assign_public_ip | False | bool | False | This will assign the machine to the public LAN. If no LAN exists with public Internet access it is created. |
   | image | True | str |  | The image alias or ID for creating the virtual machine. |
   | image_password | False | str |  | Password set for the administrative user. |
@@ -234,7 +248,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | availability_zone | False | str | AUTO | The availability zone assigned to the server. |
   | volume_size | False | int | 10 | The size in GB of the boot volume. |
   | bus | False | str | VIRTIO | The bus type for the volume. |
-  | instance_ids | False | list |  | list of instance ids, currently only used when state='absent' to remove instances. |
   | count | False | int | 1 | The number of virtual machines to create. |
   | location | False | str | us/las | The datacenter location. Use only if you want to create the Datacenter or else this value is ignored. |
   | lan | False | str |  | The ID or name of the LAN you wish to add the servers to (can be a string or a number). |
@@ -270,7 +283,17 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
         cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
-  
+  # Rename virtual machine
+    - server:
+        datacenter: Tardis One
+        instance_ids: web001.stackpointcloud.com
+        name: web101.stackpointcloud.com
+        cores: 4
+        ram: 4096
+        cpu_family: INTEL_XEON
+        availability_zone: ZONE_1
+        state: update
+
 ```
 ### Available parameters for state **update**:
 &nbsp;
@@ -281,6 +304,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | cores | False | int | 2 | The number of CPU cores to allocate to the virtual machine. |
   | ram | False | int | 2048 | The amount of memory to allocate to the virtual machine. |
+  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | boot_volume | False | str |  | The volume used for boot. |
   | boot_cdrom | False | str |  | The CDROM used for boot. |
   | api_url | False | str |  | The Ionos API base URL. |

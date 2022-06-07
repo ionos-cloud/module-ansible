@@ -33,7 +33,6 @@
       server:
         datacenter: "{{ datacenter }}"
         name: "{{ server }}"
-        auto_increment: false
         cores: 1
         ram: 2048
         cpu_family: INTEL_SKYLAKE
@@ -77,10 +76,15 @@
       nic:
         datacenter: "{{ datacenter }}"
         server: "{{ server }}"
-        name: "{{ name }}"
+        id: "{{ ionos_cloud_nic.nic.id }}"
+        name: "new-nic"
         dhcp: false
         ips: "{{ ipblock_response.ipblock.properties.ips }}"
         state: update
+
+    - name: Debug show result of Create NIC
+      debug:
+        msg: "{{ ionos_cloud_nic }}"
 
     - name: Update LAN
       lan:

@@ -197,27 +197,55 @@ EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
-def _get_resource(resource_list, identity):
+def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
     """
 
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
 
-    return None
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
 
 
 def _update_nat_gateway_flowlog(module, client, nat_gateway_server, datacenter_id, nat_gateway_id, flowlog_id,
                                 flowlog_properties):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
-    response = nat_gateway_server.datacenters_natgateways_flowlogs_patch_with_http_info(datacenter_id, nat_gateway_id,
-                                                                                        flowlog_id,
-                                                                                        flowlog_properties)
-    (flowlog_response, _, headers) = response
+    flowlog_response, _, headers = nat_gateway_server.datacenters_natgateways_flowlogs_patch_with_http_info(
+        datacenter_id,
+        nat_gateway_id,
+        flowlog_id,
+        flowlog_properties,
+    )
 
     if wait:
         request_id = _get_request_id(headers['Location'])
@@ -258,28 +286,29 @@ def create_nat_gateway_flowlog(module, client):
     wait_timeout = int(module.params.get('wait_timeout'))
 
     nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-    nat_gateway_flowlogs = nat_gateway_server.datacenters_natgateways_flowlogs_get(datacenter_id=datacenter_id,
-                                                                                   nat_gateway_id=nat_gateway_id,
-                                                                                   depth=2)
+    nat_gateway_flowlogs = nat_gateway_server.datacenters_natgateways_flowlogs_get(datacenter_id, nat_gateway_id, depth=2)
     nat_gateway_flowlog_response = None
 
-    for flowlog in nat_gateway_flowlogs.items:
-        if name == flowlog.properties.name:
-            return {
-                'changed': False,
-                'failed': False,
-                'action': 'create',
-                'flowlog': flowlog.to_dict()
-            }
+    existing_flowlog = get_resource(module, nat_gateway_flowlogs, name)
+
+    if existing_flowlog:
+        return {
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            'flowlog': existing_flowlog.to_dict(),
+        }
 
     nat_gateway_flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
     nat_gateway_flowlog = FlowLog(properties=nat_gateway_flowlog_properties)
 
     try:
-        response = nat_gateway_server.datacenters_natgateways_flowlogs_post_with_http_info(datacenter_id,
-                                                                                           nat_gateway_id,
-                                                                                           nat_gateway_flowlog)
-        (nat_gateway_flowlog_response, _, headers) = response
+        response = nat_gateway_server.datacenters_natgateways_flowlogs_post_with_http_info(
+            datacenter_id,
+            nat_gateway_id,
+            nat_gateway_flowlog,
+        )
+        nat_gateway_flowlog_response, _, headers = response
 
         if wait:
             request_id = _get_request_id(headers['Location'])
@@ -317,32 +346,28 @@ def update_nat_gateway_flowlog(module, client):
     flowlog_id = module.params.get('flowlog_id')
 
     nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-    changed = False
     flowlog_response = None
 
-    if flowlog_id:
-        flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
-        flowlog_response = _update_nat_gateway_flowlog(module, client, nat_gateway_server, datacenter_id,
-                                                       nat_gateway_id, flowlog_id,
-                                                       flowlog_properties)
-        changed = True
+    flowlogs = nat_gateway_server.datacenters_natgateways_flowlogs_get(datacenter_id, nat_gateway_id, depth=2)
+    existing_flowlog_id_by_name = get_resource_id(module, flowlogs, name)
 
-    else:
-        flowlogs = nat_gateway_server.datacenters_natgateways_flowlogs_get(datacenter_id=datacenter_id,
-                                                                           nat_gateway_id=nat_gateway_id, depth=2)
-        for f in flowlogs.items:
-            if name == f.properties.name:
-                flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
-                flowlog_response = _update_nat_gateway_flowlog(module, client, nat_gateway_server, datacenter_id,
-                                                               nat_gateway_id, f.id,
-                                                               flowlog_properties)
-                changed = True
+    if flowlog_id is not None and existing_flowlog_id_by_name is not None and existing_flowlog_id_by_name != flowlog_id:
+            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
 
-    if not changed:
+    flowlog_id = existing_flowlog_id_by_name if flowlog_id is None else flowlog_id
+
+    flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
+
+    if not flowlog_id:
         module.fail_json(msg="failed to update the NAT Gateway Flowlog: The resource does not exist")
 
+    flowlog_response = _update_nat_gateway_flowlog(
+        module, client, nat_gateway_server, datacenter_id,
+        nat_gateway_id, flowlog_id, flowlog_properties,
+    )
+
     return {
-        'changed': changed,
+        'changed': True,
         'action': 'update',
         'failed': False,
         'flowlog': flowlog_response.to_dict()
@@ -373,17 +398,17 @@ def remove_nat_gateway_flowlog(module, client):
     changed = False
 
     try:
-        nat_gateway_flowlog_list = nat_gateway_server.datacenters_natgateways_flowlogs_get(datacenter_id=datacenter_id, nat_gateway_id=nat_gateway_id, depth=5)
+        nat_gateway_flowlog_list = nat_gateway_server.datacenters_natgateways_flowlogs_get(datacenter_id, nat_gateway_id, depth=1)
         if flowlog_id:
-            flowlog_id = _get_resource(nat_gateway_flowlog_list, flowlog_id)
+            flowlog_id = get_resource_id(module, nat_gateway_flowlog_list, flowlog_id)
         else:
-            flowlog_id = _get_resource(nat_gateway_flowlog_list, name)
+            flowlog_id = get_resource_id(module, nat_gateway_flowlog_list, name)
 
         if not flowlog_id:
             module.exit_json(changed=False)
 
         response = nat_gateway_server.datacenters_natgateways_flowlogs_delete_with_http_info(datacenter_id, nat_gateway_id, flowlog_id)
-        (flowlog_response, _, headers) = response
+        _, _, headers = response
 
         if wait:
             request_id = _get_request_id(headers['Location'])

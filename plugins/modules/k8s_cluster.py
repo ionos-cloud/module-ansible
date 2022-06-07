@@ -170,6 +170,46 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
+
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
+    
+
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -185,51 +225,39 @@ def create_k8s_cluster(module, client):
     maintenance = module.params.get('maintenance_window')
     wait = module.params.get('wait')
     api_subnet_allow_list = module.params.get('api_subnet_allow_list')
-    s3_buckets_param = module.params.get('s3_buckets')
+    s3_buckets = list(map(lambda bucket_name: S3Bucket(name=bucket_name))) if module.params.get('s3_buckets') else None
 
     maintenance_window = None
     if maintenance:
         maintenance_window = dict(maintenance)
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
-    s3_buckets = None
-    if s3_buckets_param:
-        s3_buckets = []
-        for bucket_name in s3_buckets:
-            bucket = S3Bucket(name=bucket_name)
-            s3_buckets.append(bucket)
-
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
 
-    cluster = None
-    clusters = k8s_server.k8s_get(depth=2)
-    for c in clusters.items:
-        if cluster_name == c.properties.name:
-            cluster = c
-            break
-
-    should_change = cluster is None
+    existing_cluster = get_resource(module, k8s_server.k8s_get(depth=1), cluster_name)
 
     if module.check_mode:
-        module.exit_json(changed=should_change)
+        module.exit_json(changed=False)
 
-    if not should_change:
+    if existing_cluster:
         return {
-            'changed': should_change,
+            'changed': False,
             'failed': False,
             'action': 'create',
-            'cluster': cluster.to_dict()
+            'cluster': existing_cluster.to_dict(),
         }
 
     try:
-        k8s_cluster_properties = KubernetesClusterProperties(name=cluster_name, k8s_version=k8s_version,
-                                                             maintenance_window=maintenance_window,
-                                                             api_subnet_allow_list=api_subnet_allow_list,
-                                                             s3_buckets=s3_buckets)
+        k8s_cluster_properties = KubernetesClusterProperties(
+            name=cluster_name,
+            k8s_version=k8s_version,
+            maintenance_window=maintenance_window,
+            api_subnet_allow_list=api_subnet_allow_list,
+            s3_buckets=s3_buckets,
+        )
         k8s_cluster = KubernetesCluster(properties=k8s_cluster_properties)
 
-        response = k8s_server.k8s_post_with_http_info(kubernetes_cluster=k8s_cluster)
-        (k8s_response, _, headers) = response
+        k8s_response = k8s_server.k8s_post(kubernetes_cluster=k8s_cluster)
 
         if wait:
             client.wait_for(
@@ -262,15 +290,13 @@ def delete_k8s_cluster(module, client):
     changed = False
 
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
-    k8s_cluster_list = k8s_server.k8s_get(depth=5)
-    k8s_cluster = _get_resource(k8s_cluster_list, k8s_cluster_id)
+    k8s_cluster = get_resource(module, k8s_server.k8s_get(depth=1), k8s_cluster_id)
 
     if not k8s_cluster:
         module.exit_json(changed=False)
 
     try:
-        response = k8s_server.k8s_delete_with_http_info(k8s_cluster_id=k8s_cluster_id)
-        (k8s_response, _, headers) = response
+        _, _, headers = k8s_server.k8s_delete_with_http_info(k8s_cluster_id=k8s_cluster_id)
 
         if wait:
             request_id = _get_request_id(headers['Location'])
@@ -293,28 +319,29 @@ def update_k8s_cluster(module, client):
     k8s_cluster_id = module.params.get('k8s_cluster_id')
     maintenance = module.params.get('maintenance_window')
     api_subnet_allow_list = module.params.get('api_subnet_allow_list')
-    s3_buckets_param = module.params.get('s3_buckets')
+    s3_buckets = list(map(lambda bucket_name: S3Bucket(name=bucket_name))) if module.params.get('s3_buckets') else None
 
     maintenance_window = dict(maintenance)
     maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
-    s3_buckets = None
-    if s3_buckets_param:
-        s3_buckets = []
-        for bucket_name in s3_buckets:
-            bucket = S3Bucket(name=bucket_name)
-            s3_buckets.append(bucket)
-
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
     k8s_response = None
+    
+    existing_cluster_id_by_name = get_resource_id(module, k8s_server.k8s_get(depth=1), cluster_name)
+
+    if k8s_cluster_id is not None and existing_cluster_id_by_name is not None and existing_cluster_id_by_name != k8s_cluster_id:
+            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, cluster_name))
 
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        kubernetes_cluster_properties = KubernetesClusterPropertiesForPut(name=cluster_name, k8s_version=k8s_version,
-                                                                          s3_buckets=s3_buckets,
-                                                                          api_subnet_allow_list=api_subnet_allow_list,
-                                                                          maintenance_window=maintenance_window)
+        kubernetes_cluster_properties = KubernetesClusterPropertiesForPut(
+            name=cluster_name,
+            k8s_version=k8s_version,
+            s3_buckets=s3_buckets,
+            api_subnet_allow_list=api_subnet_allow_list,
+            maintenance_window=maintenance_window,
+        )
         kubernetes_cluster = KubernetesClusterForPut(properties=kubernetes_cluster_properties)
         k8s_response = k8s_server.k8s_put(k8s_cluster_id=k8s_cluster_id, kubernetes_cluster=kubernetes_cluster)
 
@@ -339,19 +366,6 @@ def update_k8s_cluster(module, client):
         'action': 'update',
         'cluster': k8s_response.to_dict()
     }
-
-
-def _get_resource(resource_list, identity):
-    """
-    Fetch and return a resource regardless of whether the name or
-    UUID is passed. Returns None error otherwise.
-    """
-
-    for resource in resource_list.items:
-        if identity in (resource.properties.name, resource.id):
-            return resource.id
-
-    return None
 
 
 def get_module_arguments():
