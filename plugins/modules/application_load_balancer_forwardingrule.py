@@ -3,6 +3,8 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+from asyncore import read
+from xxlimited import new
 
 __metaclass__ = type
 
@@ -21,6 +23,8 @@ try:
         ApplicationLoadBalancerHttpRuleCondition
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
+    import ionoscloud_certificate_manager
+    from ionoscloud_certificate_manager import __version__ as certificate_manager_sdk_version
 except ImportError:
     HAS_SDK = False
 
@@ -35,6 +39,7 @@ ANSIBLE_METADATA = {
     'supported_by': 'community',
 }
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+CERTIFICATE_MANAGER_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, certificate_manager_sdk_version)
 DOC_DIRECTORY = 'applicationloadbalancer'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Application Loadbalancer forwarding rule'
@@ -328,7 +333,34 @@ def get_http_rule(http_rule):
     return http_rule_object
 
 
-def create_alb_forwarding_rule(module, client):
+def create_certificate(module, certificate_manager_client):
+    certificate_file = module.params.get('certificate_file')
+    private_key_file = module.params.get('private_key')
+    certificate_chain_file = module.params.get('certificate_chain_file')
+
+    if not certificate_file and not private_key_file:
+        return None
+
+    certificate_name = module.params.get('name')
+    certificate = open(certificate_file, mode='r').read()
+    certificate_chain = open(certificate_chain_file, mode='r').read() if certificate_chain_file else None
+    private_key = open(private_key_file, mode='r').read()
+
+    certificate = ionoscloud_certificate_manager.CertificateApi(certificate_manager_client).add_certificate(
+        ionoscloud_certificate_manager.CertificatePatchDto(
+            properties=ionoscloud_certificate_manager.CertificatePostPropertiesDto(
+                name=certificate_name,
+                certificate=certificate,
+                certificate_chain_file=certificate_chain,
+                private_key=private_key,
+            )
+        )
+    )
+
+    return certificate
+
+
+def create_alb_forwarding_rule(module, client, certificate_manager_client):
     """
     Creates a Application Load Balancer Forwarding Rule
 
@@ -351,6 +383,11 @@ def create_alb_forwarding_rule(module, client):
     application_load_balancer_id = module.params.get('application_load_balancer_id')
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
+
+    new_certificate = create_certificate(module, certificate_manager_client)
+
+    if new_certificate:
+        server_certificates.append(new_certificate)
 
     http_rules_list = []
     if http_rules:
@@ -403,7 +440,7 @@ def create_alb_forwarding_rule(module, client):
     }
 
 
-def update_alb_forwarding_rule(module, client):
+def update_alb_forwarding_rule(module, client, certificate_manager_client):
     """
     Updates a Application Load Balancer Forwarding Rule.
 
@@ -425,6 +462,11 @@ def update_alb_forwarding_rule(module, client):
     datacenter_id = module.params.get('datacenter_id')
     application_load_balancer_id = module.params.get('application_load_balancer_id')
     forwarding_rule_id = module.params.get('forwarding_rule_id')
+
+    new_certificate = create_certificate(module, certificate_manager_client)
+
+    if new_certificate:
+        server_certificates.append(new_certificate)
 
     alb_server = ionoscloud.ApplicationLoadBalancersApi(client)
     forwarding_rule_response = None
@@ -600,29 +642,34 @@ def main():
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
     state = module.params.get('state')
-    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
-        api_client.user_agent = USER_AGENT
-        check_required_arguments(module, state, OBJECT_NAME)
 
-        if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('forwarding_rule_id'):
-            module.fail_json(msg='either name or forwarding_rule_id parameter is required for {object_name} state absent'.format(object_name=OBJECT_NAME))
+    certificate_manager_api_client = ionoscloud_certificate_manager.ApiClient(get_sdk_config(module, ionoscloud_certificate_manager))
+    api_client = ApiClient(get_sdk_config(module, ionoscloud))
 
-        if state == 'absent':
-            try:
-                module.exit_json(**remove_alb_forwarding_rule(module, api_client))
-            except Exception as e:
-                module.fail_json(msg='failed to delete the Application Load Balancer: %s' % to_native(e))
-        elif state == 'present':
-            try:
-                module.exit_json(**create_alb_forwarding_rule(module, api_client))
-            except Exception as e:
-                module.fail_json(msg='failed to set Application Load Balancer Forwarding Rule state: %s' % to_native(e))
-        elif state == 'update':
-            try:
-                module.exit_json(**update_alb_forwarding_rule(module, api_client))
-            except Exception as e:
-                module.fail_json(
-                    msg='failed to update the Application Load Balancer Forwarding Rule: %s' % to_native(e))
+    api_client.user_agent = USER_AGENT
+    certificate_manager_api_client.user_agent = CERTIFICATE_MANAGER_USER_AGENT
+
+    check_required_arguments(module, state, OBJECT_NAME)
+
+    if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('forwarding_rule_id'):
+        module.fail_json(msg='either name or forwarding_rule_id parameter is required for {object_name} state absent'.format(object_name=OBJECT_NAME))
+
+    if state == 'absent':
+        try:
+            module.exit_json(**remove_alb_forwarding_rule(module, api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to delete the Application Load Balancer: %s' % to_native(e))
+    elif state == 'present':
+        try:
+            module.exit_json(**create_alb_forwarding_rule(module, api_client, certificate_manager_api_client))
+        except Exception as e:
+            module.fail_json(msg='failed to set Application Load Balancer Forwarding Rule state: %s' % to_native(e))
+    elif state == 'update':
+        try:
+            module.exit_json(**update_alb_forwarding_rule(module, api_client, certificate_manager_api_client))
+        except Exception as e:
+            module.fail_json(
+                msg='failed to update the Application Load Balancer Forwarding Rule: %s' % to_native(e))
 
 
 if __name__ == '__main__':
