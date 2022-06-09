@@ -19,9 +19,6 @@ try:
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError as e:
-    with open('debug.txt', 'a') as f:
-        f.write(str(['ceva', e]))
-    raise e
     HAS_SDK = False
 
 from ansible import __version__

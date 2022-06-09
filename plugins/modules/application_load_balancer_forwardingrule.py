@@ -94,6 +94,16 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'list',
     },
+    'new_server_certificates': {
+        'description': [
+            'An array of dict with information used to uploade new certificates and add them to the forwarding rule.'
+            "A dict should contain 'certificate_file', 'private_key', 'certificate_chain_file'(optional), 'certificate_name' as keys."
+            'File paths should be absolute.'
+        ],
+        'available': ['present', 'update'],
+        'type': 'list',
+        'elements': 'dict',
+    },
     'datacenter_id': {
         'description': ['The ID of the datacenter.'],
         'available': STATES,
@@ -111,7 +121,6 @@ OPTIONS = {
         'available': ['update', 'absent'],
         'type': 'str',
     },
-
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -333,31 +342,49 @@ def get_http_rule(http_rule):
     return http_rule_object
 
 
-def create_certificate(module, certificate_manager_client):
-    certificate_file = module.params.get('certificate_file')
-    private_key_file = module.params.get('private_key')
-    certificate_chain_file = module.params.get('certificate_chain_file')
+def create_certificate(certificate_manager_client, certificate_input):
+    certificate_file = certificate_input.get('certificate_file')
+    private_key_file = certificate_input.get('private_key')
+    certificate_chain_file = certificate_input.get('certificate_chain_file')
 
     if not certificate_file and not private_key_file:
         return None
 
-    certificate_name = module.params.get('name')
-    certificate = open(certificate_file, mode='r').read()
-    certificate_chain = open(certificate_chain_file, mode='r').read() if certificate_chain_file else None
-    private_key = open(private_key_file, mode='r').read()
-
-    certificate = ionoscloud_certificate_manager.CertificateApi(certificate_manager_client).add_certificate(
+    return ionoscloud_certificate_manager.CertificateApi(certificate_manager_client).add_certificate(
         ionoscloud_certificate_manager.CertificatePatchDto(
             properties=ionoscloud_certificate_manager.CertificatePostPropertiesDto(
-                name=certificate_name,
-                certificate=certificate,
-                certificate_chain_file=certificate_chain,
-                private_key=private_key,
+                name=certificate_input.get('certificate_name'),
+                certificate=open(certificate_file, mode='r').read(),
+                certificate_chain=open(certificate_chain_file, mode='r').read() if certificate_chain_file else None,
+                private_key=open(private_key_file, mode='r').read(),
             )
         )
     )
 
-    return certificate
+
+def create_new_certificates(new_server_certificates, certificate_manager_client):
+    new_certificates = []
+
+    if not new_server_certificates:
+        return None
+
+    for certificate_input in new_server_certificates:
+        new_certificate = create_certificate(certificate_manager_client, certificate_input)
+
+        if new_certificate:
+            new_certificates.append(new_certificate.id)
+
+    return new_certificates if len(new_certificates) > 0 else None
+
+
+def get_server_certificates(module, certificate_manager_client):
+    existing_certificates = module.params.get('server_certificates')
+    new_certificates = create_new_certificates(module.params.get('new_server_certificates'), certificate_manager_client)
+
+    if new_certificates is None:
+        return existing_certificates
+    else:
+        return new_certificates
 
 
 def create_alb_forwarding_rule(module, client, certificate_manager_client):
@@ -377,17 +404,12 @@ def create_alb_forwarding_rule(module, client, certificate_manager_client):
     listener_ip = module.params.get('listener_ip')
     listener_port = module.params.get('listener_port')
     client_timeout = module.params.get('client_timeout')
-    server_certificates = module.params.get('server_certificates')
+    server_certificates = get_server_certificates(module, certificate_manager_client)
     http_rules = module.params.get('http_rules')
     datacenter_id = module.params.get('datacenter_id')
     application_load_balancer_id = module.params.get('application_load_balancer_id')
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
-
-    new_certificate = create_certificate(module, certificate_manager_client)
-
-    if new_certificate:
-        server_certificates.append(new_certificate)
 
     http_rules_list = []
     if http_rules:
@@ -457,16 +479,11 @@ def update_alb_forwarding_rule(module, client, certificate_manager_client):
     listener_ip = module.params.get('listener_ip')
     listener_port = module.params.get('listener_port')
     client_timeout = module.params.get('client_timeout')
-    server_certificates = module.params.get('server_certificates')
+    server_certificates = get_server_certificates(module, certificate_manager_client)
     http_rules = module.params.get('http_rules')
     datacenter_id = module.params.get('datacenter_id')
     application_load_balancer_id = module.params.get('application_load_balancer_id')
     forwarding_rule_id = module.params.get('forwarding_rule_id')
-
-    new_certificate = create_certificate(module, certificate_manager_client)
-
-    if new_certificate:
-        server_certificates.append(new_certificate)
 
     alb_server = ionoscloud.ApplicationLoadBalancersApi(client)
     forwarding_rule_response = None
