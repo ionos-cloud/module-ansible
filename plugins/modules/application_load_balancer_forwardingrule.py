@@ -671,22 +671,15 @@ def main():
     if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('forwarding_rule_id'):
         module.fail_json(msg='either name or forwarding_rule_id parameter is required for {object_name} state absent'.format(object_name=OBJECT_NAME))
 
-    if state == 'absent':
-        try:
+    try:
+        if state == 'absent':
             module.exit_json(**remove_alb_forwarding_rule(module, api_client))
-        except Exception as e:
-            module.fail_json(msg='failed to delete the Application Load Balancer: %s' % to_native(e))
-    elif state == 'present':
-        try:
+        elif state == 'present':
             module.exit_json(**create_alb_forwarding_rule(module, api_client, certificate_manager_api_client))
-        except Exception as e:
-            module.fail_json(msg='failed to set Application Load Balancer Forwarding Rule state: %s' % to_native(e))
-    elif state == 'update':
-        try:
+        elif state == 'update':
             module.exit_json(**update_alb_forwarding_rule(module, api_client, certificate_manager_api_client))
-        except Exception as e:
-            module.fail_json(
-                msg='failed to update the Application Load Balancer Forwarding Rule: %s' % to_native(e))
+    except Exception as e:
+        module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
 
 if __name__ == '__main__':

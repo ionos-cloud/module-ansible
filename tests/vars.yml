@@ -4,7 +4,7 @@ description: Ansible test description
 server: "AnsibleAutoTest"
 nic: "AnsibleAutoTest"
 lan: "AnsibleAutoTest"
-location: gb/lhr
+location: de/txl
 image: ce08ca15-0adf-11ec-9fa6-1e5ea9024c03
 image_alias: centos:7
 password: qq6mdvirWwj1dsdXjcpp
@@ -12,3 +12,6 @@ updated_password: fjee83jkw940djcer
 wait_timeout: 500
 email: ansible.test@mail.com
 updated_email: updated.ansible.test@mail.com
+
+    for c in ionoscloud_certificate_manager.CertificateApi(certificate_manager_client).get_certificates().items:
+        ionoscloud_certificate_manager.CertificateApi(certificate_manager_client).delete_certificate_by_uuid(c.id)
