@@ -276,20 +276,20 @@ def create_nic(module, client):
     nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter = get_resource_id(module, datacenter_list, datacenter)
 
     if datacenter is None:
         module.fail_json("Datacenter doesn't exist")
 
     # Locate UUID for Server
-    server_list = server_server.datacenters_servers_get(datacenter, depth=2)
+    server_list = server_server.datacenters_servers_get(datacenter, depth=1)
     server = get_resource_id(module, server_list, server)
 
     if server is None:
         module.fail_json("Server doesn't exist")
 
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server, depth=2)
+    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server, depth=1)
     nic = get_resource(module, nic_list, name)
 
     should_change = nic is None
@@ -356,15 +356,15 @@ def update_nic(module, client):
     nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for Server
-    server_list = server_server.datacenters_servers_get(datacenter_id, depth=2)
+    server_list = server_server.datacenters_servers_get(datacenter_id, depth=1)
     server_id = get_resource_id(module, server_list, server)
 
     # Locate NIC to update
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=2)
+    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=1)
     existing_nic_by_name = get_resource(module, nic_list, name)
     if existing_nic_by_name is not None:
         module.fail_json(msg="Failed to update NIC: NIC with name \'%s\' already exists." % name)
@@ -428,14 +428,14 @@ def delete_nic(module, client):
     server_server = ionoscloud.ServersApi(api_client=client)
     nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
 
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
-    server_list = server_server.datacenters_servers_get(datacenter_id, depth=2)
+    server_list = server_server.datacenters_servers_get(datacenter_id, depth=1)
     server_id = get_resource_id(module, server_list, server)
 
     # Locate UUID for NIC
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=2)
+    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=1)
     nic_id = get_resource_id(module, nic_list, name)
 
     if nic_id is None:

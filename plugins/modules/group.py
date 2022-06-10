@@ -373,7 +373,7 @@ def update_group(module, client):
     user_management_server = ionoscloud.UserManagementApi(client)
 
     try:
-        group = get_resource(module, user_management_server.um_groups_get(depth=2), name)
+        group = get_resource(module, user_management_server.um_groups_get(depth=1), name)
         group_id = group.id
 
         if group:
@@ -431,12 +431,12 @@ def update_group(module, client):
 
             if module.params.get('users') is not None:
 
-                group = user_management_server.um_groups_find_by_id(group_id=group_response.id, depth=2)
+                group = user_management_server.um_groups_find_by_id(group_id=group_response.id, depth=1)
                 old_gu = []
                 for u in group.entities.users.items:
                     old_gu.append(u.id)
 
-                all_users = user_management_server.um_users_get(depth=2)
+                all_users = user_management_server.um_users_get(depth=1)
                 new_gu = []
 
                 for u in module.params.get('users'):

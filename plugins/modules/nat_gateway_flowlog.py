@@ -286,7 +286,7 @@ def create_nat_gateway_flowlog(module, client):
     wait_timeout = int(module.params.get('wait_timeout'))
 
     nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-    nat_gateway_flowlogs = nat_gateway_server.datacenters_natgateways_flowlogs_get(datacenter_id, nat_gateway_id, depth=2)
+    nat_gateway_flowlogs = nat_gateway_server.datacenters_natgateways_flowlogs_get(datacenter_id, nat_gateway_id, depth=1)
     nat_gateway_flowlog_response = None
 
     existing_flowlog = get_resource(module, nat_gateway_flowlogs, name)
@@ -348,7 +348,7 @@ def update_nat_gateway_flowlog(module, client):
     nat_gateway_server = ionoscloud.NATGatewaysApi(client)
     flowlog_response = None
 
-    flowlogs = nat_gateway_server.datacenters_natgateways_flowlogs_get(datacenter_id, nat_gateway_id, depth=2)
+    flowlogs = nat_gateway_server.datacenters_natgateways_flowlogs_get(datacenter_id, nat_gateway_id, depth=1)
     existing_flowlog_id_by_name = get_resource_id(module, flowlogs, name)
 
     if flowlog_id is not None and existing_flowlog_id_by_name is not None and existing_flowlog_id_by_name != flowlog_id:

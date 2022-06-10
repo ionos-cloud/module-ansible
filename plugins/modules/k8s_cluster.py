@@ -261,7 +261,7 @@ def create_k8s_cluster(module, client):
 
         if wait:
             client.wait_for(
-                fn_request=lambda: k8s_server.k8s_get(depth=2),
+                fn_request=lambda: k8s_server.k8s_get(depth=1),
                 fn_check=lambda r: list(filter(
                     lambda e: e.properties.name == cluster_name,
                     r.items
@@ -347,7 +347,7 @@ def update_k8s_cluster(module, client):
 
         if module.params.get('wait'):
             client.wait_for(
-                fn_request=lambda: k8s_server.k8s_get(depth=2),
+                fn_request=lambda: k8s_server.k8s_get(depth=1),
                 fn_check=lambda r: list(filter(
                     lambda e: e.properties.name == cluster_name,
                     r.items
