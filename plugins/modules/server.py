@@ -485,7 +485,7 @@ def _create_machine(module, client, datacenter, name):
         nics.append(nic)
 
     if lan is not None:
-        lans_list = lan_server.datacenters_lans_get(datacenter_id=datacenter, depth=2).items
+        lans_list = lan_server.datacenters_lans_get(datacenter_id=datacenter, depth=2)
         matching_lan = get_resource(module, lans_list, lan)
 
         if (not any(n.properties.lan == int(matching_lan.id) for n in nics)) or len(nics) < 1:
