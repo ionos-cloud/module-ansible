@@ -37,6 +37,26 @@
         active: False
         state: update
 
+    - name: Create an s3key with idempotency
+      s3key:
+        user_id: "{{ user_response.user.id }}"
+        idempotency: True
+
+    - name: List S3Keys
+      s3key_info:
+        user_id: "{{ user_response.user.id }}"
+      register: s3keys_info_response
+
+    - name: Debug - Show response of s3keys_info
+      debug:
+        msg: "{{ s3keys_info_response.s3keys }}"
+
+    - name: Testing if only one s3key exists
+      assert:
+        that:
+          - s3keys_info_response.s3keys | length == 1
+        msg: "only one s3key must be created if using idempotency"
+
     - name: Remove an s3key
       s3key:
         user_id: "{{ user_response.user.id }}"
