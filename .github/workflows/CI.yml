@@ -26,7 +26,7 @@ jobs:
     env:
       # Workflow names that cannot run in parallel with this workflow, separated by spaces
       # Example: incompatible_parallel_workflows: 'CI Build Name OtherName Foo Bar FooBar'
-      incompatible_parallel_workflows: 'CI'
+      incompatible_parallel_workflows: 'PLACEHOLDER'
 
     runs-on: ubuntu-latest
     outputs:
@@ -60,7 +60,7 @@ jobs:
     name: Testing the Ansible Module
     strategy:
       matrix:
-        namespace: [ compute-engine, managed-backup ]
+        namespace: [ user-management, managed-backup ]
     env:
       python-version: 3.8.0
       ionoscloud-version: 6.0.0b1
