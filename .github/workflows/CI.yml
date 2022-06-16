@@ -99,19 +99,19 @@ jobs:
       matrix:
         include:
           - namespace: user-management
-            keywords: "[ user, group, s3key, share ]"
+            keywords: "user, group, s3key, share"
           - namespace: managed-backup
-            keywords: "[ backupunit ]"
+            keywords: "backupunit"
           - namespace: compute-engine
-            keywords: "[ datacenter, server, firewall, volume, image, cube, lan, nic, pcc, snapshot, ipblock ]"
+            keywords: "datacenter, server, firewall, volume, image, cube, lan, nic, pcc, snapshot, ipblock"
           - namespace: dbaas-postgres
-            keywords: "[ postgres ]"
+            keywords: "postgres"
           - namespace: managed-kubernetes
-            keywords: "[ k8s ]"
+            keywords: "k8s"
           - namespace: natgateway
-            keywords: "[ nat ]"
+            keywords: "nat"
           - namespace: networkloadbalancer
-            keywords: "[ network_load_balancer, network ]"
+            keywords: "network_load_balancer, network"
 
     env:
       python-version: 3.8.0
@@ -155,18 +155,12 @@ jobs:
 
       - name: Run ${{ matrix.namespace }} tests with files diff check
         run: |
-          echo ${{ matrix.keywords }}
-        #          keywords_length=${{ matrix.keywords }}
-        #          for f in "${${{ matrix.keywords }}[@]}"
-#          do
-#            echo "$f - keyword"
-#          done
-#          if [[ $(bash .github/scripts/string_in_array.sh $keywords_length ${{ matrix.keywords }} ${{ steps.files.outputs.all }}) == true ]]; then
-#            echo "Changed files in ${{ matrix.namespace }}."
+          if [[ $(bash .github/scripts/string_in_array.sh  ${{ matrix.keywords }} ${{ steps.files.outputs.all }}) == true ]]; then
+            echo "Changed files in ${{ matrix.namespace }}."
 #            ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ matrix.namespace }}/all-tests.yml
-#          else
-#            echo "no changed ${{ matrix.namespace }} files!"
-#          fi
+          else
+            echo "no changed ${{ matrix.namespace }} files!"
+          fi
         if: github.event_name == 'pull_request'
 
       - name: Run ${{ matrix.namespace }} tests

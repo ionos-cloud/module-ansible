@@ -10,12 +10,26 @@
 #
 
 # All command-line args except the first go into 'arr' variable
-keywords_length=$1
-keywords=("${@:2:$keywords_length}")
+keywords_string=$1
+#keywords=("${@:2:$keywords_length}")
 
-changed_files=("${@:$keywords_length+2}")
+IFS=', ' read -r -a keywords <<< $keywords_string
+keywords_length=${#keywords[@]}
+
+changed_files=("${@:2}")
 changed_files_length=${#changed_files[@]}
 flag=false
+
+for f in "${keywords[@]}"
+do
+echo "$f - keyword"
+done
+
+for f in "${changed_files[@]}"
+do
+echo "$f - changed_file"
+done
+
 
 # Check if first command-line arg exists as substring
 # in any of the other command-line arg vars
