@@ -55,15 +55,54 @@ jobs:
           expected: false
           actual: ${{ steps.runs_in_progress.outputs.is_banned_running }}
 
+
+  cleanup_test_account:
+    name: Cleanup test account
+    runs-on: ubuntu-latest
+    env:
+      IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
+      IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
+      ionosctl-version: 6.1.7
+
+    - name: Checking out sdk-resources
+      uses: actions/checkout@v2
+      with:
+        path: resources
+
+    - name: Setup ionosctl
+      run: |
+        curl -sL https://github.com/ionos-cloud/ionosctl/releases/download/v${{ env.IONOSCTL_VERSION }}/ionosctl-${{ env.IONOSCTL_VERSION }}-linux-amd64.tar.gz | tar -xzv > /dev/null
+        mv ionosctl /usr/local/bin
+
+    - name: Perform cleanup
+      working-directory: /home/runner/work/module-ansible/module-ansible/.github/scripts/cleanup
+      run: |
+        ./delete-all-resources.sh &> cleanup.log || true
+        cat cleanup.log
+
+    # Upload the output as an artifact
+    - name: Create an artifact with the output logs file
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: cleanup.log
+        path: |
+          .//home/runner/work/module-ansible/module-ansible/.github/scripts/cleanup/cleanup.log
+
+
   test:
     needs: check_runs
     name: Testing the ${{ matrix.namespace }} modules
     strategy:
       matrix:
-        namespace: [ user-management, managed-backup ]
+        include:
+          - namespace: user-management
+            keywords: [ user, group, s3key, share ]
+          - namespace: managed-backup
+            keywords: [ backupunit ]
+
     env:
       python-version: 3.8.0
-      ionoscloud-version: 6.0.0b1
       ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
       IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
       IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
@@ -97,20 +136,18 @@ jobs:
         run: |
           python3 -m pip list
 
-#      - id: files
-#        name: Get changed files
-#        uses: jitterbit/get-changed-files@v1
-#
-#
-#      - name: Run Managed Kubernetes tests
-#        run: |
-#          if [[ $(bash .github/scripts/string_in_array.sh k8s ${{ steps.files.outputs.all }}) == true ]]; then
-#            echo "Changed files in Kubernetes."
-#            ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-kubernetes/all-tests.yml
-#          else
-#            echo "no changed k8s files!"
-#          fi
+      - id: files
+        name: Get changed files
+        uses: jitterbit/get-changed-files@v1
+        if: github.event_name == 'pull_request'
+
 
       - name: Run ${{ matrix.namespace }} tests
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ matrix.namespace }}/all-tests.yml
+          keywords_length=${#${{ matrix.keywords }}[@]}
+          if [[ $(bash .github/scripts/string_in_array.sh $keywords_length ${{ matrix.keywords }} ${{ steps.files.outputs.all }}) == true ]]; then
+            echo "Changed files in ${{ matrix.namespace }}."
+            ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ matrix.namespace }}/all-tests.yml
+          else
+            echo "no changed ${{ matrix.namespace }} files!"
+          fi

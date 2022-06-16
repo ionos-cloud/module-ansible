@@ -9,18 +9,25 @@
 # output: ::set-output name=exists::true
 #
 
-# All command-line args except the first go into 'arr' variable 
-arr=("${@:2}")
+# All command-line args except the first go into 'arr' variable
+keywords_length=$1
+keywords=("${@:2:$keywords_length}")
+
+changed_files=("${@:$keywords_length+2}")
+changed_files_length=${#changed_files[@]}
 flag=false
 
 # Check if first command-line arg exists as substring
 # in any of the other command-line arg vars
-for (( i=0; i<${#arr[@]}; i++ ));
+for (( j=0; j<keywords_length; j++))
 do
-    if [[ "${arr[$i]}" = *"${1}"* ]]; then
-        flag=true
-        break
-    fi
+  for (( i=0; i<changed_files_length; i++ ));
+  do
+      if [[ "${changed_files[$i]}" = *"${keywords[$j]}"* ]]; then
+          flag=true
+          break
+      fi
+  done
 done
 
 echo $flag
