@@ -99,19 +99,19 @@ jobs:
       matrix:
         include:
           - namespace: user-management
-            keywords: [ user, group, s3key, share ]
+            keywords: "[ user, group, s3key, share ]"
           - namespace: managed-backup
-            keywords: [ backupunit ]
+            keywords: "[ backupunit ]"
           - namespace: compute-engine
-            keywords: [ datacenter, server, firewall, volume, image, cube, lan, nic, pcc, snapshot, ipblock ]
+            keywords: "[ datacenter, server, firewall, volume, image, cube, lan, nic, pcc, snapshot, ipblock ]"
           - namespace: dbaas-postgres
-            keywords: [ postgres ]
+            keywords: "[ postgres ]"
           - namespace: managed-kubernetes
-            keywords: [ k8s ]
+            keywords: "[ k8s ]"
           - namespace: natgateway
-            keywords: [ nat ]
+            keywords: "[ nat ]"
           - namespace: networkloadbalancer
-            keywords: [ network_load_balancer, network ]
+            keywords: "[ network_load_balancer, network ]"
 
     env:
       python-version: 3.8.0
