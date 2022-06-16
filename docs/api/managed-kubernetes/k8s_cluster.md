@@ -48,7 +48,6 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   | cluster_name | True | str |  | The name of the K8s cluster. |
   | k8s_version | False | str |  | The description of the virtual datacenter. |
   | maintenance_window | False | dict |  | The datacenter location. |
-  | public | False | bool |  | The datacenter location. |
   | api_subnet_allow_list | False | list |  | The datacenter location. |
   | s3_buckets_param | False | list |  | The datacenter location. |
   | api_url | False | str |  | The Ionos API base URL. |

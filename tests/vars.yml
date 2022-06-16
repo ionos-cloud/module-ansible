@@ -12,6 +12,3 @@ updated_password: fjee83jkw940djcer
 wait_timeout: 500
 email: ansible.test@mail.com
 updated_email: updated.ansible.test@mail.com
-
-    for c in ionoscloud_certificate_manager.CertificateApi(certificate_manager_client).get_certificates().items:
-        ionoscloud_certificate_manager.CertificateApi(certificate_manager_client).delete_certificate_by_uuid(c.id)

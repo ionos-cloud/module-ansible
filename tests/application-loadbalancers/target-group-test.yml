@@ -4,7 +4,7 @@
   gather_facts: false
 
   vars_files:
-    - vars.yml
+    - ../vars.yml
 
   tasks:
     - name: Create Target Group
@@ -16,14 +16,11 @@
           - ip: "22.231.2.2"
             port: 8080
             weight: 123
-            health_check:
-              check: true
-              check_interval: 2000
-              maintenance: true
+            health_check_enabled: true
+            maintenance_enabled: false
         health_check:
           check_timeout: 2000
-          connect_timeout: 5000
-          target_timeout: 50000
+          check_interval: 1000
           retries: 3
         http_health_check:
           path: "./"
