@@ -159,3 +159,9 @@ jobs:
           else
             echo "no changed ${{ matrix.namespace }} files!"
           fi
+        if: github.event_name == 'pull_request'
+
+      - name: Run ${{ matrix.namespace }} tests
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ matrix.namespace }}/all-tests.yml
+        if: github.event_name == 'workflow_dispatch'
