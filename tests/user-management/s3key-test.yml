@@ -54,8 +54,8 @@
     - name: Testing if only one s3key exists
       assert:
         that:
-          - s3keys_info_response.s3keys | length == 1
-        msg: "only one s3key must be created if using idempotency"
+          - s3keys_info_response.s3keys | length == 2
+        msg: "s3key idempotency not working correctly"
 
     - name: Remove an s3key
       s3key:
