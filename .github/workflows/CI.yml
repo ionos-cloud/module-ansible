@@ -58,6 +58,9 @@ jobs:
   test:
     needs: check_runs
     name: Testing the Ansible Module
+    strategy:
+      matrix:
+        namespace: [ compute-engine, managed-backup ]
     env:
       python-version: 3.8.0
       ionoscloud-version: 6.0.0b1
@@ -98,31 +101,16 @@ jobs:
         name: Get changed files
         uses: jitterbit/get-changed-files@v1
 
-      - name: Run Managed Kubernetes tests
-        run: |
-          if [[ $(bash .github/scripts/string_in_array.sh k8s ${{ steps.files.outputs.all }}) == true ]]; then
-            echo "Changed files in Kubernetes."
-            ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-kubernetes/all-tests.yml
-          else
-            echo "no changed k8s files!"
-          fi
-
-      - name: Run DBaaS Postgres tests
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/dbaas-postgres/all-tests.yml
-
-      - name: Run Compute Engine tests
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/compute-engine/all-tests.yml
-      - name: Run Managed Backup tests
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-backup/all-tests.yml
-#      - name: Run NAT Gateway tests
+#
+#      - name: Run Managed Kubernetes tests
 #        run: |
-#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/natgateway/all-tests.yml
-      - name: Run Network Load Balancer tests
+#          if [[ $(bash .github/scripts/string_in_array.sh k8s ${{ steps.files.outputs.all }}) == true ]]; then
+#            echo "Changed files in Kubernetes."
+#            ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-kubernetes/all-tests.yml
+#          else
+#            echo "no changed k8s files!"
+#          fi
+
+      - name: Run ${{ matrix.namespace }} tests
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/networkloadbalancer/all-tests.yml
-      - name: Run User Management tests
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-management/all-tests.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ matrix.namespace }}/all-tests.yml

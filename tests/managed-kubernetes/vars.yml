@@ -1,9 +1,9 @@
-name: "AnsibleAutoTest"
-datacenter: "AnsibleAutoTest"
+name: "AnsibleAutoTestK8s"
+datacenter: "AnsibleAutoTestK8s"
 description: Ansible test description
-server: "AnsibleAutoTest"
-nic: "AnsibleAutoTest"
-lan: "AnsibleAutoTest"
+server: "AnsibleAutoTestK8s"
+nic: "AnsibleAutoTestK8s"
+lan: "AnsibleAutoTestK8s"
 location: gb/lhr
 image: ce08ca15-0adf-11ec-9fa6-1e5ea9024c03
 image_alias: centos:7
