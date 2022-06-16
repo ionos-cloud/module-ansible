@@ -156,7 +156,7 @@ jobs:
       - name: Run ${{ matrix.namespace }} tests with files diff check
         run: |
           keywords_length=${#${{ matrix.keywords }}[@]}
-          car ${{ matrix.keywords }}"
+          cat ${{ matrix.keywords }}"
           for f in "${${{ matrix.keywords }}[@]}"
           do
             cat "$f - keyword"
