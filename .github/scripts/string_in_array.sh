@@ -20,16 +20,6 @@ changed_files=("${@:2}")
 changed_files_length=${#changed_files[@]}
 flag=false
 
-for f in "${keywords[@]}"
-do
-echo "$f - keyword"
-done
-
-for f in "${changed_files[@]}"
-do
-echo "$f - changed_file"
-done
-
 
 # Check if first command-line arg exists as substring
 # in any of the other command-line arg vars
