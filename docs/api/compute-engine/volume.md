@@ -14,12 +14,11 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
     wait_timeout: 500
     state: present
   
-# Update Volumes
+# Update Volumes - only one ID if renaming
   - volume:
     name: 'new_vol_name'
     datacenter: Tardis One
-    instance_ids: # Must only have one ID if renaming
-     - 'vol01'
+    instance_ids: 'vol01'
     size: 50
     bus: IDE
     wait_timeout: 500
@@ -119,12 +118,11 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
 &nbsp;
 # state: **update**
 ```yaml
-  # Update Volumes
+  # Update Volumes - only one ID if renaming
   - volume:
     name: 'new_vol_name'
     datacenter: Tardis One
-    instance_ids: # Must only have one ID if renaming
-     - 'vol01'
+    instance_ids: 'vol01'
     size: 50
     bus: IDE
     wait_timeout: 500

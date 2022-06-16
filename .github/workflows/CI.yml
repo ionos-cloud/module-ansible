@@ -86,18 +86,32 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install ionoscloud
           python3 -m pip install ionoscloud-dbaas-postgres
+
       - name: Install Ansible
         run: |
           python3 -m pip install ansible
+
       - name: Debug pip packages
         run: |
           python3 -m pip list
+
+      - id: files
+        name: Get changed files
+        uses: jitterbit/get-changed-files@v1
+
+      - name: Run Managed Kubernetes tests
+        run: |
+          if [[ $(bash .github/scripts/string_in_array.sh k8s ${{ steps.files.outputs.all }}) == true ]]; then
+            echo "Changed files in Kubernetes."
+            ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-kubernetes/all-tests.yml
+          else
+            echo "no changed k8s files!"
+          fi
+
       - name: Run DBaaS Postgres tests
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/dbaas-postgres/all-tests.yml
-      - name: Run Managed Kubernetes tests
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-kubernetes/all-tests.yml
+
       - name: Run Compute Engine tests
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/compute-engine/all-tests.yml
@@ -108,7 +122,6 @@ jobs:
 #      - name: Run NAT Gateway tests
 #        run: |
 #          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/natgateway/all-tests.yml
-
       - name: Run Network Load Balancer tests
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/networkloadbalancer/all-tests.yml

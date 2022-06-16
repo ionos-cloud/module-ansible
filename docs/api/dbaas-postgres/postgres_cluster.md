@@ -89,6 +89,7 @@ This is a module that supports creating, updating, restoring or destroying Postg
   | db_username | True | str |  | The username for the initial postgres user. Some system usernames are restricted (e.g. &quot;postgres&quot;, &quot;admin&quot;, &quot;standby&quot;) |
   | db_password | True | str |  | The username for the initial postgres user. |
   | synchronization_mode | True | str |  | Represents different modes of replication. |
+  | backup_location | False | str |  | The S3 location where the backups will be stored. One of [&quot;de&quot;, &quot;eu-south-2&quot;, &quot;eu-central-2&quot;] |
   | backup_id | False | str |  | The ID of the backup to be used. |
   | recovery_target_time | False | str |  | Recovery target time. |
   | api_url | False | str |  | The Ionos API base URL. |
