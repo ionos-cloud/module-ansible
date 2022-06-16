@@ -87,7 +87,7 @@ jobs:
         with:
           name: cleanup.log
           path: |
-            /home/runner/work/module-ansible/module-ansible/.github//cleanup/scripts/cleanup/output.log
+            /home/runner/work/module-ansible/module-ansible/.github/cleanup/scripts/cleanup/output.log
 
 
 
