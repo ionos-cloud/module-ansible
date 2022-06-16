@@ -157,7 +157,7 @@ jobs:
         run: |
           if [[ $(bash .github/scripts/string_in_array.sh  ${{ matrix.keywords }} ${{ steps.files.outputs.all }}) == true ]]; then
             echo "Changed files in ${{ matrix.namespace }}."
-#            ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ matrix.namespace }}/all-tests.yml
+            ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ matrix.namespace }}/all-tests.yml
           else
             echo "no changed ${{ matrix.namespace }} files!"
           fi
