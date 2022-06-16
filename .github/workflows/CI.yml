@@ -55,7 +55,6 @@ jobs:
           expected: false
           actual: ${{ steps.runs_in_progress.outputs.is_banned_running }}
 
-
   cleanup_test_account:
     name: Cleanup test account
     runs-on: ubuntu-latest
@@ -63,31 +62,33 @@ jobs:
       IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
       IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
       ionosctl-version: 6.1.7
+    steps:
+      - name: Checking out sdk-resources
+        uses: actions/checkout@v2
+        with:
+          path: resources
 
-    - name: Checking out sdk-resources
-      uses: actions/checkout@v2
-      with:
-        path: resources
+      - name: Setup ionosctl
+        run: |
+          curl -sL https://github.com/ionos-cloud/ionosctl/releases/download/v${{ env.IONOSCTL_VERSION }}/ionosctl-${{ env.IONOSCTL_VERSION }}-linux-amd64.tar.gz | tar -xzv > /dev/null
+          mv ionosctl /usr/local/bin
 
-    - name: Setup ionosctl
-      run: |
-        curl -sL https://github.com/ionos-cloud/ionosctl/releases/download/v${{ env.IONOSCTL_VERSION }}/ionosctl-${{ env.IONOSCTL_VERSION }}-linux-amd64.tar.gz | tar -xzv > /dev/null
-        mv ionosctl /usr/local/bin
+      - name: Perform cleanup
+        working-directory: /home/runner/work/module-ansible/module-ansible/.github/scripts/cleanup
+        run: |
+          ./delete-all-resources.sh &> cleanup.log || true
+          cat cleanup.log
 
-    - name: Perform cleanup
-      working-directory: /home/runner/work/module-ansible/module-ansible/.github/scripts/cleanup
-      run: |
-        ./delete-all-resources.sh &> cleanup.log || true
-        cat cleanup.log
+      # Upload the output as an artifact
+      - name: Create an artifact with the output logs file
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: cleanup.log
+          path: |
+            .//home/runner/work/module-ansible/module-ansible/.github/scripts/cleanup/cleanup.log
 
-    # Upload the output as an artifact
-    - name: Create an artifact with the output logs file
-      uses: actions/upload-artifact@v2
-      if: always()
-      with:
-        name: cleanup.log
-        path: |
-          .//home/runner/work/module-ansible/module-ansible/.github/scripts/cleanup/cleanup.log
+
 
 
   test:
