@@ -76,7 +76,7 @@ jobs:
       - name: Perform cleanup
         working-directory: /home/runner/work/module-ansible/module-ansible/.github/scripts/cleanup
         run: |
-          /delete-all-resources.sh &> output.log || true
+          ./delete-all-resources.sh &> output.log || true
           cat output.log
 
       # Upload the output as an artifact
