@@ -56,12 +56,13 @@ jobs:
           actual: ${{ steps.runs_in_progress.outputs.is_banned_running }}
 
   cleanup_test_account:
+    needs: check_runs
     name: Cleanup test account
     runs-on: ubuntu-latest
     env:
       IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
       IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
-      ionosctl-version: 6.1.7
+      IONOSCTL_VERSION: 6.1.7
     steps:
       - name: Checking out sdk-resources
         uses: actions/checkout@v2
@@ -87,7 +88,6 @@ jobs:
           name: cleanup.log
           path: |
             .//home/runner/work/module-ansible/module-ansible/.github/scripts/cleanup/cleanup.log
-
 
 
 
