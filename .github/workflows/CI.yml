@@ -89,7 +89,6 @@ jobs:
             /home/runner/work/module-ansible/module-ansible/.github//cleanup/scripts/cleanup/output.log
 
 
-
   test:
     needs: check_runs
     name: Testing the ${{ matrix.namespace }} modules
@@ -100,6 +99,21 @@ jobs:
             keywords: [ user, group, s3key, share ]
           - namespace: managed-backup
             keywords: [ backupunit ]
+          - namespace: compute-engine
+#            keywords: [ datacenter, server, firewall, volume, image, cube, lan, nic, pcc, snapshot, ipblock ]
+            keywords: [ placeholder ]
+          - namespace: dbaas-postgres
+#            keywords: [ postgres ]
+            keywords: [ placeholder ]
+          - namespace: managed-kubernetes
+#            keywords: [ k8s ]
+            keywords: [ placeholder ]
+          - namespace: natgateway
+            keywords: [ placeholder ]
+#            keywords: [ nat ]
+          - namespace: networkloadbalancer
+#            keywords: [ network_load_balancer, network ]
+            keywords: [ placeholder ]
 
     env:
       python-version: 3.8.0
@@ -140,7 +154,6 @@ jobs:
         name: Get changed files
         uses: jitterbit/get-changed-files@v1
         if: github.event_name == 'pull_request'
-
 
       - name: Run ${{ matrix.namespace }} tests
         run: |
