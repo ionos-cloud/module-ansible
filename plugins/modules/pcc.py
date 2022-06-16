@@ -247,7 +247,7 @@ def delete_pcc(module, client):
     pcc_id = module.params.get('pcc_id')
     pcc_server = ionoscloud.PrivateCrossConnectsApi(client)
 
-    pcc_list = pcc_server.pccs_get(depth=5)
+    pcc_list = pcc_server.pccs_get(depth=1)
     pcc = get_resource_id(module, pcc_list, pcc_id)
 
     if not pcc:
@@ -272,7 +272,7 @@ def update_pcc(module, client):
     wait_timeout = module.params.get('wait_timeout')
 
     pcc_server = ionoscloud.PrivateCrossConnectsApi(client)
-    pcc_list = pcc_server.pccs_get(depth=3)
+    pcc_list = pcc_server.pccs_get(depth=1)
 
     existing_pcc_with_name = get_resource(module, pcc_list, name)
     if existing_pcc_with_name is not None:

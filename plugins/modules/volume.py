@@ -454,7 +454,7 @@ def create_volume(module, client):
     volumes = []
     instance_ids = []
 
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     if datacenter_id is None:
@@ -483,7 +483,7 @@ def create_volume(module, client):
         names = [name]
 
     # Prefetch a list of volumes for later comparison.
-    volume_list = volume_server.datacenters_volumes_get(datacenter_id, depth=2)
+    volume_list = volume_server.datacenters_volumes_get(datacenter_id, depth=1)
 
     for name in names:
         # Fail volume creation if a volume with this name and int combination already exists.
@@ -537,12 +537,12 @@ def update_volume(module, client):
 
     changed = False
 
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if datacenter_id is None:
         module.fail_json(msg='datacenter could not be found.')
 
-    volume_list = volume_server.datacenters_volumes_get(datacenter_id, depth=2)
+    volume_list = volume_server.datacenters_volumes_get(datacenter_id, depth=1)
 
     # Fail early if one of the ids provided doesn't match any volume
     checked_instances = []
@@ -597,10 +597,10 @@ def delete_volume(module, client):
     instance_ids = module.params.get('instance_ids')
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
-    volumes = volume_server.datacenters_volumes_get(datacenter_id, depth=2)
+    volumes = volume_server.datacenters_volumes_get(datacenter_id, depth=1)
 
     changed = False
     volume_id = None
@@ -633,7 +633,7 @@ def _attach_volume(module, server_client, datacenter, volume_id):
 
     # Locate UUID for Server
     if server:
-        server_list = server_client.datacenters_servers_get(datacenter_id=datacenter, depth=2)
+        server_list = server_client.datacenters_servers_get(datacenter_id=datacenter, depth=1)
         server_id = get_resource_id(module, server_list, server)
 
         try:

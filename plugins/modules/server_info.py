@@ -167,7 +167,7 @@ def get_servers(module, client):
     upgrade_needed = module.params.get('upgrade_needed')
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter = get_resource_id(module, datacenter_list, datacenter)
 
     try:
