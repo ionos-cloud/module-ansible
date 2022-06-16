@@ -65,10 +65,8 @@ jobs:
       IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
       IONOSCTL_VERSION: 6.1.7
     steps:
-      - name: Checking out sdk-resources
+      - name: Checking out module-ansible
         uses: actions/checkout@v2
-        with:
-          path: resources
 
       - name: Setup ionosctl
         run: |
@@ -76,7 +74,7 @@ jobs:
           mv ionosctl /usr/local/bin
 
       - name: Perform cleanup
-        working-directory: ./resources/scripts/cleanup
+        working-directory: /home/runner/work/module-ansible/module-ansible/scripts/cleanup
         run: |
           ./delete-all-resources.sh &> output.log || true
           cat output.log
@@ -88,7 +86,7 @@ jobs:
         with:
           name: cleanup.log
           path: |
-            ./resources/scripts/cleanup/output.log
+            /home/runner/work/module-ansible/module-ansible/scripts/cleanup/scripts/cleanup/output.log
 
 
 
