@@ -155,12 +155,12 @@ jobs:
 
       - name: Run ${{ matrix.namespace }} tests with files diff check
         run: |
-          keywords_length=${#${{ matrix.keywords }}[@]}
-          echo ${{ matrix.keywords }}
-          for f in "${${{ matrix.keywords }}[@]}"
-          do
-            echo "$f - keyword"
-          done
+          keywords_length=${{ matrix.keywords }}
+#          echo ${{ matrix.keywords }}
+#          for f in "${${{ matrix.keywords }}[@]}"
+#          do
+#            echo "$f - keyword"
+#          done
 #          if [[ $(bash .github/scripts/string_in_array.sh $keywords_length ${{ matrix.keywords }} ${{ steps.files.outputs.all }}) == true ]]; then
 #            echo "Changed files in ${{ matrix.namespace }}."
 #            ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ matrix.namespace }}/all-tests.yml
