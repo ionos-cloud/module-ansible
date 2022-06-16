@@ -129,24 +129,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-#      - name: Setup Python ${{ env.python-version }}
-#        uses: actions/setup-python@v2
-#        with:
-#          python-version: ${{ env.python-version }}
-#
-#      - name: Setup pip, virtualenv, ionoscloud
-#        run: |
-#          python3 -m pip install --upgrade pip
-#          python3 -m pip install ionoscloud
-#          python3 -m pip install ionoscloud-dbaas-postgres
-#
-#      - name: Install Ansible
-#        run: |
-#          python3 -m pip install ansible
-#
-#      - name: Debug pip packages
-#        run: |
-#          python3 -m pip list
+      - name: Setup Python ${{ env.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.python-version }}
+
+      - name: Setup pip, virtualenv, ionoscloud
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ionoscloud
+          python3 -m pip install ionoscloud-dbaas-postgres
+
+      - name: Install Ansible
+        run: |
+          python3 -m pip install ansible
+
+      - name: Debug pip packages
+        run: |
+          python3 -m pip list
 
       - id: files
         name: Get changed files
@@ -155,7 +155,7 @@ jobs:
 
       - name: Run ${{ matrix.namespace }} tests with files diff check
         run: |
-          if [[ $(bash .github/scripts/string_in_array.sh  "${{ matrix.keywords }}" ${{ steps.files.outputs.all }}) == true ]]; then
+          if [[ $(bash .github/scripts/check_keywords.sh  "${{ matrix.keywords }}" ${{ steps.files.outputs.all }}) == true ]]; then
             echo "Changed files in ${{ matrix.namespace }}."
             ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ matrix.namespace }}/all-tests.yml
           else
