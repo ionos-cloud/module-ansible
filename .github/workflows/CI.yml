@@ -55,6 +55,7 @@ jobs:
           expected: false
           actual: ${{ steps.runs_in_progress.outputs.is_banned_running }}
 
+
   cleanup_test_account:
     needs: check_runs
     name: Cleanup test account
@@ -77,6 +78,7 @@ jobs:
       - name: Perform cleanup
         working-directory: /home/runner/work/module-ansible/module-ansible/.github/scripts/cleanup
         run: |
+          ls
           ./delete-all-resources.sh &> cleanup.log || true
           cat cleanup.log
 
