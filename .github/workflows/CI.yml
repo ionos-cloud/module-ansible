@@ -150,7 +150,7 @@ jobs:
         uses: jitterbit/get-changed-files@v1
         if: github.event_name == 'pull_request'
 
-      - name: Run ${{ matrix.namespace }} tests
+      - name: Run ${{ matrix.namespace }} tests with files diff check
         run: |
           keywords_length=${#${{ matrix.keywords }}[@]}
           if [[ $(bash .github/scripts/string_in_array.sh $keywords_length ${{ matrix.keywords }} ${{ steps.files.outputs.all }}) == true ]]; then
