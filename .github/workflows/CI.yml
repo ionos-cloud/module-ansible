@@ -57,7 +57,7 @@ jobs:
 
   test:
     needs: check_runs
-    name: Testing the Ansible Module
+    name: Testing the ${{ matrix.namespace }} modules
     strategy:
       matrix:
         namespace: [ user-management, managed-backup ]
@@ -97,10 +97,10 @@ jobs:
         run: |
           python3 -m pip list
 
-      - id: files
-        name: Get changed files
-        uses: jitterbit/get-changed-files@v1
-
+#      - id: files
+#        name: Get changed files
+#        uses: jitterbit/get-changed-files@v1
+#
 #
 #      - name: Run Managed Kubernetes tests
 #        run: |
