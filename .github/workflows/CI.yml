@@ -76,11 +76,10 @@ jobs:
           mv ionosctl /usr/local/bin
 
       - name: Perform cleanup
-        working-directory: /home/runner/work/module-ansible/module-ansible/.github/scripts/cleanup
+        working-directory: ./resources/scripts/cleanup
         run: |
-          ls
-          ./delete-all-resources.sh &> cleanup.log || true
-          cat cleanup.log
+          ./delete-all-resources.sh &> output.log || true
+          cat output.log
 
       # Upload the output as an artifact
       - name: Create an artifact with the output logs file
@@ -89,7 +88,7 @@ jobs:
         with:
           name: cleanup.log
           path: |
-            .//home/runner/work/module-ansible/module-ansible/.github/scripts/cleanup/cleanup.log
+            ./resources/scripts/cleanup/output.log
 
 
 
