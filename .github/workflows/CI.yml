@@ -26,7 +26,7 @@ jobs:
     env:
       # Workflow names that cannot run in parallel with this workflow, separated by spaces
       # Example: incompatible_parallel_workflows: 'CI Build Name OtherName Foo Bar FooBar'
-      incompatible_parallel_workflows: 'PLACEHOLDER'
+      incompatible_parallel_workflows: 'CI'
 
     runs-on: ubuntu-latest
     outputs:
@@ -100,20 +100,15 @@ jobs:
           - namespace: managed-backup
             keywords: [ backupunit ]
           - namespace: compute-engine
-#            keywords: [ datacenter, server, firewall, volume, image, cube, lan, nic, pcc, snapshot, ipblock ]
-            keywords: [ placeholder ]
+            keywords: [ datacenter, server, firewall, volume, image, cube, lan, nic, pcc, snapshot, ipblock ]
           - namespace: dbaas-postgres
-#            keywords: [ postgres ]
-            keywords: [ placeholder ]
+            keywords: [ postgres ]
           - namespace: managed-kubernetes
-#            keywords: [ k8s ]
-            keywords: [ placeholder ]
+            keywords: [ k8s ]
           - namespace: natgateway
-            keywords: [ placeholder ]
-#            keywords: [ nat ]
+            keywords: [ nat ]
           - namespace: networkloadbalancer
-#            keywords: [ network_load_balancer, network ]
-            keywords: [ placeholder ]
+            keywords: [ network_load_balancer, network ]
 
     env:
       python-version: 3.8.0
