@@ -156,10 +156,10 @@ jobs:
       - name: Run ${{ matrix.namespace }} tests with files diff check
         run: |
           keywords_length=${#${{ matrix.keywords }}[@]}
-          cat ${{ matrix.keywords }}
+          echo ${{ matrix.keywords }}
           for f in "${${{ matrix.keywords }}[@]}"
           do
-            cat "$f - keyword"
+            echo "$f - keyword"
           done
 #          if [[ $(bash .github/scripts/string_in_array.sh $keywords_length ${{ matrix.keywords }} ${{ steps.files.outputs.all }}) == true ]]; then
 #            echo "Changed files in ${{ matrix.namespace }}."
