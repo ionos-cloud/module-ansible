@@ -92,7 +92,7 @@ jobs:
 
 
   test:
-    needs: check_runs
+    needs: cleanup_test_account
     name: Testing the ${{ matrix.namespace }} modules
     strategy:
       matrix:
