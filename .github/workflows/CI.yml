@@ -133,7 +133,3 @@ jobs:
       - name: Run User Management tests
         run: |
           ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-management/all-tests.yml
-
-      - name: Run Target Group test
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/target-group-test.yml
