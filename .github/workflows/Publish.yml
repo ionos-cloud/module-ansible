@@ -59,6 +59,10 @@ jobs:
         run: |
          python3 -m pip list
 
+      - name: Run Application Loadbalancers tests
+        run: |
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/application-loadbalancers/all-tests.yml
+
       - name: Run DBaaS Postgres tests
         if: github.event.inputs.test == 'yes'
         run: |
