@@ -74,11 +74,12 @@ jobs:
           curl -sL https://github.com/ionos-cloud/ionosctl/releases/download/v${{ env.IONOSCTL_VERSION }}/ionosctl-${{ env.IONOSCTL_VERSION }}-linux-amd64.tar.gz | tar -xzv > /dev/null
           mv ionosctl /usr/local/bin
 
-      - name: Perform cleanup
-        working-directory: /home/runner/work/module-ansible/module-ansible/.github/scripts/cleanup
-        run: |
-          ./delete-all-resources.sh &> output.log || true
-          cat output.log
+#     Temporarily skipped
+#      - name: Perform cleanup
+#        working-directory: /home/runner/work/module-ansible/module-ansible/.github/scripts/cleanup
+#        run: |
+#          ./delete-all-resources.sh &> output.log || true
+#          cat output.log
 
       # Upload the output as an artifact
       - name: Create an artifact with the output logs file
@@ -88,8 +89,6 @@ jobs:
           name: cleanup.log
           path: |
             /home/runner/work/module-ansible/module-ansible/.github/cleanup/scripts/cleanup/output.log
-
-
 
 
   test:
