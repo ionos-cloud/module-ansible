@@ -406,7 +406,7 @@ def delete_k8s_cluster_nodepool(module, client):
     changed = False
 
     try:
-        if k8s_nodepool.metadata.state != 'DESTRYOING':
+        if k8s_nodepool.metadata.state != 'DESTROYING':
             k8s_server.k8s_nodepools_delete_with_http_info(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id)
         if module.params.get('wait'):
             client.wait_for(

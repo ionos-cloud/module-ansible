@@ -296,7 +296,7 @@ def delete_k8s_cluster(module, client):
         module.exit_json(changed=False)
 
     try:
-        if k8s_cluster.metadata.state != 'DESTRYOING':
+        if k8s_cluster.metadata.state != 'DESTROYING':
             k8s_server.k8s_delete_with_http_info(k8s_cluster_id=k8s_cluster_id)
 
         if wait:
