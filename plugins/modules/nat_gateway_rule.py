@@ -323,7 +323,7 @@ def create_nat_gateway_rule(module, client):
     wait_timeout = int(module.params.get('wait_timeout'))
 
     nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-    nat_gateway_rules = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id, nat_gateway_id, depth=2)
+    nat_gateway_rules = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id, nat_gateway_id, depth=1)
 
     existing_rule = get_resource(module, nat_gateway_rules, name)
 
@@ -389,7 +389,7 @@ def update_nat_gateway_rule(module, client):
     nat_gateway_server = ionoscloud.NATGatewaysApi(client)
     nat_gateway_rule_response = None
 
-    nat_gateway_rules = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id, nat_gateway_id, depth=2)
+    nat_gateway_rules = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id, nat_gateway_id, depth=1)
     existing_rule_id_by_name = get_resource_id(module, nat_gateway_rules, name)
 
     if nat_gateway_rule_id is not None and existing_rule_id_by_name is not None and existing_rule_id_by_name != nat_gateway_rule_id:

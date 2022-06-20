@@ -82,7 +82,7 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
   | source_subnet | True | str |  | Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets source IP address. |
   | public_ip | True | str |  | Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource. |
   | target_subnet | False | str |  | Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address. |
-  | target_port_range | False | str |  | Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port. |
+  | target_port_range | False | dict |  | Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | nat_gateway_id | True | str |  | The ID of the NAT Gateway. |
   | api_url | False | str |  | The Ionos API base URL. |
@@ -156,7 +156,7 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
   | source_subnet | False | str |  | Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets source IP address. |
   | public_ip | False | str |  | Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource. |
   | target_subnet | False | str |  | Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address. |
-  | target_port_range | False | str |  | Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port. |
+  | target_port_range | False | dict |  | Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | nat_gateway_id | True | str |  | The ID of the NAT Gateway. |
   | nat_gateway_rule_id | False | str |  | The ID of the NAT Gateway rule. |

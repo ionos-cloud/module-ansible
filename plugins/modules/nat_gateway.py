@@ -268,7 +268,7 @@ def create_nat_gateway(module, client):
     wait_timeout = int(module.params.get('wait_timeout'))
 
     nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-    nat_gateways = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=2)
+    nat_gateways = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=1)
     nat_gateway_response = None
 
     existing_nat_gateway = get_resource(module, nat_gateways, name)
@@ -328,7 +328,7 @@ def update_nat_gateway(module, client):
     nat_gateway_server = ionoscloud.NATGatewaysApi(client)
     nat_gateway_response = None
 
-    nat_gateways = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=2)
+    nat_gateways = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=1)
     existing_nat_gateway_id_by_name = get_resource_id(module, nat_gateways, name)
 
     if nat_gateway_id is not None and existing_nat_gateway_id_by_name is not None and existing_nat_gateway_id_by_name != nat_gateway_id:

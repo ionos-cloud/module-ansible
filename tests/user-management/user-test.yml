@@ -15,10 +15,25 @@
         firstname: John
         lastname: Doe
         email: "{{ random_user }}"
-        administrator: true
+        administrator: false
         user_password: "{{ password }}"
         force_sec_auth: false
         state: present
+
+    - name: Create first group
+      group:
+        name: "{{ name }} 1"
+
+    - name: Add user to first group
+      user:
+        email: "{{ random_user }}"
+        groups:
+          - "{{ name }} 1"
+        state: update
+
+    - name: Create second group
+      group:
+        name: "{{ name }} 2"
 
     - name: Update user
       user:
@@ -27,20 +42,23 @@
         email: "{{ random_user }}"
         administrator: false
         force_sec_auth: false
-        state: update
-
-    - name: Create group
-      group:
-        name: "{{ name }}"
-
-    - name: Add user to group
-      user:
-        email: "{{ random_user }}"
         groups:
-          - "{{ name }}"
+          - "{{ name }} 1"
+          - "{{ name }} 2"
         state: update
+      register: user_response
 
-    - name: Remove user from group
+    - name: Debug - show response
+      debug:
+        msg: "{{ user_response }}"
+
+    - name: Asserting that updating a user handles its groups correctly
+      assert:
+        that:
+          - user_response.user['entities']['groups']['items'] | length == 2
+        msg: "user-test: updating a user must keep its groups"
+
+    - name: Remove user from groups
       user:
         email: "{{ random_user }}"
         groups: []

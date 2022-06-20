@@ -51,6 +51,15 @@
         wait: true
         state: update
 
+    - name: Get all volumes for datacenter
+      volume_info:
+        datacenter: "{{ datacenter }}"
+      register: volume_list_response
+
+    - name: Show response of all volumes for datacenter
+      debug:
+        var: volume_list_response
+
     - name: Delete volumes
       volume:
         datacenter: "{{ datacenter }}"

@@ -283,7 +283,7 @@ def create_nlb(module, client):
     wait_timeout = int(module.params.get('wait_timeout'))
 
     nlb_server = ionoscloud.NetworkLoadBalancersApi(client)
-    nlb_list = nlb_server.datacenters_networkloadbalancers_get(datacenter_id=datacenter_id, depth=2)
+    nlb_list = nlb_server.datacenters_networkloadbalancers_get(datacenter_id=datacenter_id, depth=1)
     nlb_response = None
 
     existing_nlb = get_resource(module, nlb_list, name)
@@ -342,7 +342,7 @@ def update_nlb(module, client):
     nlb_server = ionoscloud.NetworkLoadBalancersApi(client)
     nlb_response = None
 
-    nlb_list = nlb_server.datacenters_networkloadbalancers_get(datacenter_id=datacenter_id, depth=2)
+    nlb_list = nlb_server.datacenters_networkloadbalancers_get(datacenter_id=datacenter_id, depth=1)
     existing_nlb_id_by_name = get_resource_id(module, nlb_list, name)
 
     if network_load_balancer_id is not None and existing_nlb_id_by_name is not None and existing_nlb_id_by_name != network_load_balancer_id:
