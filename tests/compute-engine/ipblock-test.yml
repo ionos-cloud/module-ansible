@@ -3,7 +3,7 @@
   gather_facts: false
 
   vars_files:
-    - ../vars.yml
+    - ./vars.yml
 
   tasks:
     - name: Create ipblock
