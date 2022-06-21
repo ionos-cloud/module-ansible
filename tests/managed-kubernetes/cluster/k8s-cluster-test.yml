@@ -17,7 +17,7 @@
 
     - name: Get k8s config
       k8s_config:
-        k8s_cluster_id: "{{ cluster_result.cluster.id }}"
+        k8s_cluster_id: "{{ cluster_response.cluster.id }}"
         config_file: 'config.yaml'
         state: present
 
