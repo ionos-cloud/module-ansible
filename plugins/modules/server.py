@@ -549,8 +549,9 @@ def _create_machine(module, client, datacenter, name):
                                            len(r.entities.nics.items) == len(nics)), scaleup=10000)
 
 
+        # Depth 2 needed for nested nic and volume properties
         server = server_server.datacenters_servers_find_by_id(datacenter_id=datacenter,
-                                                              server_id=server_response.id, depth=1)
+                                                              server_id=server_response.id, depth=2)
 
     except Exception as e:
         module.fail_json(msg="failed to create the new server: %s" % to_native(e))

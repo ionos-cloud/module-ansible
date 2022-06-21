@@ -258,7 +258,7 @@ def create_datacenter(module, client):
 
     datacenter_server = ionoscloud.DataCentersApi(client)
 
-    existing_dc = get_resource(module, datacenter_server.datacenters_get(depth=1), name)
+    existing_dc = get_resource(module, datacenter_server.datacenters_get(depth=3), name)
 
     if existing_dc:
         return {

@@ -328,7 +328,7 @@ def create_firewall_rule(module, client):
     nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=1)
     nic_id = get_resource_id(module, nic_list, nic)
 
-    fw_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id, server_id, nic_id, depth=1)
+    fw_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id, server_id, nic_id, depth=2)
 
     existing_firewallrule = get_resource(module, fw_list, name)
 

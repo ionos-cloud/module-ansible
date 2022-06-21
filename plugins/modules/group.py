@@ -296,14 +296,14 @@ def create_group(module, client):
 
     user_management_server = ionoscloud.UserManagementApi(client)
 
-    existing_group_id = get_resource_id(module, user_management_server.um_groups_get(depth=1), name)
+    existing_group = get_resource(module, user_management_server.um_groups_get(depth=1), name)
 
-    if existing_group_id:
+    if existing_group:
         return {
             'changed': False,
             'failed': False,
             'action': 'create',
-            'group': existing_group_id
+            'group': existing_group
         }
 
     if module.check_mode:

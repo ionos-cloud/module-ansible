@@ -243,7 +243,8 @@ def create_lan(module, client):
     datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
-    lan_list = lan_server.datacenters_lans_get(datacenter_id, depth=1)
+    # Need depth 2 for nested nic properties
+    lan_list = lan_server.datacenters_lans_get(datacenter_id, depth=2)
 
     existing_lan = get_resource(module, lan_list, name)
 
