@@ -1,10 +1,10 @@
-name: "AnsibleAutoTestCompute"
-datacenter: "AnsibleAutoTestCompute"
-description: Ansible Compute test description
-server: "AnsibleAutoTestCompute"
-nic: "AnsibleAutoTestCompute"
-lan: "AnsibleAutoTestCompute"
-location: gb/lhr
+name: "AnsibleAutoTestALB"
+datacenter: "AnsibleAutoTestALB"
+description: Ansible ALB test description
+server: "AnsibleAutoTestALB"
+nic: "AnsibleAutoTestALB"
+lan: "AnsibleAutoTestALB"
+location: de/txl
 image: ce08ca15-0adf-11ec-9fa6-1e5ea9024c03
 image_alias: centos:7
 password: qq6mdvirWwj1dsdXjcpp
