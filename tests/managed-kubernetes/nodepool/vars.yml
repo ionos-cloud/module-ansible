@@ -1,9 +1,9 @@
-name: "AnsibleAutoTestCompute"
-datacenter: "AnsibleAutoTestCompute"
-description: Ansible Compute test description
-server: "AnsibleAutoTestCompute"
-nic: "AnsibleAutoTestCompute"
-lan: "AnsibleAutoTestCompute"
+name: "AnsibleAutoTestK8sNodepool"
+datacenter: "AnsibleAutoTestK8sNodepool"
+description: Ansible test description
+server: "AnsibleAutoTestK8sNodepool"
+nic: "AnsibleAutoTestK8sNodepool"
+lan: "AnsibleAutoTestK8sNodepool"
 location: gb/lhr
 image: ce08ca15-0adf-11ec-9fa6-1e5ea9024c03
 image_alias: centos:7
