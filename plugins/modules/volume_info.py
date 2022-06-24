@@ -164,7 +164,7 @@ def get_volumes(module, client):
     datacenters_api = ionoscloud.DataCentersApi(api_client=client)
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter_list = datacenters_api.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for Server

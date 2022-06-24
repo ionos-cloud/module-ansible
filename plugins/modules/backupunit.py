@@ -213,7 +213,7 @@ def create_backupunit(module, client):
 
     backupunit_server = ionoscloud.BackupUnitsApi(client)
 
-    existing_backupunit = get_resource(module, backupunit_server.backupunits_get(depth=1), name)
+    existing_backupunit = get_resource(module, backupunit_server.backupunits_get(depth=2), name)
 
     if existing_backupunit:
         return {
@@ -254,7 +254,7 @@ def delete_backupunit(module, client):
     backupunit_id = module.params.get('backupunit_id')
     backupunit_server = ionoscloud.BackupUnitsApi(client)
 
-    backupunit = get_resource(module, backupunit_server.backupunits_get(depth=1), backupunit_id)
+    backupunit = get_resource(module, backupunit_server.backupunits_get(depth=2), backupunit_id)
 
     if not backupunit:
         module.exit_json(changed=False)

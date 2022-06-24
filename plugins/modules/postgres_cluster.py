@@ -336,7 +336,7 @@ def create_postgres_cluster(module, dbaas_client, cloudapi_client):
 
     connection = module.params.get('connections')[0]
 
-    datacenter_id = get_resource_id(module, ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1), connection['datacenter'])
+    datacenter_id = get_resource_id(module, ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=2), connection['datacenter'])
 
     if datacenter_id is None:
         module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))
