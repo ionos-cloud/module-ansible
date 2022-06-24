@@ -5,11 +5,5 @@
 - name: Run K8s Cluster Test
   import_playbook: k8s-cluster-test.yml
 
-- name: Run K8s Config Test
-  import_playbook: k8s-config-test.yml
-
-- name: Run K8s Cluster Nodepool Test
-  import_playbook: k8s-cluster-nodepool-test.yml
-
 #- name: Run Private K8s Cluster Test
 #  import_playbook: private-k8s-cluster-test.yml
