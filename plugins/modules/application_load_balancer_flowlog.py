@@ -498,7 +498,9 @@ def main():
         check_required_arguments(module, state, OBJECT_NAME)
 
         if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('flowlog_id'):
-            module.fail_json(msg='either name or flowlog_id parameter is required for {object_name} state absent'.format(object_name=OBJECT_NAME))
+            module.fail_json(msg='either name or flowlog_id parameter is required for {object_name} state {state}'.format(
+                object_name=OBJECT_NAME, state=state,
+            ))
 
         try:
             if state == 'absent':
