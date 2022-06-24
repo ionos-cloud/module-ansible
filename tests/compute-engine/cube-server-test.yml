@@ -7,7 +7,7 @@
     ssh_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
   vars_files:
-    - ../vars.yml
+    - ./vars.yml
 
   tasks:
     - name: Create datacenter

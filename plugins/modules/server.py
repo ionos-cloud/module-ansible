@@ -462,7 +462,7 @@ def _create_machine(module, client, datacenter, name):
     nics = []
 
     if assign_public_ip:
-        lans_list = lan_server.datacenters_lans_get(datacenter_id=datacenter, depth=2).items
+        lans_list = lan_server.datacenters_lans_get(datacenter_id=datacenter, depth=1).items
         public_lan = _get_lan_by_id_or_properties(lans_list, public=True)
 
         public_ip_lan_id = public_lan.id if public_lan is not None else None
@@ -485,7 +485,7 @@ def _create_machine(module, client, datacenter, name):
         nics.append(nic)
 
     if lan is not None:
-        lans_list = lan_server.datacenters_lans_get(datacenter_id=datacenter, depth=2)
+        lans_list = lan_server.datacenters_lans_get(datacenter_id=datacenter, depth=1)
         matching_lan = get_resource(module, lans_list, lan)
 
         if (not any(n.properties.lan == int(matching_lan.id) for n in nics)) or len(nics) < 1:
@@ -536,13 +536,13 @@ def _create_machine(module, client, datacenter, name):
         if type == 'CUBE':
             client.wait_for(
                 fn_request=lambda: server_server.datacenters_servers_find_by_id(datacenter_id=datacenter,
-                                                                                server_id=server_response.id, depth=5),
+                                                                                server_id=server_response.id, depth=1),
                 fn_check=lambda r: (r.entities.volumes is not None) and (r.entities.volumes.items is not None) and (
                         len(r.entities.volumes.items) > 0), scaleup=10000)
         else:
             client.wait_for(
                 fn_request=lambda: server_server.datacenters_servers_find_by_id(datacenter_id=datacenter,
-                                                                                server_id=server_response.id, depth=5),
+                                                                                server_id=server_response.id, depth=1),
                 fn_check=lambda r: (r.entities.volumes is not None) and (r.entities.volumes.items is not None) and (
                         len(r.entities.volumes.items) > 0)
                                    and (r.entities.nics is not None) and (r.entities.nics.items is not None) and (
@@ -550,7 +550,7 @@ def _create_machine(module, client, datacenter, name):
 
 
         server = server_server.datacenters_servers_find_by_id(datacenter_id=datacenter,
-                                                              server_id=server_response.id, depth=2)
+                                                              server_id=server_response.id, depth=1)
 
     except Exception as e:
         module.fail_json(msg="failed to create the new server: %s" % to_native(e))
@@ -677,7 +677,7 @@ def create_virtual_machine(module, client):
     nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
 
     # Locate UUID for datacenter if referenced by name.
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if datacenter_id:
         datacenter_found = True
@@ -708,7 +708,7 @@ def create_virtual_machine(module, client):
     else:
         names = [name]
 
-    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=3)
+    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
     for name in names:
         # Fail server creation if a server with this name and int combination already exists.
         if get_resource_id(module, server_list, name) is not None:
@@ -760,7 +760,7 @@ def update_server(module, client):
             module.fail_json(msg='when renaming, instance_ids can only have one id at most')
 
     # Locate UUID for datacenter if referenced by name.
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
@@ -770,7 +770,7 @@ def update_server(module, client):
     cpu_family = module.params.get('cpu_family')
     availability_zone = module.params.get('availability_zone')
 
-    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=2)
+    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
 
     # Fail early if one of the ids provided doesn't match any server
     checked_instances = []
@@ -843,13 +843,13 @@ def remove_virtual_machine(module, client):
         module.fail_json(msg='instance_ids should be a list of virtual machine ids or names, aborting')
 
     # Locate UUID for datacenter if referenced by name.
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
 
     # Prefetch server list for later comparison.
-    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=2)
+    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
     for instance in instance_ids:
         # Locate UUID for server if referenced by name.
         server_id = get_resource_id(module, server_list, instance)
@@ -883,7 +883,7 @@ def _remove_boot_volume(module, client, datacenter_id, server_id):
     """
     server_server = ionoscloud.ServersApi(api_client=client)
     try:
-        server = server_server.datacenters_servers_find_by_id(datacenter_id, server_id, depth=2)
+        server = server_server.datacenters_servers_find_by_id(datacenter_id, server_id, depth=1)
         volume = server.properties.boot_volume
         if volume:
             server_server.datacenters_servers_volumes_delete(datacenter_id, server_id, volume.id)
@@ -912,13 +912,13 @@ def startstop_machine(module, client, state):
     server_server = ionoscloud.ServersApi(api_client=client)
 
     # Locate UUID for datacenter if referenced by name.
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
 
     # Prefetch server list for later comparison.
-    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=2)
+    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
     matched_instances = []
     for instance in instance_ids:
         # Locate UUID of server if referenced by name.
@@ -964,13 +964,13 @@ def resume_suspend_machine(module, client, state):
     server_server = ionoscloud.ServersApi(api_client=client)
 
     # Locate UUID for datacenter if referenced by name.
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
 
     # Prefetch server list for later comparison.
-    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=2)
+    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
     matched_instances = []
     for instance in instance_ids:
         # Locate UUID of server if referenced by name.

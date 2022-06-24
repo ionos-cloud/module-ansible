@@ -5,6 +5,7 @@ name: CI
 
 on:
     workflow_dispatch:
+    workflow_call:
     pull_request:
         types: [ opened, synchronize, reopened, ready_for_review ]
         paths:
@@ -21,6 +22,7 @@ on:
 
 jobs:
   check_runs:
+    if: github.event.pull_request.draft == false
     name: Making sure no other CI is running
     env:
       # Workflow names that cannot run in parallel with this workflow, separated by spaces
@@ -54,13 +56,68 @@ jobs:
           expected: false
           actual: ${{ steps.runs_in_progress.outputs.is_banned_running }}
 
-  test:
-    if: github.event.pull_request.draft == false
+
+  cleanup_test_account:
     needs: check_runs
-    name: Testing the Ansible Module
+    name: Cleanup test account
+    runs-on: ubuntu-latest
+    env:
+      IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
+      IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
+      IONOSCTL_VERSION: 6.1.7
+    steps:
+      - name: Checking out module-ansible
+        uses: actions/checkout@v2
+
+      - name: Setup ionosctl
+        run: |
+          curl -sL https://github.com/ionos-cloud/ionosctl/releases/download/v${{ env.IONOSCTL_VERSION }}/ionosctl-${{ env.IONOSCTL_VERSION }}-linux-amd64.tar.gz | tar -xzv > /dev/null
+          mv ionosctl /usr/local/bin
+
+#     Temporarily skipped
+#      - name: Perform cleanup
+#        working-directory: /home/runner/work/module-ansible/module-ansible/.github/scripts/cleanup
+#        run: |
+#          ./delete-all-resources.sh &> output.log || true
+#          cat output.log
+
+      # Upload the output as an artifact
+      - name: Create an artifact with the output logs file
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: cleanup.log
+          path: |
+            /home/runner/work/module-ansible/module-ansible/.github/cleanup/scripts/cleanup/output.log
+
+
+  test:
+    needs: cleanup_test_account
+    name: Testing the ${{ matrix.namespace }} modules
+    strategy:
+      matrix:
+        include:
+          - namespace: application-loadbalancers
+            keywords: "application_load_balancer", target_group"
+          - namespace: user-management
+            keywords: "user, group, s3key, share"
+          - namespace: managed-backup
+            keywords: "backupunit"
+          - namespace: compute-engine
+            keywords: "datacenter, server, firewall, volume, image, cube, lan, nic, pcc, snapshot, ipblock"
+          - namespace: dbaas-postgres
+            keywords: "postgres"
+          - namespace: managed-kubernetes/cluster
+            keywords: "k8s"
+          - namespace: managed-kubernetes/nodepool
+            keywords: "nodepool"
+          - namespace: natgateway
+            keywords: "nat"
+          - namespace: networkloadbalancer
+            keywords: "network_load_balancer, network"
+
     env:
       python-version: 3.8.0
-      ionoscloud-version: 6.0.0b1
       ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
       IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
       IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
@@ -72,7 +129,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -98,38 +154,19 @@ jobs:
       - id: files
         name: Get changed files
         uses: jitterbit/get-changed-files@v1
+        if: github.event_name == 'pull_request'
 
-      - name: Run Application Loadbalancers tests
+      - name: Run ${{ matrix.namespace }} tests with files diff check
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/application-loadbalancers/all-tests.yml
-
-      - name: Run Managed Kubernetes tests
-        run: |
-          if [[ $(bash .github/scripts/string_in_array.sh k8s ${{ steps.files.outputs.all }}) == true ]]; then
-            echo "Changed files in Kubernetes."
-            ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-kubernetes/all-tests.yml
+          if [[ $(bash .github/scripts/check_keywords.sh  "${{ matrix.keywords }}" ${{ steps.files.outputs.all }}) == true ]]; then
+            echo "Changed files in ${{ matrix.namespace }}."
+            ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ matrix.namespace }}/all-tests.yml
           else
-            echo "no changed k8s files!"
+            echo "no changed ${{ matrix.namespace }} files!"
           fi
+        if: github.event_name == 'pull_request'
 
-      - name: Run DBaaS Postgres tests
+      - name: Run ${{ matrix.namespace }} tests
         run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/dbaas-postgres/all-tests.yml
-
-      - name: Run Compute Engine tests
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/compute-engine/all-tests.yml
-      - name: Run Managed Backup tests
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/managed-backup/all-tests.yml
-
-#      - name: Run NAT Gateway tests
-#        run: |
-#          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/natgateway/all-tests.yml
-      - name: Run Network Load Balancer tests
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/networkloadbalancer/all-tests.yml
-
-      - name: Run User Management tests
-        run: |
-          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/user-management/all-tests.yml
+          ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ matrix.namespace }}/all-tests.yml
+        if: github.event_name == 'workflow_dispatch'
