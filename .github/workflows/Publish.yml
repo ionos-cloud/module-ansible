@@ -27,7 +27,7 @@ jobs:
   publish:
       name: Publishing the Module
       runs-on: ubuntu-latest
-      needs: [call-ci-workflow]
+#      needs: [call-ci-workflow]
       steps:
 
         - name: Checkout
@@ -43,12 +43,12 @@ jobs:
           run: |
             ansible-galaxy collection build
 
-#        - name: Deploy Ansible collection to Galaxy-Dev
-#          if: github.event.inputs.ansible-repo == 'galaxy-dev'
-#          run: |
-#            ls
-#            ansible-galaxy collection publish ionoscloudsdk-ionoscloud-${{ github.event.inputs.version }}.tar.gz --server https://galaxy-dev.ansible.com/ --api-key ${{ secrets.ANSIBLE_GALAXYDEV_API_KEY }}
-#
-#        - name: Deploy Ansible collection to Galaxy
-#          if: github.event.inputs.ansible-repo == 'galaxy'
-#          run: ansible-galaxy collection publish ionoscloudsdk-ionoscloud-${{ github.event.inputs.version }}.tar.gz --api-key ${{ secrets.ANSIBLE_GALAXY_API_KEY }}
+        - name: Deploy Ansible collection to Galaxy-Dev
+          if: github.event.inputs.ansible-repo == 'galaxy-dev'
+          run: |
+            ls
+            ansible-galaxy collection publish ionoscloudsdk-ionoscloud-${{ github.event.inputs.version }}.tar.gz --server https://galaxy-dev.ansible.com/ --api-key ${{ secrets.ANSIBLE_GALAXYDEV_API_KEY }}
+
+        - name: Deploy Ansible collection to Galaxy
+          if: github.event.inputs.ansible-repo == 'galaxy'
+          run: ansible-galaxy collection publish ionoscloudsdk-ionoscloud-${{ github.event.inputs.version }}.tar.gz --api-key ${{ secrets.ANSIBLE_GALAXY_API_KEY }}
