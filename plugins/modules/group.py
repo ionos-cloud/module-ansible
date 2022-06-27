@@ -303,7 +303,7 @@ def create_group(module, client):
             'changed': False,
             'failed': False,
             'action': 'create',
-            'group': existing_group
+            'group': existing_group.to_dict()
         }
 
     if module.check_mode:
