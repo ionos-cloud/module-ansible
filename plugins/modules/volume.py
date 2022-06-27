@@ -451,10 +451,7 @@ def create_volume(module, client):
     datacenter_server = ionoscloud.DataCentersApi(client)
     servers_server = ionoscloud.ServersApi(client)
 
-    volumes = []
-    instance_ids = []
-
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     if datacenter_id is None:
@@ -485,18 +482,22 @@ def create_volume(module, client):
     # Prefetch a list of volumes for later comparison.
     volume_list = volume_server.datacenters_volumes_get(datacenter_id, depth=1)
 
-    for name in names:
-        # Fail volume creation if a volume with this name and int combination already exists.
-        if get_resource_id(module, volume_list, name) is not None:
-            module.fail_json(msg="Volume with name %s already exists" % name, exception=traceback.format_exc())
+    volumes = []
+    instance_ids = []
 
     changed = False
     for name in names:
-        create_response = _create_volume(module, volume_server, str(datacenter_id), name, client)
+        existing_volume_id = get_resource_id(module, volume_list, name)
+        if existing_volume_id is not None:
+            create_response = volume_server.datacenters_volumes_find_by_id(datacenter_id, existing_volume_id, depth=1)
+            instance_ids.append(existing_volume_id)
+            _attach_volume(module, servers_server, datacenter_id, existing_volume_id)
+        else:
+            create_response = _create_volume(module, volume_server, str(datacenter_id), name, client)
+            instance_ids.append(create_response.id)
+            _attach_volume(module, servers_server, datacenter_id, create_response.id)
+            changed = True
         volumes.append(create_response)
-        instance_ids.append(create_response.id)
-        _attach_volume(module, servers_server, datacenter_id, create_response.id)
-        changed = True
 
     results = {
         'changed': changed,

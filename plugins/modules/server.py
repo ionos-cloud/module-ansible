@@ -710,16 +710,14 @@ def create_virtual_machine(module, client):
         names = [name]
 
     server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
-    for name in names:
-        # Fail server creation if a server with this name and int combination already exists.
-        if get_resource_id(module, server_list, name) is not None:
-            module.fail_json(msg="Server with name %s already exists" % name, exception=traceback.format_exc())
-
     changed = False
-    # Prefetch a list of servers for later comparison.
     for name in names:
-        create_response = _create_machine(module, client, str(datacenter_id), name)
-        changed = True
+        existing_server_id = get_resource_id(module, server_list, name)
+        if existing_server_id is not None:
+            create_response = server_server.datacenters_servers_find_by_id(datacenter_id, existing_server_id, depth=1)
+        else:
+            create_response = _create_machine(module, client, str(datacenter_id), name)
+            changed = True
 
         virtual_machines.append(create_response)
 
