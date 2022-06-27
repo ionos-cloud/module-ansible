@@ -403,20 +403,24 @@ def create_postgres_cluster(module, dbaas_client, cloudapi_client):
 def delete_postgres_cluster(module, dbaas_client):
     postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
 
-    postgres_cluster_id = get_resource_id(
+    postgres_cluster = get_resource(
         module,
         postgres_cluster_server.clusters_get(),
         module.params.get('postgres_cluster'),
         [['id'], ['properties', 'display_name']],
     )
 
+    if postgres_cluster is None:
+        module.exit_json(changed=False)
+
     try:
-        postgres_cluster_server.clusters_delete(postgres_cluster_id)
+        if postgres_cluster.metadata.state != 'DESTROYING':
+            postgres_cluster_server.clusters_delete(postgres_cluster.id)
 
         if module.params.get('wait'):
             try:
                 dbaas_client.wait_for(
-                    fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster_id),
+                    fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster.id),
                     fn_check=lambda _: False,
                     scaleup=10000,
                 )
@@ -427,14 +431,14 @@ def delete_postgres_cluster(module, dbaas_client):
         return {
             'action': 'delete',
             'changed': True,
-            'id': postgres_cluster_id,
+            'id': postgres_cluster.id,
         }
     except Exception as e:
         module.fail_json(msg="failed to delete the Postgres cluster: %s" % to_native(e))
         return {
             'action': 'delete',
             'changed': False,
-            'id': postgres_cluster_id,
+            'id': postgres_cluster.id,
         }
 
 

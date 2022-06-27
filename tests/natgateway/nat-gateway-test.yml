@@ -71,6 +71,14 @@
       nat_gateway:
        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       wait: false
+       wait_timeout: 2000
+       state: absent
+
+    - name: Remove NAT Gateway
+      nat_gateway:
+       nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+       datacenter_id: "{{ datacenter_response.datacenter.id }}"
        wait: true
        wait_timeout: 2000
        state: absent

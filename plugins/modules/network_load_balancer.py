@@ -398,7 +398,7 @@ def remove_nlb(module, client):
         else:
             network_load_balancer = get_resource(module, network_load_balancer_list, name)
 
-        if not network_load_balancer:
+        if not network_load_balancer or network_load_balancer.metadata.state != 'AVAILABLE':
             module.exit_json(changed=False)
 
         _, _, headers = nlb_server.datacenters_networkloadbalancers_delete_with_http_info(datacenter_id, network_load_balancer.id)

@@ -406,7 +406,8 @@ def delete_k8s_cluster_nodepool(module, client):
     changed = False
 
     try:
-        k8s_server.k8s_nodepools_delete_with_http_info(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id)
+        if k8s_nodepool.metadata.state != 'DESTROYING':
+            k8s_server.k8s_nodepools_delete_with_http_info(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id)
         if module.params.get('wait'):
             client.wait_for(
                 fn_request=lambda: k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=1),
@@ -420,7 +421,7 @@ def delete_k8s_cluster_nodepool(module, client):
         changed = True
 
     except Exception as e:
-        module.fail_json(msg="failed to delete the k8s cluster: %s" % to_native(e))
+        module.fail_json(msg="failed to delete the K8s Nodepool: %s" % to_native(e))
 
     return {
         'action': 'delete',

@@ -296,11 +296,19 @@ def delete_k8s_cluster(module, client):
         module.exit_json(changed=False)
 
     try:
-        _, _, headers = k8s_server.k8s_delete_with_http_info(k8s_cluster_id=k8s_cluster_id)
+        if k8s_cluster.metadata.state != 'DESTROYING':
+            k8s_server.k8s_delete_with_http_info(k8s_cluster_id=k8s_cluster_id)
 
         if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for(
+                fn_request=lambda: k8s_server.k8s_get(depth=1),
+                fn_check=lambda r: len(list(filter(
+                    lambda e: e.id == k8s_cluster_id,
+                    r.items
+                ))) < 1,
+                console_print='.',
+                scaleup=10000
+            )
         changed = True
     except Exception as e:
         module.fail_json(
