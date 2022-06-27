@@ -67,8 +67,9 @@ OPTIONS = {
         'type': 'int',
     },
     'storage_type': {
-        'description': ['The storage type used in your cluster.'],
+        'description': ['The storage type used in your cluster. Value "SSD" is deprecated. Use the equivalent "SSD Premium" instead.'],
         'available': ['present'],
+        'choices': ['HDD', 'SSD', 'SSD Standard', 'SSD Premium'],
         'required': ['present'],
         'type': 'str',
     },
@@ -215,7 +216,7 @@ options:
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
-    - "ionoscloud-dbaas-postgres >= 1.0.1"
+    - "ionoscloud-dbaas-postgres >= 1.0.2"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
