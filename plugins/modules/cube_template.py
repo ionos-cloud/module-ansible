@@ -146,7 +146,7 @@ def get_template(module, client):
             template_response = template_server.templates_find_by_id(template_id)
 
         else:
-            template_response = template_server.templates_get(depth=1)
+            template_response = template_server.templates_get(depth=2)
 
     except ApiException as e:
         module.fail_json(msg="failed to get the template list: %s" % to_native(e))

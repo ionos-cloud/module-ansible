@@ -296,14 +296,14 @@ def create_group(module, client):
 
     user_management_server = ionoscloud.UserManagementApi(client)
 
-    existing_group_id = get_resource_id(module, user_management_server.um_groups_get(depth=1), name)
+    existing_group = get_resource(module, user_management_server.um_groups_get(depth=2), name)
 
-    if existing_group_id:
+    if existing_group:
         return {
             'changed': False,
             'failed': False,
             'action': 'create',
-            'group': existing_group_id
+            'group': existing_group
         }
 
     if module.check_mode:
@@ -373,7 +373,7 @@ def update_group(module, client):
     user_management_server = ionoscloud.UserManagementApi(client)
 
     try:
-        group = get_resource(module, user_management_server.um_groups_get(depth=1), name)
+        group = get_resource(module, user_management_server.um_groups_get(depth=2), name)
         group_id = group.id
 
         if group:
@@ -435,7 +435,7 @@ def update_group(module, client):
                 for u in user_management_server.um_groups_users_get(group_id, depth=1).items:
                     old_group_user_ids.append(u.id)
 
-                all_users = user_management_server.um_users_get(depth=1)
+                all_users = user_management_server.um_users_get(depth=2)
                 new_group_user_ids = []
 
                 for u in module.params.get('users'):
@@ -490,7 +490,7 @@ def delete_group(module, client):
     name = module.params.get('name')
 
     # Locate UUID for the group
-    group_id = get_resource_id(module, client.um_groups_get(depth=1), name)
+    group_id = get_resource_id(module, client.um_groups_get(depth=2), name)
 
     if not group_id:
         module.exit_json(changed=False)

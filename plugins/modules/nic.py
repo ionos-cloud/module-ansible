@@ -276,7 +276,7 @@ def create_nic(module, client):
     nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter = get_resource_id(module, datacenter_list, datacenter)
 
     if datacenter is None:
@@ -356,7 +356,7 @@ def update_nic(module, client):
     nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for Server
@@ -428,7 +428,7 @@ def delete_nic(module, client):
     server_server = ionoscloud.ServersApi(api_client=client)
     nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
 
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     server_list = server_server.datacenters_servers_get(datacenter_id, depth=1)

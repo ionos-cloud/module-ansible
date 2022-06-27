@@ -302,7 +302,7 @@ def create_snapshot(module, client):
     snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for volume
@@ -310,7 +310,7 @@ def create_snapshot(module, client):
     volume_id = get_resource_id(module, volume_list, volume)
 
     # Locate snapshot by name/UUID
-    snapshot_list = snapshot_server.snapshots_get(depth=1)
+    snapshot_list = snapshot_server.snapshots_get(depth=2)
     snapshot = get_resource(module, snapshot_list, name)
 
     should_change = snapshot is None
@@ -367,7 +367,7 @@ def restore_snapshot(module, client):
     snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for volume
@@ -375,7 +375,7 @@ def restore_snapshot(module, client):
     volume_id = get_resource_id(module, volume_list, volume)
 
     # Locate UUID for snapshot
-    snapshot_list = snapshot_server.snapshots_get(depth=1)
+    snapshot_list = snapshot_server.snapshots_get(depth=2)
     snapshot_id = get_resource_id(module, snapshot_list, name)
 
     if module.check_mode:
@@ -416,7 +416,7 @@ def update_snapshot(module, client):
     name = module.params.get('name')
 
     # Locate snapshot by name
-    snapshot_list = snapshot_server.snapshots_get(depth=1)
+    snapshot_list = snapshot_server.snapshots_get(depth=2)
 
     snapshot = get_resource(module, snapshot_list, name)
 
@@ -504,7 +504,7 @@ def delete_snapshot(module, client):
     name = module.params.get('name')
 
     # Locate snapshot UUID
-    snapshot_list = snapshot_server.snapshots_get(depth=1)
+    snapshot_list = snapshot_server.snapshots_get(depth=2)
     snapshot_id = get_resource_id(module, snapshot_list, name)
 
     if not snapshot_id:

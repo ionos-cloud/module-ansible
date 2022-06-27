@@ -240,10 +240,11 @@ def create_lan(module, client):
     lan_server = ionoscloud.LANsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
-    lan_list = lan_server.datacenters_lans_get(datacenter_id, depth=1)
+    # Need depth 2 for nested nic properties
+    lan_list = lan_server.datacenters_lans_get(datacenter_id, depth=2)
 
     existing_lan = get_resource(module, lan_list, name)
 
@@ -300,7 +301,7 @@ def update_lan(module, client):
     lan_server = ionoscloud.LANsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Prefetch a list of LANs.
@@ -353,7 +354,7 @@ def delete_lan(module, client):
     lan_server = ionoscloud.LANsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate ID for LAN

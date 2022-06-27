@@ -549,8 +549,9 @@ def _create_machine(module, client, datacenter, name):
                                            len(r.entities.nics.items) == len(nics)), scaleup=10000)
 
 
+        # Depth 2 needed for nested nic and volume properties
         server = server_server.datacenters_servers_find_by_id(datacenter_id=datacenter,
-                                                              server_id=server_response.id, depth=1)
+                                                              server_id=server_response.id, depth=2)
 
     except Exception as e:
         module.fail_json(msg="failed to create the new server: %s" % to_native(e))
@@ -677,7 +678,7 @@ def create_virtual_machine(module, client):
     nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
 
     # Locate UUID for datacenter if referenced by name.
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if datacenter_id:
         datacenter_found = True
@@ -760,7 +761,7 @@ def update_server(module, client):
             module.fail_json(msg='when renaming, instance_ids can only have one id at most')
 
     # Locate UUID for datacenter if referenced by name.
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
@@ -843,7 +844,7 @@ def remove_virtual_machine(module, client):
         module.fail_json(msg='instance_ids should be a list of virtual machine ids or names, aborting')
 
     # Locate UUID for datacenter if referenced by name.
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
@@ -912,7 +913,7 @@ def startstop_machine(module, client, state):
     server_server = ionoscloud.ServersApi(api_client=client)
 
     # Locate UUID for datacenter if referenced by name.
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
@@ -964,7 +965,7 @@ def resume_suspend_machine(module, client, state):
     server_server = ionoscloud.ServersApi(api_client=client)
 
     # Locate UUID for datacenter if referenced by name.
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))

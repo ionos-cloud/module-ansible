@@ -246,7 +246,7 @@ def create_shares(module, client):
     group = module.params.get('group')
 
     # Locate UUID for the group
-    group_list = user_management_server.um_groups_get(depth=1)
+    group_list = user_management_server.um_groups_get(depth=2)
     group_id = get_resource_id(module, group_list, group)
 
     edit_privilege = module.params.get('edit_privilege')
@@ -317,7 +317,7 @@ def update_shares(module, client):
     user_management_server = ionoscloud.UserManagementApi(api_client=client)
 
     # Locate UUID for the group
-    group_list = user_management_server.um_groups_get(depth=1)
+    group_list = user_management_server.um_groups_get(depth=2)
     group_id = get_resource_id(module, group_list, group)
 
     edit_privilege = module.params.get('edit_privilege')
@@ -382,7 +382,7 @@ def delete_shares(module, client):
     user_management_server = ionoscloud.UserManagementApi(api_client=client)
 
     # Locate UUID for the group
-    group_list = user_management_server.um_groups_get(depth=1)
+    group_list = user_management_server.um_groups_get(depth=2)
     group_id = get_resource_id(module, group_list, group)
 
     if module.check_mode:

@@ -454,7 +454,7 @@ def create_volume(module, client):
     volumes = []
     instance_ids = []
 
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     if datacenter_id is None:
@@ -537,7 +537,7 @@ def update_volume(module, client):
 
     changed = False
 
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if datacenter_id is None:
         module.fail_json(msg='datacenter could not be found.')
@@ -597,7 +597,7 @@ def delete_volume(module, client):
     instance_ids = module.params.get('instance_ids')
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     volumes = volume_server.datacenters_volumes_get(datacenter_id, depth=1)

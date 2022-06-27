@@ -272,7 +272,7 @@ def create_user(module, client, api_client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    users = client.um_users_get(depth=1)
+    users = client.um_users_get(depth=2)
     user = get_resource(module, users, email, [['id'], ['properties', 'email']])
 
     should_change = user is None
@@ -334,7 +334,7 @@ def update_user(module, client, api_client):
 
     try:
         user_response = None
-        users = client.um_users_get(depth=1)
+        users = client.um_users_get(depth=2)
         user = get_resource(module, users, email, [['id'], ['properties', 'email']])
 
         if user:
@@ -374,7 +374,7 @@ def update_user(module, client, api_client):
             for g in client.um_users_groups_get(user_response.id).items:
                 old_user_group_ids.append(g.id)
 
-            all_groups = client.um_groups_get(depth=1)
+            all_groups = client.um_groups_get(depth=2)
             # Get IDs of groups that user needs to have at the end of update
             new_user_group_ids = []
             for g in module.params.get('groups'):
@@ -427,7 +427,7 @@ def delete_user(module, client):
     email = module.params.get('email')
 
     # Locate UUID for the user
-    user_list = client.um_users_get(depth=1)
+    user_list = client.um_users_get(depth=2)
     user_id = get_resource_id(module, user_list, email, [['id'], ['properties', 'email']])
 
     if not user_id:
