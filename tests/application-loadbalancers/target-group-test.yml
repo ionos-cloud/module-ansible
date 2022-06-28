@@ -1,0 +1,58 @@
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+    - name: Create Target Group
+      target_group:
+        name: "{{ name }}"
+        algorithm: "ROUND_ROBIN"
+        protocol: "HTTP"
+        targets:
+          - ip: "22.231.2.2"
+            port: 8080
+            weight: 123
+            health_check_enabled: true
+            maintenance_enabled: false
+        health_check:
+          check_timeout: 2000
+          check_interval: 1000
+          retries: 3
+        http_health_check:
+          path: "./"
+          method: "GET"
+          match_type: "STATUS_CODE"
+          response: 200
+          regex: false
+          negate: false
+        wait: true
+      register: target_group_response
+
+    - name: Debug - Show Target Group
+      debug:
+         msg: "{{ target_group_response }}"
+
+    - name: Update Target Group
+      target_group:
+        name: "{{ name }} - UPDATED"
+        algorithm: "ROUND_ROBIN"
+        protocol: "HTTP"
+        target_group_id: "{{ target_group_response.target_group.id }}"
+        wait: true
+        state: update
+      register: target_group_response_update
+
+    - name: Debug - Show Target Group
+      debug:
+         msg: "{{ target_group_response_update }}"
+
+    - name: Remove Target Group
+      target_group:
+       target_group_id: "{{ target_group_response.target_group.id }}"
+       wait: true
+       wait_timeout: 2000
+       state: absent

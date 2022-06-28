@@ -1,14 +1,14 @@
-# network_load_balancer
+# application_load_balancer
 
-This is a simple module that supports creating or removing NetworkLoadbalancers. This module has a dependency on ionoscloud &gt;= 6.0.2
+This is a simple module that supports creating or removing Application Loadbalancers.
 
 ## Example Syntax
 
 
 ```yaml
 
-  - name: Create Network Load Balancer
-    network_load_balancer:
+  - name: Create Application Load Balancer
+    application_load_balancer:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       name: "{{ name }}"
       ips:
@@ -16,24 +16,24 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
       listener_lan: "{{ listener_lan.lan.id }}"
       target_lan: "{{ target_lan.lan.id }}"
       wait: true
-    register: nlb_response
+    register: alb_response
   
 
-  - name: Update Network Load Balancer
-    network_load_balancer:
+  - name: Update Application Load Balancer
+    application_load_balancer:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
       name: "{{ name }} - UPDATE"
       listener_lan: "{{ listener_lan.lan.id }}"
       target_lan: "{{ target_lan.lan.id }}"
       wait: true
       state: update
-    register: nlb_response_update
+    register: alb_response_update
   
 
-  - name: Remove Network Load Balancer
-    network_load_balancer:
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+  - name: Remove Application Load Balancer
+    application_load_balancer:
+      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       wait: true
       state: absent
@@ -46,8 +46,8 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 # state: **present**
 ```yaml
   
-  - name: Create Network Load Balancer
-    network_load_balancer:
+  - name: Create Application Load Balancer
+    application_load_balancer:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       name: "{{ name }}"
       ips:
@@ -55,7 +55,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
       listener_lan: "{{ listener_lan.lan.id }}"
       target_lan: "{{ target_lan.lan.id }}"
       wait: true
-    register: nlb_response
+    register: alb_response
   
 ```
 ### Available parameters for state **present**:
@@ -63,16 +63,15 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the Network Loadbalancer. |
+  | name | True | str |  | The name of the Application Load Balancer. |
   | listener_lan | True | str |  | ID of the listening LAN (inbound). |
-  | ips | False | list |  | Collection of the Network Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers. |
+  | ips | False | list |  | Collection of the Application Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers. |
   | target_lan | True | str |  | ID of the balanced private target LAN (outbound). |
-  | lb_private_ips | False | list |  | Collection of private IP addresses with subnet mask of the Network Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
+  | lb_private_ips | False | list |  | Collection of private IP addresses with subnet mask of the Application Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -83,9 +82,9 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 # state: **absent**
 ```yaml
   
-  - name: Remove Network Load Balancer
-    network_load_balancer:
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+  - name: Remove Application Load Balancer
+    application_load_balancer:
+      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       wait: true
       state: absent
@@ -96,13 +95,12 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the Network Loadbalancer. |
+  | name | False | str |  | The name of the Application Load Balancer. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
-  | network_load_balancer_id | False | str |  | The ID of the Network Loadbalancer. |
+  | application_load_balancer_id | False | str |  | The ID of the Application Loadbalancer. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -113,16 +111,16 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 # state: **update**
 ```yaml
   
-  - name: Update Network Load Balancer
-    network_load_balancer:
+  - name: Update Application Load Balancer
+    application_load_balancer:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
       name: "{{ name }} - UPDATE"
       listener_lan: "{{ listener_lan.lan.id }}"
       target_lan: "{{ target_lan.lan.id }}"
       wait: true
       state: update
-    register: nlb_response_update
+    register: alb_response_update
   
 ```
 ### Available parameters for state **update**:
@@ -130,17 +128,16 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the Network Loadbalancer. |
+  | name | True | str |  | The name of the Application Load Balancer. |
   | listener_lan | True | str |  | ID of the listening LAN (inbound). |
-  | ips | False | list |  | Collection of the Network Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers. |
+  | ips | False | list |  | Collection of the Application Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers. |
   | target_lan | True | str |  | ID of the balanced private target LAN (outbound). |
-  | lb_private_ips | False | list |  | Collection of private IP addresses with subnet mask of the Network Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
+  | lb_private_ips | False | list |  | Collection of private IP addresses with subnet mask of the Application Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
-  | network_load_balancer_id | False | str |  | The ID of the Network Loadbalancer. |
+  | application_load_balancer_id | False | str |  | The ID of the Application Loadbalancer. |
   | api_url | False | str |  | The Ionos API base URL. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |

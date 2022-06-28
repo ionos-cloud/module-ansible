@@ -7,15 +7,15 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import re
-import copy
 import yaml
+import copy
 
 HAS_SDK = True
 
 try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
-    from ionoscloud.models import NetworkLoadBalancer, NetworkLoadBalancerProperties
+    from ionoscloud.models import FlowLog, FlowLogProperties, FlowLogPut
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
@@ -31,44 +31,34 @@ ANSIBLE_METADATA = {
     'supported_by': 'community',
 }
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
-DOC_DIRECTORY = 'networkloadbalancer'
+DOC_DIRECTORY = 'applicationloadbalancer'
 STATES = ['present', 'absent', 'update']
-OBJECT_NAME = 'Network Loadbalancer'
+OBJECT_NAME = 'Flowlog'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the Network Loadbalancer.'],
+        'description': ['The name of the flowlog.'],
         'available': STATES,
-        'required': ['present', 'update'],
+        'required': ['present'],
         'type': 'str',
     },
-    'listener_lan': {
-        'description': ['ID of the listening LAN (inbound).'],
+    'action': {
+        'description': ['Specifies the traffic action pattern.'],
         'available': ['present', 'update'],
-        'required': ['present', 'update'],
+        'required': ['present'],
         'type': 'str',
     },
-    'ips': {
-        'description': [
-            'Collection of the Network Load Balancer IP addresses. (Inbound and outbound) '
-            'IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers.',
-        ],
+    'direction': {
+        'description': ['Specifies the traffic direction pattern.'],
         'available': ['present', 'update'],
-        'type': 'list',
-    },
-    'target_lan': {
-        'description': ['ID of the balanced private target LAN (outbound).'],
-        'available': ['present', 'update'],
-        'required': ['present', 'update'],
+        'required': ['present'],
         'type': 'str',
     },
-    'lb_private_ips': {
-        'description': [
-            'Collection of private IP addresses with subnet mask of the Network Load Balancer. '
-            'IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet.',
-        ],
+    'bucket': {
+        'description': ['S3 bucket name of an existing IONOS Cloud S3 bucket.'],
         'available': ['present', 'update'],
-        'type': 'list',
+        'required': ['present'],
+        'type': 'str',
     },
     'datacenter_id': {
         'description': ['The ID of the datacenter.'],
@@ -76,9 +66,15 @@ OPTIONS = {
         'required': STATES,
         'type': 'str',
     },
-    'network_load_balancer_id': {
-        'description': ['The ID of the Network Loadbalancer.'],
-        'available': ['update', 'absent'],
+    'application_load_balancer_id': {
+        'description': ['The ID of the Application Loadbalancer.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'flowlog_id': {
+        'description': ['The ID of the Flowlog.'],
+        'available': STATES,
         'type': 'str',
     },
     'api_url': {
@@ -89,28 +85,20 @@ OPTIONS = {
         'type': 'str',
     },
     'username': {
-        # Required if no token, checked manually
         'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
         'aliases': ['subscription_user'],
+        'required': STATES,
         'env_fallback': 'IONOS_USERNAME',
         'available': STATES,
         'type': 'str',
     },
     'password': {
-        # Required if no token, checked manually
         'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
         'aliases': ['subscription_password'],
+        'required': STATES,
         'available': STATES,
         'no_log': True,
         'env_fallback': 'IONOS_PASSWORD',
-        'type': 'str',
-    },
-    'token': {
-        # If provided, then username and password no longer required
-        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_TOKEN',
         'type': 'str',
     },
     'wait': {
@@ -143,52 +131,53 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: network_load_balancer
-short_description: Create or destroy a Ionos Cloud NetworkLoadbalancer.
+module: application_balancer_flowlog
+short_description: Create or destroy a Ionos Cloud Application Loadbalancer Flowlog.
 description:
-     - This is a simple module that supports creating or removing NetworkLoadbalancers.
-       This module has a dependency on ionoscloud >= 6.0.2
+     - This is a simple module that supports creating or removing Application Loadbalancer Flowlogs.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 6.0.2"
+    - "ionoscloud >= 6.0.0"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
 
 EXAMPLE_PER_STATE = {
   'present' : '''
-  - name: Create Network Load Balancer
-    network_load_balancer:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+  - name: Create Application Load Balancer Flowlog
+    application_load_balancer_flowlog:
       name: "{{ name }}"
-      ips:
-        - "10.12.118.224"
-      listener_lan: "{{ listener_lan.lan.id }}"
-      target_lan: "{{ target_lan.lan.id }}"
+      action: "ACCEPTED"
+      direction: "INGRESS"
+      bucket: "sdktest"
+      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
       wait: true
-    register: nlb_response
+    register: alb_flowlog_response
   ''',
   'update' : '''
-  - name: Update Network Load Balancer
-    network_load_balancer:
+  - name: Update Application Load Balancer Flowlog
+    application_load_balancer_flowlog:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-      name: "{{ name }} - UPDATE"
-      listener_lan: "{{ listener_lan.lan.id }}"
-      target_lan: "{{ target_lan.lan.id }}"
+      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      flowlog_id: "{{ alb_flowlog_response.flowlog.id }}"
+      name: "{{ name }}"
+      action: "ALL"
+      direction: "INGRESS"
+      bucket: "sdktest"
       wait: true
       state: update
-    register: nlb_response_update
+    register: alb_flowlog_update_response
   ''',
   'absent' : '''
-  - name: Remove Network Load Balancer
-    network_load_balancer:
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+  - name: Delete Application Load Balancer Flowlog
+    application_load_balancer_flowlog:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      wait: true
+      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      flowlog_id: "{{ alb_flowlog_response.flowlog.id }}"
       state: absent
   ''',
 }
@@ -237,18 +226,21 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def _update_nlb(module, client, nlb_server, datacenter_id, network_load_balancer_id, nlb_properties):
+def _update_alb_flowlog(module, client, alb_server, datacenter_id, application_load_balancer_id, flowlog_id,
+                        flowlog_properties):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
-    response = nlb_server.datacenters_networkloadbalancers_patch_with_http_info(datacenter_id, network_load_balancer_id,
-                                                                                nlb_properties)
-    (nlb_response, _, headers) = response
+    response = alb_server.datacenters_applicationloadbalancers_flowlogs_patch_with_http_info(datacenter_id,
+                                                                                         application_load_balancer_id,
+                                                                                         flowlog_id,
+                                                                                         flowlog_properties)
+    (flowlog_response, _, headers) = response
 
     if wait:
         request_id = _get_request_id(headers['Location'])
         client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-    return nlb_response
+    return flowlog_response
 
 
 def _get_request_id(headers):
@@ -260,163 +252,168 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def create_nlb(module, client):
+def create_alb_flowlog(module, client):
     """
-    Creates a Network Load Balancer
+    Creates a Application Load Balancer Flowlog
 
-    This will create a new Network Load Balancer in the specified Datacenter.
+    This will create a new Application Load Balancer Flowlog in the specified Datacenter.
 
     module : AnsibleModule object
     client: authenticated ionoscloud object.
 
     Returns:
-        The Network Load Balancer ID if a new Network Load Balancer was created.
+        The Application Load Balancer Flowlog ID if a new Application Load Balancer Flowlog was created.
     """
-    datacenter_id = module.params.get('datacenter_id')
     name = module.params.get('name')
-    ips = module.params.get('ips')
-    listener_lan = module.params.get('listener_lan')
-    target_lan = module.params.get('target_lan')
-    lb_private_ips = module.params.get('lb_private_ips')
+    action = module.params.get('action')
+    direction = module.params.get('direction')
+    bucket = module.params.get('bucket')
+    datacenter_id = module.params.get('datacenter_id')
+    application_load_balancer_id = module.params.get('application_load_balancer_id')
 
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
-    nlb_server = ionoscloud.NetworkLoadBalancersApi(client)
-    nlb_list = nlb_server.datacenters_networkloadbalancers_get(datacenter_id=datacenter_id, depth=1)
-    nlb_response = None
+    alb_server = ionoscloud.ApplicationLoadBalancersApi(client)
+    alb_flowlogs = alb_server.datacenters_applicationloadbalancers_flowlogs_get(
+        datacenter_id=datacenter_id,
+        application_load_balancer_id=application_load_balancer_id,
+        depth=2,
+    )
+    alb_flowlog_response = None
 
-    existing_nlb = get_resource(module, nlb_list, name)
+    existing_flowlog = get_resource(module, alb_flowlogs, name)
 
-    if existing_nlb:
+    if existing_flowlog:
         return {
             'changed': False,
             'failed': False,
             'action': 'create',
-            'network_load_balancer': existing_nlb.to_dict()
+            'flowlog': existing_flowlog.to_dict()
         }
 
-    nlb_properties = NetworkLoadBalancerProperties(name=name, listener_lan=listener_lan, ips=ips, target_lan=target_lan,
-                                                   lb_private_ips=lb_private_ips)
-    network_load_balancer = NetworkLoadBalancer(properties=nlb_properties)
+    alb_flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
+    alb_flowlog = FlowLog(properties=alb_flowlog_properties)
 
     try:
-        response = nlb_server.datacenters_networkloadbalancers_post_with_http_info(datacenter_id, network_load_balancer)
-        (nlb_response, _, headers) = response
+        response = alb_server.datacenters_applicationloadbalancers_flowlogs_post_with_http_info(
+            datacenter_id, application_load_balancer_id, alb_flowlog,
+        )
+        (alb_flowlog_response, _, headers) = response
 
         if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=_get_request_id(headers['Location']), timeout=wait_timeout)
 
     except ApiException as e:
-        module.fail_json(msg="failed to create the new Network Load Balancer: %s" % to_native(e))
+        module.fail_json(msg="failed to create the new Application Load Balancer Flowlog: %s" % to_native(e))
 
     return {
         'changed': True,
         'failed': False,
         'action': 'create',
-        'network_load_balancer': nlb_response.to_dict()
+        'flowlog': alb_flowlog_response.to_dict()
     }
 
 
-def update_nlb(module, client):
+def update_alb_flowlog(module, client):
     """
-    Updates a Network Load Balancer.
+    Updates a Application Load Balancer Flowlog.
 
-    This will update a Network Load Balancer.
+    This will update a Application Load Balancer Flowlog.
 
     module : AnsibleModule object
     client: authenticated ionoscloud object.
 
     Returns:
-        True if the Network Load Balancer was updated, false otherwise
+        True if the Application Load Balancer Flowlog was updated, false otherwise
     """
-    datacenter_id = module.params.get('datacenter_id')
     name = module.params.get('name')
-    ips = module.params.get('ips')
-    listener_lan = module.params.get('listener_lan')
-    target_lan = module.params.get('target_lan')
-    lb_private_ips = module.params.get('lb_private_ips')
-    network_load_balancer_id = module.params.get('network_load_balancer_id')
+    action = module.params.get('action')
+    direction = module.params.get('direction')
+    bucket = module.params.get('bucket')
+    datacenter_id = module.params.get('datacenter_id')
+    application_load_balancer_id = module.params.get('application_load_balancer_id')
+    flowlog_id = module.params.get('flowlog_id')
 
-    nlb_server = ionoscloud.NetworkLoadBalancersApi(client)
-    nlb_response = None
+    alb_server = ionoscloud.ApplicationLoadBalancersApi(client)
+    flowlog_response = None
 
-    nlb_list = nlb_server.datacenters_networkloadbalancers_get(datacenter_id=datacenter_id, depth=1)
-    existing_nlb_id_by_name = get_resource_id(module, nlb_list, name)
+    flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
 
-    if network_load_balancer_id is not None and existing_nlb_id_by_name is not None and existing_nlb_id_by_name != network_load_balancer_id:
-            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
-
-    network_load_balancer_id = existing_nlb_id_by_name if network_load_balancer_id is None else network_load_balancer_id
-
-    nlb_properties = NetworkLoadBalancerProperties(
-        name=name, listener_lan=listener_lan, ips=ips,
-        target_lan=target_lan, lb_private_ips=lb_private_ips,
+    flowlogs = alb_server.datacenters_applicationloadbalancers_flowlogs_get(
+        datacenter_id=datacenter_id,
+        application_load_balancer_id=application_load_balancer_id,
+        depth=2,
     )
+    
+    existing_flowlog_id_by_name = get_resource_id(module, flowlogs, name)
 
-    if not network_load_balancer_id:
-        module.fail_json(msg="failed to update the Network Load Balancer: The resource does not exist")
+    if flowlog_id is not None and existing_flowlog_id_by_name is not None and existing_flowlog_id_by_name != flowlog_id:
+        module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
 
-    nlb_response = _update_nlb(module, client, nlb_server, datacenter_id, network_load_balancer_id, nlb_properties)
+    flowlog_id = flowlog_id if flowlog_id else existing_flowlog_id_by_name
+    
+    if flowlog_id:
+        flowlog_response = _update_alb_flowlog(
+            module, client, alb_server, datacenter_id,
+            application_load_balancer_id, flowlog_id,
+            flowlog_properties,
+        )
+    else:
+        module.fail_json(msg="failed to update the Application Load Balancer Flowlog: The resource does not exist")
 
     return {
         'changed': True,
         'action': 'update',
         'failed': False,
-        'network_load_balancer': nlb_response.to_dict()
+        'flowlog': flowlog_response.to_dict()
     }
 
 
-def remove_nlb(module, client):
+def remove_alb_flowlog(module, client):
     """
-    Removes a Network Load Balancer.
+    Removes a Application Load Balancer Flowlog.
 
-    This will remove a Network Load Balancer.
+    This will remove a Application Load Balancer Flowlog.
 
     module : AnsibleModule object
     client: authenticated ionoscloud object.
 
     Returns:
-        True if the Network Load Balancer was deleted, false otherwise
+        True if the Application Load Balancer Flowlog was deleted, false otherwise
     """
     name = module.params.get('name')
     datacenter_id = module.params.get('datacenter_id')
-    network_load_balancer_id = module.params.get('network_load_balancer_id')
+    application_load_balancer_id = module.params.get('application_load_balancer_id')
+    flowlog_id = module.params.get('flowlog_id')
 
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    nlb_server = ionoscloud.NetworkLoadBalancersApi(client)
-    changed = False
+    alb_server = ionoscloud.ApplicationLoadBalancersApi(client)
+
+    flowlogs = alb_server.datacenters_applicationloadbalancers_flowlogs_get(
+        datacenter_id=datacenter_id,
+        application_load_balancer_id=application_load_balancer_id,
+        depth=2,
+    )
+    
+    existing_flowlog_id_by_name = get_resource_id(module, flowlogs, name)
+    flowlog_id = flowlog_id if flowlog_id else existing_flowlog_id_by_name
 
     try:
-
-        network_load_balancer_list = nlb_server.datacenters_networkloadbalancers_get(datacenter_id, depth=1)
-        if network_load_balancer_id:
-            network_load_balancer = get_resource(module, network_load_balancer_list, network_load_balancer_id)
-        else:
-            network_load_balancer = get_resource(module, network_load_balancer_list, name)
-
-        if not network_load_balancer or network_load_balancer.metadata.state != 'AVAILABLE':
-            module.exit_json(changed=False)
-
-        _, _, headers = nlb_server.datacenters_networkloadbalancers_delete_with_http_info(datacenter_id, network_load_balancer.id)
-
+        _, _, headers = alb_server.datacenters_applicationloadbalancers_flowlogs_delete_with_http_info(
+            datacenter_id, application_load_balancer_id, flowlog_id,
+        )
         if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-        changed = True
-
+            client.wait_for_completion(request_id=_get_request_id(headers['Location']), timeout=wait_timeout)
     except Exception as e:
-        module.fail_json(
-            msg="failed to delete the Network Load Balancer: %s" % to_native(e))
+        module.fail_json(msg="failed to delete the Application Load Balancer Flowlog: %s" % to_native(e))
 
     return {
         'action': 'delete',
-        'changed': changed,
-        'id': network_load_balancer_id
+        'changed': True,
+        'id': flowlog_id
     }
 
 
@@ -500,16 +497,18 @@ def main():
         api_client.user_agent = USER_AGENT
         check_required_arguments(module, state, OBJECT_NAME)
 
-        if state == 'absent' and not module.params.get('name') and not module.params.get('network_load_balancer_id'):
-            module.fail_json(msg='either name or network_load_balancer_id parameter is required for {object_name} state present'.format(object_name=OBJECT_NAME))
+        if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('flowlog_id'):
+            module.fail_json(msg='either name or flowlog_id parameter is required for {object_name} state {state}'.format(
+                object_name=OBJECT_NAME, state=state,
+            ))
 
         try:
             if state == 'absent':
-                module.exit_json(**remove_nlb(module, api_client))
+                module.exit_json(**remove_alb_flowlog(module, api_client))
             elif state == 'present':
-                module.exit_json(**create_nlb(module, api_client))
+                module.exit_json(**create_alb_flowlog(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_nlb(module, api_client))
+                module.exit_json(**update_alb_flowlog(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 

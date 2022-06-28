@@ -97,6 +97,8 @@ jobs:
     strategy:
       matrix:
         include:
+          - namespace: application-loadbalancers
+            keywords: "application_load_balancer, target_group, application-load-balancer, target-group"
           - namespace: user-management
             keywords: "user, group, s3key, share"
           - namespace: managed-backup
