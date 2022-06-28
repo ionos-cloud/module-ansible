@@ -6,6 +6,13 @@ name: CI
 on:
     workflow_dispatch:
     workflow_call:
+      secrets:
+        IONOS_USER_V6:
+          description: 'The IONOS Cloud username'
+          required: true
+        IONOS_PASSWORD_V6:
+          description: 'The IONOS Cloud password'
+          required: true
     pull_request:
         types: [ opened, synchronize, reopened, ready_for_review ]
         paths:

@@ -6,10 +6,6 @@ on:
       version:
         description: 'Version to publish (e.g. v1.2.3)'
         required: true
-      ionoscloud-version:
-        description: 'Python SDK client version to use '
-        required: true
-        default: 6.0.0b1
       test:
         description: 'Whether to run tests or not'
         required: true
@@ -23,6 +19,10 @@ on:
 jobs:
   call-ci-workflow:
     uses: ./.github/workflows/CI.yml
+    if: github.event.inputs.test == 'yes'
+    with:
+      IONOS_USER_V6: ${{ secrets.IONOS_USER_V6 }}
+      IONOS_PASSWORD_V6: ${{ secrets.IONOS_PASSWORD_V6 }}
 
   publish:
       name: Publishing the Module
