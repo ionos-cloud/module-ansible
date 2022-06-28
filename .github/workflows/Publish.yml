@@ -20,9 +20,7 @@ jobs:
   call-ci-workflow:
     uses: ./.github/workflows/CI.yml
     if: github.event.inputs.test == 'yes'
-    with:
-      IONOS_USER_V6: ${{ secrets.IONOS_USER_V6 }}
-      IONOS_PASSWORD_V6: ${{ secrets.IONOS_PASSWORD_V6 }}
+    secrets: inherit
 
   publish:
       name: Publishing the Module
