@@ -105,6 +105,14 @@ OPTIONS = {
         'env_fallback': 'IONOS_PASSWORD',
         'type': 'str',
     },
+    'token': {
+        # If provided, then username and password no longer required
+        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_TOKEN',
+        'type': 'str',
+    },
     'wait': {
         'description': ['Wait for the resource to be created before returning.'],
         'default': True,
