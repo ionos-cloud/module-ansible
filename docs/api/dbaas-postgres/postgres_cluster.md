@@ -93,6 +93,7 @@ This is a module that supports creating, updating, restoring or destroying Postg
   | backup_id | False | str |  | The ID of the backup to be used. |
   | recovery_target_time | False | str |  | Recovery target time. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -118,6 +119,7 @@ This is a module that supports creating, updating, restoring or destroying Postg
   | :--- | :---: | :--- | :--- | :--- |
   | postgres_cluster | True | str |  | The ID or name of an existing Postgres Cluster. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -157,6 +159,7 @@ This is a module that supports creating, updating, restoring or destroying Postg
   | display_name | False | str |  | The friendly name of your cluster. |
   | postgres_cluster | True | str |  | The ID or name of an existing Postgres Cluster. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -180,6 +183,7 @@ This is a module that supports creating, updating, restoring or destroying Postg
   | recovery_target_time | False | str |  | Recovery target time. |
   | postgres_cluster | True | str |  | The ID or name of an existing Postgres Cluster. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

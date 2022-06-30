@@ -102,6 +102,7 @@ This module allows you to create, update or remove a firewall rule.
   | icmp_type | False | int |  | Defines the allowed type (from 0 to 254) if the protocol ICMP is chosen. No value allows all types. |
   | icmp_code | False | int |  | Defines the allowed code (from 0 to 254) if protocol ICMP is chosen. No value allows all codes. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -134,6 +135,7 @@ This module allows you to create, update or remove a firewall rule.
   | nic | True | str |  | The NIC name or UUID. |
   | name | True | str |  | The name or UUID of the firewall rule. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -176,6 +178,7 @@ This module allows you to create, update or remove a firewall rule.
   | icmp_type | False | int |  | Defines the allowed type (from 0 to 254) if the protocol ICMP is chosen. No value allows all types. |
   | icmp_code | False | int |  | Defines the allowed code (from 0 to 254) if protocol ICMP is chosen. No value allows all codes. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

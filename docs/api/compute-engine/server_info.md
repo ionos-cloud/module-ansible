@@ -35,6 +35,7 @@ This is a simple module that supports listing servers.
 | datacenter | True | str |  | The ID of the datacenter. |
 | upgrade_needed | False | bool |  | Filter servers that can or that cannot be upgraded. |
 | api_url | False | str |  | The Ionos API base URL. |
+| certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
 | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
 | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
 | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

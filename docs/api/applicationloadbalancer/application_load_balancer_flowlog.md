@@ -73,6 +73,7 @@ This is a simple module that supports creating or removing Application Loadbalan
   | application_load_balancer_id | True | str |  | The ID of the Application Loadbalancer. |
   | flowlog_id | False | str |  | The ID of the Flowlog. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
@@ -103,6 +104,7 @@ This is a simple module that supports creating or removing Application Loadbalan
   | application_load_balancer_id | True | str |  | The ID of the Application Loadbalancer. |
   | flowlog_id | False | str |  | The ID of the Flowlog. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
@@ -142,6 +144,7 @@ This is a simple module that supports creating or removing Application Loadbalan
   | application_load_balancer_id | True | str |  | The ID of the Application Loadbalancer. |
   | flowlog_id | False | str |  | The ID of the Flowlog. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
