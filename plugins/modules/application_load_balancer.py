@@ -88,6 +88,12 @@ OPTIONS = {
         'available': STATES,
         'type': 'str',
     },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
+        'available': STATES,
+        'type': 'str',
+    },
     'username': {
         'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
         'aliases': ['subscription_user'],
