@@ -60,7 +60,7 @@ This module allows you to create or remove a snapshot.
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter in which the volumes reside. |
   | volume | True | str |  | The name or UUID of the volume. |
-  | name | True | str |  | The name of the snapshot. |
+  | name | False | str |  | The name of the snapshot. |
   | description | False | str |  | The description of the snapshot. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -87,8 +87,7 @@ This module allows you to create or remove a snapshot.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | id | False | str |  | The id of the snapshot. |
-  | name | False | str |  | The name of the snapshot. |
+  | name | True | str |  | The name of the snapshot. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -115,8 +114,7 @@ This module allows you to create or remove a snapshot.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | id | False | str |  | The id of the snapshot. |
-  | name | False | str |  | The name of the snapshot. |
+  | name | True | str |  | The name of the snapshot. |
   | licence_type | False | str |  | The license type used |
   | cpu_hot_plug | False | bool |  | Hot-plug capable CPU (no reboot required). |
   | cpu_hot_unplug | False | bool |  | Hot-unplug capable CPU (no reboot required). |
@@ -157,8 +155,7 @@ This module allows you to create or remove a snapshot.
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter in which the volumes reside. |
   | volume | True | str |  | The name or UUID of the volume. |
-  | id | False | str |  | The id of the snapshot. |
-  | name | False | str |  | The name of the snapshot. |
+  | name | True | str |  | The name of the snapshot. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
