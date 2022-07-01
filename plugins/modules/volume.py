@@ -255,12 +255,11 @@ EXAMPLE_PER_STATE = {
     wait_timeout: 500
     state: present
   ''',
-  'update' : '''# Update Volumes
+  'update' : '''# Update Volumes - only one ID if renaming
   - volume:
     name: 'new_vol_name'
     datacenter: Tardis One
-    instance_ids: # Must only have one ID if renaming
-     - 'vol01'
+    instance_ids: 'vol01'
     size: 50
     bus: IDE
     wait_timeout: 500
@@ -452,10 +451,7 @@ def create_volume(module, client):
     datacenter_server = ionoscloud.DataCentersApi(client)
     servers_server = ionoscloud.ServersApi(client)
 
-    volumes = []
-    instance_ids = []
-
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     if datacenter_id is None:
@@ -484,20 +480,24 @@ def create_volume(module, client):
         names = [name]
 
     # Prefetch a list of volumes for later comparison.
-    volume_list = volume_server.datacenters_volumes_get(datacenter_id, depth=2)
+    volume_list = volume_server.datacenters_volumes_get(datacenter_id, depth=1)
 
-    for name in names:
-        # Fail volume creation if a volume with this name and int combination already exists.
-        if get_resource_id(module, volume_list, name) is not None:
-            module.fail_json(msg="Volume with name %s already exists" % name, exception=traceback.format_exc())
+    volumes = []
+    instance_ids = []
 
     changed = False
     for name in names:
-        create_response = _create_volume(module, volume_server, str(datacenter_id), name, client)
+        existing_volume_id = get_resource_id(module, volume_list, name)
+        if existing_volume_id is not None:
+            create_response = volume_server.datacenters_volumes_find_by_id(datacenter_id, existing_volume_id, depth=1)
+            instance_ids.append(existing_volume_id)
+            _attach_volume(module, servers_server, datacenter_id, existing_volume_id)
+        else:
+            create_response = _create_volume(module, volume_server, str(datacenter_id), name, client)
+            instance_ids.append(create_response.id)
+            _attach_volume(module, servers_server, datacenter_id, create_response.id)
+            changed = True
         volumes.append(create_response)
-        instance_ids.append(create_response.id)
-        _attach_volume(module, servers_server, datacenter_id, create_response.id)
-        changed = True
 
     results = {
         'changed': changed,
@@ -543,7 +543,7 @@ def update_volume(module, client):
     if datacenter_id is None:
         module.fail_json(msg='datacenter could not be found.')
 
-    volume_list = volume_server.datacenters_volumes_get(datacenter_id, depth=2)
+    volume_list = volume_server.datacenters_volumes_get(datacenter_id, depth=1)
 
     # Fail early if one of the ids provided doesn't match any volume
     checked_instances = []
@@ -601,7 +601,7 @@ def delete_volume(module, client):
     datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
-    volumes = volume_server.datacenters_volumes_get(datacenter_id, depth=2)
+    volumes = volume_server.datacenters_volumes_get(datacenter_id, depth=1)
 
     changed = False
     volume_id = None
@@ -634,7 +634,7 @@ def _attach_volume(module, server_client, datacenter, volume_id):
 
     # Locate UUID for Server
     if server:
-        server_list = server_client.datacenters_servers_get(datacenter_id=datacenter, depth=2)
+        server_list = server_client.datacenters_servers_get(datacenter_id=datacenter, depth=1)
         server_id = get_resource_id(module, server_list, server)
 
         try:

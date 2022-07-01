@@ -328,7 +328,7 @@ def create_nlb_forwarding_rule(module, client):
 
     nlb_server = ionoscloud.NetworkLoadBalancersApi(client)
     nlb_forwarding_rules = nlb_server.datacenters_networkloadbalancers_forwardingrules_get(
-        datacenter_id, network_load_balancer_id, depth=2,
+        datacenter_id, network_load_balancer_id, depth=1,
     )
     nlb_forwarding_rule_response = None
 
@@ -403,7 +403,7 @@ def update_nlb_forwarding_rule(module, client):
     forwarding_rule_response = None
 
     forwarding_rules = nlb_server.datacenters_networkloadbalancers_forwardingrules_get(
-        datacenter_id, network_load_balancer_id, depth=2,
+        datacenter_id, network_load_balancer_id, depth=1,
     )
     existing_rule_id_by_name = get_resource_id(module, forwarding_rules, name)
 

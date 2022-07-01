@@ -269,7 +269,7 @@ def delete_image(module, client):
 
     image_server = ionoscloud.ImagesApi(api_client=client)
 
-    image = get_resource(module, image_server.images_get(depth=1), image_id)
+    image = get_resource(module, image_server.images_get(depth=2), image_id)
 
     if not image:
         module.exit_json(changed=False)
@@ -317,7 +317,7 @@ def update_image(module, client):
         module.exit_json(changed=True)
     try:
 
-        existing_image_id_by_name = get_resource_id(module, image_server.images_get(depth=1), name)
+        existing_image_id_by_name = get_resource_id(module, image_server.images_get(depth=2), name)
 
         if image_id is not None and existing_image_id_by_name is not None and existing_image_id_by_name != image_id:
             module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))

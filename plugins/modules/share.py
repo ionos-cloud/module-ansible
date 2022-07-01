@@ -256,7 +256,7 @@ def create_shares(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=2).items
+    share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=1).items
     for share in share_list:
         if share.id in resource_ids:
             resource_ids.remove(share.id)
@@ -290,7 +290,7 @@ def create_shares(module, client):
                 request_id = _get_request_id(headers['Location'])
                 client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-        share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=2).items
+        share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=1).items
 
         return {
             'changed': True,
@@ -331,7 +331,7 @@ def update_shares(module, client):
         module.exit_json(changed=True)
 
     try:
-        share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=2)
+        share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=1)
         existing = dict()
         for share in share_list.items:
             existing[share.id] = share

@@ -321,11 +321,11 @@ def create_firewall_rule(module, client):
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for server
-    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=2)
+    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
     server_id = get_resource_id(module, server_list, server)
 
     # Locate UUID for NIC
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=2)
+    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=1)
     nic_id = get_resource_id(module, nic_list, nic)
 
     fw_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id, server_id, nic_id, depth=2)
@@ -417,16 +417,16 @@ def update_firewall_rule(module, client):
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for server
-    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=2)
+    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
     server_id = get_resource_id(module, server_list, server)
 
     # Locate UUID for NIC
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=2)
+    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=1)
     nic_id = get_resource_id(module, nic_list, nic)
 
     # Locate UUID for firewall rule
     fw_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id=datacenter_id, server_id=server_id,
-                                                                    nic_id=nic_id, depth=2)
+                                                                    nic_id=nic_id, depth=1)
     fw_id = get_resource_id(module, fw_list, name)
 
     if module.check_mode:
@@ -491,17 +491,17 @@ def delete_firewall_rule(module, client):
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for server
-    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=2)
+    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
     server_id = get_resource_id(module, server_list, server)
 
     # Locate UUID for NIC
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=2)
+    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=1)
     nic_id = get_resource_id(module, nic_list, nic)
 
     # Locate UUID for firewall rule
     firewall_rule_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id=datacenter_id,
                                                                                server_id=server_id, nic_id=nic_id,
-                                                                               depth=2)
+                                                                               depth=1)
     firewall_rule_id = get_resource_id(module, firewall_rule_list, name)
 
     if not firewall_rule_id:

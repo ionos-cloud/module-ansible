@@ -170,7 +170,7 @@ def get_volumes(module, client):
     # Locate UUID for Server
     server_id = None
     if server is not None:
-        server_list = servers_api.datacenters_servers_get(depth=2, datacenter_id=datacenter_id)
+        server_list = servers_api.datacenters_servers_get(depth=1, datacenter_id=datacenter_id)
         server_id = get_resource_id(module, server_list, server)
 
     if server_id is not None:

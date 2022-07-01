@@ -1,5 +1,46 @@
 # Changelog
 
+## 6.3.0
+
+### Enhancements
+* depth value for certain GET operations has been reduced
+
+### Bug fixes
+* Bug fixes relating to multiple resources sharing the exact same name:
+    * If multiple resources have been found in an operation, an error is thrown. __**Important Note:** Please make sure you do not have multiple resources of the same type that share the same name. (i.e. two datacenters with the same name, or two volumes with identical name on the same server).__  
+    * For Server and Volume modules, you can now only rename one resource at a time. In practice, this means that now, `instance_ids` param now can only contain one ID if `state: update` and `name is not None`. 
+    * For Server and Volume modules, removed `auto_increment` flag. Now incrementation is done automatically if `count > 1` on creating new instances (because creating two instances with the same name is forbidden)
+    * You can no longer rename a resource to have the same name as some other resource within the same entity (i.e. if by renaming a volume you will end up with two volumes sharing the same name within a server, then throw an error and fail the operation) 
+* Do not delete resources that have already been marked as `deleting`
+* Inventory script fixes:
+    * Inventory output is now JSON 
+    * Print with variable indent
+    * Removed unused params: `group_by_licence_type`, `group_by_image_name`
+* Now it is possible to rename ENTERPRISE servers, not just CUBE servers
+* It is now also possible to use UUID to to identify users / nic_flowlogs when `state` is `remove`
+* When updating a user (respectively group) with other groups (respectively other users), registered variable at end of operation now correctly contains the new, updated groups that the user belongs to (respectively users belonging to that group)
+
+### Features
+* Added `user_data` parameter for server's module creation state. (The cloud-init configuration for the volume as a base64 encoded string.)
+* Added ALB (Application Loadbalancer) modules:
+    * application_load_balancer
+    * application_load_balancer_flowlog 
+    * application_load_balancer_forwardingrule 
+
+## 6.2.0
+
+### Bug fixes
+* for s3key-info module, username & password parameters "required" status was too strict: now only required if no token provided
+* remove duplicate lan arg in server module (now lan is a 'str')
+
+
+### Features
+* remove public, gateway_ip params for k8s_cluster and k8s_nodepool (removed from python sdk)
+* dbaas updates: added backup_location to postgres_cluster
+* volume info module (#23)
+* server info module (#22)
+
+
 ## 6.1.3
 ### Bug fixes
 * **network_load_balancer_rule** module: fixed `health_check` parameter _(the dict now supports snake case items instead of camel case)_

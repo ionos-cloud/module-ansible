@@ -1,9 +1,9 @@
-name: "AnsibleAutoTest"
-datacenter: "AnsibleAutoTest"
-description: Ansible test description
-server: "AnsibleAutoTest"
-nic: "AnsibleAutoTest"
-lan: "AnsibleAutoTest"
+name: "AnsibleAutoTestALB"
+datacenter: "AnsibleAutoTestALB"
+description: Ansible ALB test description
+server: "AnsibleAutoTestALB"
+nic: "AnsibleAutoTestALB"
+lan: "AnsibleAutoTestALB"
 location: de/txl
 image: ce08ca15-0adf-11ec-9fa6-1e5ea9024c03
 image_alias: centos:7

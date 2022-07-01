@@ -49,15 +49,10 @@ OPTIONS = {
         'required': ['present', 'restore'],
         'type': 'str',
     },
-    'id': {
-        'description': ['The id of the snapshot.'],
-        'available': ['update', 'absent', 'restore'],
-        'type': 'str',
-    },
     'name': {
         'description': ['The name of the snapshot.'],
         'available': STATES,
-        'required': ['present'],
+        'required': ['restore', 'update', 'absent'],
         'type': 'str',
     },
     'description': {
@@ -311,7 +306,7 @@ def create_snapshot(module, client):
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for volume
-    volume_list = volume_server.datacenters_volumes_get(datacenter_id=datacenter_id, depth=2)
+    volume_list = volume_server.datacenters_volumes_get(datacenter_id=datacenter_id, depth=1)
     volume_id = get_resource_id(module, volume_list, volume)
 
     # Locate snapshot by name/UUID
@@ -364,7 +359,6 @@ def restore_snapshot(module, client):
     """
     datacenter = module.params.get('datacenter')
     volume = module.params.get('volume')
-    id = module.params.get('id')
     name = module.params.get('name')
     wait = module.params.get('wait')
 
@@ -377,12 +371,12 @@ def restore_snapshot(module, client):
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for volume
-    volume_list = volume_server.datacenters_volumes_get(datacenter_id=datacenter_id, depth=2)
+    volume_list = volume_server.datacenters_volumes_get(datacenter_id=datacenter_id, depth=1)
     volume_id = get_resource_id(module, volume_list, volume)
 
     # Locate UUID for snapshot
     snapshot_list = snapshot_server.snapshots_get(depth=2)
-    snapshot_id = get_resource_id(module, snapshot_list, id if id is not None else name)
+    snapshot_id = get_resource_id(module, snapshot_list, name)
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -419,19 +413,12 @@ def update_snapshot(module, client):
     """
     snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
 
-    # In this case, 'id' will be used for identifying the snapshot
-    # 'name', if set, will change the identified snapshot's name
     name = module.params.get('name')
-    id = module.params.get('id')
 
-    # Locate snapshot by UUID/name
+    # Locate snapshot by name
     snapshot_list = snapshot_server.snapshots_get(depth=2)
-    snapshot_already_existing = get_resource(module, snapshot_list, name)
 
-    if snapshot_already_existing is not None:
-        module.fail_json(msg='Snapshot with name \'%s\' already exists' % name)
-
-    snapshot = get_resource(module, snapshot_list, id)
+    snapshot = get_resource(module, snapshot_list, name)
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -449,8 +436,6 @@ def update_snapshot(module, client):
     licence_type = module.params.get('licence_type')
     wait_timeout = module.params.get('wait_timeout')
 
-    if name is None:
-        name = snapshot.properties.name
     if cpu_hot_plug is None:
         cpu_hot_plug = snapshot.properties.cpu_hot_plug
     if cpu_hot_unplug is None:
@@ -476,7 +461,6 @@ def update_snapshot(module, client):
 
     try:
         snapshot_properties = SnapshotProperties(
-            name=name,
             cpu_hot_plug=cpu_hot_plug,
             cpu_hot_unplug=cpu_hot_unplug,
             ram_hot_plug=ram_hot_plug,
@@ -518,11 +502,10 @@ def delete_snapshot(module, client):
 
     snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
     name = module.params.get('name')
-    id = module.params.get('id')
 
     # Locate snapshot UUID
     snapshot_list = snapshot_server.snapshots_get(depth=2)
-    snapshot_id = get_resource_id(module, snapshot_list, id if id is not None else name)
+    snapshot_id = get_resource_id(module, snapshot_list, name)
 
     if not snapshot_id:
         module.exit_json(changed=False)

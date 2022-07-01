@@ -258,7 +258,7 @@ def create_datacenter(module, client):
 
     datacenter_server = ionoscloud.DataCentersApi(client)
 
-    existing_dc = get_resource(module, datacenter_server.datacenters_get(depth=1), name)
+    existing_dc = get_resource(module, datacenter_server.datacenters_get(depth=3), name)
 
     if existing_dc:
         return {
@@ -319,7 +319,7 @@ def update_datacenter(module, client):
     changed = False
     response = None
 
-    existing_dc_id_by_name = get_resource_id(module, datacenter_server.datacenters_get(depth=1), name)
+    existing_dc_id_by_name = get_resource_id(module, datacenter_server.datacenters_get(depth=2), name)
 
     if datacenter_id is not None and existing_dc_id_by_name is not None and existing_dc_id_by_name != datacenter_id:
             module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
@@ -358,7 +358,7 @@ def remove_datacenter(module, client):
     wait = module.params.get('wait')
     datacenter_server = ionoscloud.DataCentersApi(client)
 
-    datacenters_list = datacenter_server.datacenters_get(depth=1)
+    datacenters_list = datacenter_server.datacenters_get(depth=2)
 
     datacenter_id = get_resource_id(module, datacenters_list, datacenter_id if datacenter_id is not None else name)
 

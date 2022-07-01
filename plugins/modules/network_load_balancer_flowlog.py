@@ -287,7 +287,7 @@ def create_nlb_flowlog(module, client):
     nlb_flowlogs = nlb_server.datacenters_networkloadbalancers_flowlogs_get(
         datacenter_id=datacenter_id,
         network_load_balancer_id=network_load_balancer_id,
-        depth=2,
+        depth=1,
     )
 
     nlb_flowlog_response = None
@@ -348,7 +348,7 @@ def update_nlb_flowlog(module, client):
     nlb_server = ionoscloud.NetworkLoadBalancersApi(client)
     flowlog_response = None
 
-    flowlogs = nlb_server.datacenters_networkloadbalancers_flowlogs_get(datacenter_id, network_load_balancer_id, depth=2)
+    flowlogs = nlb_server.datacenters_networkloadbalancers_flowlogs_get(datacenter_id, network_load_balancer_id, depth=1)
     existing_flowlog_id_by_name = get_resource_id(module, flowlogs, name)
 
     if flowlog_id is not None and existing_flowlog_id_by_name is not None and existing_flowlog_id_by_name != flowlog_id:
@@ -510,8 +510,9 @@ def main():
         check_required_arguments(module, state, OBJECT_NAME)
 
         if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('flowlog_id'):
-            module.fail_json(msg='either name or flowlog_id parameter is required for {object_name} state absent'.format(object_name=OBJECT_NAME))
-
+            module.fail_json(msg='either name or flowlog_id parameter is required for {object_name} state {state}'.format(
+                object_name=OBJECT_NAME, state=state,
+            ))
         try:
             if state == 'absent':
                 module.exit_json(**remove_nlb_flowlog(module, api_client))
