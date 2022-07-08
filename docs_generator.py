@@ -96,6 +96,8 @@ modules_to_generate = [
     's3key_info',
     'share',
     'user',
+    'certificate',
+    'certificate_info'
 ]
 
 for module_name in modules_to_generate:

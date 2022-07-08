@@ -1,0 +1,14 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+    - name: List Certificates
+      certificate_info:
+      register: certificates_response
+    - name: Show Certificates
+      debug:
+        var: certificates_response.result

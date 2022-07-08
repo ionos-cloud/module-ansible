@@ -23,8 +23,8 @@ try:
         ApplicationLoadBalancerHttpRuleCondition
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
-    import ionoscloud_certificate_manager
-    from ionoscloud_certificate_manager import __version__ as certificate_manager_sdk_version
+    import ionoscloud_cert_manager
+    from ionoscloud_cert_manager import __version__ as certificate_manager_sdk_version
 except ImportError:
     HAS_SDK = False
 
@@ -350,9 +350,9 @@ def create_certificate(certificate_manager_client, certificate_input):
     if not certificate_file and not private_key_file:
         return None
 
-    return ionoscloud_certificate_manager.CertificatesApi(certificate_manager_client).certificates_post(
-        ionoscloud_certificate_manager.CertificatePostDto(
-            properties=ionoscloud_certificate_manager.CertificatePostPropertiesDto(
+    return ionoscloud_cert_manager.CertificatesApi(certificate_manager_client).certificates_post(
+        ionoscloud_cert_manager.CertificatePostDto(
+            properties=ionoscloud_cert_manager.CertificatePostPropertiesDto(
                 name=certificate_input.get('certificate_name'),
                 certificate=open(certificate_file, mode='r').read(),
                 certificate_chain=open(certificate_chain_file, mode='r').read() if certificate_chain_file else None,
@@ -660,7 +660,7 @@ def main():
 
     state = module.params.get('state')
 
-    certificate_manager_api_client = ionoscloud_certificate_manager.ApiClient(get_sdk_config(module, ionoscloud_certificate_manager))
+    certificate_manager_api_client = ionoscloud_cert_manager.ApiClient(get_sdk_config(module, ionoscloud_cert_manager))
     api_client = ApiClient(get_sdk_config(module, ionoscloud))
 
     api_client.user_agent = USER_AGENT
