@@ -97,7 +97,7 @@ OPTIONS = {
     'new_server_certificates': {
         'description': [
             'An array of dict with information used to uploade new certificates and add them to the forwarding rule.'
-            "A dict should contain 'certificate_file', 'private_key', 'certificate_chain_file'(optional), 'certificate_name' as keys."
+            "A dict should contain 'certificate_file', 'private_key_file', 'certificate_chain_file'(optional), 'certificate_name' as keys."
             'File paths should be absolute.'
         ],
         'available': ['present', 'update'],
@@ -344,14 +344,14 @@ def get_http_rule(http_rule):
 
 def create_certificate(certificate_manager_client, certificate_input):
     certificate_file = certificate_input.get('certificate_file')
-    private_key_file = certificate_input.get('private_key')
+    private_key_file = certificate_input.get('private_key_file')
     certificate_chain_file = certificate_input.get('certificate_chain_file')
 
     if not certificate_file and not private_key_file:
         return None
 
-    return ionoscloud_certificate_manager.CertificateApi(certificate_manager_client).add_certificate(
-        ionoscloud_certificate_manager.CertificatePatchDto(
+    return ionoscloud_certificate_manager.CertificatesApi(certificate_manager_client).certificates_post(
+        ionoscloud_certificate_manager.CertificatePostDto(
             properties=ionoscloud_certificate_manager.CertificatePostPropertiesDto(
                 name=certificate_input.get('certificate_name'),
                 certificate=open(certificate_file, mode='r').read(),
