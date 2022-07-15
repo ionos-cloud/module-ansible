@@ -348,7 +348,7 @@ def create_k8s_cluster_nodepool(module, client):
             'changed': False,
             'failed': False,
             'action': 'create',
-            'datacenter': existing_nodepool.to_dict()
+            'nodepool': existing_nodepool.to_dict()
         }
 
     try:

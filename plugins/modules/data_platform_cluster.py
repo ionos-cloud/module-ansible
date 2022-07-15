@@ -22,7 +22,7 @@ ANSIBLE_METADATA = {
     'supported_by': 'community',
 }
 DSAAS_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-dsaas/%s' % ( __version__, sdk_version)
-DOC_DIRECTORY = 'dsaas'
+DOC_DIRECTORY = 'data-platform'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Data Platform Cluster'
 
@@ -218,7 +218,7 @@ def _get_request_id(headers):
 
 
 def create_data_platform_cluster(module, client):
-    cluster_name = module.params.get('data_platform_cluster_name')
+    cluster_name = module.params.get('cluster_name')
     data_platform_version = module.params.get('data_platform_version')
     maintenance = module.params.get('maintenance_window')
     datacenter_id = module.params.get('datacenter_id')
@@ -321,56 +321,51 @@ def delete_data_platform_cluster(module, client):
 
 def update_k8s_cluster(module, client):
     cluster_name = module.params.get('cluster_name')
-    k8s_version = module.params.get('k8s_version')
-    k8s_cluster_id = module.params.get('k8s_cluster_id')
+    data_platform_version = module.params.get('data_platform_version')
+    data_platform_cluster_id = module.params.get('data_platform_cluster_id')
     maintenance = module.params.get('maintenance_window')
-    api_subnet_allow_list = module.params.get('api_subnet_allow_list')
-    s3_buckets = list(map(lambda bucket_name: S3Bucket(name=bucket_name))) if module.params.get('s3_buckets') else None
 
     maintenance_window = dict(maintenance)
     maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
-    k8s_server = ionoscloud.KubernetesApi(api_client=client)
-    k8s_response = None
+    dsaas_cluster_server = ionoscloud_dsaas.DataPlatformClusterApi(api_client=client)
     
-    existing_cluster_id_by_name = get_resource_id(module, k8s_server.k8s_get(), cluster_name)
+    existing_cluster_id_by_name = get_resource_id(module, dsaas_cluster_server.get_clusters(), cluster_name)
 
-    if k8s_cluster_id is not None and existing_cluster_id_by_name is not None and existing_cluster_id_by_name != k8s_cluster_id:
+    if data_platform_cluster_id is not None and existing_cluster_id_by_name is not None and existing_cluster_id_by_name != k8s_cluster_id:
             module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, cluster_name))
 
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        kubernetes_cluster_properties = KubernetesClusterPropertiesForPut(
+        dsaas_cluster_properties = ionoscloud_dsaas.PatchClusterProperties(
             name=cluster_name,
-            k8s_version=k8s_version,
-            s3_buckets=s3_buckets,
-            api_subnet_allow_list=api_subnet_allow_list,
+            data_platform_version=data_platform_version,
             maintenance_window=maintenance_window,
         )
-        kubernetes_cluster = KubernetesClusterForPut(properties=kubernetes_cluster_properties)
-        k8s_response = k8s_server.k8s_put(k8s_cluster_id=k8s_cluster_id, kubernetes_cluster=kubernetes_cluster)
+        dsaas_cluster = ionoscloud_dsaas.PatchClusterRequest(properties=dsaas_cluster_properties)
+        dsaas_cluster = dsaas_cluster_server.patch_cluster(data_platform_cluster_id, dsaas_cluster)
 
         if module.params.get('wait'):
             client.wait_for(
-                fn_request=lambda: k8s_server.k8s_get(),
+                fn_request=lambda: dsaas_cluster_server.get_clusters(),
                 fn_check=lambda r: list(filter(
                     lambda e: e.properties.name == cluster_name,
                     r.items
-                ))[0].metadata.state == 'ACTIVE',
+                ))[0].metadata.state == 'AVAILABLE',
                 scaleup=10000
             )
         changed = True
     except Exception as e:
         module.fail_json(
-            msg="failed to update the k8s cluster: %s" % to_native(e))
+            msg="failed to update the Data Platform cluster: %s" % to_native(e))
         changed = False
 
     return {
         'changed': changed,
         'failed': False,
         'action': 'update',
-        'cluster': k8s_response.to_dict()
+        'data_platform_cluster': dsaas_cluster.to_dict()
     }
 
 
