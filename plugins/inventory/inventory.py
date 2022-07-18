@@ -132,18 +132,20 @@ class IonosCloudInventory(object):
         self.cache_filename = self.cache_path + "/ansible-ionos.cache"
 
         # Verify credentials and create client
-        if hasattr(self, 'username') and hasattr(self, 'password'):
+        if hasattr(self, 'token'):
+            configuration = Configuration(token=self.token)
+        elif hasattr(self, 'username') and hasattr(self, 'password'):
             configuration = Configuration(
                 username=self.username,
                 password=self.password)
-
-            user_agent = 'ionoscloud-python/%s Ansible' % (sdk_version)
-
-            self.client = ApiClient(configuration)
-            self.client.user_agent = user_agent
         else:
             sys.stderr.write('ERROR: Ionos credentials cannot be found.\n')
             sys.exit(1)
+
+        user_agent = 'ionoscloud-python/%s Ansible' % (sdk_version)
+
+        self.client = ApiClient(configuration)
+        self.client.user_agent = user_agent
 
         if self.cache_max_age > 0:
             if not self.is_cache_valid() or self.args.refresh:
@@ -196,6 +198,8 @@ class IonosCloudInventory(object):
         config.read(os.path.dirname(os.path.realpath(__file__)) + '/inventory.ini')
 
         # Credentials
+        if config.has_option('ionos', 'token'):
+            self.token = config.get('ionos', 'token')
         if config.has_option('ionos', 'username'):
             self.username = config.get('ionos', 'username')
         elif config.has_option('ionos', 'subscription_user'):
@@ -243,6 +247,8 @@ class IonosCloudInventory(object):
 
     def read_environment(self):
         """ Reads the environment variables """
+        if os.getenv('IONOS_TOKEN'):
+            self.token = os.getenv('IONOS_TOKEN')
         if os.getenv('IONOS_USERNAME'):
             self.username = os.getenv('IONOS_USERNAME')
         if os.getenv('IONOS_PASSWORD'):
