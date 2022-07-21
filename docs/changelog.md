@@ -1,5 +1,12 @@
 # Changelog
 
+## 6.3.1
+
+### Bug fixes
+
+* Added token authentication for ALB
+* For CUBE servers, on `state: present`, `user_data` and `ssh_keys` are now sent to the API
+
 ## 6.3.0
 
 ### Enhancements
