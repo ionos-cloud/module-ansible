@@ -502,11 +502,14 @@ def _create_machine(module, client, datacenter, name):
                                              boot_cdrom=boot_cdrom, boot_volume=boot_volume,
                                              cpu_family=cpu_family, type=type)
 
-        volume_properties = VolumeProperties(type=disk_type, image_password=image_password)
+        volume_properties = VolumeProperties(name=str(uuid4()).replace('-', '')[:10],
+                                             type=disk_type, image_password=image_password,
+                                             ssh_keys=ssh_keys, user_data=user_data, bus=bus)
 
     else:
         server_properties = ServerProperties(name=name, cores=cores, ram=ram, availability_zone=availability_zone,
                                              cpu_family=cpu_family)
+
         volume_properties = VolumeProperties(name=str(uuid4()).replace('-', '')[:10],
                                              type=disk_type,
                                              size=volume_size,
