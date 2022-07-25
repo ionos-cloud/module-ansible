@@ -20,7 +20,7 @@ ANSIBLE_METADATA = {
     'supported_by': 'community',
 }
 
-CONTAINER_REGISTRY_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s'% (
+CONTAINER_REGISTRY_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-container-registry/%s'% (
     __version__, ionoscloud_container_registry.__version__,
 )
 DOC_DIRECTORY = 'container-registry'
@@ -130,7 +130,7 @@ EXAMPLE_PER_STATE = {
     'present': '''- name: Create Registry
     registry:
       name: test_registry
-      location: de
+      location: es/vit
       maintenance_window:
         days: 
             - Tuesday

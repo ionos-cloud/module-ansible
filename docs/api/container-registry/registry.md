@@ -9,7 +9,7 @@ This is a module that supports creating, updating or destroying Registries
 - name: Create Registry
     registry:
       name: test_registry
-      location: de
+      location: es/vit
       maintenance_window:
         days: 
             - Tuesday
@@ -51,7 +51,7 @@ This is a module that supports creating, updating or destroying Registries
   - name: Create Registry
     registry:
       name: test_registry
-      location: de
+      location: es/vit
       maintenance_window:
         days: 
             - Tuesday

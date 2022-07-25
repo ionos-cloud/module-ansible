@@ -10,7 +10,7 @@
   - name: Create Registry
     registry:
       name: "{{registry_name}}"
-      location: DE
+      location: es/vit
       maintenance_window:
         days: 
             - Tuesday

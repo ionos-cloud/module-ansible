@@ -16,7 +16,7 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-CONTAINER_REGISTRY_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (
+CONTAINER_REGISTRY_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-container-registry/%s' % (
 __version__, ionoscloud_container_registry.__version__)
 DOC_DIRECTORY = 'container-registry'
 STATES = ['info']
