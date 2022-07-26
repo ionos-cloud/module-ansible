@@ -89,7 +89,6 @@ OPTIONS = {
         # If provided, then username and password no longer required
         'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
         'available': STATES,
-        'required': STATES,
         'no_log': True,
         'env_fallback': 'IONOS_TOKEN',
         'type': 'str',
@@ -421,6 +420,16 @@ def get_sdk_config(module, sdk):
 
 
 def check_required_arguments(module, state, object_name):
+    # manually checking if token or username & password provided
+    if (
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
+    ):
+        module.fail_json(
+            msg='Token or username & password are required for {object_name}'.format(
+                object_name=object_name,
+            ),
+        )
     for option_name, option in OPTIONS.items():
         if state in option.get('required', []) and not module.params.get(option_name):
             module.fail_json(
