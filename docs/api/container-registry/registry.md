@@ -74,6 +74,8 @@ This is a module that supports creating, updating or destroying Registries
   | location | True | str |  | The location of your registry |
   | name | True | str |  | The name of your registry. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | True | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
@@ -99,6 +101,8 @@ This is a module that supports creating, updating or destroying Registries
   | name | False | str |  | The name of your registry. |
   | registry_id | False | str |  | The ID of an existing Registry. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | True | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
@@ -134,6 +138,8 @@ This is a module that supports creating, updating or destroying Registries
   | name | False | str |  | The name of your registry. |
   | registry_id | False | str |  | The ID of an existing Registry. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | True | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |

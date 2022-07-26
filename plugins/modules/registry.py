@@ -68,6 +68,23 @@ OPTIONS = {
         'available': STATES,
         'type': 'str',
     },
+    'username': {
+        # Required if no token, checked manually
+        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
+        'aliases': ['subscription_user'],
+        'env_fallback': 'IONOS_USERNAME',
+        'available': STATES,
+        'type': 'str',
+    },
+    'password': {
+        # Required if no token, checked manually
+        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
+        'aliases': ['subscription_password'],
+        'available': STATES,
+        'no_log': True,
+        'env_fallback': 'IONOS_PASSWORD',
+        'type': 'str',
+    },
     'token': {
         # If provided, then username and password no longer required
         'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
