@@ -121,6 +121,8 @@ jobs:
             keywords: "certificate"
           - namespace: container-registry
             keywords: "registry"
+          - namespace: data-platform
+            keywords: "data_platform, data-platform"
 
     env:
       python-version: 3.8.15

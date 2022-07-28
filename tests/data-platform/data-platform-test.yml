@@ -1,0 +1,96 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+  - ./vars.yml
+
+  tasks:
+    - name: Create Data Platform cluster
+      dataplatform_cluster:
+        name: "{{ name }}"
+        data_platform_version: "1.0.0"
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        maintenance_window:
+        day_of_the_week: "Wednesday"
+        time: "12:02:00"
+        state: present
+        wait: true
+        register: cluster_response
+
+    - name: Patch Data Platform cluster
+      dataplatform_cluster:
+        name: "{{ name }}"
+        data_platform_version: "1.0.0"
+        id: "{{ cluster_response.cluster.id }}"
+        maintenance_window:
+        day_of_the_week: "Wednesday"
+        time: "12:02:00"
+        state: update
+        wait: true
+
+    - name: Get all Data Platform clusters
+      dataplatform_cluster_info:
+        register: cluster_list_response
+
+    - name: Get kubeconfig for a specific cluster
+      dataplatform_config:
+        id: "{{ cluster_response.cluster.id }}"
+
+    - name: Create DataPlatform cluster nodepool
+      dataplatform_nodepool:
+        name: "my-nodepool"
+        cluster_id: "{{ cluster_response.cluster.id }}"
+        node_count: 2
+        cpu_family: "INTEL_SKYLAKE"
+        cores_count: 1
+        ram_size: 2048
+        availability_zone: "AUTO"
+        storage_type: "HDD"
+        storage_size: "100"
+        maintenance_window:
+        day_of_the_week: "Wednesday"
+        time: "12:02:00"
+        labels:
+        foo: bar
+        color: red
+        size: "10"
+        annotations:
+        ann1: value1
+        ann2: value2
+        wait: true
+        register: result
+
+    - name: Update DataPlatform cluster nodepool
+      dataplatform_nodepool:
+        cluster_id: "{{ cluster.cluster.id }}"
+        id: "{{ result.nodepool.id }}"
+        node_count: 2
+        maintenance_window:
+        day_of_the_week: "Wednesday"
+        time: "12:02:00"
+        labels:
+        color: blue
+        size: "11"
+        annotations:
+        ann1: updatedvalue1
+        ann2: updatedvalue2
+        wait: true
+        state: update
+
+    - name: Get all DataPlaform nodepools from a specific cluster
+      dataplatform_nodepool_info:
+        cluster_id: "{{ cluster_response.cluster.id }}"
+        register: nodepool_list_response
+
+    - name: Delete DataPlatform cluster nodepool
+      k8s_nodepool:
+        cluster_id: "{{ cluster.cluster.id }}"
+        id: "{{ result.nodepool.id }}"
+        wait: true
+        state: absentcluster_id
+
+    - name: Delete Data Platform cluster
+      dataplatform_cluster:
+        id: "{{ cluster_response.cluster.id }}"
+        state: absent

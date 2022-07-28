@@ -1,0 +1,6 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+- name: Run DataPlatform Test
+  import_playbook: data-platform-test.yml

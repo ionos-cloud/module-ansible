@@ -1,0 +1,14 @@
+name: "AnsibleAutoTestDataPlatform"
+datacenter: "AnsibleAutoTestDataPlatform"
+description: Ansible test description
+server: "AnsibleAutoTestDataPlatform"
+nic: "AnsibleAutoTestDataPlatform"
+lan: "AnsibleAutoTestDataPlatform"
+location: gb/lhr
+image: ce08ca15-0adf-11ec-9fa6-1e5ea9024c03
+image_alias: centos:7
+password: qq6mdvirWwj1dsdXjcpp
+updated_password: fjee83jkw940djcer
+wait_timeout: 500
+email: ansible.test@mail.com
+updated_email: updated.ansible.test@mail.com
