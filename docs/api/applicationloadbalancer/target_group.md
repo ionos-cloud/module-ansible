@@ -98,8 +98,9 @@ This is a simple module that supports creating or removing Target Groups.
   | targets | False | list |  | An array of items in the collection. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -127,8 +128,9 @@ This is a simple module that supports creating or removing Target Groups.
   | target_group_id | False | str |  | The ID of the Target Group. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
@@ -164,8 +166,9 @@ This is a simple module that supports creating or removing Target Groups.
   | target_group_id | False | str |  | The ID of the Target Group. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | True | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | True | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
   | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
