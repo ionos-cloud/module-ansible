@@ -50,6 +50,10 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   | maintenance_window | False | dict |  | The datacenter location. |
   | api_subnet_allow_list | False | list |  | The datacenter location. |
   | s3_buckets_param | False | list |  | The datacenter location. |
+  | public | False | str |  | The indicator if the cluster is public or private. |
+  | location | False | str |  | The location of the cluster if the cluster is private. This property is immutable. The location must be enabled for your contract or you must have a Datacenter within that location. This attribute is mandatory if the cluster is private. |
+  | nat_gateway_ip | False | str |  | The nat gateway IP of the cluster if the cluster is private. |
+  | node_subnet | False | str |  | The node subnet of the cluster if the cluster is private. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |

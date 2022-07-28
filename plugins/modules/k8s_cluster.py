@@ -66,6 +66,28 @@ OPTIONS = {
         'type': 'list',
         'elements': 'str',
     },
+    'public': {
+        'description': ['The indicator if the cluster is public or private.'],
+        'available': ['present'],
+        'type': 'str'
+    },
+    'location': {
+        'description': 'The location of the cluster if the cluster is private. This property is immutable. The '
+                       'location must be enabled for your contract or you must have a Datacenter within that '
+                       'location. This attribute is mandatory if the cluster is private.',
+        'available': ['present'],
+        'type': 'str'
+    },
+    'nat_gateway_ip': {
+        'description': 'The nat gateway IP of the cluster if the cluster is private.',
+        'available': ['present'],
+        'type': 'str'
+    },
+    'node_subnet': {
+        'description': 'The node subnet of the cluster if the cluster is private.',
+        'available': ['present'],
+        'type': 'str'
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -223,6 +245,10 @@ def create_k8s_cluster(module, client):
     cluster_name = module.params.get('cluster_name')
     k8s_version = module.params.get('k8s_version')
     maintenance = module.params.get('maintenance_window')
+    public = module.params.get('public')
+    location = module.params.get('location')
+    nat_gateway_ip = module.params.get('nat_gateway_ip')
+    node_subnet = module.params.get('node_subnet')
     wait = module.params.get('wait')
     api_subnet_allow_list = module.params.get('api_subnet_allow_list')
     s3_buckets = list(map(lambda bucket_name: S3Bucket(name=bucket_name))) if module.params.get('s3_buckets') else None
@@ -254,6 +280,10 @@ def create_k8s_cluster(module, client):
             maintenance_window=maintenance_window,
             api_subnet_allow_list=api_subnet_allow_list,
             s3_buckets=s3_buckets,
+            public=public,
+            nat_gateway_ip=nat_gateway_ip,
+            node_subnet=node_subnet,
+            location=location
         )
         k8s_cluster = KubernetesCluster(properties=k8s_cluster_properties)
 
