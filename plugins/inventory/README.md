@@ -51,13 +51,13 @@ password_file =
 # Ionos API URL.
 # It may be overriden via IONOS_API_URL environment variable.
 #
-# api_url = https://api.ionos.com/cloudapi/v5
+# api_url = https://api.ionos.com/cloudapi/v6
 
 
 # API calls to Ionos may be slow. For this reason, we cache the results
 # of an API call. Set this to the path you want cache files to be written to.
-# One file will be written to this directory:
-#   - ansible-ionos.cache
+# One file will be written to this file:
+#   - ansible-ionos.pkl
 #
 cache_path = /tmp
 
@@ -78,8 +78,6 @@ vars = {}
 group_by_datacenter_id = True
 group_by_location = True
 group_by_availability_zone = True
-group_by_image_name = True
-group_by_licence_type = True
 
 # Use the server name instead of the IP as inventory hostname. The IP is still
 # set as ansible_host to connect to the server.
@@ -93,7 +91,7 @@ instances in JSON format, such as data centers, locations, LANs, etc. This is us
 `--datacenters` will return all virtual data centers associated with the Ionos account.
 
 ```
-usage: inventory.py [-h] [--list] [--host HOST] [--datacenters]
+usage: ./inventory.py [-h] [--list] [--host HOST] [--datacenters]
                                  [--fwrules] [--images] [--lans] [--locations]
                                  [--nics] [--servers] [--volumes] [--refresh]
 
