@@ -36,6 +36,11 @@ OPTIONS = {
         'available': STATES,
         'type': 'str',
     },
+    'depth': {
+        'description': ['The depth used when retrieving the items.'],
+        'available': STATES,
+        'type': 'int',
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -159,12 +164,13 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
 def get_volumes(module, client):
     datacenter = module.params.get('datacenter')
     server = module.params.get('server')
+    depth = module.params.get('depth', 1)
     volumes_api = ionoscloud.VolumesApi(api_client=client)
     servers_api = ionoscloud.ServersApi(api_client=client)
     datacenters_api = ionoscloud.DataCentersApi(api_client=client)
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenters_api.datacenters_get(depth=2)
+    datacenter_list = datacenters_api.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for Server
@@ -174,9 +180,9 @@ def get_volumes(module, client):
         server_id = get_resource_id(module, server_list, server)
 
     if server_id is not None:
-        volume_items = servers_api.datacenters_servers_volumes_get(datacenter_id, server_id).items
+        volume_items = servers_api.datacenters_servers_volumes_get(datacenter_id, server_id, depth=depth).items
     else:
-        volume_items = volumes_api.datacenters_volumes_get(datacenter_id).items
+        volume_items = volumes_api.datacenters_volumes_get(datacenter_id, depth=depth).items
 
     try:
         results = []

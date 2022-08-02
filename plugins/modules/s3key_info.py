@@ -31,6 +31,11 @@ OPTIONS = {
         'required': STATES,
         'type': 'str',
     },
+    'depth': {
+        'description': ['The depth used when retrieving the items.'],
+        'available': STATES,
+        'type': 'int',
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -103,11 +108,12 @@ EXAMPLES = '''
 
 def get_s3keys(module, client):
     user_id = module.params.get('user_id')
+    depth = module.params.get('depth', 1)
     user_s3keys_server = ionoscloud.UserS3KeysApi(client)
 
     try:
         results = []
-        for s3key in user_s3keys_server.um_users_s3keys_get(user_id).items:
+        for s3key in user_s3keys_server.um_users_s3keys_get(user_id, depth=depth).items:
             results.append(s3key.to_dict())
         return {
             'action': 'info',

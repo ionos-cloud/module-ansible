@@ -36,6 +36,11 @@ OPTIONS = {
         'available': STATES,
         'type': 'bool',
     },
+    'depth': {
+        'description': ['The depth used when retrieving the items.'],
+        'available': STATES,
+        'type': 'int',
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -165,14 +170,15 @@ def get_servers(module, client):
     servers_api = ionoscloud.ServersApi(client)
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
     upgrade_needed = module.params.get('upgrade_needed')
+    depth = module.params.get('depth', 1)
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter = get_resource_id(module, datacenter_list, datacenter)
 
     try:
         results = []
-        for server in servers_api.datacenters_servers_get(datacenter, upgrade_needed=upgrade_needed).items:
+        for server in servers_api.datacenters_servers_get(datacenter, upgrade_needed=upgrade_needed, depth=depth).items:
             results.append(server.to_dict())
         return {
             'action': 'info',
