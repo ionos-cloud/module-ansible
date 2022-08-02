@@ -36,6 +36,15 @@ OPTIONS = {
         'available': STATES,
         'type': 'bool',
     },
+    'filters': {
+        'description': [
+            'Filter that can be used to list only servers which have a certain set of propeties. Filters '
+            'should be a dict with a key containing keys and value pair in the following format:'
+            "'properties.name': 'server_name'"
+        ],
+        'available': STATES,
+        'type': 'dict',
+    },
     'depth': {
         'description': ['The depth used when retrieving the items.'],
         'available': STATES,
@@ -163,6 +172,24 @@ def get_resource(module, resource_list, identity, identity_paths=None):
 def get_resource_id(module, resource_list, identity, identity_paths=None):
     resource = get_resource(module, resource_list, identity, identity_paths)
     return resource.id if resource is not None else None
+
+
+def get_method_from_filter(key, value):
+    def method(item):
+        current = item
+        for key_part in key.split('.'):
+            current = getattr(current, key_part)
+        return current == value
+    return method
+
+
+def apply_filters_to_item(filter_list, item):
+    return all([f(item) for f in filter_list])
+
+
+def apply_filters(module, item_list):
+    filters = list(map(get_method_from_filter, module.params.get('filters').items))
+    return filter(apply_filters_to_item(filters, item_list))
 
 
 def get_servers(module, client):
