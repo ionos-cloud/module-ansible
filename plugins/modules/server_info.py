@@ -26,7 +26,7 @@ OBJECT_NAME = 'Servers'
 
 OPTIONS = {
     'datacenter': {
-        'description': ['The ID of the datacenter.'],
+        'description': ['The ID or name of the datacenter.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -38,7 +38,7 @@ OPTIONS = {
     },
     'filters': {
         'description': [
-            'Filter that can be used to list only servers which have a certain set of propeties. Filters '
+            'Filter that can be used to list only objects which have a certain set of propeties. Filters '
             'should be a dict with a key containing keys and value pair in the following format:'
             "'properties.name': 'server_name'"
         ],
@@ -49,6 +49,7 @@ OPTIONS = {
         'description': ['The depth used when retrieving the items.'],
         'available': STATES,
         'type': 'int',
+        'default': 1,
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -174,7 +175,8 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def get_method_from_filter(key, value):
+def get_method_from_filter(filter):
+    key, value = filter
     def method(item):
         current = item
         for key_part in key.split('.'):
@@ -183,13 +185,19 @@ def get_method_from_filter(key, value):
     return method
 
 
-def apply_filters_to_item(filter_list, item):
-    return all([f(item) for f in filter_list])
+def apply_filters_to_item(filter_list):
+    def f(item):
+        return all([f(item) for f in filter_list])
+    return f
 
 
 def apply_filters(module, item_list):
-    filters = list(map(get_method_from_filter, module.params.get('filters').items))
-    return filter(apply_filters_to_item(filters, item_list))
+    filters = module.params.get('filters')
+    if not filters:
+        return item_list    
+    filter_methods = list(map(get_method_from_filter, filters.items()))
+
+    return filter(apply_filters_to_item(filter_methods), item_list)
 
 
 def get_servers(module, client):
@@ -197,16 +205,20 @@ def get_servers(module, client):
     servers_api = ionoscloud.ServersApi(client)
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
     upgrade_needed = module.params.get('upgrade_needed')
-    depth = module.params.get('depth', 1)
+    depth = module.params.get('depth')
 
     # Locate UUID for Datacenter
     datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter = get_resource_id(module, datacenter_list, datacenter)
 
     try:
-        results = []
-        for server in servers_api.datacenters_servers_get(datacenter, upgrade_needed=upgrade_needed, depth=depth).items:
-            results.append(server.to_dict())
+        server_items = servers_api.datacenters_servers_get(
+            datacenter,
+            upgrade_needed=upgrade_needed,
+            depth=depth,
+        )
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, server_items.items)))
+
         return {
             'action': 'info',
             'changed': False,

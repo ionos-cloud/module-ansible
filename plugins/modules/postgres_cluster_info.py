@@ -23,6 +23,15 @@ STATES = ['info']
 OBJECT_NAME = 'Postgres Clusters'
 
 OPTIONS = {
+    'filters': {
+        'description': [
+            'Filter that can be used to list only objects which have a certain set of propeties. Filters '
+            'should be a dict with a key containing keys and value pair in the following format:'
+            "'properties.name': 'server_name'"
+        ],
+        'available': STATES,
+        'type': 'dict',
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -93,6 +102,31 @@ EXAMPLES = '''
         debug:
             var: postgres_clusters_response.result
 '''
+
+
+def get_method_from_filter(filter):
+    key, value = filter
+    def method(item):
+        current = item
+        for key_part in key.split('.'):
+            current = getattr(current, key_part)
+        return current == value
+    return method
+
+
+def apply_filters_to_item(filter_list):
+    def f(item):
+        return all([f(item) for f in filter_list])
+    return f
+
+
+def apply_filters(module, item_list):
+    filters = module.params.get('filters')
+    if not filters:
+        return item_list    
+    filter_methods = list(map(get_method_from_filter, filters.items()))
+
+    return filter(apply_filters_to_item(filter_methods), item_list)
 
 
 def get_module_arguments():
@@ -174,9 +208,8 @@ def main():
 
     check_required_arguments(module, OBJECT_NAME)
     try:
-        results = []
-        for cluster in ionoscloud_dbaas_postgres.ClustersApi(dbaas_postgres_api_client).clusters_get().items:
-            results.append(cluster.to_dict())
+        clusters = ionoscloud_dbaas_postgres.ClustersApi(dbaas_postgres_api_client).clusters_get()
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, clusters.items)))
         module.exit_json(result=results)
     except Exception as e:
         module.fail_json(

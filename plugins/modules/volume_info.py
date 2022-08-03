@@ -36,10 +36,20 @@ OPTIONS = {
         'available': STATES,
         'type': 'str',
     },
+    'filters': {
+        'description': [
+            'Filter that can be used to list only objects which have a certain set of propeties. Filters '
+            'should be a dict with a key containing keys and value pair in the following format:'
+            "'properties.name': 'server_name'"
+        ],
+        'available': STATES,
+        'type': 'dict',
+    },
     'depth': {
         'description': ['The depth used when retrieving the items.'],
         'available': STATES,
         'type': 'int',
+        'default': 1,
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -161,10 +171,35 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
+def get_method_from_filter(filter):
+    key, value = filter
+    def method(item):
+        current = item
+        for key_part in key.split('.'):
+            current = getattr(current, key_part)
+        return current == value
+    return method
+
+
+def apply_filters_to_item(filter_list):
+    def f(item):
+        return all([f(item) for f in filter_list])
+    return f
+
+
+def apply_filters(module, item_list):
+    filters = module.params.get('filters')
+    if not filters:
+        return item_list    
+    filter_methods = list(map(get_method_from_filter, filters.items()))
+
+    return filter(apply_filters_to_item(filter_methods), item_list)
+
+
 def get_volumes(module, client):
     datacenter = module.params.get('datacenter')
     server = module.params.get('server')
-    depth = module.params.get('depth', 1)
+    depth = module.params.get('depth')
     volumes_api = ionoscloud.VolumesApi(api_client=client)
     servers_api = ionoscloud.ServersApi(api_client=client)
     datacenters_api = ionoscloud.DataCentersApi(api_client=client)
@@ -180,14 +215,12 @@ def get_volumes(module, client):
         server_id = get_resource_id(module, server_list, server)
 
     if server_id is not None:
-        volume_items = servers_api.datacenters_servers_volumes_get(datacenter_id, server_id, depth=depth).items
+        volumes = servers_api.datacenters_servers_volumes_get(datacenter_id, server_id, depth=depth)
     else:
-        volume_items = volumes_api.datacenters_volumes_get(datacenter_id, depth=depth).items
+        volumes = volumes_api.datacenters_volumes_get(datacenter_id, depth=depth)
 
     try:
-        results = []
-        for volume in volume_items:
-            results.append(volume.to_dict())
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, volumes.items)))
         return {
             'action': 'info',
             'changed': False,

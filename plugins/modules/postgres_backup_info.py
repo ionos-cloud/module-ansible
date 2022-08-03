@@ -29,6 +29,15 @@ OPTIONS = {
         'available': STATES,
         'type': 'str',
     },
+    'filters': {
+        'description': [
+            'Filter that can be used to list only objects which have a certain set of propeties. Filters '
+            'should be a dict with a key containing keys and value pair in the following format:'
+            "'properties.name': 'server_name'"
+        ],
+        'available': STATES,
+        'type': 'dict',
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -99,6 +108,31 @@ EXAMPLES = '''
         debug:
             var: postgres_clusters_response.result
 '''
+
+
+def get_method_from_filter(filter):
+    key, value = filter
+    def method(item):
+        current = item
+        for key_part in key.split('.'):
+            current = getattr(current, key_part)
+        return current == value
+    return method
+
+
+def apply_filters_to_item(filter_list):
+    def f(item):
+        return all([f(item) for f in filter_list])
+    return f
+
+
+def apply_filters(module, item_list):
+    filters = module.params.get('filters')
+    if not filters:
+        return item_list    
+    filter_methods = list(map(get_method_from_filter, filters.items()))
+
+    return filter(apply_filters_to_item(filter_methods), item_list)
 
 
 def _get_matched_resources(resource_list, identity, identity_paths=None):
@@ -218,6 +252,8 @@ def main():
 
     check_required_arguments(module, OBJECT_NAME)
 
+    backups_api = ionoscloud_dbaas_postgres.BackupsApi(dbaas_postgres_api_client)
+
     try:
         results = []
         backups = []
@@ -232,13 +268,11 @@ def main():
                 [['id'], ['properties', 'display_name']],
             )
 
-            backups = ionoscloud_dbaas_postgres.BackupsApi(dbaas_postgres_api_client).cluster_backups_get(
-                postgres_cluster_id).items
+            backups = backups_api.cluster_backups_get(postgres_cluster_id)
         else:
-            backups = ionoscloud_dbaas_postgres.BackupsApi(dbaas_postgres_api_client).clusters_backups_get().items
+            backups = backups_api.clusters_backups_get()
 
-        for cluster in backups:
-            results.append(cluster.to_dict())
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, backups.items)))
 
         module.exit_json(result=results)
     except Exception as e:
