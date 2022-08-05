@@ -35,10 +35,6 @@ DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Datacenter'
 
-NO_ACTION = 0
-UPDATE = 1
-REPLACE = 2
-
 OPTIONS = {
     'name': {
         'description': ['The name of the virtual datacenter.'],
