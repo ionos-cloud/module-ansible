@@ -19,7 +19,7 @@
 
     - name: Update datacenter
       datacenter:
-        id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ datacenter }}"
         description: "{{ description }} - RENAMED"
         state: update
@@ -31,7 +31,7 @@
 
     - name: Remove datacenter
       datacenter:
-        id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ datacenter }}"
         state: absent
         wait: true
@@ -39,7 +39,7 @@
 
     - name: Remove datacenter
       datacenter:
-        id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ datacenter }}"
         state: absent
         wait: true

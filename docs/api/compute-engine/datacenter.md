@@ -53,7 +53,7 @@ This is a simple module that supports creating or removing vDCs. A vDC is requir
   | :--- | :---: | :--- | :--- | :--- |
   | name | True | str |  | The name of the virtual datacenter. |
   | description | False | str |  | The description of the virtual datacenter. |
-  | location | True | str | us/las | The datacenter location. |
+  | location | True | str |  | The datacenter location. |
   | replace | False | bool | False | Boolean indincating if the resource shoul be recreated if an update cannot be performed in order to reach the desired state. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -81,7 +81,6 @@ This is a simple module that supports creating or removing vDCs. A vDC is requir
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the virtual datacenter. |
   | datacenter | True | str |  | The ID or name of the virtual datacenter. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -113,6 +112,7 @@ This is a simple module that supports creating or removing vDCs. A vDC is requir
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the virtual datacenter. |
   | description | False | str |  | The description of the virtual datacenter. |
+  | location | False | str |  | The datacenter location. |
   | datacenter | True | str |  | The ID or name of the virtual datacenter. |
   | replace | False | bool | False | Boolean indincating if the resource shoul be recreated if an update cannot be performed in order to reach the desired state. |
   | api_url | False | str |  | The Ionos API base URL. |
