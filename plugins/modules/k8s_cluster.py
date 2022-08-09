@@ -1,3 +1,4 @@
+from socket import timeout
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible import __version__
@@ -28,6 +29,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'managed-kubernetes'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'K8s Cluster'
+RETURNED_KEY = 'cluster'
 
 OPTIONS = {
     'cluster_name': {
@@ -36,8 +38,8 @@ OPTIONS = {
         'required': ['present', 'update'],
         'type': 'str',
     },
-    'k8s_cluster_id': {
-        'description': ['The ID of the K8s cluster.'],
+    'k8s_cluster': {
+        'description': ['The ID or name of the K8s cluster.'],
         'available': ['update', 'absent'],
         'required': ['update', 'absent'],
         'type': 'str',
@@ -208,172 +210,241 @@ def get_resource(module, resource_list, identity, identity_paths=None):
 def get_resource_id(module, resource_list, identity, identity_paths=None):
     resource = get_resource(module, resource_list, identity, identity_paths)
     return resource.id if resource is not None else None
-    
-
-def _get_request_id(headers):
-    match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
-    if match:
-        return match.group(1)
-    else:
-        raise Exception("Failed to extract request ID from response "
-                        "header 'location': '{location}'".format(location=headers['location']))
 
 
-def create_k8s_cluster(module, client):
+def should_replace_object(module, existing_object):
+    return False
+
+
+def should_update_object(module, existing_object):
+    with open('debug.txt','a') as f:
+        f.write(str([existing_object]))
+    return (
+        module.params.get('cluster_name') is not None
+        and existing_object.properties.name != module.params.get('cluster_name')
+        or module.params.get('k8s_version') is not None
+        and existing_object.properties.k8s_version != module.params.get('k8s_version')
+        or module.params.get('maintenance_window') is not None
+        and (
+            existing_object.properties.maintenance_window.day_of_the_week != module.params.get('maintenance_window').get('day_of_the_week')
+            or existing_object.properties.maintenance_window.time != module.params.get('maintenance_window').get('time')
+        ) or module.params.get('api_subnet_allow_list') is not None
+        and existing_object.properties.api_subnet_allow_list != module.params.get('api_subnet_allow_list')
+        or module.params.get('s3_buckets_param') is not None
+        and existing_object.properties.s3_buckets != module.params.get('s3_buckets_param')
+    )
+
+
+def update_replace_object(module, client, existing_object):
+    if should_replace_object(module, existing_object):
+        # Replace
+        if module.params.get('replace'):
+            _remove_object(module, client, existing_object.id)
+            return {
+                'changed': True,
+                'failed': False,
+                'action': 'create',
+                RETURNED_KEY: _create_object(module, client, existing_object).to_dict()
+            }
+        else:
+            module.fail_json(
+                msg="The desired resource state can only be reached by recreating the resource and replace' "
+                    "is currently set to False. If you wish to recreate it please set 'replace' to True",
+            )
+
+    if should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object.id).to_dict()
+        }
+
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def _create_object(module, client, existing_object=None):
     cluster_name = module.params.get('cluster_name')
     k8s_version = module.params.get('k8s_version')
     maintenance = module.params.get('maintenance_window')
-    wait = module.params.get('wait')
     api_subnet_allow_list = module.params.get('api_subnet_allow_list')
-    s3_buckets = list(map(lambda bucket_name: S3Bucket(name=bucket_name))) if module.params.get('s3_buckets') else None
+    s3_buckets = list(map(lambda bucket_name: S3Bucket(name=bucket_name), module.params.get('s3_buckets_param'))) if module.params.get('s3_buckets_param') else None
 
     maintenance_window = None
     if maintenance:
         maintenance_window = dict(maintenance)
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
-    k8s_server = ionoscloud.KubernetesApi(api_client=client)
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        k8s_version = existing_object.properties.k8s_version if k8s_version is None else k8s_version
+        api_subnet_allow_list = existing_object.properties.api_subnet_allow_list if api_subnet_allow_list is None else api_subnet_allow_list
+        s3_buckets = existing_object.properties.s3_buckets if s3_buckets is None else s3_buckets
+        maintenance = existing_object.properties.maintenance_window if maintenance is None else maintenance
 
-    existing_cluster = get_resource(module, k8s_server.k8s_get(depth=2), cluster_name)
+    wait = module.params.get('wait')
+    wait_timeout = int(module.params.get('wait_timeout'))
 
-    if module.check_mode:
-        module.exit_json(changed=False)
-
-    if existing_cluster:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'cluster': existing_cluster.to_dict(),
-        }
+    k8s_api = ionoscloud.KubernetesApi(api_client=client)
+    
+    k8s_cluster_properties = KubernetesClusterProperties(
+        name=cluster_name,
+        k8s_version=k8s_version,
+        maintenance_window=maintenance_window,
+        api_subnet_allow_list=api_subnet_allow_list,
+        s3_buckets=s3_buckets,
+    )
+    k8s_cluster = KubernetesCluster(properties=k8s_cluster_properties)
 
     try:
-        k8s_cluster_properties = KubernetesClusterProperties(
-            name=cluster_name,
-            k8s_version=k8s_version,
-            maintenance_window=maintenance_window,
-            api_subnet_allow_list=api_subnet_allow_list,
-            s3_buckets=s3_buckets,
-        )
-        k8s_cluster = KubernetesCluster(properties=k8s_cluster_properties)
-
-        k8s_response = k8s_server.k8s_post(kubernetes_cluster=k8s_cluster)
+        k8s_response = k8s_api.k8s_post(kubernetes_cluster=k8s_cluster)
 
         if wait:
             client.wait_for(
-                fn_request=lambda: k8s_server.k8s_get(depth=2),
+                fn_request=lambda: k8s_api.k8s_get(depth=2),
                 fn_check=lambda r: list(filter(
                     lambda e: e.properties.name == cluster_name,
                     r.items
                 ))[0].metadata.state == 'ACTIVE',
-                scaleup=10000
+                scaleup=10000,
+                timeout=wait_timeout,
             )
-
-        results = {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            'cluster': k8s_response.to_dict()
-        }
-
-        return results
-
-    except Exception as e:
-        module.fail_json(
-            msg="failed to create the k8s cluster: %s" % to_native(e))
+    except ApiException as e:
+        module.fail_json(msg="failed to create the new {}: {}".format(OBJECT_NAME, to_native(e)))
+    return k8s_response
 
 
-def delete_k8s_cluster(module, client):
-    k8s_cluster_id = module.params.get('k8s_cluster_id')
+def _update_object(module, client, object_id):
+
+    cluster_name = module.params.get('cluster_name')
+    k8s_version = module.params.get('k8s_version')
+    maintenance = module.params.get('maintenance_window')
+    api_subnet_allow_list = module.params.get('api_subnet_allow_list')
+
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
-    changed = False
 
-    k8s_server = ionoscloud.KubernetesApi(api_client=client)
-    k8s_cluster = get_resource(module, k8s_server.k8s_get(depth=2), k8s_cluster_id)
+    s3_buckets = list(map(lambda bucket_name: S3Bucket(name=bucket_name), module.params.get('s3_buckets_param'))) if module.params.get('s3_buckets_param') else None
 
-    if not k8s_cluster:
-        module.exit_json(changed=False)
+    maintenance_window = dict(maintenance)
+    maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
+    kubernetes_cluster_properties = KubernetesClusterPropertiesForPut(
+        name=cluster_name,
+        k8s_version=k8s_version,
+        s3_buckets=s3_buckets,
+        api_subnet_allow_list=api_subnet_allow_list,
+        maintenance_window=maintenance_window,
+    )
+    kubernetes_cluster = KubernetesClusterForPut(properties=kubernetes_cluster_properties)
+
+    k8s_api = ionoscloud.KubernetesApi(api_client=client)
+
+    if module.check_mode:
+        module.exit_json(changed=True)
+    try:
+        k8s_response = k8s_api.k8s_put(k8s_cluster_id=object_id, kubernetes_cluster=kubernetes_cluster)
+        if wait:
+            client.wait_for(
+                fn_request=lambda: k8s_api.k8s_get(depth=2),
+                fn_check=lambda r: list(filter(
+                    lambda e: e.properties.name == cluster_name,
+                    r.items
+                ))[0].metadata.state == 'ACTIVE',
+                scaleup=10000,
+                timeout=wait_timeout,
+            )
+
+        return k8s_response
+    except ApiException as e:
+        module.fail_json(msg="failed to update the {}: {}".format(OBJECT_NAME, to_native(e)))
+
+
+def _remove_object(module, client, k8s_cluster):
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    k8s_api = ionoscloud.KubernetesApi(api_client=client)
 
     try:
         if k8s_cluster.metadata.state != 'DESTROYING':
-            k8s_server.k8s_delete_with_http_info(k8s_cluster_id=k8s_cluster_id)
+            k8s_api.k8s_delete_with_http_info(k8s_cluster_id=k8s_cluster.id)
 
         if wait:
             client.wait_for(
-                fn_request=lambda: k8s_server.k8s_get(depth=1),
+                fn_request=lambda: k8s_api.k8s_get(depth=1),
                 fn_check=lambda r: len(list(filter(
-                    lambda e: e.id == k8s_cluster_id,
+                    lambda e: e.id == k8s_cluster.id,
                     r.items
                 ))) < 1,
                 console_print='.',
-                scaleup=10000
+                scaleup=10000,
+                timeout=wait_timeout,
             )
-        changed = True
     except Exception as e:
-        module.fail_json(
-            msg="failed to delete the k8s cluster: %s" % to_native(e))
+        module.fail_json(msg="failed to delete the {}: {}".format(OBJECT_NAME, to_native(e)))
+
+
+def create_k8s_cluster(module, client):
+    cluster_name = module.params.get('cluster_name')
+    existing_cluster = get_resource(module, ionoscloud.KubernetesApi(client).k8s_get(depth=2), cluster_name)
+
+    if existing_cluster:
+        return update_replace_object(module, client, existing_cluster)
+
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        'datacenter': _create_object(module, client).to_dict()
+    }
+
+
+def delete_k8s_cluster(module, client):
+    k8s_cluster_list = ionoscloud.KubernetesApi(client).k8s_get(depth=1)
+
+    k8s_cluster = get_resource(module, k8s_cluster_list, module.params.get('k8s_cluster'))
+
+    if k8s_cluster is None:
+        module.exit_json(changed=False)
+    
+    _remove_object(module, client, k8s_cluster)
 
     return {
         'action': 'delete',
-        'changed': changed,
-        'id': k8s_cluster_id
+        'changed': True,
+        'id': k8s_cluster.id,
     }
 
 
 def update_k8s_cluster(module, client):
     cluster_name = module.params.get('cluster_name')
-    k8s_version = module.params.get('k8s_version')
-    k8s_cluster_id = module.params.get('k8s_cluster_id')
-    maintenance = module.params.get('maintenance_window')
-    api_subnet_allow_list = module.params.get('api_subnet_allow_list')
-    s3_buckets = list(map(lambda bucket_name: S3Bucket(name=bucket_name))) if module.params.get('s3_buckets') else None
+    k8s_cluster_list = ionoscloud.KubernetesApi(client).k8s_get(depth=1)
+    k8s_cluster = get_resource(module, k8s_cluster_list, module.params.get('k8s_cluster'))
 
-    maintenance_window = dict(maintenance)
-    maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
+    if k8s_cluster is None:
+        module.exit_json(changed=False)
 
-    k8s_server = ionoscloud.KubernetesApi(api_client=client)
-    k8s_response = None
-    
-    existing_cluster_id_by_name = get_resource_id(module, k8s_server.k8s_get(depth=2), cluster_name)
+    existing_cluster_id_by_name = get_resource_id(module, k8s_cluster_list, cluster_name)
 
-    if k8s_cluster_id is not None and existing_cluster_id_by_name is not None and existing_cluster_id_by_name != k8s_cluster_id:
-            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, cluster_name))
-
-    if module.check_mode:
-        module.exit_json(changed=True)
-    try:
-        kubernetes_cluster_properties = KubernetesClusterPropertiesForPut(
-            name=cluster_name,
-            k8s_version=k8s_version,
-            s3_buckets=s3_buckets,
-            api_subnet_allow_list=api_subnet_allow_list,
-            maintenance_window=maintenance_window,
-        )
-        kubernetes_cluster = KubernetesClusterForPut(properties=kubernetes_cluster_properties)
-        k8s_response = k8s_server.k8s_put(k8s_cluster_id=k8s_cluster_id, kubernetes_cluster=kubernetes_cluster)
-
-        if module.params.get('wait'):
-            client.wait_for(
-                fn_request=lambda: k8s_server.k8s_get(depth=2),
-                fn_check=lambda r: list(filter(
-                    lambda e: e.properties.name == cluster_name,
-                    r.items
-                ))[0].metadata.state == 'ACTIVE',
-                scaleup=10000
+    if (
+        k8s_cluster.id is not None
+        and existing_cluster_id_by_name is not None
+        and existing_cluster_id_by_name != k8s_cluster.id
+    ):
+            module.fail_json(
+                msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                    OBJECT_NAME, cluster_name,
+                ),
             )
-        changed = True
-    except Exception as e:
-        module.fail_json(
-            msg="failed to update the k8s cluster: %s" % to_native(e))
-        changed = False
 
-    return {
-        'changed': changed,
-        'failed': False,
-        'action': 'update',
-        'cluster': k8s_response.to_dict()
-    }
+    return update_replace_object(module, client, k8s_cluster)
 
 
 def get_module_arguments():
