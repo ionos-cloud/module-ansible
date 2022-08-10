@@ -242,22 +242,14 @@ def should_update_object(module, existing_object):
 
 
 def update_replace_object(module, client, existing_object):
-    if should_replace_object(module, existing_object):
-        # Replace
-        if module.params.get('replace'):
-            _remove_object(module, client, existing_object.id)
-            return {
-                'changed': True,
-                'failed': False,
-                'action': 'create',
-                RETURNED_KEY: _create_object(module, client, existing_object).to_dict()
-            }
-        else:
-            module.fail_json(
-                msg="The desired resource state can only be reached by recreating the resource and replace' "
-                    "is currently set to False. If you wish to recreate it please set 'replace' to True",
-            )
-
+    if module.params.get('replace') and should_replace_object(module, existing_object):
+        _remove_object(module, client, existing_object.id)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: _create_object(module, client, existing_object).to_dict()
+        }
     if should_update_object(module, existing_object):
         # Update
         return {
