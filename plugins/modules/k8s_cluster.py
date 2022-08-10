@@ -217,8 +217,6 @@ def should_replace_object(module, existing_object):
 
 
 def should_update_object(module, existing_object):
-    with open('debug.txt','a') as f:
-        f.write(str([existing_object]))
     return (
         module.params.get('cluster_name') is not None
         and existing_object.properties.name != module.params.get('cluster_name')
@@ -229,9 +227,9 @@ def should_update_object(module, existing_object):
             existing_object.properties.maintenance_window.day_of_the_week != module.params.get('maintenance_window').get('day_of_the_week')
             or existing_object.properties.maintenance_window.time != module.params.get('maintenance_window').get('time')
         ) or module.params.get('api_subnet_allow_list') is not None
-        and existing_object.properties.api_subnet_allow_list != module.params.get('api_subnet_allow_list')
+        and existing_object.properties.api_subnet_allow_list.sort() != module.params.get('api_subnet_allow_list').sort()
         or module.params.get('s3_buckets_param') is not None
-        and existing_object.properties.s3_buckets != module.params.get('s3_buckets_param')
+        and list(map(lambda o: o.name, existing_object.properties.s3_buckets)).sort() != module.params.get('s3_buckets_param').sort()
     )
 
 
