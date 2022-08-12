@@ -212,7 +212,7 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def should_replace_object(module, existing_object):
+def should_replace_object(*args, **kwargs):
     return False
 
 
@@ -234,29 +234,21 @@ def should_update_object(module, existing_object):
 
 
 def update_replace_object(module, client, existing_object):
-    if should_replace_object(module, existing_object):
-        # Replace
-        if module.params.get('replace'):
-            _remove_object(module, client, existing_object.id)
-            return {
-                'changed': True,
-                'failed': False,
-                'action': 'create',
-                RETURNED_KEY: _create_object(module, client, existing_object).to_dict()
-            }
-        else:
-            module.fail_json(
-                msg="The desired resource state can only be reached by recreating the resource and replace' "
-                    "is currently set to False. If you wish to recreate it please set 'replace' to True",
-            )
-
+    if module.params.get('replace') and should_replace_object(module, existing_object):
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: _create_object(module, client, existing_object).to_dict()
+        }
     if should_update_object(module, existing_object):
         # Update
         return {
             'changed': True,
             'failed': False,
             'action': 'update',
-            RETURNED_KEY: _update_object(module, client, existing_object.id).to_dict()
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
         }
 
     # No action
@@ -319,7 +311,7 @@ def _create_object(module, client, existing_object=None):
     return k8s_response
 
 
-def _update_object(module, client, object_id):
+def _update_object(module, client, existing_object):
 
     cluster_name = module.params.get('cluster_name')
     k8s_version = module.params.get('k8s_version')
@@ -347,7 +339,7 @@ def _update_object(module, client, object_id):
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        k8s_response = k8s_api.k8s_put(k8s_cluster_id=object_id, kubernetes_cluster=kubernetes_cluster)
+        k8s_response = k8s_api.k8s_put(k8s_cluster_id=existing_object.id, kubernetes_cluster=kubernetes_cluster)
         if wait:
             client.wait_for(
                 fn_request=lambda: k8s_api.k8s_get(depth=2),
@@ -364,21 +356,21 @@ def _update_object(module, client, object_id):
         module.fail_json(msg="failed to update the {}: {}".format(OBJECT_NAME, to_native(e)))
 
 
-def _remove_object(module, client, k8s_cluster):
+def _remove_object(module, client, existing_object):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
     k8s_api = ionoscloud.KubernetesApi(api_client=client)
 
     try:
-        if k8s_cluster.metadata.state != 'DESTROYING':
-            k8s_api.k8s_delete_with_http_info(k8s_cluster_id=k8s_cluster.id)
+        if existing_object.metadata.state != 'DESTROYING':
+            k8s_api.k8s_delete_with_http_info(k8s_cluster_id=existing_object.id)
 
         if wait:
             client.wait_for(
                 fn_request=lambda: k8s_api.k8s_get(depth=1),
                 fn_check=lambda r: len(list(filter(
-                    lambda e: e.id == k8s_cluster.id,
+                    lambda e: e.id == existing_object.id,
                     r.items
                 ))) < 1,
                 console_print='.',

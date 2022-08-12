@@ -295,7 +295,7 @@ def _create_object(module, client, existing_object=None):
     return datacenter_response
 
 
-def _update_object(module, client, datacenter_id):
+def _update_object(module, client, existing_object):
     name = module.params.get('name')
     description = module.params.get('description')
     wait = module.params.get('wait')
@@ -309,7 +309,7 @@ def _update_object(module, client, datacenter_id):
         module.exit_json(changed=True)
     try:
         datacenter_response, _, headers = datacenters_api.datacenters_patch_with_http_info(
-            datacenter_id=datacenter_id,
+            datacenter_id=existing_object.id,
             datacenter=datacenter_properties,
         )
         if wait:
@@ -321,7 +321,7 @@ def _update_object(module, client, datacenter_id):
         module.fail_json(msg="failed to update the datacenter: %s" % to_native(e))
 
 
-def _remove_object(module, client, datacenter_id):
+def _remove_object(module, client, existing_object):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
@@ -331,7 +331,7 @@ def _remove_object(module, client, datacenter_id):
         module.exit_json(changed=True)
     try:
         _, _, headers = datacenters_api.datacenters_delete_with_http_info(
-            datacenter_id=datacenter_id,
+            datacenter_id=existing_object.id,
         )
         if wait:
             request_id = _get_request_id(headers['Location'])

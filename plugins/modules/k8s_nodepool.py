@@ -1,3 +1,4 @@
+from socket import timeout
 import time
 import re
 import copy
@@ -30,29 +31,30 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'managed-kubernetes'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'K8s Nodepool'
+RETURNED_KEY = 'nodepool'
 
 OPTIONS = {
-    'nodepool_name': {
-        'description': ['The name of the K8s Nodepool.'],
-        'available': ['update', 'present'],
-        'required': ['present'],
-        'type': 'str',
-    },
     'k8s_cluster_id': {
         'description': ['The ID of the K8s cluster.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
     },
+    'k8s_nodepool': {
+        'description': ['The ID or name of the K8s nodepool.'],
+        'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
+        'type': 'str',
+    },
+    'nodepool_name': {
+        'description': ['The name of the K8s Nodepool.'],
+        'available': ['update', 'present'],
+        'required': ['present'],
+        'type': 'str',
+    },
     'k8s_version': {
         'description': ['The Kubernetes version the nodepool is running.'],
         'available': ['update', 'present'],
-        'type': 'str',
-    },
-    'nodepool_id': {
-        'description': ['The ID of the K8s nodepool.'],
-        'available': ['update', 'absent'],
-        'required': ['update', 'absent'],
         'type': 'str',
     },
     'datacenter_id': {
@@ -74,37 +76,37 @@ OPTIONS = {
     },
     'cpu_family': {
         'description': ['A valid CPU family name.'],
-        'available': ['present'],
+        'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
     },
     'cores_count': {
         'description': ['The number of cores for the node.'],
-        'available': ['present'],
+        'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
     },
     'ram_size': {
         'description': ['The RAM size for the node. Must be set in multiples of 1024 MB, with minimum size is of 2048 MB.'],
-        'available': ['present'],
+        'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
     },
     'availability_zone': {
         'description': ['The availability zone in which the target VM should be provisioned.'],
-        'available': ['present'],
+        'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
     },
     'storage_type': {
         'description': ['The type of hardware for the volume.'],
-        'available': ['present'],
+        'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
     },
     'storage_size': {
         'description': ['The size of the volume in GB. The size should be greater than 10GB.'],
-        'available': ['present'],
+        'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
     },
@@ -300,7 +302,82 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def create_k8s_cluster_nodepool(module, client):
+def should_replace_object(module, existing_object):
+    return (
+        module.params.get('cpu_family') is not None
+        and existing_object.properties.cpu_family != module.params.get('cpu_family')
+        or module.params.get('cores_count') is not None
+        and existing_object.properties.cores_count != module.params.get('cores_count')
+        or module.params.get('ram_size') is not None
+        and existing_object.properties.ram_size != module.params.get('ram_size')
+        or module.params.get('availability_zone') is not None
+        and existing_object.properties.availability_zone != module.params.get('availability_zone')
+        or module.params.get('storage_type') is not None
+        and existing_object.properties.storage_type != module.params.get('storage_type')
+        or module.params.get('storage_size') is not None
+        and existing_object.properties.storage_size != module.params.get('storage_size')
+        or module.params.get('datacenter_id') is not None
+        and existing_object.properties.datacenter_id != module.params.get('datacenter_id')
+    )
+
+
+def should_update_object(module, existing_object):
+    return (
+        module.params.get('cluster_name') is not None
+        and existing_object.properties.name != module.params.get('cluster_name')
+        or module.params.get('k8s_version') is not None
+        and existing_object.properties.k8s_version != module.params.get('k8s_version')
+        or module.params.get('maintenance_window') is not None
+        and (
+            existing_object.properties.maintenance_window.day_of_the_week != module.params.get('maintenance_window').get('day_of_the_week')
+            or existing_object.properties.maintenance_window.time != module.params.get('maintenance_window').get('time')
+        )
+        or module.params.get('lan_ids') is not None
+        and existing_object.properties.lan_ids.sort() != module.params.get('lan_ids').sort()
+        or module.params.get('public_ips') is not None
+        and existing_object.properties.public_ips.sort() != module.params.get('public_ips').sort()
+        or module.params.get('node_count') is not None
+        and existing_object.properties.node_count != module.params.get('node_count')
+        or module.params.get('labels') is not None
+        and existing_object.properties.labels.sort() != module.params.get('labels').sort()
+        or module.params.get('annotations') is not None
+        and existing_object.properties.annotations.sort() != module.params.get('annotations').sort()
+        or module.params.get('auto_scaling') is not None
+        and (
+            existing_object.properties.auto_scaling.min_node_count != module.params.get('auto_scaling').get('min_node_count')
+            or existing_object.properties.auto_scaling.max_node_count != module.params.get('auto_scaling').get('max_node_count')
+        )
+    )
+
+
+def update_replace_object(module, client, existing_object):
+    if module.params.get('replace') and should_replace_object(module, existing_object):
+        _remove_object(module, client, existing_object.id)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: _create_object(module, client, existing_object).to_dict()
+        }
+    if should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
+        }
+
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def _create_object(module, client, existing_object=None):
     k8s_cluster_id = module.params.get('k8s_cluster_id')
     k8s_version = module.params.get('k8s_version')
     nodepool_name = module.params.get('nodepool_name')
@@ -320,7 +397,10 @@ def create_k8s_cluster_nodepool(module, client):
     wait = module.params.get('wait')
     public_ips = module.params.get('public_ips')
 
-    k8s_server = ionoscloud.KubernetesApi(api_client=client)
+    maintenance_window = None
+    if maintenance:
+        maintenance_window = dict(maintenance)
+        maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
     auto_scaling = None
     if auto_scaling_dict:
@@ -328,123 +408,82 @@ def create_k8s_cluster_nodepool(module, client):
         auto_scaling['minNodeCount'] = auto_scaling.pop('min_node_count')
         auto_scaling['maxNodeCount'] = auto_scaling.pop('max_node_count')
 
-    maintenance_window = None
-    if maintenance:
-        maintenance_window = dict(maintenance)
-        maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
+    if existing_object is not None:
+        nodepool_name = existing_object.properties.name if nodepool_name is None else nodepool_name
+        k8s_version = existing_object.properties.k8s_version if k8s_version is None else k8s_version
+        lan_ids = existing_object.properties.lan_ids if lan_ids is None else lan_ids
+        datacenter_id = existing_object.properties.datacenter_id if datacenter_id is None else datacenter_id
+        node_count = existing_object.properties.node_count if node_count is None else node_count
+        cpu_family = existing_object.properties.cpu_family if cpu_family is None else cpu_family
+        cores_count = existing_object.properties.cores_count if cores_count is None else cores_count
+        ram_size = existing_object.properties.ram_size if ram_size is None else ram_size
+        availability_zone = existing_object.properties.availability_zone if availability_zone is None else availability_zone
+        storage_type = existing_object.properties.storage_type if storage_type is None else storage_type
+        storage_size = existing_object.properties.storage_size if storage_size is None else storage_size
+        labels = existing_object.properties.labels if labels is None else labels
+        annotations = existing_object.properties.annotations if annotations is None else annotations
+        maintenance = existing_object.properties.maintenance_window if maintenance is None else maintenance
+        auto_scaling = existing_object.properties.auto_scaling if auto_scaling is None else auto_scaling
 
-    nodepool_list = k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=1)
+    wait = module.params.get('wait')
+    wait_timeout = int(module.params.get('wait_timeout'))
 
-    existing_nodepool = get_resource(module, nodepool_list, nodepool_name)
+    k8s_nodepool_properties = KubernetesNodePoolProperties(
+        name=nodepool_name,
+        datacenter_id=datacenter_id,
+        node_count=node_count,
+        cpu_family=cpu_family,
+        cores_count=cores_count,
+        ram_size=ram_size,
+        availability_zone=availability_zone,
+        storage_type=storage_type,
+        storage_size=storage_size,
+        k8s_version=k8s_version,
+        maintenance_window=maintenance_window,
+        auto_scaling=auto_scaling,
+        lans=lan_ids,
+        labels=labels,
+        annotations=annotations,
+        public_ips=public_ips,
+    )
+    k8s_nodepool = KubernetesNodePool(properties=k8s_nodepool_properties)
 
-    if existing_nodepool:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'datacenter': existing_nodepool.to_dict()
-        }
+    k8s_api = ionoscloud.KubernetesApi(api_client=client)
 
     try:
-        k8s_nodepool_properties = KubernetesNodePoolProperties(
-            name=nodepool_name,
-            datacenter_id=datacenter_id,
-            node_count=node_count,
-            cpu_family=cpu_family,
-            cores_count=cores_count,
-            ram_size=ram_size,
-            availability_zone=availability_zone,
-            storage_type=storage_type,
-            storage_size=storage_size,
-            k8s_version=k8s_version,
-            maintenance_window=maintenance_window,
-            auto_scaling=auto_scaling,
-            lans=lan_ids,
-            labels=labels,
-            annotations=annotations,
-            public_ips=public_ips,
-        )
-
-        k8s_nodepool = KubernetesNodePool(properties=k8s_nodepool_properties)
-
-        k8s_response= k8s_server.k8s_nodepools_post(k8s_cluster_id=k8s_cluster_id, kubernetes_node_pool=k8s_nodepool)
+        k8s_response = k8s_api.k8s_nodepools_post(k8s_cluster_id=k8s_cluster_id, kubernetes_node_pool=k8s_nodepool)
 
         if wait:
             client.wait_for(
-                fn_request=lambda: k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=1),
-                fn_check=lambda r: list(filter(
-                    lambda e: e.properties.name == nodepool_name,
-                    r.items
-                ))[0].metadata.state == 'ACTIVE',
-                scaleup=10000
-            )
-
-        results = {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            'nodepool': k8s_response.to_dict()
-        }
-        return results
-
-    except Exception as e:
-        module.fail_json(msg="failed to create the k8s cluster nodepool: %s" % to_native(e))
+            fn_request=lambda: k8s_api.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=1),
+            fn_check=lambda r: list(filter(
+                lambda e: e.properties.name == nodepool_name,
+                r.items
+            ))[0].metadata.state == 'ACTIVE',
+            scaleup=10000,
+            timeout=wait_timeout,
+        )
+    except ApiException as e:
+        module.fail_json(msg="failed to create the new {}: {}".format(OBJECT_NAME, to_native(e)))
+    return k8s_response
 
 
-def delete_k8s_cluster_nodepool(module, client):
+def _update_object(module, client, existing_object):
     k8s_cluster_id = module.params.get('k8s_cluster_id')
-    nodepool_id = module.params.get('nodepool_id')
-
-    k8s_server = ionoscloud.KubernetesApi(api_client=client)
-
-    k8s_nodepool_list = k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=1)
-    k8s_nodepool = get_resource(module, k8s_nodepool_list, nodepool_id)
-
-    if not k8s_nodepool:
-        module.exit_json(changed=False)
-
-    changed = False
-
-    try:
-        if k8s_nodepool.metadata.state != 'DESTROYING':
-            k8s_server.k8s_nodepools_delete_with_http_info(k8s_cluster_id=k8s_cluster_id, nodepool_id=nodepool_id)
-        if module.params.get('wait'):
-            client.wait_for(
-                fn_request=lambda: k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=1),
-                fn_check=lambda r: len(list(filter(
-                    lambda e: e.id == nodepool_id,
-                    r.items
-                ))) < 1,
-                console_print='.',
-                scaleup=10000
-            )
-        changed = True
-
-    except Exception as e:
-        module.fail_json(msg="failed to delete the K8s Nodepool: %s" % to_native(e))
-
-    return {
-        'action': 'delete',
-        'changed': changed,
-        'nodepool_id': nodepool_id
-    }
-
-
-def update_k8s_cluster_nodepool(module, client):
-    k8s_cluster_id = module.params.get('k8s_cluster_id')
-    nodepool_id = module.params.get('nodepool_id')
     node_count = module.params.get('node_count')
     maintenance = module.params.get('maintenance_window')
     auto_scaling_dict = module.params.get('auto_scaling')
-    wait = module.params.get('wait')
     nodepool_name = module.params.get('nodepool_name')
     lan_ids = module.params.get('lan_ids')
     k8s_version = module.params.get('k8s_version')
     public_ips = module.params.get('public_ips')
     labels = module.params.get('labels')
     annotations = module.params.get('annotations')
+    wait = module.params.get('wait')
+    wait_timeout = int(module.params.get('wait_timeout'))
 
-    k8s_server = ionoscloud.KubernetesApi(api_client=client)
+    if not node_count:
+        node_count = existing_object.properties.node_count
 
     auto_scaling = None
     if auto_scaling_dict:
@@ -456,64 +495,136 @@ def update_k8s_cluster_nodepool(module, client):
     if maintenance:
         maintenance_window = dict(maintenance)
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
+        
+    k8s_nodepool_properties = KubernetesNodePoolPropertiesForPut(
+        name=nodepool_name,
+        node_count=node_count,
+        k8s_version=k8s_version,
+        maintenance_window=maintenance_window,
+        auto_scaling=auto_scaling,
+        lans=lan_ids,
+        public_ips=public_ips,
+        labels=labels,
+        annotations=annotations,
+    )
 
-    nodepool_list = k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=1)
-    existing_nodepool_by_name = get_resource(module, nodepool_list, nodepool_name)
+    k8s_nodepool = KubernetesNodePoolForPut(properties=k8s_nodepool_properties)
 
-    if nodepool_id is not None and existing_nodepool_by_name is not None and existing_nodepool_by_name.id != nodepool_id:
-        module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
-            OBJECT_NAME, nodepool_name,
-        ))
-
-    if not node_count:
-        node_count = existing_nodepool_by_name.properties.node_count
-
-    k8s_response = None
+    k8s_api = ionoscloud.KubernetesApi(api_client=client)
 
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        k8s_nodepool_properties = KubernetesNodePoolPropertiesForPut(
-            name=nodepool_name,
-            node_count=node_count,
-            k8s_version=k8s_version,
-            maintenance_window=maintenance_window,
-            auto_scaling=auto_scaling,
-            lans=lan_ids,
-            public_ips=public_ips,
-            labels=labels,
-            annotations=annotations,
-        )
-
-        k8s_nodepool = KubernetesNodePoolForPut(properties=k8s_nodepool_properties)
-        k8s_response = k8s_server.k8s_nodepools_put(
+        k8s_response = k8s_api.k8s_nodepools_put(
             k8s_cluster_id=k8s_cluster_id,
-            nodepool_id=nodepool_id,
+            nodepool_id=existing_object.id,
             kubernetes_node_pool=k8s_nodepool,
         )
 
         if wait:
             client.wait_for(
-                fn_request=lambda: k8s_server.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=1),
+                fn_request=lambda: k8s_api.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=1),
                 fn_check=lambda r: list(filter(
-                    lambda e: e.id == nodepool_id,
+                    lambda e: e.id == existing_object.id,
                     r.items
                 ))[0].metadata.state == 'ACTIVE',
-                scaleup=10000
+                scaleup=10000,
+                timeout=wait_timeout,
             )
 
-        changed = True
+        return k8s_response
+    except ApiException as e:
+        module.fail_json(msg="failed to update the {}: {}".format(OBJECT_NAME, to_native(e)))
 
+
+def _remove_object(module, client, existing_object):
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+    k8s_cluster_id = module.params.get('k8s_cluster_id')
+
+    k8s_api = ionoscloud.KubernetesApi(api_client=client)
+
+    try:
+        if existing_object.metadata.state != 'DESTROYING':
+            k8s_api.k8s_nodepools_delete_with_http_info(k8s_cluster_id=k8s_cluster_id, nodepool_id=k8s_nodepool.id)
+
+        if wait:
+            client.wait_for(
+                fn_request=lambda: k8s_api.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=1),
+                fn_check=lambda r: len(list(filter(
+                    lambda e: e.id == existing_object.id,
+                    r.items
+                ))) < 1,
+                console_print='.',
+                scaleup=10000,
+                timeout=wait_timeout,
+            )
     except Exception as e:
-        module.fail_json(msg="failed to update the nodepool: %s" % to_native(e))
-        changed = False
+        module.fail_json(msg="failed to delete the {}: {}".format(OBJECT_NAME, to_native(e)))
+
+
+def create_k8s_cluster_nodepool(module, client):
+    nodepool_name = module.params.get('nodepool_name')
+    k8s_cluster_id = module.params.get('k8s_cluster_id')
+
+    nodepool_list = ionoscloud.KubernetesApi(client).k8s_nodepool_get(k8s_cluster_id, depth=1)
+    existing_nodepool = get_resource(module, nodepool_list, nodepool_name)
+
+    if existing_nodepool:
+        return update_replace_object(module, client, existing_nodepool)
 
     return {
-        'changed': changed,
+        'changed': True,
         'failed': False,
-        'action': 'update',
-        'nodepool': k8s_response.to_dict()
+        'action': 'create',
+        'datacenter': _create_object(module, client).to_dict()
     }
+
+
+def delete_k8s_cluster_nodepool(module, client):
+    k8s_cluster_id = module.params.get('k8s_cluster_id')
+
+    k8s_nodepools_list = ionoscloud.KubernetesApi(client).k8s_nodepools_get(k8s_cluster_id, depth=1)
+
+    k8s_nodepool = get_resource(module, k8s_nodepools_list, module.params.get('k8s_nodepool'))
+
+    if k8s_nodepool is None:
+        module.exit_json(changed=False)
+    
+    _remove_object(module, client, k8s_nodepool)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': k8s_nodepool.id,
+    }
+
+
+def update_k8s_cluster_nodepool(module, client):
+    k8s_cluster_id = module.params.get('k8s_cluster_id')
+    nodepool_name = module.params.get('nodepool_name')
+
+    k8s_nodepools_list = ionoscloud.KubernetesApi(client).k8s_nodepools_get(k8s_cluster_id, depth=1)
+
+    k8s_nodepool = get_resource(module, k8s_nodepools_list, module.params.get('k8s_nodepool'))
+
+    if k8s_nodepool is None:
+        module.exit_json(changed=False)
+
+    existing_nodepool_id_by_name = get_resource_id(module, k8s_nodepools_list, module.params.get('nodepool_name'))
+
+    if (
+        k8s_nodepool.id is not None
+        and existing_nodepool_id_by_name is not None
+        and existing_nodepool_id_by_name != k8s_nodepool.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, nodepool_name,
+            ),
+        )
+
+    return update_replace_object(module, client, k8s_nodepool)
 
 
 def get_module_arguments():
