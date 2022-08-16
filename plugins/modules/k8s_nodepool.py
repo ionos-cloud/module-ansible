@@ -143,6 +143,15 @@ OPTIONS = {
         'type': 'list',
         'elements': 'str',
     },
+    'replace': {
+        'description': [
+            'Boolean indincating if the resource shoul be recreated if an update cannot be '
+            'performed in order to reach the desired state.',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -304,7 +313,9 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
 
 def should_replace_object(module, existing_object):
     return (
-        module.params.get('cpu_family') is not None
+        module.params.get('nodepool_name') is not None
+        and existing_object.properties.name != module.params.get('nodepool_name')
+        or module.params.get('cpu_family') is not None
         and existing_object.properties.cpu_family != module.params.get('cpu_family')
         or module.params.get('cores_count') is not None
         and existing_object.properties.cores_count != module.params.get('cores_count')
@@ -323,9 +334,7 @@ def should_replace_object(module, existing_object):
 
 def should_update_object(module, existing_object):
     return (
-        module.params.get('cluster_name') is not None
-        and existing_object.properties.name != module.params.get('cluster_name')
-        or module.params.get('k8s_version') is not None
+        module.params.get('k8s_version') is not None
         and existing_object.properties.k8s_version != module.params.get('k8s_version')
         or module.params.get('maintenance_window') is not None
         and (
@@ -333,15 +342,15 @@ def should_update_object(module, existing_object):
             or existing_object.properties.maintenance_window.time != module.params.get('maintenance_window').get('time')
         )
         or module.params.get('lan_ids') is not None
-        and existing_object.properties.lan_ids.sort() != module.params.get('lan_ids').sort()
+        and sorted(existing_object.properties.lan_ids.sort()) != sorted(module.params.get('lan_ids').sort())
         or module.params.get('public_ips') is not None
-        and existing_object.properties.public_ips.sort() != module.params.get('public_ips').sort()
+        and sorted(existing_object.properties.public_ips) != sorted(module.params.get('public_ips'))
         or module.params.get('node_count') is not None
         and existing_object.properties.node_count != module.params.get('node_count')
         or module.params.get('labels') is not None
-        and existing_object.properties.labels.sort() != module.params.get('labels').sort()
+        and existing_object.properties.labels != module.params.get('labels')
         or module.params.get('annotations') is not None
-        and existing_object.properties.annotations.sort() != module.params.get('annotations').sort()
+        and existing_object.properties.annotations != module.params.get('annotations')
         or module.params.get('auto_scaling') is not None
         and (
             existing_object.properties.auto_scaling.min_node_count != module.params.get('auto_scaling').get('min_node_count')
@@ -352,7 +361,7 @@ def should_update_object(module, existing_object):
 
 def update_replace_object(module, client, existing_object):
     if module.params.get('replace') and should_replace_object(module, existing_object):
-        _remove_object(module, client, existing_object.id)
+        _remove_object(module, client, existing_object)
         return {
             'changed': True,
             'failed': False,
@@ -411,7 +420,7 @@ def _create_object(module, client, existing_object=None):
     if existing_object is not None:
         nodepool_name = existing_object.properties.name if nodepool_name is None else nodepool_name
         k8s_version = existing_object.properties.k8s_version if k8s_version is None else k8s_version
-        lan_ids = existing_object.properties.lan_ids if lan_ids is None else lan_ids
+        lan_ids = existing_object.properties.lans if lan_ids is None else lan_ids
         datacenter_id = existing_object.properties.datacenter_id if datacenter_id is None else datacenter_id
         node_count = existing_object.properties.node_count if node_count is None else node_count
         cpu_family = existing_object.properties.cpu_family if cpu_family is None else cpu_family
@@ -473,7 +482,6 @@ def _update_object(module, client, existing_object):
     node_count = module.params.get('node_count')
     maintenance = module.params.get('maintenance_window')
     auto_scaling_dict = module.params.get('auto_scaling')
-    nodepool_name = module.params.get('nodepool_name')
     lan_ids = module.params.get('lan_ids')
     k8s_version = module.params.get('k8s_version')
     public_ips = module.params.get('public_ips')
@@ -497,7 +505,6 @@ def _update_object(module, client, existing_object):
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
         
     k8s_nodepool_properties = KubernetesNodePoolPropertiesForPut(
-        name=nodepool_name,
         node_count=node_count,
         k8s_version=k8s_version,
         maintenance_window=maintenance_window,
@@ -546,7 +553,7 @@ def _remove_object(module, client, existing_object):
 
     try:
         if existing_object.metadata.state != 'DESTROYING':
-            k8s_api.k8s_nodepools_delete_with_http_info(k8s_cluster_id=k8s_cluster_id, nodepool_id=k8s_nodepool.id)
+            k8s_api.k8s_nodepools_delete_with_http_info(k8s_cluster_id=k8s_cluster_id, nodepool_id=existing_object.id)
 
         if wait:
             client.wait_for(
@@ -567,7 +574,7 @@ def create_k8s_cluster_nodepool(module, client):
     nodepool_name = module.params.get('nodepool_name')
     k8s_cluster_id = module.params.get('k8s_cluster_id')
 
-    nodepool_list = ionoscloud.KubernetesApi(client).k8s_nodepool_get(k8s_cluster_id, depth=1)
+    nodepool_list = ionoscloud.KubernetesApi(client).k8s_nodepools_get(k8s_cluster_id, depth=1)
     existing_nodepool = get_resource(module, nodepool_list, nodepool_name)
 
     if existing_nodepool:

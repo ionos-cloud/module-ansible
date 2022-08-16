@@ -34,11 +34,17 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent']
 OBJECT_NAME = 'IP Block'
+RETURNED_KEY = 'ipblock'
 
 OPTIONS = {
+    'ipblock': {
+        'description': ['The name or ID of an existing IPBlock.'],
+        'required': ['absent'],
+        'available': ['absent'],
+        'type': 'str',
+    },
     'name': {
-        'description': ['The name or ID of the IPBlock.'],
-        'required': STATES,
+        'description': ['The name of the IPBlock.'],
         'available': STATES,
         'type': 'str',
     },
@@ -55,6 +61,15 @@ OPTIONS = {
         'available': ['present'],
         'default': 1,
         'type': 'int',
+    },
+    'replace': {
+        'description': [
+            'Boolean indincating if the resource shoul be recreated if an update cannot be '
+            'performed in order to reach the desired state.',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -200,6 +215,99 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
+def should_replace_object(module, existing_object):
+    return (
+        module.params.get('nodepool_name') is not None
+        and existing_object.properties.name != module.params.get('nodepool_name')
+        or module.params.get('cpu_family') is not None
+        and existing_object.properties.cpu_family != module.params.get('cpu_family')
+        or module.params.get('cores_count') is not None
+        and existing_object.properties.cores_count != module.params.get('cores_count')
+        or module.params.get('ram_size') is not None
+        and existing_object.properties.ram_size != module.params.get('ram_size')
+        or module.params.get('availability_zone') is not None
+        and existing_object.properties.availability_zone != module.params.get('availability_zone')
+        or module.params.get('storage_type') is not None
+        and existing_object.properties.storage_type != module.params.get('storage_type')
+        or module.params.get('storage_size') is not None
+        and existing_object.properties.storage_size != module.params.get('storage_size')
+        or module.params.get('datacenter_id') is not None
+        and existing_object.properties.datacenter_id != module.params.get('datacenter_id')
+    )
+
+
+def should_update_object(*args, **kwargs):
+    return False
+
+
+def update_replace_object(module, client, existing_object):
+    if module.params.get('replace') and should_replace_object(module, existing_object):
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: _create_object(module, client, existing_object).to_dict()
+        }
+    if should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
+        }
+
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def _create_object(module, client, existing_object=None):
+    name = module.params.get('name')
+    location = module.params.get('location')
+    size = module.params.get('size')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        location = existing_object.properties.location if location is None else location
+        size = existing_object.properties.size if size is None else size
+
+    ipblock_properties = IpBlockProperties(location=location, size=size, name=name)
+    ipblock = IpBlock(properties=ipblock_properties)
+
+    ipblocks_api = ionoscloud.IPBlocksApi(client)
+
+    try:
+        ipblock_response, _, headers = ipblocks_api.ipblocks_post_with_http_info(ipblock)
+
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to create the new {}: {}".format(OBJECT_NAME, to_native(e)))
+    return ipblock_response
+
+
+def _update_object(*args, **kwargs):
+    pass
+
+
+def _remove_object(module, client, existing_object):
+    ipblocks_api = ionoscloud.IPBlocksApi(client)
+
+    try:
+        ipblocks_api.ipblocks_delete(existing_object.id)
+    except Exception as e:
+        module.fail_json(msg="failed to delete the {}: {}".format(OBJECT_NAME, to_native(e)))
+
+
 def reserve_ipblock(module, client):
     """
     Creates an IPBlock.
@@ -211,46 +319,17 @@ def reserve_ipblock(module, client):
         The IPBlock instance
     """
     name = module.params.get('name')
-    location = module.params.get('location')
-    size = module.params.get('size')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-
-    ipblock_server = ionoscloud.IPBlocksApi(client)
-
-    existing_ipblock = get_resource(module, ipblock_server.ipblocks_get(depth=2), name)
+    existing_ipblock = get_resource(module, ionoscloud.IPBlocksApi(client).ipblocks_get(depth=2), name)
 
     if existing_ipblock:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'ipblock': existing_ipblock.to_dict()
-        }
+        return update_replace_object(module, client, existing_ipblock)
 
-    if module.check_mode:
-        module.exit_json(changed=False)
-
-    try:
-        ipblock_properties = IpBlockProperties(location=location, size=size, name=name)
-        ipblock = IpBlock(properties=ipblock_properties)
-
-        ipblock_response, _, headers = ipblock_server.ipblocks_post_with_http_info(ipblock)
-
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            'ipblock': ipblock_response.to_dict()
-        }
-
-
-    except Exception as e:
-        module.fail_json(msg="failed to create the IPBlock: %s" % to_native(e))
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        'datacenter': _create_object(module, client).to_dict()
+    }
 
 
 def delete_ipblock(module, client):
@@ -263,28 +342,20 @@ def delete_ipblock(module, client):
     Returns:
         True if the IPBlock was removed, false otherwise
     """
+
     name = module.params.get('name')
-    ipblock_server = ionoscloud.IPBlocksApi(client)
+    existing_ipblock = get_resource(module, ionoscloud.IPBlocksApi(client).ipblocks_get(depth=2), name)
 
-    # Locate UUID for the IPBlock
-    ipblock_id = get_resource_id(module, ipblock_server.ipblocks_get(depth=2), name)
-
-    if not ipblock_id:
+    if existing_ipblock is None:
         module.exit_json(changed=False)
+    
+    _remove_object(module, client, existing_ipblock)
 
-    if module.check_mode:
-        module.exit_json(changed=True)
-
-    try:
-        ipblock_server.ipblocks_delete(ipblock_id)
-        return {
-            'action': 'delete',
-            'changed': True,
-            'id': ipblock_id
-        }
-
-    except Exception as e:
-        module.fail_json(msg="failed to remove the IPBlock: %s" % to_native(e))
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_ipblock.id,
+    }
 
 
 def get_module_arguments():
