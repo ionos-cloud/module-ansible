@@ -75,7 +75,7 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | k8s_cluster_id | True | str |  | The ID of the K8s cluster. |
+  | k8s_cluster | True | str |  | The ID or name of the K8s cluster. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -106,7 +106,7 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | cluster_name | True | str |  | The name of the K8s cluster. |
-  | k8s_cluster_id | True | str |  | The ID of the K8s cluster. |
+  | k8s_cluster | True | str |  | The ID or name of the K8s cluster. |
   | k8s_version | True | str |  | The description of the virtual datacenter. |
   | maintenance_window | True | dict |  | The datacenter location. |
   | api_subnet_allow_list | False | list |  | The datacenter location. |

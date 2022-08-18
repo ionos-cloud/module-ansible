@@ -84,13 +84,13 @@ OPTIONS = {
         'description': ['The number of cores for the node.'],
         'available': ['update', 'present'],
         'required': ['present'],
-        'type': 'str',
+        'type': 'int',
     },
     'ram_size': {
         'description': ['The RAM size for the node. Must be set in multiples of 1024 MB, with minimum size is of 2048 MB.'],
         'available': ['update', 'present'],
         'required': ['present'],
-        'type': 'str',
+        'type': 'int',
     },
     'availability_zone': {
         'description': ['The availability zone in which the target VM should be provisioned.'],
@@ -108,7 +108,7 @@ OPTIONS = {
         'description': ['The size of the volume in GB. The size should be greater than 10GB.'],
         'available': ['update', 'present'],
         'required': ['present'],
-        'type': 'str',
+        'type': 'int',
     },
     'maintenance_window': {
         'description': [

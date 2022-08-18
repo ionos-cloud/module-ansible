@@ -217,22 +217,10 @@ def _get_request_id(headers):
 
 def should_replace_object(module, existing_object):
     return (
-        module.params.get('nodepool_name') is not None
-        and existing_object.properties.name != module.params.get('nodepool_name')
-        or module.params.get('cpu_family') is not None
-        and existing_object.properties.cpu_family != module.params.get('cpu_family')
-        or module.params.get('cores_count') is not None
-        and existing_object.properties.cores_count != module.params.get('cores_count')
-        or module.params.get('ram_size') is not None
-        and existing_object.properties.ram_size != module.params.get('ram_size')
-        or module.params.get('availability_zone') is not None
-        and existing_object.properties.availability_zone != module.params.get('availability_zone')
-        or module.params.get('storage_type') is not None
-        and existing_object.properties.storage_type != module.params.get('storage_type')
-        or module.params.get('storage_size') is not None
-        and existing_object.properties.storage_size != module.params.get('storage_size')
-        or module.params.get('datacenter_id') is not None
-        and existing_object.properties.datacenter_id != module.params.get('datacenter_id')
+        module.params.get('size') is not None
+        and existing_object.properties.size != module.params.get('size')
+        or module.params.get('location') is not None
+        and existing_object.properties.location != module.params.get('location')
     )
 
 
