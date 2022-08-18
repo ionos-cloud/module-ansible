@@ -329,9 +329,6 @@ def remove_object(module, client):
     if existing_object is None:
         module.exit_json(changed=False)
 
-    if module.check_mode:
-        module.exit_json(changed=True)
-    
     _remove_object(module, client, existing_object)
 
     return {
@@ -410,7 +407,7 @@ def check_required_arguments(module, state, object_name):
             )
 
 def main():
-    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+    module = AnsibleModule(argument_spec=get_module_arguments())
 
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')

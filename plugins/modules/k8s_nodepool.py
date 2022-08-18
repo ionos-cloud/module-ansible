@@ -504,8 +504,6 @@ def _update_object(module, client, existing_object):
 
     k8s_api = ionoscloud.KubernetesApi(api_client=client)
 
-    if module.check_mode:
-        module.exit_json(changed=True)
     try:
         k8s_response = k8s_api.k8s_nodepools_put(
             k8s_cluster_id=k8s_cluster_id,
@@ -628,9 +626,6 @@ def remove_object(module, client):
     if existing_object is None:
         module.exit_json(changed=False)
 
-    if module.check_mode:
-        module.exit_json(changed=True)
-    
     _remove_object(module, client, existing_object)
 
     return {
@@ -710,7 +705,7 @@ def check_required_arguments(module, state, object_name):
 
 
 def main():
-    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+    module = AnsibleModule(argument_spec=get_module_arguments())
 
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
@@ -725,11 +720,11 @@ def main():
             )
         try:
             if state == 'present':
-                module.exit_json(**create_k8s_cluster_nodepool(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'absent':
-                module.exit_json(**delete_k8s_cluster_nodepool(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_k8s_cluster_nodepool(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 

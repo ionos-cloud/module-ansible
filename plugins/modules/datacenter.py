@@ -290,8 +290,6 @@ def _update_object(module, client, existing_object):
 
     datacenter_properties=DatacenterProperties(name=name, description=description)
 
-    if module.check_mode:
-        module.exit_json(changed=True)
     try:
         datacenter_response, _, headers = datacenters_api.datacenters_patch_with_http_info(
             datacenter_id=existing_object.id,
@@ -312,8 +310,6 @@ def _remove_object(module, client, existing_object):
 
     datacenters_api = ionoscloud.DataCentersApi(client)
 
-    if module.check_mode:
-        module.exit_json(changed=True)
     try:
         _, _, headers = datacenters_api.datacenters_delete_with_http_info(
             datacenter_id=existing_object.id,
@@ -398,9 +394,6 @@ def remove_object(module, client):
     if existing_object is None:
         module.exit_json(changed=False)
 
-    if module.check_mode:
-        module.exit_json(changed=True)
-    
     _remove_object(module, client, existing_object)
 
     return {
@@ -480,7 +473,7 @@ def check_required_arguments(module, state, object_name):
 
 
 def main():
-    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+    module = AnsibleModule(argument_spec=get_module_arguments())
 
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
@@ -494,8 +487,6 @@ def main():
             if state == 'absent':
                 module.exit_json(**remove_object(module, api_client))
             elif state == 'present':
-                if module.check_mode:
-                    module.exit_json(changed=True)
                 module.exit_json(**create_object(module, api_client))
             elif state == 'update':
                 module.exit_json(**update_object(module, api_client))

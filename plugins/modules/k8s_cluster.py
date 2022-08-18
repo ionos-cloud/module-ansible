@@ -349,8 +349,6 @@ def _update_object(module, client, existing_object):
 
     k8s_api = ionoscloud.KubernetesApi(api_client=client)
 
-    if module.check_mode:
-        module.exit_json(changed=True)
     try:
         k8s_response = k8s_api.k8s_put(k8s_cluster_id=existing_object.id, kubernetes_cluster=kubernetes_cluster)
         if wait:
@@ -440,9 +438,6 @@ def remove_object(module, client):
     if existing_object is None:
         module.exit_json(changed=False)
 
-    if module.check_mode:
-        module.exit_json(changed=True)
-    
     _remove_object(module, client, existing_object)
 
     return {
@@ -522,7 +517,7 @@ def check_required_arguments(module, state, object_name):
 
 
 def main():
-    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+    module = AnsibleModule(argument_spec=get_module_arguments())
 
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
