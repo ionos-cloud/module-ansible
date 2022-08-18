@@ -311,7 +311,7 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def should_replace_object(module, existing_object):
+def _should_replace_object(module, existing_object):
     return (
         module.params.get('nodepool_name') is not None
         and existing_object.properties.name != module.params.get('nodepool_name')
@@ -332,7 +332,7 @@ def should_replace_object(module, existing_object):
     )
 
 
-def should_update_object(module, existing_object):
+def _should_update_object(module, existing_object):
     return (
         module.params.get('k8s_version') is not None
         and existing_object.properties.k8s_version != module.params.get('k8s_version')
@@ -359,31 +359,16 @@ def should_update_object(module, existing_object):
     )
 
 
-def update_replace_object(module, client, existing_object):
-    if module.params.get('replace') and should_replace_object(module, existing_object):
-        _remove_object(module, client, existing_object)
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            RETURNED_KEY: _create_object(module, client, existing_object).to_dict()
-        }
-    if should_update_object(module, existing_object):
-        # Update
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'update',
-            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
-        }
+def _get_object_list(module, client):
+    return ionoscloud.KubernetesApi(client).k8s_nodepools_get(module.params.get('k8s_cluster_id'), depth=1)
 
-    # No action
-    return {
-        'changed': False,
-        'failed': False,
-        'action': 'create',
-        RETURNED_KEY: existing_object.to_dict()
-    }
+
+def _get_object_name(module):
+    return module.params.get('nodepool_name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('k8s_nodepool')
 
 
 def _create_object(module, client, existing_object=None):
@@ -570,68 +555,89 @@ def _remove_object(module, client, existing_object):
         module.fail_json(msg="failed to delete the {}: {}".format(OBJECT_NAME, to_native(e)))
 
 
-def create_k8s_cluster_nodepool(module, client):
-    nodepool_name = module.params.get('nodepool_name')
-    k8s_cluster_id = module.params.get('k8s_cluster_id')
+def update_replace_object(module, client, existing_object):
+    if module.params.get('replace') and _should_replace_object(module, existing_object):
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: _create_object(module, client, existing_object).to_dict()
+        }
+    if _should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
+        }
 
-    nodepool_list = ionoscloud.KubernetesApi(client).k8s_nodepools_get(k8s_cluster_id, depth=1)
-    existing_nodepool = get_resource(module, nodepool_list, nodepool_name)
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
 
-    if existing_nodepool:
-        return update_replace_object(module, client, existing_nodepool)
+
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
 
     return {
         'changed': True,
         'failed': False,
         'action': 'create',
-        'datacenter': _create_object(module, client).to_dict()
+        RETURNED_KEY: _create_object(module, client).to_dict()
     }
 
 
-def delete_k8s_cluster_nodepool(module, client):
-    k8s_cluster_id = module.params.get('k8s_cluster_id')
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
 
-    k8s_nodepools_list = ionoscloud.KubernetesApi(client).k8s_nodepools_get(k8s_cluster_id, depth=1)
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
 
-    k8s_nodepool = get_resource(module, k8s_nodepools_list, module.params.get('k8s_nodepool'))
-
-    if k8s_nodepool is None:
+    if existing_object is None:
         module.exit_json(changed=False)
+
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    if module.check_mode:
+        module.exit_json(changed=True)
     
-    _remove_object(module, client, k8s_nodepool)
+    _remove_object(module, client, existing_object)
 
     return {
         'action': 'delete',
         'changed': True,
-        'id': k8s_nodepool.id,
+        'id': existing_object.id,
     }
-
-
-def update_k8s_cluster_nodepool(module, client):
-    k8s_cluster_id = module.params.get('k8s_cluster_id')
-    nodepool_name = module.params.get('nodepool_name')
-
-    k8s_nodepools_list = ionoscloud.KubernetesApi(client).k8s_nodepools_get(k8s_cluster_id, depth=1)
-
-    k8s_nodepool = get_resource(module, k8s_nodepools_list, module.params.get('k8s_nodepool'))
-
-    if k8s_nodepool is None:
-        module.exit_json(changed=False)
-
-    existing_nodepool_id_by_name = get_resource_id(module, k8s_nodepools_list, module.params.get('nodepool_name'))
-
-    if (
-        k8s_nodepool.id is not None
-        and existing_nodepool_id_by_name is not None
-        and existing_nodepool_id_by_name != k8s_nodepool.id
-    ):
-        module.fail_json(
-            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
-                OBJECT_NAME, nodepool_name,
-            ),
-        )
-
-    return update_replace_object(module, client, k8s_nodepool)
 
 
 def get_module_arguments():

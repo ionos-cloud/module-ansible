@@ -212,11 +212,39 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def should_replace_object(*args, **kwargs):
+
+def update_replace_object(module, client, existing_object):
+    if module.params.get('replace') and _should_replace_object(module, existing_object):
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: _create_object(module, client, existing_object).to_dict()
+        }
+    if _should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
+        }
+
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def _should_replace_object(*args, **kwargs):
     return False
 
 
-def should_update_object(module, existing_object):
+def _should_update_object(module, existing_object):
     return (
         module.params.get('cluster_name') is not None
         and existing_object.properties.name != module.params.get('cluster_name')
@@ -233,31 +261,16 @@ def should_update_object(module, existing_object):
     )
 
 
-def update_replace_object(module, client, existing_object):
-    if module.params.get('replace') and should_replace_object(module, existing_object):
-        _remove_object(module, client, existing_object)
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            RETURNED_KEY: _create_object(module, client, existing_object).to_dict()
-        }
-    if should_update_object(module, existing_object):
-        # Update
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'update',
-            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
-        }
+def _get_object_list(module, client):
+    return ionoscloud.KubernetesApi(client).k8s_get(depth=1)
 
-    # No action
-    return {
-        'changed': False,
-        'failed': False,
-        'action': 'create',
-        RETURNED_KEY: existing_object.to_dict()
-    }
+
+def _get_object_name(module):
+    return module.params.get('cluster_name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('k8s_cluster')
 
 
 def _create_object(module, client, existing_object=None):
@@ -381,60 +394,62 @@ def _remove_object(module, client, existing_object):
         module.fail_json(msg="failed to delete the {}: {}".format(OBJECT_NAME, to_native(e)))
 
 
-def create_k8s_cluster(module, client):
-    cluster_name = module.params.get('cluster_name')
-    existing_cluster = get_resource(module, ionoscloud.KubernetesApi(client).k8s_get(depth=2), cluster_name)
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
 
-    if existing_cluster:
-        return update_replace_object(module, client, existing_cluster)
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
 
     return {
         'changed': True,
         'failed': False,
         'action': 'create',
-        'datacenter': _create_object(module, client).to_dict()
+        RETURNED_KEY: _create_object(module, client).to_dict()
     }
 
 
-def delete_k8s_cluster(module, client):
-    k8s_cluster_list = ionoscloud.KubernetesApi(client).k8s_get(depth=1)
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
 
-    k8s_cluster = get_resource(module, k8s_cluster_list, module.params.get('k8s_cluster'))
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
 
-    if k8s_cluster is None:
+    if existing_object is None:
         module.exit_json(changed=False)
+
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    if module.check_mode:
+        module.exit_json(changed=True)
     
-    _remove_object(module, client, k8s_cluster)
+    _remove_object(module, client, existing_object)
 
     return {
         'action': 'delete',
         'changed': True,
-        'id': k8s_cluster.id,
+        'id': existing_object.id,
     }
-
-
-def update_k8s_cluster(module, client):
-    cluster_name = module.params.get('cluster_name')
-    k8s_cluster_list = ionoscloud.KubernetesApi(client).k8s_get(depth=1)
-    k8s_cluster = get_resource(module, k8s_cluster_list, module.params.get('k8s_cluster'))
-
-    if k8s_cluster is None:
-        module.exit_json(changed=False)
-
-    existing_cluster_id_by_name = get_resource_id(module, k8s_cluster_list, cluster_name)
-
-    if (
-        k8s_cluster.id is not None
-        and existing_cluster_id_by_name is not None
-        and existing_cluster_id_by_name != k8s_cluster.id
-    ):
-            module.fail_json(
-                msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
-                    OBJECT_NAME, cluster_name,
-                ),
-            )
-
-    return update_replace_object(module, client, k8s_cluster)
 
 
 def get_module_arguments():
@@ -519,11 +534,11 @@ def main():
 
         try:
             if state == 'present':
-                module.exit_json(**create_k8s_cluster(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'absent':
-                module.exit_json(**delete_k8s_cluster(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_k8s_cluster(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 

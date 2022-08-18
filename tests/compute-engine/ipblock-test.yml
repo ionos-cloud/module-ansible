@@ -15,13 +15,13 @@
 
     - name: Remove ipblock
       ipblock:
-        name: "{{ name }}"
+        ipblock: "{{ name }}"
         state: absent
       register: delete_result
 
     - name: Remove ipblock
       ipblock:
-        name: "{{ name }}"
+        ipblock: "{{ name }}"
         state: absent
       register: delete_result
 

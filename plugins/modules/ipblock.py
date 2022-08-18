@@ -215,7 +215,7 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def should_replace_object(module, existing_object):
+def _should_replace_object(module, existing_object):
     return (
         module.params.get('size') is not None
         and existing_object.properties.size != module.params.get('size')
@@ -224,35 +224,20 @@ def should_replace_object(module, existing_object):
     )
 
 
-def should_update_object(*args, **kwargs):
+def _should_update_object(*args, **kwargs):
     return False
 
 
-def update_replace_object(module, client, existing_object):
-    if module.params.get('replace') and should_replace_object(module, existing_object):
-        _remove_object(module, client, existing_object)
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            RETURNED_KEY: _create_object(module, client, existing_object).to_dict()
-        }
-    if should_update_object(module, existing_object):
-        # Update
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'update',
-            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
-        }
+def _get_object_list(module, client):
+    return ionoscloud.IPBlocksApi(client).ipblocks_get(depth=1)
 
-    # No action
-    return {
-        'changed': False,
-        'failed': False,
-        'action': 'create',
-        RETURNED_KEY: existing_object.to_dict()
-    }
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('ipblock')
 
 
 def _create_object(module, client, existing_object=None):
@@ -296,53 +281,63 @@ def _remove_object(module, client, existing_object):
         module.fail_json(msg="failed to delete the {}: {}".format(OBJECT_NAME, to_native(e)))
 
 
-def reserve_ipblock(module, client):
-    """
-    Creates an IPBlock.
+def update_replace_object(module, client, existing_object):
+    if module.params.get('replace') and _should_replace_object(module, existing_object):
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: _create_object(module, client, existing_object).to_dict()
+        }
+    if _should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
+        }
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
 
-    Returns:
-        The IPBlock instance
-    """
-    name = module.params.get('name')
-    existing_ipblock = get_resource(module, ionoscloud.IPBlocksApi(client).ipblocks_get(depth=2), name)
 
-    if existing_ipblock:
-        return update_replace_object(module, client, existing_ipblock)
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
 
     return {
         'changed': True,
         'failed': False,
         'action': 'create',
-        'datacenter': _create_object(module, client).to_dict()
+        RETURNED_KEY: _create_object(module, client).to_dict()
     }
 
 
-def delete_ipblock(module, client):
-    """
-    Removes an IPBlock
+def remove_object(module, client):
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
 
-    Returns:
-        True if the IPBlock was removed, false otherwise
-    """
-
-    name = module.params.get('name')
-    existing_ipblock = get_resource(module, ionoscloud.IPBlocksApi(client).ipblocks_get(depth=2), name)
-
-    if existing_ipblock is None:
+    if existing_object is None:
         module.exit_json(changed=False)
+
+    if module.check_mode:
+        module.exit_json(changed=True)
     
-    _remove_object(module, client, existing_ipblock)
+    _remove_object(module, client, existing_object)
 
     return {
         'action': 'delete',
         'changed': True,
-        'id': existing_ipblock.id,
+        'id': existing_object.id,
     }
 
 
@@ -427,9 +422,9 @@ def main():
 
         try:
             if state == 'absent':
-                module.exit_json(**delete_ipblock(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'present':
-                module.exit_json(**reserve_ipblock(module, api_client))
+                module.exit_json(**create_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
