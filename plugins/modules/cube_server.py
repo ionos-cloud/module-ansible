@@ -38,8 +38,8 @@ ANSIBLE_METADATA = {
 }
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
-STATES = ['running', 'stopped', 'absent', 'present', 'update']
-OBJECT_NAME = 'Server'
+STATES = ['resume', 'suspend', 'absent', 'present', 'update']
+OBJECT_NAME = 'CUBE Server'
 
 AVAILABILITY_ZONES = [
     'AUTO',
@@ -87,30 +87,11 @@ OPTIONS = {
         'available': ['present'],
         'type': 'str',
     },
-    'volume_availability_zone': {
-        'description': ['The storage availability zone assigned to the volume.'],
-        'available': ['present'],
-        'choices': AVAILABILITY_ZONES,
-        'type': 'str',
-        'version_added': '2.3',
-    },
     'datacenter': {
         'description': ['The datacenter to provision this virtual machine.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
-    },
-    'cores': {
-        'description': ['The number of CPU cores to allocate to the virtual machine.'],
-        'available': ['present', 'update'],
-        'default': 2,
-        'type': 'int',
-    },
-    'ram': {
-        'description': ['The amount of memory to allocate to the virtual machine.'],
-        'available': ['present', 'update'],
-        'default': 2048,
-        'type': 'int',
     },
     'cpu_family': {
         'description': ['The amount of memory to allocate to the virtual machine.'],
@@ -127,12 +108,6 @@ OPTIONS = {
         'default': 'AUTO',
         'type': 'str',
         'version_added': '2.3',
-    },
-    'volume_size': {
-        'description': ['The size in GB of the boot volume.'],
-        'available': ['present'],
-        'default': 10,
-        'type': 'int',
     },
     'bus': {
         'description': ['The bus type for the volume.'],
@@ -192,6 +167,11 @@ OPTIONS = {
         'available': ['present'],
         'type': 'list',
         'elements': 'str',
+    },
+    'template_uuid': {
+        'description': ['The template used when crating a CUBE server.'],
+        'available': ['present'],
+        'type': 'str',
     },
     'boot_volume': {
         'description': ['The volume used for boot.'],
@@ -265,10 +245,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: server
-short_description: Create, update, destroy, start, stop, and reboot a Ionos virtual machine.
+module: cube_server
+short_description: Create, update, destroy, start, stop, and reboot a Ionos CUBE virtual machine.
 description:
-     - Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine.
+     - Create, update, destroy, update, start, stop, and reboot a Ionos CUBE virtual machine.
        When the virtual machine is created it can optionally wait for it to be 'running' before returning.
 version_added: "2.0"
 options:
@@ -281,43 +261,37 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''# Provisioning example. This will create three servers and enumerate their names.
-    - server:
+  'present' : '''# Provisioning example. This will create three CUBE servers and enumerate their names.
+    - cube_server:
         datacenter: Tardis One
         name: web%02d.stackpointcloud.com
-        cores: 4
-        ram: 2048
-        volume_size: 50
+        template_id: <template_id>
         cpu_family: INTEL_XEON
         image: ubuntu:latest
         location: us/las
         count: 3
         assign_public_ip: true
   ''',
-  'update' : '''# Update Virtual machines
-    - server:
+  'update' : '''# Update CUBE Virtual machines
+    - cube_server:
         datacenter: Tardis One
         instance_ids:
         - web001.stackpointcloud.com
         - web002.stackpointcloud.com
-        cores: 4
-        ram: 4096
         cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
-  # Rename virtual machine
-    - server:
+  # Rename CUBE Virtual machine
+    - cube_server:
         datacenter: Tardis One
         instance_ids: web001.stackpointcloud.com
         name: web101.stackpointcloud.com
-        cores: 4
-        ram: 4096
         cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
 ''',
-  'absent' : '''# Removing Virtual machines
-    - server:
+  'absent' : '''# Removing CUBE Virtual machines
+    - cube_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
@@ -326,25 +300,25 @@ EXAMPLE_PER_STATE = {
         wait_timeout: 500
         state: absent
   ''',
-  'running' : '''# Starting Virtual Machines.
-    - server:
+  'resume' : '''# Starting CUBE Virtual Machines.
+    - cube_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
         - 'web002.stackpointcloud.com'
         - 'web003.stackpointcloud.com'
         wait_timeout: 500
-        state: running
+        state: resume
   ''',
-  'stopped' : '''# Stopping Virtual Machines
-    - server:
+  'suspend' : '''# Suspending CUBE Virtual Machines
+    - cube_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
         - 'web002.stackpointcloud.com'
         - 'web003.stackpointcloud.com'
         wait_timeout: 500
-        state: stopped
+        state: suspend
   ''',
 }
 
@@ -421,13 +395,9 @@ def _get_lan_by_id_or_properties(networks, id=None, **kwargs):
 
 
 def _create_machine(module, client, datacenter, name):
-    cores = module.params.get('cores')
-    ram = module.params.get('ram')
     cpu_family = module.params.get('cpu_family')
-    volume_size = module.params.get('volume_size')
     disk_type = module.params.get('disk_type')
     availability_zone = module.params.get('availability_zone')
-    volume_availability_zone = module.params.get('volume_availability_zone')
     image_password = module.params.get('image_password')
     ssh_keys = module.params.get('ssh_keys')
     user_data = module.params.get('user_data')
@@ -437,6 +407,10 @@ def _create_machine(module, client, datacenter, name):
     image = module.params.get('image')
     assign_public_ip = module.boolean(module.params.get('assign_public_ip'))
     nic_ips = module.params.get('nic_ips')
+    template_uuid = module.params.get('template_uuid')
+    type = module.params.get('type')
+    boot_cdrom = module.params.get('boot_cdrom')
+    boot_volume = module.params.get('boot_volume')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
@@ -478,17 +452,15 @@ def _create_machine(module, client, datacenter, name):
             if nic_ips:
                 nic.properties.ips = nic_ips
             nics.append(nic)
-    server_properties = ServerProperties(name=name, cores=cores, ram=ram, availability_zone=availability_zone,
-                                            cpu_family=cpu_family)
+
+    server_properties = ServerProperties(template_uuid=template_uuid, name=name,
+                                          availability_zone=availability_zone,
+                                          boot_cdrom=boot_cdrom, boot_volume=boot_volume,
+                                          cpu_family=cpu_family, type=type)
 
     volume_properties = VolumeProperties(name=str(uuid4()).replace('-', '')[:10],
-                                            type=disk_type,
-                                            size=volume_size,
-                                            availability_zone=volume_availability_zone,
-                                            image_password=image_password,
-                                            ssh_keys=ssh_keys,
-                                            user_data=user_data,
-                                            bus=bus)
+                                          type=disk_type, image_password=image_password,
+                                          ssh_keys=ssh_keys, user_data=user_data, bus=bus)
 
     if image:
         if uuid_match.match(image):
@@ -506,13 +478,13 @@ def _create_machine(module, client, datacenter, name):
         (server_response, _, headers) = response
         request_id = _get_request_id(headers['Location'])
         client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
         client.wait_for(
             fn_request=lambda: server_server.datacenters_servers_find_by_id(datacenter_id=datacenter,
                                                                             server_id=server_response.id, depth=1),
             fn_check=lambda r: (r.entities.volumes is not None) and (r.entities.volumes.items is not None) and (
-                    len(r.entities.volumes.items) > 0)
-                                and (r.entities.nics is not None) and (r.entities.nics.items is not None) and (
-                                        len(r.entities.nics.items) == len(nics)), scaleup=10000)
+                    len(r.entities.volumes.items) > 0), scaleup=10000)
+
 
 
         # Depth 2 needed for nested nic and volume properties
@@ -527,40 +499,42 @@ def _create_machine(module, client, datacenter, name):
     return server
 
 
-def _startstop_machine(module, client, datacenter_id, server_id, current_state):
+def _resume_suspend_machine(module, client, datacenter_id, server_id, current_state):
     state = module.params.get('state')
     server_server = ionoscloud.ServersApi(api_client=client)
     server = None
     changed = False
     try:
-        if state == 'running':
-            if current_state != 'AVAILABLE':
-                response = server_server.datacenters_servers_start_post_with_http_info(datacenter_id, server_id)
+        if state == 'resume':
+            if current_state != 'RUNNING':
+                response = server_server.datacenters_servers_resume_post_with_http_info(datacenter_id, server_id)
                 (_, _, headers) = response
                 request_id = _get_request_id(headers['Location'])
                 client.wait_for_completion(request_id=request_id)
 
                 server_response = server_server.datacenters_servers_find_by_id(datacenter_id, server_id)
-                if server_response.metadata.state == 'AVAILABLE':
+                if server_response.properties.vm_state == 'RUNNING':
                     changed = True
                     server = server_response
+
         else:
-            if current_state != 'INACTIVE':
+            if current_state != 'SUSPENDED':
                 response = server_server.datacenters_servers_stop_post_with_http_info(datacenter_id, server_id)
                 (_, _, headers) = response
                 request_id = _get_request_id(headers['Location'])
                 client.wait_for_completion(request_id=request_id)
 
                 server_response = server_server.datacenters_servers_find_by_id(datacenter_id, server_id)
-                if server_response.metadata.state == 'INACTIVE':
+                if server_response.properties.vm_state == 'SUSPENDED':
                     changed = True
                     server = server_response
 
     except Exception as e:
         module.fail_json(
-            msg="failed to start or stop the virtual machine %s at %s: %s" % (server_id, datacenter_id, to_native(e)))
+            msg="failed to resume or suspend the virtual machine %s at %s: %s" % (server_id, datacenter_id, to_native(e)))
 
     return changed, server
+
 
 def _create_datacenter(module, client):
     datacenter = module.params.get('datacenter')
@@ -716,10 +690,10 @@ def update_server(module, client):
 
         if module.check_mode:
             module.exit_json(changed=True)
+
         server_properties = ServerProperties(
             name=name if name is not None else instance.properties.name,
-            cores=cores, ram=ram, availability_zone=availability_zone,
-            cpu_family=cpu_family,
+            boot_cdrom=boot_cdrom, boot_volume=boot_volume,
         )
 
         new_server = Server(properties=server_properties)
@@ -817,9 +791,9 @@ def _remove_boot_volume(module, client, datacenter_id, server_id):
                          exception=traceback.format_exc())
 
 
-def startstop_machine(module, client, state):
+def resume_suspend_machine(module, client, state):
     """
-    Starts or Stops a virtual machine.
+    Reusmes or Suspend a CUBE virtual machine.
 
     module : AnsibleModule object
     client: authenticated ionos-cloud object.
@@ -852,8 +826,8 @@ def startstop_machine(module, client, state):
             if module.check_mode:
                 module.exit_json(changed=True)
 
-            server_state = server.metadata.state
-            changed, server = _startstop_machine(module, client, datacenter_id, server.id, server_state)
+            state = server.properties.vm_state
+            changed, server = _resume_suspend_machine(module, client, datacenter_id, server.id, state)
             if changed:
                 matched_instances.append(server)
 
@@ -959,8 +933,8 @@ def main():
         try:
             if state == 'absent':
                 module.exit_json(**remove_virtual_machine(module, api_client))
-            elif state in ('running', 'stopped'):
-                module.exit_json(**startstop_machine(module, api_client, state))
+            elif state in ('resume', 'suspend'):
+                module.exit_json(**resume_suspend_machine(module, api_client, state))
             elif state == 'present':
                 if module.check_mode:
                     module.exit_json(changed=True)
