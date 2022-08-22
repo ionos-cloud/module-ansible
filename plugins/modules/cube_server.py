@@ -408,7 +408,6 @@ def _create_machine(module, client, datacenter, name):
     assign_public_ip = module.boolean(module.params.get('assign_public_ip'))
     nic_ips = module.params.get('nic_ips')
     template_uuid = module.params.get('template_uuid')
-    type = module.params.get('type')
     boot_cdrom = module.params.get('boot_cdrom')
     boot_volume = module.params.get('boot_volume')
     wait = module.params.get('wait')
@@ -456,7 +455,7 @@ def _create_machine(module, client, datacenter, name):
     server_properties = ServerProperties(template_uuid=template_uuid, name=name,
                                           availability_zone=availability_zone,
                                           boot_cdrom=boot_cdrom, boot_volume=boot_volume,
-                                          cpu_family=cpu_family, type=type)
+                                          cpu_family=cpu_family, type='CUBE')
 
     volume_properties = VolumeProperties(name=str(uuid4()).replace('-', '')[:10],
                                           type=disk_type, image_password=image_password,
@@ -519,7 +518,7 @@ def _resume_suspend_machine(module, client, datacenter_id, server_id, current_st
 
         else:
             if current_state != 'SUSPENDED':
-                response = server_server.datacenters_servers_stop_post_with_http_info(datacenter_id, server_id)
+                response = server_server.datacenters_servers_suspend_post_with_http_info(datacenter_id, server_id)
                 (_, _, headers) = response
                 request_id = _get_request_id(headers['Location'])
                 client.wait_for_completion(request_id=request_id)
@@ -648,7 +647,6 @@ def update_server(module, client):
     name = module.params.get('name')
     boot_cdrom = module.params.get('boot_cdrom')
     boot_volume = module.params.get('boot_volume')
-    type = module.params.get('type')
     instance_ids = module.params.get('instance_ids')
 
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
@@ -667,8 +665,6 @@ def update_server(module, client):
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
 
-    cores = module.params.get('cores')
-    ram = module.params.get('ram')
     cpu_family = module.params.get('cpu_family')
     availability_zone = module.params.get('availability_zone')
 
@@ -784,7 +780,7 @@ def _remove_boot_volume(module, client, datacenter_id, server_id):
     try:
         server = server_server.datacenters_servers_find_by_id(datacenter_id, server_id, depth=1)
         volume = server.properties.boot_volume
-        if volume:
+        if volume and volume.properties.type != 'DAS':
             server_server.datacenters_servers_volumes_delete(datacenter_id, server_id, volume.id)
     except Exception as e:
         module.fail_json(msg="failed to remove the server's boot volume: %s" % to_native(e),
