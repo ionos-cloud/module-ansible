@@ -779,9 +779,11 @@ def _remove_boot_volume(module, client, datacenter_id, server_id):
     server_server = ionoscloud.ServersApi(api_client=client)
     try:
         server = server_server.datacenters_servers_find_by_id(datacenter_id, server_id, depth=1)
-        volume = server.properties.boot_volume
-        if volume and volume.properties.type != 'DAS':
-            server_server.datacenters_servers_volumes_delete(datacenter_id, server_id, volume.id)
+        
+        if server.properties.boot_volume:
+            volume = server_server.datacenters_servers_volumes_find_by_id(datacenter_id, server_id, server.properties.boot_volume.id)
+            if volume.properties.type != 'DAS':
+                server_server.datacenters_servers_volumes_delete(datacenter_id, server_id, volume.id)
     except Exception as e:
         module.fail_json(msg="failed to remove the server's boot volume: %s" % to_native(e),
                          exception=traceback.format_exc())
