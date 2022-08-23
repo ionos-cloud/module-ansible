@@ -73,13 +73,13 @@
 
   - name: Remove datacenter
     datacenter:
-      id: "{{ datacenter1.datacenter.id }}"
+      datacenter: "{{ datacenter1.datacenter.id }}"
       state: absent
       wait: true
 
   - name: Remove datacenter
     datacenter:
-      id: "{{ datacenter2.datacenter.id }}"
+      datacenter: "{{ datacenter2.datacenter.id }}"
       state: absent
       wait: true
 

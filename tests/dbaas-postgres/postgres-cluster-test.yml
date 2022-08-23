@@ -164,7 +164,6 @@
 
   - name: Remove datacenter
     datacenter:
-      id: "{{ datacenter_response.datacenter.id }}"
-      name: "{{ datacenter }} - DBaaS"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       state: absent
       wait: true

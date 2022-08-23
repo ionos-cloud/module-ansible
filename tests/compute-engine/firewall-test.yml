@@ -93,5 +93,5 @@
     - name: Remove datacenter
       datacenter:
         wait: true
-        name: "{{ datacenter }}"
+        datacenter: "{{ datacenter }}"
         state: absent

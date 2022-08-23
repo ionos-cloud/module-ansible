@@ -122,12 +122,12 @@
 
     - name: Remove ipblock
       ipblock:
-        name: "{{ name }}"
+        ipblock: "{{ name }}"
         state: absent
 
     - name: Remove datacenter
       datacenter:
-        name: "{{ datacenter }}"
+        datacenter: "{{ datacenter }}"
         state: absent
         wait: true
 

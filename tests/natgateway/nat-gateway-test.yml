@@ -93,16 +93,16 @@
 
     - name: Remove datacenter
       datacenter:
-        name: "{{ datacenter }}"
+        datacenter: "{{ datacenter }}"
         wait: true
         state: absent
 
     - name: Remove ipblock - create
       ipblock:
-        name: "{{ name }} - create"
+        ipblock: "{{ name }} - create"
         state: absent
 
     - name: Remove ipblock - update
       ipblock:
-        name: "{{ name }} - update"
+        ipblock: "{{ name }} - update"
         state: absent
