@@ -325,15 +325,16 @@ def _create_object(module, client, existing_object=None):
         k8s_response = k8s_api.k8s_post(kubernetes_cluster=k8s_cluster)
 
         if wait:
-            client.wait_for(
-                fn_request=lambda: k8s_api.k8s_get(depth=2),
-                fn_check=lambda r: list(filter(
-                    lambda e: e.properties.name == cluster_name,
-                    r.items
-                ))[0].metadata.state == 'ACTIVE',
-                scaleup=10000,
-                timeout=wait_timeout,
-            )
+            try:
+                client.wait_for(
+                    fn_request=lambda: k8s_api.k8s_find_by_cluster_id(k8s_response.id).metadata.state,
+                    fn_check=lambda r: r == 'ACTIVE',
+                    scaleup=10000,
+                    timeout=wait_timeout,
+                )
+            except Exception as e:
+                with open('debug.txt', 'a') as f:
+                    f.write(str([e]))
     except ApiException as e:
         module.fail_json(msg="failed to create the new {}: {}".format(OBJECT_NAME, to_native(e)))
     return k8s_response
@@ -368,11 +369,8 @@ def _update_object(module, client, existing_object):
         k8s_response = k8s_api.k8s_put(k8s_cluster_id=existing_object.id, kubernetes_cluster=kubernetes_cluster)
         if wait:
             client.wait_for(
-                fn_request=lambda: k8s_api.k8s_get(depth=2),
-                fn_check=lambda r: list(filter(
-                    lambda e: e.properties.name == cluster_name,
-                    r.items
-                ))[0].metadata.state == 'ACTIVE',
+                fn_request=lambda: k8s_api.k8s_find_by_cluster_id(existing_object.id).metadata.state,
+                fn_check=lambda r: r == 'ACTIVE',
                 scaleup=10000,
                 timeout=wait_timeout,
             )
