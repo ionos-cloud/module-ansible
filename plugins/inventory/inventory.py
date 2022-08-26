@@ -96,6 +96,7 @@ import argparse
 import re
 import stat
 import subprocess
+import pickle
 
 import six
 from six.moves import configparser
@@ -118,7 +119,7 @@ class IonosCloudInventory(object):
         self.vars = {}
 
         # Defaults, if not found in the settings file
-        self.cache_path = ''
+        self.cache_path = '.'
         self.cache_max_age = 0
 
         # Read settings, environment variables, and CLI arguments
@@ -129,51 +130,59 @@ class IonosCloudInventory(object):
         if not getattr(self, 'password', None) and getattr(self, 'password_file', None):
             self.password = read_password_file(self.password_file)
 
-        self.cache_filename = self.cache_path + "/ansible-ionos.cache"
+        self.cache_filename = self.cache_path + "/ansible-ionos.pkl"
 
         # Verify credentials and create client
-        if hasattr(self, 'username') and hasattr(self, 'password'):
+        if hasattr(self, 'token'):
+            configuration = Configuration(token=self.token)
+        elif hasattr(self, 'username') and hasattr(self, 'password'):
             configuration = Configuration(
                 username=self.username,
                 password=self.password)
-
-            user_agent = 'ionoscloud-python/%s Ansible' % (sdk_version)
-
-            self.client = ApiClient(configuration)
-            self.client.user_agent = user_agent
         else:
             sys.stderr.write('ERROR: Ionos credentials cannot be found.\n')
             sys.exit(1)
 
+        user_agent = 'ionoscloud-python/%s Ansible' % (sdk_version)
+
+        self.client = ApiClient(configuration)
+        self.client.user_agent = user_agent
+
         if self.cache_max_age > 0:
-            if not self.is_cache_valid() or self.args.refresh:
+            if self.is_cache_valid() and not self.args.refresh:
+                try:
+                    self.load_from_cache()
+                except Exception as e:
+                    print('Encountered an error while reading cache file: {}. Getting data from the API.'.format(str(e)))
+                    self.data = self.fetch_resources('all')
+                    self.build_inventory()
+                    self.write_to_cache()
+            else:
                 self.data = self.fetch_resources('all')
                 self.build_inventory()
                 self.write_to_cache()
-            else:
-                self.load_from_cache()
 
             print_data = self.get_from_local_source()
         else:
             print_data = self.get_from_api_source()
 
         if self.args.datacenters:
-            print_data['datacenters']['datacenters']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['datacenters']['datacenters']))
+            print_data['datacenters'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['datacenters']))
         elif self.args.fwrules:
-            print_data['firewallrules']['firewallrules']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['firewallrules']['firewallrules']))
+            print_data['firewallrules'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['firewallrules']))
         elif self.args.images:
-            print_data['images']['images']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['images']['images']))
+            print_data['images'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['images']))
         elif self.args.lans:
-            print_data['lans']['lans']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['lans']['lans']))
+            print_data['lans'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['lans']))
         elif self.args.locations:
-            print_data['locations']['locations']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['locations']['locations']))
+            print_data['locations'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['locations']))
         elif self.args.nics:
-            print_data['nics']['nics']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['nics']['nics']))
+            print_data['nics'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['nics']))
         elif self.args.servers:
-            print_data['servers']['servers']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['servers']['servers']))
-            print_data['servers']['lans']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['servers']['lans']))
+            print_data['servers'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['servers']))
+            print_data['servers'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['servers']))
         elif self.args.volumes:
-            print_data['volumes']['volumes']  = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['volumes']['volumes']))
+            print_data['volumes'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['volumes']))
         elif self.args.host:
             print_data = self.client.sanitize_for_serialization(print_data)
         else:
@@ -196,6 +205,8 @@ class IonosCloudInventory(object):
         config.read(os.path.dirname(os.path.realpath(__file__)) + '/inventory.ini')
 
         # Credentials
+        if config.has_option('ionos', 'token'):
+            self.token = config.get('ionos', 'token')
         if config.has_option('ionos', 'username'):
             self.username = config.get('ionos', 'username')
         elif config.has_option('ionos', 'subscription_user'):
@@ -243,6 +254,8 @@ class IonosCloudInventory(object):
 
     def read_environment(self):
         """ Reads the environment variables """
+        if os.getenv('IONOS_TOKEN'):
+            self.token = os.getenv('IONOS_TOKEN')
         if os.getenv('IONOS_USERNAME'):
             self.username = os.getenv('IONOS_USERNAME')
         if os.getenv('IONOS_PASSWORD'):
@@ -306,21 +319,21 @@ class IonosCloudInventory(object):
         """Get data from Ionos API"""
 
         if self.args.datacenters:
-            return {'datacenters': self.fetch_resources('datacenters')}
+            return self.fetch_resources('datacenters')
         elif self.args.fwrules:
-            return {'firewallrules': self.fetch_resources('firewallrules')}
+            return self.fetch_resources('firewallrules')
         elif self.args.images:
-            return {'images': self.fetch_resources('images')}
+            return self.fetch_resources('images')
         elif self.args.lans:
-            return {'lans': self.fetch_resources('lans')}
+            return self.fetch_resources('lans')
         elif self.args.locations:
-            return {'locations': self.fetch_resources('locations')}
+            return self.fetch_resources('locations')
         elif self.args.nics:
-            return {'nics': self.fetch_resources('nics')}
+            return self.fetch_resources('nics')
         elif self.args.servers:
-            return {'servers': self.fetch_resources('servers')}
+            return self.fetch_resources('servers')
         elif self.args.volumes:
-            return {'volumes': self.fetch_resources('volumes')}
+            return self.fetch_resources('volumes')
         elif self.args.host:
             self.data = self.fetch_resources('all')
             return self.get_host_info()
@@ -467,25 +480,13 @@ class IonosCloudInventory(object):
 
     def load_from_cache(self):
         """ Reads the data from the cache file and assigns it to member variables as Python Objects"""
-        try:
-            cache = open(self.cache_filename, 'r')
-            json_data = cache.read()
-            cache.close()
-            data = json.loads(json_data)
-        except IOError:
-            data = {'data': {}, 'inventory': {}}
-
+        data = pickle.load(open(self.cache_filename, 'rb'))
         self.data = data['data']
         self.inventory = data['inventory']
 
     def write_to_cache(self):
-        """ Writes data in JSON format to a file """
-        data = {'data': self.data, 'inventory': self.inventory}
-        json_data = json.dumps(data, sort_keys=True, indent=2, separators=(',', ': '))
-
-        cache = open(self.cache_filename, 'w')
-        cache.write(json_data)
-        cache.close()
+        """ Writes serialized data to a file """
+        pickle.dump({'data': self.data, 'inventory': self.inventory}, open(self.cache_filename, 'wb'))
 
     def to_safe(self, string):
         """ Converts 'bad' characters in a string to underscores so they can be used as Ansible groups """
