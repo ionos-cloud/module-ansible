@@ -124,7 +124,7 @@ OPTIONS = {
     },
     'wait_timeout': {
         'description': ['How long before wait gives up, in seconds.'],
-        'default': 600,
+        'default': 3600,
         'available': STATES,
         'type': 'int',
     },
