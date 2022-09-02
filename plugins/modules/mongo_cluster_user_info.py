@@ -20,15 +20,9 @@ DBAAS_MONGO_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-dbaas-mongo/%
     __version__, ionoscloud_dbaas_mongo.__version__)
 DOC_DIRECTORY = 'dbaas-mongo'
 STATES = ['info']
-OBJECT_NAME = 'Mongo Cluster Users'
+OBJECT_NAME = 'Mongo Clusters'
 
 OPTIONS = {
-    'mongo_cluster_id': {
-        'description': ['The ID an existing Mongo Cluster.'],
-        'available': STATES,
-        'required': STATES,
-        'type': 'str',
-    },
     'filters': {
         'description': [
             'Filter that can be used to list only objects which have a certain set of propeties. Filters '
@@ -83,9 +77,9 @@ def transform_for_documentation(val):
 DOCUMENTATION = '''
 ---
 module: mongo_cluster_info
-short_description: List Mongo Cluster Users
+short_description: List Mongo Clusters
 description:
-     - This is a simple module that supports listing existing the users in a Mongo Cluster
+     - This is a simple module that supports listing existing Mongo Clusters
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -99,14 +93,14 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: List Mongo Cluster Users
-        mongo_cluster_user_info:
-        register: mongo_cluster_users_response
+    - name: List Mongo Clusters
+        mongo_cluster_info:
+        register: mongo_clusters_response
 
 
-    - name: Show Mongo Cluster Users
+    - name: Show Mongo Clusters
         debug:
-            var: mongo_cluster_users_response.result
+            var: mongo_clusters_response.result
 '''
 
 
@@ -242,8 +236,9 @@ def main():
 
     check_required_arguments(module, OBJECT_NAME)
     try:
-        clusters = ionoscloud_dbaas_mongo.ClustersApi(dbaas_mongo_api_client).clusters_get()
-        results = list(map(lambda x: x.to_dict(), apply_filters(module, clusters.items)))
+        mongo_cluster_id = module.params.get('mongo_cluster_id')
+        users = ionoscloud_dbaas_mongo.UsersApi(dbaas_mongo_api_client).users_get(mongo_cluster_id)
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, users.items)))
         module.exit_json(result=results)
     except Exception as e:
         module.fail_json(
