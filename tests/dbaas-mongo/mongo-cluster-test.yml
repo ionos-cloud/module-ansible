@@ -53,6 +53,7 @@
       mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
       database: test
       mongo_username: testuser
+      state: absent
     register: monfo_user_response
 
   - name: Delete Cluster

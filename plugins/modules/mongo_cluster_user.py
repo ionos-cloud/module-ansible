@@ -44,6 +44,7 @@ OPTIONS = {
         'description': ['The password of the user.'],
         'available': ['present'],
         'required': ['present'],
+        'no_log': True,
         'type': 'str',
     },
     'database': {
@@ -215,7 +216,7 @@ def create_mongo_cluster_user(module, dbaas_client):
 
     existing_mongo_user = None
     try:
-        existing_mongo_user = mongo_users_api.users_find_by_id(mongo_cluster_id, database, mongo_username)
+        existing_mongo_user = mongo_users_api.cluster_users_find_by_id(mongo_cluster_id, database, mongo_username)
     except ionoscloud_dbaas_mongo.ApiException as e:
         if e.status != 404:
             raise e
@@ -243,7 +244,7 @@ def create_mongo_cluster_user(module, dbaas_client):
     mongo_user = ionoscloud_dbaas_mongo.User(properties=mongo_user_properties)
 
     try:
-        mongo_user = mongo_users_api.users_post(mongo_cluster_id, mongo_user)
+        mongo_user = mongo_users_api.clusters_users_post(mongo_cluster_id, mongo_user)
 
         return {
             'changed': True,
