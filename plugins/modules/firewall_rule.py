@@ -36,6 +36,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Firewall Rule'
+RETURNED_KEY = 'firewall_rule'
 
 OPTIONS = {
     'datacenter': {
@@ -52,6 +53,12 @@ OPTIONS = {
     },
     'nic': {
         'description': ['The NIC name or UUID.'],
+        'required': STATES,
+        'available': STATES,
+        'type': 'str',
+    },
+    'firewall_rule': {
+        'description': ['The Firewall Rule name or UUID.'],
         'required': STATES,
         'available': STATES,
         'type': 'str',
@@ -284,6 +291,205 @@ def _get_request_id(headers):
     else:
         raise Exception("Failed to extract request ID from response "
                         "header 'location': '{location}'".format(location=headers['location']))
+
+
+
+def _should_replace_object(module, existing_object):
+    return (
+        module.params.get('location') is not None
+        and existing_object.properties.location != module.params.get('location')
+    )
+
+
+def _should_update_object(module, existing_object):
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+        or module.params.get('description') is not None
+        and existing_object.properties.description != module.params.get('description')
+    )
+
+
+def _get_object_list(module, client):
+    datacenter = module.params.get('datacenter')
+    server = module.params.get('server')
+    nic = module.params.get('nic')
+    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
+    server_server = ionoscloud.ServersApi(api_client=client)
+    nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
+    firewall_rules_server = ionoscloud.FirewallRulesApi(api_client=client)
+
+    # Locate UUID for virtual datacenter
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
+
+    # Locate UUID for server
+    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
+    server_id = get_resource_id(module, server_list, server)
+
+    # Locate UUID for NIC
+    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=1)
+    nic_id = get_resource_id(module, nic_list, nic)
+
+    return firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id, server_id, nic_id, depth=2)
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('firewall_rule')
+
+
+def _create_object(module, client, existing_object=None):
+    name = module.params.get('name')
+    location = module.params.get('location')
+    description = module.params.get('description')
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        location = existing_object.properties.location if location is None else location
+        description = existing_object.properties.description if description is None else description
+
+    wait = module.params.get('wait')
+    wait_timeout = int(module.params.get('wait_timeout'))
+
+    datacenters_api = ionoscloud.DataCentersApi(client)
+
+    datacenter_properties = DatacenterProperties(name=name, description=description, location=location)
+    datacenter = Datacenter(properties=datacenter_properties)
+
+    try:
+        datacenter_response, _, headers = datacenters_api.datacenters_post_with_http_info(datacenter=datacenter)
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to create the new datacenter: %s" % to_native(e))
+    return datacenter_response
+
+
+def _update_object(module, client, existing_object):
+    name = module.params.get('name')
+    description = module.params.get('description')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    datacenters_api = ionoscloud.DataCentersApi(client)
+
+    datacenter_properties=DatacenterProperties(name=name, description=description)
+
+    try:
+        datacenter_response, _, headers = datacenters_api.datacenters_patch_with_http_info(
+            datacenter_id=existing_object.id,
+            datacenter=datacenter_properties,
+        )
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
+        return datacenter_response
+    except ApiException as e:
+        module.fail_json(msg="failed to update the datacenter: %s" % to_native(e))
+
+
+def _remove_object(module, client, existing_object):
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    datacenters_api = ionoscloud.DataCentersApi(client)
+
+    try:
+        _, _, headers = datacenters_api.datacenters_delete_with_http_info(
+            datacenter_id=existing_object.id,
+        )
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to remove the datacenter: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if module.params.get('replace') and _should_replace_object(module, existing_object):
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: _create_object(module, client, existing_object).to_dict()
+        }
+    if _should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
+        }
+
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
+
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
+
+
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
+
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    _remove_object(module, client, existing_object)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.id,
+    }
 
 
 def create_firewall_rule(module, client):
