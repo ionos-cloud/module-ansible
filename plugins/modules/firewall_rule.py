@@ -3,6 +3,9 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+from ansible.module_utils._text import to_native
+from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible import __version__
 import copy
 import re
 import time
@@ -20,9 +23,6 @@ try:
 except ImportError:
     HAS_SDK = False
 
-from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule, env_fallback
-from ansible.module_utils._text import to_native
 
 __metaclass__ = type
 
@@ -32,7 +32,8 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (
+    __version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Firewall Rule'
@@ -172,11 +173,13 @@ OPTIONS = {
     },
 }
 
+
 def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
+    val['required'] = len(val.get('required', [])) == len(STATES)
     del val['available']
     del val['type']
     return val
+
 
 DOCUMENTATION = '''
 ---
@@ -195,7 +198,7 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''# Create a firewall rule
+    'present': '''# Create a firewall rule
 - name: Create SSH firewall rule
   firewall_rule:
     datacenter: Virtual Datacenter
@@ -220,7 +223,7 @@ EXAMPLE_PER_STATE = {
     icmp_code: 0
     state: present
   ''',
-  'update' : '''# Update a firewall rule
+    'update': '''# Update a firewall rule
 - name: Allow SSH access
   firewall_rule:
       datacenter: Virtual Datacenter
@@ -231,7 +234,7 @@ EXAMPLE_PER_STATE = {
       source_mac: 01:23:45:67:89:00
       state: update
   ''',
-  'absent' : '''# Remove a firewall rule
+    'absent': '''# Remove a firewall rule
 - name: Remove public ping firewall rule
   firewall_rule:
     datacenter: Virtual Datacenter
@@ -252,29 +255,31 @@ def _get_matched_resources(resource_list, identity, identity_paths=None):
     """
 
     if identity_paths is None:
-      identity_paths = [['id'], ['properties', 'name']]
+        identity_paths = [['id'], ['properties', 'name']]
 
     def check_identity_method(resource):
-      resource_identity = []
+        resource_identity = []
 
-      for identity_path in identity_paths:
-        current = resource
-        for el in identity_path:
-          current = getattr(current, el)
-        resource_identity.append(current)
+        for identity_path in identity_paths:
+            current = resource
+            for el in identity_path:
+                current = getattr(current, el)
+            resource_identity.append(current)
 
-      return identity in resource_identity
+        return identity in resource_identity
 
     return list(filter(check_identity_method, resource_list.items))
 
 
 def get_resource(module, resource_list, identity, identity_paths=None):
-    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+    matched_resources = _get_matched_resources(
+        resource_list, identity, identity_paths)
 
     if len(matched_resources) == 1:
         return matched_resources[0]
     elif len(matched_resources) > 1:
-        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+        module.fail_json(msg="found more resources of type {} for '{}'".format(
+            resource_list.id, identity))
     else:
         return None
 
@@ -293,20 +298,30 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-
 def _should_replace_object(module, existing_object):
-    return (
-        module.params.get('location') is not None
-        and existing_object.properties.location != module.params.get('location')
-    )
+    return False
 
 
 def _should_update_object(module, existing_object):
     return (
         module.params.get('name') is not None
         and existing_object.properties.name != module.params.get('name')
-        or module.params.get('description') is not None
-        and existing_object.properties.description != module.params.get('description')
+        or module.params.get('protocol') is not None
+        and existing_object.properties.protocol != module.params.get('protocol')
+        or module.params.get('source_mac') is not None
+        and existing_object.properties.source_mac != module.params.get('source_mac')
+        or module.params.get('source_ip') is not None
+        and existing_object.properties.source_ip != module.params.get('source_ip')
+        or module.params.get('target_ip') is not None
+        and existing_object.properties.target_ip != module.params.get('target_ip')
+        or module.params.get('port_range_start') is not None
+        and existing_object.properties.port_range_start != module.params.get('port_range_start')
+        or module.params.get('port_range_end') is not None
+        and existing_object.properties.port_range_end != module.params.get('port_range_end')
+        or module.params.get('icmp_type') is not None
+        and existing_object.properties.icmp_type != module.params.get('icmp_type')
+        or module.params.get('icmp_code') is not None
+        and existing_object.properties.icmp_code != module.params.get('icmp_code')
     )
 
 
@@ -314,24 +329,26 @@ def _get_object_list(module, client):
     datacenter = module.params.get('datacenter')
     server = module.params.get('server')
     nic = module.params.get('nic')
-    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    server_server = ionoscloud.ServersApi(api_client=client)
-    nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
-    firewall_rules_server = ionoscloud.FirewallRulesApi(api_client=client)
+    datacenter_api = ionoscloud.DataCentersApi(api_client=client)
+    server_api = ionoscloud.ServersApi(api_client=client)
+    nic_api = ionoscloud.NetworkInterfacesApi(api_client=client)
+    firewall_rules_api = ionoscloud.FirewallRulesApi(api_client=client)
 
     # Locate UUID for virtual datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = datacenter_api.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for server
-    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
+    server_list = server_api.datacenters_servers_get(
+        datacenter_id=datacenter_id, depth=1)
     server_id = get_resource_id(module, server_list, server)
 
     # Locate UUID for NIC
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=1)
+    nic_list = nic_api.datacenters_servers_nics_get(
+        datacenter_id=datacenter_id, server_id=server_id, depth=1)
     nic_id = get_resource_id(module, nic_list, nic)
 
-    return firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id, server_id, nic_id, depth=2)
+    return firewall_rules_api.datacenters_servers_nics_firewallrules_get(datacenter_id, server_id, nic_id, depth=2)
 
 
 def _get_object_name(module):
@@ -344,29 +361,83 @@ def _get_object_identifier(module):
 
 def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
-    location = module.params.get('location')
-    description = module.params.get('description')
+    protocol = module.params.get('protocol')
+    source_mac = module.params.get('source_mac')
+    source_ip = module.params.get('source_ip')
+    target_ip = module.params.get('target_ip')
+    port_range_start = module.params.get('port_range_start')
+    port_range_end = module.params.get('port_range_end')
+    icmp_type = module.params.get('icmp_type')
+    icmp_code = module.params.get('icmp_code')
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
-        location = existing_object.properties.location if location is None else location
-        description = existing_object.properties.description if description is None else description
+        protocol = existing_object.properties.protocol if protocol is None else protocol
+        source_mac = existing_object.properties.source_mac if source_mac is None else source_mac
+        source_ip = existing_object.properties.source_ip if source_ip is None else source_ip
+        target_ip = existing_object.properties.target_ip if target_ip is None else target_ip
+        port_range_start = existing_object.properties.port_range_start if port_range_start is None else port_range_start
+        port_range_end = existing_object.properties.port_range_end if port_range_end is None else port_range_end
+        icmp_type = existing_object.properties.icmp_type if icmp_type is None else icmp_type
+        icmp_code = existing_object.properties.icmp_code if icmp_code is None else icmp_code
 
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
     datacenters_api = ionoscloud.DataCentersApi(client)
+    nic_api = ionoscloud.NetworkInterfacesApi(api_client=client)
+    servers_api = ionoscloud.ServersApi(api_client=client)
+    firewall_rules_api = ionoscloud.FirewallRulesApi(api_client=client)
 
-    datacenter_properties = DatacenterProperties(name=name, description=description, location=location)
-    datacenter = Datacenter(properties=datacenter_properties)
+
+    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
+
+    server_list = servers_api.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
+    server_id = get_resource_id(module, server_list, module.params.get('server'))
+
+    nic_list = nic_api.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=1)
+    nic_id = get_resource_id(module, nic_list, module.params.get('nic'))
+
+    firewall_rule = FirewallRule(properties=FirewallruleProperties(
+        name=name, protocol=protocol, source_mac=source_mac,
+        source_ip=source_ip,
+        target_ip=target_ip, icmp_code=icmp_code, icmp_type=icmp_type,
+        port_range_start=port_range_start,
+        port_range_end=port_range_end,
+    ))
+
 
     try:
-        datacenter_response, _, headers = datacenters_api.datacenters_post_with_http_info(datacenter=datacenter)
+        current_nic = nic_api.datacenters_servers_nics_find_by_id(
+            datacenter_id=datacenter_id, server_id=server_id, nic_id=nic_id,
+        )
+        nic = Nic(properties=NicProperties(firewall_active=True, lan=current_nic.properties.lan))
+        nic_api.datacenters_servers_nics_put(
+            datacenter_id=datacenter_id, server_id=server_id, nic_id=nic_id, nic=nic,
+        )
+
+    except Exception as e:
+        module.fail_json(msg='Unable to activate the NIC firewall.' % to_native(e))
+
+    try:
+        firewall_rule_response, _, headers = firewall_rules_api.datacenters_servers_nics_firewallrules_post_with_http_info(
+            datacenter_id=datacenter_id, server_id=server_id, nic_id=nic_id, firewallrule=firewall_rule,
+        )
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            'firewall_rule': firewall_rule_response.to_dict()
+        }
+
     except ApiException as e:
-        module.fail_json(msg="failed to create the new datacenter: %s" % to_native(e))
-    return datacenter_response
+        module.fail_json(msg="failed to create the firewall rule: %s" % to_native(e))
+
+    return firewall_rule_response
 
 
 def _update_object(module, client, existing_object):
@@ -377,7 +448,8 @@ def _update_object(module, client, existing_object):
 
     datacenters_api = ionoscloud.DataCentersApi(client)
 
-    datacenter_properties=DatacenterProperties(name=name, description=description)
+    datacenter_properties = DatacenterProperties(
+        name=name, description=description)
 
     try:
         datacenter_response, _, headers = datacenters_api.datacenters_patch_with_http_info(
@@ -386,11 +458,13 @@ def _update_object(module, client, existing_object):
         )
         if wait:
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(
+                request_id=request_id, timeout=wait_timeout)
 
         return datacenter_response
     except ApiException as e:
-        module.fail_json(msg="failed to update the datacenter: %s" % to_native(e))
+        module.fail_json(
+            msg="failed to update the datacenter: %s" % to_native(e))
 
 
 def _remove_object(module, client, existing_object):
@@ -407,17 +481,23 @@ def _remove_object(module, client, existing_object):
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
     except ApiException as e:
-        module.fail_json(msg="failed to remove the datacenter: %s" % to_native(e))
+        module.fail_json(
+            msg="failed to remove the datacenter: %s" % to_native(e))
 
 
 def update_replace_object(module, client, existing_object):
-    if module.params.get('replace') and _should_replace_object(module, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if module.params.get('do_not_replace'):
+            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
         return {
             'changed': True,
             'failed': False,
             'action': 'create',
-            RETURNED_KEY: _create_object(module, client, existing_object).to_dict()
+            RETURNED_KEY: new_object,
         }
     if _should_update_object(module, existing_object):
         # Update
@@ -477,7 +557,6 @@ def update_object(module, client):
 
 
 def remove_object(module, client):
-
     existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
 
     if existing_object is None:
@@ -490,103 +569,6 @@ def remove_object(module, client):
         'changed': True,
         'id': existing_object.id,
     }
-
-
-def create_firewall_rule(module, client):
-    """
-    Creates a firewall rule.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        The firewall rule instance being created
-    """
-    datacenter = module.params.get('datacenter')
-    server = module.params.get('server')
-    nic = module.params.get('nic')
-    name = module.params.get('name')
-    protocol = module.params.get('protocol')
-    source_mac = module.params.get('source_mac')
-    source_ip = module.params.get('source_ip')
-    target_ip = module.params.get('target_ip')
-    port_range_start = module.params.get('port_range_start')
-    port_range_end = module.params.get('port_range_end')
-    icmp_type = module.params.get('icmp_type')
-    icmp_code = module.params.get('icmp_code')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-
-    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    server_server = ionoscloud.ServersApi(api_client=client)
-    nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
-    firewall_rules_server = ionoscloud.FirewallRulesApi(api_client=client)
-
-    # Locate UUID for virtual datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
-
-    # Locate UUID for server
-    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
-    server_id = get_resource_id(module, server_list, server)
-
-    # Locate UUID for NIC
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=1)
-    nic_id = get_resource_id(module, nic_list, nic)
-
-    fw_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id, server_id, nic_id, depth=2)
-
-    existing_firewallrule = get_resource(module, fw_list, name)
-
-    if existing_firewallrule:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'firewall_rule': existing_firewallrule.to_dict()
-        }
-
-    if module.check_mode:
-        module.exit_json(changed=False)
-
-    try:
-
-        current_nic = nic_server.datacenters_servers_nics_find_by_id(datacenter_id=datacenter_id, server_id=server_id,
-                                                                     nic_id=nic_id)
-        nic = Nic(properties=NicProperties(firewall_active=True, lan=current_nic.properties.lan))
-        nic_server.datacenters_servers_nics_put(datacenter_id=datacenter_id, server_id=server_id, nic_id=nic_id,
-                                                nic=nic)
-
-    except Exception as e:
-        module.fail_json(msg='Unable to activate the NIC firewall.' % to_native(e))
-
-    firewall_properties = FirewallruleProperties(name=name, protocol=protocol, source_mac=source_mac,
-                                                 source_ip=source_ip,
-                                                 target_ip=target_ip, icmp_code=icmp_code, icmp_type=icmp_type,
-                                                 port_range_start=port_range_start,
-                                                 port_range_end=port_range_end)
-
-    firewall_rule = FirewallRule(properties=firewall_properties)
-
-    try:
-        response = firewall_rules_server.datacenters_servers_nics_firewallrules_post_with_http_info(datacenter_id=datacenter_id,
-                                                                                         server_id=server_id,
-                                                                                         nic_id=nic_id,
-                                                                                         firewallrule=firewall_rule)
-        (firewall_rule_response, _, headers) = response
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            'firewall_rule': firewall_rule_response.to_dict()
-        }
-
-    except Exception as e:
-        module.fail_json(msg="failed to create the firewall rule: %s" % to_native(e))
 
 
 def update_firewall_rule(module, client):
@@ -613,26 +595,28 @@ def update_firewall_rule(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    server_server = ionoscloud.ServersApi(api_client=client)
-    nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
-    firewall_rules_server = ionoscloud.FirewallRulesApi(api_client=client)
+    datacenter_api = ionoscloud.DataCentersApi(api_client=client)
+    server_api = ionoscloud.ServersApi(api_client=client)
+    nic_api = ionoscloud.NetworkInterfacesApi(api_client=client)
+    firewall_rules_api = ionoscloud.FirewallRulesApi(api_client=client)
 
     # Locate UUID for virtual datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_api.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for server
-    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
+    server_list = server_api.datacenters_servers_get(
+        datacenter_id=datacenter_id, depth=1)
     server_id = get_resource_id(module, server_list, server)
 
     # Locate UUID for NIC
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=1)
+    nic_list = nic_api.datacenters_servers_nics_get(
+        datacenter_id=datacenter_id, server_id=server_id, depth=1)
     nic_id = get_resource_id(module, nic_list, nic)
 
     # Locate UUID for firewall rule
-    fw_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id=datacenter_id, server_id=server_id,
-                                                                    nic_id=nic_id, depth=1)
+    fw_list = firewall_rules_api.datacenters_servers_nics_firewallrules_get(datacenter_id=datacenter_id, server_id=server_id,
+                                                                               nic_id=nic_id, depth=1)
     fw_id = get_resource_id(module, fw_list, name)
 
     if module.check_mode:
@@ -651,11 +635,11 @@ def update_firewall_rule(module, client):
             firewall_rule_properties.icmp_code = icmp_code
             firewall_rule_properties.icmp_type = icmp_type
 
-        response = firewall_rules_server.datacenters_servers_nics_firewallrules_patch_with_http_info(datacenter_id=datacenter_id,
-                                                                                          server_id=server_id,
-                                                                                          nic_id=nic_id,
-                                                                                          firewallrule_id=fw_id,
-                                                                                          firewallrule=firewall_rule_properties)
+        response = firewall_rules_api.datacenters_servers_nics_firewallrules_patch_with_http_info(datacenter_id=datacenter_id,
+                                                                                                     server_id=server_id,
+                                                                                                     nic_id=nic_id,
+                                                                                                     firewallrule_id=fw_id,
+                                                                                                     firewallrule=firewall_rule_properties)
 
         (firewall_rule_response, _, headers) = response
         request_id = _get_request_id(headers['Location'])
@@ -669,7 +653,8 @@ def update_firewall_rule(module, client):
         }
 
     except Exception as e:
-        module.fail_json(msg="failed to update the firewall rule: %s" % to_native(e))
+        module.fail_json(
+            msg="failed to update the firewall rule: %s" % to_native(e))
 
 
 def delete_firewall_rule(module, client):
@@ -687,27 +672,29 @@ def delete_firewall_rule(module, client):
     nic = module.params.get('nic')
     name = module.params.get('name')
 
-    datacenter_server = ionoscloud.DataCentersApi(client)
-    server_server = ionoscloud.ServersApi(client)
-    nic_server = ionoscloud.NetworkInterfacesApi(client)
-    firewall_rules_server = ionoscloud.FirewallRulesApi(api_client=client)
+    datacenter_api = ionoscloud.DataCentersApi(client)
+    server_api = ionoscloud.ServersApi(client)
+    nic_api = ionoscloud.NetworkInterfacesApi(client)
+    firewall_rules_api = ionoscloud.FirewallRulesApi(api_client=client)
 
     # Locate UUID for virtual datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_api.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for server
-    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
+    server_list = server_api.datacenters_servers_get(
+        datacenter_id=datacenter_id, depth=1)
     server_id = get_resource_id(module, server_list, server)
 
     # Locate UUID for NIC
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=1)
+    nic_list = nic_api.datacenters_servers_nics_get(
+        datacenter_id=datacenter_id, server_id=server_id, depth=1)
     nic_id = get_resource_id(module, nic_list, nic)
 
     # Locate UUID for firewall rule
-    firewall_rule_list = firewall_rules_server.datacenters_servers_nics_firewallrules_get(datacenter_id=datacenter_id,
-                                                                               server_id=server_id, nic_id=nic_id,
-                                                                               depth=1)
+    firewall_rule_list = firewall_rules_api.datacenters_servers_nics_firewallrules_get(datacenter_id=datacenter_id,
+                                                                                          server_id=server_id, nic_id=nic_id,
+                                                                                          depth=1)
     firewall_rule_id = get_resource_id(module, firewall_rule_list, name)
 
     if not firewall_rule_id:
@@ -717,10 +704,10 @@ def delete_firewall_rule(module, client):
         module.exit_json(changed=True)
 
     try:
-        firewall_rules_server.datacenters_servers_nics_firewallrules_delete(datacenter_id=datacenter_id,
-                                                                                          server_id=server_id,
-                                                                                          nic_id=nic_id,
-                                                                                          firewallrule_id=firewall_rule_id)
+        firewall_rules_api.datacenters_servers_nics_firewallrules_delete(datacenter_id=datacenter_id,
+                                                                            server_id=server_id,
+                                                                            nic_id=nic_id,
+                                                                            firewallrule_id=firewall_rule_id)
 
         return {
             'changed': True,
@@ -728,7 +715,8 @@ def delete_firewall_rule(module, client):
             'id': firewall_rule_id
         }
     except Exception as e:
-        module.fail_json(msg="failed to remove the firewall rule: %s" % to_native(e))
+        module.fail_json(
+            msg="failed to remove the firewall rule: %s" % to_native(e))
 
 
 def get_module_arguments():
@@ -801,10 +789,12 @@ def check_required_arguments(module, state, object_name):
 
 
 def main():
-    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+    module = AnsibleModule(
+        argument_spec=get_module_arguments(), supports_check_mode=True)
 
     if not HAS_SDK:
-        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+        module.fail_json(
+            msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
     state = module.params.get('state')
     with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
@@ -819,7 +809,8 @@ def main():
             elif state == 'update':
                 module.exit_json(**update_firewall_rule(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(
+                object_name=OBJECT_NAME, error=to_native(e), state=state))
 
 
 if __name__ == '__main__':
