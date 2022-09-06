@@ -87,13 +87,13 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   | annotations | False | dict |  | Map of annotations attached to node pool. |
   | auto_scaling | False | dict |  | Property to be set when auto-scaling needs to be enabled for the nodepool. By default, auto-scaling is not enabled. |
   | public_ips | False | list |  | Optional array of reserved public IP addresses to be used by the nodes. IPs must be from same location as the data center used for the node pool. The array must contain one more IP than maximum number possible number of nodes (nodeCount+1 for fixed number of nodes or maxNodeCount+1 when auto scaling is used). The extra IP is used when the nodes are rebuilt. |
-  | replace | False | bool | False | Boolean indincating if the resource shoul be recreated if an update cannot be performed in order to reach the desired state. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | wait_timeout | False | int | 3600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
 
 &nbsp;
@@ -121,7 +121,7 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | wait_timeout | False | int | 3600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
 
 &nbsp;
@@ -169,13 +169,13 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   | annotations | False | dict |  | Map of annotations attached to node pool. |
   | auto_scaling | False | dict |  | Property to be set when auto-scaling needs to be enabled for the nodepool. By default, auto-scaling is not enabled. |
   | public_ips | False | list |  | Optional array of reserved public IP addresses to be used by the nodes. IPs must be from same location as the data center used for the node pool. The array must contain one more IP than maximum number possible number of nodes (nodeCount+1 for fixed number of nodes or maxNodeCount+1 when auto scaling is used). The extra IP is used when the nodes are rebuilt. |
-  | replace | False | bool | False | Boolean indincating if the resource shoul be recreated if an update cannot be performed in order to reach the desired state. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | wait_timeout | False | int | 3600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
 
 &nbsp;

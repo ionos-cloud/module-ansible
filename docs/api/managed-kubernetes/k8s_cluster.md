@@ -50,12 +50,13 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   | maintenance_window | False | dict |  | The maintenance window is used for updating the cluster's control plane and for upgrading the cluster's K8s version. If no value is given, one is chosen dynamically, so there is no fixed default. |
   | api_subnet_allow_list | False | list |  | Access to the K8s API server is restricted to these CIDRs. Traffic, internal to the cluster, is not affected by this restriction. If no allowlist is specified, access is not restricted. If an IP without subnet mask is provided, the default value is used: 32 for IPv4 and 128 for IPv6. |
   | s3_buckets_param | False | list |  | List of S3 bucket configured for K8s usage. For now it contains only an S3 bucket used to store K8s API audit logs. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | wait_timeout | False | int | 3600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
 
 &nbsp;
@@ -81,7 +82,7 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | wait_timeout | False | int | 3600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
 
 &nbsp;
@@ -111,12 +112,13 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   | maintenance_window | True | dict |  | The maintenance window is used for updating the cluster's control plane and for upgrading the cluster's K8s version. If no value is given, one is chosen dynamically, so there is no fixed default. |
   | api_subnet_allow_list | False | list |  | Access to the K8s API server is restricted to these CIDRs. Traffic, internal to the cluster, is not affected by this restriction. If no allowlist is specified, access is not restricted. If an IP without subnet mask is provided, the default value is used: 32 for IPv4 and 128 for IPv6. |
   | s3_buckets_param | False | list |  | List of S3 bucket configured for K8s usage. For now it contains only an S3 bucket used to store K8s API audit logs. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
   | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | wait_timeout | False | int | 3600 | How long before wait gives up, in seconds. |
   | state | False | str | present | Indicate desired state of the resource. |
 
 &nbsp;

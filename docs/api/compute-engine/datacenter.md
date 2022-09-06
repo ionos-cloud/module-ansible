@@ -54,7 +54,7 @@ This is a simple module that supports creating or removing vDCs. A vDC is requir
   | name | True | str |  | The name of the virtual datacenter. |
   | description | False | str |  | The description of the virtual datacenter. |
   | location | True | str |  | The datacenter location. |
-  | replace | False | bool | False | Boolean indincating if the resource shoul be recreated if an update cannot be performed in order to reach the desired state. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -114,7 +114,7 @@ This is a simple module that supports creating or removing vDCs. A vDC is requir
   | description | False | str |  | The description of the virtual datacenter. |
   | location | False | str |  | The datacenter location. |
   | datacenter | True | str |  | The ID or name of the virtual datacenter. |
-  | replace | False | bool | False | Boolean indincating if the resource shoul be recreated if an update cannot be performed in order to reach the desired state. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
