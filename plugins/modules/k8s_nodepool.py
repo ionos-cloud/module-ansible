@@ -626,7 +626,6 @@ def update_object(module, client):
 
 
 def remove_object(module, client):
-
     existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
 
     if existing_object is None:
