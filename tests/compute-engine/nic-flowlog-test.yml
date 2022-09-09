@@ -78,7 +78,7 @@
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         server_id: "{{ server_response.machines[0].id }}"
         nic_id: "{{ nic_response.nic.id }}"
-        flowlog_id: "{{ flowlog_response.flowlog.id }}"
+        flowlog: "{{ flowlog_response.flowlog.id }}"
       register: flowlog_update_response
 
 
@@ -92,7 +92,7 @@
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         server_id: "{{ server_response.machines[0].id }}"
         nic_id: "{{ nic_response.nic.id }}"
-        flowlog_id: "{{ flowlog_response.flowlog.id }}"
+        flowlog: "{{ flowlog_response.flowlog.id }}"
         name: "{{ name }}"
         state: absent
         wait: true
@@ -103,7 +103,7 @@
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         server_id: "{{ server_response.machines[0].id }}"
         nic_id: "{{ nic_response.nic.id }}"
-        flowlog_id: "invalid-id"
+        flowlog: "invalid-id"
         name: "{{ name }}"
         state: absent
         wait: true
@@ -115,7 +115,7 @@
 
     - name: Remove NIC
       nic:
-        name: "{{ nic_response.nic.id }}"
+        nic: "{{ nic_response.nic.id }}"
         datacenter: "{{ datacenter }}"
         server: "{{ server_response.machines[0].id }}"
         wait: true

@@ -76,7 +76,7 @@
       nic:
         datacenter: "{{ datacenter }}"
         server: "{{ server }}"
-        id: "{{ ionos_cloud_nic.nic.id }}"
+        nic: "{{ ionos_cloud_nic.nic.id }}"
         name: "new-nic"
         dhcp: false
         ips: "{{ ipblock_response.ipblock.properties.ips }}"

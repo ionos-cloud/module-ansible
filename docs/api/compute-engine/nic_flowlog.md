@@ -101,8 +101,7 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the Flowlog. |
-  | flowlog_id | False | str |  | The ID of the Flowlog. |
+  | flowlog | True | str |  | The ID or name of an existing Flowlog. |
   | datacenter_id | True | str |  | The ID of the virtual datacenter. |
   | server_id | True | str |  | The ID of the Server. |
   | nic_id | True | str |  | The ID of the NIC. |
@@ -138,7 +137,7 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the Flowlog. |
-  | flowlog_id | False | str |  | The ID of the Flowlog. |
+  | flowlog | True | str |  | The ID or name of an existing Flowlog. |
   | datacenter_id | True | str |  | The ID of the virtual datacenter. |
   | server_id | True | str |  | The ID of the Server. |
   | nic_id | True | str |  | The ID of the NIC. |

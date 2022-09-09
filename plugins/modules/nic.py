@@ -254,18 +254,21 @@ def _get_request_id(headers):
 
 
 def _should_replace_object(module, existing_object):
-    return (
-        module.params.get('location') is not None
-        and existing_object.properties.location != module.params.get('location')
-    )
+    return False
 
 
 def _should_update_object(module, existing_object):
     return (
-        module.params.get('name') is not None
+        module.params.get('ips') is not None
+        and sorted(existing_object.properties.ips) != sorted(module.params.get('ips'))
+        or module.params.get('dhcp') is not None
+        and existing_object.properties.dhcp != module.params.get('dhcp')
+        or module.params.get('lan') is not None
+        and existing_object.properties.lan != module.params.get('lan')
+        or module.params.get('firewall_active') is not None
+        and existing_object.properties.firewall_active != module.params.get('firewall_active')
+        or module.params.get('name') is not None
         and existing_object.properties.name != module.params.get('name')
-        or module.params.get('description') is not None
-        and existing_object.properties.description != module.params.get('description')
     )
 
 

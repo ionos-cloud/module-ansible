@@ -55,7 +55,7 @@ This module allows you to create, update or remove a NIC.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the NIC. |
+  | name | True | str |  | The name of the NIC. |
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
   | server | True | str |  | The server name or UUID. |
   | dhcp | False | bool |  | Boolean value indicating if the NIC is using DHCP or not. |
@@ -88,7 +88,7 @@ This module allows you to create, update or remove a NIC.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the NIC. |
+  | nic | True | str |  | The ID or name of an existing NIC. |
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
   | server | True | str |  | The server name or UUID. |
   | api_url | False | str |  | The Ionos API base URL. |
@@ -123,7 +123,7 @@ This module allows you to create, update or remove a NIC.
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the NIC. |
-  | id | False | str |  | The ID of the NIC. |
+  | nic | True | str |  | The ID or name of an existing NIC. |
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
   | server | True | str |  | The server name or UUID. |
   | lan | False | str |  | The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create. |
