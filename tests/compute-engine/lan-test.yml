@@ -99,7 +99,7 @@
 
     - name: Remove NIC
       nic:
-        name: "{{ ionos_cloud_nic.nic.id }}"
+        nic: "{{ ionos_cloud_nic.nic.id }}"
         datacenter: "{{ datacenter }}"
         server: "{{ server }}"
         wait: true

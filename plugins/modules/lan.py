@@ -228,18 +228,19 @@ def _get_request_id(headers):
 
 
 def _should_replace_object(module, existing_object):
-    return (
-        module.params.get('location') is not None
-        and existing_object.properties.location != module.params.get('location')
-    )
+    return False
 
 
 def _should_update_object(module, existing_object):
     return (
         module.params.get('name') is not None
         and existing_object.properties.name != module.params.get('name')
-        or module.params.get('description') is not None
-        and existing_object.properties.description != module.params.get('description')
+        or module.params.get('public') is not None
+        and existing_object.properties.public != module.params.get('public')
+        or module.params.get('ip_failover') is not None
+        and existing_object.properties.ip_failover != list(map(lambda el: {'ip': el.ip, 'nic_uuid': el.nic_uuid}, module.params.get('ip_failover')))
+        or module.params.get('pcc_id') is not None
+        and existing_object.properties.pcc != module.params.get('pcc_id')
     )
 
 

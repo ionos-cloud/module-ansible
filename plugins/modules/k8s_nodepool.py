@@ -343,7 +343,7 @@ def _should_update_object(module, existing_object):
             or existing_object.properties.maintenance_window.time != module.params.get('maintenance_window').get('time')
         )
         or module.params.get('lan_ids') is not None
-        and sorted(existing_object.properties.lan_ids.sort()) != sorted(module.params.get('lan_ids').sort())
+        and sorted(existing_object.properties.lan_ids) != sorted(module.params.get('lan_ids'))
         or module.params.get('public_ips') is not None
         and sorted(existing_object.properties.public_ips) != sorted(module.params.get('public_ips'))
         or module.params.get('node_count') is not None
