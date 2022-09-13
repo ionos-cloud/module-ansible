@@ -18,17 +18,17 @@
 
     - name: Update pcc
       pcc:
-        pcc_id: "{{ result.pcc.id }}"
+        pcc:  "{{ name }}"
         name: "RENAMED {{ name }}"
         description: "{{ description }} - RENAME"
         state: update
 
     - name: Remove pcc
       pcc:
-        pcc_id: "{{ result.pcc.id }}"
+        pcc: "{{ result.pcc.id }}"
         state: absent
 
     - name: Remove non-existent pcc
       pcc:
-        pcc_id: "non-existent-pcc"
+        pcc: "non-existent-pcc"
         state: absent
