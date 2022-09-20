@@ -331,9 +331,28 @@ def _get_request_id(headers):
 
 
 def _should_replace_object(module, existing_object):
+    with open('debug.txt', 'a') as f:
+        f.write(str(['da', existing_object.properties]))
     return (
-        module.params.get('location') is not None
-        and existing_object.properties.location != module.params.get('location')
+        module.params.get('size') is not None
+        and existing_object.properties.size != module.params.get('size')
+        or module.params.get('image') is not None
+        and existing_object.properties.image != module.params.get('image')
+        or module.params.get('image_password') is not None
+        and existing_object.properties.image_password != module.params.get('image_password')
+        or module.params.get('ssh_keys') is not None
+        and existing_object.properties.ssh_keys != module.params.get('ssh_keys')
+        or module.params.get('disk_type') is not None
+        and existing_object.properties.disk_type != module.params.get('disk_type')
+        or module.params.get('availability_zone') is not None
+        and existing_object.properties.availability_zone != module.params.get('availability_zone')
+        and 'AUTO' != module.params.get('availability_zone')
+        or module.params.get('licence_type') is not None
+        and existing_object.properties.licence_type != module.params.get('licence_type')
+        or module.params.get('backupunit_id') is not None
+        and existing_object.properties.backupunit_id != module.params.get('backupunit_id')
+        or module.params.get('user_data') is not None
+        and existing_object.properties.user_data != module.params.get('user_data')
     )
 
 
@@ -341,6 +360,20 @@ def _should_update_object(module, existing_object):
     return (
         module.params.get('name') is not None
         and existing_object.properties.name != module.params.get('name')
+        or module.params.get('size') is not None
+        and existing_object.properties.size != module.params.get('size')
+        or module.params.get('bus') is not None
+        and existing_object.properties.bus != module.params.get('bus')
+        or module.params.get('cpu_hot_plug') is not None
+        and existing_object.properties.cpu_hot_plug != module.params.get('cpu_hot_plug')
+        or module.params.get('ram_hot_plug') is not None
+        and existing_object.properties.ram_hot_plug != module.params.get('ram_hot_plug')
+        or module.params.get('nic_hot_unplug') is not None
+        and existing_object.properties.nic_hot_unplug != module.params.get('nic_hot_unplug')
+        or module.params.get('disc_virtio_hot_plug') is not None
+        and existing_object.properties.disc_virtio_hot_plug != module.params.get('disc_virtio_hot_plug')
+        or module.params.get('disc_virtio_hot_unplug') is not None
+        and existing_object.properties.disc_virtio_hot_unplug != module.params.get('disc_virtio_hot_unplug')
     )
 
 
@@ -350,7 +383,7 @@ def update_replace_object(module, client, existing_object, new_object_name):
         if module.params.get('do_not_replace'):
             module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
 
-        new_object = _create_object(module, client, existing_object).to_dict()
+        new_object = _create_object(module, client, new_object_name, existing_object).to_dict()
         _remove_object(module, client, existing_object)
         return {
             'changed': True,
@@ -376,7 +409,7 @@ def update_replace_object(module, client, existing_object, new_object_name):
     }
 
 
-def _create_object(module, client, name):
+def _create_object(module, client, name, existing_object=None):
     size = module.params.get('size')
     bus = module.params.get('bus')
     image = module.params.get('image')
@@ -393,6 +426,24 @@ def _create_object(module, client, name):
     disc_virtio_hot_unplug = module.params.get('disc_virtio_hot_unplug')
     backupunit_id = module.params.get('backupunit_id')
     user_data = module.params.get('user_data')
+
+    if existing_object is not None:
+        size = existing_object.properties.size if size is None else size
+        bus = existing_object.properties.bus if bus is None else bus
+        image = existing_object.properties.image if image is None else image
+        image_password = existing_object.properties.image_password if image_password is None else image_password
+        ssh_keys = existing_object.properties.ssh_keys if ssh_keys is None else ssh_keys
+        disk_type = existing_object.properties.disk_type if disk_type is None else disk_type
+        availability_zone = existing_object.properties.availability_zone if availability_zone is None else availability_zone
+        licence_type = existing_object.properties.licence_type if licence_type is None else licence_type
+        cpu_hot_plug = existing_object.properties.cpu_hot_plug if cpu_hot_plug is None else cpu_hot_plug
+        ram_hot_plug = existing_object.properties.ram_hot_plug if ram_hot_plug is None else ram_hot_plug
+        nic_hot_plug = existing_object.properties.nic_hot_plug if nic_hot_plug is None else nic_hot_plug
+        nic_hot_unplug = existing_object.properties.nic_hot_unplug if nic_hot_unplug is None else nic_hot_unplug
+        disc_virtio_hot_plug = existing_object.properties.disc_virtio_hot_plug if disc_virtio_hot_plug is None else disc_virtio_hot_plug
+        disc_virtio_hot_unplug = existing_object.properties.disc_virtio_hot_unplug if disc_virtio_hot_unplug is None else disc_virtio_hot_unplug
+        backupunit_id = existing_object.properties.backupunit_id if backupunit_id is None else backupunit_id
+        user_data = existing_object.properties.user_data if user_data is None else user_data
 
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
@@ -440,7 +491,6 @@ def _update_object(module, client, existing_object):
     name = module.params.get('name')
     size = module.params.get('size')
     bus = module.params.get('bus')
-    availability_zone = module.params.get('availability_zone')
     cpu_hot_plug = module.params.get('cpu_hot_plug')
     ram_hot_plug = module.params.get('ram_hot_plug')
     nic_hot_plug = module.params.get('nic_hot_plug')
@@ -461,8 +511,8 @@ def _update_object(module, client, existing_object):
         module.exit_json(changed=True)
 
     volume = Volume(properties=VolumeProperties(
-        name=name if name is not None else existing_object.name, size=size,
-        availability_zone=availability_zone, bus=bus, cpu_hot_plug=cpu_hot_plug,
+        name=name if name is not None else existing_object.properties.name, size=size,
+        bus=bus, cpu_hot_plug=cpu_hot_plug,
         ram_hot_plug=ram_hot_plug, nic_hot_plug=nic_hot_plug,
         nic_hot_unplug=nic_hot_unplug, disc_virtio_hot_plug=disc_virtio_hot_plug,
         disc_virtio_hot_unplug=disc_virtio_hot_unplug,
@@ -563,18 +613,20 @@ def create_volume(module, client):
         existing_volume = get_resource(module, volume_list, name)
 
         if existing_volume is not None:
-            volume = update_replace_object(module, client, existing_volume, name)[RETURNED_KEY]
+            update_replace_result = update_replace_object(module, client, existing_volume, name)
+            volume = update_replace_result[RETURNED_KEY]
+            changed = update_replace_result['changed']
         else:
-            volume = _create_object(module, client, name)
+            volume = _create_object(module, client, name).to_dict()
             changed = True
-        instance_ids.append(volume.id)
+        instance_ids.append(volume['id'])
         _attach_volume(module, servers_api, datacenter_id, volume)
         volumes.append(volume)
 
     results = {
         'changed': changed,
         'failed': False,
-        'volumes': [v.to_dict() for v in volumes],
+        'volumes': [volumes],
         'action': 'create',
         'instance_ids': instance_ids
     }
@@ -640,7 +692,7 @@ def update_volume(module, client):
     results = {
         'changed': changed,
         'failed': False,
-        'volume': [v.to_dict() for v in updated_volumes],
+        'volume': [updated_volumes],
         'action': 'update'
     }
 
