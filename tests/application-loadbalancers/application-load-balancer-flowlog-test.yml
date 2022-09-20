@@ -1,0 +1,112 @@
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+    - name: Create datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        description: "{{ description }}"
+        location: "{{ location }}"
+        wait: true
+      register: datacenter_response
+
+    - name: Create Listener LAN
+      lan:
+        datacenter: "{{ datacenter }}"
+        name: "listener_lan"
+        public: false
+      register: listener_lan
+
+    - name: Create Target LAN
+      lan:
+        datacenter: "{{ datacenter }}"
+        name: "target_lan"
+        public: false
+      register: target_lan
+
+    - name: Create Application Load Balancer
+      application_load_balancer:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        name: "{{ name }}"
+        ips:
+          - "10.12.118.224"
+        listener_lan: "{{ listener_lan.lan.id }}"
+        target_lan: "{{ target_lan.lan.id }}"
+        wait: true
+      register: alb_response
+      
+    - name: Debug - Show Application Load Balancer
+      debug:
+         msg: "{{ alb_response }}"
+
+    - name: Create Application Load Balancer Flowlog
+      application_load_balancer_flowlog:
+        name: "{{ name }}"
+        action: "ACCEPTED"
+        direction: "INGRESS"
+        bucket: "sdktest"
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+        wait: true
+      register: alb_flowlog_response
+
+    - name: Debug - Show Application Load Balancer Flowlog
+      debug:
+         msg: "{{ alb_flowlog_response }}"
+
+    - name: Update Application Load Balancer Flowlog
+      application_load_balancer_flowlog:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+        flowlog_id: "{{ alb_flowlog_response.flowlog.id }}"
+        name: "{{ name }}"
+        action: "ALL"
+        direction: "INGRESS"
+        bucket: "sdktest"
+        wait: true
+        state: update
+      register: alb_flowlog_update_response
+
+    - name: Debug - Show Updated Application Load Balancer Flowlog
+      debug:
+         msg: "{{ alb_flowlog_update_response }}"
+
+    - name: Delete Application Load Balancer Flowlog
+      application_load_balancer_flowlog:
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+        flowlog_id: "{{ alb_flowlog_response.flowlog.id }}"
+        state: absent
+
+    - name: Remove Application Load Balancer
+      application_load_balancer:
+       application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       wait: true
+       wait_timeout: 2000
+       state: absent
+
+    - name: Remove Listener LAN
+      lan:
+        datacenter: "{{ datacenter }}"
+        name: "listener_lan"
+        state: absent
+        wait: true
+
+    - name: Remove Target LAN
+      lan:
+        datacenter: "{{ datacenter }}"
+        name: "target_lan"
+        state: absent
+        wait: true
+
+    - name: Remove datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        wait: true
+        state: absent

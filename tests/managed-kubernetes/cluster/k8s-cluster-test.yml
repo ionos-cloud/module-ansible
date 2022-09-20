@@ -3,7 +3,7 @@
   gather_facts: false
 
   vars_files:
-    - ../vars.yml
+    - ./vars.yml
 
   tasks:
     - name: Create k8s cluster
@@ -14,6 +14,12 @@
           time: "12:02:00"
         k8s_version: "1.21.9"
       register: cluster_response
+
+    - name: Get k8s config
+      k8s_config:
+        k8s_cluster_id: "{{ cluster_response.cluster.id }}"
+        config_file: 'config.yaml'
+        state: present
 
     - name: Update k8s cluster
       k8s_cluster:
@@ -29,6 +35,13 @@
       k8s_cluster:
         k8s_cluster_id: "{{ cluster_response.cluster.id }}"
         state: absent
+        wait: false
+
+    - name: Delete k8s cluster
+      k8s_cluster:
+        k8s_cluster_id: "{{ cluster_response.cluster.id }}"
+        state: absent
+        wait: true
 
     - name: Delete k8s cluster
       k8s_cluster:

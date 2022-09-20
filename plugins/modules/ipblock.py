@@ -218,7 +218,7 @@ def reserve_ipblock(module, client):
 
     ipblock_server = ionoscloud.IPBlocksApi(client)
 
-    existing_ipblock = get_resource(module, ipblock_server.ipblocks_get(depth=1), name)
+    existing_ipblock = get_resource(module, ipblock_server.ipblocks_get(depth=2), name)
 
     if existing_ipblock:
         return {
@@ -267,7 +267,7 @@ def delete_ipblock(module, client):
     ipblock_server = ionoscloud.IPBlocksApi(client)
 
     # Locate UUID for the IPBlock
-    ipblock_id = get_resource_id(module, ipblock_server.ipblocks_get(depth=1), name)
+    ipblock_id = get_resource_id(module, ipblock_server.ipblocks_get(depth=2), name)
 
     if not ipblock_id:
         module.exit_json(changed=False)

@@ -38,9 +38,6 @@
 - name: Run Server Test
   import_playbook: server-test.yml
 
-- name: Run Server-info Test
-  import_playbook: server-info-test.yml
-
 - name: Run Snapshot Test
   import_playbook: snapshot-test.yml
 
@@ -49,6 +46,3 @@
 
 - name: Run Volume Test
   import_playbook: volume-test.yml
-
-- name: Run Volume Info Test
-  import_playbook: volume-info-test.yml

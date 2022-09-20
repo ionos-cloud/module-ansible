@@ -3,12 +3,29 @@
   gather_facts: false
 
   vars_files:
-    - ../vars.yml
+    - ./vars.yml
 
   tasks:
     - set_fact:
-        random_user: "no-reply{{100000000 |random}}@example.com"
+        random_user1: "no-reply1{{100000000 |random}}@example.com"
+        random_user2: "no-reply2{{100000000 |random}}@example.com"
       run_once: yes
+
+    - name: Create user1
+      user:
+        firstname: John1
+        lastname: Doe
+        user_password: "{{ password }}"
+        email: "{{ random_user1 }}"
+        administrator: false
+
+    - name: Create user2
+      user:
+        firstname: John2
+        lastname: Doe
+        user_password: "{{ password }}"
+        email: "{{ random_user2 }}"
+        administrator: false
 
     - name: Create group
       group:
@@ -25,16 +42,26 @@
         create_flow_log: True
         access_and_manage_monitoring: True
         access_and_manage_certificates: True
-
+        manage_dbaas: True
       register: group_response
 
-    - name: Debug - show group
+    - name: Add user1 to group
+      group:
+        name: "{{ name }}"
+        users:
+          - "{{ random_user1 }}"
+        state: update
+
+    - name: Debug - show response
       debug:
         msg: "{{ group_response }}"
 
     - name: Update group
       group:
         name: "{{ name }}"
+        users:
+          - "{{ random_user1 }}"
+          - "{{ random_user2 }}"
         create_datacenter: False
         create_snapshot: False
         reserve_ip: False
@@ -47,28 +74,20 @@
         create_flow_log: True
         access_and_manage_monitoring: True
         access_and_manage_certificates: True
+        manage_dbaas: False
         wait: False
         state: update
       register: group_response
 
-    - name: Debug - show group
+    - name: Debug - show response
       debug:
         msg: "{{ group_response }}"
 
-    - name: Create user
-      user:
-        firstname: John
-        lastname: Doe
-        user_password: "{{ password }}"
-        email: "{{ random_user }}"
-        administrator: false
-
-    - name: Add user to group
-      group:
-        name: "{{ name }}"
-        users:
-          - "{{ random_user }}"
-        state: update
+    - name: Asserting that updating a group handles users correctly
+      assert:
+        that:
+          - group_response.group['entities']['users']['items'] | length == 2
+        msg: "Group-test: updating a group must keep its users"
 
     - name: Remove user from group
       group:
@@ -76,9 +95,14 @@
         users: []
         state: update
 
-    - name: Delete user
+    - name: Delete user1
       user:
-        email: "{{ random_user }}"
+        email: "{{ random_user1 }}"
+        state: absent
+
+    - name: Delete user2
+      user:
+        email: "{{ random_user2 }}"
         state: absent
 
     - name: Delete group
@@ -90,4 +114,3 @@
       group:
         name: "{{ name }}"
         state: absent
-

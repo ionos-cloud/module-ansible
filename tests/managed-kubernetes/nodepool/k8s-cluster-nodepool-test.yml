@@ -3,7 +3,7 @@
   gather_facts: false
 
   vars_files:
-    - ../vars.yml
+    - ./vars.yml
 
   tasks:
     - name: Create datacenter
@@ -93,6 +93,13 @@
           max_node_count: 4
         wait: true
         state: update
+
+    - name: Delete k8s cluster nodepool
+      k8s_nodepool:
+        k8s_cluster_id: "{{ cluster.cluster.id }}"
+        nodepool_id: "{{ result.nodepool.id }}"
+        wait: false
+        state: absent
 
     - name: Delete k8s cluster nodepool
       k8s_nodepool:

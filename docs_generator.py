@@ -61,6 +61,10 @@ def generate_module_docs(module_name):
 
 modules_to_generate = [
     # 'cube_template', commented it before we change it to a regular info module
+    'application_load_balancer_flowlog',
+    'application_load_balancer_forwardingrule',
+    'application_load_balancer',
+    'target_group',
     'datacenter',
     'firewall_rule',
     'image',

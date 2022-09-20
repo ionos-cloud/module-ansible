@@ -214,7 +214,7 @@ def create_s3key(module, client):
     wait_timeout = int(module.params.get('wait_timeout'))
 
     user_s3keys_server = ionoscloud.UserS3KeysApi(client)
-    s3key_list = user_s3keys_server.um_users_s3keys_get(user_id=user_id, depth=1)
+    s3key_list = user_s3keys_server.um_users_s3keys_get(user_id=user_id)
 
     try:
         if do_idempotency and len(s3key_list.items) > 0:
@@ -255,7 +255,7 @@ def delete_s3key(module, client):
 
     user_s3keys_server = ionoscloud.UserS3KeysApi(client)
 
-    s3key_list = user_s3keys_server.um_users_s3keys_get(user_id=user_id, depth=1)
+    s3key_list = user_s3keys_server.um_users_s3keys_get(user_id=user_id)
     s3key_id = get_resource_id(module, s3key_list, key_id, [['id']])
 
     if not s3key_id:

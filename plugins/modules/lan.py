@@ -243,6 +243,7 @@ def create_lan(module, client):
     datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
+    # Need depth 2 for nested nic properties
     lan_list = lan_server.datacenters_lans_get(datacenter_id, depth=2)
 
     existing_lan = get_resource(module, lan_list, name)
@@ -304,7 +305,7 @@ def update_lan(module, client):
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Prefetch a list of LANs.
-    lan_list = lan_server.datacenters_lans_get(datacenter_id, depth=2)
+    lan_list = lan_server.datacenters_lans_get(datacenter_id, depth=1)
     lan_id = get_resource_id(module, lan_list, name)
 
     if module.check_mode:
@@ -357,7 +358,7 @@ def delete_lan(module, client):
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate ID for LAN
-    lan_list = lan_server.datacenters_lans_get(datacenter_id=datacenter_id, depth=5)
+    lan_list = lan_server.datacenters_lans_get(datacenter_id=datacenter_id, depth=1)
     lan_id = get_resource_id(module, lan_list, name)
 
     if not lan_id:

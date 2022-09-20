@@ -4,7 +4,7 @@
   gather_facts: false
 
   vars_files:
-    - ../vars.yml
+    - ./vars.yml
 
   tasks:
     - name: Create datacenter
@@ -58,6 +58,13 @@
     - name: Debug - Show Network Load Balancer
       debug:
          msg: "{{ nlb_response_update }}"
+
+    - name: Remove Network Load Balancer
+      network_load_balancer:
+       network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       wait: false
+       state: absent
 
     - name: Remove Network Load Balancer
       network_load_balancer:

@@ -96,6 +96,7 @@ import argparse
 import re
 import stat
 import subprocess
+import pickle
 
 import six
 from six.moves import configparser
@@ -118,7 +119,7 @@ class IonosCloudInventory(object):
         self.vars = {}
 
         # Defaults, if not found in the settings file
-        self.cache_path = ''
+        self.cache_path = '.'
         self.cache_max_age = 0
 
         # Read settings, environment variables, and CLI arguments
@@ -129,36 +130,69 @@ class IonosCloudInventory(object):
         if not getattr(self, 'password', None) and getattr(self, 'password_file', None):
             self.password = read_password_file(self.password_file)
 
-        self.cache_filename = self.cache_path + "/ansible-ionos.cache"
+        self.cache_filename = self.cache_path + "/ansible-ionos.pkl"
 
         # Verify credentials and create client
-        if hasattr(self, 'username') and hasattr(self, 'password'):
+        if hasattr(self, 'token'):
+            configuration = Configuration(token=self.token)
+        elif hasattr(self, 'username') and hasattr(self, 'password'):
             configuration = Configuration(
                 username=self.username,
                 password=self.password)
-
-            user_agent = 'ionoscloud-python/%s Ansible' % (sdk_version)
-
-            self.client = ApiClient(configuration)
-            self.client.user_agent = user_agent
         else:
             sys.stderr.write('ERROR: Ionos credentials cannot be found.\n')
             sys.exit(1)
 
+        user_agent = 'ionoscloud-python/%s Ansible' % (sdk_version)
+
+        self.client = ApiClient(configuration)
+        self.client.user_agent = user_agent
+
         if self.cache_max_age > 0:
-            if not self.is_cache_valid() or self.args.refresh:
+            if self.is_cache_valid() and not self.args.refresh:
+                try:
+                    self.load_from_cache()
+                except Exception as e:
+                    print('Encountered an error while reading cache file: {}. Getting data from the API.'.format(str(e)))
+                    self.data = self.fetch_resources('all')
+                    self.build_inventory()
+                    self.write_to_cache()
+            else:
                 self.data = self.fetch_resources('all')
                 self.build_inventory()
                 self.write_to_cache()
-            else:
-                self.load_from_cache()
 
             print_data = self.get_from_local_source()
         else:
             print_data = self.get_from_api_source()
 
-        print(print_data)
-        # print(json.dumps(print_data, sort_keys=False, indent=2, separators=(',', ': ')))
+        if self.args.datacenters:
+            print_data['datacenters'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['datacenters']))
+        elif self.args.fwrules:
+            print_data['firewallrules'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['firewallrules']))
+        elif self.args.images:
+            print_data['images'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['images']))
+        elif self.args.lans:
+            print_data['lans'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['lans']))
+        elif self.args.locations:
+            print_data['locations'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['locations']))
+        elif self.args.nics:
+            print_data['nics'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['nics']))
+        elif self.args.servers:
+            print_data['servers'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['servers']))
+            print_data['servers'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['servers']))
+        elif self.args.volumes:
+            print_data['volumes'] = list(map(lambda e: self.client.sanitize_for_serialization(e), print_data['volumes']))
+        elif self.args.host:
+            print_data = self.client.sanitize_for_serialization(print_data)
+        else:
+            for host in print_data['_meta']['hostvars']:
+                print_data['_meta']['hostvars'][host] = self.client.sanitize_for_serialization(print_data['_meta']['hostvars'][host])
+
+        if self.args.pretty:
+            print(json.dumps(print_data, indent=int(self.args.indent), sort_keys=True))
+        else:
+            print(json.dumps(print_data))
 
     def read_settings(self):
         """ Reads the settings from the inventory.ini file """
@@ -171,6 +205,8 @@ class IonosCloudInventory(object):
         config.read(os.path.dirname(os.path.realpath(__file__)) + '/inventory.ini')
 
         # Credentials
+        if config.has_option('ionos', 'token'):
+            self.token = config.get('ionos', 'token')
         if config.has_option('ionos', 'username'):
             self.username = config.get('ionos', 'username')
         elif config.has_option('ionos', 'subscription_user'):
@@ -202,14 +238,12 @@ class IonosCloudInventory(object):
             'group_by_datacenter_id',
             'group_by_location',
             'group_by_availability_zone',
-            'group_by_image_name',
-            'group_by_licence_type'
         ]
         for option in group_by_options:
             if config.has_option('ionos', option):
                 setattr(self, option, config.getboolean('ionos', option))
             else:
-                setattr(self, option, True)
+                setattr(self, option, False)
 
         # Inventory Hostname
         option = 'server_name_as_inventory_hostname'
@@ -220,6 +254,8 @@ class IonosCloudInventory(object):
 
     def read_environment(self):
         """ Reads the environment variables """
+        if os.getenv('IONOS_TOKEN'):
+            self.token = os.getenv('IONOS_TOKEN')
         if os.getenv('IONOS_USERNAME'):
             self.username = os.getenv('IONOS_USERNAME')
         if os.getenv('IONOS_PASSWORD'):
@@ -249,6 +285,8 @@ class IonosCloudInventory(object):
 
         parser.add_argument('--refresh', '-r', action='store_true', default=False,
                             help='Force refresh of cache by making API calls to Ionos')
+        parser.add_argument('--pretty', action='store_true', default=False, help='Pretty print the JSON')
+        parser.add_argument('--indent', action='store', default=2, help='Indent used for pretty print')
 
         self.args = parser.parse_args()
 
@@ -281,21 +319,21 @@ class IonosCloudInventory(object):
         """Get data from Ionos API"""
 
         if self.args.datacenters:
-            return {'datacenters': self.fetch_resources('datacenters')}
+            return self.fetch_resources('datacenters')
         elif self.args.fwrules:
-            return {'firewallrules': self.fetch_resources('firewallrules')}
+            return self.fetch_resources('firewallrules')
         elif self.args.images:
-            return {'images': self.fetch_resources('images')}
+            return self.fetch_resources('images')
         elif self.args.lans:
-            return {'lans': self.fetch_resources('lans')}
+            return self.fetch_resources('lans')
         elif self.args.locations:
-            return {'locations': self.fetch_resources('locations')}
+            return self.fetch_resources('locations')
         elif self.args.nics:
-            return {'nics': self.fetch_resources('nics')}
+            return self.fetch_resources('nics')
         elif self.args.servers:
-            return {'servers': self.fetch_resources('servers')}
+            return self.fetch_resources('servers')
         elif self.args.volumes:
-            return {'volumes': self.fetch_resources('volumes')}
+            return self.fetch_resources('volumes')
         elif self.args.host:
             self.data = self.fetch_resources('all')
             return self.get_host_info()
@@ -326,7 +364,7 @@ class IonosCloudInventory(object):
             instance_data['lans'] = lans
 
         if resource == 'locations' or resource == 'all':
-            instance_data['locations'] = location_server.locations_get().items
+            instance_data['locations'] = location_server.locations_get(depth=1).items
 
         if resource == 'images' or resource == 'all':
             instance_data['images'] = image_server.images_get().items
@@ -388,8 +426,7 @@ class IonosCloudInventory(object):
             self.inventory['_meta']['hostvars'][host] = server
             if self.server_name_as_inventory_hostname:
                 self.inventory['_meta']['hostvars'][host]['ansible_host'] = host_ip
-
-            datacenter_id = self._parse_id_from_href(server['href'], 2)
+            datacenter_id = self._parse_id_from_href(server.href, 2)
 
             if self.group_by_datacenter_id:
                 if datacenter_id not in self.inventory:
@@ -407,43 +444,10 @@ class IonosCloudInventory(object):
                 self.inventory[location]['hosts'].append(host)
 
             if self.group_by_availability_zone:
-                zone = server.properties.availabilityZone
+                zone = server.properties.availability_zone
                 if zone not in self.inventory:
                     self.inventory[zone] = {'hosts': [], 'vars': self.vars}
                 self.inventory[zone]['hosts'].append(host)
-
-            if self.group_by_image_name:
-                boot_device = {}
-                image_key = 'image'
-                key = None
-                if server.properties.bootVolume is not None:
-                    boot_device = server.properties.bootVolume
-                elif server.properties.bootCdrom is not None:
-                    boot_device = server.properties.bootCdrom
-                    image_key = 'name'
-                if 'properties' in boot_device and image_key in boot_device['properties']:
-                    if image_key == 'image':
-                        key = boot_device.properties.image
-                    elif image_key == 'name':
-                        key = boot_device.properties.name
-                    for image in self.data['images']:
-                        if key == image.id or key == image.properties.name:
-                            image_name = self.to_safe(image.properties.name)
-                            if image_name not in self.inventory:
-                                self.inventory[image_name] = {'hosts': [], 'vars': self.vars}
-                            self.inventory[image_name]['hosts'].append(host)
-                            break
-
-            if self.group_by_licence_type:
-                license = None
-                if server.properties.bootVolume is not None:
-                    license = server.properties.bootVolume.properties.licenceType
-                elif server.properties.bootCdrom is not None:
-                    license = server.properties.bootCdrom.properties.licenceType
-                if license is not None:
-                    if license not in self.inventory:
-                        self.inventory[license] = {'hosts': [], 'vars': self.vars}
-                    self.inventory[license]['hosts'].append(host)
 
     def get_host_info(self):
         """Generate a JSON response to a --host call"""
@@ -452,17 +456,16 @@ class IonosCloudInventory(object):
         if re.match('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', host, re.I):
             for server in self.data['servers']:
                 if host == server.id:
-                    datacenter_id = self._parse_id_from_href(server['href'], 2)
-                    return ionoscloud.ServersApi(self.client).datacenters_servers_get(datacenter_id=datacenter_id, depth=5)
+                    datacenter_id = self._parse_id_from_href(server.href, 2)
+                    return ionoscloud.ServersApi(self.client).datacenters_servers_find_by_id(datacenter_id, server.id)
         else:
-            for server in self.data.servers:
+            for server in self.data['servers']:
                 for nic in server.entities.nics.items:
                     for ip in nic.properties.ips:
                         if host == ip:
-                            datacenter_id = self._parse_id_from_href(server['href'], 2)
-                            server_id = self._parse_id_from_href(server['href'], 0)
-                            return ionoscloud.ServersApi(self.client).datacenters_servers_get(datacenter_id=datacenter_id,
-                                                                                           depth=5)
+                            datacenter_id = self._parse_id_from_href(server.href, 2)
+                            server_id = self._parse_id_from_href(server.href, 0)
+                            return ionoscloud.ServersApi(self.client).datacenters_servers_find_by_id(datacenter_id, server_id)
 
         return {}
 
@@ -477,25 +480,13 @@ class IonosCloudInventory(object):
 
     def load_from_cache(self):
         """ Reads the data from the cache file and assigns it to member variables as Python Objects"""
-        try:
-            cache = open(self.cache_filename, 'r')
-            json_data = cache.read()
-            cache.close()
-            data = json.loads(json_data)
-        except IOError:
-            data = {'data': {}, 'inventory': {}}
-
+        data = pickle.load(open(self.cache_filename, 'rb'))
         self.data = data['data']
         self.inventory = data['inventory']
 
     def write_to_cache(self):
-        """ Writes data in JSON format to a file """
-        data = {'data': self.data, 'inventory': self.inventory}
-        json_data = json.dumps(data, sort_keys=True, indent=2, separators=(',', ': '))
-
-        cache = open(self.cache_filename, 'w')
-        cache.write(json_data)
-        cache.close()
+        """ Writes serialized data to a file """
+        pickle.dump({'data': self.data, 'inventory': self.inventory}, open(self.cache_filename, 'wb'))
 
     def to_safe(self, string):
         """ Converts 'bad' characters in a string to underscores so they can be used as Ansible groups """

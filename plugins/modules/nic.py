@@ -169,32 +169,31 @@ author:
 EXAMPLE_PER_STATE = {
     'present': '''# Create a NIC
   - nic:
-    datacenter: Tardis One
-    server: node002
-    lan: 2
-    wait_timeout: 500
-    state: present
+      datacenter: Tardis One
+      server: node002
+      lan: 2
+      wait_timeout: 500
+      state: present
   ''',
     'update': '''# Update a NIC
   - nic:
-    datacenter: Tardis One
-    server: node002
-    id: 7341c2454f
-    name: name-to-be-set
-    lan: 1
-    ips:
-      - 158.222.103.23
-      - 158.222.103.24
-    dhcp: false
-    state: update
+      datacenter: Tardis One
+      server: node002
+      name: 7341c2454f
+      lan: 1
+      ips:
+        - 158.222.103.23
+        - 158.222.103.24
+      dhcp: false
+      state: update
   ''',
     'absent': '''# Remove a NIC
   - nic:
-    datacenter: Tardis One
-    server: node002
-    name: 7341c2454f
-    wait_timeout: 500
-    state: absent
+      datacenter: Tardis One
+      server: node002
+      name: 7341c2454f
+      wait_timeout: 500
+      state: absent
   ''',
 }
 
@@ -284,13 +283,13 @@ def create_nic(module, client):
         module.fail_json("Datacenter doesn't exist")
 
     # Locate UUID for Server
-    server_list = server_server.datacenters_servers_get(datacenter, depth=2)
+    server_list = server_server.datacenters_servers_get(datacenter, depth=1)
     server = get_resource_id(module, server_list, server)
 
     if server is None:
         module.fail_json("Server doesn't exist")
 
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server, depth=2)
+    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server, depth=1)
     nic = get_resource(module, nic_list, name)
 
     should_change = nic is None
@@ -361,11 +360,11 @@ def update_nic(module, client):
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for Server
-    server_list = server_server.datacenters_servers_get(datacenter_id, depth=2)
+    server_list = server_server.datacenters_servers_get(datacenter_id, depth=1)
     server_id = get_resource_id(module, server_list, server)
 
     # Locate NIC to update
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=2)
+    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=1)
     existing_nic_by_name = get_resource(module, nic_list, name)
     if existing_nic_by_name is not None:
         module.fail_json(msg="Failed to update NIC: NIC with name \'%s\' already exists." % name)
@@ -432,11 +431,11 @@ def delete_nic(module, client):
     datacenter_list = datacenter_server.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
-    server_list = server_server.datacenters_servers_get(datacenter_id, depth=2)
+    server_list = server_server.datacenters_servers_get(datacenter_id, depth=1)
     server_id = get_resource_id(module, server_list, server)
 
     # Locate UUID for NIC
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=2)
+    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=1)
     nic_id = get_resource_id(module, nic_list, name)
 
     if nic_id is None:

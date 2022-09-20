@@ -8,32 +8,31 @@ This module allows you to create, update or remove a NIC.
 ```yaml
 # Create a NIC
   - nic:
-    datacenter: Tardis One
-    server: node002
-    lan: 2
-    wait_timeout: 500
-    state: present
+      datacenter: Tardis One
+      server: node002
+      lan: 2
+      wait_timeout: 500
+      state: present
   
 # Update a NIC
   - nic:
-    datacenter: Tardis One
-    server: node002
-    id: 7341c2454f
-    name: name-to-be-set
-    lan: 1
-    ips:
-      - 158.222.103.23
-      - 158.222.103.24
-    dhcp: false
-    state: update
+      datacenter: Tardis One
+      server: node002
+      name: 7341c2454f
+      lan: 1
+      ips:
+        - 158.222.103.23
+        - 158.222.103.24
+      dhcp: false
+      state: update
   
 # Remove a NIC
   - nic:
-    datacenter: Tardis One
-    server: node002
-    name: 7341c2454f
-    wait_timeout: 500
-    state: absent
+      datacenter: Tardis One
+      server: node002
+      name: 7341c2454f
+      wait_timeout: 500
+      state: absent
   
 ```
 &nbsp;
@@ -44,11 +43,11 @@ This module allows you to create, update or remove a NIC.
 ```yaml
   # Create a NIC
   - nic:
-    datacenter: Tardis One
-    server: node002
-    lan: 2
-    wait_timeout: 500
-    state: present
+      datacenter: Tardis One
+      server: node002
+      lan: 2
+      wait_timeout: 500
+      state: present
   
 ```
 ### Available parameters for state **present**:
@@ -77,11 +76,11 @@ This module allows you to create, update or remove a NIC.
 ```yaml
   # Remove a NIC
   - nic:
-    datacenter: Tardis One
-    server: node002
-    name: 7341c2454f
-    wait_timeout: 500
-    state: absent
+      datacenter: Tardis One
+      server: node002
+      name: 7341c2454f
+      wait_timeout: 500
+      state: absent
   
 ```
 ### Available parameters for state **absent**:
@@ -107,16 +106,15 @@ This module allows you to create, update or remove a NIC.
 ```yaml
   # Update a NIC
   - nic:
-    datacenter: Tardis One
-    server: node002
-    id: 7341c2454f
-    name: name-to-be-set
-    lan: 1
-    ips:
-      - 158.222.103.23
-      - 158.222.103.24
-    dhcp: false
-    state: update
+      datacenter: Tardis One
+      server: node002
+      name: 7341c2454f
+      lan: 1
+      ips:
+        - 158.222.103.23
+        - 158.222.103.24
+      dhcp: false
+      state: update
   
 ```
 ### Available parameters for state **update**:

@@ -106,6 +106,11 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'bool',
     },
+    'manage_dbaas': {
+        'description': ['Privilege for a group to manage DBaaS related functionality.'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
     'users': {
         'description': [
             'A list of (non-administrator) user IDs or emails to associate with the group. Set to empty list ([]) to remove all users from the group.',
@@ -293,10 +298,11 @@ def create_group(module, client):
     create_flow_log = module.params.get('create_flow_log')
     access_and_manage_monitoring = module.params.get('access_and_manage_monitoring')
     access_and_manage_certificates = module.params.get('access_and_manage_certificates')
+    manage_dbaas = module.params.get('manage_dbaas')
 
     user_management_server = ionoscloud.UserManagementApi(client)
 
-    existing_group = get_resource(module, user_management_server.um_groups_get(depth=1), name)
+    existing_group = get_resource(module, user_management_server.um_groups_get(depth=2), name)
 
     if existing_group:
         return {
@@ -310,19 +316,22 @@ def create_group(module, client):
         module.exit_json(changed=False)
 
     try:
-        group_properties = GroupProperties(name=name,
-                                           create_data_center=create_datacenter or False,
-                                           create_snapshot=create_snapshot or False,
-                                           reserve_ip=reserve_ip or False,
-                                           access_activity_log=access_activity_log or False,
-                                           create_pcc=create_pcc or False,
-                                           s3_privilege=s3_privilege or False,
-                                           create_backup_unit=create_backup_unit or False,
-                                           create_internet_access=create_internet_access or False,
-                                           create_k8s_cluster=create_k8s_cluster or False,
-                                           create_flow_log=create_flow_log or False,
-                                           access_and_manage_monitoring=access_and_manage_monitoring or False,
-                                           access_and_manage_certificates=access_and_manage_certificates or False)
+        group_properties = GroupProperties(
+            name=name,
+            create_data_center=create_datacenter or False,
+            create_snapshot=create_snapshot or False,
+            reserve_ip=reserve_ip or False,
+            access_activity_log=access_activity_log or False,
+            create_pcc=create_pcc or False,
+            s3_privilege=s3_privilege or False,
+            create_backup_unit=create_backup_unit or False,
+            create_internet_access=create_internet_access or False,
+            create_k8s_cluster=create_k8s_cluster or False,
+            create_flow_log=create_flow_log or False,
+            access_and_manage_monitoring=access_and_manage_monitoring or False,
+            access_and_manage_certificates=access_and_manage_certificates or False,
+            manage_dbaas=manage_dbaas or False,
+        )
 
         group = Group(properties=group_properties)
         response = user_management_server.um_groups_post_with_http_info(group)
@@ -366,6 +375,7 @@ def update_group(module, client):
     create_flow_log = module.params.get('create_flow_log')
     access_and_manage_monitoring = module.params.get('access_and_manage_monitoring')
     access_and_manage_certificates = module.params.get('access_and_manage_certificates')
+    manage_dbaas = module.params.get('manage_dbaas')
     
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
@@ -404,6 +414,8 @@ def update_group(module, client):
                 access_and_manage_monitoring = group.properties.access_and_manage_monitoring
             if access_and_manage_certificates is None:
                 access_and_manage_certificates = group.properties.access_and_manage_certificates
+            if manage_dbaas is None:
+                manage_dbaas = group.properties.manage_dbaas
 
             group_properties = GroupProperties(
                 name=name,
@@ -419,48 +431,52 @@ def update_group(module, client):
                 create_flow_log=create_flow_log,
                 access_and_manage_monitoring=access_and_manage_monitoring,
                 access_and_manage_certificates=access_and_manage_certificates,
+                manage_dbaas=manage_dbaas,
             )
 
             group = Group(properties=group_properties)
 
-            group_response, _, headers = user_management_server.um_groups_put_with_http_info(group_id=group_id, group=group)
+            group_response, _, headers = user_management_server.um_groups_put_with_http_info(group_id=group_id,
+                                                                                             group=group, depth=1)
 
             if wait:
                 request_id = _get_request_id(headers['Location'])
                 client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
             if module.params.get('users') is not None:
-
-                group = user_management_server.um_groups_find_by_id(group_id=group_response.id, depth=2)
-                old_gu = []
-                for u in group.entities.users.items:
-                    old_gu.append(u.id)
+                old_group_user_ids = []
+                for u in user_management_server.um_groups_users_get(group_id, depth=1).items:
+                    old_group_user_ids.append(u.id)
 
                 all_users = user_management_server.um_users_get(depth=2)
-                new_gu = []
+                new_group_user_ids = []
 
                 for u in module.params.get('users'):
                     user_id = get_resource_id(module, all_users, u, [['id'], ['properties', 'email']])
                     if user_id is None:
                         module.fail_json(msg="User '{}' not found!".format(u))
-                    new_gu.append(user_id)
+                    new_group_user_ids.append(user_id)
 
-                for user_id in old_gu:
-                    if user_id not in new_gu:
+                for user_id in old_group_user_ids:
+                    if user_id not in new_group_user_ids:
                         user_management_server.um_groups_users_delete(
-                            group_id=group.id,
+                            group_id=group_response.id,
                             user_id=user_id
                         )
 
-                for user_id in new_gu:
-                    if user_id not in old_gu:
+                for user_id in new_group_user_ids:
+                    if user_id not in old_group_user_ids:
                         _, _, headers = user_management_server.um_groups_users_post_with_http_info(
-                            group_id=group.id,
+                            group_id=group_response.id,
                             user=User(id=user_id)
                         )
 
                         request_id = _get_request_id(headers['Location'])
                         client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
+                # update group_response to contain changed user list
+                group_response = user_management_server.um_groups_find_by_id(group_response.id, depth=1)
+
             return {
                 'changed': True,
                 'failed': False,
@@ -487,7 +503,7 @@ def delete_group(module, client):
     name = module.params.get('name')
 
     # Locate UUID for the group
-    group_id = get_resource_id(module, client.um_groups_get(depth=1), name)
+    group_id = get_resource_id(module, client.um_groups_get(depth=2), name)
 
     if not group_id:
         module.exit_json(changed=False)

@@ -326,9 +326,8 @@ def update_nat_gateway(module, client):
     lans = module.params.get('lans')
 
     nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-    nat_gateway_response = None
 
-    nat_gateways = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=2)
+    nat_gateways = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=1)
     existing_nat_gateway_id_by_name = get_resource_id(module, nat_gateways, name)
 
     if nat_gateway_id is not None and existing_nat_gateway_id_by_name is not None and existing_nat_gateway_id_by_name != nat_gateway_id:
@@ -374,13 +373,13 @@ def remove_nat_gateway(module, client):
     changed = False
 
     try:
-        nat_gateway_list = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=5)
+        nat_gateway_list = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=1)
         if nat_gateway_id:
             nat_gateway = get_resource(module, nat_gateway_list, nat_gateway_id)
         else:
             nat_gateway = get_resource(module, nat_gateway_list, name)
 
-        if not nat_gateway:
+        if not nat_gateway or nat_gateway.metadata.state != 'AVAILABLE':
             module.exit_json(changed=False)
 
         _, _, headers = nat_gateway_server.datacenters_natgateways_delete_with_http_info(datacenter_id, nat_gateway.id)

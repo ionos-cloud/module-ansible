@@ -33,7 +33,7 @@ OPTIONS = {
     'cluster_name': {
         'description': ['The name of the K8s cluster.'],
         'available': ['present', 'update'],
-        'required': ['present', 'update'],
+        'required': ['present'],
         'type': 'str',
     },
     'k8s_cluster_id': {
@@ -43,25 +43,40 @@ OPTIONS = {
         'type': 'str',
     },
     'k8s_version': {
-        'description': ['The description of the virtual datacenter.'],
+        'description': [
+            'The Kubernetes version the cluster is running. This imposes restrictions on what '
+            "Kubernetes versions can be run in a cluster's nodepools. Additionally, not all "
+            'Kubernetes versions are viable upgrade targets for all prior versions.',
+        ],
         'available': ['present', 'update'],
         'required': ['update'],
         'type': 'str',
     },
     'maintenance_window': {
-        'description': ['The datacenter location.'],
+        'description': [
+            "The maintenance window is used for updating the cluster's control plane and for "
+            "upgrading the cluster's K8s version. If no value is given, one is chosen dynamically, "
+            'so there is no fixed default.',
+        ],
         'available': ['present', 'update'],
         'required': ['update'],
         'type': 'dict',
     },
     'api_subnet_allow_list': {
-        'description': ['The datacenter location.'],
+        'description': [
+            'Access to the K8s API server is restricted to these CIDRs. Traffic, internal to the cluster, '
+            'is not affected by this restriction. If no allowlist is specified, access is not restricted. '
+            'If an IP without subnet mask is provided, the default value is used: 32 for IPv4 and 128 for IPv6.',
+        ],
         'available': ['present', 'update'],
         'type': 'list',
         'elements': 'str',
     },
     's3_buckets_param': {
-        'description': ['The datacenter location.'],
+        'description': [
+            'List of S3 bucket configured for K8s usage. For now it contains only an S3 bucket '
+            'used to store K8s API audit logs.',
+        ],
         'available': ['present', 'update'],
         'type': 'list',
         'elements': 'str',
@@ -234,7 +249,7 @@ def create_k8s_cluster(module, client):
 
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
 
-    existing_cluster = get_resource(module, k8s_server.k8s_get(depth=1), cluster_name)
+    existing_cluster = get_resource(module, k8s_server.k8s_get(depth=2), cluster_name)
 
     if module.check_mode:
         module.exit_json(changed=False)
@@ -290,17 +305,25 @@ def delete_k8s_cluster(module, client):
     changed = False
 
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
-    k8s_cluster = get_resource(module, k8s_server.k8s_get(depth=1), k8s_cluster_id)
+    k8s_cluster = get_resource(module, k8s_server.k8s_get(depth=2), k8s_cluster_id)
 
     if not k8s_cluster:
         module.exit_json(changed=False)
 
     try:
-        _, _, headers = k8s_server.k8s_delete_with_http_info(k8s_cluster_id=k8s_cluster_id)
+        if k8s_cluster.metadata.state != 'DESTROYING':
+            k8s_server.k8s_delete_with_http_info(k8s_cluster_id=k8s_cluster_id)
 
         if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for(
+                fn_request=lambda: k8s_server.k8s_get(depth=1),
+                fn_check=lambda r: len(list(filter(
+                    lambda e: e.id == k8s_cluster_id,
+                    r.items
+                ))) < 1,
+                console_print='.',
+                scaleup=10000
+            )
         changed = True
     except Exception as e:
         module.fail_json(
@@ -327,7 +350,7 @@ def update_k8s_cluster(module, client):
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
     k8s_response = None
     
-    existing_cluster_id_by_name = get_resource_id(module, k8s_server.k8s_get(depth=1), cluster_name)
+    existing_cluster_id_by_name = get_resource_id(module, k8s_server.k8s_get(depth=2), cluster_name)
 
     if k8s_cluster_id is not None and existing_cluster_id_by_name is not None and existing_cluster_id_by_name != k8s_cluster_id:
             module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, cluster_name))

@@ -296,7 +296,7 @@ def create_flowlog(module, client):
 
     nic_flowlog_server = ionoscloud.FlowLogsApi(client)
     flowlogs = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id,
-                                                                        server_id=server_id, nic_id=nic_id, depth=2)
+                                                                        server_id=server_id, nic_id=nic_id, depth=1)
 
     existing_nic_flowlog = get_resource(module, flowlogs, name)
     if existing_nic_flowlog is not None:
@@ -353,7 +353,7 @@ def update_flowlog(module, client):
 
     nic_flowlog_server = ionoscloud.FlowLogsApi(client)
     flowlogs = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id,
-                                                                        server_id=server_id, nic_id=nic_id, depth=2)
+                                                                        server_id=server_id, nic_id=nic_id, depth=1)
 
     existing_nic_flowlog = get_resource(module, flowlogs, name)
     if existing_nic_flowlog is not None:
@@ -370,7 +370,7 @@ def update_flowlog(module, client):
 
     else:
         flowlogs = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id, nic_id=nic_id,
-                                                                            server_id=server_id, depth=2)
+                                                                            server_id=server_id, depth=1)
         for f in flowlogs:
             if name == f.properties.name:
                 flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
@@ -415,7 +415,7 @@ def remove_flowlog(module, client):
     try:
         nic_flowlog_list = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id,
                                                                                     nic_id=nic_id, server_id=server_id,
-                                                                                    depth=5)
+                                                                                    depth=1)
 
         nic_flowlog_id = get_resource_id(module, nic_flowlog_list, flowlog_id if flowlog_id is not None else name)
 
