@@ -3,7 +3,7 @@
   gather_facts: false
 
   vars_files:
-    - ../vars.yml
+    - ./vars.yml
 
   tasks:
 
@@ -26,9 +26,9 @@
     registry_info:
     register: registries_response
 
-  # - name: Show Registries
-  #   debug:
-  #     var: registries_response.result
+  - name: Show Registries
+    debug:
+      var: registries_response.result
 
   - name: Update Registry
     registry:
