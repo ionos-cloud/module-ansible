@@ -11,6 +11,8 @@ import yaml
 
 from uuid import (uuid4, UUID)
 
+from plugins.modules.volume import RETURNED_KEY
+
 HAS_SDK = True
 
 try:
@@ -40,6 +42,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['running', 'stopped', 'absent', 'present', 'update']
 OBJECT_NAME = 'Server'
+RETURNED_KEY = 'server'
 
 AVAILABILITY_ZONES = [
     'AUTO',
@@ -420,7 +423,67 @@ def _get_lan_by_id_or_properties(networks, id=None, **kwargs):
     return matched_lan
 
 
-def _create_machine(module, client, datacenter, name):
+def _should_replace_object(module, existing_object):
+    return (
+        module.params.get('size') is not None
+        and int(existing_object.properties.size) != int(module.params.get('size'))
+        and int(existing_object.properties.size) > int(module.params.get('size'))
+        or module.params.get('disk_type') is not None
+        and existing_object.properties.type != module.params.get('disk_type')
+        or module.params.get('availability_zone') is not None
+        and existing_object.properties.availability_zone != module.params.get('availability_zone')
+        and 'AUTO' != module.params.get('availability_zone')
+        or module.params.get('licence_type') is not None
+        and existing_object.properties.licence_type != module.params.get('licence_type')
+        or module.params.get('backupunit_id') is not None
+        and existing_object.properties.backupunit_id != module.params.get('backupunit_id')
+        or module.params.get('user_data') is not None
+        and existing_object.properties.user_data != module.params.get('user_data')
+    )
+
+
+def _should_update_object(module, existing_object, new_object_name):
+    return (
+        new_object_name is not None
+        and existing_object.properties.name != new_object_name
+        or module.params.get('size') is not None
+        and int(existing_object.properties.size) != int(module.params.get('size'))
+        and int(existing_object.properties.size) < int(module.params.get('size'))
+    )
+
+
+def update_replace_object(module, client, existing_object, new_object_name):
+    if _should_replace_object(module, existing_object):
+        if module.params.get('do_not_replace'):
+            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+    
+        new_object = _create_object(module, client, new_object_name, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object, new_object_name):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, new_object_name, existing_object).to_dict()
+        }
+
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def _create_object(module, client, name, existing_object=None):
     cores = module.params.get('cores')
     ram = module.params.get('ram')
     cpu_family = module.params.get('cpu_family')
@@ -433,20 +496,31 @@ def _create_machine(module, client, datacenter, name):
     user_data = module.params.get('user_data')
     bus = module.params.get('bus')
     lan = module.params.get('lan')
-    nat = module.params.get('nat')
     image = module.params.get('image')
     assign_public_ip = module.boolean(module.params.get('assign_public_ip'))
     nic_ips = module.params.get('nic_ips')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    server_server = ionoscloud.ServersApi(api_client=client)
-    lan_server = ionoscloud.LANsApi(api_client=client)
+    if existing_object is not None:
+        cores = existing_object.properties.cores if cores is None else cores
+        ram = existing_object.properties.ram if ram is None else ram
+        cpu_family = existing_object.properties.cpu_family if cpu_family is None else cpu_family
+        volume_size = existing_object.properties.volume_size if volume_size is None else volume_size
+        disk_type = existing_object.properties.disk_type if disk_type is None else disk_type
+        availability_zone = existing_object.properties.availability_zone if availability_zone is None else availability_zone
+
+    datacenters_api = ionoscloud.DataCentersApi(client)
+    servers_api = ionoscloud.ServersApi(api_client=client)
+    lans_api = ionoscloud.LANsApi(api_client=client)
+
+    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
 
     nics = []
 
     if assign_public_ip:
-        lans_list = lan_server.datacenters_lans_get(datacenter_id=datacenter, depth=1).items
+        lans_list = lans_api.datacenters_lans_get(datacenter_id=datacenter_id, depth=1).items
         public_lan = _get_lan_by_id_or_properties(lans_list, public=True)
 
         public_ip_lan_id = public_lan.id if public_lan is not None else None
@@ -455,40 +529,45 @@ def _create_machine(module, client, datacenter, name):
             lan_properties = LanPropertiesPost(name='public', public=True)
             lan_post = LanPost(properties=lan_properties)
 
-            response = lan_server.datacenters_lans_post_with_http_info(datacenter_id=datacenter, lan=lan_post)
+            response = lans_api.datacenters_lans_post_with_http_info(datacenter_id=datacenter_id, lan=lan_post)
             (lan_response, _, headers) = response
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
             public_ip_lan_id = lan_response.id
 
-        nic = Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10],
-                                           lan=int(public_ip_lan_id)))
+        nic = Nic(properties=NicProperties(
+            name=str(uuid4()).replace('-', '')[:10], lan=int(public_ip_lan_id),
+        ))
         if nic_ips:
             nic.properties.ips = nic_ips
         nics.append(nic)
 
     if lan is not None:
-        lans_list = lan_server.datacenters_lans_get(datacenter_id=datacenter, depth=1)
+        lans_list = lans_api.datacenters_lans_get(datacenter_id=datacenter_id, depth=1)
         matching_lan = get_resource(module, lans_list, lan)
 
         if (not any(n.properties.lan == int(matching_lan.id) for n in nics)) or len(nics) < 1:
-            nic = Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10],
-                                               lan=int(int(matching_lan.id))))
+            nic = Nic(properties=NicProperties(
+                name=str(uuid4()).replace('-', '')[:10], lan=int(int(matching_lan.id)),
+            ))
             if nic_ips:
                 nic.properties.ips = nic_ips
             nics.append(nic)
-    server_properties = ServerProperties(name=name, cores=cores, ram=ram, availability_zone=availability_zone,
-                                            cpu_family=cpu_family)
+    server_properties = ServerProperties(
+        name=name, cores=cores, ram=ram, availability_zone=availability_zone, cpu_family=cpu_family,
+    )
 
-    volume_properties = VolumeProperties(name=str(uuid4()).replace('-', '')[:10],
-                                            type=disk_type,
-                                            size=volume_size,
-                                            availability_zone=volume_availability_zone,
-                                            image_password=image_password,
-                                            ssh_keys=ssh_keys,
-                                            user_data=user_data,
-                                            bus=bus)
+    volume_properties = VolumeProperties(
+        name=str(uuid4()).replace('-', '')[:10],
+        type=disk_type,
+        size=volume_size,
+        availability_zone=volume_availability_zone,
+        image_password=image_password,
+        ssh_keys=ssh_keys,
+        user_data=user_data,
+        bus=bus,
+    )
 
     if image:
         if uuid_match.match(image):
@@ -502,22 +581,30 @@ def _create_machine(module, client, datacenter, name):
     server = Server(properties=server_properties, entities=server_entities)
 
     try:
-        response = server_server.datacenters_servers_post_with_http_info(datacenter_id=datacenter, server=server)
-        (server_response, _, headers) = response
-        request_id = _get_request_id(headers['Location'])
-        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-        client.wait_for(
-            fn_request=lambda: server_server.datacenters_servers_find_by_id(datacenter_id=datacenter,
-                                                                            server_id=server_response.id, depth=1),
-            fn_check=lambda r: (r.entities.volumes is not None) and (r.entities.volumes.items is not None) and (
-                    len(r.entities.volumes.items) > 0)
-                                and (r.entities.nics is not None) and (r.entities.nics.items is not None) and (
-                                        len(r.entities.nics.items) == len(nics)), scaleup=10000)
-
+        server_response, _, headers = servers_api.datacenters_servers_post_with_http_info(
+            datacenter_id=datacenter_id, server=server,
+        )
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for(
+                fn_request=lambda: servers_api.datacenters_servers_find_by_id(
+                    datacenter_id=datacenter_id, server_id=server_response.id, depth=1
+                ),
+                fn_check=lambda r: (r.entities.volumes is not None)
+                    and (r.entities.volumes.items is not None)
+                    and (len(r.entities.volumes.items) > 0)
+                    and (r.entities.nics is not None)
+                    and (r.entities.nics.items is not None)
+                    and (len(r.entities.nics.items) == len(nics)
+                ),
+                scaleup=10000,
+            )
 
         # Depth 2 needed for nested nic and volume properties
-        server = server_server.datacenters_servers_find_by_id(datacenter_id=datacenter,
-                                                              server_id=server_response.id, depth=2)
+        server = servers_api.datacenters_servers_find_by_id(
+            datacenter_id=datacenter_id, server_id=server_response.id, depth=2,
+        )
 
     except Exception as e:
         module.fail_json(msg="failed to create the new server: %s" % to_native(e))
@@ -561,6 +648,7 @@ def _startstop_machine(module, client, datacenter_id, server_id, current_state):
             msg="failed to start or stop the virtual machine %s at %s: %s" % (server_id, datacenter_id, to_native(e)))
 
     return changed, server
+
 
 def _create_datacenter(module, client):
     datacenter = module.params.get('datacenter')
@@ -658,6 +746,40 @@ def create_virtual_machine(module, client):
     }
 
 
+def _update_object(module, client, existing_object):
+    name = module.params.get('name')
+    cores = module.params.get('cores')
+    ram = module.params.get('ram')
+    cpu_family = module.params.get('cpu_family')
+    availability_zone = module.params.get('availability_zone')
+
+    wait_timeout = module.params.get('wait_timeout')
+    wait = module.params.get('wait')
+
+    datacenters_api = ionoscloud.DataCentersApi(client)
+    servers_api = ionoscloud.ServersApi(api_client=client)
+
+    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
+
+    new_server_propeties = ServerProperties(
+        name=name if name is not None else existing_object.properties.name,
+        cores=cores, ram=ram, availability_zone=availability_zone,
+        cpu_family=cpu_family,
+    )
+    try:
+        server_response, _, headers = servers_api.datacenters_servers_patch_with_http_info(
+            datacenter_id=datacenter_id, server_id=existing_object.id, server=new_server_propeties,
+        )
+
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        return server_response
+    except Exception as e:
+        module.fail_json(msg="failed to update the server: %s" % to_native(e), exception=traceback.format_exc())
+
+
 def update_server(module, client):
     """
     Update servers.
@@ -670,35 +792,27 @@ def update_server(module, client):
     Returns:
         dict of updated servers
     """
+    instance_ids = module.params.get('instance_ids')
     datacenter = module.params.get('datacenter')
     name = module.params.get('name')
-    boot_cdrom = module.params.get('boot_cdrom')
-    boot_volume = module.params.get('boot_volume')
-    type = module.params.get('type')
-    instance_ids = module.params.get('instance_ids')
 
-    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    server_server = ionoscloud.ServersApi(api_client=client)
+    servers_api = ionoscloud.ServersApi(api_client=client)
 
-    if name is None:
-        if not isinstance(instance_ids, list) or len(instance_ids) < 1:
-            module.fail_json(msg='instance_ids should be a list of virtual machine ids or names, aborting')
-    else:
-        if isinstance(instance_ids, list) and len(instance_ids) > 1:
-            module.fail_json(msg='when renaming, instance_ids can only have one id at most')
+    if not isinstance(instance_ids, list) or len(instance_ids) < 1:
+        module.fail_json(msg='instance_ids should be a list of virtual machine ids or names, aborting')
+
+    if name and isinstance(instance_ids, list) and len(instance_ids) > 1:
+        module.fail_json(msg='when renaming, instance_ids can only have one id at most')
 
     # Locate UUID for datacenter if referenced by name.
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenters_api = ionoscloud.DataCentersApi(client)
+
+    datacenter_list = datacenters_api.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
 
-    cores = module.params.get('cores')
-    ram = module.params.get('ram')
-    cpu_family = module.params.get('cpu_family')
-    availability_zone = module.params.get('availability_zone')
-
-    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
+    server_list = servers_api.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
 
     # Fail early if one of the ids provided doesn't match any server
     checked_instances = []
@@ -713,23 +827,9 @@ def update_server(module, client):
         existing_server_by_name = None if name is None else get_resource_id(module, server_list, name)
         if existing_server_by_name is not None:
             module.fail_json(msg='A server with name \'%s\' already exists.' % str(name))
-
+        server_response = _update_object(module, client, instance)
         if module.check_mode:
             module.exit_json(changed=True)
-        server_properties = ServerProperties(
-            name=name if name is not None else instance.properties.name,
-            cores=cores, ram=ram, availability_zone=availability_zone,
-            cpu_family=cpu_family,
-        )
-
-        new_server = Server(properties=server_properties)
-        try:
-            server_response = server_server.datacenters_servers_put(datacenter_id=datacenter_id, server_id=instance.id,
-                                                                    server=new_server)
-
-        except Exception as e:
-            module.fail_json(msg="failed to update the server: %s" % to_native(e), exception=traceback.format_exc())
-        else:
             updated_servers.append(server_response)
 
     return {
