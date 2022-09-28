@@ -16,9 +16,9 @@
           location: "de/txl"
 
     - name: Provision a server
-      server:
+      cube_server:
          datacenter: "{{ datacenter }}"
-         name: "{{ name }} %02d"
+         name: "{{ name }} 01"
          cpu_family: INTEL_SKYLAKE
          disk_type: DAS
          image: "{{ image_alias }}"
@@ -28,43 +28,41 @@
          assign_public_ip: true
          remove_boot_volume: true
          template_uuid: "15c6dd2f-02d2-4987-b439-9a58dd59ecc3"
-         type: "CUBE"
          wait: true
          wait_timeout: "{{ wait_timeout }}"
          state: present
 
     - name: Update server
-      server:
+      cube_server:
          datacenter: "{{ datacenter }}"
          name: "{{ name }} - UPDATED"
          instance_ids:
            - "{{ name }} 01"
-         type: CUBE
          wait: true
          wait_timeout: "{{ wait_timeout }}"
          state: update
 
     - name: Suspend server
-      server:
+      cube_server:
          datacenter: "{{ datacenter }}"
          instance_ids:
-           - "{{ name }} 01"
+           - "{{ name }} - UPDATED"
          wait_timeout: "{{ wait_timeout }}"
          state: suspend
 
     - name: Resume server
-      server:
+      cube_server:
          datacenter: "{{ datacenter }}"
          instance_ids:
-           - "{{ name }} 01"
+           - "{{ name }} - UPDATED"
          wait_timeout: "{{ wait_timeout }}"
          state: resume
 
     - name: Remove server
-      server:
+      cube_server:
          datacenter: "{{ datacenter }}"
          instance_ids:
-           - "{{ name }} 01"
+           - "{{ name }} - UPDATED"
          remove_boot_volume: yes
          wait_timeout: "{{ wait_timeout }}"
          state: absent
