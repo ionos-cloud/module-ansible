@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import, division, print_function
 import copy
+from fcntl import F_WRLCK
 import yaml
 import re
 import traceback
@@ -171,6 +172,16 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'bool',
     },
+    'do_not_replace': {
+        'description': [
+            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -331,19 +342,12 @@ def _get_request_id(headers):
 
 
 def _should_replace_object(module, existing_object):
-    with open('debug.txt', 'a') as f:
-        f.write(str(['da', existing_object.properties]))
     return (
         module.params.get('size') is not None
-        and existing_object.properties.size != module.params.get('size')
-        or module.params.get('image') is not None
-        and existing_object.properties.image != module.params.get('image')
-        or module.params.get('image_password') is not None
-        and existing_object.properties.image_password != module.params.get('image_password')
-        or module.params.get('ssh_keys') is not None
-        and existing_object.properties.ssh_keys != module.params.get('ssh_keys')
+        and int(existing_object.properties.size) != int(module.params.get('size'))
+        and int(existing_object.properties.size) > int(module.params.get('size'))
         or module.params.get('disk_type') is not None
-        and existing_object.properties.disk_type != module.params.get('disk_type')
+        and existing_object.properties.type != module.params.get('disk_type')
         or module.params.get('availability_zone') is not None
         and existing_object.properties.availability_zone != module.params.get('availability_zone')
         and 'AUTO' != module.params.get('availability_zone')
@@ -356,33 +360,35 @@ def _should_replace_object(module, existing_object):
     )
 
 
-def _should_update_object(module, existing_object):
+def _should_update_object(module, existing_object, new_object_name):
     return (
-        module.params.get('name') is not None
-        and existing_object.properties.name != module.params.get('name')
+        new_object_name is not None
+        and existing_object.properties.name != new_object_name
         or module.params.get('size') is not None
-        and existing_object.properties.size != module.params.get('size')
-        or module.params.get('bus') is not None
-        and existing_object.properties.bus != module.params.get('bus')
-        or module.params.get('cpu_hot_plug') is not None
-        and existing_object.properties.cpu_hot_plug != module.params.get('cpu_hot_plug')
-        or module.params.get('ram_hot_plug') is not None
-        and existing_object.properties.ram_hot_plug != module.params.get('ram_hot_plug')
-        or module.params.get('nic_hot_unplug') is not None
-        and existing_object.properties.nic_hot_unplug != module.params.get('nic_hot_unplug')
-        or module.params.get('disc_virtio_hot_plug') is not None
-        and existing_object.properties.disc_virtio_hot_plug != module.params.get('disc_virtio_hot_plug')
-        or module.params.get('disc_virtio_hot_unplug') is not None
-        and existing_object.properties.disc_virtio_hot_unplug != module.params.get('disc_virtio_hot_unplug')
+        and int(existing_object.properties.size) != int(module.params.get('size'))
+        and int(existing_object.properties.size) < int(module.params.get('size'))
+        # or module.params.get('bus') is not None
+        # and existing_object.properties.bus != module.params.get('bus')
+        # or module.params.get('cpu_hot_plug') is not None
+        # and existing_object.properties.cpu_hot_plug != module.params.get('cpu_hot_plug')
+        # or module.params.get('ram_hot_plug') is not None
+        # and existing_object.properties.ram_hot_plug != module.params.get('ram_hot_plug')
+        # or module.params.get('nic_hot_plug') is not None
+        # and existing_object.properties.nic_hot_plug != module.params.get('nic_hot_plug')
+        # or module.params.get('nic_hot_unplug') is not None
+        # and existing_object.properties.nic_hot_unplug != module.params.get('nic_hot_unplug')
+        # or module.params.get('disc_virtio_hot_plug') is not None
+        # and existing_object.properties.disc_virtio_hot_plug != module.params.get('disc_virtio_hot_plug')
+        # or module.params.get('disc_virtio_hot_unplug') is not None
+        # and existing_object.properties.disc_virtio_hot_unplug != module.params.get('disc_virtio_hot_unplug')
     )
 
 
 def update_replace_object(module, client, existing_object, new_object_name):
     if _should_replace_object(module, existing_object):
-
         if module.params.get('do_not_replace'):
             module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
-
+    
         new_object = _create_object(module, client, new_object_name, existing_object).to_dict()
         _remove_object(module, client, existing_object)
         return {
@@ -391,13 +397,13 @@ def update_replace_object(module, client, existing_object, new_object_name):
             'action': 'create',
             RETURNED_KEY: new_object,
         }
-    if _should_update_object(module, existing_object):
+    if _should_update_object(module, existing_object, new_object_name):
         # Update
         return {
             'changed': True,
             'failed': False,
             'action': 'update',
-            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
+            RETURNED_KEY: _update_object(module, client, new_object_name, existing_object).to_dict()
         }
 
     # No action
@@ -487,8 +493,7 @@ def _create_object(module, client, name, existing_object=None):
         module.fail_json(msg="failed to create the volume: %s" % to_native(e))
 
 
-def _update_object(module, client, existing_object):
-    name = module.params.get('name')
+def _update_object(module, client, name, existing_object):
     size = module.params.get('size')
     bus = module.params.get('bus')
     cpu_hot_plug = module.params.get('cpu_hot_plug')
@@ -546,7 +551,7 @@ def _remove_object(module, client, volume):
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        _, _, headers = volumes_api.datacenters_volumes_delete(datacenter_id, volume.id)
+        _, _, headers = volumes_api.datacenters_volumes_delete_with_http_info(datacenter_id, volume.id)
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
@@ -626,9 +631,9 @@ def create_volume(module, client):
     results = {
         'changed': changed,
         'failed': False,
-        'volumes': [volumes],
+        'volumes': volumes,
         'action': 'create',
-        'instance_ids': instance_ids
+        'instance_ids': instance_ids,
     }
 
     return results
@@ -732,7 +737,7 @@ def delete_volume(module, client):
     for n in instance_ids:
         volume = get_resource(module, volumes, n)
         if volume is not None:
-            _remove_object(module, volumes_api, volume)
+            _remove_object(module, client, volume)
             changed = True
 
     return {
