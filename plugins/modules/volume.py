@@ -626,7 +626,7 @@ def create_volume(module, client):
             volume = _create_object(module, client, name).to_dict()
             changed = True
         instance_ids.append(volume['id'])
-        _attach_volume(module, servers_api, datacenter_id, volume)
+        _attach_volume(module, servers_api, datacenter_id, volume['id'])
         volumes.append(volume)
 
     results = {
@@ -751,7 +751,7 @@ def delete_volume(module, client):
     }
 
 
-def _attach_volume(module, servers_api, datacenter, volume):
+def _attach_volume(module, servers_api, datacenter, volume_id):
     """
     Attaches a volume.
 
@@ -772,7 +772,7 @@ def _attach_volume(module, servers_api, datacenter, volume):
 
         try:
             return servers_api.datacenters_servers_volumes_post(
-                datacenter_id=datacenter, server_id=server_id, volume=Volume(id=volume.id),
+                datacenter_id=datacenter, server_id=server_id, volume=Volume(id=volume_id),
             )
         except Exception as e:
             module.fail_json(msg='failed to attach volume: %s' % to_native(e))
