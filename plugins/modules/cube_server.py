@@ -405,7 +405,6 @@ def _get_lan_by_id_or_properties(networks, id=None, **kwargs):
 
 
 def _should_replace_object(module, existing_object):
-    return True
     return (
         module.params.get('template_uuid') is not None
         and existing_object.properties.template_uuid != module.params.get('template_uuid')
