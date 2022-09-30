@@ -190,7 +190,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos CUBE virtual ma
   | ssh_keys | False | list |  | Public SSH keys allowing access to the virtual machine. |
   | user_data | False | str |  | The cloud-init configuration for the volume as base64 encoded string. |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | cpu_family | False | str | AMD_OPTERON | The amount of memory to allocate to the virtual machine. |
+  | cpu_family | False | str |  | The amount of memory to allocate to the virtual machine. |
   | availability_zone | False | str | AUTO | The availability zone assigned to the server. |
   | bus | False | str | VIRTIO | The bus type for the volume. |
   | count | False | int | 1 | The number of virtual machines to create. |
@@ -203,6 +203,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos CUBE virtual ma
   | template_uuid | False | str |  | The template used when crating a CUBE server. |
   | boot_volume | False | str |  | The volume used for boot. |
   | boot_cdrom | False | str |  | The CDROM used for boot. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -245,6 +246,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos CUBE virtual ma
   | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | boot_volume | False | str |  | The volume used for boot. |
   | boot_cdrom | False | str |  | The CDROM used for boot. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |

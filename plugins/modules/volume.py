@@ -620,7 +620,8 @@ def create_volume(module, client):
         if existing_volume is not None:
             update_replace_result = update_replace_object(module, client, existing_volume, name)
             volume = update_replace_result[RETURNED_KEY]
-            changed = update_replace_result['changed']
+            if update_replace_result['changed']:
+                changed = True
         else:
             volume = _create_object(module, client, name).to_dict()
             changed = True
@@ -690,8 +691,11 @@ def update_volume(module, client):
 
         volume = get_resource(module, volume_list, instance)
         if volume is not None:
-            update_response = update_replace_object(module, client, volume, name)[RETURNED_KEY]
-            changed = True
+
+            update_replace_result = update_replace_object(module, client, volume, name)
+            update_response = update_replace_result[RETURNED_KEY]
+            if update_replace_result['changed']:
+                changed = True
             updated_volumes.append(update_response)
 
     results = {
