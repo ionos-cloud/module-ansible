@@ -106,6 +106,11 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'bool',
     },
+    'manage_dbaas': {
+        'description': ['Privilege for a group to manage DBaaS related functionality.'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
     'users': {
         'description': [
             'A list of (non-administrator) user IDs or emails to associate with the group. Set to empty list ([]) to remove all users from the group.',
@@ -293,6 +298,7 @@ def create_group(module, client):
     create_flow_log = module.params.get('create_flow_log')
     access_and_manage_monitoring = module.params.get('access_and_manage_monitoring')
     access_and_manage_certificates = module.params.get('access_and_manage_certificates')
+    manage_dbaas = module.params.get('manage_dbaas')
 
     user_management_server = ionoscloud.UserManagementApi(client)
 
@@ -310,19 +316,22 @@ def create_group(module, client):
         module.exit_json(changed=False)
 
     try:
-        group_properties = GroupProperties(name=name,
-                                           create_data_center=create_datacenter or False,
-                                           create_snapshot=create_snapshot or False,
-                                           reserve_ip=reserve_ip or False,
-                                           access_activity_log=access_activity_log or False,
-                                           create_pcc=create_pcc or False,
-                                           s3_privilege=s3_privilege or False,
-                                           create_backup_unit=create_backup_unit or False,
-                                           create_internet_access=create_internet_access or False,
-                                           create_k8s_cluster=create_k8s_cluster or False,
-                                           create_flow_log=create_flow_log or False,
-                                           access_and_manage_monitoring=access_and_manage_monitoring or False,
-                                           access_and_manage_certificates=access_and_manage_certificates or False)
+        group_properties = GroupProperties(
+            name=name,
+            create_data_center=create_datacenter or False,
+            create_snapshot=create_snapshot or False,
+            reserve_ip=reserve_ip or False,
+            access_activity_log=access_activity_log or False,
+            create_pcc=create_pcc or False,
+            s3_privilege=s3_privilege or False,
+            create_backup_unit=create_backup_unit or False,
+            create_internet_access=create_internet_access or False,
+            create_k8s_cluster=create_k8s_cluster or False,
+            create_flow_log=create_flow_log or False,
+            access_and_manage_monitoring=access_and_manage_monitoring or False,
+            access_and_manage_certificates=access_and_manage_certificates or False,
+            manage_dbaas=manage_dbaas or False,
+        )
 
         group = Group(properties=group_properties)
         response = user_management_server.um_groups_post_with_http_info(group)
@@ -366,6 +375,7 @@ def update_group(module, client):
     create_flow_log = module.params.get('create_flow_log')
     access_and_manage_monitoring = module.params.get('access_and_manage_monitoring')
     access_and_manage_certificates = module.params.get('access_and_manage_certificates')
+    manage_dbaas = module.params.get('manage_dbaas')
     
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
@@ -404,6 +414,8 @@ def update_group(module, client):
                 access_and_manage_monitoring = group.properties.access_and_manage_monitoring
             if access_and_manage_certificates is None:
                 access_and_manage_certificates = group.properties.access_and_manage_certificates
+            if manage_dbaas is None:
+                manage_dbaas = group.properties.manage_dbaas
 
             group_properties = GroupProperties(
                 name=name,
@@ -419,6 +431,7 @@ def update_group(module, client):
                 create_flow_log=create_flow_log,
                 access_and_manage_monitoring=access_and_manage_monitoring,
                 access_and_manage_certificates=access_and_manage_certificates,
+                manage_dbaas=manage_dbaas,
             )
 
             group = Group(properties=group_properties)
