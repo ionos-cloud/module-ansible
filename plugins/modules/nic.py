@@ -264,7 +264,7 @@ def _should_update_object(module, existing_object):
         or module.params.get('dhcp') is not None
         and existing_object.properties.dhcp != module.params.get('dhcp')
         or module.params.get('lan') is not None
-        and existing_object.properties.lan != module.params.get('lan')
+        and int(existing_object.properties.lan) != int(module.params.get('lan'))
         or module.params.get('firewall_active') is not None
         and existing_object.properties.firewall_active != module.params.get('firewall_active')
         or module.params.get('name') is not None
@@ -421,6 +421,8 @@ def _remove_object(module, client, existing_object):
 
 
 def update_replace_object(module, client, existing_object):
+    with open('debug.txt', 'a') as f:
+        f.write(str([_should_update_object(module, existing_object), _should_replace_object(module, existing_object)]))
     if _should_replace_object(module, existing_object):
 
         if module.params.get('do_not_replace'):

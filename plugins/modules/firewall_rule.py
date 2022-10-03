@@ -426,13 +426,6 @@ def _create_object(module, client, existing_object=None):
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            'firewall_rule': response
-        }
-
     except ApiException as e:
         module.fail_json(msg="failed to create the firewall rule: %s" % to_native(e))
 
