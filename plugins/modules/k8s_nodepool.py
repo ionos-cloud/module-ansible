@@ -225,7 +225,7 @@ EXAMPLE_PER_STATE = {
       cluster_name: "{{ name }}"
       k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       datacenter_id: "4d495548-e330-434d-83a9-251bfa645875"
-      node_count: "1"
+      node_count: 1
       cpu_family: "AMD_OPTERON"
       cores_count: "1"
       ram_size: "2048"
