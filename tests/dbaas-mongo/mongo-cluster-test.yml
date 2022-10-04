@@ -25,7 +25,7 @@
       mongo_db_version: 5.0
       instances: 3
       location: de/fra
-      template_id: 15c6dd2f-02d2-4987-b439-9a58dd59ecc3
+      template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
       connections:
         - cidr_list: 
             - 192.168.1.116/24
