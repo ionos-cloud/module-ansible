@@ -216,7 +216,7 @@ def create_mongo_cluster_user(module, dbaas_client):
 
     existing_mongo_user = None
     try:
-        existing_mongo_user = mongo_users_api.cluster_users_find_by_id(mongo_cluster_id, database, mongo_username)
+        existing_mongo_user = mongo_users_api.clusters_users_find_by_id(mongo_cluster_id, database, mongo_username)
     except ionoscloud_dbaas_mongo.ApiException as e:
         if e.status != 404:
             raise e
