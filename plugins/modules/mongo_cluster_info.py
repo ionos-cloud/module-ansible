@@ -23,12 +23,6 @@ STATES = ['info']
 OBJECT_NAME = 'Mongo Cluster Users'
 
 OPTIONS = {
-    'mongo_cluster_id': {
-        'description': ['The ID an existing Mongo Cluster.'],
-        'available': STATES,
-        'required': STATES,
-        'type': 'str',
-    },
     'filters': {
         'description': [
             'Filter that can be used to list only objects which have a certain set of propeties. Filters '
