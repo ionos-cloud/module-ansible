@@ -70,7 +70,7 @@
 
   - name: Remove LAN
     lan:
-      datacenter: "{{ datacenter }} - DBaaS"
+      datacenter: "{{ datacenter }} - DBaaS Mongo"
       name: "test_lan"
       state: absent
       wait: true
@@ -78,6 +78,5 @@
   - name: Remove datacenter
     datacenter:
       id: "{{ datacenter_response.datacenter.id }}"
-      name: "{{ datacenter }} - DBaaS"
       state: absent
       wait: true
