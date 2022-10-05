@@ -256,9 +256,9 @@ def transform_for_documentation(val):
 DOCUMENTATION = '''
 ---
 module: cube_server
-short_description: Create, update, destroy, start, stop, and reboot a Ionos CUBE virtual machine.
+short_description: Create, update, destroy, resume, suspend, and reboot a Ionos CUBE virtual machine.
 description:
-     - Create, update, destroy, update, start, stop, and reboot a Ionos CUBE virtual machine.
+     - Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtual machine.
        When the virtual machine is created it can optionally wait for it to be 'running' before returning.
 version_added: "2.0"
 options:

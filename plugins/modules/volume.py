@@ -367,20 +367,6 @@ def _should_update_object(module, existing_object, new_object_name):
         or module.params.get('size') is not None
         and int(existing_object.properties.size) != int(module.params.get('size'))
         and int(existing_object.properties.size) < int(module.params.get('size'))
-        # or module.params.get('bus') is not None
-        # and existing_object.properties.bus != module.params.get('bus')
-        # or module.params.get('cpu_hot_plug') is not None
-        # and existing_object.properties.cpu_hot_plug != module.params.get('cpu_hot_plug')
-        # or module.params.get('ram_hot_plug') is not None
-        # and existing_object.properties.ram_hot_plug != module.params.get('ram_hot_plug')
-        # or module.params.get('nic_hot_plug') is not None
-        # and existing_object.properties.nic_hot_plug != module.params.get('nic_hot_plug')
-        # or module.params.get('nic_hot_unplug') is not None
-        # and existing_object.properties.nic_hot_unplug != module.params.get('nic_hot_unplug')
-        # or module.params.get('disc_virtio_hot_plug') is not None
-        # and existing_object.properties.disc_virtio_hot_plug != module.params.get('disc_virtio_hot_plug')
-        # or module.params.get('disc_virtio_hot_unplug') is not None
-        # and existing_object.properties.disc_virtio_hot_unplug != module.params.get('disc_virtio_hot_unplug')
     )
 
 

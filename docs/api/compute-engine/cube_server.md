@@ -1,6 +1,6 @@
 # cube_server
 
-Create, update, destroy, update, start, stop, and reboot a Ionos CUBE virtual machine. When the virtual machine is created it can optionally wait for it to be 'running' before returning.
+Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtual machine. When the virtual machine is created it can optionally wait for it to be 'running' before returning.
 
 ## Example Syntax
 
