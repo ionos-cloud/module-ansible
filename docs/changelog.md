@@ -1,5 +1,16 @@
 # Changelog
 
+## 6.3.2
+
+### Features:
+* added new `manage_dbaas` parameter to `group` module
+* added new `depth` and `filters` parameters to info modules: `server_info`, `volume_info`, `postgres_backup_info`, `postgres_cluster_info`, `s3key_info`
+
+### Bug fixes:
+* fixed inventory cache
+* name no longer required for k8s_cluster update
+* fix module indentation for nic and image
+
 ## 6.3.1
 
 ### Bug fixes
