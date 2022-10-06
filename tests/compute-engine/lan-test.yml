@@ -76,7 +76,7 @@
       nic:
         datacenter: "{{ datacenter }}"
         server: "{{ server }}"
-        id: "{{ ionos_cloud_nic.nic.id }}"
+        nic: "{{ ionos_cloud_nic.nic.id }}"
         name: "new-nic"
         dhcp: false
         ips: "{{ ipblock_response.ipblock.properties.ips }}"
@@ -89,7 +89,7 @@
     - name: Update LAN
       lan:
         datacenter: "{{ datacenter }}"
-        name: "{{ lan }}"
+        lan: "{{ lan }}"
         pcc_id: "{{ pcc_result.pcc.id }}"
         state: update
 
@@ -99,7 +99,7 @@
 
     - name: Remove NIC
       nic:
-        name: "{{ ionos_cloud_nic.nic.id }}"
+        nic: "{{ ionos_cloud_nic.nic.id }}"
         datacenter: "{{ datacenter }}"
         server: "{{ server }}"
         wait: true
@@ -109,14 +109,14 @@
     - name: Remove LAN
       lan:
         datacenter: "{{ datacenter }}"
-        name: "{{ lan }}"
+        lan: "{{ lan }}"
         state: absent
         wait: true
 
     - name: Remove LAN
       lan:
         datacenter: "{{ datacenter }}"
-        name: "nonexistentlan"
+        lan: "nonexistentlan"
         state: absent
         wait: true
 

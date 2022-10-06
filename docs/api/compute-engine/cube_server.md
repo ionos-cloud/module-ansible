@@ -1,48 +1,42 @@
-# server
+# cube_server
 
-Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine. When the virtual machine is created it can optionally wait for it to be 'running' before returning.
+Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtual machine. When the virtual machine is created it can optionally wait for it to be 'running' before returning.
 
 ## Example Syntax
 
 
 ```yaml
-# Provisioning example. This will create three servers and enumerate their names.
-    - server:
+# Provisioning example. This will create three CUBE servers and enumerate their names.
+    - cube_server:
         datacenter: Tardis One
         name: web%02d.stackpointcloud.com
-        cores: 4
-        ram: 2048
-        volume_size: 50
+        template_id: <template_id>
         cpu_family: INTEL_XEON
         image: ubuntu:latest
         location: us/las
         count: 3
         assign_public_ip: true
   
-# Update Virtual machines
-    - server:
+# Update CUBE Virtual machines
+    - cube_server:
         datacenter: Tardis One
         instance_ids:
         - web001.stackpointcloud.com
         - web002.stackpointcloud.com
-        cores: 4
-        ram: 4096
         cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
-  # Rename virtual machine
-    - server:
+  # Rename CUBE Virtual machine
+    - cube_server:
         datacenter: Tardis One
         instance_ids: web001.stackpointcloud.com
         name: web101.stackpointcloud.com
-        cores: 4
-        ram: 4096
         cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
 
-# Removing Virtual machines
-    - server:
+# Removing CUBE Virtual machines
+    - cube_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
@@ -51,45 +45,45 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
         wait_timeout: 500
         state: absent
   
-# Starting Virtual Machines.
-    - server:
+# Starting CUBE Virtual Machines.
+    - cube_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
         - 'web002.stackpointcloud.com'
         - 'web003.stackpointcloud.com'
         wait_timeout: 500
-        state: running
+        state: resume
   
-# Stopping Virtual Machines
-    - server:
+# Suspending CUBE Virtual Machines
+    - cube_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
         - 'web002.stackpointcloud.com'
         - 'web003.stackpointcloud.com'
         wait_timeout: 500
-        state: stopped
+        state: suspend
   
 ```
 &nbsp;
 
 &nbsp;
 
-# state: **running**
+# state: **resume**
 ```yaml
-  # Starting Virtual Machines.
-    - server:
+  # Starting CUBE Virtual Machines.
+    - cube_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
         - 'web002.stackpointcloud.com'
         - 'web003.stackpointcloud.com'
         wait_timeout: 500
-        state: running
+        state: resume
   
 ```
-### Available parameters for state **running**:
+### Available parameters for state **resume**:
 &nbsp;
 
   | Name | Required | Type | Default | Description |
@@ -107,20 +101,20 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 &nbsp;
 
 &nbsp;
-# state: **stopped**
+# state: **suspend**
 ```yaml
-  # Stopping Virtual Machines
-    - server:
+  # Suspending CUBE Virtual Machines
+    - cube_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
         - 'web002.stackpointcloud.com'
         - 'web003.stackpointcloud.com'
         wait_timeout: 500
-        state: stopped
+        state: suspend
   
 ```
-### Available parameters for state **stopped**:
+### Available parameters for state **suspend**:
 &nbsp;
 
   | Name | Required | Type | Default | Description |
@@ -140,8 +134,8 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 &nbsp;
 # state: **absent**
 ```yaml
-  # Removing Virtual machines
-    - server:
+  # Removing CUBE Virtual machines
+    - cube_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
@@ -172,13 +166,11 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 &nbsp;
 # state: **present**
 ```yaml
-  # Provisioning example. This will create three servers and enumerate their names.
-    - server:
+  # Provisioning example. This will create three CUBE servers and enumerate their names.
+    - cube_server:
         datacenter: Tardis One
         name: web%02d.stackpointcloud.com
-        cores: 4
-        ram: 2048
-        volume_size: 50
+        template_id: <template_id>
         cpu_family: INTEL_XEON
         image: ubuntu:latest
         location: us/las
@@ -197,13 +189,9 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | image_password | False | str |  | Password set for the administrative user. |
   | ssh_keys | False | list |  | Public SSH keys allowing access to the virtual machine. |
   | user_data | False | str |  | The cloud-init configuration for the volume as base64 encoded string. |
-  | volume_availability_zone | False | str |  | The storage availability zone assigned to the volume. |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | cores | False | int | 2 | The number of CPU cores to allocate to the virtual machine. |
-  | ram | False | int | 2048 | The amount of memory to allocate to the virtual machine. |
-  | cpu_family | False | str | AMD_OPTERON | The amount of memory to allocate to the virtual machine. |
+  | cpu_family | False | str |  | The amount of memory to allocate to the virtual machine. |
   | availability_zone | False | str | AUTO | The availability zone assigned to the server. |
-  | volume_size | False | int | 10 | The size in GB of the boot volume. |
   | bus | False | str | VIRTIO | The bus type for the volume. |
   | count | False | int | 1 | The number of virtual machines to create. |
   | location | False | str | us/las | The datacenter location. Use only if you want to create the Datacenter or else this value is ignored. |
@@ -212,8 +200,10 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | remove_boot_volume | False | bool | True | Remove the bootVolume of the virtual machine you're destroying. |
   | disk_type | False | str | HDD | The disk type for the volume. |
   | nic_ips | False | list |  | The list of IPS for the NIC. |
+  | template_uuid | False | str |  | The template used when crating a CUBE server. |
   | boot_volume | False | str |  | The volume used for boot. |
   | boot_cdrom | False | str |  | The CDROM used for boot. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -227,24 +217,20 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 &nbsp;
 # state: **update**
 ```yaml
-  # Update Virtual machines
-    - server:
+  # Update CUBE Virtual machines
+    - cube_server:
         datacenter: Tardis One
         instance_ids:
         - web001.stackpointcloud.com
         - web002.stackpointcloud.com
-        cores: 4
-        ram: 4096
         cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
-  # Rename virtual machine
-    - server:
+  # Rename CUBE Virtual machine
+    - cube_server:
         datacenter: Tardis One
         instance_ids: web001.stackpointcloud.com
         name: web101.stackpointcloud.com
-        cores: 4
-        ram: 4096
         cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
@@ -257,11 +243,10 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the virtual machine. |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | cores | False | int | 2 | The number of CPU cores to allocate to the virtual machine. |
-  | ram | False | int | 2048 | The amount of memory to allocate to the virtual machine. |
   | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | boot_volume | False | str |  | The volume used for boot. |
   | boot_cdrom | False | str |  | The CDROM used for boot. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |

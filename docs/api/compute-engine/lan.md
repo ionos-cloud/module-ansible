@@ -54,9 +54,7 @@ This module allows you to create or remove a LAN.
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
-  | name | True | str |  | The name or ID of the LAN. |
-  | pcc_id | False | str |  | The ID of the PCC. |
-  | ip_failover | False | list |  | The IP failover group. |
+  | name | True | str |  | The name of the LAN. |
   | public | False | bool | False | If true, the LAN will have public Internet access. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -85,7 +83,7 @@ This module allows you to create or remove a LAN.
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
-  | name | True | str |  | The name or ID of the LAN. |
+  | lan | True | str |  | The LAN name or UUID. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -117,7 +115,8 @@ This module allows you to create or remove a LAN.
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
-  | name | True | str |  | The name or ID of the LAN. |
+  | lan | True | str |  | The LAN name or UUID. |
+  | name | False | str |  | The name of the LAN. |
   | pcc_id | False | str |  | The ID of the PCC. |
   | ip_failover | False | list |  | The IP failover group. |
   | public | False | bool | False | If true, the LAN will have public Internet access. |

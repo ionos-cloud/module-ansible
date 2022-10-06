@@ -72,7 +72,7 @@ This is a simple module that supports creating or removing Private Cross Connect
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | pcc_id | True | str |  | The ID of the PCC. |
+  | pcc | True | str |  | The ID or name of an existing PCC. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -101,7 +101,7 @@ This is a simple module that supports creating or removing Private Cross Connect
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the PCC. |
-  | pcc_id | True | str |  | The ID of the PCC. |
+  | pcc | True | str |  | The ID or name of an existing PCC. |
   | description | False | str |  | The description of the PCC. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

@@ -340,16 +340,12 @@ def _create_object(module, client, existing_object=None):
         k8s_response = k8s_api.k8s_post(kubernetes_cluster=k8s_cluster)
 
         if wait:
-            try:
-                client.wait_for(
-                    fn_request=lambda: k8s_api.k8s_find_by_cluster_id(k8s_response.id).metadata.state,
-                    fn_check=lambda r: r == 'ACTIVE',
-                    scaleup=10000,
-                    timeout=wait_timeout,
-                )
-            except Exception as e:
-                with open('debug.txt', 'a') as f:
-                    f.write(str([e]))
+            client.wait_for(
+                fn_request=lambda: k8s_api.k8s_find_by_cluster_id(k8s_response.id).metadata.state,
+                fn_check=lambda r: r == 'ACTIVE',
+                scaleup=10000,
+                timeout=wait_timeout,
+            )
     except ApiException as e:
         module.fail_json(msg="failed to create the new {}: {}".format(OBJECT_NAME, to_native(e)))
     return k8s_response
@@ -460,7 +456,6 @@ def update_object(module, client):
 
 
 def remove_object(module, client):
-
     existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
 
     if existing_object is None:

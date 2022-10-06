@@ -51,7 +51,13 @@ OPTIONS = {
     },
     'name': {
         'description': ['The name of the snapshot.'],
-        'available': STATES,
+        'available': ['create'],
+        'required': ['create'],
+        'type': 'str',
+    },
+    'snapshot': {
+        'description': ['The ID or name of an existing snapshot.'],
+        'available': ['restore', 'update', 'absent'],
         'required': ['restore', 'update', 'absent'],
         'type': 'str',
     },
@@ -302,7 +308,7 @@ def create_snapshot(module, client):
     snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for volume
@@ -310,7 +316,7 @@ def create_snapshot(module, client):
     volume_id = get_resource_id(module, volume_list, volume)
 
     # Locate snapshot by name/UUID
-    snapshot_list = snapshot_server.snapshots_get(depth=2)
+    snapshot_list = snapshot_server.snapshots_get(depth=1)
     snapshot = get_resource(module, snapshot_list, name)
 
     should_change = snapshot is None
@@ -359,7 +365,7 @@ def restore_snapshot(module, client):
     """
     datacenter = module.params.get('datacenter')
     volume = module.params.get('volume')
-    name = module.params.get('name')
+    snapshot = module.params.get('snapshot')
     wait = module.params.get('wait')
 
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
@@ -367,7 +373,7 @@ def restore_snapshot(module, client):
     snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for volume
@@ -375,17 +381,16 @@ def restore_snapshot(module, client):
     volume_id = get_resource_id(module, volume_list, volume)
 
     # Locate UUID for snapshot
-    snapshot_list = snapshot_server.snapshots_get(depth=2)
-    snapshot_id = get_resource_id(module, snapshot_list, name)
+    snapshot_list = snapshot_server.snapshots_get(depth=1)
+    snapshot_id = get_resource_id(module, snapshot_list, snapshot)
 
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        response = volume_server.datacenters_volumes_restore_snapshot_post_with_http_info(datacenter_id=datacenter_id,
-                                                                                          volume_id=volume_id,
-                                                                                          snapshot_id=snapshot_id)
-        (snapshot_response, _, headers) = response
+        snapshot_response, _, headers = volume_server.datacenters_volumes_restore_snapshot_post_with_http_info(
+            datacenter_id=datacenter_id, volume_id=volume_id, snapshot_id=snapshot_id,
+        )
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id)
@@ -413,12 +418,12 @@ def update_snapshot(module, client):
     """
     snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
 
-    name = module.params.get('name')
+    snapshot = module.params.get('snapshot')
 
     # Locate snapshot by name
-    snapshot_list = snapshot_server.snapshots_get(depth=2)
+    snapshot_list = snapshot_server.snapshots_get(depth=1)
 
-    snapshot = get_resource(module, snapshot_list, name)
+    snapshot = get_resource(module, snapshot_list, snapshot)
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -501,11 +506,11 @@ def delete_snapshot(module, client):
     """
 
     snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
-    name = module.params.get('name')
+    snapshot = module.params.get('snapshot')
 
     # Locate snapshot UUID
-    snapshot_list = snapshot_server.snapshots_get(depth=2)
-    snapshot_id = get_resource_id(module, snapshot_list, name)
+    snapshot_list = snapshot_server.snapshots_get(depth=1)
+    snapshot_id = get_resource_id(module, snapshot_list, snapshot)
 
     if not snapshot_id:
         module.exit_json(changed=False)

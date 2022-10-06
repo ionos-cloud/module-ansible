@@ -65,7 +65,7 @@
           datacenter: "{{ datacenter }}"
           server: "{{ server }}"
           nic: "{{ nic }}"
-          name: "SSH"
+          firewall_rule: "SSH"
           port_range_start: 22
           port_range_end: 23
           state: update
@@ -75,7 +75,7 @@
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          nic: "{{ nic }}"
-         name: "SSH"
+         firewall_rule: "SSH"
          wait: true
          wait_timeout: "{{ wait_timeout }}"
          state: absent
@@ -85,7 +85,7 @@
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          nic: "{{ nic }}"
-         name: "SSH2"
+         firewall_rule: "SSH2"
          wait: true
          wait_timeout: "{{ wait_timeout }}"
          state: absent

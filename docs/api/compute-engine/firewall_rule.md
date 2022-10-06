@@ -132,7 +132,7 @@ This module allows you to create, update or remove a firewall rule.
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
   | server | True | str |  | The server name or UUID. |
   | nic | True | str |  | The NIC name or UUID. |
-  | name | True | str |  | The name or UUID of the firewall rule. |
+  | firewall_rule | True | str |  | The Firewall Rule name or UUID. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -166,7 +166,8 @@ This module allows you to create, update or remove a firewall rule.
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
   | server | True | str |  | The server name or UUID. |
   | nic | True | str |  | The NIC name or UUID. |
-  | name | True | str |  | The name or UUID of the firewall rule. |
+  | firewall_rule | True | str |  | The Firewall Rule name or UUID. |
+  | name | False | str |  | The name or UUID of the firewall rule. |
   | protocol | False | str |  | The protocol for the firewall rule. |
   | source_mac | False | str |  | Only traffic originating from the respective MAC address is allowed. No value allows all source MAC addresses. |
   | source_ip | False | str |  | Only traffic originating from the respective IPv4 address is allowed. No value allows all source IPs. |

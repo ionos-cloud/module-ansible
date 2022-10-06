@@ -38,8 +38,8 @@ ANSIBLE_METADATA = {
 }
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
-STATES = ['running', 'stopped', 'absent', 'present', 'update']
-OBJECT_NAME = 'Server'
+STATES = ['resume', 'suspend', 'absent', 'present', 'update']
+OBJECT_NAME = 'CUBE Server'
 RETURNED_KEY = 'server'
 
 AVAILABILITY_ZONES = [
@@ -88,36 +88,16 @@ OPTIONS = {
         'available': ['present'],
         'type': 'str',
     },
-    'volume_availability_zone': {
-        'description': ['The storage availability zone assigned to the volume.'],
-        'available': ['present'],
-        'choices': AVAILABILITY_ZONES,
-        'type': 'str',
-        'version_added': '2.3',
-    },
     'datacenter': {
         'description': ['The datacenter to provision this virtual machine.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
     },
-    'cores': {
-        'description': ['The number of CPU cores to allocate to the virtual machine.'],
-        'available': ['present', 'update'],
-        'default': 2,
-        'type': 'int',
-    },
-    'ram': {
-        'description': ['The amount of memory to allocate to the virtual machine.'],
-        'available': ['present', 'update'],
-        'default': 2048,
-        'type': 'int',
-    },
     'cpu_family': {
         'description': ['The amount of memory to allocate to the virtual machine.'],
         'available': ['present'],
         'choices': ['AMD_OPTERON', 'INTEL_XEON', 'INTEL_SKYLAKE'],
-        'default': 'AMD_OPTERON',
         'type': 'str',
         'version_added': '2.2',
     },
@@ -128,12 +108,6 @@ OPTIONS = {
         'default': 'AUTO',
         'type': 'str',
         'version_added': '2.3',
-    },
-    'volume_size': {
-        'description': ['The size in GB of the boot volume.'],
-        'available': ['present'],
-        'default': 10,
-        'type': 'int',
     },
     'bus': {
         'description': ['The bus type for the volume.'],
@@ -194,6 +168,11 @@ OPTIONS = {
         'type': 'list',
         'elements': 'str',
     },
+    'template_uuid': {
+        'description': ['The template used when crating a CUBE server.'],
+        'available': ['present'],
+        'type': 'str',
+    },
     'boot_volume': {
         'description': ['The volume used for boot.'],
         'available': ['present', 'update'],
@@ -203,6 +182,16 @@ OPTIONS = {
         'description': ['The CDROM used for boot.'],
         'available': ['present', 'update'],
         'type': 'str',
+    },
+    'do_not_replace': {
+        'description': [
+            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -266,10 +255,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: server
-short_description: Create, update, destroy, start, stop, and reboot a Ionos virtual machine.
+module: cube_server
+short_description: Create, update, destroy, resume, suspend, and reboot a Ionos CUBE virtual machine.
 description:
-     - Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine.
+     - Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtual machine.
        When the virtual machine is created it can optionally wait for it to be 'running' before returning.
 version_added: "2.0"
 options:
@@ -282,43 +271,37 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''# Provisioning example. This will create three servers and enumerate their names.
-    - server:
+  'present' : '''# Provisioning example. This will create three CUBE servers and enumerate their names.
+    - cube_server:
         datacenter: Tardis One
         name: web%02d.stackpointcloud.com
-        cores: 4
-        ram: 2048
-        volume_size: 50
+        template_id: <template_id>
         cpu_family: INTEL_XEON
         image: ubuntu:latest
         location: us/las
         count: 3
         assign_public_ip: true
   ''',
-  'update' : '''# Update Virtual machines
-    - server:
+  'update' : '''# Update CUBE Virtual machines
+    - cube_server:
         datacenter: Tardis One
         instance_ids:
         - web001.stackpointcloud.com
         - web002.stackpointcloud.com
-        cores: 4
-        ram: 4096
         cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
-  # Rename virtual machine
-    - server:
+  # Rename CUBE Virtual machine
+    - cube_server:
         datacenter: Tardis One
         instance_ids: web001.stackpointcloud.com
         name: web101.stackpointcloud.com
-        cores: 4
-        ram: 4096
         cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
 ''',
-  'absent' : '''# Removing Virtual machines
-    - server:
+  'absent' : '''# Removing CUBE Virtual machines
+    - cube_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
@@ -327,25 +310,25 @@ EXAMPLE_PER_STATE = {
         wait_timeout: 500
         state: absent
   ''',
-  'running' : '''# Starting Virtual Machines.
-    - server:
+  'resume' : '''# Starting CUBE Virtual Machines.
+    - cube_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
         - 'web002.stackpointcloud.com'
         - 'web003.stackpointcloud.com'
         wait_timeout: 500
-        state: running
+        state: resume
   ''',
-  'stopped' : '''# Stopping Virtual Machines
-    - server:
+  'suspend' : '''# Suspending CUBE Virtual Machines
+    - cube_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
         - 'web002.stackpointcloud.com'
         - 'web003.stackpointcloud.com'
         wait_timeout: 500
-        state: stopped
+        state: suspend
   ''',
 }
 
@@ -422,21 +405,29 @@ def _get_lan_by_id_or_properties(networks, id=None, **kwargs):
 
 
 def _should_replace_object(module, existing_object):
-    return False
-
-
-def _should_update_object(module, existing_object, new_object_name):
     return (
-        new_object_name is not None
-        and existing_object.properties.name != new_object_name
-        or module.params.get('cores') is not None
-        and int(existing_object.properties.cores) != int(module.params.get('cores'))
-        or module.params.get('ram') is not None
-        and int(existing_object.properties.ram) != int(module.params.get('ram'))
+        module.params.get('template_uuid') is not None
+        and existing_object.properties.template_uuid != module.params.get('template_uuid')
         or module.params.get('cpu_family') is not None
         and existing_object.properties.cpu_family != module.params.get('cpu_family')
         or module.params.get('availability_zone') is not None
         and existing_object.properties.availability_zone != module.params.get('availability_zone')
+    )
+
+
+def _should_update_object(module, existing_object, new_object_name):
+    existing_boot_volume_id = existing_boot_cdrom_id = None
+    if existing_object.properties.boot_volume:
+        existing_boot_volume_id = existing_object.properties.boot_volume.id
+    if existing_object.properties.boot_cdrom:
+        existing_boot_cdrom_id = existing_object.properties.boot_cdrom.id
+    return (
+        new_object_name is not None
+        and existing_object.properties.name != new_object_name
+        or module.params.get('boot_cdrom') is not None
+        and existing_boot_cdrom_id != module.params.get('boot_cdrom')
+        or module.params.get('boot_volume') is not None
+        and existing_boot_volume_id != module.params.get('boot_volume')
     )
 
 
@@ -472,13 +463,9 @@ def update_replace_object(module, client, existing_object, new_object_name):
 
 
 def _create_object(module, client, name, existing_object=None):
-    cores = module.params.get('cores')
-    ram = module.params.get('ram')
     cpu_family = module.params.get('cpu_family')
-    volume_size = module.params.get('volume_size')
     disk_type = module.params.get('disk_type')
     availability_zone = module.params.get('availability_zone')
-    volume_availability_zone = module.params.get('volume_availability_zone')
     image_password = module.params.get('image_password')
     ssh_keys = module.params.get('ssh_keys')
     user_data = module.params.get('user_data')
@@ -487,14 +474,19 @@ def _create_object(module, client, name, existing_object=None):
     image = module.params.get('image')
     assign_public_ip = module.boolean(module.params.get('assign_public_ip'))
     nic_ips = module.params.get('nic_ips')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    template_uuid = module.params.get('template_uuid')
+    boot_cdrom = module.params.get('boot_cdrom')
+    boot_volume = module.params.get('boot_volume')
 
     if existing_object is not None:
-        cores = existing_object.properties.cores if cores is None else cores
-        ram = existing_object.properties.ram if ram is None else ram
         cpu_family = existing_object.properties.cpu_family if cpu_family is None else cpu_family
+        template_uuid = existing_object.properties.template_uuid if template_uuid is None else template_uuid
+        boot_cdrom = existing_object.properties.boot_cdrom if boot_cdrom is None else boot_cdrom
+        boot_volume = existing_object.properties.boot_volume if boot_volume is None else boot_volume
         availability_zone = existing_object.properties.availability_zone if availability_zone is None else availability_zone
+
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
 
     datacenters_api = ionoscloud.DataCentersApi(client)
     servers_api = ionoscloud.ServersApi(api_client=client)
@@ -515,16 +507,13 @@ def _create_object(module, client, name, existing_object=None):
             lan_properties = LanPropertiesPost(name='public', public=True)
             lan_post = LanPost(properties=lan_properties)
 
-            response = lans_api.datacenters_lans_post_with_http_info(datacenter_id=datacenter_id, lan=lan_post)
-            (lan_response, _, headers) = response
+            lan_response, _, headers = lans_api.datacenters_lans_post_with_http_info(datacenter_id, lan_post)
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
             public_ip_lan_id = lan_response.id
 
-        nic = Nic(properties=NicProperties(
-            name=str(uuid4()).replace('-', '')[:10], lan=int(public_ip_lan_id),
-        ))
+        nic = Nic(properties=NicProperties(name=str(uuid4()).replace('-', '')[:10], lan=int(public_ip_lan_id)))
         if nic_ips:
             nic.properties.ips = nic_ips
         nics.append(nic)
@@ -535,24 +524,24 @@ def _create_object(module, client, name, existing_object=None):
 
         if (not any(n.properties.lan == int(matching_lan.id) for n in nics)) or len(nics) < 1:
             nic = Nic(properties=NicProperties(
-                name=str(uuid4()).replace('-', '')[:10], lan=int(int(matching_lan.id)),
+                name=str(uuid4()).replace('-', '')[:10],
+                lan=int(int(matching_lan.id)),
             ))
             if nic_ips:
                 nic.properties.ips = nic_ips
             nics.append(nic)
+
     server_properties = ServerProperties(
-        name=name, cores=cores, ram=ram, availability_zone=availability_zone, cpu_family=cpu_family,
+        template_uuid=template_uuid, name=name,
+        availability_zone=availability_zone,
+        boot_cdrom=boot_cdrom, boot_volume=boot_volume,
+        cpu_family=cpu_family, type='CUBE',
     )
 
     volume_properties = VolumeProperties(
         name=str(uuid4()).replace('-', '')[:10],
-        type=disk_type,
-        size=volume_size,
-        availability_zone=volume_availability_zone,
-        image_password=image_password,
-        ssh_keys=ssh_keys,
-        user_data=user_data,
-        bus=bus,
+        type=disk_type, image_password=image_password,
+        ssh_keys=ssh_keys, user_data=user_data, bus=bus,
     )
 
     if image:
@@ -567,25 +556,21 @@ def _create_object(module, client, name, existing_object=None):
     server = Server(properties=server_properties, entities=server_entities)
 
     try:
-        server_response, _, headers = servers_api.datacenters_servers_post_with_http_info(
-            datacenter_id=datacenter_id, server=server,
-        )
+        server_response, _, headers = servers_api.datacenters_servers_post_with_http_info(datacenter_id, server)
+        
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
             client.wait_for(
                 fn_request=lambda: servers_api.datacenters_servers_find_by_id(
-                    datacenter_id=datacenter_id, server_id=server_response.id, depth=1
+                    datacenter_id=datacenter_id, server_id=server_response.id, depth=1,
                 ),
                 fn_check=lambda r: (r.entities.volumes is not None)
-                    and (r.entities.volumes.items is not None)
-                    and (len(r.entities.volumes.items) > 0)
-                    and (r.entities.nics is not None)
-                    and (r.entities.nics.items is not None)
-                    and (len(r.entities.nics.items) == len(nics)
-                ),
-                scaleup=10000,
-            )
+                        and (r.entities.volumes.items is not None) 
+                        and (len(r.entities.volumes.items) > 0),
+                    scaleup=10000,
+                )
 
         # Depth 2 needed for nested nic and volume properties
         server = servers_api.datacenters_servers_find_by_id(
@@ -600,38 +585,39 @@ def _create_object(module, client, name, existing_object=None):
     return server
 
 
-def _startstop_server(module, client, datacenter_id, server_id, current_state):
+def _resume_server(module, client, datacenter_id, server_id, current_state):
     state = module.params.get('state')
-    server_server = ionoscloud.ServersApi(api_client=client)
+    servers_api = ionoscloud.ServersApi(api_client=client)
     server = None
     changed = False
     try:
-        if state == 'running':
-            if current_state != 'AVAILABLE':
-                response = server_server.datacenters_servers_start_post_with_http_info(datacenter_id, server_id)
+        if state == 'resume':
+            if current_state != 'RUNNING':
+                response = servers_api.datacenters_servers_resume_post_with_http_info(datacenter_id, server_id)
                 (_, _, headers) = response
                 request_id = _get_request_id(headers['Location'])
                 client.wait_for_completion(request_id=request_id)
 
-                server_response = server_server.datacenters_servers_find_by_id(datacenter_id, server_id)
-                if server_response.metadata.state == 'AVAILABLE':
+                server_response = servers_api.datacenters_servers_find_by_id(datacenter_id, server_id)
+                if server_response.properties.vm_state == 'RUNNING':
                     changed = True
                     server = server_response
+
         else:
-            if current_state != 'INACTIVE':
-                response = server_server.datacenters_servers_stop_post_with_http_info(datacenter_id, server_id)
+            if current_state != 'SUSPENDED':
+                response = servers_api.datacenters_servers_suspend_post_with_http_info(datacenter_id, server_id)
                 (_, _, headers) = response
                 request_id = _get_request_id(headers['Location'])
                 client.wait_for_completion(request_id=request_id)
 
-                server_response = server_server.datacenters_servers_find_by_id(datacenter_id, server_id)
-                if server_response.metadata.state == 'INACTIVE':
+                server_response = servers_api.datacenters_servers_find_by_id(datacenter_id, server_id)
+                if server_response.properties.vm_state == 'SUSPENDED':
                     changed = True
                     server = server_response
 
     except Exception as e:
         module.fail_json(
-            msg="failed to start or stop the virtual machine %s at %s: %s" % (server_id, datacenter_id, to_native(e)))
+            msg="failed to resume or suspend the virtual machine %s at %s: %s" % (server_id, datacenter_id, to_native(e)))
 
     return changed, server
 
@@ -640,13 +626,13 @@ def _create_datacenter(module, client):
     datacenter = module.params.get('datacenter')
     location = module.params.get('location')
     wait_timeout = module.params.get('wait_timeout')
-    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
+    datacenters_api = ionoscloud.DataCentersApi(api_client=client)
 
     datacenter_properties = DatacenterProperties(name=datacenter, location=location)
     datacenter = Datacenter(properties=datacenter_properties)
 
     try:
-        response = datacenter_server.datacenters_post_with_http_info(datacenter=datacenter)
+        response = datacenters_api.datacenters_post_with_http_info(datacenter=datacenter)
         (datacenter_response, _, headers) = response
         request_id = _get_request_id(headers['Location'])
         client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
@@ -657,11 +643,26 @@ def _create_datacenter(module, client):
         module.fail_json(msg="failed to create the new datacenter: %s" % to_native(e))
 
 
+def _remove_boot_volume(module, client, datacenter_id, server_id):
+    """
+    Remove the boot volume from the server
+    """
+    servers_api = ionoscloud.ServersApi(api_client=client)
+    try:
+        server = servers_api.datacenters_servers_find_by_id(datacenter_id, server_id, depth=1)
+        
+        if server.properties.boot_volume:
+            volume = servers_api.datacenters_servers_volumes_find_by_id(datacenter_id, server_id, server.properties.boot_volume.id)
+            if volume.properties.type != 'DAS':
+                servers_api.datacenters_servers_volumes_delete(datacenter_id, server_id, volume.id)
+    except Exception as e:
+        module.fail_json(msg="failed to remove the server's boot volume: %s" % to_native(e),
+                         exception=traceback.format_exc())
+
+
 def _update_object(module, client, new_object_name, existing_object):
-    cores = module.params.get('cores')
-    ram = module.params.get('ram')
-    cpu_family = module.params.get('cpu_family')
-    availability_zone = module.params.get('availability_zone')
+    boot_cdrom = module.params.get('boot_cdrom')
+    boot_volume = module.params.get('boot_volume')
 
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
@@ -672,14 +673,13 @@ def _update_object(module, client, new_object_name, existing_object):
     datacenter_list = datacenters_api.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
 
-    new_server_propeties = ServerProperties(
+    new_server_properties = ServerProperties(
         name=new_object_name if new_object_name is not None else existing_object.properties.name,
-        cores=cores, ram=ram, availability_zone=availability_zone,
-        cpu_family=cpu_family,
+        boot_cdrom=boot_cdrom, boot_volume=boot_volume,
     )
     try:
         server_response, _, headers = servers_api.datacenters_servers_patch_with_http_info(
-            datacenter_id=datacenter_id, server_id=existing_object.id, server=new_server_propeties,
+            datacenter_id=datacenter_id, server_id=existing_object.id, server=new_server_properties,
         )
 
         if wait:
@@ -717,21 +717,6 @@ def _remove_object(module, client, existing_object):
         module.fail_json(
             msg="failed to terminate the virtual server: %s" % to_native(e), exception=traceback.format_exc(),
         )
-
-
-def _remove_boot_volume(module, client, datacenter_id, server_id):
-    """
-    Remove the boot volume from the server
-    """
-    server_server = ionoscloud.ServersApi(api_client=client)
-    try:
-        server = server_server.datacenters_servers_find_by_id(datacenter_id, server_id, depth=1)
-        volume = server.properties.boot_volume
-        if volume:
-            server_server.datacenters_servers_volumes_delete(datacenter_id, server_id, volume.id)
-    except Exception as e:
-        module.fail_json(msg="failed to remove the server's boot volume: %s" % to_native(e),
-                         exception=traceback.format_exc())
 
 
 def create_server(module, client):
@@ -796,7 +781,7 @@ def create_server(module, client):
             if update_replace['changed']:
                 changed = True
         else:
-            create_response = _create_object(module, client, name).to_dict()
+            create_response =_create_object(module, client, name).to_dict()
             changed = True
 
         virtual_machines.append(create_response)
@@ -821,12 +806,13 @@ def update_server(module, client):
     Returns:
         dict of updated servers
     """
-    instance_ids = module.params.get('instance_ids')
     datacenter = module.params.get('datacenter')
     name = module.params.get('name')
+    instance_ids = module.params.get('instance_ids')
 
     changed = False
 
+    datacenters_api = ionoscloud.DataCentersApi(api_client=client)
     servers_api = ionoscloud.ServersApi(api_client=client)
 
     if not isinstance(instance_ids, list) or len(instance_ids) < 1:
@@ -923,9 +909,9 @@ def remove_server(module, client):
     }
 
 
-def startstop_server(module, client, state):
+def resume_server(module, client, state):
     """
-    Starts or Stops a virtual machine.
+    Reusmes or Suspend a CUBE virtual machine.
 
     module : AnsibleModule object
     client: authenticated ionos-cloud object.
@@ -939,17 +925,17 @@ def startstop_server(module, client, state):
     datacenter = module.params.get('datacenter')
     instance_ids = module.params.get('instance_ids')
 
-    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    server_server = ionoscloud.ServersApi(api_client=client)
+    datacenters_api = ionoscloud.DataCentersApi(api_client=client)
+    servers_api = ionoscloud.ServersApi(api_client=client)
 
     # Locate UUID for datacenter if referenced by name.
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenters_api.datacenters_get(depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
 
     # Prefetch server list for later comparison.
-    server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
+    server_list = servers_api.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
     matched_instances = []
     for instance in instance_ids:
         # Locate UUID of server if referenced by name.
@@ -958,8 +944,8 @@ def startstop_server(module, client, state):
             if module.check_mode:
                 module.exit_json(changed=True)
 
-            server_state = server.metadata.state
-            changed, server = _startstop_server(module, client, datacenter_id, server.id, server_state)
+            state = server.properties.vm_state
+            changed, server = _resume_server(module, client, datacenter_id, server.id, state)
             if changed:
                 matched_instances.append(server)
 
@@ -1065,8 +1051,8 @@ def main():
         try:
             if state == 'absent':
                 module.exit_json(**remove_server(module, api_client))
-            elif state in ('running', 'stopped'):
-                module.exit_json(**startstop_server(module, api_client, state))
+            elif state in ('resume', 'suspend'):
+                module.exit_json(**resume_server(module, api_client, state))
             elif state == 'present':
                 if module.check_mode:
                     module.exit_json(changed=True)
