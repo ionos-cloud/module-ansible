@@ -42,6 +42,7 @@
         create_flow_log: True
         access_and_manage_monitoring: True
         access_and_manage_certificates: True
+        manage_dbaas: True
       register: group_response
 
     - name: Add user1 to group
@@ -73,6 +74,7 @@
         create_flow_log: True
         access_and_manage_monitoring: True
         access_and_manage_certificates: True
+        manage_dbaas: False
         wait: False
         state: update
       register: group_response

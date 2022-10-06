@@ -67,6 +67,7 @@ This module allows you to create, update or remove a group.
   | create_flow_log | False | bool |  | Boolean value indicating if the group is allowed to create flowlogs. |
   | access_and_manage_monitoring | False | bool |  | Privilege for a group to access and manage monitoring related functionality (access metrics, CRUD on alarms, alarm-actions etc) using Monotoring-as-a-Service (MaaS). |
   | access_and_manage_certificates | False | bool |  | Privilege for a group to access and manage certificates. |
+  | manage_dbaas | False | bool |  | Privilege for a group to manage DBaaS related functionality. |
   | users | False | list |  | A list of (non-administrator) user IDs or emails to associate with the group. Set to empty list ([]) to remove all users from the group. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -135,6 +136,7 @@ This module allows you to create, update or remove a group.
   | create_flow_log | False | bool |  | Boolean value indicating if the group is allowed to create flowlogs. |
   | access_and_manage_monitoring | False | bool |  | Privilege for a group to access and manage monitoring related functionality (access metrics, CRUD on alarms, alarm-actions etc) using Monotoring-as-a-Service (MaaS). |
   | access_and_manage_certificates | False | bool |  | Privilege for a group to access and manage certificates. |
+  | manage_dbaas | False | bool |  | Privilege for a group to manage DBaaS related functionality. |
   | users | False | list |  | A list of (non-administrator) user IDs or emails to associate with the group. Set to empty list ([]) to remove all users from the group. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
