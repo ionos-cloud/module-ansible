@@ -36,6 +36,21 @@ OPTIONS = {
         'available': STATES,
         'type': 'str',
     },
+    'filters': {
+        'description': [
+            'Filter that can be used to list only objects which have a certain set of propeties. Filters '
+            'should be a dict with a key containing keys and value pair in the following format:'
+            "'properties.name': 'server_name'"
+        ],
+        'available': STATES,
+        'type': 'dict',
+    },
+    'depth': {
+        'description': ['The depth used when retrieving the items.'],
+        'available': STATES,
+        'type': 'int',
+        'default': 1,
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -162,15 +177,71 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
+def get_method_from_filter(filter):
+    '''
+    Returns the method which check a filter for one object. Such a method would work in the following way:
+    for filter = ('properties.name', 'server_name') the resulting method would be
+    def method(item):
+        return item.properties.name == 'server_name'
+
+    Parameters:
+            filter (touple): Key, value pair representing the filter.
+
+    Returns:
+            the wanted method
+    '''
+    key, value = filter
+    def method(item):
+        current = item
+        for key_part in key.split('.'):
+            current = getattr(current, key_part)
+        return current == value
+    return method
+
+
+def get_method_to_apply_filters_to_item(filter_list):
+    '''
+    Returns the method which applies a list of filtering methods obtained using get_method_from_filter to 
+    one object and returns true if all the filters return true
+    Parameters:
+            filter_list (list): List of filtering methods
+    Returns:
+            the wanted method
+    '''
+    def f(item):
+        return all([f(item) for f in filter_list])
+    return f
+
+
+def apply_filters(module, item_list):
+    '''
+    Creates a list of filtering methods from the filters module parameter, filters item_list to keep only the
+    items for which every filter matches using get_method_to_apply_filters_to_item to make that check and returns
+    those items
+    Parameters:
+            module: The current Ansible module
+            item_list (list): List of items to be filtered
+    Returns:
+            List of items which match the filters
+    '''
+    filters = module.params.get('filters')
+    if not filters:
+        return item_list    
+    filter_methods = list(map(get_method_from_filter, filters.items()))
+
+    return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
+
+
 def get_volumes(module, client):
     datacenter = module.params.get('datacenter')
     server = module.params.get('server')
+    depth = module.params.get('depth')
     volumes_api = ionoscloud.VolumesApi(api_client=client)
     servers_api = ionoscloud.ServersApi(api_client=client)
     datacenters_api = ionoscloud.DataCentersApi(api_client=client)
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenters_api.datacenters_get(depth=2)
+    datacenter_list = datacenters_api.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for Server
@@ -180,14 +251,12 @@ def get_volumes(module, client):
         server_id = get_resource_id(module, server_list, server)
 
     if server_id is not None:
-        volume_items = servers_api.datacenters_servers_volumes_get(datacenter_id, server_id).items
+        volumes = servers_api.datacenters_servers_volumes_get(datacenter_id, server_id, depth=depth)
     else:
-        volume_items = volumes_api.datacenters_volumes_get(datacenter_id).items
+        volumes = volumes_api.datacenters_volumes_get(datacenter_id, depth=depth)
 
     try:
-        results = []
-        for volume in volume_items:
-            results.append(volume.to_dict())
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, volumes.items)))
         return {
             'action': 'info',
             'changed': False,

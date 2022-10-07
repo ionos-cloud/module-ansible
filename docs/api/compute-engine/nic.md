@@ -6,16 +6,16 @@ This module allows you to create, update or remove a NIC.
 
 
 ```yaml
-# Create a NIC
-  - nic:
+- name: Create a NIC
+  nic:
     datacenter: Tardis One
     server: node002
     lan: 2
     wait_timeout: 500
     state: present
   
-# Update a NIC
-  - nic:
+- name: Update a NIC
+  nic:
     datacenter: Tardis One
     server: node002
     name: 7341c2454f
@@ -25,15 +25,14 @@ This module allows you to create, update or remove a NIC.
       - 158.222.103.24
     dhcp: false
     state: update
-  
-# Remove a NIC
-  - nic:
+
+- name: Remove a NIC
+  nic:
     datacenter: Tardis One
     server: node002
     name: 7341c2454f
     wait_timeout: 500
     state: absent
-  
 ```
 &nbsp;
 
@@ -41,14 +40,13 @@ This module allows you to create, update or remove a NIC.
 
 # state: **present**
 ```yaml
-  # Create a NIC
-  - nic:
+- name: Create a NIC
+  nic:
     datacenter: Tardis One
     server: node002
     lan: 2
     wait_timeout: 500
     state: present
-  
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -75,14 +73,13 @@ This module allows you to create, update or remove a NIC.
 &nbsp;
 # state: **absent**
 ```yaml
-  # Remove a NIC
-  - nic:
+- name: Remove a NIC
+  nic:
     datacenter: Tardis One
     server: node002
     name: 7341c2454f
     wait_timeout: 500
     state: absent
-  
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -106,8 +103,8 @@ This module allows you to create, update or remove a NIC.
 &nbsp;
 # state: **update**
 ```yaml
-  # Update a NIC
-  - nic:
+- name: Update a NIC
+  nic:
     datacenter: Tardis One
     server: node002
     name: 7341c2454f
@@ -117,7 +114,6 @@ This module allows you to create, update or remove a NIC.
       - 158.222.103.24
     dhcp: false
     state: update
-  
 ```
 ### Available parameters for state **update**:
 &nbsp;

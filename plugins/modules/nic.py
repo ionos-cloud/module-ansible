@@ -175,31 +175,31 @@ author:
 EXAMPLE_PER_STATE = {
     'present': '''# Create a NIC
   - nic:
-    datacenter: Tardis One
-    server: node002
-    lan: 2
-    wait_timeout: 500
-    state: present
+      datacenter: Tardis One
+      server: node002
+      lan: 2
+      wait_timeout: 500
+      state: present
   ''',
     'update': '''# Update a NIC
   - nic:
-    datacenter: Tardis One
-    server: node002
-    name: 7341c2454f
-    lan: 1
-    ips:
-      - 158.222.103.23
-      - 158.222.103.24
-    dhcp: false
-    state: update
+      datacenter: Tardis One
+      server: node002
+      name: 7341c2454f
+      lan: 1
+      ips:
+        - 158.222.103.23
+        - 158.222.103.24
+      dhcp: false
+      state: update
   ''',
     'absent': '''# Remove a NIC
   - nic:
-    datacenter: Tardis One
-    server: node002
-    name: 7341c2454f
-    wait_timeout: 500
-    state: absent
+      datacenter: Tardis One
+      server: node002
+      name: 7341c2454f
+      wait_timeout: 500
+      state: absent
   ''',
 }
 

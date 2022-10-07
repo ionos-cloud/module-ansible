@@ -46,10 +46,10 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | cluster_name | True | str |  | The name of the K8s cluster. |
-  | k8s_version | False | str |  | The description of the virtual datacenter. |
-  | maintenance_window | False | dict |  | The datacenter location. |
-  | api_subnet_allow_list | False | list |  | The datacenter location. |
-  | s3_buckets_param | False | list |  | The datacenter location. |
+  | k8s_version | False | str |  | The Kubernetes version the cluster is running. This imposes restrictions on what Kubernetes versions can be run in a cluster's nodepools. Additionally, not all Kubernetes versions are viable upgrade targets for all prior versions. |
+  | maintenance_window | False | dict |  | The maintenance window is used for updating the cluster's control plane and for upgrading the cluster's K8s version. If no value is given, one is chosen dynamically, so there is no fixed default. |
+  | api_subnet_allow_list | False | list |  | Access to the K8s API server is restricted to these CIDRs. Traffic, internal to the cluster, is not affected by this restriction. If no allowlist is specified, access is not restricted. If an IP without subnet mask is provided, the default value is used: 32 for IPv4 and 128 for IPv6. |
+  | s3_buckets_param | False | list |  | List of S3 bucket configured for K8s usage. For now it contains only an S3 bucket used to store K8s API audit logs. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -107,12 +107,12 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | cluster_name | True | str |  | The name of the K8s cluster. |
+  | cluster_name | False | str |  | The name of the K8s cluster. |
   | k8s_cluster_id | True | str |  | The ID of the K8s cluster. |
-  | k8s_version | True | str |  | The description of the virtual datacenter. |
-  | maintenance_window | True | dict |  | The datacenter location. |
-  | api_subnet_allow_list | False | list |  | The datacenter location. |
-  | s3_buckets_param | False | list |  | The datacenter location. |
+  | k8s_version | True | str |  | The Kubernetes version the cluster is running. This imposes restrictions on what Kubernetes versions can be run in a cluster's nodepools. Additionally, not all Kubernetes versions are viable upgrade targets for all prior versions. |
+  | maintenance_window | True | dict |  | The maintenance window is used for updating the cluster's control plane and for upgrading the cluster's K8s version. If no value is given, one is chosen dynamically, so there is no fixed default. |
+  | api_subnet_allow_list | False | list |  | Access to the K8s API server is restricted to these CIDRs. Traffic, internal to the cluster, is not affected by this restriction. If no allowlist is specified, access is not restricted. If an IP without subnet mask is provided, the default value is used: 32 for IPv4 and 128 for IPv6. |
+  | s3_buckets_param | False | list |  | List of S3 bucket configured for K8s usage. For now it contains only an S3 bucket used to store K8s API audit logs. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
