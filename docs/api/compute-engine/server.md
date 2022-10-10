@@ -1,6 +1,6 @@
 # server
 
-Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine. When the virtual machine is created it can optionally wait for it to be 'running' before returning.
+Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine. When the virtual machine is created it can optionally wait for it to be 'running' before returning. The CUBE functionality of the server module is DEPRECATED. Please use the new cube_server module for operations with CUBE servers.
 
 ## Example Syntax
 
@@ -138,6 +138,50 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 &nbsp;
 
 &nbsp;
+# state: **resume**
+```yaml
+  
+```
+### Available parameters for state **resume**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
+  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;
+# state: **suspend**
+```yaml
+  
+```
+### Available parameters for state **suspend**:
+&nbsp;
+
+  | Name | Required | Type | Default | Description |
+  | :--- | :---: | :--- | :--- | :--- |
+  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
+  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
+  | api_url | False | str |  | The Ionos API base URL. |
+  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait | False | bool | True | Wait for the resource to be created before returning. |
+  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
+  | state | False | str | present | Indicate desired state of the resource. |
+
+&nbsp;
+
+&nbsp;
 # state: **absent**
 ```yaml
   # Removing Virtual machines
@@ -212,8 +256,10 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | remove_boot_volume | False | bool | True | Remove the bootVolume of the virtual machine you're destroying. |
   | disk_type | False | str | HDD | The disk type for the volume. |
   | nic_ips | False | list |  | The list of IPS for the NIC. |
+  | template_uuid | False | str |  | The template used when crating a CUBE server. |
   | boot_volume | False | str |  | The volume used for boot. |
   | boot_cdrom | False | str |  | The CDROM used for boot. |
+  | type | False | str | ENTERPRISE | The type of the virtual machine. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
