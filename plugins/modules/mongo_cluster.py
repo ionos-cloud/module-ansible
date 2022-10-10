@@ -164,16 +164,20 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-    'present': '''- name: Create Mongo Cluster
+    'present': '''- name: Create Cluster
     mongo_cluster:
-      mongo_db_version: 12
+      mongo_db_version: 5.0
       instances: 3
       location: de/fra
+      template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
       connections:
-        - cidr: 192.168.1.106/24
-          datacenter: "{{ datacenter_response.datacenter.id }}"
-          lan: "{{ lan_response1.lan.id }}"
-      display_name: mongo-04
+        - cidr_list: 
+            - 192.168.1.116/24
+            - 192.168.1.117/24
+            - 192.168.1.118/24
+          datacenter: "{{ datacenter }} - DBaaS Mongo"
+          lan: "test_lan"
+      display_name: backuptest-04
       wait: true
     register: cluster_response
   ''',
