@@ -28,7 +28,6 @@ from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils.six.moves import xrange
 from ansible.module_utils._text import to_native
-from ansible.utils.display import Display
 
 __metaclass__ = type
 
