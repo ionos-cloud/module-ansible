@@ -35,6 +35,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'natgateway'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'NAT Gateway'
+RETURNED_KEY = 'nat_gateway'
 
 OPTIONS = {
     'name': {
@@ -63,9 +64,10 @@ OPTIONS = {
         'required': STATES,
         'type': 'str',
     },
-    'nat_gateway_id': {
-        'description': ['The ID of the NAT Gateway.'],
+    'nat_gateway': {
+        'description': ['The ID or name of the NAT Gateway.'],
         'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
         'type': 'str',
     },
     'api_url': {
@@ -224,20 +226,6 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def _update_nat_gateway(module, client, nat_gateway_server, datacenter_id, nat_gateway_id, nat_gateway_properties):
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-    response = nat_gateway_server.datacenters_natgateways_patch_with_http_info(datacenter_id, nat_gateway_id,
-                                                                               nat_gateway_properties)
-    (nat_gateway_response, _, headers) = response
-
-    if wait:
-        request_id = _get_request_id(headers['Location'])
-        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-    return nat_gateway_response
-
-
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -247,40 +235,59 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def create_nat_gateway(module, client):
-    """
-    Creates a NAT Gateway
+def _should_replace_object(module, existing_object):
+    return False
 
-    This will create a new NAT Gateway in the specified Datacenter.
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
+def _should_update_object(module, existing_object):
+    if module.params.get('lans'):
+        new_lans = list(map(
+            lambda x: { 'gateway_ips': sorted(x.gateway_ips), 'id': x.id },
+            existing_object.properties.lans
+        ))
+        existing_lans = list(map(
+            lambda x: { 'gateway_ips': sorted(x['gateway_ips']), 'id': x['id'] },
+            module.params.get('lans')
+        ))
 
-    Returns:
-        The NAT Gateway ID if a new NAT Gateway was created.
-    """
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+        or module.params.get('public_ips') is not None
+        and sorted(existing_object.properties.public_ips) != sorted(module.params.get('public_ips'))
+        or module.params.get('lans') is not None
+        and new_lans != existing_lans
+    )
+
+
+def _get_object_list(module, client):
+    datacenter_id = module.params.get('datacenter_id')
+    return ionoscloud.NATGatewaysApi(client).datacenters_natgateways_get(datacenter_id, depth=1)
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('nat_gateway')
+
+
+def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
     public_ips = module.params.get('public_ips')
-    datacenter_id = module.params.get('datacenter_id')
     lans = module.params.get('lans')
+    datacenter_id = module.params.get('datacenter_id')
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        public_ips = existing_object.properties.public_ips if public_ips is None else public_ips
+        lans = existing_object.properties.lans if lans is None else lans
 
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
-    nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-    nat_gateways = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=2)
-    nat_gateway_response = None
-
-    existing_nat_gateway = get_resource(module, nat_gateways, name)
-
-    if existing_nat_gateway:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'nat_gateway': existing_nat_gateway.to_dict()
-        }
-
+    nat_gateways_api = ionoscloud.NATGatewaysApi(client)
+    
     nat_gateway_lans = []
     if lans:
         for lan in lans:
@@ -290,114 +297,147 @@ def create_nat_gateway(module, client):
     nat_gateway = NatGateway(properties=nat_gateway_properties)
 
     try:
-        nat_gateway_response, _, headers = nat_gateway_server.datacenters_natgateways_post_with_http_info(datacenter_id, nat_gateway)
+        nat_gateway_response, _, headers = nat_gateways_api.datacenters_natgateways_post_with_http_info(
+            datacenter_id, nat_gateway,
+        )
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to create the new NAT Gateway: %s" % to_native(e))
+    return nat_gateway_response
 
+
+def _update_object(module, client, existing_object):
+    name = module.params.get('name')
+    public_ips = module.params.get('public_ips')
+    lans = module.params.get('lans')
+    datacenter_id = module.params.get('datacenter_id')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    nat_gateways_api = ionoscloud.NATGatewaysApi(client)
+
+    nat_gateway_lans = []
+    if lans:
+        for lan in lans:
+            nat_gateway_lans.append(NatGatewayLanProperties(id=lan['id'], gateway_ips=lan['gateway_ips']))
+    nat_gateway_properties = NatGatewayProperties(name=name, public_ips=public_ips, lans=nat_gateway_lans)
+
+    try:
+        nat_gateway_response, _, headers = nat_gateways_api.datacenters_natgateways_patch_with_http_info(
+            datacenter_id, existing_object.id, nat_gateway_properties,
+        )
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
+        return nat_gateway_response
     except ApiException as e:
-        module.fail_json(msg="failed to create the new NAT Gateway: %s" % to_native(e))
+        module.fail_json(msg="failed to update the NAT Gateway: %s" % to_native(e))
+
+
+def _remove_object(module, client, existing_object):
+    datacenter_id = module.params.get('datacenter_id')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    nat_gateways_api = ionoscloud.NATGatewaysApi(client)
+
+    try:
+        _, _, headers = nat_gateways_api.datacenters_natgateways_delete_with_http_info(
+            datacenter_id, existing_object.id,
+        )
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to remove the NAT Gateway: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if module.params.get('do_not_replace'):
+            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
+        }
+
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
 
     return {
         'changed': True,
         'failed': False,
         'action': 'create',
-        'nat_gateway': nat_gateway_response.to_dict()
+        RETURNED_KEY: _create_object(module, client).to_dict()
     }
 
 
-def update_nat_gateway(module, client):
-    """
-    Updates a NAT Gateway.
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
 
-    This will update a NAT Gateway.
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
+    if existing_object is None:
+        module.exit_json(changed=False)
 
-    Returns:
-        True if the NAT Gateway was updated, false otherwise
-    """
-    name = module.params.get('name')
-    public_ips = module.params.get('public_ips')
-    datacenter_id = module.params.get('datacenter_id')
-    nat_gateway_id = module.params.get('nat_gateway_id')
-    lans = module.params.get('lans')
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
-    nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-
-    nat_gateways = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=1)
-    existing_nat_gateway_id_by_name = get_resource_id(module, nat_gateways, name)
-
-    if nat_gateway_id is not None and existing_nat_gateway_id_by_name is not None and existing_nat_gateway_id_by_name != nat_gateway_id:
-            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
-
-    nat_gateway_id = existing_nat_gateway_id_by_name if nat_gateway_id is None else nat_gateway_id
-
-    nat_gateway_properties = NatGatewayProperties(name=name, public_ips=public_ips, lans=lans)
-
-    if not nat_gateway_id:
-        module.fail_json(msg="failed to update the NAT Gateway: The resource does not exist")
-
-    nat_gateway_response = _update_nat_gateway(module, client, nat_gateway_server, datacenter_id, nat_gateway_id, nat_gateway_properties)
-
-    return {
-        'changed': True,
-        'action': 'update',
-        'failed': False,
-        'nat_gateway': nat_gateway_response.to_dict(),
-    }
-
-
-def remove_nat_gateway(module, client):
-    """
-    Removes a NAT Gateway.
-
-    This will remove a NAT Gateway.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        True if the NAT Gateway was deleted, false otherwise
-    """
-    name = module.params.get('name')
-    datacenter_id = module.params.get('datacenter_id')
-    nat_gateway_id = module.params.get('nat_gateway_id')
-
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-
-    nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-    changed = False
-
-    try:
-        nat_gateway_list = nat_gateway_server.datacenters_natgateways_get(datacenter_id=datacenter_id, depth=1)
-        if nat_gateway_id:
-            nat_gateway = get_resource(module, nat_gateway_list, nat_gateway_id)
-        else:
-            nat_gateway = get_resource(module, nat_gateway_list, name)
-
-        if not nat_gateway or nat_gateway.metadata.state != 'AVAILABLE':
-            module.exit_json(changed=False)
-
-        _, _, headers = nat_gateway_server.datacenters_natgateways_delete_with_http_info(datacenter_id, nat_gateway.id)
-
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-        changed = True
-
-    except Exception as e:
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
         module.fail_json(
-            msg="failed to delete the NAT Gateway: %s" % to_native(e))
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    _remove_object(module, client, existing_object)
 
     return {
         'action': 'delete',
-        'changed': changed,
-        'id': nat_gateway_id
+        'changed': True,
+        'id': existing_object.id,
     }
 
 
@@ -481,18 +521,13 @@ def main():
         api_client.user_agent = USER_AGENT
         check_required_arguments(module, state, OBJECT_NAME)
 
-        if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('nat_gateway_id'):
-            module.fail_json(
-                msg='either name or nat_gateway_id parameter is required for {object_name} state present'.format(object_name=OBJECT_NAME),
-            )
-
         try:
             if state == 'absent':
-                module.exit_json(**remove_nat_gateway(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'present':
-                module.exit_json(**create_nat_gateway(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_nat_gateway(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
