@@ -34,6 +34,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'networkloadbalancer'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Network Loadbalancer'
+RETURNED_KEY = 'network_load_balancer'
 
 OPTIONS = {
     'name': {
@@ -76,9 +77,10 @@ OPTIONS = {
         'required': STATES,
         'type': 'str',
     },
-    'network_load_balancer_id': {
-        'description': ['The ID of the Network Loadbalancer.'],
+    'network_load_balancer': {
+        'description': ['The ID or name of the Network Loadbalancer.'],
         'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
         'type': 'str',
     },
     'api_url': {
@@ -237,20 +239,6 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def _update_nlb(module, client, nlb_server, datacenter_id, network_load_balancer_id, nlb_properties):
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-    response = nlb_server.datacenters_networkloadbalancers_patch_with_http_info(datacenter_id, network_load_balancer_id,
-                                                                                nlb_properties)
-    (nlb_response, _, headers) = response
-
-    if wait:
-        request_id = _get_request_id(headers['Location'])
-        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-    return nlb_response
-
-
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -260,163 +248,206 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def create_nlb(module, client):
-    """
-    Creates a Network Load Balancer
+def _should_replace_object(module, existing_object):
+    return False
 
-    This will create a new Network Load Balancer in the specified Datacenter.
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
+def _should_update_object(module, existing_object):
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+        or module.params.get('ips') is not None
+        and sorted(existing_object.properties.ips) != sorted(module.params.get('ips'))
+        or module.params.get('lb_private_ips') is not None
+        and sorted(existing_object.properties.lb_private_ips) != sorted(module.params.get('lb_private_ips'))
+        or module.params.get('listener_lan') is not None
+        and existing_object.properties.listener_lan != module.params.get('listener_lan')
+        or module.params.get('target_lan') is not None
+        and existing_object.properties.target_lan != module.params.get('target_lan')
+    )
 
-    Returns:
-        The Network Load Balancer ID if a new Network Load Balancer was created.
-    """
+
+def _get_object_list(module, client):
     datacenter_id = module.params.get('datacenter_id')
+    return ionoscloud.NetworkLoadBalancersApi(client).datacenters_networkloadbalancers_get(datacenter_id, depth=1)
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('network_load_balancer')
+
+
+def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
     ips = module.params.get('ips')
     listener_lan = module.params.get('listener_lan')
     target_lan = module.params.get('target_lan')
     lb_private_ips = module.params.get('lb_private_ips')
+    datacenter_id = module.params.get('datacenter_id')
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        ips = existing_object.properties.ips if ips is None else ips
+        listener_lan = existing_object.properties.listener_lan if listener_lan is None else listener_lan
+        target_lan = existing_object.properties.target_lan if target_lan is None else target_lan
+        lb_private_ips = existing_object.properties.lb_private_ips if lb_private_ips is None else lb_private_ips
 
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
-    nlb_server = ionoscloud.NetworkLoadBalancersApi(client)
-    nlb_list = nlb_server.datacenters_networkloadbalancers_get(datacenter_id=datacenter_id, depth=1)
-    nlb_response = None
-
-    existing_nlb = get_resource(module, nlb_list, name)
-
-    if existing_nlb:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'network_load_balancer': existing_nlb.to_dict()
-        }
-
-    nlb_properties = NetworkLoadBalancerProperties(name=name, listener_lan=listener_lan, ips=ips, target_lan=target_lan,
-                                                   lb_private_ips=lb_private_ips)
+    network_loadbalancers_api = ionoscloud.NetworkLoadBalancersApi(client)
+    
+    nlb_properties = NetworkLoadBalancerProperties(
+        name=name, listener_lan=listener_lan, ips=ips,
+        target_lan=target_lan, lb_private_ips=lb_private_ips,
+    )
     network_load_balancer = NetworkLoadBalancer(properties=nlb_properties)
 
     try:
-        response = nlb_server.datacenters_networkloadbalancers_post_with_http_info(datacenter_id, network_load_balancer)
-        (nlb_response, _, headers) = response
-
+        response, _, headers = network_loadbalancers_api.datacenters_networkloadbalancers_post_with_http_info(
+            datacenter_id, network_load_balancer,
+        )
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
     except ApiException as e:
-        module.fail_json(msg="failed to create the new Network Load Balancer: %s" % to_native(e))
-
-    return {
-        'changed': True,
-        'failed': False,
-        'action': 'create',
-        'network_load_balancer': nlb_response.to_dict()
-    }
+        module.fail_json(msg="failed to create the new Network Loadbalancer: %s" % to_native(e))
+    return response
 
 
-def update_nlb(module, client):
-    """
-    Updates a Network Load Balancer.
-
-    This will update a Network Load Balancer.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        True if the Network Load Balancer was updated, false otherwise
-    """
-    datacenter_id = module.params.get('datacenter_id')
+def _update_object(module, client, existing_object):
     name = module.params.get('name')
     ips = module.params.get('ips')
     listener_lan = module.params.get('listener_lan')
     target_lan = module.params.get('target_lan')
     lb_private_ips = module.params.get('lb_private_ips')
-    network_load_balancer_id = module.params.get('network_load_balancer_id')
+    datacenter_id = module.params.get('datacenter_id')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
 
-    nlb_server = ionoscloud.NetworkLoadBalancersApi(client)
-    nlb_response = None
-
-    nlb_list = nlb_server.datacenters_networkloadbalancers_get(datacenter_id=datacenter_id, depth=1)
-    existing_nlb_id_by_name = get_resource_id(module, nlb_list, name)
-
-    if network_load_balancer_id is not None and existing_nlb_id_by_name is not None and existing_nlb_id_by_name != network_load_balancer_id:
-            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
-
-    network_load_balancer_id = existing_nlb_id_by_name if network_load_balancer_id is None else network_load_balancer_id
-
+    nlbs_api = ionoscloud.NetworkLoadBalancersApi(client)
+    
     nlb_properties = NetworkLoadBalancerProperties(
         name=name, listener_lan=listener_lan, ips=ips,
         target_lan=target_lan, lb_private_ips=lb_private_ips,
     )
 
-    if not network_load_balancer_id:
-        module.fail_json(msg="failed to update the Network Load Balancer: The resource does not exist")
-
-    nlb_response = _update_nlb(module, client, nlb_server, datacenter_id, network_load_balancer_id, nlb_properties)
-
-    return {
-        'changed': True,
-        'action': 'update',
-        'failed': False,
-        'network_load_balancer': nlb_response.to_dict()
-    }
-
-
-def remove_nlb(module, client):
-    """
-    Removes a Network Load Balancer.
-
-    This will remove a Network Load Balancer.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        True if the Network Load Balancer was deleted, false otherwise
-    """
-    name = module.params.get('name')
-    datacenter_id = module.params.get('datacenter_id')
-    network_load_balancer_id = module.params.get('network_load_balancer_id')
-
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-
-    nlb_server = ionoscloud.NetworkLoadBalancersApi(client)
-    changed = False
-
     try:
-
-        network_load_balancer_list = nlb_server.datacenters_networkloadbalancers_get(datacenter_id, depth=1)
-        if network_load_balancer_id:
-            network_load_balancer = get_resource(module, network_load_balancer_list, network_load_balancer_id)
-        else:
-            network_load_balancer = get_resource(module, network_load_balancer_list, name)
-
-        if not network_load_balancer or network_load_balancer.metadata.state != 'AVAILABLE':
-            module.exit_json(changed=False)
-
-        _, _, headers = nlb_server.datacenters_networkloadbalancers_delete_with_http_info(datacenter_id, network_load_balancer.id)
-
+        response, _, headers = nlbs_api.datacenters_networkloadbalancers_patch_with_http_info(
+            datacenter_id, existing_object.id, nlb_properties,
+        )
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-        changed = True
+        return response
+    except ApiException as e:
+        module.fail_json(msg="failed to update the Network Loadbalancer: %s" % to_native(e))
 
-    except Exception as e:
+
+def _remove_object(module, client, existing_object):
+    datacenter_id = module.params.get('datacenter_id')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    nlbs_api = ionoscloud.NetworkLoadBalancersApi(client)
+
+    try:
+        _, _, headers = nlbs_api.datacenters_networkloadbalancers_delete_with_http_info(
+            datacenter_id, existing_object.id,
+        )
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to remove the Network Loadbalancer: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if module.params.get('do_not_replace'):
+            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
+        }
+
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
+
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
+
+
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
+
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
         module.fail_json(
-            msg="failed to delete the Network Load Balancer: %s" % to_native(e))
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    _remove_object(module, client, existing_object)
 
     return {
         'action': 'delete',
-        'changed': changed,
-        'id': network_load_balancer_id
+        'changed': True,
+        'id': existing_object.id,
     }
 
 
@@ -505,11 +536,11 @@ def main():
 
         try:
             if state == 'absent':
-                module.exit_json(**remove_nlb(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'present':
-                module.exit_json(**create_nlb(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_nlb(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 

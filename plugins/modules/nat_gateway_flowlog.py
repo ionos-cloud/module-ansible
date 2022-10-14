@@ -449,57 +449,6 @@ def remove_object(module, client):
     }
 
 
-def remove_nat_gateway_flowlog(module, client):
-    """
-    Removes a NAT Gateway Flowlog.
-
-    This will remove a NAT Gateway Flowlog.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        True if the NAT Gateway Flowlog was deleted, false otherwise
-    """
-    name = module.params.get('name')
-    datacenter_id = module.params.get('datacenter_id')
-    nat_gateway_id = module.params.get('nat_gateway_id')
-    flowlog_id = module.params.get('flowlog_id')
-
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-
-    nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-    changed = False
-
-    try:
-        nat_gateway_flowlog_list = nat_gateway_server.datacenters_natgateways_flowlogs_get(datacenter_id, nat_gateway_id, depth=1)
-        if flowlog_id:
-            flowlog_id = get_resource_id(module, nat_gateway_flowlog_list, flowlog_id)
-        else:
-            flowlog_id = get_resource_id(module, nat_gateway_flowlog_list, name)
-
-        if not flowlog_id:
-            module.exit_json(changed=False)
-
-        
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-        changed = True
-
-    except Exception as e:
-        module.fail_json(
-            msg="failed to delete the NAT Gateway Flowlog: %s" % to_native(e))
-
-    return {
-        'action': 'delete',
-        'changed': changed,
-        'id': flowlog_id
-    }
-
-
 def get_module_arguments():
     arguments = {}
 

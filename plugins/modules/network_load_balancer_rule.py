@@ -35,6 +35,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'networkloadbalancer'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Network Loadbalancer forwarding rule'
+RETURNED_KEY = 'forwarding_rule'
 
 OPTIONS = {
     'name': {
@@ -91,9 +92,10 @@ OPTIONS = {
         'required': STATES,
         'type': 'str',
     },
-    'forwarding_rule_id': {
-        'description': ['The ID of the Network Loadbalancer forwarding rule.'],
+    'forwarding_rule': {
+        'description': ['The ID or name of the Network Loadbalancer forwarding rule.'],
         'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
         'type': 'str',
     },
     'api_url': {
@@ -258,6 +260,233 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
+def _should_replace_object(module, existing_object):
+    return False
+
+
+def _should_update_object(module, existing_object):
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+        or module.params.get('type') is not None
+        and existing_object.properties.type != module.params.get('type')
+        or module.params.get('protocol') is not None
+        and existing_object.properties.protocol != module.params.get('protocol')
+        or module.params.get('source_subnet') is not None
+        and existing_object.properties.source_subnet != module.params.get('source_subnet')
+        or module.params.get('public_ip') is not None
+        and existing_object.properties.public_ip != module.params.get('public_ip')
+        or module.params.get('target_subnet') is not None
+        and existing_object.properties.target_subnet != module.params.get('target_subnet')
+        or module.params.get('target_port_range') is not None
+        and existing_object.properties.target_port_range != module.params.get('target_port_range')
+    )
+
+
+def _get_object_list(module, client):
+    datacenter_id = module.params.get('datacenter_id')
+    network_load_balancer_id = module.params.get('network_load_balancer_id')
+
+    return ionoscloud.NetworkLoadBalancersApi(client).datacenters_networkloadbalancers_forwardingrules_get(
+        datacenter_id, network_load_balancer_id, depth=1,
+    )
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('forwarding_rule')
+
+
+def _create_object(module, client, existing_object=None):
+    name = module.params.get('name')
+    nat_gateway_type = module.params.get('type')
+    protocol = module.params.get('protocol')
+    source_subnet = module.params.get('source_subnet')
+    public_ip = module.params.get('public_ip')
+    target_subnet = module.params.get('target_subnet')
+    target_port_range = module.params.get('target_port_range')
+
+    datacenter_id = module.params.get('datacenter_id')
+    nat_gateway_id = module.params.get('nat_gateway_id')
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        nat_gateway_type = existing_object.properties.type if nat_gateway_type is None else nat_gateway_type
+        protocol = existing_object.properties.protocol if protocol is None else protocol
+        source_subnet = existing_object.properties.source_subnet if source_subnet is None else source_subnet
+        public_ip = existing_object.properties.public_ip if public_ip is None else public_ip
+        target_subnet = existing_object.properties.target_subnet if target_subnet is None else target_subnet
+        target_port_range = existing_object.properties.target_port_range if target_port_range is None else target_port_range
+        target_subnet = existing_object.properties.target_subnet if target_subnet is None else target_subnet
+
+    wait = module.params.get('wait')
+    wait_timeout = int(module.params.get('wait_timeout'))
+
+    nat_gateways_api = ionoscloud.NATGatewaysApi(client)
+    
+    nat_gateway_rule_properties = NatGatewayRuleProperties(
+        name=name, type=nat_gateway_type, protocol=protocol,
+        source_subnet=source_subnet, public_ip=public_ip,
+        target_subnet=target_subnet,
+        target_port_range=target_port_range,
+    )
+    nat_gateway_rule = NatGatewayRule(properties=nat_gateway_rule_properties)
+
+    try:
+        nat_gateway_rule_response, _, headers = nat_gateways_api.datacenters_natgateways_rules_post_with_http_info(
+            datacenter_id, nat_gateway_id, nat_gateway_rule,
+        )
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to create the new NAT Gateway Rule: %s" % to_native(e))
+    return nat_gateway_rule_response
+
+
+def _update_object(module, client, existing_object):
+    name = module.params.get('name')
+    nat_gateway_type = module.params.get('type')
+    protocol = module.params.get('protocol')
+    source_subnet = module.params.get('source_subnet')
+    public_ip = module.params.get('public_ip')
+    target_subnet = module.params.get('target_subnet')
+    target_port_range = module.params.get('target_port_range')
+    datacenter_id = module.params.get('datacenter_id')
+    nat_gateway_id = module.params.get('nat_gateway_id')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    nat_gateways_api = ionoscloud.NATGatewaysApi(client)
+
+    nat_gateway_rule_properties = NatGatewayRuleProperties(
+        name=name, type=nat_gateway_type, protocol=protocol,
+        source_subnet=source_subnet, public_ip=public_ip,
+        target_subnet=target_subnet,
+        target_port_range=target_port_range,
+    )
+
+    try:
+        response, _, headers = nat_gateways_api.datacenters_natgateways_rules_patch_with_http_info(
+            datacenter_id, nat_gateway_id, existing_object.id, nat_gateway_rule_properties,
+        )
+
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
+        return response
+    except ApiException as e:
+        module.fail_json(msg="failed to update the NAT Gateway Rule: %s" % to_native(e))
+
+
+def _remove_object(module, client, existing_object):
+    datacenter_id = module.params.get('datacenter_id')
+    nat_gateway_id = module.params.get('nat_gateway_id')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    nat_gateways_api = ionoscloud.NATGatewaysApi(client)
+
+    try:
+        _, _, headers = nat_gateways_api.datacenters_natgateways_rules_delete_with_http_info(
+            datacenter_id, nat_gateway_id, existing_object.id,
+        )
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to remove the NAT Gateway Rule: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if module.params.get('do_not_replace'):
+            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
+        }
+
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
+
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
+
+
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
+
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    _remove_object(module, client, existing_object)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.id,
+    }
+
+
 def _update_nlb_forwarding_rule(module, client, nlb_server, datacenter_id, network_load_balancer_id, forwarding_rule_id,
                                 forwarding_rule_properties):
     wait = module.params.get('wait')
@@ -298,7 +527,6 @@ def _get_health_check(health_check_param):
             health_check.retries = health_check_param.get('retries')
 
     return health_check
-
 
 
 def create_nlb_forwarding_rule(module, client):
