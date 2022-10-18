@@ -177,7 +177,7 @@ EXAMPLE_PER_STATE = {
   - name: Update Network Load Balancer
     network_load_balancer:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       name: "{{ name }} - UPDATE"
       listener_lan: "{{ listener_lan.lan.id }}"
       target_lan: "{{ target_lan.lan.id }}"
@@ -188,7 +188,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Remove Network Load Balancer
     network_load_balancer:
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       wait: true
       state: absent
@@ -530,9 +530,6 @@ def main():
     with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
         api_client.user_agent = USER_AGENT
         check_required_arguments(module, state, OBJECT_NAME)
-
-        if state == 'absent' and not module.params.get('name') and not module.params.get('network_load_balancer_id'):
-            module.fail_json(msg='either name or network_load_balancer_id parameter is required for {object_name} state present'.format(object_name=OBJECT_NAME))
 
         try:
             if state == 'absent':

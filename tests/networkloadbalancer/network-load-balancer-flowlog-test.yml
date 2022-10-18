@@ -101,14 +101,14 @@
     - name: Remove Listener LAN
       lan:
         datacenter: "{{ datacenter }}"
-        name: "listener_lan"
+        lan: "listener_lan"
         state: absent
         wait: true
 
     - name: Remove Target LAN
       lan:
         datacenter: "{{ datacenter }}"
-        name: "target_lan"
+        lan: "target_lan"
         state: absent
         wait: true
 

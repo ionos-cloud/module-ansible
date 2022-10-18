@@ -166,7 +166,7 @@ EXAMPLE_PER_STATE = {
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       name: "{{ name }} - UPDATED"
       public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       wait: true
       state: update
     register: nat_gateway_response_update
@@ -174,7 +174,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Remove NAT Gateway
     nat_gateway:
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       wait: true
       wait_timeout: 2000

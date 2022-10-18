@@ -174,7 +174,7 @@ EXAMPLE_PER_STATE = {
     network_load_balancer_flowlog:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-      flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
+      flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
       name: "{{ name }}"
       action: "ALL"
       direction: "INGRESS"
@@ -188,7 +188,7 @@ EXAMPLE_PER_STATE = {
     network_load_balancer_flowlog:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-      flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
+      flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
       state: absent
   ''',
 }
@@ -545,10 +545,6 @@ def main():
         api_client.user_agent = USER_AGENT
         check_required_arguments(module, state, OBJECT_NAME)
 
-        if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('flowlog_id'):
-            module.fail_json(msg='either name or flowlog_id parameter is required for {object_name} state {state}'.format(
-                object_name=OBJECT_NAME, state=state,
-            ))
         try:
             if state == 'absent':
                 module.exit_json(**remove_object(module, api_client))
