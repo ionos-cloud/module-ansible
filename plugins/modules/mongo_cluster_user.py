@@ -47,12 +47,6 @@ OPTIONS = {
         'no_log': True,
         'type': 'str',
     },
-    'database': {
-        'description': ['The user database to use for authentication.'],
-        'available': STATES,
-        'required': STATES,
-        'type': 'str',
-    },
     'user_roles': {
         'description': [
           'A list of mongodb user roles. A user role is represented as a dict containing 2 keys:'
@@ -148,7 +142,6 @@ EXAMPLE_PER_STATE = {
     'present': '''- name: Create Cluster User
     mongo_cluster_user:
       mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
-      database: test
       mongo_username: testuser
       mongo_password: password123
       user_roles:
@@ -159,7 +152,6 @@ EXAMPLE_PER_STATE = {
     'absent': '''- name: Delete Cluster User
     mongo_cluster_user:
       mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
-      database: test
       mongo_username: testuser
     register: monfo_user_response
   ''',
@@ -209,14 +201,13 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
 
 def create_mongo_cluster_user(module, dbaas_client):
     mongo_cluster_id = module.params.get('mongo_cluster_id')
-    database = module.params.get('database')
     mongo_username = module.params.get('mongo_username')
 
     mongo_users_api = ionoscloud_dbaas_mongo.UsersApi(dbaas_client)
 
     existing_mongo_user = None
     try:
-        existing_mongo_user = mongo_users_api.clusters_users_find_by_id(mongo_cluster_id, database, mongo_username)
+        existing_mongo_user = mongo_users_api.clusters_users_find_by_id(mongo_cluster_id, 'admin', mongo_username)
     except ionoscloud_dbaas_mongo.ApiException as e:
         if e.status != 404:
             raise e
@@ -235,7 +226,6 @@ def create_mongo_cluster_user(module, dbaas_client):
     ))
 
     mongo_user_properties = ionoscloud_dbaas_mongo.UserProperties(
-        database=database,
         username=mongo_username,
         password=module.params.get('mongo_password'),
         roles=user_roles,
@@ -260,11 +250,10 @@ def delete_mongo_cluster_user(module, dbaas_client):
     mongo_users_api = ionoscloud_dbaas_mongo.UsersApi(dbaas_client)
 
     mongo_cluster_id = module.params.get('mongo_cluster_id')
-    database = module.params.get('database')
     mongo_username = module.params.get('mongo_username')
 
     try:
-        mongo_users_api.clusters_users_delete(mongo_cluster_id, database, mongo_username)
+        mongo_users_api.clusters_users_delete(mongo_cluster_id, 'admin', mongo_username)
 
         return {
             'action': 'delete',

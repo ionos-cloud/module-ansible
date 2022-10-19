@@ -40,7 +40,6 @@
   - name: Create Cluster User
     mongo_cluster_user:
       mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
-      database: test
       mongo_username: testuser
       mongo_password: password123
       user_roles:
@@ -51,7 +50,6 @@
   - name: Delete Cluster User
     mongo_cluster_user:
       mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
-      database: test
       mongo_username: testuser
       state: absent
     register: monfo_user_response
