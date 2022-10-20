@@ -1,0 +1,12 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+- name: Run Mongo Cluster Test
+  import_playbook: mongo-cluster-test.yml
+
+- name: Run Mongo Cluster Info Test
+  import_playbook: mongo-cluster-info-test.yml
+
+- name: Run Mongo Cluster Tempalte Info Test
+  import_playbook: mongo-cluster-template-info-test.yml

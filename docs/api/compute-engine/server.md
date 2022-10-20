@@ -97,6 +97,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -128,6 +129,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -150,6 +152,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -172,6 +175,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -204,6 +208,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -261,6 +266,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | boot_cdrom | False | str |  | The CDROM used for boot. |
   | type | False | str | ENTERPRISE | The type of the virtual machine. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -309,6 +315,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | boot_volume | False | str |  | The volume used for boot. |
   | boot_cdrom | False | str |  | The CDROM used for boot. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

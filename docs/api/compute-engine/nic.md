@@ -6,33 +6,34 @@ This module allows you to create, update or remove a NIC.
 
 
 ```yaml
-- name: Create a NIC
-  nic:
-    datacenter: Tardis One
-    server: node002
-    lan: 2
-    wait_timeout: 500
-    state: present
+# Create a NIC
+  - nic:
+      datacenter: Tardis One
+      server: node002
+      lan: 2
+      wait_timeout: 500
+      state: present
   
-- name: Update a NIC
-  nic:
-    datacenter: Tardis One
-    server: node002
-    name: 7341c2454f
-    lan: 1
-    ips:
-      - 158.222.103.23
-      - 158.222.103.24
-    dhcp: false
-    state: update
-
-- name: Remove a NIC
-  nic:
-    datacenter: Tardis One
-    server: node002
-    name: 7341c2454f
-    wait_timeout: 500
-    state: absent
+# Update a NIC
+  - nic:
+      datacenter: Tardis One
+      server: node002
+      name: 7341c2454f
+      lan: 1
+      ips:
+        - 158.222.103.23
+        - 158.222.103.24
+      dhcp: false
+      state: update
+  
+# Remove a NIC
+  - nic:
+      datacenter: Tardis One
+      server: node002
+      name: 7341c2454f
+      wait_timeout: 500
+      state: absent
+  
 ```
 &nbsp;
 
@@ -40,13 +41,14 @@ This module allows you to create, update or remove a NIC.
 
 # state: **present**
 ```yaml
-- name: Create a NIC
-  nic:
-    datacenter: Tardis One
-    server: node002
-    lan: 2
-    wait_timeout: 500
-    state: present
+  # Create a NIC
+  - nic:
+      datacenter: Tardis One
+      server: node002
+      lan: 2
+      wait_timeout: 500
+      state: present
+  
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -60,6 +62,7 @@ This module allows you to create, update or remove a NIC.
   | firewall_active | False | bool |  | Boolean value indicating if the firewall is active. |
   | ips | False | list |  | A list of IPs to be assigned to the NIC. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -72,13 +75,14 @@ This module allows you to create, update or remove a NIC.
 &nbsp;
 # state: **absent**
 ```yaml
-- name: Remove a NIC
-  nic:
-    datacenter: Tardis One
-    server: node002
-    name: 7341c2454f
-    wait_timeout: 500
-    state: absent
+  # Remove a NIC
+  - nic:
+      datacenter: Tardis One
+      server: node002
+      name: 7341c2454f
+      wait_timeout: 500
+      state: absent
+  
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -89,6 +93,7 @@ This module allows you to create, update or remove a NIC.
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
   | server | True | str |  | The server name or UUID. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -101,17 +106,18 @@ This module allows you to create, update or remove a NIC.
 &nbsp;
 # state: **update**
 ```yaml
-- name: Update a NIC
-  nic:
-    datacenter: Tardis One
-    server: node002
-    name: 7341c2454f
-    lan: 1
-    ips:
-      - 158.222.103.23
-      - 158.222.103.24
-    dhcp: false
-    state: update
+  # Update a NIC
+  - nic:
+      datacenter: Tardis One
+      server: node002
+      name: 7341c2454f
+      lan: 1
+      ips:
+        - 158.222.103.23
+        - 158.222.103.24
+      dhcp: false
+      state: update
+  
 ```
 ### Available parameters for state **update**:
 &nbsp;
@@ -127,6 +133,7 @@ This module allows you to create, update or remove a NIC.
   | firewall_active | False | bool |  | Boolean value indicating if the firewall is active. |
   | ips | False | list |  | A list of IPs to be assigned to the NIC. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

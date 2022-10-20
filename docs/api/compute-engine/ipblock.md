@@ -45,6 +45,7 @@ This module allows you to create or remove an IPBlock.
   | location | True | str | us/las | The IP Block location. |
   | size | False | int | 1 | The number of IP addresses to allocate in the IPBlock. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -71,6 +72,7 @@ This module allows you to create or remove an IPBlock.
   | :--- | :---: | :--- | :--- | :--- |
   | name | True | str |  | The name or ID of the IPBlock. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

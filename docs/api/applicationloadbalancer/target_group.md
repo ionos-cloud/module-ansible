@@ -97,6 +97,7 @@ This is a simple module that supports creating or removing Target Groups.
   | http_health_check | False | dict |  | HTTP health check properties for target group. |
   | targets | False | list |  | An array of items in the collection. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -126,6 +127,7 @@ This is a simple module that supports creating or removing Target Groups.
   | name | False | str |  | The name of the Target Group. |
   | target_group_id | False | str |  | The ID of the Target Group. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -163,6 +165,7 @@ This is a simple module that supports creating or removing Target Groups.
   | targets | False | list |  | An array of items in the collection. |
   | target_group_id | False | str |  | The ID of the Target Group. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

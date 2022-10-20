@@ -222,6 +222,12 @@ OPTIONS = {
         'available': STATES,
         'type': 'str',
     },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
+        'available': STATES,
+        'type': 'str',
+    },
     'username': {
         # Required if no token, checked manually
         'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
@@ -1021,11 +1027,12 @@ def get_module_arguments():
     return arguments
 
 
-def get_sdk_config(module):
+def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
-    api_url = module.params.get('api_url')
     token = module.params.get('token')
+    api_url = module.params.get('api_url')
+    certificate_fingerprint = module.params.get('certificate_fingerprint')
 
     if token is not None:
         # use the token instead of username & password
@@ -1043,7 +1050,10 @@ def get_sdk_config(module):
         conf['host'] = api_url
         conf['server_index'] = None
 
-    return ionoscloud.Configuration(**conf)
+    if certificate_fingerprint is not None:
+        conf['fingerprint'] = certificate_fingerprint
+
+    return sdk.Configuration(**conf)
 
 
 def check_required_arguments(module, state, object_name):
@@ -1084,9 +1094,8 @@ def main():
     state = module.params.get('state')
     check_required_arguments(module, state, OBJECT_NAME)
 
-    with ApiClient(get_sdk_config(module)) as api_client:
-        api_client.user_agent = USER_AGENT 
-
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+        api_client.user_agent = USER_AGENT
 
         if module.params.get('type') == 'CUBE' or state in ('resume', 'suspend'):
             module.warn(

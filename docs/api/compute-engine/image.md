@@ -8,29 +8,29 @@ This is a simple module that supports updating or removing Images. This module h
 ```yaml
 # Update an image
   - name: Update image
-      image:
-        image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
-        name: "CentOS-8.3.2011-x86_64-boot-renamed.iso"
-        description: "An image used for testing the Ansible Module"
-        cpu_hot_plug: true
-        cpu_hot_unplug: false
-        ram_hot_plug: true
-        ram_hot_unplug: true
-        nic_hot_plug: true
-        nic_hot_unplug: true
-        disc_virtio_hot_plug: true
-        disc_virtio_hot_unplug: true
-        disc_scsi_hot_plug: true
-        disc_scsi_hot_unplug: false
-        licence_type: "LINUX"
-        cloud_init: V1
-        state: update
+    image:
+      image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
+      name: "CentOS-8.3.2011-x86_64-boot-renamed.iso"
+      description: "An image used for testing the Ansible Module"
+      cpu_hot_plug: true
+      cpu_hot_unplug: false
+      ram_hot_plug: true
+      ram_hot_unplug: true
+      nic_hot_plug: true
+      nic_hot_unplug: true
+      disc_virtio_hot_plug: true
+      disc_virtio_hot_unplug: true
+      disc_scsi_hot_plug: true
+      disc_scsi_hot_unplug: false
+      licence_type: "LINUX"
+      cloud_init: V1
+      state: update
   
 # Destroy an image
   - name: Delete image
-      image:
-        image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
-        state: absent
+    image:
+      image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
+      state: absent
   
 ```
 &nbsp;
@@ -41,9 +41,9 @@ This is a simple module that supports updating or removing Images. This module h
 ```yaml
   # Destroy an image
   - name: Delete image
-      image:
-        image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
-        state: absent
+    image:
+      image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
+      state: absent
   
 ```
 ### Available parameters for state **absent**:
@@ -54,6 +54,7 @@ This is a simple module that supports updating or removing Images. This module h
   | image_id | True | str |  | The ID of the image. |
   | name | False | str |  | The name of the image. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -68,23 +69,23 @@ This is a simple module that supports updating or removing Images. This module h
 ```yaml
   # Update an image
   - name: Update image
-      image:
-        image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
-        name: "CentOS-8.3.2011-x86_64-boot-renamed.iso"
-        description: "An image used for testing the Ansible Module"
-        cpu_hot_plug: true
-        cpu_hot_unplug: false
-        ram_hot_plug: true
-        ram_hot_unplug: true
-        nic_hot_plug: true
-        nic_hot_unplug: true
-        disc_virtio_hot_plug: true
-        disc_virtio_hot_unplug: true
-        disc_scsi_hot_plug: true
-        disc_scsi_hot_unplug: false
-        licence_type: "LINUX"
-        cloud_init: V1
-        state: update
+    image:
+      image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
+      name: "CentOS-8.3.2011-x86_64-boot-renamed.iso"
+      description: "An image used for testing the Ansible Module"
+      cpu_hot_plug: true
+      cpu_hot_unplug: false
+      ram_hot_plug: true
+      ram_hot_unplug: true
+      nic_hot_plug: true
+      nic_hot_unplug: true
+      disc_virtio_hot_plug: true
+      disc_virtio_hot_unplug: true
+      disc_scsi_hot_plug: true
+      disc_scsi_hot_unplug: false
+      licence_type: "LINUX"
+      cloud_init: V1
+      state: update
   
 ```
 ### Available parameters for state **update**:
@@ -108,6 +109,7 @@ This is a simple module that supports updating or removing Images. This module h
   | licence_type | True | str |  | OS type for this image. |
   | cloud_init | False | str |  | Cloud init compatibility. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
