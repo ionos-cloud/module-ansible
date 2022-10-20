@@ -17,8 +17,8 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (
-__version__, ionoscloud_dbaas_postgres.__version__)
+DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-postgres/%s' % (
+    __version__, ionoscloud_dbaas_postgres.__version__)
 DOC_DIRECTORY = 'dbaas-postgres'
 STATES = ['info']
 OBJECT_NAME = 'Postgres Cluster Backups'

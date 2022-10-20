@@ -23,6 +23,8 @@ try:
         ApplicationLoadBalancerHttpRuleCondition
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
+    import ionoscloud_cert_manager
+    from ionoscloud_cert_manager import __version__ as certificate_manager_sdk_version
 except ImportError:
     HAS_SDK = False
 
@@ -37,6 +39,7 @@ ANSIBLE_METADATA = {
     'supported_by': 'community',
 }
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
+CERTIFICATE_MANAGER_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, certificate_manager_sdk_version)
 DOC_DIRECTORY = 'applicationloadbalancer'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Application Loadbalancer forwarding rule'
@@ -90,6 +93,16 @@ OPTIONS = {
         'description': ['An array of items in the collection.'],
         'available': ['present', 'update'],
         'type': 'list',
+    },
+    'new_server_certificates': {
+        'description': [
+            'An array of dict with information used to uploade new certificates and add them to the forwarding rule.'
+            "A dict should contain 'certificate_file', 'private_key_file', 'certificate_chain_file'(optional), 'certificate_name' as keys."
+            'File paths should be absolute.'
+        ],
+        'available': ['present', 'update'],
+        'type': 'list',
+        'elements': 'dict',
     },
     'datacenter_id': {
         'description': ['The ID of the datacenter.'],
@@ -343,7 +356,52 @@ def get_http_rule(http_rule):
     return http_rule_object
 
 
-def create_alb_forwarding_rule(module, client):
+def create_certificate(certificate_manager_client, certificate_input):
+    certificate_file = certificate_input.get('certificate_file')
+    private_key_file = certificate_input.get('private_key_file')
+    certificate_chain_file = certificate_input.get('certificate_chain_file')
+
+    if not certificate_file and not private_key_file:
+        return None
+
+    return ionoscloud_cert_manager.CertificatesApi(certificate_manager_client).certificates_post(
+        ionoscloud_cert_manager.CertificatePostDto(
+            properties=ionoscloud_cert_manager.CertificatePostPropertiesDto(
+                name=certificate_input.get('certificate_name'),
+                certificate=open(certificate_file, mode='r').read(),
+                certificate_chain=open(certificate_chain_file, mode='r').read() if certificate_chain_file else None,
+                private_key=open(private_key_file, mode='r').read(),
+            )
+        )
+    )
+
+
+def create_new_certificates(new_server_certificates, certificate_manager_client):
+    new_certificates = []
+
+    if not new_server_certificates:
+        return None
+
+    for certificate_input in new_server_certificates:
+        new_certificate = create_certificate(certificate_manager_client, certificate_input)
+
+        if new_certificate:
+            new_certificates.append(new_certificate.id)
+
+    return new_certificates if len(new_certificates) > 0 else None
+
+
+def get_server_certificates(module, certificate_manager_client):
+    existing_certificates = module.params.get('server_certificates')
+    new_certificates = create_new_certificates(module.params.get('new_server_certificates'), certificate_manager_client)
+
+    if new_certificates is None:
+        return existing_certificates
+    else:
+        return new_certificates
+
+
+def create_alb_forwarding_rule(module, client, certificate_manager_client):
     """
     Creates a Application Load Balancer Forwarding Rule
 
@@ -360,7 +418,7 @@ def create_alb_forwarding_rule(module, client):
     listener_ip = module.params.get('listener_ip')
     listener_port = module.params.get('listener_port')
     client_timeout = module.params.get('client_timeout')
-    server_certificates = module.params.get('server_certificates')
+    server_certificates = get_server_certificates(module, certificate_manager_client)
     http_rules = module.params.get('http_rules')
     datacenter_id = module.params.get('datacenter_id')
     application_load_balancer_id = module.params.get('application_load_balancer_id')
@@ -418,7 +476,7 @@ def create_alb_forwarding_rule(module, client):
     }
 
 
-def update_alb_forwarding_rule(module, client):
+def update_alb_forwarding_rule(module, client, certificate_manager_client):
     """
     Updates a Application Load Balancer Forwarding Rule.
 
@@ -435,7 +493,7 @@ def update_alb_forwarding_rule(module, client):
     listener_ip = module.params.get('listener_ip')
     listener_port = module.params.get('listener_port')
     client_timeout = module.params.get('client_timeout')
-    server_certificates = module.params.get('server_certificates')
+    server_certificates = get_server_certificates(module, certificate_manager_client)
     http_rules = module.params.get('http_rules')
     datacenter_id = module.params.get('datacenter_id')
     application_load_balancer_id = module.params.get('application_load_balancer_id')
@@ -620,9 +678,11 @@ def main():
 
     state = module.params.get('state')
 
+    certificate_manager_api_client = ionoscloud_cert_manager.ApiClient(get_sdk_config(module, ionoscloud_cert_manager))
     api_client = ApiClient(get_sdk_config(module, ionoscloud))
 
     api_client.user_agent = USER_AGENT
+    certificate_manager_api_client.user_agent = CERTIFICATE_MANAGER_USER_AGENT
 
     check_required_arguments(module, state, OBJECT_NAME)
 
@@ -633,9 +693,9 @@ def main():
         if state == 'absent':
             module.exit_json(**remove_alb_forwarding_rule(module, api_client))
         elif state == 'present':
-            module.exit_json(**create_alb_forwarding_rule(module, api_client))
+            module.exit_json(**create_alb_forwarding_rule(module, api_client, certificate_manager_api_client))
         elif state == 'update':
-            module.exit_json(**update_alb_forwarding_rule(module, api_client))
+            module.exit_json(**update_alb_forwarding_rule(module, api_client, certificate_manager_api_client))
     except Exception as e:
         module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
