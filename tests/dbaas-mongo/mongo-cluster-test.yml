@@ -1,0 +1,85 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+
+  - name: Create datacenter
+    datacenter:
+      name: "{{ datacenter }} - DBaaS Mongo"
+      location: de/fra
+    register: datacenter_response
+
+  - name: Create LAN
+    lan:
+      datacenter: "{{ datacenter }} - DBaaS Mongo"
+      name: "test_lan"
+      public: false
+    register: lan_response1
+
+  - name: Create Cluster
+    mongo_cluster:
+      mongo_db_version: 5.0
+      instances: 3
+      location: de/fra
+      template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
+      connections:
+        - cidr_list: 
+            - 192.168.1.116/24
+            - 192.168.1.117/24
+            - 192.168.1.118/24
+          datacenter: "{{ datacenter }} - DBaaS Mongo"
+          lan: "test_lan"
+      display_name: backuptest-04
+      wait: true
+    register: cluster_response
+
+  - name: Create Cluster User
+    mongo_cluster_user:
+      mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_username: testuser
+      mongo_password: password123
+      user_roles:
+        - role: read
+          database: test
+    register: monfo_user_response
+
+  - name: Delete Cluster User
+    mongo_cluster_user:
+      mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_username: testuser
+      state: absent
+    register: monfo_user_response
+
+  - name: Delete Cluster
+    mongo_cluster:
+      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
+      state: absent
+      wait: false
+
+  - name: Delete Cluster
+    mongo_cluster:
+      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
+      state: absent
+      wait: true
+
+  - name: Sleep for 300 seconds and continue with play
+    ansible.builtin.wait_for:
+      timeout: 300
+    delegate_to: localhost
+
+  - name: Remove LAN
+    lan:
+      datacenter: "{{ datacenter }} - DBaaS Mongo"
+      name: "test_lan"
+      state: absent
+      wait: true
+
+  - name: Remove datacenter
+    datacenter:
+      id: "{{ datacenter_response.datacenter.id }}"
+      state: absent
+      wait: true

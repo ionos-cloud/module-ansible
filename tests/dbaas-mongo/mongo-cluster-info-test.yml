@@ -1,0 +1,12 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: List Mongo Clusters
+      mongo_cluster_info:
+      register: mongo_clusters_response
+
+    # - name: Show Mongo Clusters
+    #   debug:
+    #     var: mongo_clusters_response.result
