@@ -14,12 +14,12 @@
         mode: 0600
         type: RSA
         
-    - name: Ensure self-signed cert is present
-      community.crypto.x509_certificate:
-        path: "{{ certificate_path }}"
-        privatekey_path: "{{ certificate_key_path }}"
-        provider: selfsigned
-        mode: 0644
+    # - name: Ensure self-signed cert is present
+    #   community.crypto.x509_certificate:
+    #     path: "{{ certificate_path }}"
+    #     privatekey_path: "{{ certificate_key_path }}"
+    #     provider: selfsigned
+    #     mode: 0644
 
     - name: Create Certificate
       certificate:
@@ -40,10 +40,10 @@
         certificate_id: "{{ certificate.certificate.id }}"
         state: absent
 
-    - name: Delete local certificate
-      file:
-        state: absent
-        path: "{{ certificate_path }}"
+    # - name: Delete local certificate
+    #   file:
+    #     state: absent
+    #     path: "{{ certificate_path }}"
 
     - name: Delete local key
       file:
