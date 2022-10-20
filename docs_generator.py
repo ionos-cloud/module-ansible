@@ -65,6 +65,7 @@ modules_to_generate = [
     'application_load_balancer_forwardingrule',
     'application_load_balancer',
     'target_group',
+    'cube_server',
     'datacenter',
     'firewall_rule',
     'image',
