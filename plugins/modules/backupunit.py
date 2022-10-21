@@ -25,16 +25,17 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'managed-backup'
 OBJECT_NAME = 'Backup Unit'
 STATES = ['present', 'absent', 'update']
+RETURNED_KEY = 'backupunit'
 
 OPTIONS = {
     'name': {
         'description': ['The name of the virtual Backup Unit.'],
         'required': ['present'],
-        'available': ['present', 'update', 'absent'],
+        'available': ['present'],
         'type': 'str',
     },
-    'backupunit_id': {
-        'description': ['The ID of the virtual Backup Unit.'],
+    'backupunit': {
+        'description': ['The ID or name of the virtual Backup Unit.'],
         'required': ['update', 'absent'],
         'available': ['update', 'absent'],
         'type': 'str',
@@ -204,112 +205,182 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def create_backupunit(module, client):
+def _should_replace_object(module, existing_object):
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+    )
+
+def _should_update_object(module, existing_object):
+    return (
+        module.params.get('backupunit_password') is not None
+        and existing_object.properties.password != module.params.get('backupunit_password')
+        or module.params.get('backupunit_email') is not None
+        and existing_object.properties.email != module.params.get('backupunit_email')
+    )
+
+
+def _get_object_list(module, client):
+    return ionoscloud.BackupUnitsApi(client).backupunits_get(depth=1)
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('backupunit')
+
+
+def _create_object(module, client, existing_object=None):
+    name = module.params.get('name')
+    password = module.params.get('backupunit_password')
+    email = module.params.get('backupunit_email')
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        password = existing_object.properties.password if password is None else password
+        email = existing_object.properties.email if email is None else email
+
+    wait = module.params.get('wait')
+    wait_timeout = int(module.params.get('wait_timeout'))
+
+    backupunits_api = ionoscloud.BackupUnitsApi(client)
+
+    backupunit = BackupUnit(properties=BackupUnitProperties(name=name, password=password, email=email))
+
+    try:
+        datacenter_response, _, headers = backupunits_api.backupunits_post_with_http_info(backupunit)
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to create the new backupunit: %s" % to_native(e))
+    return datacenter_response
+
+
+def _update_object(module, client, existing_object):
     name = module.params.get('name')
     password = module.params.get('backupunit_password')
     email = module.params.get('backupunit_email')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    backupunit_server = ionoscloud.BackupUnitsApi(client)
+    backupunits_api = ionoscloud.BackupUnitsApi(client)
 
-    existing_backupunit = get_resource(module, backupunit_server.backupunits_get(depth=2), name)
-
-    if existing_backupunit:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'backupunit': existing_backupunit.to_dict()
-        }
-
-    backupunit_properties = BackupUnitProperties(name=name, password=password, email=email)
-    backupunit = BackupUnit(properties=backupunit_properties)
+    backupunit_properties = BackupUnitProperties(password=password, email=email)
 
     try:
-        response = backupunit_server.backupunits_post_with_http_info(backupunit)
-        (backupunit_response, _, headers) = response
-
+        backupunit_response, _, headers = backupunits_api.backupunits_patch_with_http_info(
+            existing_object.id, backupunit_properties,
+        )
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            'backupunit': backupunit_response.to_dict()
-        }
-
-    except Exception as e:
-        module.fail_json(msg="failed to create the backupunit: %s" % to_native(e))
-        return {
-            'changed': False,
-            'failed': True,
-            'action': 'create'
-        }
+        return backupunit_response
+    except ApiException as e:
+        module.fail_json(msg="failed to update the backupunit: %s" % to_native(e))
 
 
-def delete_backupunit(module, client):
-    backupunit_id = module.params.get('backupunit_id')
-    backupunit_server = ionoscloud.BackupUnitsApi(client)
-
-    backupunit = get_resource(module, backupunit_server.backupunits_get(depth=2), backupunit_id)
-
-    if not backupunit:
-        module.exit_json(changed=False)
-
-    try:
-        backupunit_server.backupunits_delete(backupunit_id)
-        return {
-            'action': 'delete',
-            'changed': True,
-            'id': backupunit_id
-        }
-
-    except Exception as e:
-        module.fail_json(msg="failed to delete the backupunit: %s" % to_native(e))
-        return {
-            'action': 'delete',
-            'changed': False,
-            'id': backupunit_id
-        }
-
-
-def update_backupunit(module, client):
-    password = module.params.get('backupunit_password')
-    email = module.params.get('backupunit_email')
-    backupunit_id = module.params.get('backupunit_id')
+def _remove_object(module, client, existing_object):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    backupunit_server = ionoscloud.BackupUnitsApi(client)
-
-    backupunit_properties = BackupUnitProperties(password=password, email=email)
-    backupunit = BackupUnit(properties=backupunit_properties)
+    backupunits_api = ionoscloud.BackupUnitsApi(client)
 
     try:
-        response = backupunit_server.backupunits_put_with_http_info(backupunit_id=backupunit_id, backup_unit=backupunit)
-        (backupunit_response, _, headers) = response
-
+        _, _, headers = backupunits_api.backupunits_delete_with_http_info(existing_object.id)
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to remove the backupunit: %s" % to_native(e))
 
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if module.params.get('do_not_replace'):
+            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object):
+        # Update
         return {
             'changed': True,
             'failed': False,
             'action': 'update',
-            'backupunit': backupunit_response.to_dict()
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
         }
 
-    except Exception as e:
-        module.fail_json(msg="failed to update the backupunit: %s" % to_native(e))
-        return {
-            'changed': False,
-            'failed': True,
-            'action': 'update'
-        }
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
+
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
+
+
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
+
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    _remove_object(module, client, existing_object)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.id,
+    }
 
 
 def get_module_arguments():
@@ -398,11 +469,11 @@ def main():
 
         try:
             if state == 'present':
-                module.exit_json(**create_backupunit(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'absent':
-                module.exit_json(**delete_backupunit(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_backupunit(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 

@@ -76,7 +76,7 @@ This is a simple module that supports creating or removing Backup Units. This mo
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the virtual Backup Unit. |
-  | backupunit_id | True | str |  | The ID of the virtual Backup Unit. |
+  | backupunit | True | str |  | The ID or name of the virtual Backup Unit. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -105,7 +105,7 @@ This is a simple module that supports creating or removing Backup Units. This mo
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the virtual Backup Unit. |
-  | backupunit_id | True | str |  | The ID of the virtual Backup Unit. |
+  | backupunit | True | str |  | The ID or name of the virtual Backup Unit. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
