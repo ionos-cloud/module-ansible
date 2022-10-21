@@ -12,7 +12,7 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
       cluster_name: "{{ name }}"
       k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       datacenter_id: "4d495548-e330-434d-83a9-251bfa645875"
-      node_count: "1"
+      node_count: 1
       cpu_family: "AMD_OPTERON"
       cores_count: "1"
       ram_size: "2048"
@@ -56,7 +56,7 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
       cluster_name: "{{ name }}"
       k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       datacenter_id: "4d495548-e330-434d-83a9-251bfa645875"
-      node_count: "1"
+      node_count: 1
       cpu_family: "AMD_OPTERON"
       cores_count: "1"
       ram_size: "2048"
@@ -89,6 +89,7 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   | public_ips | False | list |  | Optional array of reserved public IP addresses to be used by the nodes. IPs must be from same location as the data center used for the node pool. The array must contain one more IP than maximum number possible number of nodes (nodeCount+1 for fixed number of nodes or maxNodeCount+1 when auto scaling is used). The extra IP is used when the nodes are rebuilt. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -117,6 +118,7 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   | k8s_cluster_id | True | str |  | The ID of the K8s cluster. |
   | k8s_nodepool | True | str |  | The ID or name of the K8s nodepool. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -171,6 +173,7 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   | public_ips | False | list |  | Optional array of reserved public IP addresses to be used by the nodes. IPs must be from same location as the data center used for the node pool. The array must contain one more IP than maximum number possible number of nodes (nodeCount+1 for fixed number of nodes or maxNodeCount+1 when auto scaling is used). The extra IP is used when the nodes are rebuilt. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

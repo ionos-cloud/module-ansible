@@ -51,7 +51,7 @@
         storage_type: "HDD"
         storage_size: "100"
         public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
-        k8s_version: "1.23.10"
+        k8s_version: "1.23.12"
         auto_scaling:
           min_node_count: 1
           max_node_count: 3

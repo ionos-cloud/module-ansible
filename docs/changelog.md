@@ -1,5 +1,17 @@
 # Changelog
 
+
+## 6.4.0
+
+### Features:
+* added new modules for DBaaS Mongo (mongo_cluster_info, mongo_cluster_template_info, mongo_cluster_user_info, mongo_cluster_user and mongo_cluster)
+* added new modules for Certificate Manager (certificate, certificate_info) and integration with the application_load_balancer_forwardingrule module using the new `new_server_certificates` parameter
+* added a new module for working with CUBE servers, cube_server and depracationd notices when using the server module with CUBE servers
+* added certificate pinning option to all modules using the certificate_fingerprint parameter
+
+### Bug fixes:
+* fixed documentation for k8s_nodepool should node_count as string instead of int
+
 ## 6.3.2
 
 ### Features:

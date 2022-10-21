@@ -21,7 +21,7 @@ ANSIBLE_METADATA = {
 }
 
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, ionoscloud.__version__)
-DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (
+DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-postgres/%s' % (
     __version__, ionoscloud_dbaas_postgres.__version__)
 DOC_DIRECTORY = 'dbaas-postgres'
 STATES = ['present', 'absent', 'update', 'restore']
@@ -144,6 +144,12 @@ OPTIONS = {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
         'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
         'available': STATES,
         'type': 'str',
     },
@@ -570,6 +576,7 @@ def get_sdk_config(module, sdk):
     password = module.params.get('password')
     token = module.params.get('token')
     api_url = module.params.get('api_url')
+    certificate_fingerprint = module.params.get('certificate_fingerprint')
 
     if token is not None:
         # use the token instead of username & password
@@ -586,6 +593,9 @@ def get_sdk_config(module, sdk):
     if api_url is not None:
         conf['host'] = api_url
         conf['server_index'] = None
+
+    if certificate_fingerprint is not None:
+        conf['fingerprint'] = certificate_fingerprint
 
     return sdk.Configuration(**conf)
 

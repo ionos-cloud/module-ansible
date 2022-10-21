@@ -46,6 +46,7 @@ This module allows you to create or remove an IPBlock.
   | size | False | int | 1 | The number of IP addresses to allocate in the IPBlock. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -73,6 +74,7 @@ This module allows you to create or remove an IPBlock.
   | ipblock | True | str |  | The name or ID of an existing IPBlock. |
   | name | False | str |  | The name of the IPBlock. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

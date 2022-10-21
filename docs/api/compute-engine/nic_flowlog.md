@@ -72,6 +72,7 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
   | direction | True | str |  | Specifies the traffic direction pattern. |
   | bucket | True | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -106,6 +107,7 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
   | server_id | True | str |  | The ID of the Server. |
   | nic_id | True | str |  | The ID of the NIC. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -145,6 +147,7 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
   | direction | False | str |  | Specifies the traffic direction pattern. |
   | bucket | False | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
