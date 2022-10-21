@@ -1,0 +1,51 @@
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+    - name: Ensure private key is present
+      community.crypto.openssl_privatekey:
+        path: "{{ certificate_key_path }}"
+        size: 2048
+        mode: 0600
+        type: RSA
+        
+    # - name: Ensure self-signed cert is present
+    #   community.crypto.x509_certificate:
+    #     path: "{{ certificate_path }}"
+    #     privatekey_path: "{{ certificate_key_path }}"
+    #     provider: selfsigned
+    #     mode: 0644
+
+    - name: Create Certificate
+      certificate:
+        certificate_name: "{{ certificate_name }}"
+        certificate_file: "{{ certificate_path }}"
+        private_key_file: "{{ certificate_key_path }}"
+      register: certificate
+
+    - name: Update Certificate
+      certificate:
+        certificate_id: "{{ certificate.certificate.id }}"
+        certificate_name: "{{ certificate_updated_name }}"
+        state: update
+      register: updated_certificate
+
+    - name: Delete Certificate
+      certificate:
+        certificate_id: "{{ certificate.certificate.id }}"
+        state: absent
+
+    # - name: Delete local certificate
+    #   file:
+    #     state: absent
+    #     path: "{{ certificate_path }}"
+
+    - name: Delete local key
+      file:
+        state: absent
+        path: "{{ certificate_key_path }}"

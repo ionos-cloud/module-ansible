@@ -68,6 +68,7 @@ This module allows you to create, update or remove a user.
   | sec_auth_active | False | bool |  | Indicates if secure authentication is active for the user. |
   | s3_canonical_user_id | False | str |  | Canonical (S3) ID of the user for a given identity. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -94,6 +95,7 @@ This module allows you to create, update or remove a user.
   | :--- | :---: | :--- | :--- | :--- |
   | email | True | str |  | The user's email |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -135,6 +137,7 @@ This module allows you to create, update or remove a user.
   | sec_auth_active | False | bool |  | Indicates if secure authentication is active for the user. |
   | s3_canonical_user_id | False | str |  | Canonical (S3) ID of the user for a given identity. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

@@ -107,6 +107,8 @@ jobs:
             keywords: "datacenter, server, firewall, volume, image, cube, lan, nic, pcc, snapshot, ipblock"
           - namespace: dbaas-postgres
             keywords: "postgres"
+          - namespace: dbaas-mongo
+            keywords: "mongo"
           - namespace: managed-kubernetes/cluster
             keywords: "k8s"
           - namespace: managed-kubernetes/nodepool
@@ -115,6 +117,8 @@ jobs:
             keywords: "nat"
           - namespace: networkloadbalancer
             keywords: "network_load_balancer, network"
+          - namespace: certificate-manager
+            keywords: "certificate"
 
     env:
       python-version: 3.8.0
@@ -141,7 +145,9 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install ionoscloud
+          python3 -m pip install ionoscloud-cert-manager
           python3 -m pip install ionoscloud-dbaas-postgres
+          python3 -m pip install ionoscloud-dbaas-mongo
 
       - name: Install Ansible
         run: |

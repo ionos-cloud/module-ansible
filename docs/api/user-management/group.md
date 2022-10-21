@@ -70,6 +70,7 @@ This module allows you to create, update or remove a group.
   | manage_dbaas | False | bool |  | Privilege for a group to manage DBaaS related functionality. |
   | users | False | list |  | A list of (non-administrator) user IDs or emails to associate with the group. Set to empty list ([]) to remove all users from the group. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -96,6 +97,7 @@ This module allows you to create, update or remove a group.
   | :--- | :---: | :--- | :--- | :--- |
   | name | True | str |  | The name of the group. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -139,6 +141,7 @@ This module allows you to create, update or remove a group.
   | manage_dbaas | False | bool |  | Privilege for a group to manage DBaaS related functionality. |
   | users | False | list |  | A list of (non-administrator) user IDs or emails to associate with the group. Set to empty list ([]) to remove all users from the group. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

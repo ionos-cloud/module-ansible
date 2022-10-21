@@ -211,6 +211,12 @@ OPTIONS = {
         'available': STATES,
         'type': 'str',
     },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
+        'available': STATES,
+        'type': 'str',
+    },
     'username': {
         # Required if no token, checked manually
         'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
@@ -271,6 +277,8 @@ short_description: Create, update, destroy, start, stop, and reboot a Ionos virt
 description:
      - Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine.
        When the virtual machine is created it can optionally wait for it to be 'running' before returning.
+       The CUBE functionality of the server module is DEPRECATED. Please use the new cube_server
+       module for operations with CUBE servers.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
@@ -996,11 +1004,12 @@ def get_module_arguments():
     return arguments
 
 
-def get_sdk_config(module):
+def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
-    api_url = module.params.get('api_url')
     token = module.params.get('token')
+    api_url = module.params.get('api_url')
+    certificate_fingerprint = module.params.get('certificate_fingerprint')
 
     if token is not None:
         # use the token instead of username & password
@@ -1018,7 +1027,10 @@ def get_sdk_config(module):
         conf['host'] = api_url
         conf['server_index'] = None
 
-    return ionoscloud.Configuration(**conf)
+    if certificate_fingerprint is not None:
+        conf['fingerprint'] = certificate_fingerprint
+
+    return sdk.Configuration(**conf)
 
 
 def check_required_arguments(module, state, object_name):
@@ -1059,8 +1071,14 @@ def main():
     state = module.params.get('state')
     check_required_arguments(module, state, OBJECT_NAME)
 
-    with ApiClient(get_sdk_config(module)) as api_client:
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
         api_client.user_agent = USER_AGENT
+
+        if module.params.get('type') == 'CUBE' or state in ('resume', 'suspend'):
+            module.warn(
+                'The CUBE functionality of the server module is DEPRECATED. Please use the new '
+                'cube_server module for operations with CUBE servers.',
+            )
 
         try:
             if state == 'absent':

@@ -95,6 +95,12 @@ OPTIONS = {
         'available': STATES,
         'type': 'str',
     },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
+        'available': STATES,
+        'type': 'str',
+    },
     'username': {
         # Required if no token, checked manually
         'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
@@ -421,8 +427,6 @@ def _remove_object(module, client, existing_object):
 
 
 def update_replace_object(module, client, existing_object):
-    with open('debug.txt', 'a') as f:
-        f.write(str([_should_update_object(module, existing_object), _should_replace_object(module, existing_object)]))
     if _should_replace_object(module, existing_object):
 
         if module.params.get('do_not_replace'):
@@ -533,6 +537,7 @@ def get_sdk_config(module, sdk):
     password = module.params.get('password')
     token = module.params.get('token')
     api_url = module.params.get('api_url')
+    certificate_fingerprint = module.params.get('certificate_fingerprint')
 
     if token is not None:
         # use the token instead of username & password
@@ -549,6 +554,9 @@ def get_sdk_config(module, sdk):
     if api_url is not None:
         conf['host'] = api_url
         conf['server_index'] = None
+
+    if certificate_fingerprint is not None:
+        conf['fingerprint'] = certificate_fingerprint
 
     return sdk.Configuration(**conf)
 
