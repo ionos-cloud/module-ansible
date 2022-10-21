@@ -122,7 +122,7 @@
 
   - name: Remove NIC 1
     nic:
-      name: "test_nic1"
+      nic: "test_nic1"
       datacenter: "{{ datacenter }} - DBaaS"
       server: "{{ server_response.machines[0].id }}"
       wait: true
@@ -131,7 +131,7 @@
 
   - name: Remove NIC 2
     nic:
-      name: "test_nic2"
+      nic: "test_nic2"
       datacenter: "{{ datacenter }} - DBaaS"
       server: "{{ server_response.machines[0].id }}"
       wait: true
@@ -151,14 +151,14 @@
   - name: Remove LAN 1
     lan:
       datacenter: "{{ datacenter }} - DBaaS"
-      name: "test_lan1"
+      lan: "test_lan1"
       state: absent
       wait: true
 
   - name: Remove LAN 2
     lan:
       datacenter: "{{ datacenter }} - DBaaS"
-      name: "test_lan2"
+      lan: "test_lan2"
       state: absent
       wait: true
 
