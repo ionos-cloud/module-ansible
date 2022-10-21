@@ -427,8 +427,6 @@ def _remove_object(module, client, existing_object):
 
 
 def update_replace_object(module, client, existing_object):
-    with open('debug.txt', 'a') as f:
-        f.write(str([_should_update_object(module, existing_object), _should_replace_object(module, existing_object)]))
     if _should_replace_object(module, existing_object):
 
         if module.params.get('do_not_replace'):
