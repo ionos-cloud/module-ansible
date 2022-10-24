@@ -96,6 +96,7 @@ This module allows you to create, update or remove a group.
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | True | str |  | The name of the group. |
+  | group | True | str |  | The ID or name of the group. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -126,6 +127,7 @@ This module allows you to create, update or remove a group.
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | True | str |  | The name of the group. |
+  | group | True | str |  | The ID or name of the group. |
   | create_datacenter | False | bool |  | Boolean value indicating if the group is allowed to create virtual data centers. |
   | create_snapshot | False | bool |  | Boolean value indicating if the group is allowed to create snapshots. |
   | reserve_ip | False | bool |  | Boolean value indicating if the group is allowed to reserve IP addresses. |

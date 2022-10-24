@@ -23,7 +23,7 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
     nat_gateway_flowlog:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-      flowlog_id: "{{ nat_gateway_flowlog_response.flowlog.id }}"
+      flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
       name: "{{ name }}"
       action: "ALL"
       direction: "INGRESS"
@@ -37,7 +37,7 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
     nat_gateway_flowlog:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-      flowlog_id: "{{ nat_gateway_flowlog_response.flowlog.id }}"
+      flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
       state: absent
   
 ```
@@ -90,7 +90,7 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
     nat_gateway_flowlog:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-      flowlog_id: "{{ nat_gateway_flowlog_response.flowlog.id }}"
+      flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
       state: absent
   
 ```
@@ -122,7 +122,7 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
     nat_gateway_flowlog:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-      flowlog_id: "{{ nat_gateway_flowlog_response.flowlog.id }}"
+      flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
       name: "{{ name }}"
       action: "ALL"
       direction: "INGRESS"

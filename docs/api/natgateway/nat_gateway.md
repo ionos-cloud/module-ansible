@@ -24,7 +24,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       name: "{{ name }} - UPDATED"
       public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       wait: true
       state: update
     register: nat_gateway_response_update
@@ -32,7 +32,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
 
   - name: Remove NAT Gateway
     nat_gateway:
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       wait: true
       wait_timeout: 2000
@@ -84,7 +84,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
   
   - name: Remove NAT Gateway
     nat_gateway:
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       wait: true
       wait_timeout: 2000
@@ -119,7 +119,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       name: "{{ name }} - UPDATED"
       public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       wait: true
       state: update
     register: nat_gateway_response_update

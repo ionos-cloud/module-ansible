@@ -35,12 +35,19 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'user-management'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Group'
+RETURNED_KEY = 'group'
 
 OPTIONS = {
     'name': {
         'description': ['The name of the group.'],
         'available': STATES,
         'required': STATES,
+        'type': 'str',
+    },
+    'group': {
+        'description': ['The ID or name of the group.'],
+        'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
         'type': 'str',
     },
     'create_datacenter': {
@@ -279,23 +286,62 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def create_group(module, client):
-    """
-    Creates a group.
+def _should_replace_object(module, existing_object):
+    return False
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
 
-    Returns:
-        The group instance
-    """
+def _should_update_object(module, existing_object):
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+        or module.params.get('create_datacenter') is not None
+        and existing_object.properties.create_datacenter != module.params.get('create_datacenter')
+        or module.params.get('create_snapshot') is not None
+        and existing_object.properties.create_snapshot != module.params.get('create_snapshot')
+        or module.params.get('reserve_ip') is not None
+        and existing_object.properties.reserve_ip != module.params.get('reserve_ip')
+        or module.params.get('access_activity_log') is not None
+        and existing_object.properties.access_activity_log != module.params.get('access_activity_log')
+        or module.params.get('create_pcc') is not None
+        and existing_object.properties.create_pcc != module.params.get('create_pcc')
+        or module.params.get('s3_privilege') is not None
+        and existing_object.properties.s3_privilege != module.params.get('s3_privilege')
+        or module.params.get('create_backup_unit') is not None
+        and existing_object.properties.create_backup_unit != module.params.get('create_backup_unit')
+        or module.params.get('create_internet_access') is not None
+        and existing_object.properties.create_internet_access != module.params.get('create_internet_access')
+        or module.params.get('create_k8s_cluster') is not None
+        and existing_object.properties.create_k8s_cluster != module.params.get('create_k8s_cluster')
+        or module.params.get('create_flow_log') is not None
+        and existing_object.properties.create_flow_log != module.params.get('create_flow_log')
+        or module.params.get('access_and_manage_monitoring') is not None
+        and existing_object.properties.access_and_manage_monitoring != module.params.get('access_and_manage_monitoring')
+        or module.params.get('access_and_manage_certificates') is not None
+        and existing_object.properties.access_and_manage_certificates != module.params.get('access_and_manage_certificates')
+        or module.params.get('manage_dbaas') is not None
+        and existing_object.properties.manage_dbaas != module.params.get('manage_dbaas')
+        or module.params.get('users') is not None
+    )
+
+
+def _get_object_list(module, client):
+    return ionoscloud.UserManagementApi(client).um_groups_get(depth=1)
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('group')
+
+
+def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
     create_datacenter = module.params.get('create_datacenter')
     create_snapshot = module.params.get('create_snapshot')
     reserve_ip = module.params.get('reserve_ip')
     access_activity_log = module.params.get('access_activity_log')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
     create_pcc = module.params.get('create_pcc')
     s3_privilege = module.params.get('s3_privilege')
     create_backup_unit = module.params.get('create_backup_unit')
@@ -306,68 +352,90 @@ def create_group(module, client):
     access_and_manage_certificates = module.params.get('access_and_manage_certificates')
     manage_dbaas = module.params.get('manage_dbaas')
 
-    user_management_server = ionoscloud.UserManagementApi(client)
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        create_datacenter = existing_object.properties.create_datacenter if create_datacenter is None else create_datacenter
+        create_snapshot = existing_object.properties.create_snapshot if create_snapshot is None else create_snapshot
+        reserve_ip = existing_object.properties.reserve_ip if reserve_ip is None else reserve_ip
+        access_activity_log = existing_object.properties.access_activity_log if access_activity_log is None else access_activity_log
+        create_pcc = existing_object.properties.create_pcc if create_pcc is None else create_pcc
+        s3_privilege = existing_object.properties.s3_privilege if s3_privilege is None else s3_privilege
+        create_backup_unit = existing_object.properties.create_backup_unit if create_backup_unit is None else create_backup_unit
+        create_internet_access = existing_object.properties.create_internet_access if create_internet_access is None else create_internet_access
+        create_k8s_cluster = existing_object.properties.create_k8s_cluster if create_k8s_cluster is None else create_k8s_cluster
+        create_flow_log = existing_object.properties.create_flow_log if create_flow_log is None else create_flow_log
+        access_and_manage_monitoring = existing_object.properties.access_and_manage_monitoring if access_and_manage_monitoring is None else access_and_manage_monitoring
+        access_and_manage_certificates = existing_object.properties.access_and_manage_certificates if access_and_manage_certificates is None else access_and_manage_certificates
+        manage_dbaas = existing_object.properties.manage_dbaas if manage_dbaas is None else manage_dbaas
 
-    existing_group = get_resource(module, user_management_server.um_groups_get(depth=2), name)
+    wait = module.params.get('wait')
+    wait_timeout = int(module.params.get('wait_timeout'))
 
-    if existing_group:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'group': existing_group.to_dict()
-        }
+    um_api = ionoscloud.UserManagementApi(client)
 
-    if module.check_mode:
-        module.exit_json(changed=False)
+    group = Group(properties=GroupProperties(
+        name=name,
+        create_data_center=create_datacenter or False,
+        create_snapshot=create_snapshot or False,
+        reserve_ip=reserve_ip or False,
+        access_activity_log=access_activity_log or False,
+        create_pcc=create_pcc or False,
+        s3_privilege=s3_privilege or False,
+        create_backup_unit=create_backup_unit or False,
+        create_internet_access=create_internet_access or False,
+        create_k8s_cluster=create_k8s_cluster or False,
+        create_flow_log=create_flow_log or False,
+        access_and_manage_monitoring=access_and_manage_monitoring or False,
+        access_and_manage_certificates=access_and_manage_certificates or False,
+        manage_dbaas=manage_dbaas or False,
+    ))
 
     try:
-        group_properties = GroupProperties(
-            name=name,
-            create_data_center=create_datacenter or False,
-            create_snapshot=create_snapshot or False,
-            reserve_ip=reserve_ip or False,
-            access_activity_log=access_activity_log or False,
-            create_pcc=create_pcc or False,
-            s3_privilege=s3_privilege or False,
-            create_backup_unit=create_backup_unit or False,
-            create_internet_access=create_internet_access or False,
-            create_k8s_cluster=create_k8s_cluster or False,
-            create_flow_log=create_flow_log or False,
-            access_and_manage_monitoring=access_and_manage_monitoring or False,
-            access_and_manage_certificates=access_and_manage_certificates or False,
-            manage_dbaas=manage_dbaas or False,
-        )
+        response, _, headers = um_api.um_groups_post_with_http_info(group)
 
-        group = Group(properties=group_properties)
-        response = user_management_server.um_groups_post_with_http_info(group)
-        (group_response, _, headers) = response
-
-        if wait:
+        if wait or module.params.get('users') is not None:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        
+        if module.params.get('users') is not None:
+            old_group_user_ids = []
+            for u in um_api.um_groups_users_get(existing_object.id, depth=1).items:
+                old_group_user_ids.append(u.id)
 
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            'group': group_response.to_dict()
-        }
+            all_users = um_api.um_users_get(depth=2)
+            new_group_user_ids = []
 
-    except Exception as e:
-        module.fail_json(msg="failed to create the group: %s" % to_native(e))
+            for u in module.params.get('users'):
+                user_id = get_resource_id(module, all_users, u, [['id'], ['properties', 'email']])
+                if user_id is None:
+                    module.fail_json(msg="User '{}' not found!".format(u))
+                new_group_user_ids.append(user_id)
+
+            for user_id in old_group_user_ids:
+                if user_id not in new_group_user_ids:
+                    um_api.um_groups_users_delete(
+                        group_id=existing_object.id,
+                        user_id=user_id
+                    )
+
+            for user_id in new_group_user_ids:
+                if user_id not in old_group_user_ids:
+                    _, _, headers = um_api.um_groups_users_post_with_http_info(
+                        group_id=existing_object.id,
+                        user=User(id=user_id)
+                    )
+
+                    request_id = _get_request_id(headers['Location'])
+                    client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
+            # update group_response to contain changed user list
+            group_response = um_api.um_groups_find_by_id(group_response.id, depth=1)
+    except ApiException as e:
+        module.fail_json(msg="failed to create the new group: %s" % to_native(e))
+    return response
 
 
-def update_group(module, client):
-    """
-    Updates a group.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        The group instance
-    """
+def _update_object(module, client, existing_object):
     name = module.params.get('name')
     create_datacenter = module.params.get('create_datacenter')
     create_snapshot = module.params.get('create_snapshot')
@@ -382,151 +450,193 @@ def update_group(module, client):
     access_and_manage_monitoring = module.params.get('access_and_manage_monitoring')
     access_and_manage_certificates = module.params.get('access_and_manage_certificates')
     manage_dbaas = module.params.get('manage_dbaas')
-    
+
+    name = existing_object.properties.name if name is None else name
+    create_datacenter = existing_object.properties.create_datacenter if create_datacenter is None else create_datacenter
+    create_snapshot = existing_object.properties.create_snapshot if create_snapshot is None else create_snapshot
+    reserve_ip = existing_object.properties.reserve_ip if reserve_ip is None else reserve_ip
+    access_activity_log = existing_object.properties.access_activity_log if access_activity_log is None else access_activity_log
+    create_pcc = existing_object.properties.create_pcc if create_pcc is None else create_pcc
+    s3_privilege = existing_object.properties.s3_privilege if s3_privilege is None else s3_privilege
+    create_backup_unit = existing_object.properties.create_backup_unit if create_backup_unit is None else create_backup_unit
+    create_internet_access = existing_object.properties.create_internet_access if create_internet_access is None else create_internet_access
+    create_k8s_cluster = existing_object.properties.create_k8s_cluster if create_k8s_cluster is None else create_k8s_cluster
+    create_flow_log = existing_object.properties.create_flow_log if create_flow_log is None else create_flow_log
+    access_and_manage_monitoring = existing_object.properties.access_and_manage_monitoring if access_and_manage_monitoring is None else access_and_manage_monitoring
+    access_and_manage_certificates = existing_object.properties.access_and_manage_certificates if access_and_manage_certificates is None else access_and_manage_certificates
+    manage_dbaas = existing_object.properties.manage_dbaas if manage_dbaas is None else manage_dbaas
+
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    user_management_server = ionoscloud.UserManagementApi(client)
+    um_api = ionoscloud.UserManagementApi(client)
+
+    group_properties = GroupProperties(
+        name=name,
+        create_data_center=create_datacenter,
+        create_snapshot=create_snapshot,
+        reserve_ip=reserve_ip,
+        access_activity_log=access_activity_log,
+        create_pcc=create_pcc,
+        s3_privilege=s3_privilege,
+        create_backup_unit=create_backup_unit,
+        create_internet_access=create_internet_access,
+        create_k8s_cluster=create_k8s_cluster,
+        create_flow_log=create_flow_log,
+        access_and_manage_monitoring=access_and_manage_monitoring,
+        access_and_manage_certificates=access_and_manage_certificates,
+        manage_dbaas=manage_dbaas,
+    )
+
+    group = Group(properties=group_properties)
 
     try:
-        group = get_resource(module, user_management_server.um_groups_get(depth=2), name)
-        group_id = group.id
+        group, _, headers = um_api.um_groups_put_with_http_info(
+            existing_object.id, group,
+        )
+        if wait or module.params.get('users') is not None:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        
+        if module.params.get('users') is not None:
+            old_group_user_ids = []
+            for u in um_api.um_groups_users_get(existing_object.id, depth=1).items:
+                old_group_user_ids.append(u.id)
 
-        if group:
-            if module.check_mode:
-                module.exit_json(changed=True)
+            all_users = um_api.um_users_get(depth=2)
+            new_group_user_ids = []
 
-            if create_datacenter is None:
-                create_datacenter = group.properties.create_data_center
-            if create_snapshot is None:
-                create_snapshot = group.properties.create_snapshot
-            if reserve_ip is None:
-                reserve_ip = group.properties.reserve_ip
-            if access_activity_log is None:
-                access_activity_log = group.properties.access_activity_log
-            if create_pcc is None:
-                create_pcc = group.properties.create_pcc
-            if s3_privilege is None:
-                s3_privilege = group.properties.s3_privilege
-            if create_backup_unit is None:
-                create_backup_unit = group.properties.create_backup_unit
-            if create_internet_access is None:
-                create_internet_access = group.properties.create_internet_access
-            if create_k8s_cluster is None:
-                create_k8s_cluster = group.properties.create_k8s_cluster
-            if create_flow_log is None:
-                create_flow_log = group.properties.create_flow_log
-            if access_and_manage_monitoring is None:
-                access_and_manage_monitoring = group.properties.access_and_manage_monitoring
-            if access_and_manage_certificates is None:
-                access_and_manage_certificates = group.properties.access_and_manage_certificates
-            if manage_dbaas is None:
-                manage_dbaas = group.properties.manage_dbaas
+            for u in module.params.get('users'):
+                user_id = get_resource_id(module, all_users, u, [['id'], ['properties', 'email']])
+                if user_id is None:
+                    module.fail_json(msg="User '{}' not found!".format(u))
+                new_group_user_ids.append(user_id)
 
-            group_properties = GroupProperties(
-                name=name,
-                create_data_center=create_datacenter,
-                create_snapshot=create_snapshot,
-                reserve_ip=reserve_ip,
-                access_activity_log=access_activity_log,
-                create_pcc=create_pcc,
-                s3_privilege=s3_privilege,
-                create_backup_unit=create_backup_unit,
-                create_internet_access=create_internet_access,
-                create_k8s_cluster=create_k8s_cluster,
-                create_flow_log=create_flow_log,
-                access_and_manage_monitoring=access_and_manage_monitoring,
-                access_and_manage_certificates=access_and_manage_certificates,
-                manage_dbaas=manage_dbaas,
-            )
+            for user_id in old_group_user_ids:
+                if user_id not in new_group_user_ids:
+                    um_api.um_groups_users_delete(
+                        group_id=existing_object.id,
+                        user_id=user_id
+                    )
 
-            group = Group(properties=group_properties)
+            for user_id in new_group_user_ids:
+                if user_id not in old_group_user_ids:
+                    _, _, headers = um_api.um_groups_users_post_with_http_info(
+                        group_id=existing_object.id,
+                        user=User(id=user_id)
+                    )
 
-            group_response, _, headers = user_management_server.um_groups_put_with_http_info(group_id=group_id,
-                                                                                             group=group, depth=1)
+                    request_id = _get_request_id(headers['Location'])
+                    client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-            if wait:
-                request_id = _get_request_id(headers['Location'])
-                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            # update group_response to contain changed user list
+            group_response = um_api.um_groups_find_by_id(group_response.id, depth=1)
 
-            if module.params.get('users') is not None:
-                old_group_user_ids = []
-                for u in user_management_server.um_groups_users_get(group_id, depth=1).items:
-                    old_group_user_ids.append(u.id)
-
-                all_users = user_management_server.um_users_get(depth=2)
-                new_group_user_ids = []
-
-                for u in module.params.get('users'):
-                    user_id = get_resource_id(module, all_users, u, [['id'], ['properties', 'email']])
-                    if user_id is None:
-                        module.fail_json(msg="User '{}' not found!".format(u))
-                    new_group_user_ids.append(user_id)
-
-                for user_id in old_group_user_ids:
-                    if user_id not in new_group_user_ids:
-                        user_management_server.um_groups_users_delete(
-                            group_id=group_response.id,
-                            user_id=user_id
-                        )
-
-                for user_id in new_group_user_ids:
-                    if user_id not in old_group_user_ids:
-                        _, _, headers = user_management_server.um_groups_users_post_with_http_info(
-                            group_id=group_response.id,
-                            user=User(id=user_id)
-                        )
-
-                        request_id = _get_request_id(headers['Location'])
-                        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-                # update group_response to contain changed user list
-                group_response = user_management_server.um_groups_find_by_id(group_response.id, depth=1)
-
-            return {
-                'changed': True,
-                'failed': False,
-                'action': 'update',
-                'group': group_response.to_dict()
-            }
-        else:
-            module.fail_json(msg='Group \'%s\' not found.' % str(name))
-
-    except Exception as e:
+        return group_response
+    except ApiException as e:
         module.fail_json(msg="failed to update the group: %s" % to_native(e))
 
 
-def delete_group(module, client):
-    """
-    Removes a group
+def _remove_object(module, client, existing_object):
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        True if the group was removed, false otherwise
-    """
-    name = module.params.get('name')
-
-    # Locate UUID for the group
-    group_id = get_resource_id(module, client.um_groups_get(depth=2), name)
-
-    if not group_id:
-        module.exit_json(changed=False)
-
-    if module.check_mode:
-        module.exit_json(changed=True)
+    um_api = ionoscloud.UserManagementApi(client)
 
     try:
-        client.um_groups_delete(group_id=group_id)
+        _, _, headers = um_api.um_groups_delete_with_http_info(existing_object.id)
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to remove the group: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if module.params.get('do_not_replace'):
+            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
         return {
-            'action': 'delete',
             'changed': True,
-            'id': group_id
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
         }
 
-    except Exception as e:
-        module.fail_json(msg="failed to remove the group: %s" % to_native(e))
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
+
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
+
+
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
+
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    _remove_object(module, client, existing_object)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.id,
+    }
+
 
 def get_module_arguments():
     arguments = {}
