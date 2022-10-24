@@ -116,7 +116,7 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
   | name | False | str |  | The name of the NAT Gateway rule. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | nat_gateway_id | True | str |  | The ID of the NAT Gateway. |
-  | nat_gateway_rule_id | False | str |  | The ID of the NAT Gateway rule. |
+  | nat_gateway_rule | True | str |  | The ID or name of the NAT Gateway rule. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -161,7 +161,7 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
   | target_port_range | False | dict |  | Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | nat_gateway_id | True | str |  | The ID of the NAT Gateway. |
-  | nat_gateway_rule_id | False | str |  | The ID of the NAT Gateway rule. |
+  | nat_gateway_rule | True | str |  | The ID or name of the NAT Gateway rule. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
