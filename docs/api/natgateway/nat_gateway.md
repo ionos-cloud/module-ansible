@@ -98,7 +98,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the NAT Gateway. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
-  | nat_gateway_id | False | str |  | The ID of the NAT Gateway. |
+  | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -134,7 +134,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
   | public_ips | False | list |  | Collection of public IP addresses of the NAT Gateway. Should be customer reserved IP addresses in that location. |
   | lans | False | list |  | Collection of LANs connected to the NAT Gateway. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
-  | nat_gateway_id | False | str |  | The ID of the NAT Gateway. |
+  | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
