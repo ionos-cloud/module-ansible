@@ -23,7 +23,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
     network_load_balancer_flowlog:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-      flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
+      flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
       name: "{{ name }}"
       action: "ALL"
       direction: "INGRESS"
@@ -37,7 +37,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
     network_load_balancer_flowlog:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-      flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
+      flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
       state: absent
   
 ```
@@ -71,7 +71,6 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
   | bucket | True | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
-  | flowlog_id | False | str |  | The ID of the Flowlog. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -91,7 +90,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
     network_load_balancer_flowlog:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-      flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
+      flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
       state: absent
   
 ```
@@ -103,7 +102,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
   | name | False | str |  | The name of the flowlog. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
-  | flowlog_id | False | str |  | The ID of the Flowlog. |
+  | flowlog | True | str |  | The ID or name of the Flowlog. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -123,7 +122,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
     network_load_balancer_flowlog:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-      flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
+      flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
       name: "{{ name }}"
       action: "ALL"
       direction: "INGRESS"
@@ -144,7 +143,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
   | bucket | False | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
-  | flowlog_id | False | str |  | The ID of the Flowlog. |
+  | flowlog | True | str |  | The ID or name of the Flowlog. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

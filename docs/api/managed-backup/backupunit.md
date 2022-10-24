@@ -50,6 +50,7 @@ This is a simple module that supports creating or removing Backup Units. This mo
   | name | True | str |  | The name of the virtual Backup Unit. |
   | backupunit_password | False | str |  | The password of the Backup Unit. |
   | backupunit_email | True | str |  | The email of the Backup Unit. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -75,7 +76,6 @@ This is a simple module that supports creating or removing Backup Units. This mo
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the virtual Backup Unit. |
   | backupunit | True | str |  | The ID or name of the virtual Backup Unit. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -104,8 +104,8 @@ This is a simple module that supports creating or removing Backup Units. This mo
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the virtual Backup Unit. |
   | backupunit | True | str |  | The ID or name of the virtual Backup Unit. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |

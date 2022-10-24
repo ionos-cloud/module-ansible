@@ -28,7 +28,7 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
     nat_gateway_rule:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-      nat_gateway_rule_id: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
+      nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
       public_ip: "{{ ipblock_response.ipblock.properties.ips[1] }}"
       name: "{{ name }} - UPDATED"
       type: "SNAT"
@@ -43,7 +43,7 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
     nat_gateway_rule:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-      nat_gateway_rule_id: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
+      nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
       state: absent
   
 ```
@@ -104,7 +104,7 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
     nat_gateway_rule:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-      nat_gateway_rule_id: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
+      nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
       state: absent
   
 ```
@@ -136,7 +136,7 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
     nat_gateway_rule:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-      nat_gateway_rule_id: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
+      nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
       public_ip: "{{ ipblock_response.ipblock.properties.ips[1] }}"
       name: "{{ name }} - UPDATED"
       type: "SNAT"
