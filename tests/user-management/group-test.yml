@@ -97,12 +97,12 @@
 
     - name: Delete user1
       user:
-        email: "{{ random_user1 }}"
+        user: "{{ random_user1 }}"
         state: absent
 
     - name: Delete user2
       user:
-        email: "{{ random_user2 }}"
+        user: "{{ random_user2 }}"
         state: absent
 
     - name: Delete group

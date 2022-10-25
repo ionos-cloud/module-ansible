@@ -19,7 +19,7 @@ This module allows you to create, update or remove a group.
 # Update a group
   - name: Update group
     group:
-      name: guests
+      group: guests
       create_datacenter: false
       users:
         - john.smith@test.com
@@ -28,7 +28,7 @@ This module allows you to create, update or remove a group.
 # Remove a group
   - name: Remove group
     group:
-      name: guests
+      group: guests
       state: absent
   
 ```
@@ -86,7 +86,7 @@ This module allows you to create, update or remove a group.
   # Remove a group
   - name: Remove group
     group:
-      name: guests
+      group: guests
       state: absent
   
 ```
@@ -95,7 +95,7 @@ This module allows you to create, update or remove a group.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the group. |
+  | name | False | str |  | The name of the group. |
   | group | True | str |  | The ID or name of the group. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -114,7 +114,7 @@ This module allows you to create, update or remove a group.
   # Update a group
   - name: Update group
     group:
-      name: guests
+      group: guests
       create_datacenter: false
       users:
         - john.smith@test.com
@@ -126,7 +126,7 @@ This module allows you to create, update or remove a group.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the group. |
+  | name | False | str |  | The name of the group. |
   | group | True | str |  | The ID or name of the group. |
   | create_datacenter | False | bool |  | Boolean value indicating if the group is allowed to create virtual data centers. |
   | create_snapshot | False | bool |  | Boolean value indicating if the group is allowed to create snapshots. |

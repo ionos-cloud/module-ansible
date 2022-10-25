@@ -71,5 +71,5 @@
     
     - name: Delete user
       user:
-        email: "{{ random_user }}"
+        user: "{{ random_user }}"
         state: absent

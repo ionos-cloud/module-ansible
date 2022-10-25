@@ -41,7 +41,7 @@ OPTIONS = {
     'name': {
         'description': ['The name of the group.'],
         'available': STATES,
-        'required': STATES,
+        'required': ['present'],
         'type': 'str',
     },
     'group': {
@@ -221,7 +221,7 @@ EXAMPLE_PER_STATE = {
   'update' : '''# Update a group
   - name: Update group
     group:
-      name: guests
+      group: guests
       create_datacenter: false
       users:
         - john.smith@test.com
@@ -230,7 +230,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''# Remove a group
   - name: Remove group
     group:
-      name: guests
+      group: guests
       state: absent
   ''',
 }
@@ -295,7 +295,7 @@ def _should_update_object(module, existing_object):
         module.params.get('name') is not None
         and existing_object.properties.name != module.params.get('name')
         or module.params.get('create_datacenter') is not None
-        and existing_object.properties.create_datacenter != module.params.get('create_datacenter')
+        and existing_object.properties.create_data_center != module.params.get('create_datacenter')
         or module.params.get('create_snapshot') is not None
         and existing_object.properties.create_snapshot != module.params.get('create_snapshot')
         or module.params.get('reserve_ip') is not None
@@ -354,7 +354,7 @@ def _create_object(module, client, existing_object=None):
 
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
-        create_datacenter = existing_object.properties.create_datacenter if create_datacenter is None else create_datacenter
+        create_datacenter = existing_object.properties.create_data_center if create_datacenter is None else create_datacenter
         create_snapshot = existing_object.properties.create_snapshot if create_snapshot is None else create_snapshot
         reserve_ip = existing_object.properties.reserve_ip if reserve_ip is None else reserve_ip
         access_activity_log = existing_object.properties.access_activity_log if access_activity_log is None else access_activity_log
@@ -391,7 +391,7 @@ def _create_object(module, client, existing_object=None):
     ))
 
     try:
-        response, _, headers = um_api.um_groups_post_with_http_info(group)
+        group_response, _, headers = um_api.um_groups_post_with_http_info(group)
 
         if wait or module.params.get('users') is not None:
             request_id = _get_request_id(headers['Location'])
@@ -429,10 +429,10 @@ def _create_object(module, client, existing_object=None):
                     client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
             # update group_response to contain changed user list
-            group_response = um_api.um_groups_find_by_id(group_response.id, depth=1)
+            group_response = um_api.um_groups_find_by_id(group_response.id, depth=2)
     except ApiException as e:
         module.fail_json(msg="failed to create the new group: %s" % to_native(e))
-    return response
+    return group_response
 
 
 def _update_object(module, client, existing_object):
@@ -452,7 +452,7 @@ def _update_object(module, client, existing_object):
     manage_dbaas = module.params.get('manage_dbaas')
 
     name = existing_object.properties.name if name is None else name
-    create_datacenter = existing_object.properties.create_datacenter if create_datacenter is None else create_datacenter
+    create_datacenter = existing_object.properties.create_data_center if create_datacenter is None else create_datacenter
     create_snapshot = existing_object.properties.create_snapshot if create_snapshot is None else create_snapshot
     reserve_ip = existing_object.properties.reserve_ip if reserve_ip is None else reserve_ip
     access_activity_log = existing_object.properties.access_activity_log if access_activity_log is None else access_activity_log
@@ -491,7 +491,7 @@ def _update_object(module, client, existing_object):
     group = Group(properties=group_properties)
 
     try:
-        group, _, headers = um_api.um_groups_put_with_http_info(
+        group_response, _, headers = um_api.um_groups_put_with_http_info(
             existing_object.id, group,
         )
         if wait or module.params.get('users') is not None:
@@ -530,7 +530,7 @@ def _update_object(module, client, existing_object):
                     client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
             # update group_response to contain changed user list
-            group_response = um_api.um_groups_find_by_id(group_response.id, depth=1)
+            group_response = um_api.um_groups_find_by_id(group_response.id, depth=2)
 
         return group_response
     except ApiException as e:
@@ -721,17 +721,18 @@ def main():
     with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
         api_client.user_agent = USER_AGENT
         check_required_arguments(module, state, OBJECT_NAME)
-        api_instance = ionoscloud.UserManagementApi(api_client)
 
         try:
             if state == 'absent':
-                module.exit_json(**delete_group(module, api_instance))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'present':
-                module.exit_json(**create_group(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_group(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(
+                object_name=OBJECT_NAME, error=to_native(e), state=state,
+            ))
 
 
 if __name__ == '__main__':
