@@ -220,6 +220,7 @@ def create_s3key(module, client):
     key_id = module.params.get('key_id')
     active = module.params.get('active')
     wait_timeout = int(module.params.get('wait_timeout'))
+    changed = False
 
     user_s3keys_server = ionoscloud.UserS3KeysApi(client)
     s3key_list = user_s3keys_server.um_users_s3keys_get(user_id=user_id, depth=1)
@@ -231,12 +232,13 @@ def create_s3key(module, client):
             s3key = s3key_list.items[0]
 
         if not s3key:
+            changed = True
             s3key, _, headers = user_s3keys_server.um_users_s3keys_post_with_http_info(user_id=user_id)
 
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
         if s3key.properties.active != active:
-
+            changed = True
             s3key, _, headers = user_s3keys_server.um_users_s3keys_put_with_http_info(
                 user_id, s3key.id, S3Key(properties=S3KeyProperties(active=active)),
             )
@@ -246,7 +248,7 @@ def create_s3key(module, client):
                 client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
         return {
-            'changed': True,
+            'changed': changed,
             'failed': False,
             'action': 'create',
             's3key': s3key.to_dict()
