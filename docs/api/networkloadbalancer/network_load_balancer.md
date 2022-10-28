@@ -22,7 +22,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
   - name: Update Network Load Balancer
     network_load_balancer:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       name: "{{ name }} - UPDATE"
       listener_lan: "{{ listener_lan.lan.id }}"
       target_lan: "{{ target_lan.lan.id }}"
@@ -33,7 +33,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   - name: Remove Network Load Balancer
     network_load_balancer:
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       wait: true
       state: absent
@@ -86,7 +86,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
   
   - name: Remove Network Load Balancer
     network_load_balancer:
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
       wait: true
       state: absent
@@ -99,7 +99,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the Network Loadbalancer. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
-  | network_load_balancer_id | False | str |  | The ID of the Network Loadbalancer. |
+  | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -118,7 +118,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
   - name: Update Network Load Balancer
     network_load_balancer:
       datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       name: "{{ name }} - UPDATE"
       listener_lan: "{{ listener_lan.lan.id }}"
       target_lan: "{{ target_lan.lan.id }}"
@@ -138,7 +138,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
   | target_lan | True | str |  | ID of the balanced private target LAN (outbound). |
   | lb_private_ips | False | list |  | Collection of private IP addresses with subnet mask of the Network Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
-  | network_load_balancer_id | False | str |  | The ID of the Network Loadbalancer. |
+  | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

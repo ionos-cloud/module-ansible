@@ -17,9 +17,20 @@
       debug:
         msg: "{{ create_result }}"
 
+    - name: Recreate backupunit
+      backupunit:
+        backupunit_email: "{{ email }}"
+        backupunit_password: "{{ password }}"
+        name: "My {{ name }} UPDATED"
+      register: create_result
+
+    - name: Debug - Show backupunit
+      debug:
+        msg: "{{ create_result }}"
+
     - name: Update a backupunit
       backupunit:
-        backupunit_id: "{{ create_result.backupunit.id }}"
+        backupunit: "{{ create_result.backupunit.id }}"
         backupunit_email: "{{ updated_email }}"
         backupunit_password:  "{{ updated_password }}"
         state: update
@@ -31,7 +42,7 @@
 
     - name: Remove backupunit
       backupunit:
-        backupunit_id: "{{ create_result.backupunit.id }}"
+        backupunit: "{{ create_result.backupunit.id }}"
         state: absent
         wait: true
       register: delete_result
@@ -40,10 +51,9 @@
       debug:
         msg: "{{ delete_result }}"
 
-
     - name: Remove backupunit
       backupunit:
-        backupunit_id: "{{ create_result.backupunit.id }}"
+        backupunit: "{{ create_result.backupunit.id }}"
         state: absent
         wait: true
       register: delete_result
