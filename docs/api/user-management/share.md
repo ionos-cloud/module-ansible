@@ -64,6 +64,7 @@ This module allows you to add, update or remove resource shares.
   | group | True | str |  | The name or ID of the group. |
   | resource_ids | True | list |  | A list of resource IDs to add, update or remove as shares. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -94,6 +95,7 @@ This module allows you to add, update or remove resource shares.
   | group | True | str |  | The name or ID of the group. |
   | resource_ids | True | list |  | A list of resource IDs to add, update or remove as shares. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -126,6 +128,7 @@ This module allows you to add, update or remove resource shares.
   | group | True | str |  | The name or ID of the group. |
   | resource_ids | True | list |  | A list of resource IDs to add, update or remove as shares. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

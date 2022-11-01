@@ -48,6 +48,7 @@ This is a simple module that supports creating or removing S3Keys.
   | user_id | True | str |  | The ID of the user |
   | idempotency | False | bool | False | Flag that dictates respecting idempotency. If an s3key already exists, returns with already existing key instead of creating more. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -76,6 +77,7 @@ This is a simple module that supports creating or removing S3Keys.
   | user_id | True | str |  | The ID of the user |
   | key_id | True | str |  | The ID of the S3 key. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -106,6 +108,7 @@ This is a simple module that supports creating or removing S3Keys.
   | user_id | True | str |  | The ID of the user |
   | key_id | True | str |  | The ID of the S3 key. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

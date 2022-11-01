@@ -65,6 +65,7 @@ modules_to_generate = [
     'application_load_balancer_forwardingrule',
     'application_load_balancer',
     'target_group',
+    'cube_server',
     'datacenter',
     'firewall_rule',
     'image',
@@ -85,6 +86,9 @@ modules_to_generate = [
     'postgres_cluster',
     'postgres_backup_info',
     'postgres_cluster_info',
+    'mongo_cluster_info',
+    'mongo_cluster_template_info',
+    'mongo_cluster',
     'backupunit',
     'k8s_cluster',
     'k8s_config',
@@ -100,6 +104,8 @@ modules_to_generate = [
     's3key_info',
     'share',
     'user',
+    'certificate',
+    'certificate_info'
 ]
 
 for module_name in modules_to_generate:

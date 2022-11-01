@@ -93,9 +93,11 @@ This is a simple module that supports creating or removing Application Loadbalan
   | client_timeout | False | int |  | The maximum time in milliseconds to wait for the client to acknowledge or send data; default is 50,000 (50 seconds). |
   | http_rules | False | list |  | An array of items in the collection. The original order of rules is perserved during processing, except for Forward-type rules are processed after the rules with other action defined. The relative order of Forward-type rules is also preserved during the processing. |
   | server_certificates | False | list |  | An array of items in the collection. |
+  | new_server_certificates | False | list |  | An array of dict with information used to uploade new certificates and add them to the forwarding rule.A dict should contain 'certificate_file', 'private_key_file', 'certificate_chain_file'(optional), 'certificate_name' as keys.File paths should be absolute. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | application_load_balancer_id | True | str |  | The ID of the Application Loadbalancer. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -127,6 +129,7 @@ This is a simple module that supports creating or removing Application Loadbalan
   | application_load_balancer_id | True | str |  | The ID of the Application Loadbalancer. |
   | forwarding_rule_id | False | str |  | The ID of the Application Loadbalancer forwarding rule. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -165,10 +168,12 @@ This is a simple module that supports creating or removing Application Loadbalan
   | client_timeout | False | int |  | The maximum time in milliseconds to wait for the client to acknowledge or send data; default is 50,000 (50 seconds). |
   | http_rules | False | list |  | An array of items in the collection. The original order of rules is perserved during processing, except for Forward-type rules are processed after the rules with other action defined. The relative order of Forward-type rules is also preserved during the processing. |
   | server_certificates | False | list |  | An array of items in the collection. |
+  | new_server_certificates | False | list |  | An array of dict with information used to uploade new certificates and add them to the forwarding rule.A dict should contain 'certificate_file', 'private_key_file', 'certificate_chain_file'(optional), 'certificate_name' as keys.File paths should be absolute. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | application_load_balancer_id | True | str |  | The ID of the Application Loadbalancer. |
   | forwarding_rule_id | False | str |  | The ID of the Application Loadbalancer forwarding rule. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

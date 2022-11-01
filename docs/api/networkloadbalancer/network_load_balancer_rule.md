@@ -84,6 +84,7 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -115,6 +116,7 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
   | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
   | forwarding_rule_id | False | str |  | The ID of the Network Loadbalancer forwarding rule. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
@@ -157,6 +159,7 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
   | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
   | forwarding_rule_id | False | str |  | The ID of the Network Loadbalancer forwarding rule. |
   | api_url | False | str |  | The Ionos API base URL. |
+  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
   | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

@@ -58,6 +58,12 @@ OPTIONS = {
         'available': STATES,
         'type': 'str',
     },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
+        'available': STATES,
+        'type': 'str',
+    },
     'username': {
         # Required if no token, checked manually
         'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
@@ -284,8 +290,9 @@ def get_module_arguments():
 def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
-    api_url = module.params.get('api_url')
     token = module.params.get('token')
+    api_url = module.params.get('api_url')
+    certificate_fingerprint = module.params.get('certificate_fingerprint')
 
     if token is not None:
         # use the token instead of username & password
@@ -302,6 +309,9 @@ def get_sdk_config(module, sdk):
     if api_url is not None:
         conf['host'] = api_url
         conf['server_index'] = None
+
+    if certificate_fingerprint is not None:
+        conf['fingerprint'] = certificate_fingerprint
 
     return sdk.Configuration(**conf)
 

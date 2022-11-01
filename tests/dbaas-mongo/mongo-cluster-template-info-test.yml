@@ -1,0 +1,12 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: List Postgres Cluster Templates
+      postgres_backup_info:
+      register: mongo_cluster_templates_response
+
+    # - name: Show Postgres Cluster Templates
+    #   debug:
+    #     var: mongo_cluster_templates_response.result
