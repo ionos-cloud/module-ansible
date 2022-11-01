@@ -214,9 +214,9 @@ def create_registry(module, container_registry_client):
     name = module.params.get('name')
     location = module.params.get('location')
 
-    registries_server = ionoscloud_container_registry.RegistriesApi(container_registry_client)
+    registries_api = ionoscloud_container_registry.RegistriesApi(container_registry_client)
 
-    registries_list = registries_server.registries_get()
+    registries_list = registries_api.registries_get()
 
     existing_registry_by_name = get_resource(module, registries_list, name)
 
@@ -237,7 +237,7 @@ def create_registry(module, container_registry_client):
     registry = ionoscloud_container_registry.PostRegistryInput(properties=registry_properties)
 
     try:
-        registry = registries_server.registries_post(registry)
+        registry = registries_api.registries_post(registry)
 
         return {
             'changed': True,
@@ -255,13 +255,13 @@ def create_registry(module, container_registry_client):
 
 
 def delete_registry(module, container_registry_client):
-    registries_server = ionoscloud_container_registry.RegistriesApi(container_registry_client)
-    names_server = ionoscloud_container_registry.NamesApi(container_registry_client)
+    registries_api = ionoscloud_container_registry.RegistriesApi(container_registry_client)
+    names_api = ionoscloud_container_registry.NamesApi(container_registry_client)
 
     registry_id = module.params.get('registry_id')
     registry_name = module.params.get('name')
 
-    registries_list = registries_server.registries_get()
+    registries_list = registries_api.registries_get()
 
     if registry_id:
         registry = get_resource(module, registries_list, registry_id)
@@ -269,12 +269,12 @@ def delete_registry(module, container_registry_client):
         registry = get_resource(module, registries_list, registry_name)
 
     try:
-        registries_server.registries_delete(registry.id)
+        registries_api.registries_delete(registry.id)
 
         if module.params.get('wait'):
             try:
                 container_registry_client.wait_for(
-                    fn_request=lambda: names_server.names_find_by_name(registry.properties.name),
+                    fn_request=lambda: names_api.names_check_usage(registry.properties.name),
                     fn_check=lambda _: False,
                     scaleup=10000,
                 )
@@ -297,7 +297,7 @@ def delete_registry(module, container_registry_client):
 
 
 def update_registry(module, container_registry_client):
-    registries_server = ionoscloud_container_registry.RegistriesApi(container_registry_client)
+    registries_api = ionoscloud_container_registry.RegistriesApi(container_registry_client)
 
     garbage_collection_schedule = module.params.get('garbage_collection_schedule')
     if garbage_collection_schedule:
@@ -308,7 +308,7 @@ def update_registry(module, container_registry_client):
     registry_id = module.params.get('registry_id')
     registry_name = module.params.get('name')
 
-    registries_list = registries_server.registries_get()
+    registries_list = registries_api.registries_get()
 
     if registry_id:
         registry = get_resource(module, registries_list, registry_id)
@@ -320,7 +320,7 @@ def update_registry(module, container_registry_client):
     )
 
     try:
-        registry = registries_server.registries_patch(
+        registry = registries_api.registries_patch(
             registry_id=registry.id,
             patch_registry_input=registry_properties,
         )
