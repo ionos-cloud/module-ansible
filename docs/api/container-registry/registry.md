@@ -9,12 +9,7 @@ This is a module that supports creating, updating or destroying Registries
 - name: Create Registry
     registry:
       name: test_registry
-      location: es/vit
-      maintenance_window:
-        days: 
-            - Tuesday
-            - Sunday
-        time: 01:23:00+00:00
+      location: de/fra
       garbage_collection_schedule:
         days: 
             - Wednesday
@@ -24,11 +19,6 @@ This is a module that supports creating, updating or destroying Registries
 - name: Update Registry
     registry:
       name: test_registry
-      maintenance_window:
-        days: 
-            - Tuesday
-            - Sunday
-        time: 01:23:00+00:00
       garbage_collection_schedule:
         days: 
             - Wednesday
@@ -51,12 +41,7 @@ This is a module that supports creating, updating or destroying Registries
   - name: Create Registry
     registry:
       name: test_registry
-      location: es/vit
-      maintenance_window:
-        days: 
-            - Tuesday
-            - Sunday
-        time: 01:23:00+00:00
+      location: de/fra
       garbage_collection_schedule:
         days: 
             - Wednesday
@@ -69,7 +54,6 @@ This is a module that supports creating, updating or destroying Registries
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | maintenance_window | False | dict |  | Dict containing &quot;time&quot; (the time of the day when to perform the maintenance) and &quot;days&quot; (the days when to perform the maintenance). |
   | garbage_collection_schedule | False | dict |  | Dict containing &quot;time&quot; (the time of the day when to perform the garbage_collection) and &quot;days&quot; (the days when to perform the garbage_collection). |
   | location | True | str |  | The location of your registry |
   | name | True | str |  | The name of your registry. |
@@ -116,11 +100,6 @@ This is a module that supports creating, updating or destroying Registries
   - name: Update Registry
     registry:
       name: test_registry
-      maintenance_window:
-        days: 
-            - Tuesday
-            - Sunday
-        time: 01:23:00+00:00
       garbage_collection_schedule:
         days: 
             - Wednesday
@@ -133,7 +112,6 @@ This is a module that supports creating, updating or destroying Registries
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | maintenance_window | False | dict |  | Dict containing &quot;time&quot; (the time of the day when to perform the maintenance) and &quot;days&quot; (the days when to perform the maintenance). |
   | garbage_collection_schedule | False | dict |  | Dict containing &quot;time&quot; (the time of the day when to perform the garbage_collection) and &quot;days&quot; (the days when to perform the garbage_collection). |
   | name | False | str |  | The name of your registry. |
   | registry_id | False | str |  | The ID of an existing Registry. |

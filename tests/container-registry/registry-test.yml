@@ -10,12 +10,7 @@
   - name: Create Registry
     registry:
       name: "{{registry_name}}"
-      location: es/vit
-      maintenance_window:
-        days: 
-            - Tuesday
-            - Sunday
-        time: 01:23:00+00:00
+      location: de/fra
       garbage_collection_schedule:
         days: 
             - Wednesday
@@ -33,10 +28,6 @@
   - name: Update Registry
     registry:
       name: "{{ registry_response.registry.properties.name }}"
-      maintenance_window:
-        days: 
-            - Monday
-        time: 03:23:00+00:00
       garbage_collection_schedule:
         days: 
             - Wednesday

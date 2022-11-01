@@ -28,14 +28,6 @@ STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Registry'
 
 OPTIONS = {
-    'maintenance_window': {
-        'description': [
-            'Dict containing "time" (the time of the day when to perform the maintenance) '
-            'and "days" (the days when to perform the maintenance).',
-        ],
-        'available': ['present', 'update'],
-        'type': 'dict',
-    },
     'garbage_collection_schedule': {
         'description': [
             'Dict containing "time" (the time of the day when to perform the garbage_collection) '
@@ -146,12 +138,7 @@ EXAMPLE_PER_STATE = {
     'present': '''- name: Create Registry
     registry:
       name: test_registry
-      location: es/vit
-      maintenance_window:
-        days: 
-            - Tuesday
-            - Sunday
-        time: 01:23:00+00:00
+      location: de/fra
       garbage_collection_schedule:
         days: 
             - Wednesday
@@ -161,11 +148,6 @@ EXAMPLE_PER_STATE = {
     'update': '''- name: Update Registry
     registry:
       name: test_registry
-      maintenance_window:
-        days: 
-            - Tuesday
-            - Sunday
-        time: 01:23:00+00:00
       garbage_collection_schedule:
         days: 
             - Wednesday
@@ -223,13 +205,6 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
 
 
 def create_registry(module, container_registry_client):
-    maintenance_window = module.params.get('maintenance_window')
-    if maintenance_window:
-        maintenance_window = ionoscloud_container_registry.WeeklySchedule(
-            days=maintenance_window.pop('days'),
-            time=maintenance_window.pop('time'),
-        )
-
     garbage_collection_schedule = module.params.get('garbage_collection_schedule')
     if garbage_collection_schedule:
         garbage_collection_schedule = ionoscloud_container_registry.WeeklySchedule(
@@ -257,7 +232,6 @@ def create_registry(module, container_registry_client):
         name=name,
         location=location,
         garbage_collection_schedule=garbage_collection_schedule,
-        maintenance_window=maintenance_window,
     )
 
     registry = ionoscloud_container_registry.PostRegistryInput(properties=registry_properties)
@@ -325,12 +299,6 @@ def delete_registry(module, container_registry_client):
 def update_registry(module, container_registry_client):
     registries_server = ionoscloud_container_registry.RegistriesApi(container_registry_client)
 
-    maintenance_window = module.params.get('maintenance_window')
-    if maintenance_window:
-        maintenance_window = dict(maintenance_window)
-        maintenance_window['days'] = maintenance_window.pop('days')
-        maintenance_window['time'] = maintenance_window.pop('time')
-
     garbage_collection_schedule = module.params.get('garbage_collection_schedule')
     if garbage_collection_schedule:
         garbage_collection_schedule = dict(garbage_collection_schedule)
@@ -349,7 +317,6 @@ def update_registry(module, container_registry_client):
 
     registry_properties = ionoscloud_container_registry.PatchRegistryInput(
         garbage_collection_schedule=garbage_collection_schedule,
-        maintenance_window=maintenance_window,
     )
 
     try:
