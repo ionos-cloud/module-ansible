@@ -9,7 +9,6 @@
 
   - name: Create Registry
     registry:
-      api_url: https://api.paas-public.k8s.stg.profitbricks.net/cloudapi/v6/containerregistries
       name: "{{registry_name}}"
       location: de/fra
       garbage_collection_schedule:
@@ -20,7 +19,6 @@
 
   - name: Create Registry Token
     registry_token:
-      api_url: https://api.paas-public.k8s.stg.profitbricks.net/cloudapi/v6/containerregistries
       registry_id: "{{ registry_response.registry.id }}"
       name: testRegistryToken
       scopes:
