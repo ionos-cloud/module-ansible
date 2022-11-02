@@ -71,6 +71,7 @@ module: registry_info
 short_description: List Registries
 description:
      - This is a simple module that supports listing existing Registries
+     - ⚠️ **Note:** Container Registry is currently in the Early Access (EA) phase. We recommend keeping usage and testing to non-production critical applications. Please contact your sales representative or support for more information.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(

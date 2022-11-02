@@ -17,7 +17,7 @@ def generate_doc_file(module, module_name, states_parameters, template_file):
                 template_file,
                 {
                     'module_name': module_name,
-                    'description': ''.join(yaml.safe_load(module.DOCUMENTATION)['description']),
+                    'description': '\n\n'.join(yaml.safe_load(module.DOCUMENTATION)['description']),
                     'example': module.EXAMPLES,
                     'states_parameters': states_parameters,
                 },
