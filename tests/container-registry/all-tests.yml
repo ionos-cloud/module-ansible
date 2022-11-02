@@ -1,0 +1,9 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+- name: Run Registry Test
+  import_playbook: registry-test.yml
+
+- name: Run Registry Token Test
+  import_playbook: registry-token-test.yml

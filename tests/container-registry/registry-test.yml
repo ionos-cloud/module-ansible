@@ -1,0 +1,43 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+
+  - name: Create Registry
+    registry:
+      name: "{{registry_name}}"
+      location: de/fra
+      garbage_collection_schedule:
+        days: 
+            - Wednesday
+        time: 04:17:00+00:00
+    register: registry_response
+
+  - name: List Registries
+    registry_info:
+    register: registries_response
+
+  - name: Show Registries
+    debug:
+      var: registries_response.result
+
+  - name: Update Registry
+    registry:
+      name: "{{ registry_response.registry.properties.name }}"
+      garbage_collection_schedule:
+        days: 
+            - Wednesday
+            - Sunday
+        time: 06:17:00+00:00
+      state: update
+    register: updated_registry_response
+
+  - name: Delete Registry
+    registry:
+      name: "{{ registry_response.registry.properties.name }}"
+      wait: true
+      state: absent

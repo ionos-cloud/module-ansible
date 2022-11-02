@@ -119,6 +119,8 @@ jobs:
             keywords: "network_load_balancer, network"
           - namespace: certificate-manager
             keywords: "certificate"
+          - namespace: container-registry
+            keywords: "registry"
 
     env:
       python-version: 3.8.0
@@ -148,6 +150,7 @@ jobs:
           python3 -m pip install ionoscloud-cert-manager
           python3 -m pip install ionoscloud-dbaas-postgres
           python3 -m pip install ionoscloud-dbaas-mongo
+          python3 -m pip install ionoscloud-container-registry
 
       - name: Install Ansible
         run: |

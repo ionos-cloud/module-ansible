@@ -1,0 +1,72 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+
+  - name: Create Registry
+    registry:
+      name: "{{registry_name}}"
+      location: de/fra
+      garbage_collection_schedule:
+        days: 
+          - Wednesday
+        time: 04:17:00+00:00
+    register: registry_response
+
+  - name: Create Registry Token
+    registry_token:
+      registry_id: "{{ registry_response.registry.id }}"
+      name: testRegistryToken
+      scopes:
+      - actions:
+        - pull
+        - push
+        name: nume
+        type: repo
+      status: enabled
+    register: registry_token_response
+
+  - name: Show Registry Token
+    debug:
+      var: registry_token_response
+
+  - name: List Registry Tokens
+    registry_token_info:
+      registry_id: "{{ registry_response.registry.id }}"
+    register: registry_tokens_response
+
+  - name: Show Registry Tokens
+    debug:
+      var: registry_tokens_response.result
+
+  - name: Update Registry Token
+    registry_token:
+      registry_id: "{{ registry_response.registry.id }}"
+      name: "{{ registry_token_response.registry_token.properties.name }}"
+      scopes:
+      - actions:
+        - pull
+        - push
+        - delete
+        name: nume
+        type: repo1
+      status: disabled
+      state: update
+    register: registry_token_response
+
+  - name: Delete Registry Token
+    registry_token:
+      registry_id: "{{ registry_response.registry.id }}"
+      name: "{{ registry_token_response.registry_token.properties.name }}"
+      state: absent
+    register: registry_token_response
+
+  - name: Delete Registry
+    registry:
+      name: "{{ registry_response.registry.properties.name }}"
+      wait: true
+      state: absent
