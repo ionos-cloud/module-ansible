@@ -299,14 +299,14 @@ def _should_update_object(module, existing_object):
     new_health_check = _get_health_check(module.params.get('health_check'))
 
     def sort_func(el):
-        return el['ip'], el['weigth']
+        return el['ip'], el['port']
 
     if module.params.get('targets'):
-        new_targets = sorted(map(
+        existing_targets = sorted(map(
             lambda x: { 'ip': x.ip, 'port': x.port, 'weight': x.weight },
             existing_object.properties.targets
         ), key=sort_func)
-        existing_targets = sorted(module.params.get('targets'), key=sort_func)
+        new_targets = sorted(module.params.get('targets'), key=sort_func)
 
     return (
         module.params.get('name') is not None

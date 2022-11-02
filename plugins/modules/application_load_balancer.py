@@ -80,6 +80,7 @@ OPTIONS = {
     'application_load_balancer': {
         'description': ['The ID or name of the Application Loadbalancer.'],
         'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
         'type': 'str',
     },
     'api_url': {
@@ -538,9 +539,6 @@ def main():
     with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
         api_client.user_agent = USER_AGENT
         check_required_arguments(module, state, OBJECT_NAME)
-
-        if state == 'absent' and not module.params.get('name') and not module.params.get('application_load_balancer_id'):
-            module.fail_json(msg='either name or application_load_balancer_id parameter is required for {object_name} state present'.format(object_name=OBJECT_NAME))
 
         try:
             if state == 'absent':

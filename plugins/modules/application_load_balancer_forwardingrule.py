@@ -120,6 +120,7 @@ OPTIONS = {
     'forwarding_rule': {
         'description': ['The ID or name of the Application Loadbalancer forwarding rule.'],
         'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
         'type': 'str',
     },
     'api_url': {
@@ -385,18 +386,6 @@ def _should_replace_object(module, existing_object):
 
 
 def _should_update_object(module, existing_object):
-    new_health_check = _get_health_check(module.params.get('health_check'))
-
-    def sort_func(el):
-        return el['ip'], el['weigth']
-
-    if module.params.get('targets'):
-        new_targets = sorted(map(
-            lambda x: { 'ip': x.ip, 'port': x.port, 'weight': x.weight },
-            existing_object.properties.targets
-        ), key=sort_func)
-        existing_targets = sorted(module.params.get('targets'), key=sort_func)
-
     return (
         module.params.get('name') is not None
         and existing_object.properties.name != module.params.get('name')
@@ -712,9 +701,6 @@ def main():
     certificate_manager_api_client.user_agent = CERTIFICATE_MANAGER_USER_AGENT
 
     check_required_arguments(module, state, OBJECT_NAME)
-
-    if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('forwarding_rule_id'):
-        module.fail_json(msg='either name or forwarding_rule_id parameter is required for {object_name} state absent'.format(object_name=OBJECT_NAME))
 
     try:
         if state == 'absent':
