@@ -1,6 +1,11 @@
 # Changelog
 
 
+## 6.4.1
+
+### Features:
+* added new modules for Container Registry (registry, registry_token, registry_info and registry_token_info)
+
 ## 6.4.0
 
 ### Features:
