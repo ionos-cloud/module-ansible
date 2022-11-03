@@ -375,7 +375,7 @@ def create_new_certificates(new_server_certificates, certificate_manager_client)
 
 
 def get_server_certificates(module, certificate_manager_client):
-    existing_certificates = module.params.get('server_certificates')
+    existing_certificates = module.params.get('server_certificates') if module.params.get('server_certificates') else []
     new_certificates = create_new_certificates(module.params.get('new_server_certificates'), certificate_manager_client)
 
     return new_certificates +  existing_certificates
