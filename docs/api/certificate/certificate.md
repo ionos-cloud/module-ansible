@@ -17,7 +17,7 @@ This is a simple module that supports uploading, updating or deleting certificat
 
     - name: Update Certificate
         certificate:
-            certificate_id: "{{ certificate.certificate.id }}"
+            certificate: "{{ certificate.certificate.id }}"
             certificate_name: "{{ certificate_updated_name }}"
             state: update
         register: updated_certificate
@@ -25,8 +25,8 @@ This is a simple module that supports uploading, updating or deleting certificat
 
     - name: Delete Certificate
         certificate:
-        certificate_id: "{{ certificate.certificate.id }}"
-        state: delete
+            certificate: "{{ certificate.certificate.id }}"
+            state: delete
   
 ```
 &nbsp;
@@ -69,8 +69,8 @@ This is a simple module that supports uploading, updating or deleting certificat
   
     - name: Delete Certificate
         certificate:
-        certificate_id: "{{ certificate.certificate.id }}"
-        state: delete
+            certificate: "{{ certificate.certificate.id }}"
+            state: delete
   
 ```
 ### Available parameters for state **absent**:
@@ -78,7 +78,7 @@ This is a simple module that supports uploading, updating or deleting certificat
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | certificate_id | False | str |  | The certificate ID. |
+  | certificate | False | str |  | The certificate name or ID. |
   | certificate_name | False | str |  | The certificate name. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -96,7 +96,7 @@ This is a simple module that supports uploading, updating or deleting certificat
   
     - name: Update Certificate
         certificate:
-            certificate_id: "{{ certificate.certificate.id }}"
+            certificate: "{{ certificate.certificate.id }}"
             certificate_name: "{{ certificate_updated_name }}"
             state: update
         register: updated_certificate
@@ -107,7 +107,7 @@ This is a simple module that supports uploading, updating or deleting certificat
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | certificate_id | True | str |  | The certificate ID. |
+  | certificate | True | str |  | The certificate name or ID. |
   | certificate_name | True | str |  | The certificate name. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
