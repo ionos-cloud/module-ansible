@@ -505,8 +505,8 @@ def main():
                              'run `pip install ionoscloud_container_registry`')
 
 
-    container_registry_api_client = ionoscloud_container_registry.ApiClient(get_sdk_config(module, ionoscloud_container_registry))
-    container_registry_api_client.user_agent = CONTAINER_REGISTRY_USER_AGENT
+    client = ionoscloud_container_registry.ApiClient(get_sdk_config(module, ionoscloud_container_registry))
+    client.user_agent = CONTAINER_REGISTRY_USER_AGENT
 
     state = module.params.get('state')
 
@@ -514,15 +514,16 @@ def main():
 
     try:
         if state == 'present':
-            module.exit_json(**create_registry_token(module, container_registry_api_client))
+            module.exit_json(**create_object(module, client))
         elif state == 'absent':
-            module.exit_json(**delete_registry_token(module, container_registry_api_client))
+            module.exit_json(**remove_object(module, client))
         elif state == 'update':
-            module.exit_json(**update_registry_token(module, container_registry_api_client))
+            module.exit_json(**update_object(module, client))
     except Exception as e:
         module.fail_json(
-            msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e),
-                                                                            state=state))
+            msg='failed to set {object_name} state {state}: {error}'.format(
+                object_name=OBJECT_NAME, error=to_native(e), state=state,
+            ))
 
 
 if __name__ == '__main__':
