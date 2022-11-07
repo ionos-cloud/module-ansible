@@ -26,6 +26,7 @@ CONTAINER_REGISTRY_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-contai
 DOC_DIRECTORY = 'container-registry'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Registry'
+RETURNED_KEY = 'registry'
 
 OPTIONS = {
     'garbage_collection_schedule': {
@@ -38,19 +39,20 @@ OPTIONS = {
     },
     'location': {
         'description': ['The location of your registry'],
-        'available': ['present'],
+        'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'name': {
         'description': ['The name of your registry.'],
-        'available': ['present', 'update', 'absent'],
+        'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
-    'registry_id': {
-        'description': ['The ID of an existing Registry.'],
+    'registry': {
+        'description': ['The ID or name of an existing Registry.'],
         'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
         'type': 'str',
     },
     'api_url': {
@@ -205,141 +207,201 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def create_registry(module, container_registry_client):
-    garbage_collection_schedule = module.params.get('garbage_collection_schedule')
-    if garbage_collection_schedule:
-        garbage_collection_schedule = ionoscloud_container_registry.WeeklySchedule(
-            days=garbage_collection_schedule.pop('days'),
-            time=garbage_collection_schedule.pop('time'),
+def _should_replace_object(module, existing_object):
+    return (
+        module.params.get('location') is not None
+        and existing_object.properties.location != module.params.get('location')
+        or module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+    )
+
+
+def _should_update_object(module, existing_object):
+    gc_schedule = module.params.get('garbage_collection_schedule')
+    return (
+        gc_schedule is not None
+        and (
+            gc_schedule.get('days') is not None
+            and existing_object.properties.garbage_collection_schedule.days != gc_schedule.get('days')
+            or gc_schedule.get('time') is not None
+            and existing_object.properties.garbage_collection_schedule.time != gc_schedule.get('time')
+        )
+    )
+
+
+def _get_object_list(module, client):
+    return ionoscloud_container_registry.RegistriesApi(client).registries_get()
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('registry')
+
+
+def _create_object(module, client, existing_object=None):
+    gc_schedule = module.params.get('garbage_collection_schedule')
+    if gc_schedule:
+        gc_schedule = ionoscloud_container_registry.WeeklySchedule(
+            days=gc_schedule.get('days'),
+            time=gc_schedule.get('time'),
         )
     name = module.params.get('name')
     location = module.params.get('location')
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        location = existing_object.properties.location if location is None else location
+        gc_schedule = existing_object.properties.garbage_collection_schedule if gc_schedule is None else gc_schedule
 
-    registries_api = ionoscloud_container_registry.RegistriesApi(container_registry_client)
-
-    registries_list = registries_api.registries_get()
-
-    existing_registry_by_name = get_resource(module, registries_list, name)
-
-    if existing_registry_by_name is not None:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'registry': existing_registry_by_name.to_dict(),
-        }
+    registries_api = ionoscloud_container_registry.RegistriesApi(client)
 
     registry_properties = ionoscloud_container_registry.PostRegistryProperties(
         name=name,
         location=location,
-        garbage_collection_schedule=garbage_collection_schedule,
+        garbage_collection_schedule=gc_schedule,
     )
 
     registry = ionoscloud_container_registry.PostRegistryInput(properties=registry_properties)
 
     try:
         registry = registries_api.registries_post(registry)
-
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            'registry': registry.to_dict(),
-        }
-    except Exception as e:
-        module.fail_json(msg="failed to create the Registry: %s" % to_native(e))
-        return {
-            'changed': False,
-            'failed': True,
-            'action': 'create',
-        }
+    except ionoscloud_container_registry.ApiException as e:
+        module.fail_json(msg="failed to create the new Registry: %s" % to_native(e))
+    return registry
 
 
-def delete_registry(module, container_registry_client):
-    registries_api = ionoscloud_container_registry.RegistriesApi(container_registry_client)
-    names_api = ionoscloud_container_registry.NamesApi(container_registry_client)
+def _update_object(module, client, existing_object):
+    gc_schedule = module.params.get('garbage_collection_schedule')
+    if gc_schedule:
+        gc_schedule = ionoscloud_container_registry.WeeklySchedule(
+            days=gc_schedule.get('days'),
+            time=gc_schedule.get('time'),
+        )
 
-    registry_id = module.params.get('registry_id')
-    registry_name = module.params.get('name')
+    registries_api = ionoscloud_container_registry.RegistriesApi(client)
 
-    registries_list = registries_api.registries_get()
-
-    if registry_id:
-        registry = get_resource(module, registries_list, registry_id)
-    else:
-        registry = get_resource(module, registries_list, registry_name)
+    registry_properties = ionoscloud_container_registry.PatchRegistryInput(
+        garbage_collection_schedule=gc_schedule,
+    )
 
     try:
-        registries_api.registries_delete(registry.id)
+        registry = registries_api.registries_patch(
+            registry_id=existing_object.id,
+            patch_registry_input=registry_properties,
+        )
+
+        return registry
+    except ionoscloud_container_registry.ApiException as e:
+        module.fail_json(msg="failed to update the Registry: %s" % to_native(e))
+
+
+def _remove_object(module, client, existing_object):
+    registries_api = ionoscloud_container_registry.RegistriesApi(client)
+    names_api = ionoscloud_container_registry.NamesApi(client)
+
+    try:
+        registries_api.registries_delete(existing_object.id)
 
         if module.params.get('wait'):
             try:
-                container_registry_client.wait_for(
-                    fn_request=lambda: names_api.names_check_usage(registry.properties.name),
+                client.wait_for(
+                    fn_request=lambda: names_api.names_check_usage(existing_object.properties.name),
                     fn_check=lambda _: False,
                     scaleup=10000,
                 )
             except ionoscloud_container_registry.ApiException as e:
                 if e.status != 404:
                     raise e
+    except ionoscloud_container_registry.ApiException as e:
+        module.fail_json(msg="failed to remove the Registry: %s" % to_native(e))
 
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if module.params.get('do_not_replace'):
+            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
         return {
-            'action': 'delete',
             'changed': True,
-            'id': registry.id,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
         }
-    except Exception as e:
-        module.fail_json(msg="failed to delete the Registry: %s" % to_native(e))
-        return {
-            'action': 'delete',
-            'changed': False,
-            'id': registry.id,
-        }
-
-
-def update_registry(module, container_registry_client):
-    registries_api = ionoscloud_container_registry.RegistriesApi(container_registry_client)
-
-    garbage_collection_schedule = module.params.get('garbage_collection_schedule')
-    if garbage_collection_schedule:
-        garbage_collection_schedule = dict(garbage_collection_schedule)
-        garbage_collection_schedule['days'] = garbage_collection_schedule.pop('days')
-        garbage_collection_schedule['time'] = garbage_collection_schedule.pop('time')
-
-    registry_id = module.params.get('registry_id')
-    registry_name = module.params.get('name')
-
-    registries_list = registries_api.registries_get()
-
-    if registry_id:
-        registry = get_resource(module, registries_list, registry_id)
-    else:
-        registry = get_resource(module, registries_list, registry_name)
-
-    registry_properties = ionoscloud_container_registry.PatchRegistryInput(
-        garbage_collection_schedule=garbage_collection_schedule,
-    )
-
-    try:
-        registry = registries_api.registries_patch(
-            registry_id=registry.id,
-            patch_registry_input=registry_properties,
-        )
-
+    if _should_update_object(module, existing_object):
+        # Update
         return {
             'changed': True,
             'failed': False,
             'action': 'update',
-            'registry': registry.to_dict(),
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
         }
 
-    except Exception as e:
-        module.fail_json(msg="failed to update the Registry: %s" % to_native(e))
-        return {
-            'changed': False,
-            'failed': True,
-            'action': 'update',
-        }
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
+
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
+
+
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
+
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    _remove_object(module, client, existing_object)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.id,
+    }
 
 
 def get_module_arguments():

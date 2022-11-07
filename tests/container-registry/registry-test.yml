@@ -27,7 +27,7 @@
 
   - name: Update Registry
     registry:
-      name: "{{ registry_response.registry.properties.name }}"
+      registry: "{{ registry_response.registry.properties.name }}"
       garbage_collection_schedule:
         days: 
             - Wednesday
@@ -38,6 +38,6 @@
 
   - name: Delete Registry
     registry:
-      name: "{{ registry_response.registry.properties.name }}"
+      registry: "{{ registry_response.registry.properties.name }}"
       wait: true
       state: absent

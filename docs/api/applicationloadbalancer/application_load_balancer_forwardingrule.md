@@ -127,7 +127,7 @@ This is a simple module that supports creating or removing Application Loadbalan
   | name | False | str |  | The name of the Application Load Balancer forwarding rule. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | application_load_balancer_id | True | str |  | The ID of the Application Loadbalancer. |
-  | forwarding_rule | False | str |  | The ID or name of the Application Loadbalancer forwarding rule. |
+  | forwarding_rule | True | str |  | The ID or name of the Application Loadbalancer forwarding rule. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -171,7 +171,7 @@ This is a simple module that supports creating or removing Application Loadbalan
   | new_server_certificates | False | list |  | An array of dict with information used to uploade new certificates and add them to the forwarding rule.A dict should contain 'certificate_file', 'private_key_file', 'certificate_chain_file'(optional), 'certificate_name' as keys.File paths should be absolute. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | application_load_balancer_id | True | str |  | The ID of the Application Loadbalancer. |
-  | forwarding_rule | False | str |  | The ID or name of the Application Loadbalancer forwarding rule. |
+  | forwarding_rule | True | str |  | The ID or name of the Application Loadbalancer forwarding rule. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

@@ -46,7 +46,7 @@
   - name: Update Registry Token
     registry_token:
       registry_id: "{{ registry_response.registry.id }}"
-      name: "{{ registry_token_response.registry_token.properties.name }}"
+      registry_token: "{{ registry_token_response.registry_token.properties.name }}"
       scopes:
       - actions:
         - pull
@@ -61,12 +61,12 @@
   - name: Delete Registry Token
     registry_token:
       registry_id: "{{ registry_response.registry.id }}"
-      name: "{{ registry_token_response.registry_token.properties.name }}"
+      registry_token: "{{ registry_token_response.registry_token.properties.name }}"
       state: absent
     register: registry_token_response
 
   - name: Delete Registry
     registry:
-      name: "{{ registry_response.registry.properties.name }}"
+      registry: "{{ registry_response.registry.properties.name }}"
       wait: true
       state: absent
