@@ -123,7 +123,7 @@ jobs:
             keywords: "registry"
 
     env:
-      python-version: 3.8.0
+      python-version: 3.8.15
       ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
       IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
       IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
