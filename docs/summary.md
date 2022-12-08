@@ -15,7 +15,7 @@
 * [Testing](usage/testing.md)
 
 ## API
- 
+
 * Application Load Balancer
     * [Application Load Balancer](api/applicationloadbalancer/application_load_balancer.md)
     * [Application Load Balancer Flowlog](api/applicationloadbalancer/application_load_balancer_flowlog.md)
@@ -38,18 +38,18 @@
     * [Snapshot](api/compute-engine/snapshot.md)
     * [Volume](api/compute-engine/volume.md)
 * Container Registry
-  * [Registry](api/container-registry/registry.md)
-  * [Registry Info](api/container-registry/registry_info.md)
-  * [Registry Token](api/container-registry/registry_token.md)
-  * [Registry Token Info](api/container-registry/registry_token_info.md)
+    * [Registry](api/container-registry/registry.md)
+    * [Registry Info](api/container-registry/registry_info.md)
+    * [Registry Token](api/container-registry/registry_token.md)
+    * [Registry Token Info](api/container-registry/registry_token_info.md)
 * DBaaS Mongo
-  * [Mongo Cluster](api/dbaas-mongo/mongo_cluster.md)
-  * [Mongo Cluster Info](api/dbaas-mongo/mongo_cluster_info.md)
-  * [Mongo Cluster Template Info](api/dbaas-mongo/mongo_cluster_template_info.md)
+    * [Mongo Cluster](api/dbaas-mongo/mongo_cluster.md)
+    * [Mongo Cluster Info](api/dbaas-mongo/mongo_cluster_info.md)
+    * [Mongo Cluster Template Info](api/dbaas-mongo/mongo_cluster_template_info.md)
 * DBaaS Postgres
-  * [Postgres Cluster](api/dbaas-postgres/postgres_cluster.md)
-  * [Postgres Cluster Info](api/dbaas-postgres/postgres_cluster_info.md)
-  * [Postgres Backup Info](api/dbaas-postgres/postgres_backup_info.md)
+    * [Postgres Cluster](api/dbaas-postgres/postgres_cluster.md)
+    * [Postgres Cluster Info](api/dbaas-postgres/postgres_cluster_info.md)
+    * [Postgres Backup Info](api/dbaas-postgres/postgres_backup_info.md)
 * Managed Backup
     * [Backup unit](api/managed-backup/backupunit.md)
 * Managed Kubernetes
