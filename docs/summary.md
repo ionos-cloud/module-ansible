@@ -21,6 +21,9 @@
     * [Application Load Balancer Flowlog](api/applicationloadbalancer/application_load_balancer_flowlog.md)
     * [Application Load Balancer Rule](api/applicationloadbalancer/application_load_balancer_rule.md)
     * [Target group](api/applicationloadbalancer/target_group.md)
+* Certificate Manager
+    * [Certificate](api/certificate/certificate.md)
+    * [Certificate info](api/certificate/certificate_info.md)
 * Compute Engine
     * [Cube template](api/compute-engine/cube_template.md)
     * [Datacenter](api/compute-engine/datacenter.md)
@@ -34,6 +37,21 @@
     * [Server](api/compute-engine/server.md)
     * [Snapshot](api/compute-engine/snapshot.md)
     * [Volume](api/compute-engine/volume.md)
+* Container Registry
+  * [Registry](api/container-registry/registry.md)
+  * [Registry Info](api/container-registry/registry_info.md)
+  * [Registry Token](api/container-registry/registry_token.md)
+  * [Registry Token Info](api/container-registry/registry_token_info.md)
+* DBaaS Mongo
+  * [Mongo Cluster](api/dbaas-mongo/mongo_cluster.md)
+  * [Mongo Cluster Info](api/dbaas-mongo/mongo_cluster_info.md)
+  * [Mongo Cluster Template Info](api/dbaas-mongo/mongo_cluster_template_info.md)
+* DBaaS Postgres
+  * [Postgres Cluster](api/dbaas-postgres/postgres_cluster.md)
+  * [Postgres Cluster Info](api/dbaas-postgres/postgres_cluster_info.md)
+  * [Postgres Backup Info](api/dbaas-postgres/postgres_backup_info.md)
+* Managed Backup
+    * [Backup unit](api/managed-backup/backupunit.md)
 * Managed Kubernetes
     * [Kubernetes cluster](api/managed-kubernetes/k8scluster.md)
     * [Kubernetes nodepool](api/managed-kubernetes/k8snodepool.md)
@@ -46,14 +64,8 @@
     * [Network Load Balancer](api/networkloadbalancer/network_load_balancer.md)
     * [Network Load Balancer Flowlog](api/networkloadbalancer/network_load_balancer_flowlog.md)
     * [Network Load Balancer Rule](api/networkloadbalancer/network_load_balancer_rule.md)
-* Managed Backup
-    * [Backup unit](api/managed-backup/backupunit.md)
 * User Management
     * [User](api/user-management/user.md)
     * [Group](api/user-management/group.md)
     * [Share](api/user-management/share.md)
     * [S3key](api/user-management/s3key.md)
-* Dbaas Postgres
-    * [Postgres Cluster](api/dbaas-postgres/postgres_cluster.md)
-    * [Postgres Cluster Info](api/dbaas-postgres/postgres_cluster_info.md)
-    * [Postgres Backup Info](api/dbaas-postgres/postgres_backup_info.md)
