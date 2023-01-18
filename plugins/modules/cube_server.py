@@ -93,14 +93,6 @@ OPTIONS = {
         'required': STATES,
         'type': 'str',
     },
-    'cpu_family': {
-        'description': ['The amount of memory to allocate to the virtual machine.'],
-        'available': ['present'],
-        'choices': ['AMD_OPTERON', 'INTEL_XEON', 'INTEL_SKYLAKE'],
-        'default': 'AMD_OPTERON',
-        'type': 'str',
-        'version_added': '2.2',
-    },
     'availability_zone': {
         'description': ['The availability zone assigned to the server.'],
         'available': ['present'],
@@ -266,7 +258,6 @@ EXAMPLE_PER_STATE = {
         datacenter: Tardis One
         name: web%02d.stackpointcloud.com
         template_id: <template_id>
-        cpu_family: INTEL_XEON
         image: ubuntu:latest
         location: us/las
         count: 3
@@ -278,7 +269,6 @@ EXAMPLE_PER_STATE = {
         instance_ids:
         - web001.stackpointcloud.com
         - web002.stackpointcloud.com
-        cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
   # Rename CUBE Virtual machine
@@ -286,7 +276,6 @@ EXAMPLE_PER_STATE = {
         datacenter: Tardis One
         instance_ids: web001.stackpointcloud.com
         name: web101.stackpointcloud.com
-        cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
 ''',
@@ -395,7 +384,6 @@ def _get_lan_by_id_or_properties(networks, id=None, **kwargs):
 
 
 def _create_machine(module, client, datacenter, name):
-    cpu_family = module.params.get('cpu_family')
     disk_type = module.params.get('disk_type')
     availability_zone = module.params.get('availability_zone')
     image_password = module.params.get('image_password')
@@ -455,7 +443,7 @@ def _create_machine(module, client, datacenter, name):
     server_properties = ServerProperties(template_uuid=template_uuid, name=name,
                                           availability_zone=availability_zone,
                                           boot_cdrom=boot_cdrom, boot_volume=boot_volume,
-                                          cpu_family=cpu_family, type='CUBE')
+                                          type='CUBE')
 
     volume_properties = VolumeProperties(name=str(uuid4()).replace('-', '')[:10],
                                           type=disk_type, image_password=image_password,
@@ -665,7 +653,6 @@ def update_server(module, client):
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
 
-    cpu_family = module.params.get('cpu_family')
     availability_zone = module.params.get('availability_zone')
 
     server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)

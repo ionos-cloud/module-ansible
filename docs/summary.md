@@ -35,6 +35,7 @@
     * [Nic Flowlog](api/compute-engine/nic_flowlog.md)
     * [Private cross connect](api/compute-engine/pcc.md)
     * [Server](api/compute-engine/server.md)
+    * [Cube Server](api/compute-engine/cube_server.md)
     * [Snapshot](api/compute-engine/snapshot.md)
     * [Volume](api/compute-engine/volume.md)
 * Container Registry
