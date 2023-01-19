@@ -45,14 +45,14 @@
       user_roles:
         - role: read
           database: test
-    register: monfo_user_response
+    register: mongo_user_response
 
   - name: Delete Cluster User
     mongo_cluster_user:
       mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
       mongo_username: testuser
       state: absent
-    register: monfo_user_response
+    register: mongo_user_response
 
   - name: Delete Cluster
     mongo_cluster:
