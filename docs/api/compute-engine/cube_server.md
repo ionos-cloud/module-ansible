@@ -11,7 +11,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos CUBE virtual ma
         datacenter: Tardis One
         name: web%02d.stackpointcloud.com
         template_id: <template_id>
-        cpu_family: INTEL_XEON
         image: ubuntu:latest
         location: us/las
         count: 3
@@ -23,7 +22,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos CUBE virtual ma
         instance_ids:
         - web001.stackpointcloud.com
         - web002.stackpointcloud.com
-        cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
   # Rename CUBE Virtual machine
@@ -31,7 +29,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos CUBE virtual ma
         datacenter: Tardis One
         instance_ids: web001.stackpointcloud.com
         name: web101.stackpointcloud.com
-        cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
 
@@ -171,7 +168,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos CUBE virtual ma
         datacenter: Tardis One
         name: web%02d.stackpointcloud.com
         template_id: <template_id>
-        cpu_family: INTEL_XEON
         image: ubuntu:latest
         location: us/las
         count: 3
@@ -190,7 +186,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos CUBE virtual ma
   | ssh_keys | False | list |  | Public SSH keys allowing access to the virtual machine. |
   | user_data | False | str |  | The cloud-init configuration for the volume as base64 encoded string. |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | cpu_family | False | str | AMD_OPTERON | The amount of memory to allocate to the virtual machine. |
   | availability_zone | False | str | AUTO | The availability zone assigned to the server. |
   | bus | False | str | VIRTIO | The bus type for the volume. |
   | count | False | int | 1 | The number of virtual machines to create. |
@@ -222,7 +217,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos CUBE virtual ma
         instance_ids:
         - web001.stackpointcloud.com
         - web002.stackpointcloud.com
-        cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
   # Rename CUBE Virtual machine
@@ -230,7 +224,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos CUBE virtual ma
         datacenter: Tardis One
         instance_ids: web001.stackpointcloud.com
         name: web101.stackpointcloud.com
-        cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
 
