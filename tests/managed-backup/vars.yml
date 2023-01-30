@@ -7,8 +7,8 @@ lan: "AnsibleAutoTestBackup"
 location: gb/lhr
 image: ce08ca15-0adf-11ec-9fa6-1e5ea9024c03
 image_alias: centos:7
-password: qq6mdvirWwj1dsdXjcpp
-updated_password: fjee83jkw940djcer
+password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits,punctuation') }}"
+updated_password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits,punctuation') }}"
 wait_timeout: 500
 email: ansible.test@mail.com
 updated_email: updated.ansible.test@mail.com
