@@ -1,5 +1,11 @@
 # Changelog
 
+## 6.4.2
+
+### Bug fixes:
+* remove cpu_family parameter from cube_server module
+* Cube Server documentation is now available on docs.ionos.com
+
 
 ## 6.4.1
 
