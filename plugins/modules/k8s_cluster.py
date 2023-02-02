@@ -49,7 +49,6 @@ OPTIONS = {
             'Kubernetes versions are viable upgrade targets for all prior versions.',
         ],
         'available': ['present', 'update'],
-        'required': ['update'],
         'type': 'str',
     },
     'maintenance_window': {
