@@ -9,6 +9,7 @@ image: ce08ca15-0adf-11ec-9fa6-1e5ea9024c03
 image_alias: centos:7
 password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}"
 updated_password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}"
+mongo_password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}"
 wait_timeout: 500
 email: ansible.test@mail.com
 updated_email: updated.ansible.test@mail.com
