@@ -41,7 +41,7 @@
     mongo_cluster_user:
       mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
       mongo_username: testuser
-      mongo_password: password123
+      mongo_password: "{{ mongo_password }}"
       user_roles:
         - role: read
           database: test
