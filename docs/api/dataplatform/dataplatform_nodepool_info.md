@@ -1,4 +1,4 @@
-# data_platform_nodepool_info
+# dataplatform_nodepool_info
 
 This is a simple module that supports listing existing DataPlatform Nodepools
 
@@ -8,13 +8,13 @@ This is a simple module that supports listing existing DataPlatform Nodepools
 ```yaml
 
     - name: List DataPlatform Nodepools
-        data_platform_nodepool_info:
-        register: data_platform_nodepools_response
+        dataplatform_nodepool_info:
+        register: dataplatform_nodepools_response
 
 
     - name: Show DataPlatform Clusters
         debug:
-            var: data_platform_nodepools_response.result
+            var: dataplatform_nodepools_response.result
 
 ```
 ### Available parameters:
@@ -22,7 +22,7 @@ This is a simple module that supports listing existing DataPlatform Nodepools
 
 | Name | Required | Type | Default | Description |
 | :--- | :---: | :--- | :--- | :--- |
-| data_platform_cluster_id | True | str |  | The ID of the Data Platform cluster. |
+| dataplatform_cluster_id | True | str |  | The ID of the Data Platform cluster. |
 | api_url | False | str |  | The Ionos API base URL. |
 | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
 | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |

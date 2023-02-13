@@ -6,22 +6,28 @@
   - ./vars.yml
 
   tasks:
+    - name: Create datacenter
+      datacenter:
+        name: "{{ datacenter }} - DBaaS Mongo"
+        location: de/fra
+      register: datacenter_response
+
     - name: Create Data Platform cluster
       dataplatform_cluster:
         name: "{{ name }}"
-        data_platform_version: "1.0.0"
+        dataplatform_version: "1.0.0"
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         maintenance_window:
-        day_of_the_week: "Wednesday"
-        time: "12:02:00"
+          day_of_the_week: "Wednesday"
+          time: "12:02:00"
         state: present
         wait: true
-        register: cluster_response
+      register: cluster_response
 
     - name: Patch Data Platform cluster
       dataplatform_cluster:
         name: "{{ name }}"
-        data_platform_version: "1.0.0"
+        dataplatform_version: "1.0.0"
         id: "{{ cluster_response.cluster.id }}"
         maintenance_window:
         day_of_the_week: "Wednesday"
@@ -31,10 +37,10 @@
 
     - name: Get all Data Platform clusters
       dataplatform_cluster_info:
-        register: cluster_list_response
+      register: cluster_list_response
 
     - name: Get kubeconfig for a specific cluster
-      dataplatform_config:
+      dataplatform_cluster_config:
         id: "{{ cluster_response.cluster.id }}"
 
     - name: Create DataPlatform cluster nodepool
@@ -59,7 +65,7 @@
         ann1: value1
         ann2: value2
         wait: true
-        register: result
+      register: result
 
     - name: Update DataPlatform cluster nodepool
       dataplatform_nodepool:
@@ -94,3 +100,9 @@
       dataplatform_cluster:
         id: "{{ cluster_response.cluster.id }}"
         state: absent
+
+    - name: Remove datacenter
+      datacenter:
+        id: "{{ datacenter_response.datacenter.id }}"
+        state: absent
+        wait: true

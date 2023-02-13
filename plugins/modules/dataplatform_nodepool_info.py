@@ -18,11 +18,17 @@ ANSIBLE_METADATA = {
 }
 DATAPLATFORM_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (
 __version__, ionoscloud_dataplatform.__version__)
-DOC_DIRECTORY = 'data-platform'
+DOC_DIRECTORY = 'dataplatform'
 STATES = ['info']
 OBJECT_NAME = 'DataPlatform Clusters'
 
 OPTIONS = {
+    'dataplatform_cluster_id': {
+        'description': ['The ID of the Data Platform cluster.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -67,10 +73,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: dataplatform_cluster_info
-short_description: List DataPlatform Clusters
+module: dataplatform_nodepool_info
+short_description: List DataPlatform Nodepools
 description:
-     - This is a simple module that supports listing existing DataPlatform Clusters
+     - This is a simple module that supports listing existing DataPlatform Nodepools
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -84,14 +90,14 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: List DataPlatform Clusters
-        dataplatform_cluster_info:
-        register: dataplatform_clusters_response
+    - name: List DataPlatform Nodepools
+        dataplatform_nodepool_info:
+        register: dataplatform_nodepools_response
 
 
     - name: Show DataPlatform Clusters
         debug:
-            var: dataplatform_clusters_response.result
+            var: dataplatform_nodepools_response.result
 '''
 
 
@@ -174,9 +180,10 @@ def main():
 
     check_required_arguments(module, OBJECT_NAME)
     try:
+        dataplatform_cluster_id = module.params.get('dataplatform_cluster_id')
         results = []
-        for cluster in ionoscloud_dataplatform.DataPlatformClusterApi(dataplatform_api_client).get_clusters().items:
-            results.append(cluster.to_dict())
+        for nodepool in ionoscloud_dataplatform.DataPlatformNodePoolApi(dataplatform_api_client).get_cluster_nodepools(cluster_id=dataplatform_cluster_id).items:
+            results.append(nodepool.to_dict())
         module.exit_json(result=results)
     except Exception as e:
         module.fail_json(

@@ -3,4 +3,4 @@
   gather_facts: false
 
 - name: Run DataPlatform Test
-  import_playbook: data-platform-test.yml
+  import_playbook: dataplatform-test.yml

@@ -121,8 +121,8 @@ jobs:
             keywords: "certificate"
           - namespace: container-registry
             keywords: "registry"
-          - namespace: data-platform
-            keywords: "data_platform, data-platform"
+          - namespace: dataplatform
+            keywords: "data_platform, dataplatform"
 
     env:
       python-version: 3.8.15
@@ -153,6 +153,7 @@ jobs:
           python3 -m pip install ionoscloud-dbaas-postgres
           python3 -m pip install ionoscloud-dbaas-mongo
           python3 -m pip install ionoscloud-container-registry
+          python3 -m pip install ionoscloud-dataplatform
 
       - name: Install Ansible
         run: |

@@ -1,16 +1,16 @@
-# data_platform_nodepool
+# dataplatform_nodepool
 
-This is a simple module that supports creating or removing Data Platform Nodepools. This module has a dependency on ionoscloud_dsaas &gt;= 1.0.0
+This is a simple module that supports creating or removing Data Platform Nodepools. This module has a dependency on ionoscloud_dataplatform &gt;= 1.0.0
 
 ## Example Syntax
 
 
 ```yaml
 
-  - name: Create Dsaas Platform nodepool
-    data_platform_nodepool:
+  - name: Create Data Platform nodepool
+    dataplatform_nodepool:
       cluster_name: "{{ name }}"
-      data_platform_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+      dataplatform_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       node_count: "1"
       cpu_family: "AMD_OPTERON"
       cores_count: "1"
@@ -20,10 +20,10 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
       storage_size: "100"
   
 
-  - name: Update Dsaas Platform nodepool
-    data_platform_nodepool:
+  - name: Update Data Platform nodepool
+    dataplatform_nodepool:
       cluster_name: "{{ name }}"
-      data_platform_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+      dataplatform_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
       node_count: 1
       cores_count: "1"
       maintenance_window:
@@ -35,10 +35,10 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
       state: update
   
 
-  - name: Delete Dsaas Platform nodepool
-    data_platform_nodepool:
-      data_platform_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      data_platform_nodepool_id: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
+  - name: Delete Data Platform nodepool
+    dataplatform_nodepool:
+      dataplatform_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+      dataplatform_nodepool_id: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
       state: absent
   
 ```
@@ -49,10 +49,10 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
 # state: **present**
 ```yaml
   
-  - name: Create Dsaas Platform nodepool
-    data_platform_nodepool:
+  - name: Create Data Platform nodepool
+    dataplatform_nodepool:
       cluster_name: "{{ name }}"
-      data_platform_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+      dataplatform_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       node_count: "1"
       cpu_family: "AMD_OPTERON"
       cores_count: "1"
@@ -68,7 +68,7 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | nodepool_name | True | str |  | The name of your node pool. Must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
-  | data_platform_cluster_id | True | str |  | The ID of the Data Platform cluster. |
+  | dataplatform_cluster_id | True | str |  | The ID of the Data Platform cluster. |
   | node_count | False | int |  | The number of nodes that make up the node pool. |
   | cpu_family | True | str |  | A valid CPU family name or `AUTO` if the platform shall choose the best fitting option.Available CPU architectures can be retrieved from the datacenter resource. |
   | cores_count | True | str |  | The number of cores for the node. |
@@ -93,10 +93,10 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
 # state: **absent**
 ```yaml
   
-  - name: Delete Dsaas Platform nodepool
-    data_platform_nodepool:
-      data_platform_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      data_platform_nodepool_id: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
+  - name: Delete Data Platform nodepool
+    dataplatform_nodepool:
+      dataplatform_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+      dataplatform_nodepool_id: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
       state: absent
   
 ```
@@ -105,8 +105,8 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | data_platform_cluster_id | True | str |  | The ID of the Data Platform cluster. |
-  | data_platform_nodepool_id | True | str |  | The ID of the Data Platform nodepool. |
+  | dataplatform_cluster_id | True | str |  | The ID of the Data Platform cluster. |
+  | dataplatform_nodepool_id | True | str |  | The ID of the Data Platform nodepool. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -121,10 +121,10 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
 # state: **update**
 ```yaml
   
-  - name: Update Dsaas Platform nodepool
-    data_platform_nodepool:
+  - name: Update Data Platform nodepool
+    dataplatform_nodepool:
       cluster_name: "{{ name }}"
-      data_platform_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+      dataplatform_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
       node_count: 1
       cores_count: "1"
       maintenance_window:
@@ -142,8 +142,8 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | nodepool_name | False | str |  | The name of your node pool. Must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
-  | data_platform_cluster_id | True | str |  | The ID of the Data Platform cluster. |
-  | data_platform_nodepool_id | True | str |  | The ID of the Data Platform nodepool. |
+  | dataplatform_cluster_id | True | str |  | The ID of the Data Platform cluster. |
+  | dataplatform_nodepool_id | True | str |  | The ID of the Data Platform nodepool. |
   | node_count | False | int |  | The number of nodes that make up the node pool. |
   | maintenance_window | False | dict |  | The maintenance window is used for updating the software on the nodepool's nodes and for upgrading the nodepool's K8s version. If no value is given, one is chosen dynamically, so there is no fixed default. |
   | labels | False | dict |  | Key-value pairs attached to the node pool resource as [Kubernetes labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/) |

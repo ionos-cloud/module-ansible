@@ -1,4 +1,4 @@
-# data_platform_cluster_info
+# dataplatform_cluster_info
 
 This is a simple module that supports listing existing DataPlatform Clusters
 
