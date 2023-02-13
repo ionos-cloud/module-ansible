@@ -28,7 +28,7 @@
       dataplatform_cluster:
         cluster_name: "{{ name }}"
         dataplatform_version: "22.11"
-        id: "{{ cluster_response.cluster.id }}"
+        id: "{{ cluster_response.dataplatform_cluster.id }}"
         maintenance_window:
         day_of_the_week: "Wednesday"
         time: "12:02:00"
@@ -46,7 +46,7 @@
     - name: Create DataPlatform cluster nodepool
       dataplatform_nodepool:
         nodepool_name: "my-nodepool"
-        cluster_id: "{{ cluster_response.cluster.id }}"
+        cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
         node_count: 2
         cpu_family: "INTEL_SKYLAKE"
         cores_count: 1
@@ -69,7 +69,7 @@
 
     - name: Update DataPlatform cluster nodepool
       dataplatform_nodepool:
-        cluster_id: "{{ cluster.cluster.id }}"
+        cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
         id: "{{ result.nodepool.id }}"
         node_count: 2
         maintenance_window:
@@ -86,19 +86,19 @@
 
     - name: Get all DataPlaform nodepools from a specific cluster
       dataplatform_nodepool_info:
-        cluster_id: "{{ cluster_response.cluster.id }}"
+        cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
         register: nodepool_list_response
 
     - name: Delete DataPlatform cluster nodepool
       k8s_nodepool:
-        cluster_id: "{{ cluster.cluster.id }}"
+        cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
         id: "{{ result.nodepool.id }}"
         wait: true
         state: absentcluster_id
 
     - name: Delete Data Platform cluster
       dataplatform_cluster:
-        id: "{{ cluster_response.cluster.id }}"
+        id: "{{ cluster_response.dataplatform_cluster.id }}"
         state: absent
 
     - name: Remove datacenter
