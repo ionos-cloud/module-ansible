@@ -431,7 +431,7 @@ def update_dataplatform_nodepool(module, client):
         dataplatform_nodepool_properties = ionoscloud_dataplatform.PatchNodePoolProperties(
             name=nodepool_name,
             node_count=node_count,
-            dataplatform_version=dataplatform_version,
+            data_platform_version=dataplatform_version,
             maintenance_window=maintenance_window,
             labels=labels,
             annotations=annotations,

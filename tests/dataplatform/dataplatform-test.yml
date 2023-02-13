@@ -14,8 +14,8 @@
 
     - name: Create Data Platform cluster
       dataplatform_cluster:
-        name: "{{ name }}"
-        dataplatform_version: "1.0.0"
+        cluster_name: "{{ name }}"
+        dataplatform_version: "22.11"
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         maintenance_window:
           day_of_the_week: "Wednesday"
@@ -26,8 +26,8 @@
 
     - name: Patch Data Platform cluster
       dataplatform_cluster:
-        name: "{{ name }}"
-        dataplatform_version: "1.0.0"
+        cluster_name: "{{ name }}"
+        dataplatform_version: "22.11"
         id: "{{ cluster_response.cluster.id }}"
         maintenance_window:
         day_of_the_week: "Wednesday"
@@ -45,7 +45,7 @@
 
     - name: Create DataPlatform cluster nodepool
       dataplatform_nodepool:
-        name: "my-nodepool"
+        nodepool_name: "my-nodepool"
         cluster_id: "{{ cluster_response.cluster.id }}"
         node_count: 2
         cpu_family: "INTEL_SKYLAKE"
