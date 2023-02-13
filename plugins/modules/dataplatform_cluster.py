@@ -241,7 +241,7 @@ def create_dataplatform_cluster(module, client):
             'changed': False,
             'failed': False,
             'action': 'create',
-            'cluster': existing_cluster.to_dict(),
+            'dataplatform_cluster': existing_cluster.to_dict(),
         }
 
     try:
@@ -276,7 +276,7 @@ def create_dataplatform_cluster(module, client):
 
     except Exception as e:
         module.fail_json(
-            msg="failed to create the k8s cluster: %s" % to_native(e))
+            msg="failed to create the Data Platform cluster: %s" % to_native(e))
 
 
 def delete_dataplatform_cluster(module, client):
@@ -332,7 +332,7 @@ def update_dataplatform_cluster(module, client):
     
     existing_cluster_id_by_name = get_resource_id(module, dataplatform_cluster_server.get_clusters(), cluster_name)
 
-    if dataplatform_cluster_id is not None and existing_cluster_id_by_name is not None and existing_cluster_id_by_name != k8s_cluster_id:
+    if dataplatform_cluster_id is not None and existing_cluster_id_by_name is not None and existing_cluster_id_by_name != dataplatform_cluster_id:
             module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, cluster_name))
 
     if module.check_mode:

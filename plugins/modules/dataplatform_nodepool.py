@@ -69,13 +69,13 @@ OPTIONS = {
         'description': ['The number of cores for the node.'],
         'available': ['present'],
         'required': ['present'],
-        'type': 'str',
+        'type': 'int',
     },
     'ram_size': {
         'description': ['The RAM size for the node. Must be set in multiples of 1024 MB, with minimum size is of 2048 MB.'],
         'available': ['present'],
         'required': ['present'],
-        'type': 'str',
+        'type': 'int',
     },
     'availability_zone': {
         'description': [
@@ -96,7 +96,7 @@ OPTIONS = {
         'description': ['The size of the volume in GB. The size should be greater than 10GB.'],
         'available': ['present'],
         'required': ['present'],
-        'type': 'str',
+        'type': 'int',
     },
     'maintenance_window': {
         'description': [
@@ -282,7 +282,6 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
 
 def create_dataplatform_nodepool(module, client):
     dataplatform_cluster_id = module.params.get('dataplatform_cluster_id')
-    dataplatform_version = module.params.get('dataplatform_version')
     nodepool_name = module.params.get('nodepool_name')
     node_count = module.params.get('node_count')
     cpu_family = module.params.get('cpu_family')
@@ -325,7 +324,6 @@ def create_dataplatform_nodepool(module, client):
             availability_zone=availability_zone,
             storage_type=storage_type,
             storage_size=storage_size,
-            dataplatform_version=dataplatform_version,
             maintenance_window=maintenance_window,
             labels=labels,
             annotations=annotations,
@@ -403,7 +401,6 @@ def update_dataplatform_nodepool(module, client):
     maintenance = module.params.get('maintenance_window')
     wait = module.params.get('wait')
     nodepool_name = module.params.get('nodepool_name')
-    dataplatform_version = module.params.get('dataplatform_version')
     labels = module.params.get('labels')
     annotations = module.params.get('annotations')
 
@@ -429,9 +426,7 @@ def update_dataplatform_nodepool(module, client):
         module.exit_json(changed=True)
     try:
         dataplatform_nodepool_properties = ionoscloud_dataplatform.PatchNodePoolProperties(
-            name=nodepool_name,
             node_count=node_count,
-            data_platform_version=dataplatform_version,
             maintenance_window=maintenance_window,
             labels=labels,
             annotations=annotations,
