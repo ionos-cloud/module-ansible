@@ -95,12 +95,13 @@
         dataplatform_cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
         dataplatform_nodepool_id: "{{ result.dataplatform_nodepool.id }}"
         wait: true
-        state: absentcluster_id
+        state: absent
 
     - name: Delete Data Platform cluster
       dataplatform_cluster:
         dataplatform_cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
         state: absent
+        wait: true
 
     - name: Remove datacenter
       datacenter:
