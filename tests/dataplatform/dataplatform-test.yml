@@ -88,8 +88,7 @@
     - name: Get all DataPlaform nodepools from a specific cluster
       dataplatform_nodepool_info:
         dataplatform_cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
-        dataplatform_nodepool_id: "{{ result.dataplatform_nodepool.id }}"
-        register: nodepool_list_response
+      register: nodepool_list_response
 
     - name: Delete DataPlatform cluster nodepool
       k8s_nodepool:

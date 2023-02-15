@@ -101,7 +101,7 @@ OPTIONS = {
     'maintenance_window': {
         'description': [
             "The maintenance window is used for updating the software on the nodepool's nodes and for "
-            "upgrading the nodepool's K8s version. If no value is given, one is chosen dynamically, so "
+            "upgrading the nodepool's version. If no value is given, one is chosen dynamically, so "
             "there is no fixed default.",
         ],
         'available': ['present', 'update'],
@@ -396,7 +396,7 @@ def delete_dataplatform_nodepool(module, client):
 
 def update_dataplatform_nodepool(module, client):
     dataplatform_cluster_id = module.params.get('dataplatform_cluster_id')
-    nodepool_id = module.params.get('nodepool_id')
+    nodepool_id = module.params.get('dataplatform_nodepool_id')
     node_count = module.params.get('node_count')
     maintenance = module.params.get('maintenance_window')
     wait = module.params.get('wait')
@@ -432,9 +432,9 @@ def update_dataplatform_nodepool(module, client):
             annotations=annotations,
         )
 
-        k8s_nodepool = ionoscloud_dataplatform.PatchNodePoolRequest(properties=dataplatform_nodepool_properties)
+        dataplatform_nodepool = ionoscloud_dataplatform.PatchNodePoolRequest(properties=dataplatform_nodepool_properties)
         dataplatform_response = dataplatform_nodepool_server.patch_cluster_nodepool(
-            dataplatform_cluster_id, nodepool_id, kubernetes_node_pool=k8s_nodepool,
+            dataplatform_cluster_id, nodepool_id, dataplatform_nodepool,
         )
 
         if wait:
