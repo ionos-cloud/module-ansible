@@ -71,12 +71,12 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
   | dataplatform_cluster_id | True | str |  | The ID of the Data Platform cluster. |
   | node_count | False | int |  | The number of nodes that make up the node pool. |
   | cpu_family | True | str |  | A valid CPU family name or `AUTO` if the platform shall choose the best fitting option.Available CPU architectures can be retrieved from the datacenter resource. |
-  | cores_count | True | str |  | The number of cores for the node. |
-  | ram_size | True | str |  | The RAM size for the node. Must be set in multiples of 1024 MB, with minimum size is of 2048 MB. |
+  | cores_count | True | int |  | The number of cores for the node. |
+  | ram_size | True | int |  | The RAM size for the node. Must be set in multiples of 1024 MB, with minimum size is of 2048 MB. |
   | availability_zone | True | str |  | The availability zone of the virtual datacenter region where the node pool resources should be provisioned. |
   | storage_type | True | str |  | The type of hardware for the volume. |
-  | storage_size | True | str |  | The size of the volume in GB. The size should be greater than 10GB. |
-  | maintenance_window | False | dict |  | The maintenance window is used for updating the software on the nodepool's nodes and for upgrading the nodepool's K8s version. If no value is given, one is chosen dynamically, so there is no fixed default. |
+  | storage_size | True | int |  | The size of the volume in GB. The size should be greater than 10GB. |
+  | maintenance_window | False | dict |  | The maintenance window is used for updating the software on the nodepool's nodes and for upgrading the nodepool's version. If no value is given, one is chosen dynamically, so there is no fixed default. |
   | labels | False | dict |  | Key-value pairs attached to the node pool resource as [Kubernetes labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/) |
   | annotations | False | dict |  | Key-value pairs attached to node pool resource as [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/) |
   | api_url | False | str |  | The Ionos API base URL. |
@@ -145,7 +145,7 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
   | dataplatform_cluster_id | True | str |  | The ID of the Data Platform cluster. |
   | dataplatform_nodepool_id | True | str |  | The ID of the Data Platform nodepool. |
   | node_count | False | int |  | The number of nodes that make up the node pool. |
-  | maintenance_window | False | dict |  | The maintenance window is used for updating the software on the nodepool's nodes and for upgrading the nodepool's K8s version. If no value is given, one is chosen dynamically, so there is no fixed default. |
+  | maintenance_window | False | dict |  | The maintenance window is used for updating the software on the nodepool's nodes and for upgrading the nodepool's version. If no value is given, one is chosen dynamically, so there is no fixed default. |
   | labels | False | dict |  | Key-value pairs attached to the node pool resource as [Kubernetes labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/) |
   | annotations | False | dict |  | Key-value pairs attached to node pool resource as [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/) |
   | api_url | False | str |  | The Ionos API base URL. |
