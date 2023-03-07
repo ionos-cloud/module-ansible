@@ -70,3 +70,9 @@
     * [Group](api/user-management/group.md)
     * [Share](api/user-management/share.md)
     * [S3key](api/user-management/s3key.md)
+* Data Platform
+  * [Data Platform](api/dataplatform/dataplatform_cluster.md)
+  * [Data Platform Info](api/dataplatform/dataplatform_cluster_info.md)
+  * [Data Platform Cluster Config](api/dataplatform/dataplatform_cluster_config.md)
+  * [Data Platform Nodepool](api/dataplatform/dataplatform_nodepool.md)
+  * [Data Platform Nodepool Info](api/dataplatform/dataplatform_nodepool_info.md)
