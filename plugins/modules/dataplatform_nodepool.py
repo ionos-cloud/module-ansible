@@ -340,7 +340,7 @@ def create_dataplatform_nodepool(module, client):
 
         if wait:
             client.wait_for(
-                fn_request=lambda: dataplatform_nodepool_server.get_cluster_nodepools(cluster),
+                fn_request=lambda: dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster.id),
                 fn_check=lambda r: list(filter(
                     lambda e: e.properties.name == name,
                     r.items
@@ -371,7 +371,7 @@ def delete_dataplatform_nodepool(module, client):
 
     dataplatform_nodepool_server = ionoscloud_dataplatform.DataPlatformNodePoolApi(api_client=client)
 
-    dataplatform_nodepools = dataplatform_nodepool_server.get_cluster_nodepools(cluster)
+    dataplatform_nodepools = dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster.id)
     dataplatform_nodepool = get_resource(module, dataplatform_nodepools, nodepool, [['id'], ['properties', 'name']])
 
     if not dataplatform_nodepool:
@@ -381,10 +381,10 @@ def delete_dataplatform_nodepool(module, client):
 
     try:
         if dataplatform_nodepool.metadata.state == 'AVAILABLE':
-            dataplatform_nodepool_server.delete_cluster_nodepool(cluster, dataplatform_nodepool.id)
+            dataplatform_nodepool_server.delete_cluster_nodepool(dataplatform_cluster.id, dataplatform_nodepool.id)
         if module.params.get('wait'):
             client.wait_for(
-                fn_request=lambda: dataplatform_nodepool_server.get_cluster_nodepools(cluster),
+                fn_request=lambda: dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster.id),
                 fn_check=lambda r: len(list(filter(
                     lambda e: e.id == dataplatform_nodepool.id,
                     r.items

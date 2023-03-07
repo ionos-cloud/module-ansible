@@ -153,6 +153,9 @@ def get_config(module, client):
     dataplatform_cluster = get_resource(
         module, dataplatform_clusters, cluster, [['id'], ['properties', 'name']],
     )
+
+    if dataplatform_cluster is None:
+        module.fail_json(msg="DataPlatform cluster {} not found".format(cluster))
     
     config_file = module.params.get('config_file')
 
