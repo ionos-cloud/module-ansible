@@ -39,9 +39,14 @@
       dataplatform_cluster_info:
       register: cluster_list_response
 
-    - name: Get kubeconfig for a specific cluster
+    - name: Get kubeconfig by ID
       dataplatform_cluster_config:
         dataplatform_cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
+        config_file: 'config.yaml'
+
+    - name: Get kubeconfig by name
+      dataplatform_cluster_config:
+        dataplatform_cluster_id: "{{ cluster_response.dataplatform_cluster.properties.name }}"
         config_file: 'config.yaml'
 
     - name: Create DataPlatform cluster nodepool
