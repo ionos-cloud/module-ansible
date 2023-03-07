@@ -23,7 +23,7 @@ STATES = ['info']
 OBJECT_NAME = 'DataPlatform Clusters'
 
 OPTIONS = {
-    'dataplatform_cluster_id': {
+    'cluster': {
         'description': ['The ID of the Data Platform cluster.'],
         'available': STATES,
         'required': STATES,
@@ -168,6 +168,22 @@ def check_required_arguments(module, object_name):
             )
 
 
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
+
+
 def main():
     module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
@@ -180,9 +196,14 @@ def main():
 
     check_required_arguments(module, OBJECT_NAME)
     try:
-        dataplatform_cluster_id = module.params.get('dataplatform_cluster_id')
+        cluster = module.params.get('cluster')
+        dataplatform_clusters = ionoscloud_dataplatform.DataPlatformClusterApi(api_client=dataplatform_api_client).get_clusters()
+        dataplatform_cluster = get_resource(module, dataplatform_clusters, cluster, [['id'], ['properties', 'name']])
+        if dataplatform_cluster is None:
+            module.fail_json(msg="Could not find Data Platform cluster '{}'".format(cluster))
+
         results = []
-        for nodepool in ionoscloud_dataplatform.DataPlatformNodePoolApi(dataplatform_api_client).get_cluster_nodepools(cluster_id=dataplatform_cluster_id).items:
+        for nodepool in ionoscloud_dataplatform.DataPlatformNodePoolApi(dataplatform_api_client).get_cluster_nodepools(cluster_id=dataplatform_cluster.id).items:
             results.append(nodepool.to_dict())
         module.exit_json(result=results)
     except Exception as e:

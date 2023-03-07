@@ -34,7 +34,7 @@ OPTIONS = {
             'underscores (_), dots (.), and alphanumerics between.',
         ],
         'available': ['present', 'update'],
-        'required': ['present', 'update'],
+        'required': ['present'],
         'type': 'str',
     },
     'cluster': {

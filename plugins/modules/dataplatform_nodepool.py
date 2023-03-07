@@ -29,7 +29,7 @@ STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Data Platform Nodepool'
 
 OPTIONS = {
-    'nodepool_name': {
+    'name': {
         'description': [
           'The name of your node pool. Must be 63 characters or less and must be empty or begin and end with '
           'an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics '
@@ -39,14 +39,14 @@ OPTIONS = {
         'required': ['present'],
         'type': 'str',
     },
-    'dataplatform_cluster_id': {
-        'description': ['The ID of the Data Platform cluster.'],
+    'cluster': {
+        'description': ['The name or ID of the Data Platform cluster.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
     },
-    'dataplatform_nodepool_id': {
-        'description': ['The ID of the Data Platform nodepool.'],
+    'nodepool': {
+        'description': ['The name or ID of the Data Platform nodepool.'],
         'available': ['update', 'absent'],
         'required': ['update', 'absent'],
         'type': 'str',
@@ -204,8 +204,8 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Data Platform nodepool
     dataplatform_nodepool:
-      cluster_name: "{{ name }}"
-      dataplatform_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+      name: "{{ name }}"
+      cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       node_count: "1"
       cpu_family: "AMD_OPTERON"
       cores_count: "1"
@@ -217,8 +217,8 @@ EXAMPLE_PER_STATE = {
   'update' : '''
   - name: Update Data Platform nodepool
     dataplatform_nodepool:
-      cluster_name: "{{ name }}"
-      dataplatform_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+      name: "{{ name }}"
+      cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
       node_count: 1
       cores_count: "1"
       maintenance_window:
@@ -232,8 +232,8 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete Data Platform nodepool
     dataplatform_nodepool:
-      dataplatform_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      dataplatform_nodepool_id: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
+      cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+      nodepool: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
       state: absent
   ''',
 }
@@ -281,8 +281,8 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
 
 
 def create_dataplatform_nodepool(module, client):
-    dataplatform_cluster_id = module.params.get('dataplatform_cluster_id')
-    nodepool_name = module.params.get('nodepool_name')
+    cluster = module.params.get('cluster')
+    name = module.params.get('name')
     node_count = module.params.get('node_count')
     cpu_family = module.params.get('cpu_family')
     cores_count = module.params.get('cores_count')
@@ -295,6 +295,11 @@ def create_dataplatform_nodepool(module, client):
     annotations = module.params.get('annotations')
     wait = module.params.get('wait')
 
+    dataplatform_clusters = ionoscloud_dataplatform.DataPlatformClusterApi(api_client=client).get_clusters()
+    dataplatform_cluster = get_resource(module, dataplatform_clusters, cluster, [['id'], ['properties', 'name']])
+    if dataplatform_cluster is None:
+        module.fail_json(msg="Could not find Data Platform cluster '{}'".format(cluster))
+
     dataplatform_nodepool_server = ionoscloud_dataplatform.DataPlatformNodePoolApi(api_client=client)
 
     maintenance_window = None
@@ -302,9 +307,9 @@ def create_dataplatform_nodepool(module, client):
         maintenance_window = dict(maintenance)
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
-    nodepool_list = dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster_id)
+    nodepool_list = dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster.id)
 
-    existing_nodepool = get_resource(module, nodepool_list, nodepool_name)
+    existing_nodepool = get_resource(module, nodepool_list, name)
 
     if existing_nodepool:
         return {
@@ -316,7 +321,7 @@ def create_dataplatform_nodepool(module, client):
 
     try:
         dataplatform_nodepool_properties = ionoscloud_dataplatform.CreateNodePoolProperties(
-            name=nodepool_name,
+            name=name,
             node_count=node_count,
             cpu_family=cpu_family,
             cores_count=cores_count,
@@ -331,13 +336,13 @@ def create_dataplatform_nodepool(module, client):
 
         dataplatform_nodepool = ionoscloud_dataplatform.CreateNodePoolRequest(properties=dataplatform_nodepool_properties)
 
-        dataplatform_response= dataplatform_nodepool_server.create_cluster_nodepool(dataplatform_cluster_id, dataplatform_nodepool)
+        dataplatform_response= dataplatform_nodepool_server.create_cluster_nodepool(dataplatform_cluster.id, dataplatform_nodepool)
 
         if wait:
             client.wait_for(
-                fn_request=lambda: dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster_id),
+                fn_request=lambda: dataplatform_nodepool_server.get_cluster_nodepools(cluster),
                 fn_check=lambda r: list(filter(
-                    lambda e: e.properties.name == nodepool_name,
+                    lambda e: e.properties.name == name,
                     r.items
                 ))[0].metadata.state == 'AVAILABLE',
                 scaleup=10000
@@ -356,27 +361,32 @@ def create_dataplatform_nodepool(module, client):
 
 
 def delete_dataplatform_nodepool(module, client):
-    dataplatform_cluster_id = module.params.get('dataplatform_cluster_id')
-    nodepool_id = module.params.get('dataplatform_nodepool_id')
-    nodepool_name = module.params.get('nodepool_name')
+    cluster = module.params.get('cluster')
+    nodepool = module.params.get('nodepool')
+
+    dataplatform_clusters = ionoscloud_dataplatform.DataPlatformClusterApi(api_client=client).get_clusters()
+    dataplatform_cluster = get_resource(module, dataplatform_clusters, cluster, [['id'], ['properties', 'name']])
+    if not dataplatform_cluster:
+        module.fail_json(msg="Could not find Data Platform cluster '{}'".format(cluster))
 
     dataplatform_nodepool_server = ionoscloud_dataplatform.DataPlatformNodePoolApi(api_client=client)
-    nodepool_list = dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster_id)
-    dataplatform_nodepool = get_resource(module, nodepool_list, nodepool_id if nodepool_id else nodepool_name)
+
+    dataplatform_nodepools = dataplatform_nodepool_server.get_cluster_nodepools(cluster)
+    dataplatform_nodepool = get_resource(module, dataplatform_nodepools, nodepool, [['id'], ['properties', 'name']])
 
     if not dataplatform_nodepool:
-        module.exit_json(changed=False)
+        module.exit_json(changed=False, msg="Data Platform Nodepool '{}' not found.".format(nodepool))
 
     changed = False
 
     try:
         if dataplatform_nodepool.metadata.state == 'AVAILABLE':
-            dataplatform_nodepool_server.delete_cluster_nodepool(dataplatform_cluster_id, nodepool_id)
+            dataplatform_nodepool_server.delete_cluster_nodepool(cluster, dataplatform_nodepool.id)
         if module.params.get('wait'):
             client.wait_for(
-                fn_request=lambda: dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster_id),
+                fn_request=lambda: dataplatform_nodepool_server.get_cluster_nodepools(cluster),
                 fn_check=lambda r: len(list(filter(
-                    lambda e: e.id == nodepool_id,
+                    lambda e: e.id == dataplatform_nodepool.id,
                     r.items
                 ))) < 1,
                 console_print='.',
@@ -390,37 +400,50 @@ def delete_dataplatform_nodepool(module, client):
     return {
         'action': 'delete',
         'changed': changed,
-        'dataplatform_nodepool_id': nodepool_id
+        'nodepool': dataplatform_nodepool.id
     }
 
 
 def update_dataplatform_nodepool(module, client):
-    dataplatform_cluster_id = module.params.get('dataplatform_cluster_id')
-    nodepool_id = module.params.get('dataplatform_nodepool_id')
+    cluster = module.params.get('cluster')
+    nodepool = module.params.get('nodepool')
     node_count = module.params.get('node_count')
     maintenance = module.params.get('maintenance_window')
     wait = module.params.get('wait')
-    nodepool_name = module.params.get('nodepool_name')
+    name = module.params.get('name')
     labels = module.params.get('labels')
     annotations = module.params.get('annotations')
 
+    # Get the Data Platform Cluster
+    dataplatform_clusters = ionoscloud_dataplatform.DataPlatformClusterApi(api_client=client).get_clusters()
+    dataplatform_cluster = get_resource(module, dataplatform_clusters, cluster, [['id'], ['properties', 'name']])
+    if not dataplatform_cluster:
+        module.fail_json(msg="Could not find Data Platform cluster '{}'".format(cluster))
+
     dataplatform_nodepool_server = ionoscloud_dataplatform.DataPlatformNodePoolApi(api_client=client)
+
+    # Get the Data Platform Nodepool
+    dataplatform_nodepools = dataplatform_nodepool_server.get_cluster_nodepools(cluster)
+    dataplatform_nodepool = get_resource(module, dataplatform_nodepools, nodepool, [['id'], ['properties', 'name']])
+    if not dataplatform_nodepool:
+        module.fail_json(msg="Could not find Data Platform Nodepool '{}'".format(nodepool))
 
     maintenance_window = None
     if maintenance:
         maintenance_window = dict(maintenance)
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
-    nodepool_list = dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster_id)
-    existing_nodepool_by_name = get_resource(module, nodepool_list, nodepool_name)
+    # Check if the name is already taken
+    nodepool_list = dataplatform_nodepool_server.get_cluster_nodepools(cluster)
+    existing_nodepool_by_name = get_resource(module, nodepool_list, name)
 
-    if nodepool_id is not None and existing_nodepool_by_name is not None and existing_nodepool_by_name.id != nodepool_id:
+    if dataplatform_nodepool is not None and existing_nodepool_by_name is not None and existing_nodepool_by_name.id != dataplatform_nodepool.id:
         module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
-            OBJECT_NAME, nodepool_name,
+            OBJECT_NAME, name,
         ))
 
     if not node_count:
-        node_count = existing_nodepool_by_name.properties.node_count
+        node_count = dataplatform_nodepool.properties.node_count
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -432,16 +455,16 @@ def update_dataplatform_nodepool(module, client):
             annotations=annotations,
         )
 
-        dataplatform_nodepool = ionoscloud_dataplatform.PatchNodePoolRequest(properties=dataplatform_nodepool_properties)
+        dataplatform_patch_nodepool_request = ionoscloud_dataplatform.PatchNodePoolRequest(properties=dataplatform_nodepool_properties)
         dataplatform_response = dataplatform_nodepool_server.patch_cluster_nodepool(
-            dataplatform_cluster_id, nodepool_id, dataplatform_nodepool,
+            cluster, dataplatform_nodepool.id, dataplatform_patch_nodepool_request,
         )
 
         if wait:
             client.wait_for(
-                fn_request=lambda: dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster_id),
+                fn_request=lambda: dataplatform_nodepool_server.get_cluster_nodepools(cluster),
                 fn_check=lambda r: list(filter(
-                    lambda e: e.id == nodepool_id,
+                    lambda e: e.id == dataplatform_nodepool.id,
                     r.items
                 ))[0].metadata.state == 'AVAILABLE',
                 scaleup=10000

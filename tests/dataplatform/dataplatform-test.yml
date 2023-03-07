@@ -51,8 +51,8 @@
 
     - name: Create DataPlatform cluster nodepool
       dataplatform_nodepool:
-        nodepool_name: "my-nodepool"
-        dataplatform_cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
+        name: "my-nodepool"
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         node_count: 2
         cpu_family: "INTEL_SKYLAKE"
         cores_count: 1
@@ -75,8 +75,8 @@
 
     - name: Update DataPlatform cluster nodepool
       dataplatform_nodepool:
-        dataplatform_cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
-        dataplatform_nodepool_id: "{{ result.dataplatform_nodepool.id }}"
+        cluster: "{{ cluster_response.dataplatform_cluster.properties.name }}"
+        nodepool: "{{ result.dataplatform_nodepool.properties.name }}"
         node_count: 2
         maintenance_window:
           day_of_the_week: "Wednesday"
@@ -92,13 +92,13 @@
 
     - name: Get all DataPlaform nodepools from a specific cluster
       dataplatform_nodepool_info:
-        dataplatform_cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
       register: nodepool_list_response
 
     - name: Delete DataPlatform cluster nodepool
       dataplatform_nodepool:
-        dataplatform_cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
-        dataplatform_nodepool_id: "{{ result.dataplatform_nodepool.id }}"
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
+        nodepool: "{{ result.dataplatform_nodepool.id }}"
         wait: true
         state: absent
 

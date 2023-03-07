@@ -22,7 +22,7 @@ This is a simple module that supports listing existing DataPlatform Nodepools
 
 | Name | Required | Type | Default | Description |
 | :--- | :---: | :--- | :--- | :--- |
-| dataplatform_cluster_id | True | str |  | The ID of the Data Platform cluster. |
+| cluster | True | str |  | The ID of the Data Platform cluster. |
 | api_url | False | str |  | The Ionos API base URL. |
 | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
 | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
