@@ -27,7 +27,7 @@ STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Data Platform Cluster'
 
 OPTIONS = {
-    'cluster_name': {
+    'name': {
         'description': [
             'The name of your cluster. Must be 63 characters or less and must be empty or '
             'begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), '
@@ -37,8 +37,8 @@ OPTIONS = {
         'required': ['present', 'update'],
         'type': 'str',
     },
-    'dataplatform_cluster_id': {
-        'description': ['The ID of the Data Platform cluster.'],
+    'cluster': {
+        'description': ['The ID or name of the Data Platform cluster.'],
         'available': ['update', 'absent'],
         'required': ['update', 'absent'],
         'type': 'str',
@@ -150,7 +150,7 @@ EXAMPLE_PER_STATE = {
   'update' : '''
   - name: Update Data Platform cluster
     dataplatform_cluster:
-      dataplatform_cluster_id: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
+      cluster: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
       maintenance_window:
         day_of_the_week: 'Tuesday'
         time: '13:03:00'
@@ -160,7 +160,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete Data Platform cluster
     dataplatform_cluster:
-      dataplatform_cluster_id: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
+      cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
       state: absent
   ''',
 }
@@ -218,7 +218,7 @@ def _get_request_id(headers):
 
 
 def create_dataplatform_cluster(module, client):
-    cluster_name = module.params.get('cluster_name')
+    name = module.params.get('name')
     dataplatform_version = module.params.get('dataplatform_version')
     maintenance = module.params.get('maintenance_window')
     datacenter_id = module.params.get('datacenter_id')
@@ -231,7 +231,7 @@ def create_dataplatform_cluster(module, client):
 
     dataplatform_cluster_server = ionoscloud_dataplatform.DataPlatformClusterApi(api_client=client)
 
-    existing_cluster = get_resource(module, dataplatform_cluster_server.get_clusters(), cluster_name)
+    existing_cluster = get_resource(module, dataplatform_cluster_server.get_clusters(), name, [['properties', 'name']])
 
     if module.check_mode:
         module.exit_json(changed=False)
@@ -246,7 +246,7 @@ def create_dataplatform_cluster(module, client):
 
     try:
         dataplatform_cluster_properties = ionoscloud_dataplatform.CreateClusterProperties(
-            name=cluster_name,
+            name=name,
             data_platform_version=dataplatform_version,
             datacenter_id=datacenter_id,
             maintenance_window=maintenance_window,
@@ -259,7 +259,7 @@ def create_dataplatform_cluster(module, client):
             client.wait_for(
                 fn_request=lambda: dataplatform_cluster_server.get_clusters(),
                 fn_check=lambda r: list(filter(
-                    lambda e: e.properties.name == cluster_name,
+                    lambda e: e.properties.name == name,
                     r.items
                 ))[0].metadata.state == 'AVAILABLE',
                 scaleup=10000
@@ -280,15 +280,14 @@ def create_dataplatform_cluster(module, client):
 
 
 def delete_dataplatform_cluster(module, client):
-    cluster_id = module.params.get('dataplatform_cluster_id')
-    cluster_name = module.params.get('cluster_name')
+    cluster = module.params.get('cluster')
     wait = module.params.get('wait')
     changed = False
 
     dataplatform_cluster_server = ionoscloud_dataplatform.DataPlatformClusterApi(api_client=client)
     dataplatform_clusters = dataplatform_cluster_server.get_clusters()
 
-    dataplatform_cluster = get_resource(module, dataplatform_clusters, cluster_id if cluster_id else cluster_name)
+    dataplatform_cluster = get_resource(module, dataplatform_clusters, cluster, [['id'], ['properties', 'name']])
 
     if not dataplatform_cluster:
         module.exit_json(changed=False)
@@ -320,37 +319,43 @@ def delete_dataplatform_cluster(module, client):
 
 
 def update_dataplatform_cluster(module, client):
-    cluster_name = module.params.get('cluster_name')
+    name = module.params.get('name')
     dataplatform_version = module.params.get('dataplatform_version')
-    dataplatform_cluster_id = module.params.get('dataplatform_cluster_id')
+    cluster = module.params.get('cluster')
     maintenance = module.params.get('maintenance_window')
 
     maintenance_window = dict(maintenance)
     maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
     dataplatform_cluster_server = ionoscloud_dataplatform.DataPlatformClusterApi(api_client=client)
-    
-    existing_cluster_id_by_name = get_resource_id(module, dataplatform_cluster_server.get_clusters(), cluster_name)
+    dataplatform_clusters = dataplatform_cluster_server.get_clusters()
 
-    if dataplatform_cluster_id is not None and existing_cluster_id_by_name is not None and existing_cluster_id_by_name != dataplatform_cluster_id:
-            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, cluster_name))
+    # check if the cluster exists
+    dataplatform_cluster = get_resource(module, dataplatform_clusters, cluster, [['id'], ['properties', 'name']])
+
+    # check if the name is already used by another cluster
+    existing_cluster_id_by_name = get_resource_id(module, dataplatform_clusters, name)
+
+    # if the cluster exists and the name is not used by another cluster, update the cluster
+    if dataplatform_cluster is not None and existing_cluster_id_by_name is not None and existing_cluster_id_by_name != dataplatform_cluster.id:
+            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
 
     if module.check_mode:
         module.exit_json(changed=True)
     try:
         dataplatform_cluster_properties = ionoscloud_dataplatform.PatchClusterProperties(
-            name=cluster_name,
+            name=name,
             data_platform_version=dataplatform_version,
             maintenance_window=maintenance_window,
         )
-        dataplatform_cluster = ionoscloud_dataplatform.PatchClusterRequest(properties=dataplatform_cluster_properties)
-        dataplatform_cluster = dataplatform_cluster_server.patch_cluster(dataplatform_cluster_id, dataplatform_cluster)
+        dataplatform_patch_cluster_request = ionoscloud_dataplatform.PatchClusterRequest(properties=dataplatform_cluster_properties)
+        dataplatform_cluster = dataplatform_cluster_server.patch_cluster(dataplatform_cluster.id, dataplatform_patch_cluster_request)
 
         if module.params.get('wait'):
             client.wait_for(
                 fn_request=lambda: dataplatform_cluster_server.get_clusters(),
                 fn_check=lambda r: list(filter(
-                    lambda e: e.properties.name == cluster_name,
+                    lambda e: e.properties.name == name,
                     r.items
                 ))[0].metadata.state == 'AVAILABLE',
                 scaleup=10000

@@ -14,7 +14,7 @@
 
     - name: Create Data Platform cluster
       dataplatform_cluster:
-        cluster_name: "{{ name }}"
+        name: "{{ name }}"
         dataplatform_version: "22.11"
         datacenter_id: "{{ datacenter_response.datacenter.id }}"
         maintenance_window:
@@ -26,9 +26,9 @@
 
     - name: Patch Data Platform cluster
       dataplatform_cluster:
-        cluster_name: "{{ name }}"
+        name: "{{ name }}"
         dataplatform_version: "22.11"
-        dataplatform_cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         maintenance_window:
           day_of_the_week: "Wednesday"
           time: "12:02:00"
@@ -41,12 +41,12 @@
 
     - name: Get kubeconfig by ID
       dataplatform_cluster_config:
-        dataplatform_cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         config_file: 'config.yaml'
 
     - name: Get kubeconfig by name
       dataplatform_cluster_config:
-        dataplatform_cluster_id: "{{ cluster_response.dataplatform_cluster.properties.name }}"
+        cluster: "{{ cluster_response.dataplatform_cluster.properties.name }}"
         config_file: 'config.yaml'
 
     - name: Create DataPlatform cluster nodepool
@@ -104,7 +104,7 @@
 
     - name: Delete Data Platform cluster
       dataplatform_cluster:
-        dataplatform_cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         state: absent
         wait: true
 
