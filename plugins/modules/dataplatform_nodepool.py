@@ -457,12 +457,12 @@ def update_dataplatform_nodepool(module, client):
 
         dataplatform_patch_nodepool_request = ionoscloud_dataplatform.PatchNodePoolRequest(properties=dataplatform_nodepool_properties)
         dataplatform_response = dataplatform_nodepool_server.patch_cluster_nodepool(
-            cluster, dataplatform_nodepool.id, dataplatform_patch_nodepool_request,
+            dataplatform_cluster.id, dataplatform_nodepool.id, dataplatform_patch_nodepool_request,
         )
 
         if wait:
             client.wait_for(
-                fn_request=lambda: dataplatform_nodepool_server.get_cluster_nodepools(cluster),
+                fn_request=lambda: dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster.id),
                 fn_check=lambda r: list(filter(
                     lambda e: e.id == dataplatform_nodepool.id,
                     r.items
