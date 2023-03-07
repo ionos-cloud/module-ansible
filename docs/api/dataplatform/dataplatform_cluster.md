@@ -14,7 +14,7 @@ This is a simple module that supports creating or removing Data Platform Cluster
 
   - name: Update Data Platform cluster
     dataplatform_cluster:
-      dataplatform_cluster_id: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
+      cluster: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
       maintenance_window:
         day_of_the_week: 'Tuesday'
         time: '13:03:00'
@@ -24,7 +24,7 @@ This is a simple module that supports creating or removing Data Platform Cluster
 
   - name: Delete Data Platform cluster
     dataplatform_cluster:
-      dataplatform_cluster_id: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
+      cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
       state: absent
   
 ```
@@ -45,7 +45,7 @@ This is a simple module that supports creating or removing Data Platform Cluster
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | cluster_name | True | str |  | The name of your cluster. Must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
+  | name | True | str |  | The name of your cluster. Must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
   | dataplatform_version | False | str |  | The version of the DataPlatform. |
   | datacenter_id | True | str |  | The UUID of the virtual data center (VDC) the cluster is provisioned. |
   | maintenance_window | False | dict |  | Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format |
@@ -65,7 +65,7 @@ This is a simple module that supports creating or removing Data Platform Cluster
   
   - name: Delete Data Platform cluster
     dataplatform_cluster:
-      dataplatform_cluster_id: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
+      cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
       state: absent
   
 ```
@@ -74,7 +74,7 @@ This is a simple module that supports creating or removing Data Platform Cluster
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | dataplatform_cluster_id | True | str |  | The ID of the Data Platform cluster. |
+  | cluster | True | str |  | The ID or name of the Data Platform cluster. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -91,7 +91,7 @@ This is a simple module that supports creating or removing Data Platform Cluster
   
   - name: Update Data Platform cluster
     dataplatform_cluster:
-      dataplatform_cluster_id: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
+      cluster: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
       maintenance_window:
         day_of_the_week: 'Tuesday'
         time: '13:03:00'
@@ -104,8 +104,8 @@ This is a simple module that supports creating or removing Data Platform Cluster
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | cluster_name | True | str |  | The name of your cluster. Must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
-  | dataplatform_cluster_id | True | str |  | The ID of the Data Platform cluster. |
+  | name | True | str |  | The name of your cluster. Must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
+  | cluster | True | str |  | The ID or name of the Data Platform cluster. |
   | dataplatform_version | True | str |  | The version of the DataPlatform. |
   | datacenter_id | False | str |  | The UUID of the virtual data center (VDC) the cluster is provisioned. |
   | maintenance_window | True | dict |  | Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format |

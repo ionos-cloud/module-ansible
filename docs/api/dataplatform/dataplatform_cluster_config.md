@@ -31,7 +31,7 @@ This is a simple module that supports getting config of DataPlatform clusters
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | dataplatform_cluster_id | True | str |  | The ID of the Data Platform cluster. |
+  | cluster | True | str |  | The name or the ID of the Data Platform cluster. |
   | config_file | True | str |  | The name of the file in which to save the config. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
