@@ -25,8 +25,8 @@ STATES = ['present']
 OBJECT_NAME = 'DataPlatform Cluster Config'
 
 OPTIONS = {
-    'dataplatform_cluster_id': {
-        'description': ['The ID of the Data Platform cluster.'],
+    'cluster': {
+        'description': ['The name or the ID of the Data Platform cluster.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -112,13 +112,53 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
 def get_config(module, client):
-    dataplatform_cluster_id = module.params.get('dataplatform_cluster_id')
+    cluster = module.params.get('cluster')
+    
+    dataplatform_clusters = ionoscloud_dataplatform.DataPlatformClusterApi(api_client=client).get_clusters()
+
+    dataplatform_cluster = get_resource(
+        module, dataplatform_clusters, cluster, [['id'], ['properties', 'name']],
+    )
+    
     config_file = module.params.get('config_file')
 
     try:
         with open(config_file, 'w') as f:
-            response = ionoscloud_dataplatform.DataPlatformClusterApi(api_client=client).get_cluster_kubeconfig(cluster_id=dataplatform_cluster_id)
+            response = ionoscloud_dataplatform.DataPlatformClusterApi(api_client=client).get_cluster_kubeconfig(cluster_id=dataplatform_cluster.id)
             f.write(response)
 
     except Exception as e:
