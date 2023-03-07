@@ -423,7 +423,7 @@ def update_dataplatform_nodepool(module, client):
     dataplatform_nodepool_server = ionoscloud_dataplatform.DataPlatformNodePoolApi(api_client=client)
 
     # Get the Data Platform Nodepool
-    dataplatform_nodepools = dataplatform_nodepool_server.get_cluster_nodepools(cluster)
+    dataplatform_nodepools = dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster.id)
     dataplatform_nodepool = get_resource(module, dataplatform_nodepools, nodepool, [['id'], ['properties', 'name']])
     if not dataplatform_nodepool:
         module.fail_json(msg="Could not find Data Platform Nodepool '{}'".format(nodepool))
@@ -434,7 +434,7 @@ def update_dataplatform_nodepool(module, client):
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
     # Check if the name is already taken
-    nodepool_list = dataplatform_nodepool_server.get_cluster_nodepools(cluster)
+    nodepool_list = dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster.id)
     existing_nodepool_by_name = get_resource(module, nodepool_list, name)
 
     if dataplatform_nodepool is not None and existing_nodepool_by_name is not None and existing_nodepool_by_name.id != dataplatform_nodepool.id:
