@@ -11,13 +11,13 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
     dataplatform_nodepool:
       name: "{{ name }}"
       cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      node_count: "1"
+      node_count: 1
       cpu_family: "AMD_OPTERON"
-      cores_count: "1"
-      ram_size: "2048"
+      cores_count: 1
+      ram_size: 2048
       availability_zone: "AUTO"
       storage_type: "SSD"
-      storage_size: "100"
+      storage_size: 100
   
 
   - name: Update Data Platform nodepool
@@ -25,13 +25,10 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
       name: "{{ name }}"
       cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
       node_count: 1
-      cores_count: "1"
+      cores_count: 1
       maintenance_window:
         day_of_the_week: 'Tuesday'
         time: '13:03:00'
-      auto_scaling:
-        min_node_count: 1
-        max_node_count: 3
       state: update
   
 
@@ -53,13 +50,13 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
     dataplatform_nodepool:
       name: "{{ name }}"
       cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      node_count: "1"
+      node_count: 1
       cpu_family: "AMD_OPTERON"
-      cores_count: "1"
-      ram_size: "2048"
+      cores_count: 1
+      ram_size: 2048
       availability_zone: "AUTO"
       storage_type: "SSD"
-      storage_size: "100"
+      storage_size: 100
   
 ```
 ### Available parameters for state **present**:
@@ -69,7 +66,7 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
   | :--- | :---: | :--- | :--- | :--- |
   | name | True | str |  | The name of your node pool. Must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
   | cluster | True | str |  | The name or ID of the Data Platform cluster. |
-  | node_count | False | int |  | The number of nodes that make up the node pool. |
+  | node_count | True | int |  | The number of nodes that make up the node pool. |
   | cpu_family | True | str |  | A valid CPU family name or `AUTO` if the platform shall choose the best fitting option.Available CPU architectures can be retrieved from the datacenter resource. |
   | cores_count | True | int |  | The number of cores for the node. |
   | ram_size | True | int |  | The RAM size for the node. Must be set in multiples of 1024 MB, with minimum size is of 2048 MB. |
@@ -126,13 +123,10 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
       name: "{{ name }}"
       cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
       node_count: 1
-      cores_count: "1"
+      cores_count: 1
       maintenance_window:
         day_of_the_week: 'Tuesday'
         time: '13:03:00'
-      auto_scaling:
-        min_node_count: 1
-        max_node_count: 3
       state: update
   
 ```
