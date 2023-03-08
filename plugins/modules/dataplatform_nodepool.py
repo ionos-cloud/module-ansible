@@ -54,6 +54,7 @@ OPTIONS = {
     'node_count': {
         'description': ['The number of nodes that make up the node pool.'],
         'available': ['update', 'present'],
+        'required': ['present'],
         'type': 'int',
     },
     'cpu_family': {
@@ -206,13 +207,13 @@ EXAMPLE_PER_STATE = {
     dataplatform_nodepool:
       name: "{{ name }}"
       cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      node_count: "1"
+      node_count: 1
       cpu_family: "AMD_OPTERON"
-      cores_count: "1"
-      ram_size: "2048"
+      cores_count: 1
+      ram_size: 2048
       availability_zone: "AUTO"
       storage_type: "SSD"
-      storage_size: "100"
+      storage_size: 100
   ''',
   'update' : '''
   - name: Update Data Platform nodepool
@@ -220,13 +221,10 @@ EXAMPLE_PER_STATE = {
       name: "{{ name }}"
       cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
       node_count: 1
-      cores_count: "1"
+      cores_count: 1
       maintenance_window:
         day_of_the_week: 'Tuesday'
         time: '13:03:00'
-      auto_scaling:
-        min_node_count: 1
-        max_node_count: 3
       state: update
   ''',
   'absent' : '''
@@ -563,10 +561,6 @@ def main():
     with ApiClient(get_sdk_config(module, ionoscloud_dataplatform)) as api_client:
         api_client.user_agent = DATAPLATFORM_USER_AGENT
         check_required_arguments(module, state, OBJECT_NAME)
-        if state == 'present' and not module.params.get('node_count') and not module.params.get('auto_scaling'):
-            module.fail_json(
-                msg='either node_count or auto_scaling parameter is required for {object_name} state present'.format(object_name=OBJECT_NAME),
-            )
         try:
             if state == 'present':
                 module.exit_json(**create_dataplatform_nodepool(module, api_client))
