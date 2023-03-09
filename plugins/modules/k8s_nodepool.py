@@ -65,7 +65,7 @@ OPTIONS = {
         'description': ['Array of additional LANs attached to worker nodes.'],
         'available': ['update', 'present'],
         'type': 'list',
-        'elements': 'int',
+        'elements': 'dict',
     },
     'node_count': {
         'description': ['The number of nodes that make up the node pool.'],

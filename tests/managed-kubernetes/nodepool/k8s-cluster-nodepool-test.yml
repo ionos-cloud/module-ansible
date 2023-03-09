@@ -13,6 +13,14 @@
         location: "{{ location }}"
       register: datacenter_response
 
+    - name: Create LAN
+      lan:
+        datacenter: "{{ datacenter }}"
+        name: "{{ lan }}"
+        public: false
+      register: lan_response
+
+
     - name: Create ipblock for create nodepool
       ipblock:
         name: "{{ name }} - create"
@@ -51,6 +59,9 @@
         storage_type: "HDD"
         storage_size: "100"
         public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
+        lan_ids:
+          - id: "{{ lan_response.lan.id }}"
+            dhcp: false
         auto_scaling:
           min_node_count: 1
           max_node_count: 3
@@ -129,4 +140,19 @@
       ipblock:
         name: "{{ name }} - update"
         state: absent
+
+    - name: Remove LAN
+      lan:
+        datacenter: "{{ datacenter }}"
+        name: "{{ lan }}"
+        state: absent
+        wait: true
+
+    - name: Remove datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        state: absent
+        wait: true
+
+
 
