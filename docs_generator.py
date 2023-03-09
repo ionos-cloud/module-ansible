@@ -104,6 +104,11 @@ modules_to_generate = [
     's3key_info',
     'share',
     'user',
+    'dataplatform_cluster',
+    'dataplatform_cluster_config',
+    'dataplatform_cluster_info',
+    'dataplatform_nodepool',
+    'dataplatform_nodepool_info',
     'certificate',
     'certificate_info'
 ]
