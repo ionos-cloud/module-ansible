@@ -1,5 +1,29 @@
 # Changelog
 
+## 6.5.0
+
+### Features
+* Implement filters for Container Registry info modules
+* New Product: **DataPlatform**. Modules added:
+  * dataplatform_cluster
+  * dataplatform_cluster_config
+  * dataplatform_cluster_info
+  * dataplatform_nodepool
+  * dataplatform_nodepool_info
+
+⚠️ **Note:** Data Platform is currently in the Early Access (EA) phase.
+We recommend keeping usage and testing to non-production critical applications.
+Please contact your sales representative or support for more information.
+
+
+### Fixes:
+* Removed sensitive data from repository
+* Fix #138 lan_ids param is now a list of dicts
+
+
+**Full Changelog**: https://github.com/ionos-cloud/module-ansible/compare/v6.4.3...v6.5.0
+
+
 ## 6.4.3
 
 ### Bug fixes:
