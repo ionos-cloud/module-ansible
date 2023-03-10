@@ -22,10 +22,11 @@ CERTIFICATE_MANAGER_USER_AGENT = 'ansible-module/%s_sdk-python-certificate-manag
 DOC_DIRECTORY = 'certificate'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Certificate'
+RETURNED_KEY = 'certificate'
 
 OPTIONS = {
-    'certificate_id': {
-        'description': ['The certificate ID.'],
+    'certificate': {
+        'description': ['The certificate name or ID.'],
         'available': ['update', 'absent'],
         'required': ['update'],
         'type': 'str',
@@ -146,7 +147,7 @@ EXAMPLE_PER_STATE = {
     'update': '''
     - name: Update Certificate
         certificate:
-            certificate_id: "{{ certificate.certificate.id }}"
+            certificate: "{{ certificate.certificate.id }}"
             certificate_name: "{{ certificate_updated_name }}"
             state: update
         register: updated_certificate
@@ -154,8 +155,8 @@ EXAMPLE_PER_STATE = {
     'absent': '''
     - name: Delete Certificate
         certificate:
-        certificate_id: "{{ certificate.certificate.id }}"
-        state: delete
+            certificate: "{{ certificate.certificate.id }}"
+            state: delete
   ''',
 }
 
@@ -201,113 +202,180 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def create_certificate(module, client):
+def _should_replace_object(module, existing_object):
+    certificate_file = module.params.get('certificate_file')
+    certificate_chain_file = module.params.get('certificate_chain_file')
 
+    certificate_chain=open(certificate_chain_file, mode='r').read() if certificate_chain_file else None
+    certificate=open(certificate_file, mode='r').read() if certificate_file else None
+
+    return (
+        certificate is not None
+        and existing_object.properties.certificate.rstrip() != certificate.rstrip()
+        or certificate_chain is not None
+        and existing_object.properties.certificate_chain.rstrip() != certificate_chain.rstrip()
+        or module.params.get('private_key_file')
+    )
+
+
+def _should_update_object(module, existing_object):
+    return (
+        module.params.get('certificate_name') is not None
+        and existing_object.properties.name != module.params.get('certificate_name')
+    )
+
+
+def _get_object_list(module, client):
+    return ionoscloud_cert_manager.CertificatesApi(client).certificates_get()
+
+
+def _get_object_name(module):
+    return module.params.get('certificate_name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('certificate')
+
+
+def _create_object(module, client, existing_object=None):
     certificate_file = module.params.get('certificate_file')
     private_key_file = module.params.get('private_key_file')
     certificate_chain_file = module.params.get('certificate_chain_file')
     certificate_name = module.params.get('certificate_name')
 
-    certificate_server = ionoscloud_cert_manager.CertificatesApi(client)
+    certificate_chain=open(certificate_chain_file, mode='r').read() if certificate_chain_file else None
+    certificate=open(certificate_file, mode='r').read()
 
-    existing_certificates = certificate_server.certificates_get()
+    if existing_object is not None:
+        certificate_name = existing_object.properties.certificate_name if certificate_name is None else certificate_name
+        certificate_chain = existing_object.properties.certificate_chain if certificate_chain is None else certificate_chain
+        certificate = existing_object.properties.certificate if certificate is None else certificate
 
-    existing_certificate = get_resource(module, existing_certificates, certificate_name)
-
-    if existing_certificate:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'certificate': existing_certificate.to_dict()
-        }
+    certificates_api = ionoscloud_cert_manager.CertificatesApi(client)
 
     try:
-        new_certificate = certificate_server.certificates_post(
+        new_certificate = certificates_api.certificates_post(
             ionoscloud_cert_manager.CertificatePostDto(
                 properties=ionoscloud_cert_manager.CertificatePostPropertiesDto(
                     name=certificate_name,
-                    certificate=open(certificate_file, mode='r').read(),
-                    certificate_chain=open(certificate_chain_file, mode='r').read() if certificate_chain_file else None,
+                    certificate=certificate,
+                    certificate_chain=certificate_chain,
                     private_key=open(private_key_file, mode='r').read(),
-                )
-            )
+                ),
+            ),
         )
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            'certificate': new_certificate.to_dict()
-        }
-
     except ionoscloud_cert_manager.ApiException as e:
         module.fail_json(msg="failed to create the new certificate: %s" % to_native(e))
+    return new_certificate
 
 
-def delete_certificate(module, client):
-    certificate_name = module.params.get('certificate_name')
-    certificate_id = module.params.get('certificate_id')
-
-    certificate_server = ionoscloud_cert_manager.CertificatesApi(client)
-    certificates_list = certificate_server.certificates_get()
-
-    certificate_id = get_resource_id(module, certificates_list, certificate_id if certificate_id is not None else certificate_name)
-
-    if not certificate_id:
-        module.exit_json(changed=False)
-
+def _update_object(module, client, existing_object):
     try:
-        certificate_server.certificates_delete(certificate_id)
-        return {
-            'failed': False,
-            'action': 'delete',
-            'id': certificate_id,
-        }
-
-    except ionoscloud_cert_manager.ApiException as e:
-        module.fail_json(msg="failed to delete the certificate: %s" % to_native(e))
-
-
-def update_certificate(module, client):
-    certificate_name = module.params.get('certificate_name')
-    certificate_id = module.params.get('certificate_id')
-
-    certificate_server = ionoscloud_cert_manager.CertificatesApi(client)
-    certificates_list = certificate_server.certificates_get()
-
-    existing_certificate_id_by_name = get_resource_id(module, certificates_list, certificate_name)
-
-    if existing_certificate_id_by_name is not None:
-        if existing_certificate_id_by_name != certificate_id:
-            module.fail_json(
-                msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, certificate_name),
-            )
-        else:
-            return {
-                'changed': False,
-                'failed': False,
-                'action': 'update',
-                'certificate': existing_certificate_id_by_name.to_dict()
-            }
-
-    try:
-        updated_certificate = certificate_server.certificates_patch(
-            certificate_id,
+        updated_certificate = ionoscloud_cert_manager.CertificatesApi(client).certificates_patch(
+            existing_object.id,
             ionoscloud_cert_manager.CertificatePatchDto(
                 properties=ionoscloud_cert_manager.CertificatePatchPropertiesDto(
-                    name=certificate_name,
-                )
-            )
+                    name=module.params.get('certificate_name'),
+                ),
+            ),
         )
+
+        return updated_certificate
+    except ionoscloud_cert_manager.ApiException as e:
+        module.fail_json(msg="failed to update the certificate: %s" % to_native(e))
+
+
+def _remove_object(module, client, existing_object):
+    try:
+        ionoscloud_cert_manager.CertificatesApi(client).certificates_delete(existing_object.id)
+    except ionoscloud_cert_manager.ApiException as e:
+        module.fail_json(msg="failed to remove the certificate: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if module.params.get('do_not_replace'):
+            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
         return {
             'changed': True,
             'failed': False,
             'action': 'create',
-            'certificate': updated_certificate.to_dict()
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
         }
 
-    except ionoscloud_cert_manager.ApiException as e:
-        module.fail_json(msg="failed to create the new certificate: %s" % to_native(e))
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
+
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
+
+
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
+
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    _remove_object(module, client, existing_object)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.id,
+    }
 
 
 def get_module_arguments():
@@ -392,15 +460,17 @@ def main():
 
         try:
             if state == 'present':
-                module.exit_json(**create_certificate(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'absent':
-                module.exit_json(**delete_certificate(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_certificate(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
-                                                                                             error=to_native(e),
-                                                                                             state=state))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(
+                object_name=OBJECT_NAME,
+                error=to_native(e),
+                state=state,
+            ))
 
 
 if __name__ == '__main__':
