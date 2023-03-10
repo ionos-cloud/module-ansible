@@ -84,8 +84,7 @@ This is a module that supports creating, updating or destroying Registries
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of your registry. |
-  | registry_id | False | str |  | The ID of an existing Registry. |
+  | registry | True | str |  | The ID or name of an existing Registry. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -115,8 +114,9 @@ This is a module that supports creating, updating or destroying Registries
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | garbage_collection_schedule | False | dict |  | Dict containing &quot;time&quot; (the time of the day when to perform the garbage_collection) and &quot;days&quot; (the days when to perform the garbage_collection). |
+  | location | False | str |  | The location of your registry |
   | name | False | str |  | The name of your registry. |
-  | registry_id | False | str |  | The ID of an existing Registry. |
+  | registry | True | str |  | The ID or name of an existing Registry. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |

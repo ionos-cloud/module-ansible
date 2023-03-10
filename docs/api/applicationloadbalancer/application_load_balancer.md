@@ -99,7 +99,7 @@ This is a simple module that supports creating or removing Application Loadbalan
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the Application Load Balancer. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
-  | application_load_balancer | False | str |  | The ID or name of the Application Loadbalancer. |
+  | application_load_balancer | True | str |  | The ID or name of the Application Loadbalancer. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -138,7 +138,7 @@ This is a simple module that supports creating or removing Application Loadbalan
   | target_lan | True | str |  | ID of the balanced private target LAN (outbound). |
   | lb_private_ips | False | list |  | Collection of private IP addresses with subnet mask of the Application Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
-  | application_load_balancer | False | str |  | The ID or name of the Application Loadbalancer. |
+  | application_load_balancer | True | str |  | The ID or name of the Application Loadbalancer. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

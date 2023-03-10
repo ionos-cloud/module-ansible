@@ -26,6 +26,7 @@ CONTAINER_REGISTRY_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-contai
 DOC_DIRECTORY = 'container-registry'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Registry Token'
+RETURNED_KEY = 'registry_token'
 
 
 OPTIONS = {
@@ -46,13 +47,14 @@ OPTIONS = {
     },
     'name': {
         'description': ['The name of your token.'],
-        'available': ['present', 'update', 'absent'],
+        'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
-    'token_id': {
-        'description': ['The ID of an existing token.'],
+    'registry_token': {
+        'description': ['The ID or name of an existing token.'],
         'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
         'type': 'str',
     },
     'registry_id': {
@@ -162,7 +164,7 @@ EXAMPLE_PER_STATE = {
     'update': '''- name: Update Registry Token
     registry_token:
         registry_id: "{{ registry_id }}"
-        name: test_registry_token
+        registry_token: test_registry_token
         scopes:
             - actions: 
                     - pull
@@ -175,7 +177,7 @@ EXAMPLE_PER_STATE = {
     'absent': '''- name: Delete Registry Token
     registry_token:
         registry_id: "{{ registry_id }}"
-        name: test_registry_token
+        registry_token: test_registry_token
         state: absent
   ''',
 }
@@ -221,6 +223,7 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     resource = get_resource(module, resource_list, identity, identity_paths)
     return resource.id if resource is not None else None
 
+
 def scope_dict_to_object(scope_dict):
     return ionoscloud_container_registry.Scope(
         actions=scope_dict['actions'],
@@ -228,23 +231,69 @@ def scope_dict_to_object(scope_dict):
         type=scope_dict['type'],
     )
 
-def create_registry_token(module, container_registry_client):
+
+def _should_replace_object(module, existing_object):
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+    )
+
+
+def _should_update_object(module, existing_object):
+    existing_scopes=list(map(scope_dict_to_object, module.params.get('scopes'))),
+
+    def sort_func(el):
+        return el['name'], el['type']
+
+    if module.params.get('scopes'):
+        existing_scopes = sorted(map(
+            lambda x: {
+                'name': x.name,
+                'type': x.type,
+                'actions': sorted(x.actions),
+            },
+            existing_object.properties.scopes
+        ), key=sort_func)
+        new_scopes = sorted(module.params.get('scopes'), key=sort_func)
+
+    return (
+        module.params.get('expiry_date') is not None
+        and existing_object.properties.expiry_date != module.params.get('expiry_date')
+        or module.params.get('status') is not None
+        and existing_object.properties.status != module.params.get('status')
+        or module.params.get('scopes') is not None
+        and new_scopes != existing_scopes
+    )
+
+
+def _get_object_list(module, client):
+    return ionoscloud_container_registry.TokensApi(client).registries_tokens_get(
+        module.params.get('registry_id'),
+    )
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('registry_token')
+
+
+def _create_object(module, client, existing_object=None):
+    expiry_date = module.params.get('expiry_date')
+    status = module.params.get('status')
     name = module.params.get('name')
+    scopes = list(map(scope_dict_to_object, module.params.get('scopes')))
     registry_id = module.params.get('registry_id')
 
-    tokens_server = ionoscloud_container_registry.TokensApi(container_registry_client)
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        expiry_date = existing_object.properties.expiry_date if expiry_date is None else expiry_date
+        status = existing_object.properties.status if status is None else status
+        scopes = existing_object.properties.scopes if scopes is None else scopes
 
-    tokens_list = tokens_server.registries_tokens_get(registry_id)
-
-    existing_token_by_name = get_resource(module, tokens_list, name)
-
-    if existing_token_by_name is not None:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'registry_token': existing_token_by_name.to_dict(),
-        }
+    tokens_api = ionoscloud_container_registry.TokensApi(client)
 
     registry_properties = ionoscloud_container_registry.PostTokenProperties(
         name=name,
@@ -256,69 +305,17 @@ def create_registry_token(module, container_registry_client):
     token = ionoscloud_container_registry.PostTokenInput(properties=registry_properties)
 
     try:
-        token = tokens_server.registries_tokens_post(registry_id, token)
-
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            'registry_token': token.to_dict(),
-        }
-    except Exception as e:
-        module.fail_json(msg="failed to create the Token: %s" % to_native(e))
-        return {
-            'changed': False,
-            'failed': True,
-            'action': 'create',
-        }
+        token = tokens_api.registries_tokens_post(registry_id, token)
+    except ionoscloud_container_registry.ApiException as e:
+        module.fail_json(msg="failed to create the new Registry Token: %s" % to_native(e))
+    return token
 
 
-def delete_registry_token(module, container_registry_client):
-    tokens_server = ionoscloud_container_registry.TokensApi(container_registry_client)
-
+def _update_object(module, client, existing_object):
     registry_id = module.params.get('registry_id')
-    token_id = module.params.get('token_id')
-    token_name = module.params.get('name')
 
-    tokens_list = tokens_server.registries_tokens_get(registry_id)
-
-
-    if token_id:
-        token = get_resource(module, tokens_list, token_id)
-    else:
-        token = get_resource(module, tokens_list, token_name)
-
-    try:
-        tokens_server.registries_tokens_delete(registry_id, token.id)
-
-        return {
-            'action': 'delete',
-            'changed': True,
-            'id': token.id,
-        }
-    except Exception as e:
-        module.fail_json(msg="failed to delete the Token: %s" % to_native(e))
-        return {
-            'action': 'delete',
-            'changed': False,
-            'id': token.id,
-        }
-
-
-def update_registry_token(module, container_registry_client):
-    tokens_server = ionoscloud_container_registry.TokensApi(container_registry_client)
-
-    registry_id = module.params.get('registry_id')
-    token_id = module.params.get('token_id')
-    token_name = module.params.get('name')
-
-    tokens_list = tokens_server.registries_tokens_get(registry_id)
-
-    if token_id:
-        token = get_resource(module, tokens_list, token_id)
-    else:
-        token = get_resource(module, tokens_list, token_name)
-
+    tokens_api = ionoscloud_container_registry.TokensApi(client)
+    
     token_properties = ionoscloud_container_registry.PatchTokenInput(
         expiry_date=module.params.get('expiry_date'),
         status=module.params.get('status'),
@@ -326,26 +323,111 @@ def update_registry_token(module, container_registry_client):
     )
 
     try:
-        token = tokens_server.registries_tokens_patch(
+        token = tokens_api.registries_tokens_patch(
             registry_id=registry_id,
-            token_id=token.id,
+            token_id=existing_object.id,
             patch_token_input=token_properties,
         )
 
+        return token
+    except ionoscloud_container_registry.ApiException as e:
+        module.fail_json(msg="failed to update the Registry Token: %s" % to_native(e))
+
+
+def _remove_object(module, client, existing_object):
+    registry_id = module.params.get('registry_id')
+    tokens_api = ionoscloud_container_registry.TokensApi(client)
+
+    try:
+        tokens_api.registries_tokens_delete(registry_id, existing_object.id)
+    except ionoscloud_container_registry.ApiException as e:
+        module.fail_json(msg="failed to remove the Registry Token: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if module.params.get('do_not_replace'):
+            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object):
+        # Update
         return {
             'changed': True,
             'failed': False,
             'action': 'update',
-            'registry_token': token.to_dict(),
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
         }
 
-    except Exception as e:
-        module.fail_json(msg="failed to update the Token: %s" % to_native(e))
-        return {
-            'changed': False,
-            'failed': True,
-            'action': 'update',
-        }
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
+
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
+
+
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
+
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    _remove_object(module, client, existing_object)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.id,
+    }
 
 
 def get_module_arguments():
@@ -423,8 +505,8 @@ def main():
                              'run `pip install ionoscloud_container_registry`')
 
 
-    container_registry_api_client = ionoscloud_container_registry.ApiClient(get_sdk_config(module, ionoscloud_container_registry))
-    container_registry_api_client.user_agent = CONTAINER_REGISTRY_USER_AGENT
+    client = ionoscloud_container_registry.ApiClient(get_sdk_config(module, ionoscloud_container_registry))
+    client.user_agent = CONTAINER_REGISTRY_USER_AGENT
 
     state = module.params.get('state')
 
@@ -432,15 +514,16 @@ def main():
 
     try:
         if state == 'present':
-            module.exit_json(**create_registry_token(module, container_registry_api_client))
+            module.exit_json(**create_object(module, client))
         elif state == 'absent':
-            module.exit_json(**delete_registry_token(module, container_registry_api_client))
+            module.exit_json(**remove_object(module, client))
         elif state == 'update':
-            module.exit_json(**update_registry_token(module, container_registry_api_client))
+            module.exit_json(**update_object(module, client))
     except Exception as e:
         module.fail_json(
-            msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e),
-                                                                            state=state))
+            msg='failed to set {object_name} state {state}: {error}'.format(
+                object_name=OBJECT_NAME, error=to_native(e), state=state,
+            ))
 
 
 if __name__ == '__main__':
