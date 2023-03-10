@@ -1,5 +1,22 @@
 # Changelog
 
+## 6.4.3
+
+### Bug fixes:
+* `k8s_version` is no longer a required parameter for cluster update
+
+
+## 6.4.2
+
+### Bug fixes:
+* remove cpu_family parameter from cube_server module
+* Cube Server documentation is now available on docs.ionos.com
+
+
+## 6.4.1
+
+### Features:
+* added new modules for Container Registry (registry, registry_token, registry_info and registry_token_info)
 
 ## 6.4.0
 

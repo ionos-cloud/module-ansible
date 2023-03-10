@@ -68,7 +68,7 @@
 
   - name: Delete group
     group:
-      name: "Demo"
+      group: "Demo"
       state: absent
 
   - name: Remove datacenter

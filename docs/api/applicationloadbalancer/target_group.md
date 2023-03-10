@@ -125,7 +125,7 @@ This is a simple module that supports creating or removing Target Groups.
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the Target Group. |
-  | target_group_id | False | str |  | The ID of the Target Group. |
+  | target_group | True | str |  | The ID or name of the Target Group. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -163,7 +163,7 @@ This is a simple module that supports creating or removing Target Groups.
   | health_check | False | dict |  | Health check properties for target group. |
   | http_health_check | False | dict |  | HTTP health check properties for target group. |
   | targets | False | list |  | An array of items in the collection. |
-  | target_group_id | False | str |  | The ID of the Target Group. |
+  | target_group | True | str |  | The ID or name of the Target Group. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

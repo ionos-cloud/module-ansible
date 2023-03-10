@@ -147,13 +147,13 @@ EXAMPLE_PER_STATE = {
       user_roles:
         - role: read
           database: test
-    register: monfo_user_response
+    register: mongo_user_response
   ''',
     'absent': '''- name: Delete Cluster User
     mongo_cluster_user:
       mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
       mongo_username: testuser
-    register: monfo_user_response
+    register: mongo_user_response
   ''',
 }
 
@@ -207,7 +207,7 @@ def create_mongo_cluster_user(module, dbaas_client):
 
     existing_mongo_user = None
     try:
-        existing_mongo_user = mongo_users_api.clusters_users_find_by_id(mongo_cluster_id, 'admin', mongo_username)
+        existing_mongo_user = mongo_users_api.clusters_users_find_by_id(mongo_cluster_id, mongo_username)
     except ionoscloud_dbaas_mongo.ApiException as e:
         if e.status != 404:
             raise e
@@ -253,7 +253,7 @@ def delete_mongo_cluster_user(module, dbaas_client):
     mongo_username = module.params.get('mongo_username')
 
     try:
-        mongo_users_api.clusters_users_delete(mongo_cluster_id, 'admin', mongo_username)
+        mongo_users_api.clusters_users_delete(mongo_cluster_id, mongo_username)
 
         return {
             'action': 'delete',

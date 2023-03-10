@@ -8,9 +8,8 @@
 - name: Run Attach Volume Test
   import_playbook: attach-volume-test.yml
 
-# Skipped due to Not Enough Physical Resources Error
-#- name: Run Cube Server Test
-#  import_playbook: cube-server-test.yml
+- name: Run Cube Server Test
+  import_playbook: cube-server-test.yml
 
 - name: Run Firewall Test
   import_playbook: firewall-test.yml

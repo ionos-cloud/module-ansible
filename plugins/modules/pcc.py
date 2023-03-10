@@ -435,8 +435,8 @@ def get_sdk_config(module, sdk):
 def check_required_arguments(module, state, object_name):
     # manually checking if token or username & password provided
     if (
-            not module.params.get("token")
-            and not (module.params.get("username") and module.params.get("password"))
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name} state {state}'.format(

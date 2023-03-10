@@ -12,8 +12,6 @@
         maintenance_window:
           day_of_the_week: "Wednesday"
           time: "12:02:00"
-        k8s_version: "1.21.9"
-        wait: true
       register: cluster_response
 
     - name: Get k8s config
@@ -29,8 +27,6 @@
         maintenance_window:
           day_of_the_week: "Wednesday"
           time: "12:02:00"
-        k8s_version: "1.21.9"
-        wait: true
         state: update
 
     - name: Delete k8s cluster

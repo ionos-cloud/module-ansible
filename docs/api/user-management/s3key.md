@@ -46,6 +46,7 @@ This is a simple module that supports creating or removing S3Keys.
   | :--- | :---: | :--- | :--- | :--- |
   | active | False | bool |  | Denotes weather the S3 key is active. |
   | user_id | True | str |  | The ID of the user |
+  | key_id | False | str |  | The ID of the S3 key. |
   | idempotency | False | bool | False | Flag that dictates respecting idempotency. If an s3key already exists, returns with already existing key instead of creating more. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |

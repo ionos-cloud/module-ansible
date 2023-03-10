@@ -7,23 +7,23 @@ from pathlib import Path
 
 
 def generate_doc_file(module, module_name, states_parameters, template_file):
-        with open(os.path.join('docs', os.path.join('templates', template_file)), 'r') as template_file:
-            target_directory = os.path.join('docs', os.path.join('api', module.DOC_DIRECTORY))
-            Path(target_directory).mkdir(parents=True, exist_ok=True)
-            target_filename = os.path.join(target_directory, module_name + '.md')
+    with open(os.path.join('docs', os.path.join('templates', template_file)), 'r') as template_file:
+        target_directory = os.path.join('docs', os.path.join('api', module.DOC_DIRECTORY))
+        Path(target_directory).mkdir(parents=True, exist_ok=True)
+        target_filename = os.path.join(target_directory, module_name + '.md')
 
-            with open(target_filename, 'w') as target_file:
-                target_file.write(chevron.render(
-                    template_file,
-                    {
-                        'module_name': module_name,
-                        'description': ''.join(yaml.safe_load(module.DOCUMENTATION)['description']),
-                        'example': module.EXAMPLES,
-                        'states_parameters': states_parameters,
-                    },
-                ))
-                print('Generated docs for <{}> in {}'.format(module_name, target_filename))
-        return target_filename
+        with open(target_filename, 'w') as target_file:
+            target_file.write(chevron.render(
+                template_file,
+                {
+                    'module_name': module_name,
+                    'description': '\n\n'.join(yaml.safe_load(module.DOCUMENTATION)['description']),
+                    'example': module.EXAMPLES,
+                    'states_parameters': states_parameters,
+                },
+            ))
+            print('Generated docs for <{}> in {}'.format(module_name, target_filename))
+    return target_filename
 
 
 def generate_module_docs(module_name):
@@ -79,6 +79,10 @@ modules_to_generate = [
     'snapshot',
     'volume',
     'volume_info',
+    'registry',
+    'registry_info',
+    'registry_token',
+    'registry_token_info',
     'postgres_cluster',
     'postgres_backup_info',
     'postgres_cluster_info',
@@ -100,6 +104,11 @@ modules_to_generate = [
     's3key_info',
     'share',
     'user',
+    'dataplatform_cluster',
+    'dataplatform_cluster_config',
+    'dataplatform_cluster_info',
+    'dataplatform_nodepool',
+    'dataplatform_nodepool_info',
     'certificate',
     'certificate_info'
 ]

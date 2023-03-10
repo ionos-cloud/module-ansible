@@ -252,23 +252,6 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def _update_nlb_flowlog(module, client, nlb_server, datacenter_id, network_load_balancer_id, flowlog_id,
-                        flowlog_properties):
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-    response = nlb_server.datacenters_networkloadbalancers_flowlogs_patch_with_http_info(datacenter_id,
-                                                                                         network_load_balancer_id,
-                                                                                         flowlog_id,
-                                                                                         flowlog_properties)
-    (flowlog_response, _, headers) = response
-
-    if wait:
-        request_id = _get_request_id(headers['Location'])
-        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-    return flowlog_response
-
-
 def _should_replace_object(module, existing_object):
     return False
 
@@ -290,7 +273,7 @@ def _get_object_list(module, client):
     datacenter_id = module.params.get('datacenter_id')
     network_load_balancer_id = module.params.get('network_load_balancer_id')
 
-    return ionoscloud.NetworkLoadBalancersApi(client).datacenters_networkloadbalancers_get(
+    return ionoscloud.NetworkLoadBalancersApi(client).datacenters_networkloadbalancers_flowlogs_get(
         datacenter_id, network_load_balancer_id, depth=1,
     )
 

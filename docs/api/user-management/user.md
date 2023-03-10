@@ -32,7 +32,7 @@ This module allows you to create, update or remove a user.
 # Remove a user
   - name: Remove user
     user:
-      email: john.doe@example.com
+      user: john.doe@example.com
       state: absent
   
 ```
@@ -66,7 +66,6 @@ This module allows you to create, update or remove a user.
   | force_sec_auth | False | bool |  | Boolean value indicating if secure (two-factor) authentication should be forced for the user. |
   | groups | False | list |  | A list of group IDs or names where the user (non-administrator) is to be added.Set to empty list ([]) to remove the user from all groups. |
   | sec_auth_active | False | bool |  | Indicates if secure authentication is active for the user. |
-  | s3_canonical_user_id | False | str |  | Canonical (S3) ID of the user for a given identity. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -84,7 +83,7 @@ This module allows you to create, update or remove a user.
   # Remove a user
   - name: Remove user
     user:
-      email: john.doe@example.com
+      user: john.doe@example.com
       state: absent
   
 ```
@@ -93,7 +92,7 @@ This module allows you to create, update or remove a user.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | email | True | str |  | The user's email |
+  | user | True | str |  | The ID or name of the user. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -129,13 +128,13 @@ This module allows you to create, update or remove a user.
   | :--- | :---: | :--- | :--- | :--- |
   | firstname | False | str |  | The user's first name. |
   | lastname | False | str |  | The user's last name. |
-  | email | True | str |  | The user's email |
+  | email | False | str |  | The user's email |
+  | user | True | str |  | The ID or name of the user. |
   | user_password | False | str |  | A password for the user. |
   | administrator | False | bool |  | Boolean value indicating if the user has administrative rights. |
   | force_sec_auth | False | bool |  | Boolean value indicating if secure (two-factor) authentication should be forced for the user. |
   | groups | False | list |  | A list of group IDs or names where the user (non-administrator) is to be added.Set to empty list ([]) to remove the user from all groups. |
   | sec_auth_active | False | bool |  | Indicates if secure authentication is active for the user. |
-  | s3_canonical_user_id | False | str |  | Canonical (S3) ID of the user for a given identity. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
