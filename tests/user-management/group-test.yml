@@ -47,7 +47,7 @@
 
     - name: Add user1 to group
       group:
-        name: "{{ name }}"
+        group: "{{ name }}"
         users:
           - "{{ random_user1 }}"
         state: update
@@ -58,7 +58,7 @@
 
     - name: Update group
       group:
-        name: "{{ name }}"
+        group: "{{ name }}"
         users:
           - "{{ random_user1 }}"
           - "{{ random_user2 }}"
@@ -91,26 +91,26 @@
 
     - name: Remove user from group
       group:
-        name: "{{ name }}"
+        group: "{{ name }}"
         users: []
         state: update
 
     - name: Delete user1
       user:
-        email: "{{ random_user1 }}"
+        user: "{{ random_user1 }}"
         state: absent
 
     - name: Delete user2
       user:
-        email: "{{ random_user2 }}"
+        user: "{{ random_user2 }}"
         state: absent
 
     - name: Delete group
       group:
-        name: "{{ name }}"
+        group: "{{ name }}"
         state: absent
 
     - name: Delete group
       group:
-        name: "{{ name }}"
+        group: "{{ name }}"
         state: absent

@@ -34,6 +34,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'user-management'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'User'
+RETURNED_KEY = 'user'
 
 OPTIONS = {
     'firstname': {
@@ -50,8 +51,14 @@ OPTIONS = {
     },
     'email': {
         'description': ["The user's email"],
-        'available': STATES,
-        'required': STATES,
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'user': {
+        'description': ['The ID or name of the user.'],
+        'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
         'type': 'str',
     },
     'user_password': {
@@ -84,11 +91,6 @@ OPTIONS = {
         'description': ['Indicates if secure authentication is active for the user.'],
         'available': ['present', 'update'],
         'type': 'bool',
-    },
-    's3_canonical_user_id': {
-        'description': ['Canonical (S3) ID of the user for a given identity.'],
-        'available': ['present', 'update'],
-        'type': 'str',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -203,7 +205,7 @@ EXAMPLE_PER_STATE = {
     'absent': '''# Remove a user
   - name: Remove user
     user:
-      email: john.doe@example.com
+      user: john.doe@example.com
       state: absent
   ''',
 }
@@ -259,128 +261,81 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def create_user(module, client, api_client):
-    """
-    Creates a user.
+def _should_replace_object(module, existing_object):
+    return False
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
 
-    Returns:
-        The user instance
-    """
+def _should_update_object(module, existing_object):
+    return (
+        module.params.get('lastname') is not None
+        and existing_object.properties.lastname != module.params.get('lastname')
+        or module.params.get('firstname') is not None
+        and existing_object.properties.firstname != module.params.get('firstname')
+        or module.params.get('email') is not None
+        and existing_object.properties.email != module.params.get('email')
+        or module.params.get('administrator') is not None
+        and existing_object.properties.administrator != module.params.get('administrator')
+        or module.params.get('force_sec_auth') is not None
+        and existing_object.properties.force_sec_auth != module.params.get('force_sec_auth')
+        or module.params.get('user_password') is not None
+        or module.params.get('groups') is not None
+    )
+
+
+def _get_object_list(module, client):
+    return ionoscloud.UserManagementApi(client).um_users_get(depth=1)
+
+
+def _get_object_name(module):
+    return module.params.get('email')
+
+
+def _get_object_identifier(module):
+    return module.params.get('user')
+
+
+def _create_object(module, client, existing_object=None):
     firstname = module.params.get('firstname')
     lastname = module.params.get('lastname')
     email = module.params.get('email')
     user_password = module.params.get('user_password')
     administrator = module.params.get('administrator')
     force_sec_auth = module.params.get('force_sec_auth')
+
+    if existing_object is not None:
+        firstname = existing_object.properties.firstname if firstname is None else firstname
+        lastname = existing_object.properties.lastname if lastname is None else lastname
+        email = existing_object.properties.email if email is None else email
+        user_password = existing_object.properties.user_password if user_password is None else user_password
+        administrator = existing_object.properties.administrator if administrator is None else administrator
+        force_sec_auth = existing_object.properties.force_sec_auth if force_sec_auth is None else force_sec_auth
+
     wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    wait_timeout = int(module.params.get('wait_timeout'))
 
-    users = client.um_users_get(depth=2)
-    user = get_resource(module, users, email, [['id'], ['properties', 'email']])
+    um_api = ionoscloud.UserManagementApi(client)
 
-    should_change = user is None
-
-    if module.check_mode:
-        module.exit_json(changed=should_change)
-
-    if not should_change:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'user': user.to_dict()
-        }
+    user = UserPost(properties=UserPropertiesPost(
+        firstname=firstname, lastname=lastname, email=email,
+        administrator=administrator or False,
+        force_sec_auth=force_sec_auth or False,
+        password=user_password,
+    ))
 
     try:
-        user_properties = UserPropertiesPost(firstname=firstname, lastname=lastname, email=email,
-                                             administrator=administrator or False,
-                                             force_sec_auth=force_sec_auth or False,
-                                             password=user_password)
+        user_response, _, headers = um_api.um_users_post_with_http_info(user)
 
-        user = UserPost(properties=user_properties)
-        response = client.um_users_post_with_http_info(user)
-        (user_response, _, headers) = response
-
-        if wait:
+        if wait or module.params.get('groups') is not None:
             request_id = _get_request_id(headers['Location'])
-            api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            'user': user_response.to_dict()
-        }
-
-    except Exception as e:
-        module.fail_json(msg="failed to create the user: %s" % to_native(e))
-
-
-def update_user(module, client, api_client):
-    """
-    Updates a user.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        The user instance
-    """
-    firstname = module.params.get('firstname')
-    lastname = module.params.get('lastname')
-    email = module.params.get('email')
-    administrator = module.params.get('administrator')
-    force_sec_auth = module.params.get('force_sec_auth')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-    user_password = module.params.get('user_password')
-
-    try:
-        user_response = None
-        users = client.um_users_get(depth=2)
-        user = get_resource(module, users, email, [['id'], ['properties', 'email']])
-
-        if user:
-            if module.check_mode:
-                module.exit_json(changed=True)
-
-            if not firstname:
-                firstname = user.properties.firstname
-            if not lastname:
-                lastname = user.properties.lastname
-            if administrator is None:
-                administrator = user.properties.administrator
-            if force_sec_auth is None:
-                force_sec_auth = user.properties.force_sec_auth
-
-            user_properties = UserPropertiesPut(firstname=firstname,
-                                                lastname=lastname,
-                                                email=email,
-                                                administrator=administrator or False,
-                                                force_sec_auth=force_sec_auth or False)
-            if user_password:
-                user_properties.password = user_password
-            new_user = UserPut(properties=user_properties)
-            response = client.um_users_put_with_http_info(user_id=user.id, user=new_user, depth=1)
-            (user_response, _, headers) = response
-
-            if wait:
-                request_id = _get_request_id(headers['Location'])
-                api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-        else:
-            module.fail_json(msg='User \'%s\' not found.' % str(email))
-
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        
         if module.params.get('groups') is not None:
             # Get IDs of current groups of the user
             old_user_group_ids = []
-            for g in client.um_users_groups_get(user_response.id).items:
+            for g in um_api.um_users_groups_get(user_response.id).items:
                 old_user_group_ids.append(g.id)
 
-            all_groups = client.um_groups_get(depth=2)
+            all_groups = um_api.um_groups_get(depth=2)
             # Get IDs of groups that user needs to have at the end of update
             new_user_group_ids = []
             for g in module.params.get('groups'):
@@ -390,7 +345,7 @@ def update_user(module, client, api_client):
             # Delete groups user not supposed to be in at end of update
             for group_id in old_user_group_ids:
                 if group_id not in new_user_group_ids:
-                    client.um_groups_users_delete(
+                    um_api.um_groups_users_delete(
                         group_id=group_id,
                         user_id=user_response.id
                     )
@@ -398,59 +353,212 @@ def update_user(module, client, api_client):
             # Post groups that weren't assigned to the user before
             for group_id in new_user_group_ids:
                 if group_id not in old_user_group_ids:
-                    response = client.um_groups_users_post_with_http_info(
+                    response = um_api.um_groups_users_post_with_http_info(
                         group_id=group_id,
                         user=User(id=user_response.id)
                     )
                     (user_response, _, headers) = response
                     request_id = _get_request_id(headers['Location'])
-                    api_client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+                    client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
             # update to reflect new group changes
-            user_response = client.um_users_find_by_id(user_response.id, depth=2)
+            user_response = um_api.um_users_find_by_id(user_response.id, depth=2)
+    except ApiException as e:
+        module.fail_json(msg="failed to create the new user: %s" % to_native(e))
+    return user_response
 
+
+def _update_object(module, client, existing_object):
+    firstname = module.params.get('firstname')
+    lastname = module.params.get('lastname')
+    email = module.params.get('email')
+    administrator = module.params.get('administrator')
+    force_sec_auth = module.params.get('force_sec_auth')
+    user_password = module.params.get('user_password')
+
+    email = existing_object.properties.email if email is None else email
+    firstname = existing_object.properties.firstname if firstname is None else firstname
+    lastname = existing_object.properties.lastname if lastname is None else lastname
+    administrator = existing_object.properties.administrator if administrator is None else administrator
+    force_sec_auth = existing_object.properties.force_sec_auth if force_sec_auth is None else force_sec_auth
+
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    um_api = ionoscloud.UserManagementApi(client)
+
+    user_properties = UserPropertiesPut(
+        firstname=firstname,
+        lastname=lastname,
+        email=email,
+        administrator=administrator or False,
+        force_sec_auth=force_sec_auth or False,
+    )
+    if user_password:
+        user_properties.password = user_password
+    
+    new_user = UserPut(properties=user_properties)
+
+    try:
+        user_response, _, headers = um_api.um_users_put_with_http_info(
+            existing_object.id, new_user,
+        )
+
+        if wait or module.params.get('groups') is not None:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        
+        if module.params.get('groups') is not None:
+            # Get IDs of current groups of the user
+            old_user_group_ids = []
+            for g in um_api.um_users_groups_get(user_response.id).items:
+                old_user_group_ids.append(g.id)
+
+            all_groups = um_api.um_groups_get(depth=2)
+            # Get IDs of groups that user needs to have at the end of update
+            new_user_group_ids = []
+            for g in module.params.get('groups'):
+                group_id = get_resource_id(module, all_groups, g)
+                new_user_group_ids.append(group_id)
+
+            # Delete groups user not supposed to be in at end of update
+            for group_id in old_user_group_ids:
+                if group_id not in new_user_group_ids:
+                    um_api.um_groups_users_delete(
+                        group_id=group_id,
+                        user_id=user_response.id
+                    )
+
+            # Post groups that weren't assigned to the user before
+            for group_id in new_user_group_ids:
+                if group_id not in old_user_group_ids:
+                    response = um_api.um_groups_users_post_with_http_info(
+                        group_id=group_id,
+                        user=User(id=user_response.id)
+                    )
+                    (user_response, _, headers) = response
+                    request_id = _get_request_id(headers['Location'])
+                    client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
+            # update to reflect new group changes
+            user_response = um_api.um_users_find_by_id(user_response.id, depth=2)
+
+        return user_response
+    except ApiException as e:
+        module.fail_json(msg="failed to update the user: %s" % to_native(e))
+
+
+def _remove_object(module, client, existing_object):
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    um_api = ionoscloud.UserManagementApi(client)
+
+    try:
+        _, _, headers = um_api.um_users_delete_with_http_info(existing_object.id)
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to remove the user: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if module.params.get('do_not_replace'):
+            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object):
+        # Update
         return {
             'changed': True,
             'failed': False,
             'action': 'update',
-            'user': user_response.to_dict()
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
         }
 
-    except Exception as e:
-        module.fail_json(msg="failed to create or update the user: %s" % to_native(e))
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
 
 
-def delete_user(module, client):
-    """
-    Removes a user
+def create_object(module, client):
+    existing_object = get_resource(
+        module, _get_object_list(module, client), _get_object_name(module),
+        [['id'], ['properties', 'email']],
+    )
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
 
-    Returns:
-        True if the user was removed, false otherwise
-    """
-    email = module.params.get('email')
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
 
-    # Locate UUID for the user
-    user_list = client.um_users_get(depth=2)
-    user_id = get_resource_id(module, user_list, email, [['id'], ['properties', 'email']])
 
-    if not user_id:
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
+
+    existing_object = get_resource(
+        module, object_list, _get_object_identifier(module),
+        [['id'], ['properties', 'email']],
+    )
+
+    if existing_object is None:
         module.exit_json(changed=False)
 
-    if module.check_mode:
-        module.exit_json(changed=True)
+    existing_object_id_by_new_name = get_resource_id(
+        module, object_list, object_name,
+        [['id'], ['properties', 'email']],
+    )
 
-    try:
-        client.um_users_delete(user_id)
-        return {
-            'action': 'delete',
-            'changed': True,
-            'id': user_id
-        }
-    except Exception as e:
-        module.fail_json(msg="failed to remove the user: %s" % to_native(e))
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired email ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(
+        module, _get_object_list(module, client), _get_object_identifier(module),
+        [['id'], ['properties', 'email']],
+    )
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    _remove_object(module, client, existing_object)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.id,
+    }
 
 
 def get_module_arguments():
@@ -536,19 +644,18 @@ def main():
     with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
         api_client.user_agent = USER_AGENT
         check_required_arguments(module, state, OBJECT_NAME)
-        api_instance = ionoscloud.UserManagementApi(api_client)
 
         try:
             if state == 'absent':
-                module.exit_json(**delete_user(module, api_instance))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'present':
-                module.exit_json(**create_user(module, api_instance, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_user(module, api_instance, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
-                                                                                             error=to_native(e),
-                                                                                             state=state))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(
+                object_name=OBJECT_NAME, error=to_native(e), state=state,
+            ))
 
 
 if __name__ == '__main__':
