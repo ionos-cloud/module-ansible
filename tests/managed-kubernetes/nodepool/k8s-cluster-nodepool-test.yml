@@ -144,13 +144,13 @@
     - name: Remove LAN
       lan:
         datacenter: "{{ datacenter }}"
-        name: "{{ lan }}"
+        lan: "{{ lan }}"
         state: absent
         wait: true
 
     - name: Remove datacenter
       datacenter:
-        name: "{{ datacenter }}"
+        datacenter: "{{ datacenter }}"
         state: absent
         wait: true
 

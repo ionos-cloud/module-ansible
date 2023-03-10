@@ -110,6 +110,6 @@
 
     - name: Remove datacenter
       datacenter:
-        id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         state: absent
         wait: true
