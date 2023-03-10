@@ -131,6 +131,7 @@ short_description: Create or destroy a Data Platform Cluster.
 description:
      - This is a simple module that supports creating or removing Data Platform Clusters.
        This module has a dependency on ionoscloud >= 6.0.2
+     - ⚠️ **Note:** Data Platform is currently in the Early Access (EA) phase. We recommend keeping usage and testing to non-production critical applications. Please contact your sales representative or support for more information.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
