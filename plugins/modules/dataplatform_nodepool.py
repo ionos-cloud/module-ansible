@@ -27,6 +27,7 @@ DATAPLATFORM_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-dataplatform
 DOC_DIRECTORY = 'dataplatform'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Data Platform Nodepool'
+RETURNED_KEY = 'data_platform_nodepool'
 
 OPTIONS = {
     'name': {
@@ -39,8 +40,8 @@ OPTIONS = {
         'required': ['present'],
         'type': 'str',
     },
-    'cluster': {
-        'description': ['The name or ID of the Data Platform cluster.'],
+    'cluster_id': {
+        'description': ['The ID of the Data Platform cluster.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -278,8 +279,57 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def create_dataplatform_nodepool(module, client):
-    cluster = module.params.get('cluster')
+def _should_replace_object(module, existing_object):
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+        or module.params.get('cpu_family') is not None
+        and existing_object.properties.cpu_family != module.params.get('cpu_family')
+        or module.params.get('cores_count') is not None
+        and existing_object.properties.cores_count != module.params.get('cores_count')
+        or module.params.get('ram_size') is not None
+        and existing_object.properties.ram_size != module.params.get('ram_size')
+        or module.params.get('availability_zone') is not None
+        and existing_object.properties.availability_zone != module.params.get('availability_zone')
+        or module.params.get('storage_type') is not None
+        and existing_object.properties.storage_type != module.params.get('storage_type')
+        or module.params.get('storage_size') is not None
+        and existing_object.properties.storage_size != module.params.get('storage_size')
+    )
+
+
+def _should_update_object(module, existing_object):
+    return (
+        module.params.get('maintenance_window') is not None
+        and (
+            existing_object.properties.maintenance_window.day_of_the_week != module.params.get('maintenance_window').get('day_of_the_week')
+            or existing_object.properties.maintenance_window.time != module.params.get('maintenance_window').get('time')
+        )
+        or module.params.get('node_count') is not None
+        and existing_object.properties.node_count != module.params.get('node_count')
+        or module.params.get('labels') is not None
+        and existing_object.properties.labels != module.params.get('labels')
+        or module.params.get('annotations') is not None
+        and existing_object.properties.annotations != module.params.get('annotations')
+    )
+
+
+def _get_object_list(module, client):
+    return ionoscloud_dataplatform.DataPlatformNodePoolApi(client).get_cluster_nodepools(
+        module.params.get('cluster_id'), depth=1,
+    )
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('nodepool')
+
+
+def _create_object(module, client, existing_object=None):
+    cluster_id = module.params.get('cluster_id')
     name = module.params.get('name')
     node_count = module.params.get('node_count')
     cpu_family = module.params.get('cpu_family')
@@ -291,194 +341,212 @@ def create_dataplatform_nodepool(module, client):
     maintenance = module.params.get('maintenance_window')
     labels = module.params.get('labels')
     annotations = module.params.get('annotations')
-    wait = module.params.get('wait')
-
-    dataplatform_clusters = ionoscloud_dataplatform.DataPlatformClusterApi(api_client=client).get_clusters()
-    dataplatform_cluster = get_resource(module, dataplatform_clusters, cluster, [['id'], ['properties', 'name']])
-    if dataplatform_cluster is None:
-        module.fail_json(msg="Could not find Data Platform cluster '{}'".format(cluster))
-
-    dataplatform_nodepool_server = ionoscloud_dataplatform.DataPlatformNodePoolApi(api_client=client)
 
     maintenance_window = None
     if maintenance:
         maintenance_window = dict(maintenance)
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
-    nodepool_list = dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster.id)
+    if existing_object is not None:
+        nodepool_name = existing_object.properties.name if nodepool_name is None else nodepool_name
+        k8s_version = existing_object.properties.k8s_version if k8s_version is None else k8s_version
+        node_count = existing_object.properties.node_count if node_count is None else node_count
+        cpu_family = existing_object.properties.cpu_family if cpu_family is None else cpu_family
+        cores_count = existing_object.properties.cores_count if cores_count is None else cores_count
+        ram_size = existing_object.properties.ram_size if ram_size is None else ram_size
+        availability_zone = existing_object.properties.availability_zone if availability_zone is None else availability_zone
+        storage_type = existing_object.properties.storage_type if storage_type is None else storage_type
+        storage_size = existing_object.properties.storage_size if storage_size is None else storage_size
+        labels = existing_object.properties.labels if labels is None else labels
+        annotations = existing_object.properties.annotations if annotations is None else annotations
+        maintenance = existing_object.properties.maintenance_window if maintenance is None else maintenance_window
 
-    existing_nodepool = get_resource(module, nodepool_list, name)
-
-    if existing_nodepool:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'dataplatform_nodepool': existing_nodepool.to_dict()
-        }
+    dataplatform_nodepool_properties = ionoscloud_dataplatform.CreateNodePoolProperties(
+        name=name,
+        node_count=node_count,
+        cpu_family=cpu_family,
+        cores_count=cores_count,
+        ram_size=ram_size,
+        availability_zone=availability_zone,
+        storage_type=storage_type,
+        storage_size=storage_size,
+        maintenance_window=maintenance_window,
+        labels=labels,
+        annotations=annotations,
+    )
+    dataplatform_nodepool = ionoscloud_dataplatform.CreateNodePoolRequest(properties=dataplatform_nodepool_properties)
+    dataplatform_nodepool_api = ionoscloud_dataplatform.DataPlatformNodePoolApi(api_client=client)
 
     try:
-        dataplatform_nodepool_properties = ionoscloud_dataplatform.CreateNodePoolProperties(
-            name=name,
-            node_count=node_count,
-            cpu_family=cpu_family,
-            cores_count=cores_count,
-            ram_size=ram_size,
-            availability_zone=availability_zone,
-            storage_type=storage_type,
-            storage_size=storage_size,
-            maintenance_window=maintenance_window,
-            labels=labels,
-            annotations=annotations,
-        )
-
-        dataplatform_nodepool = ionoscloud_dataplatform.CreateNodePoolRequest(properties=dataplatform_nodepool_properties)
-
-        dataplatform_response= dataplatform_nodepool_server.create_cluster_nodepool(dataplatform_cluster.id, dataplatform_nodepool)
-
-        if wait:
+        response = dataplatform_nodepool_api.create_cluster_nodepool(cluster_id, dataplatform_nodepool)
+        if module.params.get('wait'):
             client.wait_for(
-                fn_request=lambda: dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster.id),
+                fn_request=lambda: dataplatform_nodepool_api.get_cluster_nodepools(cluster_id),
                 fn_check=lambda r: list(filter(
                     lambda e: e.properties.name == name,
                     r.items
                 ))[0].metadata.state == 'AVAILABLE',
-                scaleup=10000
+                scaleup=10000,
+                timeout=int(module.params.get('wait_timeout')),
             )
-
-        results = {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            'dataplatform_nodepool': dataplatform_response.to_dict()
-        }
-        return results
-
-    except Exception as e:
-        module.fail_json(msg="failed to create the Data Platform nodepool: %s" % to_native(e))
+    except ionoscloud_dataplatform.ApiException as e:
+        module.fail_json(msg="failed to create the new {}: {}".format(OBJECT_NAME, to_native(e)))
+    return response
 
 
-def delete_dataplatform_nodepool(module, client):
-    cluster = module.params.get('cluster')
-    nodepool = module.params.get('nodepool')
-
-    dataplatform_clusters = ionoscloud_dataplatform.DataPlatformClusterApi(api_client=client).get_clusters()
-    dataplatform_cluster = get_resource(module, dataplatform_clusters, cluster, [['id'], ['properties', 'name']])
-    if not dataplatform_cluster:
-        module.fail_json(msg="Could not find Data Platform cluster '{}'".format(cluster))
-
-    dataplatform_nodepool_server = ionoscloud_dataplatform.DataPlatformNodePoolApi(api_client=client)
-
-    dataplatform_nodepools = dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster.id)
-    dataplatform_nodepool = get_resource(module, dataplatform_nodepools, nodepool, [['id'], ['properties', 'name']])
-
-    if not dataplatform_nodepool:
-        module.exit_json(changed=False, msg="Data Platform Nodepool '{}' not found.".format(nodepool))
-
-    changed = False
-
-    try:
-        if dataplatform_nodepool.metadata.state == 'AVAILABLE':
-            dataplatform_nodepool_server.delete_cluster_nodepool(dataplatform_cluster.id, dataplatform_nodepool.id)
-        if module.params.get('wait'):
-            client.wait_for(
-                fn_request=lambda: dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster.id),
-                fn_check=lambda r: len(list(filter(
-                    lambda e: e.id == dataplatform_nodepool.id,
-                    r.items
-                ))) < 1,
-                console_print='.',
-                scaleup=10000
-            )
-        changed = True
-
-    except Exception as e:
-        module.fail_json(msg="failed to delete the Data Platform Nodepool: %s" % to_native(e))
-
-    return {
-        'action': 'delete',
-        'changed': changed,
-        'nodepool': dataplatform_nodepool.id
-    }
-
-
-def update_dataplatform_nodepool(module, client):
-    cluster = module.params.get('cluster')
-    nodepool = module.params.get('nodepool')
+def _update_object(module, client, existing_object):
+    cluster_id = module.params.get('cluster_id')
     node_count = module.params.get('node_count')
     maintenance = module.params.get('maintenance_window')
-    wait = module.params.get('wait')
-    name = module.params.get('name')
     labels = module.params.get('labels')
     annotations = module.params.get('annotations')
 
-    # Get the Data Platform Cluster
-    dataplatform_clusters = ionoscloud_dataplatform.DataPlatformClusterApi(api_client=client).get_clusters()
-    dataplatform_cluster = get_resource(module, dataplatform_clusters, cluster, [['id'], ['properties', 'name']])
-    if not dataplatform_cluster:
-        module.fail_json(msg="Could not find Data Platform cluster '{}'".format(cluster))
-
-    dataplatform_nodepool_server = ionoscloud_dataplatform.DataPlatformNodePoolApi(api_client=client)
-
-    # Get the Data Platform Nodepool
-    dataplatform_nodepools = dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster.id)
-    dataplatform_nodepool = get_resource(module, dataplatform_nodepools, nodepool, [['id'], ['properties', 'name']])
-    if not dataplatform_nodepool:
-        module.fail_json(msg="Could not find Data Platform Nodepool '{}'".format(nodepool))
+    if not node_count:
+        node_count = existing_object.properties.node_count
 
     maintenance_window = None
     if maintenance:
         maintenance_window = dict(maintenance)
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
-
-    # Check if the name is already taken
-    nodepool_list = dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster.id)
-    existing_nodepool_by_name = get_resource(module, nodepool_list, name)
-
-    if dataplatform_nodepool is not None and existing_nodepool_by_name is not None and existing_nodepool_by_name.id != dataplatform_nodepool.id:
-        module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
-            OBJECT_NAME, name,
-        ))
-
-    if not node_count:
-        node_count = dataplatform_nodepool.properties.node_count
-
-    if module.check_mode:
-        module.exit_json(changed=True)
+        
+    dataplatform_nodepool_properties = ionoscloud_dataplatform.PatchNodePoolProperties(
+        node_count=node_count,
+        maintenance_window=maintenance_window,
+        labels=labels,
+        annotations=annotations,
+    )
+    dataplatform_patch_nodepool_request = ionoscloud_dataplatform.PatchNodePoolRequest(properties=dataplatform_nodepool_properties)
+    
+    dataplatform_nodepool_api = ionoscloud_dataplatform.DataPlatformNodePoolApi(api_client=client)
     try:
-        dataplatform_nodepool_properties = ionoscloud_dataplatform.PatchNodePoolProperties(
-            node_count=node_count,
-            maintenance_window=maintenance_window,
-            labels=labels,
-            annotations=annotations,
+        response = dataplatform_nodepool_api.patch_cluster_nodepool(
+            cluster_id, existing_object.id, dataplatform_patch_nodepool_request,
         )
 
-        dataplatform_patch_nodepool_request = ionoscloud_dataplatform.PatchNodePoolRequest(properties=dataplatform_nodepool_properties)
-        dataplatform_response = dataplatform_nodepool_server.patch_cluster_nodepool(
-            dataplatform_cluster.id, dataplatform_nodepool.id, dataplatform_patch_nodepool_request,
-        )
-
-        if wait:
+        if module.params.get('wait'):
             client.wait_for(
-                fn_request=lambda: dataplatform_nodepool_server.get_cluster_nodepools(dataplatform_cluster.id),
+                fn_request=lambda: dataplatform_nodepool_api.get_cluster_nodepools(cluster_id),
                 fn_check=lambda r: list(filter(
-                    lambda e: e.id == dataplatform_nodepool.id,
+                    lambda e: e.id == existing_object.id,
                     r.items
                 ))[0].metadata.state == 'AVAILABLE',
-                scaleup=10000
+                scaleup=10000,
+                timeout=int(module.params.get('wait_timeout')),
             )
 
-        changed = True
+        return response
+    except ionoscloud_dataplatform.ApiException as e:
+        module.fail_json(msg="failed to update the {}: {}".format(OBJECT_NAME, to_native(e)))
 
+
+def _remove_object(module, client, existing_object):
+    cluster_id = module.params.get('cluster_id')
+    dataplatform_nodepool_api = ionoscloud_dataplatform.DataPlatformNodePoolApi(api_client=client)
+
+    try:
+        if existing_object.metadata.state == 'AVAILABLE':
+            dataplatform_nodepool_api.delete_cluster_nodepool(
+                cluster_id=cluster_id, nodepool_id=existing_object.id,
+            )
+
+        if module.params.get('wait'):
+            client.wait_for(
+                fn_request=lambda: dataplatform_nodepool_api.get_cluster_nodepools(cluster_id),
+                fn_check=lambda r: len(list(filter(
+                    lambda e: e.id == existing_object.id,
+                    r.items
+                ))) < 1,
+                console_print='.',
+                scaleup=10000,
+                timeout=module.params.get('wait_timeout'),
+            )
     except Exception as e:
-        module.fail_json(msg="failed to update the Data Platform nodepool: %s" % to_native(e))
-        changed = False
+        module.fail_json(msg="failed to delete the {}: {}".format(OBJECT_NAME, to_native(e)))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if module.params.get('do_not_replace'):
+            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
+        }
+
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
 
     return {
-        'changed': changed,
+        'changed': True,
         'failed': False,
-        'action': 'update',
-        'data_plaform_nodepool': dataplatform_response.to_dict()
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
+
+
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
+
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    _remove_object(module, client, existing_object)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.id,
     }
 
 
@@ -563,11 +631,11 @@ def main():
         check_required_arguments(module, state, OBJECT_NAME)
         try:
             if state == 'present':
-                module.exit_json(**create_dataplatform_nodepool(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'absent':
-                module.exit_json(**delete_dataplatform_nodepool(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_dataplatform_nodepool(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
