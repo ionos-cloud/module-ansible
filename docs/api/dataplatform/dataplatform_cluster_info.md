@@ -1,20 +1,20 @@
-# registry_info
+# dataplatform_cluster_info
 
-This is a simple module that supports listing existing Registries
+This is a simple module that supports listing existing DataPlatform Clusters
 
 ## Example Syntax
 
 
 ```yaml
 
-    - name: List Registries
-        registry_info:
-        register: registries_response
+    - name: List DataPlatform Clusters
+        dataplatform_cluster_info:
+        register: dataplatform_clusters_response
 
 
-    - name: Show Registries
+    - name: Show DataPlatform Clusters
         debug:
-            var: registries_response.result
+            var: dataplatform_clusters_response.result
 
 ```
 ### Available parameters:

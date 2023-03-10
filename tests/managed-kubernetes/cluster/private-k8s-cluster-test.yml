@@ -27,7 +27,6 @@
         maintenance_window:
           day_of_the_week: "Wednesday"
           time: "12:02:00"
-        k8s_version: "1.21.9"
         public: False
       register: cluster_response
 
@@ -43,7 +42,6 @@
         availability_zone: "AUTO"
         storage_type: "HDD"
         storage_size: "100"
-        k8s_version: "1.21.9"
         gateway_ip: "{{ ipblock_response.ipblock.properties.ips[0] }}"
         wait: true
       register: nodepool_response

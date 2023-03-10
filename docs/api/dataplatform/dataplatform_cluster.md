@@ -1,34 +1,30 @@
-# registry
+# dataplatform_cluster
 
-This is a module that supports creating, updating or destroying Registries
+This is a simple module that supports creating or removing Data Platform Clusters. This module has a dependency on ionoscloud &gt;= 6.0.2
 
 ## Example Syntax
 
 
 ```yaml
-- name: Create Registry
-    registry:
-      name: test_registry
-      location: de/fra
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: registry_response
+
+  - name: Create Data Platform cluster
+    dataplatform_cluster:
+      name: "{{ cluster_name }}"
   
-- name: Update Registry
-    registry:
-      name: test_registry
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: updated_registry_response
+
+  - name: Update Data Platform cluster
+    dataplatform_cluster:
+      cluster: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
+      maintenance_window:
+        day_of_the_week: 'Tuesday'
+        time: '13:03:00'
+      dataplatform_version: 1.17.8
+      state: update
   
-- name: Delete Registry
-    registry:
-      name: test_registry
-      wait: true
+
+  - name: Delete Data Platform cluster
+    dataplatform_cluster:
+      cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
       state: absent
   
 ```
@@ -38,15 +34,10 @@ This is a module that supports creating, updating or destroying Registries
 
 # state: **present**
 ```yaml
-  - name: Create Registry
-    registry:
-      name: test_registry
-      location: de/fra
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: registry_response
+  
+  - name: Create Data Platform cluster
+    dataplatform_cluster:
+      name: "{{ cluster_name }}"
   
 ```
 ### Available parameters for state **present**:
@@ -54,9 +45,10 @@ This is a module that supports creating, updating or destroying Registries
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | garbage_collection_schedule | False | dict |  | Dict containing &quot;time&quot; (the time of the day when to perform the garbage_collection) and &quot;days&quot; (the days when to perform the garbage_collection). |
-  | location | True | str |  | The location of your registry |
-  | name | True | str |  | The name of your registry. |
+  | name | True | str |  | The name of your cluster. Must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
+  | dataplatform_version | False | str |  | The version of the DataPlatform. |
+  | datacenter_id | True | str |  | The UUID of the virtual data center (VDC) the cluster is provisioned. |
+  | maintenance_window | False | dict |  | Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -70,10 +62,10 @@ This is a module that supports creating, updating or destroying Registries
 &nbsp;
 # state: **absent**
 ```yaml
-  - name: Delete Registry
-    registry:
-      name: test_registry
-      wait: true
+  
+  - name: Delete Data Platform cluster
+    dataplatform_cluster:
+      cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
       state: absent
   
 ```
@@ -82,7 +74,7 @@ This is a module that supports creating, updating or destroying Registries
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | registry | True | str |  | The ID or name of an existing Registry. |
+  | cluster | True | str |  | The ID or name of the Data Platform cluster. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -96,14 +88,15 @@ This is a module that supports creating, updating or destroying Registries
 &nbsp;
 # state: **update**
 ```yaml
-  - name: Update Registry
-    registry:
-      name: test_registry
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: updated_registry_response
+  
+  - name: Update Data Platform cluster
+    dataplatform_cluster:
+      cluster: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
+      maintenance_window:
+        day_of_the_week: 'Tuesday'
+        time: '13:03:00'
+      dataplatform_version: 1.17.8
+      state: update
   
 ```
 ### Available parameters for state **update**:
@@ -111,10 +104,11 @@ This is a module that supports creating, updating or destroying Registries
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | garbage_collection_schedule | False | dict |  | Dict containing &quot;time&quot; (the time of the day when to perform the garbage_collection) and &quot;days&quot; (the days when to perform the garbage_collection). |
-  | location | False | str |  | The location of your registry |
-  | name | False | str |  | The name of your registry. |
-  | registry | True | str |  | The ID or name of an existing Registry. |
+  | name | False | str |  | The name of your cluster. Must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
+  | cluster | True | str |  | The ID or name of the Data Platform cluster. |
+  | dataplatform_version | True | str |  | The version of the DataPlatform. |
+  | datacenter_id | False | str |  | The UUID of the virtual data center (VDC) the cluster is provisioned. |
+  | maintenance_window | True | dict |  | Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |

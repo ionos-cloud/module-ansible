@@ -7,7 +7,7 @@ from ansible.module_utils._text import to_native
 
 HAS_SDK = True
 try:
-    import ionoscloud_container_registry
+    import ionoscloud_dataplatform
 except ImportError:
     HAS_SDK = False
 
@@ -16,21 +16,21 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-CONTAINER_REGISTRY_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-container-registry/%s' % (
-__version__, ionoscloud_container_registry.__version__)
-DOC_DIRECTORY = 'container-registry'
+DATAPLATFORM_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (
+__version__, ionoscloud_dataplatform.__version__)
+DOC_DIRECTORY = 'dataplatform'
 STATES = ['info']
-OBJECT_NAME = 'Registries'
+OBJECT_NAME = 'DataPlatform Clusters'
 
 OPTIONS = {
     'filters': {
-        'description': [
-            'Filter that can be used to list only objects which have a certain set of propeties. Filters '
-            'should be a dict with a key containing keys and value pair in the following format:'
-            "'properties.name': 'server_name'"
-        ],
-        'available': STATES,
-        'type': 'dict',
+            'description': [
+                'Filter that can be used to list only objects which have a certain set of propeties. Filters '
+                'should be a dict with a key containing keys and value pair in the following format:'
+                "'properties.name': 'server_name'"
+            ],
+            'available': STATES,
+            'type': 'dict',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -76,10 +76,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: registry_info
-short_description: List Registries
+module: dataplatform_cluster_info
+short_description: List DataPlatform Clusters
 description:
-     - This is a simple module that supports listing existing Registries
+     - This is a simple module that supports listing existing DataPlatform Clusters
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -87,21 +87,22 @@ options:
     default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud-container-registry >= 1.0.0"
+    - "ionoscloud-dataplatform >= 1.0.0"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
 
 EXAMPLES = '''
-    - name: List Registries
-        registry_info:
-        register: registries_response
+    - name: List DataPlatform Clusters
+        dataplatform_cluster_info:
+        register: dataplatform_clusters_response
 
 
-    - name: Show Registries
+    - name: Show DataPlatform Clusters
         debug:
-            var: registries_response.result
+            var: dataplatform_clusters_response.result
 '''
+
 
 def get_method_from_filter(filter):
     '''
@@ -156,7 +157,6 @@ def apply_filters(module, item_list):
     return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
 
 
-
 def get_module_arguments():
     arguments = {}
 
@@ -205,14 +205,15 @@ def get_sdk_config(module, sdk):
 def check_required_arguments(module, object_name):
     # manually checking if token or username & password provided
     if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
+            not module.params.get("token")
+            and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name}'.format(
                 object_name=object_name,
             ),
         )
+
     for option_name, option in OPTIONS.items():
         if 'info' in option.get('required', []) and not module.params.get(option_name):
             module.fail_json(
@@ -228,15 +229,15 @@ def main():
 
     if not HAS_SDK:
         module.fail_json(
-            msg='ionoscloud_container_registry is required for this module, run `pip install ionoscloud_container_registry`')
+            msg='ionoscloud_dataplatform is required for this module, run `pip install ionoscloud_dataplatform`')
 
-    container_registry_api_client = ionoscloud_container_registry.ApiClient(get_sdk_config(module, ionoscloud_container_registry))
-    container_registry_api_client.user_agent = CONTAINER_REGISTRY_USER_AGENT
+    dataplatform_api_client = ionoscloud_dataplatform.ApiClient(get_sdk_config(module, ionoscloud_dataplatform))
+    dataplatform_api_client.user_agent = DATAPLATFORM_USER_AGENT
 
     check_required_arguments(module, OBJECT_NAME)
     try:
-        registries = ionoscloud_container_registry.RegistriesApi(container_registry_api_client).registries_get()
-        results = list(map(lambda x: x.to_dict(), apply_filters(module, registries.items)))
+        clusters = ionoscloud_dataplatform.DataPlatformClusterApi(dataplatform_api_client).get_clusters()
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, clusters.items)))
         module.exit_json(result=results)
     except Exception as e:
         module.fail_json(

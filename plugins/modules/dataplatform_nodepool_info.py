@@ -7,7 +7,7 @@ from ansible.module_utils._text import to_native
 
 HAS_SDK = True
 try:
-    import ionoscloud_container_registry
+    import ionoscloud_dataplatform
 except ImportError:
     HAS_SDK = False
 
@@ -16,11 +16,11 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-CONTAINER_REGISTRY_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-container-registry/%s' % (
-__version__, ionoscloud_container_registry.__version__)
-DOC_DIRECTORY = 'container-registry'
+DATAPLATFORM_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (
+    __version__, ionoscloud_dataplatform.__version__)
+DOC_DIRECTORY = 'dataplatform'
 STATES = ['info']
-OBJECT_NAME = 'Registries'
+OBJECT_NAME = 'DataPlatform Clusters'
 
 OPTIONS = {
     'filters': {
@@ -31,6 +31,12 @@ OPTIONS = {
         ],
         'available': STATES,
         'type': 'dict',
+    },
+    'cluster': {
+        'description': ['The ID of the Data Platform cluster.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -76,10 +82,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: registry_info
-short_description: List Registries
+module: dataplatform_nodepool_info
+short_description: List DataPlatform Nodepools
 description:
-     - This is a simple module that supports listing existing Registries
+     - This is a simple module that supports listing existing DataPlatform Nodepools
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -87,21 +93,23 @@ options:
     default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud-container-registry >= 1.0.0"
+    - "ionoscloud-dataplatform >= 1.0.0"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
 
 EXAMPLES = '''
-    - name: List Registries
-        registry_info:
-        register: registries_response
+    - name: List DataPlatform Nodepools
+        dataplatform_nodepool_info:
+            cluster: {{ cluster_id }}
+        register: dataplatform_nodepools_response
 
 
-    - name: Show Registries
+    - name: Show DataPlatform Clusters
         debug:
-            var: registries_response.result
+            var: dataplatform_nodepools_response.result
 '''
+
 
 def get_method_from_filter(filter):
     '''
@@ -115,11 +123,13 @@ def get_method_from_filter(filter):
             the wanted method
     '''
     key, value = filter
+
     def method(item):
         current = item
         for key_part in key.split('.'):
             current = getattr(current, key_part)
         return current == value
+
     return method
 
 
@@ -132,8 +142,10 @@ def get_method_to_apply_filters_to_item(filter_list):
     Returns:
             the wanted method
     '''
+
     def f(item):
         return all([f(item) for f in filter_list])
+
     return f
 
 
@@ -154,7 +166,6 @@ def apply_filters(module, item_list):
     filter_methods = list(map(get_method_from_filter, filters.items()))
 
     return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
-
 
 
 def get_module_arguments():
@@ -205,14 +216,15 @@ def get_sdk_config(module, sdk):
 def check_required_arguments(module, object_name):
     # manually checking if token or username & password provided
     if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
+            not module.params.get("token")
+            and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name}'.format(
                 object_name=object_name,
             ),
         )
+
     for option_name, option in OPTIONS.items():
         if 'info' in option.get('required', []) and not module.params.get(option_name):
             module.fail_json(
@@ -223,20 +235,67 @@ def check_required_arguments(module, object_name):
             )
 
 
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+        identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+        resource_identity = []
+
+        for identity_path in identity_paths:
+            current = resource
+            for el in identity_path:
+                current = getattr(current, el)
+            resource_identity.append(current)
+
+        return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
+
+
 def main():
     module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
     if not HAS_SDK:
         module.fail_json(
-            msg='ionoscloud_container_registry is required for this module, run `pip install ionoscloud_container_registry`')
+            msg='ionoscloud_dataplatform is required for this module, run `pip install ionoscloud_dataplatform`')
 
-    container_registry_api_client = ionoscloud_container_registry.ApiClient(get_sdk_config(module, ionoscloud_container_registry))
-    container_registry_api_client.user_agent = CONTAINER_REGISTRY_USER_AGENT
+    dataplatform_api_client = ionoscloud_dataplatform.ApiClient(get_sdk_config(module, ionoscloud_dataplatform))
+    dataplatform_api_client.user_agent = DATAPLATFORM_USER_AGENT
 
     check_required_arguments(module, OBJECT_NAME)
     try:
-        registries = ionoscloud_container_registry.RegistriesApi(container_registry_api_client).registries_get()
-        results = list(map(lambda x: x.to_dict(), apply_filters(module, registries.items)))
+        cluster = module.params.get('cluster')
+        dataplatform_clusters = ionoscloud_dataplatform.DataPlatformClusterApi(
+            api_client=dataplatform_api_client).get_clusters()
+        dataplatform_cluster = get_resource(module, dataplatform_clusters, cluster, [['id'], ['properties', 'name']])
+        if dataplatform_cluster is None:
+            module.fail_json(msg="Could not find Data Platform cluster '{}'".format(cluster))
+
+        nodepools = ionoscloud_dataplatform.DataPlatformNodePoolApi(dataplatform_api_client).get_cluster_nodepools(
+            cluster_id=dataplatform_cluster.id)
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, nodepools.items)))
         module.exit_json(result=results)
     except Exception as e:
         module.fail_json(

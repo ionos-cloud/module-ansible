@@ -2,8 +2,6 @@
 
 This is a simple module that supports listing existing Registry Tokens
 
-⚠️ **Note:** Container Registry is currently in the Early Access (EA) phase. We recommend keeping usage and testing to non-production critical applications. Please contact your sales representative or support for more information.
-
 ## Example Syntax
 
 
@@ -11,6 +9,7 @@ This is a simple module that supports listing existing Registry Tokens
 
     - name: List Registry Tokens
         registry_token_info:
+            registry_id: "{{ id }}"
         register: registry_tokens_response
 
 
@@ -24,6 +23,7 @@ This is a simple module that supports listing existing Registry Tokens
 
 | Name | Required | Type | Default | Description |
 | :--- | :---: | :--- | :--- | :--- |
+| filters | False | dict |  | Filter that can be used to list only objects which have a certain set of propeties. Filters should be a dict with a key containing keys and value pair in the following format:'properties.name': 'server_name' |
 | registry_id | True | str |  | The ID of an existing Registry. |
 | api_url | False | str |  | The Ionos API base URL. |
 | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

@@ -112,7 +112,7 @@ jobs:
           - namespace: managed-kubernetes/cluster
             keywords: "k8s"
           - namespace: managed-kubernetes/nodepool
-            keywords: "nodepool"
+            keywords: "k8s-cluster-nodepool, k8s_nodepool"
           - namespace: natgateway
             keywords: "nat"
           - namespace: networkloadbalancer
@@ -121,9 +121,11 @@ jobs:
             keywords: "certificate"
           - namespace: container-registry
             keywords: "registry"
+          - namespace: dataplatform
+            keywords: "data_platform, dataplatform"
 
     env:
-      python-version: 3.8.0
+      python-version: 3.8.15
       ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
       IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
       IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
@@ -151,6 +153,7 @@ jobs:
           python3 -m pip install ionoscloud-dbaas-postgres
           python3 -m pip install ionoscloud-dbaas-mongo
           python3 -m pip install ionoscloud-container-registry
+          python3 -m pip install ionoscloud-dataplatform
 
       - name: Install Ansible
         run: |
@@ -169,7 +172,7 @@ jobs:
         run: |
           if [[ $(bash .github/scripts/check_keywords.sh  "${{ matrix.keywords }}" ${{ steps.files.outputs.all }}) == true ]]; then
             echo "Changed files in ${{ matrix.namespace }}."
-            ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ matrix.namespace }}/all-tests.yml
+            ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ matrix.namespace }}/all-tests.yml -vvv
           else
             echo "no changed ${{ matrix.namespace }} files!"
           fi

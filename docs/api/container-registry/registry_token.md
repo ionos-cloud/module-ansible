@@ -2,8 +2,6 @@
 
 This is a module that supports creating, updating or destroying Registry Tokens
 
-⚠️ **Note:** Container Registry is currently in the Early Access (EA) phase. We recommend keeping usage and testing to non-production critical applications. Please contact your sales representative or support for more information.
-
 ## Example Syntax
 
 
