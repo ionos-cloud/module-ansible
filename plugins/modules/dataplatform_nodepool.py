@@ -316,7 +316,7 @@ def _should_update_object(module, existing_object):
 
 def _get_object_list(module, client):
     return ionoscloud_dataplatform.DataPlatformNodePoolApi(client).get_cluster_nodepools(
-        module.params.get('cluster_id'), depth=1,
+        module.params.get('cluster_id'),
     )
 
 
