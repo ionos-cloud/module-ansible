@@ -381,11 +381,10 @@ def _create_object(module, client, existing_object=None):
         response = dataplatform_nodepool_api.create_cluster_nodepool(cluster_id, dataplatform_nodepool)
         if module.params.get('wait'):
             client.wait_for(
-                fn_request=lambda: dataplatform_nodepool_api.get_cluster_nodepools(cluster_id),
-                fn_check=lambda r: list(filter(
-                    lambda e: e.properties.name == name,
-                    r.items
-                ))[0].metadata.state == 'AVAILABLE',
+                fn_request=lambda: dataplatform_nodepool_api.get_cluster_nodepool(
+                    cluster_id,response.id,
+                ).metadata.state,
+                fn_check=lambda r: r == 'AVAILABLE',
                 scaleup=10000,
                 timeout=int(module.params.get('wait_timeout')),
             )
