@@ -25,7 +25,7 @@ DATAPLATFORM_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-dataplatform
 DOC_DIRECTORY = 'dataplatform'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Data Platform Cluster'
-RETURNED_KEY = 'data_platform_cluster'
+RETURNED_KEY = 'dataplatform_cluster'
 
 OPTIONS = {
     'name': {

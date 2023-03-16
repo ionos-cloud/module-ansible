@@ -27,7 +27,7 @@ DATAPLATFORM_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-dataplatform
 DOC_DIRECTORY = 'dataplatform'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Data Platform Nodepool'
-RETURNED_KEY = 'data_platform_nodepool'
+RETURNED_KEY = 'dataplatform_nodepool'
 
 OPTIONS = {
     'name': {
