@@ -52,7 +52,7 @@
     - name: Create DataPlatform cluster nodepool
       dataplatform_nodepool:
         name: "my-nodepool"
-        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
+        cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
         node_count: 2
         cpu_family: "INTEL_SKYLAKE"
         cores_count: 1
@@ -75,7 +75,7 @@
 
     - name: Update DataPlatform cluster nodepool
       dataplatform_nodepool:
-        cluster: "{{ cluster_response.dataplatform_cluster.properties.name }}"
+        cluster_id: "{{ cluster_response.dataplatform_cluster.id }}"
         nodepool: "{{ result.dataplatform_nodepool.properties.name }}"
         node_count: 2
         maintenance_window:
