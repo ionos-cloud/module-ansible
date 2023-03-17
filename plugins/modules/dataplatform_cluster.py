@@ -371,7 +371,7 @@ def _remove_object(module, client, existing_object):
 
     try:
         if existing_object.metadata.state == 'AVAILABLE':
-            dataplatform_cluster_api.delete_cluster(k8s_cluster_id=existing_object.id)
+            dataplatform_cluster_api.delete_cluster(existing_object.id)
 
         if module.params.get('wait'):
             client.wait_for(
