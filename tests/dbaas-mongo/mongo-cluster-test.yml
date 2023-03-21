@@ -33,7 +33,35 @@
             - 192.168.1.118/24
           datacenter: "{{ datacenter }} - DBaaS Mongo"
           lan: "test_lan"
-      display_name: backuptest-04
+      display_name: "{{ display_name }}"
+      wait: true
+      wait_timeout: 7200
+    register: cluster_response
+
+  - name: Replace Cluster
+    mongo_cluster:
+      mongo_db_version: 5.0
+      instances: 3
+      location: de/fra
+      template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
+      connections:
+        - cidr_list: 
+            - 192.168.1.126/24
+            - 192.168.1.127/24
+            - 192.168.1.128/24
+          datacenter: "{{ datacenter }} - DBaaS Mongo"
+          lan: "test_lan"
+      display_name: "{{ display_name }}"
+      wait: true
+      wait_timeout: 7200
+    register: cluster_response
+
+  - name: Update Cluster
+    mongo_cluster:
+      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
+      instances: 1
+      display_name: "{{ display_name_updated }}"
+      state: update
       wait: true
     register: cluster_response
 
