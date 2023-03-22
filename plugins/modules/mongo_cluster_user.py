@@ -43,7 +43,7 @@ OPTIONS = {
     },
     'mongo_password': {
         'description': ['The password of the user.'],
-        'available': ['present'],
+        'available': ['present', 'update'],
         'required': ['present'],
         'no_log': True,
         'type': 'str',
@@ -54,9 +54,19 @@ OPTIONS = {
           "'role': has one of the following values: 'read', 'readWrite' or 'readAnyDatabase'"
           "'database': the name of the databse to which the role applies"
         ],
-        'available': ['present'],
+        'available': ['present', 'update'],
         'required': ['present'],
         'type': 'list',
+    },
+    'do_not_replace': {
+        'description': [
+            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -287,6 +297,7 @@ def _remove_object(module, dbaas_client, existing_object):
     users_api = ionoscloud_dbaas_mongo.UsersApi(dbaas_client)
 
     try:
+        users_api.clusters_users_delete(module.params.get('mongo_cluster_id'), existing_object.properties.username)
         if module.params.get('wait'):
             try:
                 dbaas_client.wait_for(
@@ -339,7 +350,7 @@ def update_replace_object(module, client, existing_object):
 def create_object(module, client):
     existing_object = get_resource(
         module, _get_object_list(module, client), _get_object_name(module),
-        [['id'], ['properties', 'email']],
+        [['properties', 'username']],
     )
 
     if existing_object:
@@ -354,32 +365,15 @@ def create_object(module, client):
 
 
 def update_object(module, client):
-    object_name = _get_object_name(module)
     object_list = _get_object_list(module, client)
 
     existing_object = get_resource(
         module, object_list, _get_object_identifier(module),
-        [['id'], ['properties', 'email']],
+        [['properties', 'username']],
     )
 
     if existing_object is None:
         module.exit_json(changed=False)
-
-    existing_object_id_by_new_name = get_resource_id(
-        module, object_list, object_name,
-        [['id'], ['properties', 'email']],
-    )
-
-    if (
-        existing_object.id is not None
-        and existing_object_id_by_new_name is not None
-        and existing_object_id_by_new_name != existing_object.id
-    ):
-        module.fail_json(
-            msg='failed to update the {}: Another resource with the desired email ({}) exists'.format(
-                OBJECT_NAME, object_name,
-            ),
-        )
 
     return update_replace_object(module, client, existing_object)
 
@@ -387,7 +381,7 @@ def update_object(module, client):
 def remove_object(module, client):
     existing_object = get_resource(
         module, _get_object_list(module, client), _get_object_identifier(module),
-        [['id'], ['properties', 'email']],
+        [['properties', 'username']],
     )
 
     if existing_object is None:
@@ -398,7 +392,7 @@ def remove_object(module, client):
     return {
         'action': 'delete',
         'changed': True,
-        'id': existing_object.id,
+        'id': existing_object.properties.username,
     }
 
 
@@ -487,9 +481,11 @@ def main():
 
     try:
         if state == 'present':
-            module.exit_json(**create_mongo_cluster_user(module, dbaas_mongo_api_client))
+            module.exit_json(**create_object(module, dbaas_mongo_api_client))
+        elif state == 'update':
+            module.exit_json(**update_object(module, dbaas_mongo_api_client))
         elif state == 'absent':
-            module.exit_json(**delete_mongo_cluster_user(module, dbaas_mongo_api_client))
+            module.exit_json(**remove_object(module, dbaas_mongo_api_client))
     except Exception as e:
         module.fail_json(
             msg='failed to set {object_name} state {state}: {error}'.format(

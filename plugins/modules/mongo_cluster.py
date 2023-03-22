@@ -51,7 +51,7 @@ OPTIONS = {
     },
     'mongo_db_version': {
         'description': ['The MongoDB version of your cluster'],
-        'available': ['present'],
+        'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
@@ -79,15 +79,25 @@ OPTIONS = {
             'The physical location where the cluster will be created. This will be where all of your instances live. '
             'Property cannot be modified after datacenter creation (disallowed in update requests)'
         ],
-        'available': ['present'],
+        'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'display_name': {
         'description': ['The friendly name of your cluster.'],
-        'available': ['present'],
+        'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
+    },
+    'do_not_replace': {
+        'description': [
+            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -237,7 +247,16 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def _should_replace_object(module, existing_object, cloudapi_client):
+def _should_replace_object(module, existing_object, _):
+    return (
+        module.params.get('location') is not None
+        and existing_object.properties.location != module.params.get('location')
+        or module.params.get('mongo_db_version') is not None
+        and existing_object.properties.mongo_db_version != module.params.get('mongo_db_version')
+    )
+
+
+def _should_update_object(module, existing_object, cloudapi_client):
     datacenter_id = lan_id = cidr_list = None
     if module.params.get('connections'):
         connection = module.params.get('connections')[0]
@@ -257,31 +276,23 @@ def _should_replace_object(module, existing_object, cloudapi_client):
         cidr_list = connection['cidr_list']
 
     return (
-        module.params.get('location') is not None
-        and existing_object.properties.location != module.params.get('location')
-        or module.params.get('connections') is not None
-        and (
-            existing_object.properties.connections[0].datacenter_id != datacenter_id
-            or existing_object.properties.connections[0].lan_id != lan_id
-            or existing_object.properties.connections[0].cidr_list != cidr_list
-        )
-    )
-
-
-def _should_update_object(module, existing_object):
-    return (
         module.params.get('display_name') is not None
         and existing_object.properties.display_name != module.params.get('display_name')
                 or module.params.get('maintenance_window') is not None
         and (
             existing_object.properties.maintenance_window.day_of_the_week != module.params.get('maintenance_window').get('day_of_the_week')
             or existing_object.properties.maintenance_window.time != module.params.get('maintenance_window').get('time')
-        ) or module.params.get('mongo_db_version') is not None
-        and existing_object.properties.mongo_db_version != module.params.get('mongo_db_version')
+        )
         or module.params.get('template_id') is not None
         and existing_object.properties.template_id != module.params.get('template_id')
         or module.params.get('instances') is not None
         and existing_object.properties.instances != module.params.get('instances')
+        or module.params.get('connections') is not None
+        and (
+            existing_object.properties.connections[0].datacenter_id != datacenter_id
+            or existing_object.properties.connections[0].lan_id != lan_id
+            or existing_object.properties.connections[0].cidr_list != cidr_list
+        )
     )
 
 
@@ -365,36 +376,37 @@ def _update_object(module, dbaas_client, cloudapi_client, existing_object):
         fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
         scaleup=10000,
     )
-
     maintenance_window = module.params.get('maintenance_window')
     if maintenance_window:
         maintenance_window = dict(module.params.get('maintenance_window'))
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
-    
-    connection = module.params.get('connections')[0]
 
-    datacenter_id = get_resource_id(
-        module, ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=2), connection['datacenter'],
-    )
+    connections = None
+    if module.params.get('connections'):
+        connection = module.params.get('connections')[0]
 
-    if datacenter_id is None:
-        module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))
-    
-    lan_id = get_resource_id(
-        module,
-        ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1), connection['lan'],
-    )
+        datacenter_id = get_resource_id(
+            module, ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=2), connection['datacenter'],
+        )
 
-    if lan_id is None:
-        module.fail_json('LAN {} not found.'.format(connection['lan']))
+        if datacenter_id is None:
+            module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))
+        
+        lan_id = get_resource_id(
+            module,
+            ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1), connection['lan'],
+        )
 
-    connections = [
-        ionoscloud_dbaas_mongo.Connection(
-            datacenter_id=datacenter_id,
-            lan_id=lan_id,
-            cidr_list=connection['cidr_list'],
-        ),
-    ]
+        if lan_id is None:
+            module.fail_json('LAN {} not found.'.format(connection['lan']))
+
+        connections = [
+            ionoscloud_dbaas_mongo.Connection(
+                datacenter_id=datacenter_id,
+                lan_id=lan_id,
+                cidr_list=connection['cidr_list'],
+            ),
+        ]
 
     mongo_cluster_properties = ionoscloud_dbaas_mongo.PatchClusterProperties(
         instances=module.params.get('instances'),
@@ -460,7 +472,7 @@ def update_replace_object(module, dbaas_client, cloudapi_client, existing_object
             'action': 'create',
             RETURNED_KEY: new_object,
         }
-    if _should_update_object(module, existing_object):
+    if _should_update_object(module, existing_object, cloudapi_client):
         # Update
         return {
             'changed': True,
