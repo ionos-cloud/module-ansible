@@ -20,6 +20,19 @@
       public: false
     register: lan_response1
 
+  - name: Create datacenter 2
+    datacenter:
+      name: "{{ datacenter }} - DBaaS Mongo 2"
+      location: us/las
+    register: datacenter_response2
+
+  - name: Create LAN 2
+    lan:
+      datacenter: "{{ datacenter }} - DBaaS Mongo 2"
+      name: "test_lan2"
+      public: false
+    register: lan_response2
+
   - name: Create Cluster
     mongo_cluster:
       mongo_db_version: 5.0
@@ -42,13 +55,13 @@
     mongo_cluster:
       mongo_db_version: 5.0
       instances: 1
-      location: de/fra
+      location: us/las
       template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
       connections:
         - cidr_list: 
             - 192.168.1.126/24
-          datacenter: "{{ datacenter }} - DBaaS Mongo"
-          lan: "test_lan"
+          datacenter: "{{ datacenter }} - DBaaS Mongo 2"
+          lan: "test_lan2"
       display_name: "{{ display_name }}"
       wait: true
       wait_timeout: 7200
