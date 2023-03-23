@@ -23,7 +23,7 @@
   - name: Create datacenter 2
     datacenter:
       name: "{{ datacenter }} - DBaaS Mongo 2"
-      location: us/las
+      location: de/txl
     register: datacenter_response2
 
   - name: Create LAN 2
@@ -55,7 +55,7 @@
     mongo_cluster:
       mongo_db_version: 5.0
       instances: 1
-      location: us/las
+      location: de/txl
       template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
       connections:
         - cidr_list: 
