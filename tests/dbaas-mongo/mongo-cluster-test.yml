@@ -78,7 +78,7 @@
 
   - name: Create Cluster User
     mongo_cluster_user:
-      mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
       mongo_username: testuser
       mongo_password: "{{ mongo_password }}"
       user_roles:
@@ -88,7 +88,7 @@
 
   - name: Update User
     mongo_cluster_user:
-      mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
       mongo_username: testuser
       mongo_password: "{{ updated_password }}"
       user_roles:
@@ -101,7 +101,7 @@
 
   - name: Delete Cluster User
     mongo_cluster_user:
-      mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
       mongo_username: testuser
       state: absent
     register: mongo_user_response
@@ -133,5 +133,18 @@
   - name: Remove datacenter
     datacenter:
       datacenter: "{{ datacenter_response.datacenter.id }}"
+      state: absent
+      wait: true
+
+  - name: Remove LAN 2
+    lan:
+      datacenter: "{{ datacenter }} - DBaaS Mongo 2"
+      lan: "test_lan2"
+      state: absent
+      wait: true
+
+  - name: Remove datacenter 2
+    datacenter:
+      datacenter: "{{ datacenter_response2.datacenter.id }}"
       state: absent
       wait: true

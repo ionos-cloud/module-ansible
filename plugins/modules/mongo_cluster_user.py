@@ -29,8 +29,8 @@ OBJECT_NAME = 'Mongo Cluster User'
 RETURNED_KEY = 'mongo_cluster_user'
 
 OPTIONS = {
-    'mongo_cluster_id': {
-        'description': ['The ID an existing Mongo Cluster.'],
+    'mongo_cluster': {
+        'description': ['The UUID or name of an existing Mongo Cluster.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -152,7 +152,7 @@ author:
 EXAMPLE_PER_STATE = {
     'present': '''- name: Create Cluster User
     mongo_cluster_user:
-      mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
       mongo_username: testuser
       mongo_password: password123
       user_roles:
@@ -162,7 +162,7 @@ EXAMPLE_PER_STATE = {
   ''',
     'absent': '''- name: Delete Cluster User
     mongo_cluster_user:
-      mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
       mongo_username: testuser
     register: mongo_user_response
   ''',
@@ -231,7 +231,12 @@ def _should_update_object(module, existing_object):
 
 
 def _get_object_list(module, client):
-    return ionoscloud_dbaas_mongo.UsersApi(client).clusters_users_get(module.params.get('mongo_cluster_id'))
+    mongo_cluster_id = get_resource_id(
+        module, ionoscloud_dbaas_mongo.ClustersApi(client).clusters_get(),
+        module.params.get('mongo_cluster'),
+        [['id'], ['properties', 'display_name']],
+    )
+    return ionoscloud_dbaas_mongo.UsersApi(client).clusters_users_get(mongo_cluster_id)
 
 
 def _get_object_name(module):
@@ -263,7 +268,12 @@ def _create_object(module, client, existing_object=None):
     ))
 
     try:
-        user_response = users_api.clusters_users_post(module.params.get('mongo_cluster_id'), mongo_user)
+        mongo_cluster_id = get_resource_id(
+            module, ionoscloud_dbaas_mongo.ClustersApi(client).clusters_get(),
+            module.params.get('mongo_cluster'),
+            [['id'], ['properties', 'display_name']],
+        )
+        user_response = users_api.clusters_users_post(mongo_cluster_id, mongo_user)
     except ionoscloud_dbaas_mongo.ApiException as e:
         module.fail_json(msg="failed to create the new Mongo Cluster User: %s" % to_native(e))
     return user_response
@@ -283,8 +293,13 @@ def _update_object(module, client, existing_object):
     ))
     
     try:
+        mongo_cluster_id = get_resource_id(
+            module, ionoscloud_dbaas_mongo.ClustersApi(client).clusters_get(),
+            module.params.get('mongo_cluster'),
+            [['id'], ['properties', 'display_name']],
+        )
         user_response = users_api.clusters_users_patch(
-            module.params.get('mongo_cluster_id'),
+            mongo_cluster_id,
             module.params.get('mongo_username'),
             mongo_user,
         )
@@ -293,16 +308,21 @@ def _update_object(module, client, existing_object):
 
     return user_response
 
-def _remove_object(module, dbaas_client, existing_object):
-    users_api = ionoscloud_dbaas_mongo.UsersApi(dbaas_client)
+def _remove_object(module, client, existing_object):
+    users_api = ionoscloud_dbaas_mongo.UsersApi(client)
 
     try:
-        users_api.clusters_users_delete(module.params.get('mongo_cluster_id'), existing_object.properties.username)
+        mongo_cluster_id = get_resource_id(
+            module, ionoscloud_dbaas_mongo.ClustersApi(client).clusters_get(),
+            module.params.get('mongo_cluster'),
+            [['id'], ['properties', 'display_name']],
+        )
+        users_api.clusters_users_delete(mongo_cluster_id, existing_object.properties.username)
         if module.params.get('wait'):
             try:
-                dbaas_client.wait_for(
+                client.wait_for(
                     fn_request=lambda: users_api.clusters_users_find_by_id(
-                        module.params.get('mongo_cluster_id'), existing_object.properties.username,
+                        mongo_cluster_id, existing_object.properties.username,
                     ),
                     fn_check=lambda _: False,
                     scaleup=10000,
