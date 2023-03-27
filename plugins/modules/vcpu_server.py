@@ -112,14 +112,6 @@ OPTIONS = {
         'default': 2048,
         'type': 'int',
     },
-    'cpu_family': {
-        'description': ['The amount of memory to allocate to the virtual machine.'],
-        'available': ['present'],
-        'choices': ['AMD_OPTERON', 'INTEL_XEON', 'INTEL_SKYLAKE'],
-        'default': 'AMD_OPTERON',
-        'type': 'str',
-        'version_added': '2.2',
-    },
     'availability_zone': {
         'description': ['The availability zone assigned to the server.'],
         'available': ['present'],
@@ -294,7 +286,6 @@ EXAMPLE_PER_STATE = {
         cores: 4
         ram: 2048
         volume_size: 50
-        cpu_family: INTEL_XEON
         image: ubuntu:latest
         location: us/las
         count: 3
@@ -308,7 +299,6 @@ EXAMPLE_PER_STATE = {
         - web002.stackpointcloud.com
         cores: 4
         ram: 4096
-        cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
   # Rename virtual machine
@@ -318,7 +308,6 @@ EXAMPLE_PER_STATE = {
         name: web101.stackpointcloud.com
         cores: 4
         ram: 4096
-        cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
 ''',
@@ -487,7 +476,7 @@ def _create_machine(module, client, datacenter, name):
             nics.append(nic)
 
     server_properties = ServerProperties(
-        type='VCPU',
+        type='VCPU_INSTANCE',
         name=name,
         cores=cores,
         ram=ram,
@@ -711,7 +700,6 @@ def update_server(module, client):
 
     cores = module.params.get('cores')
     ram = module.params.get('ram')
-    cpu_family = module.params.get('cpu_family')
     availability_zone = module.params.get('availability_zone')
 
     server_list = server_server.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
