@@ -65,7 +65,7 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | True | str |  | The name of your node pool. Must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
-  | cluster_id | True | str |  | The ID of the Data Platform cluster. |
+  | cluster | True | str |  | The name or ID of the Data Platform cluster. |
   | node_count | True | int |  | The number of nodes that make up the node pool. |
   | cpu_family | True | str |  | A valid CPU family name or `AUTO` if the platform shall choose the best fitting option.Available CPU architectures can be retrieved from the datacenter resource. |
   | cores_count | True | int |  | The number of cores for the node. |
@@ -102,7 +102,7 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | cluster_id | True | str |  | The ID of the Data Platform cluster. |
+  | cluster | True | str |  | The name or ID of the Data Platform cluster. |
   | nodepool | True | str |  | The name or ID of the Data Platform nodepool. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -136,7 +136,7 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of your node pool. Must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
-  | cluster_id | True | str |  | The ID of the Data Platform cluster. |
+  | cluster | True | str |  | The name or ID of the Data Platform cluster. |
   | nodepool | True | str |  | The name or ID of the Data Platform nodepool. |
   | node_count | False | int |  | The number of nodes that make up the node pool. |
   | maintenance_window | False | dict |  | The maintenance window is used for updating the software on the nodepool's nodes and for upgrading the nodepool's version. If no value is given, one is chosen dynamically, so there is no fixed default. |

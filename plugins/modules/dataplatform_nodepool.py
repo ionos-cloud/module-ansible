@@ -40,8 +40,8 @@ OPTIONS = {
         'required': ['present'],
         'type': 'str',
     },
-    'cluster_id': {
-        'description': ['The ID of the Data Platform cluster.'],
+    'cluster': {
+        'description': ['The name or ID of the Data Platform cluster.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -315,9 +315,11 @@ def _should_update_object(module, existing_object):
 
 
 def _get_object_list(module, client):
-    return ionoscloud_dataplatform.DataPlatformNodePoolApi(client).get_cluster_nodepools(
-        module.params.get('cluster_id'),
+    cluster_id = get_resource_id(
+        module, ionoscloud_dataplatform.DataPlatformClusterApi(client).get_clusters(),
+        module.params.get('cluster'),
     )
+    return ionoscloud_dataplatform.DataPlatformNodePoolApi(client).get_cluster_nodepools(cluster_id)
 
 
 def _get_object_name(module):
@@ -329,7 +331,6 @@ def _get_object_identifier(module):
 
 
 def _create_object(module, client, existing_object=None):
-    cluster_id = module.params.get('cluster_id')
     name = module.params.get('name')
     node_count = module.params.get('node_count')
     cpu_family = module.params.get('cpu_family')
@@ -378,6 +379,10 @@ def _create_object(module, client, existing_object=None):
     dataplatform_nodepool_api = ionoscloud_dataplatform.DataPlatformNodePoolApi(api_client=client)
 
     try:
+        cluster_id = get_resource_id(
+            module, ionoscloud_dataplatform.DataPlatformClusterApi(client).get_clusters(),
+            module.params.get('cluster'),
+        )
         response = dataplatform_nodepool_api.create_cluster_nodepool(cluster_id, dataplatform_nodepool)
         if module.params.get('wait'):
             client.wait_for(
@@ -394,7 +399,6 @@ def _create_object(module, client, existing_object=None):
 
 
 def _update_object(module, client, existing_object):
-    cluster_id = module.params.get('cluster_id')
     node_count = module.params.get('node_count')
     maintenance = module.params.get('maintenance_window')
     labels = module.params.get('labels')
@@ -418,6 +422,11 @@ def _update_object(module, client, existing_object):
     
     dataplatform_nodepool_api = ionoscloud_dataplatform.DataPlatformNodePoolApi(api_client=client)
     try:
+        cluster_id = get_resource_id(
+            module, ionoscloud_dataplatform.DataPlatformClusterApi(client).get_clusters(),
+            module.params.get('cluster'),
+        )
+
         response = dataplatform_nodepool_api.patch_cluster_nodepool(
             cluster_id, existing_object.id, dataplatform_patch_nodepool_request,
         )
@@ -438,10 +447,13 @@ def _update_object(module, client, existing_object):
 
 
 def _remove_object(module, client, existing_object):
-    cluster_id = module.params.get('cluster_id')
     dataplatform_nodepool_api = ionoscloud_dataplatform.DataPlatformNodePoolApi(api_client=client)
 
     try:
+        cluster_id = get_resource_id(
+            module, ionoscloud_dataplatform.DataPlatformClusterApi(client).get_clusters(),
+            module.params.get('cluster'),
+        )
         if existing_object.metadata.state == 'AVAILABLE':
             dataplatform_nodepool_api.delete_cluster_nodepool(
                 cluster_id=cluster_id, nodepool_id=existing_object.id,

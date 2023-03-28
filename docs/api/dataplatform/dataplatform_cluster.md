@@ -47,7 +47,7 @@ This is a simple module that supports creating or removing Data Platform Cluster
   | :--- | :---: | :--- | :--- | :--- |
   | name | True | str |  | The name of your cluster. Must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
   | dataplatform_version | False | str |  | The version of the DataPlatform. |
-  | datacenter_id | True | str |  | The UUID of the virtual data center (VDC) the cluster is provisioned. |
+  | datacenter | True | str |  | The name or UUID of the virtual data center (VDC) the cluster is provisioned. |
   | maintenance_window | False | dict |  | Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
@@ -108,7 +108,7 @@ This is a simple module that supports creating or removing Data Platform Cluster
   | name | False | str |  | The name of your cluster. Must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
   | cluster | True | str |  | The ID or name of the Data Platform cluster. |
   | dataplatform_version | True | str |  | The version of the DataPlatform. |
-  | datacenter_id | False | str |  | The UUID of the virtual data center (VDC) the cluster is provisioned. |
+  | datacenter | False | str |  | The name or UUID of the virtual data center (VDC) the cluster is provisioned. |
   | maintenance_window | True | dict |  | Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |

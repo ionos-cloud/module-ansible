@@ -9,6 +9,7 @@ import yaml
 HAS_SDK = True
 
 try:
+    import ionoscloud
     import ionoscloud_dataplatform
     from ionoscloud_dataplatform import __version__ as sdk_version
     from ionoscloud_dataplatform import ApiClient
@@ -21,6 +22,7 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, ionoscloud.__version__)
 DATAPLATFORM_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-dataplatform/%s' % ( __version__, sdk_version)
 DOC_DIRECTORY = 'dataplatform'
 STATES = ['present', 'absent', 'update']
@@ -50,8 +52,8 @@ OPTIONS = {
         'required': ['update'],
         'type': 'str',
     },
-    'datacenter_id': {
-        'description': ['The UUID of the virtual data center (VDC) the cluster is provisioned.'],
+    'datacenter': {
+        'description': ['The name or UUID of the virtual data center (VDC) the cluster is provisioned.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
@@ -220,14 +222,14 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     
 
 
-def update_replace_object(module, client, existing_object):
-    if _should_replace_object(module, existing_object):
+def update_replace_object(module, dataplatform_client, cloudapi_client, existing_object):
+    if _should_replace_object(module, existing_object, cloudapi_client):
 
         if module.params.get('do_not_replace'):
             module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
 
-        new_object = _create_object(module, client, existing_object).to_dict()
-        _remove_object(module, client, existing_object)
+        new_object = _create_object(module, dataplatform_client, cloudapi_client, existing_object).to_dict()
+        _remove_object(module, dataplatform_client, existing_object)
         return {
             'changed': True,
             'failed': False,
@@ -240,7 +242,7 @@ def update_replace_object(module, client, existing_object):
             'changed': True,
             'failed': False,
             'action': 'update',
-            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
+            RETURNED_KEY: _update_object(module, dataplatform_client, existing_object).to_dict()
         }
 
     # No action
@@ -252,10 +254,16 @@ def update_replace_object(module, client, existing_object):
     }
 
 
-def _should_replace_object(module, existing_object):
+def _should_replace_object(module, existing_object, cloudapi_client):
+    datacenter_id = get_resource_id(
+        module,
+        ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+
     return (
-        module.params.get('datacenter_id') is not None
-        and existing_object.properties.datacenter_id != module.params.get('datacenter_id')
+        datacenter_id is not None
+        and existing_object.properties.datacenter_id != datacenter_id
     )
 
 
@@ -285,11 +293,16 @@ def _get_object_identifier(module):
     return module.params.get('cluster')
 
 
-def _create_object(module, client, existing_object=None):
+def _create_object(module, dataplatform_client, cloudapi_client, existing_object=None):
     name = module.params.get('name')
     dataplatform_version = module.params.get('dataplatform_version')
     maintenance = module.params.get('maintenance_window')
-    datacenter_id = module.params.get('datacenter_id')
+
+    datacenter_id = get_resource_id(
+        module,
+        ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
 
     maintenance_window = None
     if maintenance:
@@ -302,7 +315,7 @@ def _create_object(module, client, existing_object=None):
         datacenter_id = existing_object.properties.datacenter_id if datacenter_id is None else datacenter_id
         maintenance = existing_object.properties.maintenance_window if maintenance is None else maintenance
 
-    dataplatform_cluster_api = ionoscloud_dataplatform.DataPlatformClusterApi(api_client=client)
+    dataplatform_cluster_api = ionoscloud_dataplatform.DataPlatformClusterApi(dataplatform_client)
     
     cluster_properties = ionoscloud_dataplatform.CreateClusterProperties(
         name=name,
@@ -316,7 +329,7 @@ def _create_object(module, client, existing_object=None):
         response = dataplatform_cluster_api.create_cluster(create_cluster_request=cluster)
 
         if module.params.get('wait'):
-            client.wait_for(
+            dataplatform_client.wait_for(
                 fn_request=lambda: dataplatform_cluster_api.get_clusters(),
                 fn_check=lambda r: list(filter(
                     lambda e: e.properties.name == name,
@@ -388,23 +401,23 @@ def _remove_object(module, client, existing_object):
         module.fail_json(msg="failed to delete the {}: {}".format(OBJECT_NAME, to_native(e)))
 
 
-def create_object(module, client):
-    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+def create_object(module, dataplatform_client, cloudapi_client):
+    existing_object = get_resource(module, _get_object_list(module, dataplatform_client), _get_object_name(module))
 
     if existing_object:
-        return update_replace_object(module, client, existing_object)
+        return update_replace_object(module, dataplatform_client, cloudapi_client, existing_object)
 
     return {
         'changed': True,
         'failed': False,
         'action': 'create',
-        RETURNED_KEY: _create_object(module, client).to_dict()
+        RETURNED_KEY: _create_object(module, dataplatform_client, cloudapi_client).to_dict()
     }
 
 
-def update_object(module, client):
+def update_object(module, dataplatform_client, cloudapi_client):
     object_name = _get_object_name(module)
-    object_list = _get_object_list(module, client)
+    object_list = _get_object_list(module, dataplatform_client)
 
     existing_object = get_resource(module, object_list, _get_object_identifier(module))
 
@@ -424,7 +437,7 @@ def update_object(module, client):
             ),
         )
 
-    return update_replace_object(module, client, existing_object)
+    return update_replace_object(module, dataplatform_client, cloudapi_client, existing_object)
 
 
 def remove_object(module, client):
@@ -518,19 +531,23 @@ def main():
         module.fail_json(msg='ionoscloud_dataplatform is required for this module, run `pip install ionoscloud_dataplatform`')
 
     state = module.params.get('state')
-    with ApiClient(get_sdk_config(module, ionoscloud_dataplatform)) as api_client:
-        api_client.user_agent = DATAPLATFORM_USER_AGENT
-        check_required_arguments(module, state, OBJECT_NAME)
 
-        try:
-            if state == 'present':
-                module.exit_json(**create_object(module, api_client))
-            elif state == 'absent':
-                module.exit_json(**remove_object(module, api_client))
-            elif state == 'update':
-                module.exit_json(**update_object(module, api_client))
-        except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
+    cloudapi_api_client = ionoscloud.ApiClient(get_sdk_config(module, ionoscloud))
+    cloudapi_api_client.user_agent = USER_AGENT
+    dataplatform_api_client = ionoscloud_dataplatform.ApiClient(get_sdk_config(module, ionoscloud_dataplatform))
+    dataplatform_api_client.user_agent = DATAPLATFORM_USER_AGENT
+    
+    check_required_arguments(module, state, OBJECT_NAME)
+
+    try:
+        if state == 'present':
+            module.exit_json(**create_object(module, dataplatform_api_client, cloudapi_api_client))
+        elif state == 'absent':
+            module.exit_json(**remove_object(module, dataplatform_api_client))
+        elif state == 'update':
+            module.exit_json(**update_object(module, dataplatform_api_client, cloudapi_api_client))
+    except Exception as e:
+        module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 
 
 if __name__ == '__main__':
