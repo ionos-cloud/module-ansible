@@ -69,6 +69,7 @@ This is a simple module that supports creating or removing Application Loadbalan
   | target_lan | True | str |  | ID of the balanced private target LAN (outbound). |
   | lb_private_ips | False | list |  | Collection of private IP addresses with subnet mask of the Application Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -139,6 +140,7 @@ This is a simple module that supports creating or removing Application Loadbalan
   | lb_private_ips | False | list |  | Collection of private IP addresses with subnet mask of the Application Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
   | datacenter_id | True | str |  | The ID of the datacenter. |
   | application_load_balancer | True | str |  | The ID or name of the Application Loadbalancer. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

@@ -73,6 +73,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
   | status | False | str |  | The status of the token |
   | name | True | str |  | The name of your token. |
   | registry_id | True | str |  | The ID of an existing Registry. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -138,6 +139,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
   | name | False | str |  | The name of your token. |
   | registry_token | True | str |  | The ID or name of an existing token. |
   | registry_id | True | str |  | The ID of an existing Registry. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |

@@ -92,6 +92,7 @@ This is a module that supports creating, updating, restoring or destroying Postg
   | backup_location | False | str |  | The S3 location where the backups will be stored. One of [&quot;de&quot;, &quot;eu-south-2&quot;, &quot;eu-central-2&quot;] |
   | backup_id | False | str |  | The ID of the backup to be used. |
   | recovery_target_time | False | str |  | Recovery target time. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -158,6 +159,7 @@ This is a module that supports creating, updating, restoring or destroying Postg
   | storage_size | False | int |  | The amount of storage per instance. |
   | display_name | False | str |  | The friendly name of your cluster. |
   | postgres_cluster | True | str |  | The ID or name of an existing Postgres Cluster. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

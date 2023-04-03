@@ -90,6 +90,7 @@ modules_to_generate = [
     'mongo_cluster_template_info',
     'mongo_cluster',
     'mongo_cluster_user',
+    'mongo_cluster_user_info',
     'backupunit',
     'k8s_cluster',
     'k8s_config',

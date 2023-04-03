@@ -96,6 +96,7 @@ This is a simple module that supports creating or removing Target Groups.
   | health_check | False | dict |  | Health check properties for target group. |
   | http_health_check | False | dict |  | HTTP health check properties for target group. |
   | targets | False | list |  | An array of items in the collection. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -164,6 +165,7 @@ This is a simple module that supports creating or removing Target Groups.
   | http_health_check | False | dict |  | HTTP health check properties for target group. |
   | targets | False | list |  | An array of items in the collection. |
   | target_group | True | str |  | The ID or name of the Target Group. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

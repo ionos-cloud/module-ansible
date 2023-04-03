@@ -61,6 +61,7 @@ This module allows you to create, update or remove a NIC.
   | dhcp | False | bool |  | Boolean value indicating if the NIC is using DHCP or not. |
   | firewall_active | False | bool |  | Boolean value indicating if the firewall is active. |
   | ips | False | list |  | A list of IPs to be assigned to the NIC. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -132,6 +133,7 @@ This module allows you to create, update or remove a NIC.
   | dhcp | False | bool |  | Boolean value indicating if the NIC is using DHCP or not. |
   | firewall_active | False | bool |  | Boolean value indicating if the firewall is active. |
   | ips | False | list |  | A list of IPs to be assigned to the NIC. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

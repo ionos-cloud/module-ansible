@@ -79,6 +79,16 @@ OPTIONS = {
         'required': ['update', 'absent'],
         'type': 'str',
     },
+    'do_not_replace': {
+        'description': [
+            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
