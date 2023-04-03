@@ -16,12 +16,13 @@
       dataplatform_cluster:
         name: "{{ name }}"
         dataplatform_version: "22.11"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         maintenance_window:
           day_of_the_week: "Wednesday"
           time: "12:02:00"
         state: present
         wait: true
+        wait_timeout: 7200
       register: cluster_response
 
     - name: Patch Data Platform cluster
@@ -34,6 +35,7 @@
           time: "12:02:00"
         state: update
         wait: true
+        wait_timeout: 7200
 
     - name: Get all Data Platform clusters
       dataplatform_cluster_info:
@@ -71,11 +73,12 @@
           ann1: value1
           ann2: value2
         wait: true
+        wait_timeout: 7200
       register: result
 
     - name: Update DataPlatform cluster nodepool
       dataplatform_nodepool:
-        cluster: "{{ cluster_response.dataplatform_cluster.properties.name }}"
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         nodepool: "{{ result.dataplatform_nodepool.properties.name }}"
         node_count: 2
         maintenance_window:
@@ -88,6 +91,7 @@
           ann1: updatedvalue1
           ann2: updatedvalue2
         wait: true
+        wait_timeout: 7200
         state: update
 
     - name: Get all DataPlaform nodepools from a specific cluster
@@ -110,6 +114,6 @@
 
     - name: Remove datacenter
       datacenter:
-        id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         state: absent
         wait: true

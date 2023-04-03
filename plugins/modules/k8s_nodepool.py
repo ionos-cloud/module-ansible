@@ -423,8 +423,9 @@ def _create_object(module, client, existing_object=None):
         storage_size = existing_object.properties.storage_size if storage_size is None else storage_size
         labels = existing_object.properties.labels if labels is None else labels
         annotations = existing_object.properties.annotations if annotations is None else annotations
-        maintenance = existing_object.properties.maintenance_window if maintenance is None else maintenance
+        maintenance_window = existing_object.properties.maintenance_window if maintenance is None else maintenance_window
         auto_scaling = existing_object.properties.auto_scaling if auto_scaling is None else auto_scaling
+        public_ips = existing_object.properties.public_ips if public_ips is None else public_ips
 
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
