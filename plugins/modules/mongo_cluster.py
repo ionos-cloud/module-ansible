@@ -24,14 +24,21 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, ionos
 DBAAS_MONGO_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-dbaas-mongo/%s' % (
     __version__, ionoscloud_dbaas_mongo.__version__)
 DOC_DIRECTORY = 'dbaas-mongo'
-STATES = ['present', 'absent']
+STATES = ['present', 'absent', 'update', 'restore']
 OBJECT_NAME = 'Mongo Cluster'
+RETURNED_KEY = 'mongo_cluster'
 
 OPTIONS = {
     'mongo_cluster': {
         'description': ['The ID or name of an existing Mongo Cluster.'],
-        'available': ['absent'],
-        'required': ['absent'],
+        'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
+        'type': 'str',
+    },
+    'backup_id': {
+        'description': ['The ID of the backup to be used.'],
+        'available': ['restore'],
+        'required': ['restore'],
         'type': 'str',
     },
     'maintenance_window': {
@@ -39,31 +46,31 @@ OPTIONS = {
             'Dict containing "time" (the time of the day when to perform the maintenance) '
             'and "day_of_the_week" (the Day Of the week when to perform the maintenance).',
         ],
-        'available': ['present'],
+        'available': ['update', 'present'],
         'type': 'dict',
     },
     'mongo_db_version': {
         'description': ['The MongoDB version of your cluster'],
-        'available': ['present'],
+        'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'instances': {
         'description': ['The total number of instances in the cluster (one master and n-1 standbys).'],
-        'available': ['present'],
+        'available': ['update', 'present'],
         'required': ['present'],
         'type': 'int',
     },
     'connections': {
         'description': ['Array of VDCs to connect to your cluster.'],
-        'available': ['present'],
+        'available': ['update', 'present'],
         'required': ['present'],
         'type': 'list',
         'elements': 'dict',
     },
     'template_id': {
         'description': ['The unique template ID'],
-        'available': ['present'],
+        'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
     },
@@ -72,15 +79,25 @@ OPTIONS = {
             'The physical location where the cluster will be created. This will be where all of your instances live. '
             'Property cannot be modified after datacenter creation (disallowed in update requests)'
         ],
-        'available': ['present'],
+        'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'display_name': {
         'description': ['The friendly name of your cluster.'],
-        'available': ['present'],
+        'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
+    },
+    'do_not_replace': {
+        'description': [
+            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -230,39 +247,75 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def create_mongo_cluster(module, dbaas_client, cloudapi_client):
+def _should_replace_object(module, existing_object, _):
+    return (
+        module.params.get('location') is not None
+        and existing_object.properties.location != module.params.get('location')
+        or module.params.get('mongo_db_version') is not None
+        and existing_object.properties.mongo_db_version != module.params.get('mongo_db_version')
+    )
+
+
+def _should_update_object(module, existing_object, cloudapi_client):
+    datacenter_id = lan_id = cidr_list = None
+    if module.params.get('connections'):
+        connection = module.params.get('connections')[0]
+        datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
+        datacenter_id = get_resource_id(module, datacenter_list, connection['datacenter'])
+
+        if datacenter_id is None:
+            module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))
+        
+        lan_id = get_resource_id(
+            module,
+            ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1),
+            connection['lan'],
+        )
+        if lan_id is None:
+            module.fail_json('LAN {} not found.'.format(connection['lan']))
+        cidr_list = connection['cidr_list']
+
+    return (
+        module.params.get('display_name') is not None
+        and existing_object.properties.display_name != module.params.get('display_name')
+                or module.params.get('maintenance_window') is not None
+        and (
+            existing_object.properties.maintenance_window.day_of_the_week != module.params.get('maintenance_window').get('day_of_the_week')
+            or existing_object.properties.maintenance_window.time != module.params.get('maintenance_window').get('time')
+        )
+        or module.params.get('template_id') is not None
+        and existing_object.properties.template_id != module.params.get('template_id')
+        or module.params.get('instances') is not None
+        and existing_object.properties.instances != module.params.get('instances')
+        or module.params.get('connections') is not None
+        and (
+            existing_object.properties.connections[0].datacenter_id != datacenter_id
+            or existing_object.properties.connections[0].lan_id != lan_id
+            or existing_object.properties.connections[0].cidr_list != cidr_list
+        )
+    )
+
+
+def _get_object_list(module, client):
+    return ionoscloud_dbaas_mongo.ClustersApi(client).clusters_get()
+
+
+def _get_object_name(module):
+    return module.params.get('display_name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('mongo_cluster')
+
+
+def _create_object(module, dbaas_client, cloudapi_client, existing_object=None):
     maintenance_window = module.params.get('maintenance_window')
     if maintenance_window:
         maintenance_window = dict(module.params.get('maintenance_window'))
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
-    display_name = module.params.get('display_name')
 
-    mongo_cluster_server = ionoscloud_dbaas_mongo.ClustersApi(dbaas_client)
-
-    mongo_clusters = mongo_cluster_server.clusters_get()
-
-    existing_mongo_cluster_by_name = get_resource(
-        module, mongo_clusters, display_name, [['properties', 'display_name']],
-    )
-
-    if (
-        existing_mongo_cluster_by_name is not None
-        and existing_mongo_cluster_by_name.metadata.state != 'AVAILABLE'
-        and module.params.get('wait')
-    ):
-        dbaas_client.wait_for(
-            fn_request=lambda: mongo_cluster_server.clusters_find_by_id(existing_mongo_cluster_by_name.id),
-            fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
-            scaleup=10000,
-        )
-
-    if existing_mongo_cluster_by_name is not None:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'mongo_cluster': existing_mongo_cluster_by_name.to_dict(),
-        }
+    if existing_object is not None:
+        maintenance_window = existing_object.properties.maintenance_window if maintenance_window is None else maintenance_window
 
     connection = module.params.get('connections')[0]
 
@@ -294,67 +347,253 @@ def create_mongo_cluster(module, dbaas_client, cloudapi_client):
         instances=module.params.get('instances'),
         connections=connections,
         location=module.params.get('location'),
-        display_name=display_name,
+        display_name=module.params.get('display_name'),
         maintenance_window=maintenance_window,
         template_id=module.params.get('template_id'),
     )
-
     mongo_cluster = ionoscloud_dbaas_mongo.CreateClusterRequest(properties=mongo_cluster_properties)
 
+    mongo_clusters_api = ionoscloud_dbaas_mongo.ClustersApi(dbaas_client)
     try:
-
-        mongo_cluster = mongo_cluster_server.clusters_post(mongo_cluster)
+        mongo_cluster = mongo_clusters_api.clusters_post(mongo_cluster)
         if module.params.get('wait'):
             dbaas_client.wait_for(
-                fn_request=lambda: mongo_cluster_server.clusters_find_by_id(mongo_cluster.id),
-                fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
+                fn_request=lambda: mongo_clusters_api.clusters_find_by_id(mongo_cluster.id),
+                fn_check=lambda cluster: cluster and cluster.metadata and cluster.metadata.state == 'AVAILABLE',
                 scaleup=10000,
+                timeout=module.params.get('wait_timeout'),
             )
-
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            'mongo_cluster': mongo_cluster.to_dict(),
-        }
     except Exception as e:
         module.fail_json(msg="failed to create the Mongo Cluster: %s" % to_native(e))
 
+    return mongo_cluster
 
-def delete_mongo_cluster(module, dbaas_client):
-    mongo_cluster_server = ionoscloud_dbaas_mongo.ClustersApi(dbaas_client)
 
-    mongo_cluster = get_resource(
-        module,
-        mongo_cluster_server.clusters_get(),
-        module.params.get('mongo_cluster'),
-        [['id'], ['properties', 'display_name']],
+def _update_object(module, dbaas_client, cloudapi_client, existing_object):
+    clusters_api = ionoscloud_dbaas_mongo.ClustersApi(dbaas_client)
+    dbaas_client.wait_for(
+        fn_request=lambda: clusters_api.clusters_find_by_id(existing_object.id),
+        fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
+        scaleup=10000,
     )
-    if mongo_cluster is None:
-        module.exit_json(changed=False)
+    maintenance_window = module.params.get('maintenance_window')
+    if maintenance_window:
+        maintenance_window = dict(module.params.get('maintenance_window'))
+        maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
+
+    connections = None
+    if module.params.get('connections'):
+        connection = module.params.get('connections')[0]
+
+        datacenter_id = get_resource_id(
+            module, ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=2), connection['datacenter'],
+        )
+
+        if datacenter_id is None:
+            module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))
+        
+        lan_id = get_resource_id(
+            module,
+            ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1), connection['lan'],
+        )
+
+        if lan_id is None:
+            module.fail_json('LAN {} not found.'.format(connection['lan']))
+
+        connections = [
+            ionoscloud_dbaas_mongo.Connection(
+                datacenter_id=datacenter_id,
+                lan_id=lan_id,
+                cidr_list=connection['cidr_list'],
+            ),
+        ]
+
+    mongo_cluster_properties = ionoscloud_dbaas_mongo.PatchClusterProperties(
+        instances=module.params.get('instances'),
+        display_name=module.params.get('display_name'),
+        maintenance_window=maintenance_window,
+        connections=connections,
+        template_id=module.params.get('template_id'),
+    )
+    mongo_cluster = ionoscloud_dbaas_mongo.PatchClusterRequest(properties=mongo_cluster_properties)
 
     try:
-        if mongo_cluster.metadata.state != 'DESTROYING':
-            mongo_cluster_server.clusters_delete(mongo_cluster.id)
+        mongo_cluster = clusters_api.clusters_patch(
+            cluster_id=existing_object.id,
+            patch_cluster_request=mongo_cluster,
+        )
+
+        if module.params.get('wait'):
+            dbaas_client.wait_for(
+                fn_request=lambda: clusters_api.clusters_find_by_id(mongo_cluster.id),
+                fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
+                scaleup=10000,
+                timeout=module.params.get('wait_timeout'),
+            )
+
+    except Exception as e:
+        module.fail_json(msg="failed to update the Mongo Cluster: %s" % to_native(e))
+    return mongo_cluster
+
+
+def _remove_object(module, dbaas_client, existing_object):
+    clusters_api = ionoscloud_dbaas_mongo.ClustersApi(dbaas_client)
+
+    try:
+        if existing_object.metadata.state != 'DESTROYING':
+            clusters_api.clusters_delete(existing_object.id)
 
         if module.params.get('wait'):
             try:
                 dbaas_client.wait_for(
-                    fn_request=lambda: mongo_cluster_server.clusters_find_by_id(mongo_cluster.id),
+                    fn_request=lambda: clusters_api.clusters_find_by_id(existing_object.id),
                     fn_check=lambda _: False,
                     scaleup=10000,
+                    timeout=module.params.get('wait_timeout'),
                 )
             except ionoscloud_dbaas_mongo.ApiException as e:
                 if e.status != 404:
                     raise e
+    except Exception as e:
+        module.fail_json(msg="failed to delete the Mongo cluster: %s" % to_native(e))
+
+
+def update_replace_object(module, dbaas_client, cloudapi_client, existing_object):
+    if _should_replace_object(module, existing_object, cloudapi_client):
+
+        if module.params.get('do_not_replace'):
+            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, dbaas_client, cloudapi_client, existing_object).to_dict()
+        _remove_object(module, dbaas_client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object, cloudapi_client):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, dbaas_client, cloudapi_client, existing_object).to_dict()
+        }
+
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def create_object(module, dbaas_client, cloudapi_client):
+    existing_object = get_resource(
+        module, _get_object_list(module, dbaas_client), _get_object_name(module),
+        [['id'], ['properties', 'display_name']],
+    )
+
+    if existing_object:
+        return update_replace_object(module, dbaas_client, cloudapi_client, existing_object)
+
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, dbaas_client, cloudapi_client).to_dict()
+    }
+
+
+def update_object(module, dbaas_mongodb_api_client, cloudapi_api_client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, dbaas_mongodb_api_client)
+
+    existing_object = get_resource(
+        module, object_list, _get_object_identifier(module),
+        [['id'], ['properties', 'display_name']],
+    )
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    existing_object_id_by_new_name = get_resource_id(
+        module, object_list, object_name,
+        [['id'], ['properties', 'display_name']],
+    )
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, dbaas_mongodb_api_client, cloudapi_api_client, existing_object)
+
+
+def remove_object(module, client):
+
+    existing_object = get_resource(
+        module, _get_object_list(module, client), _get_object_identifier(module),
+        [['id'], ['properties', 'display_name']],
+    )
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    _remove_object(module, client, existing_object)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.id,
+    }
+
+
+def restore_object(module, dbaas_client):
+    mongo_cluster_api = ionoscloud_dbaas_mongo.ClustersApi(dbaas_client)
+
+    mongo_cluster_id = get_resource_id(
+        module,
+        mongo_cluster_api.clusters_get(),
+        module.params.get('mongo_cluster'),
+        [['id'], ['properties', 'display_name']],
+    )
+
+    restore_request = ionoscloud_dbaas_mongo.CreateRestoreRequest(
+        backup_id=module.params.get('backup_id'),
+    )
+
+    try:
+        ionoscloud_dbaas_mongo.RestoresApi(dbaas_client).clusters_restore_post(mongo_cluster_id, restore_request)
+
+        if module.params.get('wait'):
+            dbaas_client.wait_for(
+                fn_request=lambda: mongo_cluster_api.clusters_find_by_id(mongo_cluster_id),
+                fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
+                scaleup=10000,
+                timeout=module.params.get('wait_timeout'),
+            )
 
         return {
-            'action': 'delete',
+            'action': 'restore',
             'changed': True,
-            'id': mongo_cluster.id,
+            'id': mongo_cluster_id,
         }
     except Exception as e:
-        module.fail_json(msg="failed to delete the Mongo Cluster: %s" % to_native(e))
+        module.fail_json(msg="failed to restore the Mongo cluster: %s" % to_native(e))
+        return {
+            'action': 'restore',
+            'changed': False,
+            'id': mongo_cluster_id,
+        }
 
 
 def get_module_arguments():
@@ -444,11 +683,13 @@ def main():
 
     try:
         if state == 'present':
-            module.exit_json(**create_mongo_cluster(
-                module, dbaas_client=dbaas_mongo_api_client, cloudapi_client=cloudapi_api_client,
-            ))
+            module.exit_json(**create_object(module, dbaas_mongo_api_client, cloudapi_api_client))
         elif state == 'absent':
-            module.exit_json(**delete_mongo_cluster(module, dbaas_mongo_api_client))
+            module.exit_json(**remove_object(module, dbaas_mongo_api_client))
+        elif state == 'update':
+            module.exit_json(**update_object(module, dbaas_mongo_api_client, cloudapi_api_client))
+        elif state == 'restore':
+            module.exit_json(**restore_object(module, dbaas_mongo_api_client))
     except Exception as e:
         module.fail_json(
             msg='failed to set {object_name} state {state}: {error}'.format(

@@ -24,12 +24,13 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, ionos
 DBAAS_MONGO_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-dbaas-mongo/%s' % (
     __version__, ionoscloud_dbaas_mongo.__version__)
 DOC_DIRECTORY = 'dbaas-mongo'
-STATES = ['present', 'absent']
+STATES = ['present', 'update', 'absent']
 OBJECT_NAME = 'Mongo Cluster User'
+RETURNED_KEY = 'mongo_cluster_user'
 
 OPTIONS = {
-    'mongo_cluster_id': {
-        'description': ['The ID an existing Mongo Cluster.'],
+    'mongo_cluster': {
+        'description': ['The UUID or name of an existing Mongo Cluster.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -42,7 +43,7 @@ OPTIONS = {
     },
     'mongo_password': {
         'description': ['The password of the user.'],
-        'available': ['present'],
+        'available': ['present', 'update'],
         'required': ['present'],
         'no_log': True,
         'type': 'str',
@@ -53,9 +54,19 @@ OPTIONS = {
           "'role': has one of the following values: 'read', 'readWrite' or 'readAnyDatabase'"
           "'database': the name of the databse to which the role applies"
         ],
-        'available': ['present'],
+        'available': ['present', 'update'],
         'required': ['present'],
         'type': 'list',
+    },
+    'do_not_replace': {
+        'description': [
+            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -141,7 +152,7 @@ author:
 EXAMPLE_PER_STATE = {
     'present': '''- name: Create Cluster User
     mongo_cluster_user:
-      mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
       mongo_username: testuser
       mongo_password: password123
       user_roles:
@@ -151,7 +162,7 @@ EXAMPLE_PER_STATE = {
   ''',
     'absent': '''- name: Delete Cluster User
     mongo_cluster_user:
-      mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
       mongo_username: testuser
     register: mongo_user_response
   ''',
@@ -199,71 +210,210 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def create_mongo_cluster_user(module, dbaas_client):
-    mongo_cluster_id = module.params.get('mongo_cluster_id')
-    mongo_username = module.params.get('mongo_username')
+def _should_replace_object(module, existing_object):
+    return False
 
-    mongo_users_api = ionoscloud_dbaas_mongo.UsersApi(dbaas_client)
 
-    existing_mongo_user = None
-    try:
-        existing_mongo_user = mongo_users_api.clusters_users_find_by_id(mongo_cluster_id, mongo_username)
-    except ionoscloud_dbaas_mongo.ApiException as e:
-        if e.status != 404:
-            raise e
-
-    if existing_mongo_user:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'mongo_cluster_user': existing_mongo_user.to_dict(),
-        }
+def _should_update_object(module, existing_object):
+    def sort_func(el):
+        return el['database'], el['role']
     
+    existing_roles = sorted(
+        [{'role': role.role, 'database': role.database} for role in existing_object.properties.roles],
+        key=sort_func,
+    )
+    return (
+        module.params.get('mongo_password') is not None
+        and existing_object.properties.password != module.params.get('mongo_password')
+        or module.params.get('roles') is not None
+        and existing_roles != sorted(module.params.get('roles'), key=sort_func)
+    )
+
+
+def _get_object_list(module, client):
+    mongo_cluster_id = get_resource_id(
+        module, ionoscloud_dbaas_mongo.ClustersApi(client).clusters_get(),
+        module.params.get('mongo_cluster'),
+        [['id'], ['properties', 'display_name']],
+    )
+    return ionoscloud_dbaas_mongo.UsersApi(client).clusters_users_get(mongo_cluster_id)
+
+
+def _get_object_name(module):
+    return module.params.get('mongo_username')
+
+
+def _get_object_identifier(module):
+    return module.params.get('mongo_username')
+
+
+def _create_object(module, client, existing_object=None):
+    mongo_username = module.params.get('mongo_username')
+    mongo_password = module.params.get('mongo_password')
     user_roles = list(map(
         lambda role: ionoscloud_dbaas_mongo.UserRoles(role=role['role'], database=role['database']),
         module.params.get('user_roles'),
     ))
 
-    mongo_user_properties = ionoscloud_dbaas_mongo.UserProperties(
-        username=mongo_username,
-        password=module.params.get('mongo_password'),
-        roles=user_roles,
-    )
+    if existing_object is not None:
+        mongo_username = existing_object.properties.username if mongo_username is None else mongo_username
+        user_roles = existing_object.properties.roles if user_roles is None else user_roles
 
-    mongo_user = ionoscloud_dbaas_mongo.User(properties=mongo_user_properties)
+    users_api = ionoscloud_dbaas_mongo.UsersApi(client)
+
+    mongo_user = ionoscloud_dbaas_mongo.User(properties=ionoscloud_dbaas_mongo.UserProperties(
+        username=mongo_username,
+        password=mongo_password,
+        roles=user_roles,
+    ))
 
     try:
-        mongo_user = mongo_users_api.clusters_users_post(mongo_cluster_id, mongo_user)
+        mongo_cluster_id = get_resource_id(
+            module, ionoscloud_dbaas_mongo.ClustersApi(client).clusters_get(),
+            module.params.get('mongo_cluster'),
+            [['id'], ['properties', 'display_name']],
+        )
+        user_response = users_api.clusters_users_post(mongo_cluster_id, mongo_user)
+    except ionoscloud_dbaas_mongo.ApiException as e:
+        module.fail_json(msg="failed to create the new Mongo Cluster User: %s" % to_native(e))
+    return user_response
 
+
+def _update_object(module, client, existing_object):
+    mongo_password = module.params.get('mongo_password')
+    user_roles = list(map(
+        lambda role: ionoscloud_dbaas_mongo.UserRoles(role=role['role'], database=role['database']),
+        module.params.get('user_roles'),
+    ))
+    users_api = ionoscloud_dbaas_mongo.UsersApi(client)
+
+    mongo_user = ionoscloud_dbaas_mongo.PatchUserRequest(properties=ionoscloud_dbaas_mongo.PatchUserProperties(
+        password=mongo_password,
+        roles=user_roles,
+    ))
+    
+    try:
+        mongo_cluster_id = get_resource_id(
+            module, ionoscloud_dbaas_mongo.ClustersApi(client).clusters_get(),
+            module.params.get('mongo_cluster'),
+            [['id'], ['properties', 'display_name']],
+        )
+        user_response = users_api.clusters_users_patch(
+            mongo_cluster_id,
+            module.params.get('mongo_username'),
+            mongo_user,
+        )
+    except ionoscloud_dbaas_mongo.ApiException as e:
+        module.fail_json(msg="failed to update the Mongo Cluster User: %s" % to_native(e))
+
+    return user_response
+
+def _remove_object(module, client, existing_object):
+    users_api = ionoscloud_dbaas_mongo.UsersApi(client)
+
+    try:
+        mongo_cluster_id = get_resource_id(
+            module, ionoscloud_dbaas_mongo.ClustersApi(client).clusters_get(),
+            module.params.get('mongo_cluster'),
+            [['id'], ['properties', 'display_name']],
+        )
+        users_api.clusters_users_delete(mongo_cluster_id, existing_object.properties.username)
+        if module.params.get('wait'):
+            try:
+                client.wait_for(
+                    fn_request=lambda: users_api.clusters_users_find_by_id(
+                        mongo_cluster_id, existing_object.properties.username,
+                    ),
+                    fn_check=lambda _: False,
+                    scaleup=10000,
+                    timeout=module.params.get('wait_timeout'),
+                )
+            except ionoscloud_dbaas_mongo.ApiException as e:
+                if e.status != 404:
+                    raise e
+    except Exception as e:
+        module.fail_json(msg="failed to delete the Mongo Cluster User: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if module.params.get('do_not_replace'):
+            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
         return {
             'changed': True,
             'failed': False,
             'action': 'create',
-            'mongo_cluster': mongo_user.to_dict(),
+            RETURNED_KEY: new_object,
         }
-    except Exception as e:
-        module.fail_json(msg="failed to create the Mongo Cluster User: %s" % to_native(e))
-
-
-def delete_mongo_cluster_user(module, dbaas_client):
-    mongo_users_api = ionoscloud_dbaas_mongo.UsersApi(dbaas_client)
-
-    mongo_cluster_id = module.params.get('mongo_cluster_id')
-    mongo_username = module.params.get('mongo_username')
-
-    try:
-        mongo_users_api.clusters_users_delete(mongo_cluster_id, mongo_username)
-
+    if _should_update_object(module, existing_object):
+        # Update
         return {
-            'action': 'delete',
             'changed': True,
-            'mongo_username': mongo_username,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
         }
-    except Exception as e:
-        if type(e) == ionoscloud_dbaas_mongo.ApiException and e.status == 404:
-            module.exit_json(changed=False)
-        module.fail_json(msg="failed to delete the Mongo Cluster User: %s" % to_native(e))
+
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def create_object(module, client):
+    existing_object = get_resource(
+        module, _get_object_list(module, client), _get_object_name(module),
+        [['properties', 'username']],
+    )
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
+
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
+
+
+def update_object(module, client):
+    object_list = _get_object_list(module, client)
+
+    existing_object = get_resource(
+        module, object_list, _get_object_identifier(module),
+        [['properties', 'username']],
+    )
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(
+        module, _get_object_list(module, client), _get_object_identifier(module),
+        [['properties', 'username']],
+    )
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+
+    _remove_object(module, client, existing_object)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.properties.username,
+    }
 
 
 def get_module_arguments():
@@ -351,9 +501,11 @@ def main():
 
     try:
         if state == 'present':
-            module.exit_json(**create_mongo_cluster_user(module, dbaas_mongo_api_client))
+            module.exit_json(**create_object(module, dbaas_mongo_api_client))
+        elif state == 'update':
+            module.exit_json(**update_object(module, dbaas_mongo_api_client))
         elif state == 'absent':
-            module.exit_json(**delete_mongo_cluster_user(module, dbaas_mongo_api_client))
+            module.exit_json(**remove_object(module, dbaas_mongo_api_client))
     except Exception as e:
         module.fail_json(
             msg='failed to set {object_name} state {state}: {error}'.format(
