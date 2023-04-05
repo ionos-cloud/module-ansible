@@ -292,15 +292,20 @@ def _should_update_object(module, existing_object, client):
         or module.params.get('lb_private_ips') is not None
         and sorted(existing_object.properties.lb_private_ips) != sorted(module.params.get('lb_private_ips'))
         or listener_lan is not None
-        and existing_object.properties.listener_lan != listener_lan
+        and existing_object.properties.listener_lan != int(listener_lan)
         or target_lan is not None
-        and existing_object.properties.target_lan != target_lan
+        and existing_object.properties.target_lan != int(target_lan)
     )
 
 
 def _get_object_list(module, client):
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
     return ionoscloud.ApplicationLoadBalancersApi(client).datacenters_applicationloadbalancers_get(
-        module.params.get('datacenter'), depth=1,
+        datacenter_id, depth=1,
     )
 
 
