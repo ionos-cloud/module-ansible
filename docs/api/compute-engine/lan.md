@@ -120,7 +120,7 @@ This module allows you to create or remove a LAN.
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
   | lan | True | str |  | The LAN name or UUID. |
   | name | False | str |  | The name of the LAN. |
-  | pcc_id | False | str |  | The ID of the PCC. |
+  | pcc | False | str |  | The ID or name of the PCC. |
   | ip_failover | False | list |  | The IP failover group. |
   | public | False | bool | False | If true, the LAN will have public Internet access. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |

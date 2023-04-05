@@ -54,8 +54,8 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'str',
     },
-    'pcc_id': {
-        'description': ['The ID of the PCC.'],
+    'pcc': {
+        'description': ['The ID or name of the PCC.'],
         'available': ['update'],
         'type': 'str',
     },
@@ -247,7 +247,13 @@ def _should_replace_object(module, existing_object):
     return False
 
 
-def _should_update_object(module, existing_object):
+def _should_update_object(module, existing_object, client):
+    pcc_id = get_resource_id(
+        module, 
+        ionoscloud.PrivateCrossConnectsApi(client).pccs_get(depth=1),
+        module.params.get('pcc'),
+    )
+
     return (
         module.params.get('name') is not None
         and existing_object.properties.name != module.params.get('name')
@@ -255,8 +261,8 @@ def _should_update_object(module, existing_object):
         and existing_object.properties.public != module.params.get('public')
         or module.params.get('ip_failover') is not None
         and existing_object.properties.ip_failover != list(map(lambda el: {'ip': el.ip, 'nic_uuid': el.nic_uuid}, module.params.get('ip_failover')))
-        or module.params.get('pcc_id') is not None
-        and existing_object.properties.pcc != module.params.get('pcc_id')
+        or pcc_id is not None
+        and existing_object.properties.pcc != pcc_id
     )
 
 
@@ -307,9 +313,11 @@ def _update_object(module, client, existing_object):
     name = module.params.get('name')
     public = module.params.get('public')
     ip_failover = module.params.get('ip_failover')
-    pcc_id = module.params.get('pcc_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    pcc_id = get_resource_id(
+        module, 
+        ionoscloud.PrivateCrossConnectsApi(client).pccs_get(depth=1),
+        module.params.get('pcc'),
+    )
 
     datacenters_api = ionoscloud.DataCentersApi(client)
     lans_api = ionoscloud.LANsApi(client)
@@ -327,9 +335,9 @@ def _update_object(module, client, existing_object):
         lan_response, _, headers = lans_api.datacenters_lans_patch_with_http_info(
             datacenter_id, existing_object.id, lan_properties,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
 
         return lan_response
     except ApiException as e:
@@ -337,9 +345,6 @@ def _update_object(module, client, existing_object):
 
 
 def _remove_object(module, client, existing_object):
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-
     datacenters_api = ionoscloud.DataCentersApi(client)
     lans_api = ionoscloud.LANsApi(client)
 
@@ -348,9 +353,9 @@ def _remove_object(module, client, existing_object):
 
     try:
         _, _, headers = lans_api.datacenters_lans_delete_with_http_info(datacenter_id, existing_object.id)
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
     except ApiException as e:
         module.fail_json(msg="failed to remove the LAN: %s" % to_native(e))
 
@@ -369,7 +374,7 @@ def update_replace_object(module, client, existing_object):
             'action': 'create',
             RETURNED_KEY: new_object,
         }
-    if _should_update_object(module, existing_object):
+    if _should_update_object(module, existing_object, client):
         # Update
         return {
             'changed': True,

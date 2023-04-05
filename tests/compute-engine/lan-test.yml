@@ -90,7 +90,7 @@
       lan:
         datacenter: "{{ datacenter }}"
         lan: "{{ lan }}"
-        pcc_id: "{{ pcc_result.pcc.id }}"
+        pcc: "{{ pcc_result.pcc.id }}"
         state: update
 
     - name: Debug - Show LAN
@@ -133,5 +133,5 @@
 
 #    - name: Remove pcc
 #      pcc:
-#        pcc_id: "{{ pcc_result.pcc.id }}"
+#        pcc: "{{ pcc_result.pcc.id }}"
 #        state: absent

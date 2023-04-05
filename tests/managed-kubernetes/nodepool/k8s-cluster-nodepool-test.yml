@@ -49,8 +49,8 @@
     - name: Create k8s cluster nodepool
       k8s_nodepool:
         nodepool_name: "my-nodepool-{{ 100 |random}}"
-        k8s_cluster_id:  "{{ cluster.cluster.id }}"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        k8s_cluster:  "{{ cluster.cluster.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         node_count: 2
         cpu_family: "INTEL_SKYLAKE"
         cores_count: "1"
@@ -81,8 +81,8 @@
 
     - name: Update k8s cluster nodepool
       k8s_nodepool:
-        k8s_cluster_id: "{{ cluster.cluster.id }}"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        k8s_cluster: "{{ cluster.cluster.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         k8s_nodepool: "{{ result.nodepool.id }}"
         node_count: 2
         cpu_family: "INTEL_SKYLAKE"
@@ -106,21 +106,21 @@
 
     - name: Delete k8s cluster nodepool
       k8s_nodepool:
-        k8s_cluster_id: "{{ cluster.cluster.id }}"
+        k8s_cluster: "{{ cluster.cluster.id }}"
         k8s_nodepool: "{{ result.nodepool.id }}"
         wait: false
         state: absent
 
     - name: Delete k8s cluster nodepool
       k8s_nodepool:
-        k8s_cluster_id: "{{ cluster.cluster.id }}"
+        k8s_cluster: "{{ cluster.cluster.id }}"
         k8s_nodepool: "{{ result.nodepool.id }}"
         wait: true
         state: absent
 
     - name: Delete non-existent k8s cluster nodepool
       k8s_nodepool:
-        k8s_cluster_id: "{{ cluster.cluster.id }}"
+        k8s_cluster: "{{ cluster.cluster.id }}"
         k8s_nodepool: "non-existent-nodepool"
         wait: true
         state: absent

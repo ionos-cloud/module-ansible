@@ -10,8 +10,8 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   - name: Create k8s cluster nodepool
     k8s_nodepools:
       cluster_name: "{{ name }}"
-      k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      datacenter_id: "4d495548-e330-434d-83a9-251bfa645875"
+      k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+      datacenter: "4d495548-e330-434d-83a9-251bfa645875"
       node_count: 1
       cpu_family: "AMD_OPTERON"
       cores_count: "1"
@@ -24,8 +24,8 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   - name: Update k8s cluster nodepool
     k8s_nodepools:
       cluster_name: "{{ name }}"
-      k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
-      nodepool_id: "6e9efcc6-649a-4514-bee5-6165b614c89e"
+      k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+      k8s_nodepool: "6e9efcc6-649a-4514-bee5-6165b614c89e"
       node_count: 1
       cores_count: "1"
       maintenance_window:
@@ -39,8 +39,8 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
 
   - name: Delete k8s cluster nodepool
     k8s_nodepools:
-      k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      nodepool_id: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
+      k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+      k8s_nodepool: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
       state: absent
   
 ```
@@ -54,8 +54,8 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   - name: Create k8s cluster nodepool
     k8s_nodepools:
       cluster_name: "{{ name }}"
-      k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      datacenter_id: "4d495548-e330-434d-83a9-251bfa645875"
+      k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+      datacenter: "4d495548-e330-434d-83a9-251bfa645875"
       node_count: 1
       cpu_family: "AMD_OPTERON"
       cores_count: "1"
@@ -70,10 +70,10 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | k8s_cluster_id | True | str |  | The ID of the K8s cluster. |
+  | k8s_cluster | True | str |  | The ID or name of the K8s cluster. |
   | nodepool_name | True | str |  | The name of the K8s Nodepool. |
   | k8s_version | False | str |  | The Kubernetes version the nodepool is running. |
-  | datacenter_id | True | str |  | A valid ID of the data center, to which the user has access. |
+  | datacenter | True | str |  | A valid ID or name of the data center, to which the user has access. |
   | lan_ids | False | list |  | Array of additional LANs attached to worker nodes. |
   | node_count | False | int |  | The number of nodes that make up the node pool. |
   | cpu_family | True | str |  | A valid CPU family name. |
@@ -105,8 +105,8 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   
   - name: Delete k8s cluster nodepool
     k8s_nodepools:
-      k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      nodepool_id: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
+      k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+      k8s_nodepool: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
       state: absent
   
 ```
@@ -115,7 +115,7 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | k8s_cluster_id | True | str |  | The ID of the K8s cluster. |
+  | k8s_cluster | True | str |  | The ID or name of the K8s cluster. |
   | k8s_nodepool | True | str |  | The ID or name of the K8s nodepool. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -135,8 +135,8 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   - name: Update k8s cluster nodepool
     k8s_nodepools:
       cluster_name: "{{ name }}"
-      k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
-      nodepool_id: "6e9efcc6-649a-4514-bee5-6165b614c89e"
+      k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+      k8s_nodepool: "6e9efcc6-649a-4514-bee5-6165b614c89e"
       node_count: 1
       cores_count: "1"
       maintenance_window:
@@ -153,11 +153,11 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | k8s_cluster_id | True | str |  | The ID of the K8s cluster. |
+  | k8s_cluster | True | str |  | The ID or name of the K8s cluster. |
   | k8s_nodepool | True | str |  | The ID or name of the K8s nodepool. |
   | nodepool_name | False | str |  | The name of the K8s Nodepool. |
   | k8s_version | False | str |  | The Kubernetes version the nodepool is running. |
-  | datacenter_id | False | str |  | A valid ID of the data center, to which the user has access. |
+  | datacenter | False | str |  | A valid ID or name of the data center, to which the user has access. |
   | lan_ids | False | list |  | Array of additional LANs attached to worker nodes. |
   | node_count | False | int |  | The number of nodes that make up the node pool. |
   | cpu_family | False | str |  | A valid CPU family name. |

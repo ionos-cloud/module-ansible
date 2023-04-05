@@ -300,7 +300,7 @@ def _should_update_object(module, existing_object, client):
 
 def _get_object_list(module, client):
     return ionoscloud.ApplicationLoadBalancersApi(client).datacenters_applicationloadbalancers_get(
-        module.params.get('datacenter_id'), depth=1,
+        module.params.get('datacenter'), depth=1,
     )
 
 

@@ -34,8 +34,8 @@ OBJECT_NAME = 'K8s Nodepool'
 RETURNED_KEY = 'nodepool'
 
 OPTIONS = {
-    'k8s_cluster_id': {
-        'description': ['The ID of the K8s cluster.'],
+    'k8s_cluster': {
+        'description': ['The ID or name of the K8s cluster.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -57,8 +57,8 @@ OPTIONS = {
         'available': ['update', 'present'],
         'type': 'str',
     },
-    'datacenter_id': {
-        'description': ['A valid ID of the data center, to which the user has access.'],
+    'datacenter': {
+        'description': ['A valid ID or name of the data center, to which the user has access.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
@@ -241,8 +241,8 @@ EXAMPLE_PER_STATE = {
   - name: Create k8s cluster nodepool
     k8s_nodepools:
       cluster_name: "{{ name }}"
-      k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      datacenter_id: "4d495548-e330-434d-83a9-251bfa645875"
+      k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+      datacenter: "4d495548-e330-434d-83a9-251bfa645875"
       node_count: 1
       cpu_family: "AMD_OPTERON"
       cores_count: "1"
@@ -255,8 +255,8 @@ EXAMPLE_PER_STATE = {
   - name: Update k8s cluster nodepool
     k8s_nodepools:
       cluster_name: "{{ name }}"
-      k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
-      nodepool_id: "6e9efcc6-649a-4514-bee5-6165b614c89e"
+      k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+      k8s_nodepool: "6e9efcc6-649a-4514-bee5-6165b614c89e"
       node_count: 1
       cores_count: "1"
       maintenance_window:
@@ -270,8 +270,8 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete k8s cluster nodepool
     k8s_nodepools:
-      k8s_cluster_id: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      nodepool_id: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
+      k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+      k8s_nodepool: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
       state: absent
   ''',
 }
@@ -318,7 +318,12 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def _should_replace_object(module, existing_object):
+def _should_replace_object(module, existing_object, client):
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
     return (
         module.params.get('nodepool_name') is not None
         and existing_object.properties.name != module.params.get('nodepool_name')
@@ -334,8 +339,8 @@ def _should_replace_object(module, existing_object):
         and existing_object.properties.storage_type != module.params.get('storage_type')
         or module.params.get('storage_size') is not None
         and existing_object.properties.storage_size != module.params.get('storage_size')
-        or module.params.get('datacenter_id') is not None
-        and existing_object.properties.datacenter_id != module.params.get('datacenter_id')
+        or datacenter_id is not None
+        and existing_object.properties.datacenter_id != datacenter_id
     )
 
 
@@ -367,7 +372,13 @@ def _should_update_object(module, existing_object):
 
 
 def _get_object_list(module, client):
-    return ionoscloud.KubernetesApi(client).k8s_nodepools_get(module.params.get('k8s_cluster_id'), depth=1)
+    k8s_cluster_id = get_resource_id(
+        module, 
+        ionoscloud.KubernetesApi(client).k8s_get(depth=1),
+        module.params.get('k8s_cluster'),
+    )
+
+    return ionoscloud.KubernetesApi(client).k8s_nodepools_get(k8s_cluster_id, depth=1)
 
 
 def _get_object_name(module):
@@ -379,11 +390,19 @@ def _get_object_identifier(module):
 
 
 def _create_object(module, client, existing_object=None):
-    k8s_cluster_id = module.params.get('k8s_cluster_id')
+    k8s_cluster_id = get_resource_id(
+        module, 
+        ionoscloud.KubernetesApi(client).k8s_get(depth=1),
+        module.params.get('k8s_cluster'),
+    )
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
     k8s_version = module.params.get('k8s_version')
     nodepool_name = module.params.get('nodepool_name')
     lan_ids = module.params.get('lan_ids')
-    datacenter_id = module.params.get('datacenter_id')
     node_count = module.params.get('node_count')
     cpu_family = module.params.get('cpu_family')
     cores_count = module.params.get('cores_count')
@@ -395,7 +414,6 @@ def _create_object(module, client, existing_object=None):
     auto_scaling_dict = module.params.get('auto_scaling')
     labels = module.params.get('labels')
     annotations = module.params.get('annotations')
-    wait = module.params.get('wait')
     public_ips = module.params.get('public_ips')
 
     maintenance_window = None
@@ -427,9 +445,6 @@ def _create_object(module, client, existing_object=None):
         auto_scaling = existing_object.properties.auto_scaling if auto_scaling is None else auto_scaling
         public_ips = existing_object.properties.public_ips if public_ips is None else public_ips
 
-    wait = module.params.get('wait')
-    wait_timeout = int(module.params.get('wait_timeout'))
-
     k8s_nodepool_properties = KubernetesNodePoolProperties(
         name=nodepool_name,
         datacenter_id=datacenter_id,
@@ -455,7 +470,7 @@ def _create_object(module, client, existing_object=None):
     try:
         k8s_response = k8s_api.k8s_nodepools_post(k8s_cluster_id=k8s_cluster_id, kubernetes_node_pool=k8s_nodepool)
 
-        if wait:
+        if module.params.get('wait'):
             client.wait_for(
                 fn_request=lambda: k8s_api.k8s_nodepools_find_by_id(
                     k8s_cluster_id,
@@ -463,7 +478,7 @@ def _create_object(module, client, existing_object=None):
                 ).metadata.state,
                 fn_check=lambda r: r == 'ACTIVE',
                 scaleup=10000,
-                timeout=wait_timeout,
+                timeout=int(module.params.get('wait_timeout')),
             )
     except ApiException as e:
         module.fail_json(msg="failed to create the new {}: {}".format(OBJECT_NAME, to_native(e)))
@@ -471,7 +486,11 @@ def _create_object(module, client, existing_object=None):
 
 
 def _update_object(module, client, existing_object):
-    k8s_cluster_id = module.params.get('k8s_cluster_id')
+    k8s_cluster_id = get_resource_id(
+        module, 
+        ionoscloud.KubernetesApi(client).k8s_get(depth=1),
+        module.params.get('k8s_cluster'),
+    )
     node_count = module.params.get('node_count')
     maintenance = module.params.get('maintenance_window')
     auto_scaling_dict = module.params.get('auto_scaling')
@@ -480,8 +499,6 @@ def _update_object(module, client, existing_object):
     public_ips = module.params.get('public_ips')
     labels = module.params.get('labels')
     annotations = module.params.get('annotations')
-    wait = module.params.get('wait')
-    wait_timeout = int(module.params.get('wait_timeout'))
 
     if not node_count:
         node_count = existing_object.properties.node_count
@@ -519,7 +536,7 @@ def _update_object(module, client, existing_object):
             kubernetes_node_pool=k8s_nodepool,
         )
 
-        if wait:
+        if module.params.get('wait'):
             client.wait_for(
                 fn_request=lambda: k8s_api.k8s_nodepools_find_by_id(
                     k8s_cluster_id,
@@ -527,7 +544,7 @@ def _update_object(module, client, existing_object):
                 ).metadata.state,
                 fn_check=lambda r: r == 'ACTIVE',
                 scaleup=10000,
-                timeout=wait_timeout,
+                timeout=int(module.params.get('wait_timeout')),
             )
 
         return k8s_response
@@ -536,9 +553,11 @@ def _update_object(module, client, existing_object):
 
 
 def _remove_object(module, client, existing_object):
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-    k8s_cluster_id = module.params.get('k8s_cluster_id')
+    k8s_cluster_id = get_resource_id(
+        module, 
+        ionoscloud.KubernetesApi(client).k8s_get(depth=1),
+        module.params.get('k8s_cluster'),
+    )
 
     k8s_api = ionoscloud.KubernetesApi(api_client=client)
 
@@ -546,7 +565,7 @@ def _remove_object(module, client, existing_object):
         if existing_object.metadata.state != 'DESTROYING':
             k8s_api.k8s_nodepools_delete_with_http_info(k8s_cluster_id=k8s_cluster_id, nodepool_id=existing_object.id)
 
-        if wait:
+        if module.params.get('wait'):
             client.wait_for(
                 fn_request=lambda: k8s_api.k8s_nodepools_get(k8s_cluster_id=k8s_cluster_id, depth=1),
                 fn_check=lambda r: len(list(filter(
@@ -555,14 +574,14 @@ def _remove_object(module, client, existing_object):
                 ))) < 1,
                 console_print='.',
                 scaleup=10000,
-                timeout=wait_timeout,
+                timeout=module.params.get('wait_timeout'),
             )
     except Exception as e:
         module.fail_json(msg="failed to delete the {}: {}".format(OBJECT_NAME, to_native(e)))
 
 
 def update_replace_object(module, client, existing_object):
-    if _should_replace_object(module, existing_object):
+    if _should_replace_object(module, existing_object, client):
 
         if module.params.get('do_not_replace'):
             module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))

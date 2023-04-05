@@ -15,7 +15,7 @@ This is a simple module that supports creating or removing Private Cross Connect
 
   - name: Update pcc
     pcc:
-      pcc_id: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
+      pcc: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
       name: "{{ new_name }}"
       description: "{{ new_description }}"
       state: update
@@ -23,7 +23,7 @@ This is a simple module that supports creating or removing Private Cross Connect
 
   - name: Remove pcc
     pcc:
-      pcc_id: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
+      pcc: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
       state: absent
   
 ```
@@ -65,7 +65,7 @@ This is a simple module that supports creating or removing Private Cross Connect
   
   - name: Remove pcc
     pcc:
-      pcc_id: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
+      pcc: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
       state: absent
   
 ```
@@ -92,7 +92,7 @@ This is a simple module that supports creating or removing Private Cross Connect
   
   - name: Update pcc
     pcc:
-      pcc_id: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
+      pcc: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
       name: "{{ new_name }}"
       description: "{{ new_description }}"
       state: update

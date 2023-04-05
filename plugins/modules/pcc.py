@@ -154,7 +154,7 @@ EXAMPLE_PER_STATE = {
     'update': '''
   - name: Update pcc
     pcc:
-      pcc_id: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
+      pcc: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
       name: "{{ new_name }}"
       description: "{{ new_description }}"
       state: update
@@ -162,7 +162,7 @@ EXAMPLE_PER_STATE = {
     'absent': '''
   - name: Remove pcc
     pcc:
-      pcc_id: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
+      pcc: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
       state: absent
   ''',
 }

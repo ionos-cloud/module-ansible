@@ -31,7 +31,7 @@
 
     - name: Create Application Load Balancer
       application_load_balancer:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         ips:
           - "10.12.118.224"
@@ -46,7 +46,7 @@
 
     - name: Update Application Load Balancer
       application_load_balancer:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter }}"
         application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
         name: "{{ name }} - UPDATE"
         listener_lan: "{{ listener_lan.lan.id }}"
@@ -61,8 +61,8 @@
 
     - name: Remove Application Load Balancer
       application_load_balancer:
-       application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       application_load_balancer: "{{ name }} - UPDATE"
+       datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
        state: absent
 
