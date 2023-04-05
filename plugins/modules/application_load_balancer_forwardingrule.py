@@ -105,14 +105,14 @@ OPTIONS = {
         'type': 'list',
         'elements': 'dict',
     },
-    'datacenter_id': {
-        'description': ['The ID of the datacenter.'],
+    'datacenter': {
+        'description': ['The ID or name of the datacenter.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
     },
-    'application_load_balancer_id': {
-        'description': ['The ID of the Application Loadbalancer.'],
+    'application_load_balancer': {
+        'description': ['The ID or name of the Application Loadbalancer.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -219,8 +219,8 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       name: "{{ name }}"
       protocol: "HTTP"
       listener_ip: "10.12.118.224"
@@ -242,8 +242,8 @@ EXAMPLE_PER_STATE = {
   'update' : '''
   - name: Update Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       forwarding_rule: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
       name: "{{ name }} - UPDATED"
       protocol: "HTTP"
@@ -254,8 +254,8 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       forwarding_rule: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
       state: absent
   ''',
@@ -415,8 +415,18 @@ def _should_update_object(module, existing_object):
 
 
 def _get_object_list(module, client):
-    datacenter_id = module.params.get('datacenter_id')
-    application_load_balancer_id = module.params.get('application_load_balancer_id')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    application_load_balancer_id = get_resource_id(
+        module, 
+        ionoscloud.ApplicationLoadBalancersApi(client).datacenters_applicationloadbalancers_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('application_load_balancer'),
+    )
 
     return ionoscloud.ApplicationLoadBalancersApi(client).datacenters_applicationloadbalancers_forwardingrules_get(
         datacenter_id, application_load_balancer_id, depth=1,
@@ -440,9 +450,19 @@ def _create_object(module, client, certificate_manager_client, existing_object=N
     server_certificates = get_server_certificates(module, certificate_manager_client)
     http_rules = module.params.get('http_rules')
     http_rules = list(map(lambda x: get_http_rule_object(x), http_rules)) if http_rules else None
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    application_load_balancer_id = get_resource_id(
+        module, 
+        ionoscloud.ApplicationLoadBalancersApi(client).datacenters_applicationloadbalancers_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('application_load_balancer'),
+    )
 
-    datacenter_id = module.params.get('datacenter_id')
-    application_load_balancer_id = module.params.get('application_load_balancer_id')
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
         protocol = existing_object.properties.protocol if protocol is None else protocol
@@ -451,9 +471,6 @@ def _create_object(module, client, certificate_manager_client, existing_object=N
         client_timeout = existing_object.properties.client_timeout if client_timeout is None else client_timeout
         server_certificates = existing_object.properties.server_certificates if server_certificates is None else server_certificates
         http_rules = existing_object.properties.http_rules if http_rules is None else http_rules
-
-    wait = module.params.get('wait')
-    wait_timeout = int(module.params.get('wait_timeout'))
 
     albs_api = ionoscloud.ApplicationLoadBalancersApi(client)
     
@@ -471,9 +488,9 @@ def _create_object(module, client, certificate_manager_client, existing_object=N
         response, _, headers = albs_api.datacenters_applicationloadbalancers_forwardingrules_post_with_http_info(
             datacenter_id, application_load_balancer_id, alb_forwarding_rule,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=int(module.params.get('wait_timeout')))
     except ApiException as e:
         module.fail_json(msg="failed to create the new Application Loadbalancer Rule: %s" % to_native(e))
     return response
@@ -488,10 +505,18 @@ def _update_object(module, client, certificate_manager_client, existing_object):
     server_certificates = get_server_certificates(module, certificate_manager_client)
     http_rules = module.params.get('http_rules')
     http_rules = list(map(lambda x: get_http_rule_object(x), http_rules)) if http_rules else None
-    datacenter_id = module.params.get('datacenter_id')
-    application_load_balancer_id = module.params.get('application_load_balancer_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    application_load_balancer_id = get_resource_id(
+        module, 
+        ionoscloud.ApplicationLoadBalancersApi(client).datacenters_applicationloadbalancers_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('application_load_balancer'),
+    )
 
     albs_api = ionoscloud.ApplicationLoadBalancersApi(client)
     
@@ -509,9 +534,9 @@ def _update_object(module, client, certificate_manager_client, existing_object):
             datacenter_id, application_load_balancer_id, existing_object.id, alb_forwarding_rule_properties,
         )
 
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
 
         return response
     except ApiException as e:
@@ -519,10 +544,18 @@ def _update_object(module, client, certificate_manager_client, existing_object):
 
 
 def _remove_object(module, client, existing_object):
-    datacenter_id = module.params.get('datacenter_id')
-    application_load_balancer_id = module.params.get('application_load_balancer_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    application_load_balancer_id = get_resource_id(
+        module, 
+        ionoscloud.ApplicationLoadBalancersApi(client).datacenters_applicationloadbalancers_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('application_load_balancer'),
+    )
 
     albs_api = ionoscloud.ApplicationLoadBalancersApi(client)
 
@@ -530,9 +563,9 @@ def _remove_object(module, client, existing_object):
         _, _, headers = albs_api.datacenters_applicationloadbalancers_forwardingrules_delete_with_http_info(
             datacenter_id, application_load_balancer_id, existing_object.id,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
     except ApiException as e:
         module.fail_json(msg="failed to remove the Application Loadbalancer Rule: %s" % to_native(e))
 

@@ -13,16 +13,16 @@ This is a simple module that supports creating or removing Application Loadbalan
       action: "ACCEPTED"
       direction: "INGRESS"
       bucket: "sdktest"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       wait: true
     register: alb_flowlog_response
   
 
   - name: Update Application Load Balancer Flowlog
     application_load_balancer_flowlog:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       flowlog: "{{ alb_flowlog_response.flowlog.id }}"
       name: "{{ name }}"
       action: "ALL"
@@ -35,8 +35,8 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   - name: Delete Application Load Balancer Flowlog
     application_load_balancer_flowlog:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       flowlog: "{{ alb_flowlog_response.flowlog.id }}"
       state: absent
   
@@ -54,8 +54,8 @@ This is a simple module that supports creating or removing Application Loadbalan
       action: "ACCEPTED"
       direction: "INGRESS"
       bucket: "sdktest"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       wait: true
     register: alb_flowlog_response
   
@@ -69,8 +69,8 @@ This is a simple module that supports creating or removing Application Loadbalan
   | action | True | str |  | Specifies the traffic action pattern. |
   | direction | True | str |  | Specifies the traffic direction pattern. |
   | bucket | True | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
-  | application_load_balancer_id | True | str |  | The ID of the Application Loadbalancer. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
+  | application_load_balancer | True | str |  | The ID or name of the Application Loadbalancer. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -89,8 +89,8 @@ This is a simple module that supports creating or removing Application Loadbalan
   
   - name: Delete Application Load Balancer Flowlog
     application_load_balancer_flowlog:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       flowlog: "{{ alb_flowlog_response.flowlog.id }}"
       state: absent
   
@@ -101,8 +101,8 @@ This is a simple module that supports creating or removing Application Loadbalan
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the flowlog. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
-  | application_load_balancer_id | True | str |  | The ID of the Application Loadbalancer. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
+  | application_load_balancer | True | str |  | The ID or name of the Application Loadbalancer. |
   | flowlog | True | str |  | The ID or name of the Flowlog. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -121,8 +121,8 @@ This is a simple module that supports creating or removing Application Loadbalan
   
   - name: Update Application Load Balancer Flowlog
     application_load_balancer_flowlog:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       flowlog: "{{ alb_flowlog_response.flowlog.id }}"
       name: "{{ name }}"
       action: "ALL"
@@ -142,8 +142,8 @@ This is a simple module that supports creating or removing Application Loadbalan
   | action | False | str |  | Specifies the traffic action pattern. |
   | direction | False | str |  | Specifies the traffic direction pattern. |
   | bucket | False | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
-  | application_load_balancer_id | True | str |  | The ID of the Application Loadbalancer. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
+  | application_load_balancer | True | str |  | The ID or name of the Application Loadbalancer. |
   | flowlog | True | str |  | The ID or name of the Flowlog. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |

@@ -9,8 +9,8 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   - name: Create Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       name: "{{ name }}"
       protocol: "HTTP"
       listener_ip: "10.12.118.224"
@@ -32,8 +32,8 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   - name: Update Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       forwarding_rule: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
       name: "{{ name }} - UPDATED"
       protocol: "HTTP"
@@ -44,8 +44,8 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   - name: Delete Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       forwarding_rule: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
       state: absent
   
@@ -59,8 +59,8 @@ This is a simple module that supports creating or removing Application Loadbalan
   
   - name: Create Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       name: "{{ name }}"
       protocol: "HTTP"
       listener_ip: "10.12.118.224"
@@ -94,8 +94,8 @@ This is a simple module that supports creating or removing Application Loadbalan
   | http_rules | False | list |  | An array of items in the collection. The original order of rules is perserved during processing, except for Forward-type rules are processed after the rules with other action defined. The relative order of Forward-type rules is also preserved during the processing. |
   | server_certificates | False | list |  | An array of items in the collection. |
   | new_server_certificates | False | list |  | An array of dict with information used to uploade new certificates and add them to the forwarding rule.A dict should contain 'certificate_file', 'private_key_file', 'certificate_chain_file'(optional), 'certificate_name' as keys.File paths should be absolute. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
-  | application_load_balancer_id | True | str |  | The ID of the Application Loadbalancer. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
+  | application_load_balancer | True | str |  | The ID or name of the Application Loadbalancer. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -114,8 +114,8 @@ This is a simple module that supports creating or removing Application Loadbalan
   
   - name: Delete Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       forwarding_rule: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
       state: absent
   
@@ -126,8 +126,8 @@ This is a simple module that supports creating or removing Application Loadbalan
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the Application Load Balancer forwarding rule. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
-  | application_load_balancer_id | True | str |  | The ID of the Application Loadbalancer. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
+  | application_load_balancer | True | str |  | The ID or name of the Application Loadbalancer. |
   | forwarding_rule | True | str |  | The ID or name of the Application Loadbalancer forwarding rule. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -146,8 +146,8 @@ This is a simple module that supports creating or removing Application Loadbalan
   
   - name: Update Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       forwarding_rule: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
       name: "{{ name }} - UPDATED"
       protocol: "HTTP"
@@ -170,8 +170,8 @@ This is a simple module that supports creating or removing Application Loadbalan
   | http_rules | False | list |  | An array of items in the collection. The original order of rules is perserved during processing, except for Forward-type rules are processed after the rules with other action defined. The relative order of Forward-type rules is also preserved during the processing. |
   | server_certificates | False | list |  | An array of items in the collection. |
   | new_server_certificates | False | list |  | An array of dict with information used to uploade new certificates and add them to the forwarding rule.A dict should contain 'certificate_file', 'private_key_file', 'certificate_chain_file'(optional), 'certificate_name' as keys.File paths should be absolute. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
-  | application_load_balancer_id | True | str |  | The ID of the Application Loadbalancer. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
+  | application_load_balancer | True | str |  | The ID or name of the Application Loadbalancer. |
   | forwarding_rule | True | str |  | The ID or name of the Application Loadbalancer forwarding rule. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |

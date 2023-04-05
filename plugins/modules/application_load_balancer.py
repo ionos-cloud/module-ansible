@@ -44,7 +44,7 @@ OPTIONS = {
         'type': 'str',
     },
     'listener_lan': {
-        'description': ['ID of the listening LAN (inbound).'],
+        'description': ['ID or name of the listening LAN (inbound).'],
         'available': ['present', 'update'],
         'required': ['present', 'update'],
         'type': 'str',
@@ -58,7 +58,7 @@ OPTIONS = {
         'type': 'list',
     },
     'target_lan': {
-        'description': ['ID of the balanced private target LAN (outbound).'],
+        'description': ['ID or name of the balanced private target LAN (outbound).'],
         'available': ['present', 'update'],
         'required': ['present', 'update'],
         'type': 'str',
@@ -71,8 +71,8 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'list',
     },
-    'datacenter_id': {
-        'description': ['The ID of the datacenter.'],
+    'datacenter': {
+        'description': ['The ID or name of the datacenter.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -179,7 +179,7 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Application Load Balancer
     application_load_balancer:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       name: "{{ name }}"
       ips:
         - "10.12.118.224"
@@ -191,7 +191,7 @@ EXAMPLE_PER_STATE = {
   'update' : '''
   - name: Update Application Load Balancer
     application_load_balancer:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       name: "{{ name }} - UPDATE"
       listener_lan: "{{ listener_lan.lan.id }}"
@@ -204,7 +204,7 @@ EXAMPLE_PER_STATE = {
   - name: Remove Application Load Balancer
     application_load_balancer:
       application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       wait: true
       state: absent
   ''',
@@ -267,7 +267,23 @@ def _should_replace_object(module, existing_object):
     return False
 
 
-def _should_update_object(module, existing_object):
+def _should_update_object(module, existing_object, client):
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    listener_lan =  get_resource_id(
+        module, 
+        ionoscloud.LANsApi(client).datacenters_lans_get(datacenter_id, depth=1),
+        module.params.get('listener_lan'),
+    )
+    target_lan =  get_resource_id(
+        module, 
+        ionoscloud.LANsApi(client).datacenters_lans_get(datacenter_id, depth=1),
+        module.params.get('target_lan'),
+    )
+
     return (
         module.params.get('name') is not None
         and existing_object.properties.name != module.params.get('name')
@@ -275,10 +291,10 @@ def _should_update_object(module, existing_object):
         and sorted(existing_object.properties.ips) != sorted(module.params.get('ips'))
         or module.params.get('lb_private_ips') is not None
         and sorted(existing_object.properties.lb_private_ips) != sorted(module.params.get('lb_private_ips'))
-        or module.params.get('listener_lan') is not None
-        and existing_object.properties.listener_lan != module.params.get('listener_lan')
-        or module.params.get('target_lan') is not None
-        and existing_object.properties.target_lan != module.params.get('target_lan')
+        or listener_lan is not None
+        and existing_object.properties.listener_lan != listener_lan
+        or target_lan is not None
+        and existing_object.properties.target_lan != target_lan
     )
 
 
@@ -299,19 +315,28 @@ def _get_object_identifier(module):
 def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
     ips = module.params.get('ips')
-    listener_lan = module.params.get('listener_lan')
-    target_lan = module.params.get('target_lan')
     lb_private_ips = module.params.get('lb_private_ips')
-    datacenter_id = module.params.get('datacenter_id')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    listener_lan =  get_resource_id(
+        module, 
+        ionoscloud.LANsApi(client).datacenters_lans_get(datacenter_id, depth=1),
+        module.params.get('listener_lan'),
+    )
+    target_lan =  get_resource_id(
+        module, 
+        ionoscloud.LANsApi(client).datacenters_lans_get(datacenter_id, depth=1),
+        module.params.get('target_lan'),
+    )
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
         ips = existing_object.properties.ips if ips is None else ips
         listener_lan = existing_object.properties.listener_lan if listener_lan is None else listener_lan
         target_lan = existing_object.properties.target_lan if target_lan is None else target_lan
         lb_private_ips = existing_object.properties.lb_private_ips if lb_private_ips is None else lb_private_ips
-
-    wait = module.params.get('wait')
-    wait_timeout = int(module.params.get('wait_timeout'))
 
     albs_api = ionoscloud.ApplicationLoadBalancersApi(client)
     
@@ -324,9 +349,9 @@ def _create_object(module, client, existing_object=None):
         response, _, headers = albs_api.datacenters_applicationloadbalancers_post_with_http_info(
             datacenter_id, application_load_balancer,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=int(module.params.get('wait_timeout')))
     except ApiException as e:
         module.fail_json(msg="failed to create the new Application Loadbalancer: %s" % to_native(e))
     return response
@@ -335,12 +360,22 @@ def _create_object(module, client, existing_object=None):
 def _update_object(module, client, existing_object):
     name = module.params.get('name')
     ips = module.params.get('ips')
-    listener_lan = module.params.get('listener_lan')
-    target_lan = module.params.get('target_lan')
     lb_private_ips = module.params.get('lb_private_ips')
-    datacenter_id = module.params.get('datacenter_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    listener_lan =  get_resource_id(
+        module, 
+        ionoscloud.LANsApi(client).datacenters_lans_get(datacenter_id, depth=1),
+        module.params.get('listener_lan'),
+    )
+    target_lan =  get_resource_id(
+        module, 
+        ionoscloud.LANsApi(client).datacenters_lans_get(datacenter_id, depth=1),
+        module.params.get('target_lan'),
+    )
 
     albs_api = ionoscloud.ApplicationLoadBalancersApi(client)
     
@@ -353,9 +388,9 @@ def _update_object(module, client, existing_object):
         response, _, headers = albs_api.datacenters_applicationloadbalancers_patch_with_http_info(
             datacenter_id, existing_object.id, alb_properties,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
 
         return response
     except ApiException as e:
@@ -363,9 +398,11 @@ def _update_object(module, client, existing_object):
 
 
 def _remove_object(module, client, existing_object):
-    datacenter_id = module.params.get('datacenter_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
 
     albs_api = ionoscloud.ApplicationLoadBalancersApi(client)
 
@@ -373,9 +410,9 @@ def _remove_object(module, client, existing_object):
         _, _, headers = albs_api.datacenters_applicationloadbalancers_delete_with_http_info(
             datacenter_id, existing_object.id,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
     except ApiException as e:
         module.fail_json(msg="failed to remove the Application Loadbalancer: %s" % to_native(e))
 
@@ -394,7 +431,7 @@ def update_replace_object(module, client, existing_object):
             'action': 'create',
             RETURNED_KEY: new_object,
         }
-    if _should_update_object(module, existing_object):
+    if _should_update_object(module, existing_object, client):
         # Update
         return {
             'changed': True,
