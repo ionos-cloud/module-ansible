@@ -347,10 +347,10 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def _should_replace_object(module, existing_object):
+def _should_replace_object(module, existing_object, client):
     backupunit_id = get_resource_id(
         module,
-        ionoscloud.BackupUnitsApi.backupunits_get(depth=1), 
+        ionoscloud.BackupUnitsApi(client).backupunits_get(depth=1), 
         module.params.get('backupunit'),
     )
 
