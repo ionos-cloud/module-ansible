@@ -32,8 +32,8 @@ OPTIONS = {
         'available': STATES,
         'type': 'dict',
     },
-    'registry_id': {
-        'description': ['The ID of an existing Registry.'],
+    'registry': {
+        'description': ['The ID or name of an existing Registry.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
