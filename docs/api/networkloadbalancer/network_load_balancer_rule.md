@@ -18,16 +18,16 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
         - ip: "22.231.2.2"
           port: "8080"
           weight: "123"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       wait: true
     register: nlb_forwarding_rule_response
   
 
   - name: Update Network Load Balancer Forwarding Rule
     network_load_balancer_rule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       forwarding_rule: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
       name: "{{ name }} - UPDATED"
       algorithm: "ROUND_ROBIN"
@@ -39,8 +39,8 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
 
   - name: Delete Network Load Balancer Forwarding Rule
     network_load_balancer_rule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       forwarding_rule: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
       state: absent
   
@@ -63,8 +63,8 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
         - ip: "22.231.2.2"
           port: "8080"
           weight: "123"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       wait: true
     register: nlb_forwarding_rule_response
   
@@ -81,8 +81,8 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
   | listener_port | True | str |  | Listening (inbound) port number; valid range is 1 to 65535. |
   | health_check | False | dict |  | Health check properties for Network Load Balancer forwarding rule. |
   | targets | True | list |  | Array of targets. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
-  | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
+  | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -101,8 +101,8 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
   
   - name: Delete Network Load Balancer Forwarding Rule
     network_load_balancer_rule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       forwarding_rule: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
       state: absent
   
@@ -113,8 +113,8 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the Network Loadbalancer forwarding rule. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
-  | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
+  | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
   | forwarding_rule | True | str |  | The ID or name of the Network Loadbalancer forwarding rule. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -133,8 +133,8 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
   
   - name: Update Network Load Balancer Forwarding Rule
     network_load_balancer_rule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       forwarding_rule: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
       name: "{{ name }} - UPDATED"
       algorithm: "ROUND_ROBIN"
@@ -156,8 +156,8 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
   | listener_port | False | str |  | Listening (inbound) port number; valid range is 1 to 65535. |
   | health_check | False | dict |  | Health check properties for Network Load Balancer forwarding rule. |
   | targets | False | list |  | Array of targets. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
-  | network_load_balancer_id | True | str |  | The ID of the Network Loadbalancer. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
+  | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
   | forwarding_rule | True | str |  | The ID or name of the Network Loadbalancer forwarding rule. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |

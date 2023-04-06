@@ -31,7 +31,7 @@
 
     - name: Create Network Load Balancer
       network_load_balancer:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         ips:
           - "10.12.118.224"
@@ -60,8 +60,8 @@
           connect_timeout: 5000
           target_timeout: 5000
           retries: 1
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
         wait: true
       register: nlb_forwarding_rule_response
 
@@ -71,8 +71,8 @@
 
     - name: Update Network Load Balancer Forwarding Rule
       network_load_balancer_rule:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
         forwarding_rule: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
         name: "{{ name }} - UPDATED"
         algorithm: "ROUND_ROBIN"
@@ -87,22 +87,22 @@
 
     - name: Delete Network Load Balancer Forwarding Rule
       network_load_balancer_rule:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
         forwarding_rule: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
         state: absent
 
     - name: Delete Network Load Balancer Forwarding Rule
       network_load_balancer_rule:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
         forwarding_rule: "invalid-id"
         state: absent
 
     - name: Remove Network Load Balancer
       network_load_balancer:
        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
        wait_timeout: 2000
        state: absent

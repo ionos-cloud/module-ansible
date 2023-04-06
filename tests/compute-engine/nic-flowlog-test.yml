@@ -59,9 +59,9 @@
         action: "ACCEPTED"
         direction: "INGRESS"
         bucket: "sdktest"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        server_id: "{{ server_response.machines[0].id }}"
-        nic_id: "{{ nic_response.nic.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        server: "{{ server_response.machines[0].id }}"
+        nic: "{{ nic_response.nic.id }}"
       register: flowlog_response
 
     - name: Debug - Show Created Flowlog
@@ -75,9 +75,9 @@
         action: "ALL"
         direction: "INGRESS"
         bucket: "sdktest"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        server_id: "{{ server_response.machines[0].id }}"
-        nic_id: "{{ nic_response.nic.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        server: "{{ server_response.machines[0].id }}"
+        nic: "{{ nic_response.nic.id }}"
         flowlog: "{{ flowlog_response.flowlog.id }}"
       register: flowlog_update_response
 
@@ -89,9 +89,9 @@
 
     - name: Delete a nic flowlog
       nic_flowlog:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        server_id: "{{ server_response.machines[0].id }}"
-        nic_id: "{{ nic_response.nic.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        server: "{{ server_response.machines[0].id }}"
+        nic: "{{ nic_response.nic.id }}"
         flowlog: "{{ flowlog_response.flowlog.id }}"
         name: "{{ name }}"
         state: absent
@@ -100,9 +100,9 @@
 
     - name: Delete a nic flowlog
       nic_flowlog:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        server_id: "{{ server_response.machines[0].id }}"
-        nic_id: "{{ nic_response.nic.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        server: "{{ server_response.machines[0].id }}"
+        nic: "{{ nic_response.nic.id }}"
         flowlog: "invalid-id"
         name: "{{ name }}"
         state: absent

@@ -19,7 +19,7 @@
 
   - name: Create Registry Token
     registry_token:
-      registry_id: "{{ registry_response.registry.id }}"
+      registry: "{{ registry_response.registry.id }}"
       name: testRegistryToken
       scopes:
       - actions:
@@ -36,7 +36,7 @@
 
   - name: List Registry Tokens
     registry_token_info:
-      registry_id: "{{ registry_response.registry.id }}"
+      registry: "{{ registry_response.registry.id }}"
     register: registry_tokens_response
 
   - name: Show Registry Tokens
@@ -45,7 +45,7 @@
 
   - name: Update Registry Token
     registry_token:
-      registry_id: "{{ registry_response.registry.id }}"
+      registry: "{{ registry_response.registry.id }}"
       registry_token: "{{ registry_token_response.registry_token.properties.name }}"
       scopes:
       - actions:
@@ -60,7 +60,7 @@
 
   - name: Delete Registry Token
     registry_token:
-      registry_id: "{{ registry_response.registry.id }}"
+      registry: "{{ registry_response.registry.id }}"
       registry_token: "{{ registry_token_response.registry_token.properties.name }}"
       state: absent
     register: registry_token_response

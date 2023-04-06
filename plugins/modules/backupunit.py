@@ -150,7 +150,7 @@ EXAMPLE_PER_STATE = {
   'update' : '''# Update a Backup Unit
   - name: Update a Backup Unit
     backupunit:
-      backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+      backupunit: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
       backupunit_email: "{{ updated_email }}"
       backupunit_password:  "{{ updated_password }}"
       state: update
@@ -158,7 +158,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''# Destroy a Backup Unit.
   - name: Remove Backup Unit
     backupunit:
-      backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+      backupunit: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
       state: absent
   ''',
 }
@@ -269,7 +269,6 @@ def _create_object(module, client, existing_object=None):
 
 
 def _update_object(module, client, existing_object):
-    name = module.params.get('name')
     password = module.params.get('backupunit_password')
     email = module.params.get('backupunit_email')
     wait = module.params.get('wait')

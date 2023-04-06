@@ -16,7 +16,7 @@ This is a simple module that supports creating or removing Backup Units. This mo
 # Update a Backup Unit
   - name: Update a Backup Unit
     backupunit:
-      backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+      backupunit: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
       backupunit_email: "{{ updated_email }}"
       backupunit_password:  "{{ updated_password }}"
       state: update
@@ -24,7 +24,7 @@ This is a simple module that supports creating or removing Backup Units. This mo
 # Destroy a Backup Unit.
   - name: Remove Backup Unit
     backupunit:
-      backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+      backupunit: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
       state: absent
   
 ```
@@ -67,7 +67,7 @@ This is a simple module that supports creating or removing Backup Units. This mo
   # Destroy a Backup Unit.
   - name: Remove Backup Unit
     backupunit:
-      backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+      backupunit: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
       state: absent
   
 ```
@@ -93,7 +93,7 @@ This is a simple module that supports creating or removing Backup Units. This mo
   # Update a Backup Unit
   - name: Update a Backup Unit
     backupunit:
-      backupunit_id: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+      backupunit: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
       backupunit_email: "{{ updated_email }}"
       backupunit_password:  "{{ updated_password }}"
       state: update

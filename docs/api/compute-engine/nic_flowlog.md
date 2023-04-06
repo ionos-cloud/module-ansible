@@ -12,9 +12,9 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
     action: "ACCEPTED"
     direction: "INGRESS"
     bucket: "sdktest"
-    datacenter_id: "{{ datacenter_response.datacenter.id }}"
-    server_id: "{{ server_response.machines[0].id }}"
-    nic_id: "{{ nic_response.nic.id }}"
+    datacenter: "{{ datacenter_response.datacenter.id }}"
+    server: "{{ server_response.machines[0].id }}"
+    nic: "{{ nic_response.nic.id }}"
   register: flowlog_response
   
 - name: Update a nic flowlog
@@ -23,18 +23,18 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
     action: "ALL"
     direction: "INGRESS"
     bucket: "sdktest"
-    datacenter_id: "{{ datacenter_response.datacenter.id }}"
-    server_id: "{{ server_response.machines[0].id }}"
-    nic_id: "{{ nic_response.nic.id }}"
-    flowlog_id: "{{ flowlog_response.flowlog.id }}"
+    datacenter: "{{ datacenter_response.datacenter.id }}"
+    server: "{{ server_response.machines[0].id }}"
+    nic: "{{ nic_response.nic.id }}"
+    flowlog: "{{ flowlog_response.flowlog.id }}"
   register: flowlog_update_response
   
 - name: Delete a nic flowlog
   nic_flowlog:
-    datacenter_id: "{{ datacenter_response.datacenter.id }}"
-    server_id: "{{ server_response.machines[0].id }}"
-    nic_id: "{{ nic_response.nic.id }}"
-    flowlog_id: "{{ flowlog_response.flowlog.id }}"
+    datacenter: "{{ datacenter_response.datacenter.id }}"
+    server: "{{ server_response.machines[0].id }}"
+    nic: "{{ nic_response.nic.id }}"
+    flowlog: "{{ flowlog_response.flowlog.id }}"
     name: "{{ name }}"
     state: absent
     wait: true
@@ -53,9 +53,9 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
     action: "ACCEPTED"
     direction: "INGRESS"
     bucket: "sdktest"
-    datacenter_id: "{{ datacenter_response.datacenter.id }}"
-    server_id: "{{ server_response.machines[0].id }}"
-    nic_id: "{{ nic_response.nic.id }}"
+    datacenter: "{{ datacenter_response.datacenter.id }}"
+    server: "{{ server_response.machines[0].id }}"
+    nic: "{{ nic_response.nic.id }}"
   register: flowlog_response
   
 ```
@@ -65,9 +65,9 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | True | str |  | The name of the Flowlog. |
-  | datacenter_id | True | str |  | The ID of the virtual datacenter. |
-  | server_id | True | str |  | The ID of the Server. |
-  | nic_id | True | str |  | The ID of the NIC. |
+  | datacenter | True | str |  | The ID or name of the virtual datacenter. |
+  | server | True | str |  | The ID or name of the Server. |
+  | nic | True | str |  | The ID or name of the NIC. |
   | action | True | str |  | Specifies the traffic action pattern. |
   | direction | True | str |  | Specifies the traffic direction pattern. |
   | bucket | True | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |
@@ -88,10 +88,10 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
 ```yaml
   - name: Delete a nic flowlog
   nic_flowlog:
-    datacenter_id: "{{ datacenter_response.datacenter.id }}"
-    server_id: "{{ server_response.machines[0].id }}"
-    nic_id: "{{ nic_response.nic.id }}"
-    flowlog_id: "{{ flowlog_response.flowlog.id }}"
+    datacenter: "{{ datacenter_response.datacenter.id }}"
+    server: "{{ server_response.machines[0].id }}"
+    nic: "{{ nic_response.nic.id }}"
+    flowlog: "{{ flowlog_response.flowlog.id }}"
     name: "{{ name }}"
     state: absent
     wait: true
@@ -104,9 +104,9 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | flowlog | True | str |  | The ID or name of an existing Flowlog. |
-  | datacenter_id | True | str |  | The ID of the virtual datacenter. |
-  | server_id | True | str |  | The ID of the Server. |
-  | nic_id | True | str |  | The ID of the NIC. |
+  | datacenter | True | str |  | The ID or name of the virtual datacenter. |
+  | server | True | str |  | The ID or name of the Server. |
+  | nic | True | str |  | The ID or name of the NIC. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -127,10 +127,10 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
     action: "ALL"
     direction: "INGRESS"
     bucket: "sdktest"
-    datacenter_id: "{{ datacenter_response.datacenter.id }}"
-    server_id: "{{ server_response.machines[0].id }}"
-    nic_id: "{{ nic_response.nic.id }}"
-    flowlog_id: "{{ flowlog_response.flowlog.id }}"
+    datacenter: "{{ datacenter_response.datacenter.id }}"
+    server: "{{ server_response.machines[0].id }}"
+    nic: "{{ nic_response.nic.id }}"
+    flowlog: "{{ flowlog_response.flowlog.id }}"
   register: flowlog_update_response
   
 ```
@@ -141,9 +141,9 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the Flowlog. |
   | flowlog | True | str |  | The ID or name of an existing Flowlog. |
-  | datacenter_id | True | str |  | The ID of the virtual datacenter. |
-  | server_id | True | str |  | The ID of the Server. |
-  | nic_id | True | str |  | The ID of the NIC. |
+  | datacenter | True | str |  | The ID or name of the virtual datacenter. |
+  | server | True | str |  | The ID or name of the Server. |
+  | nic | True | str |  | The ID or name of the NIC. |
   | action | False | str |  | Specifies the traffic action pattern. |
   | direction | False | str |  | Specifies the traffic direction pattern. |
   | bucket | False | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |

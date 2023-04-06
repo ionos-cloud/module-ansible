@@ -61,14 +61,14 @@ OPTIONS = {
         'required': ['present'],
         'type': 'str',
     },
-    'datacenter_id': {
-        'description': ['The ID of the datacenter.'],
+    'datacenter': {
+        'description': ['The ID or name of the datacenter.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
     },
-    'network_load_balancer_id': {
-        'description': ['The ID of the Network Loadbalancer.'],
+    'network_load_balancer': {
+        'description': ['The ID or name of the Network Loadbalancer.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -180,16 +180,16 @@ EXAMPLE_PER_STATE = {
       action: "ACCEPTED"
       direction: "INGRESS"
       bucket: "sdktest"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       wait: true
     register: nlb_flowlog_response
   ''',
   'update' : '''
   - name: Update Network Load Balancer Flowlog
     network_load_balancer_flowlog:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
       name: "{{ name }}"
       action: "ALL"
@@ -202,8 +202,8 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete Network Load Balancer Flowlog
     network_load_balancer_flowlog:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
       state: absent
   ''',
@@ -280,8 +280,18 @@ def _should_update_object(module, existing_object):
 
 
 def _get_object_list(module, client):
-    datacenter_id = module.params.get('datacenter_id')
-    network_load_balancer_id = module.params.get('network_load_balancer_id')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    network_load_balancer_id = get_resource_id(
+        module, 
+        ionoscloud.NetworkLoadBalancersApi(client).datacenters_networkloadbalancers_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('network_load_balancer'),
+    )
 
     return ionoscloud.NetworkLoadBalancersApi(client).datacenters_networkloadbalancers_flowlogs_get(
         datacenter_id, network_load_balancer_id, depth=1,
@@ -301,17 +311,24 @@ def _create_object(module, client, existing_object=None):
     action = module.params.get('action')
     direction = module.params.get('direction')
     bucket = module.params.get('bucket')
-    datacenter_id = module.params.get('datacenter_id')
-    network_load_balancer_id = module.params.get('network_load_balancer_id')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    network_load_balancer_id = get_resource_id(
+        module, 
+        ionoscloud.NetworkLoadBalancersApi(client).datacenters_networkloadbalancers_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('network_load_balancer'),
+    )
 
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
         action = existing_object.properties.type if action is None else action
         direction = existing_object.properties.direction if direction is None else direction
         bucket = existing_object.properties.bucket if bucket is None else bucket
-
-    wait = module.params.get('wait')
-    wait_timeout = int(module.params.get('wait_timeout'))
 
     network_loadbalancers_api = ionoscloud.NetworkLoadBalancersApi(client)
     
@@ -322,9 +339,9 @@ def _create_object(module, client, existing_object=None):
         response, _, headers = network_loadbalancers_api.datacenters_networkloadbalancers_flowlogs_post_with_http_info(
             datacenter_id, network_load_balancer_id, nlb_flowlog,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=int(module.params.get('wait_timeout')))
     except ApiException as e:
         module.fail_json(msg="failed to create the new Network Loadbalancer Flowlog: %s" % to_native(e))
     return response
@@ -335,10 +352,18 @@ def _update_object(module, client, existing_object):
     action = module.params.get('action')
     direction = module.params.get('direction')
     bucket = module.params.get('bucket')
-    datacenter_id = module.params.get('datacenter_id')
-    network_load_balancer_id = module.params.get('network_load_balancer_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    network_load_balancer_id = get_resource_id(
+        module, 
+        ionoscloud.NetworkLoadBalancersApi(client).datacenters_networkloadbalancers_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('network_load_balancer'),
+    )
 
     network_loadbalancers_api = ionoscloud.NetworkLoadBalancersApi(client)
 
@@ -349,9 +374,9 @@ def _update_object(module, client, existing_object):
             datacenter_id, network_load_balancer_id, existing_object.id, flowlog_properties,
         )
 
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=int(module.params.get('wait_timeout')))
 
         return response
     except ApiException as e:
@@ -359,10 +384,18 @@ def _update_object(module, client, existing_object):
 
 
 def _remove_object(module, client, existing_object):
-    datacenter_id = module.params.get('datacenter_id')
-    network_load_balancer_id = module.params.get('network_load_balancer_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    network_load_balancer_id = get_resource_id(
+        module, 
+        ionoscloud.NetworkLoadBalancersApi(client).datacenters_networkloadbalancers_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('network_load_balancer'),
+    )
 
     network_loadbalancers_api = ionoscloud.NetworkLoadBalancersApi(client)
 
@@ -371,9 +404,9 @@ def _remove_object(module, client, existing_object):
             datacenter_id, network_load_balancer_id, existing_object.id,
         )
 
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=int(module.params.get('wait_timeout')))
     except ApiException as e:
         module.fail_json(msg="failed to remove the Network Loadbalancer Flowlog: %s" % to_native(e))
 

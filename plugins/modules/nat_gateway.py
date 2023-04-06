@@ -58,8 +58,8 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'list',
     },
-    'datacenter_id': {
-        'description': ['The ID of the datacenter.'],
+    'datacenter': {
+        'description': ['The ID or name of the datacenter.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -167,7 +167,7 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create NAT Gateway
     nat_gateway:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       name: "{{ name }}"
       public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
       lans:
@@ -179,7 +179,7 @@ EXAMPLE_PER_STATE = {
   'update' : '''
   - name: Update NAT Gateway
     nat_gateway:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       name: "{{ name }} - UPDATED"
       public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
       nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
@@ -191,7 +191,7 @@ EXAMPLE_PER_STATE = {
   - name: Remove NAT Gateway
     nat_gateway:
       nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       wait: true
       wait_timeout: 2000
       state: absent
@@ -257,11 +257,11 @@ def _should_replace_object(module, existing_object):
 
 def _should_update_object(module, existing_object):
     if module.params.get('lans'):
-        new_lans = list(map(
+        existing_lans = list(map(
             lambda x: { 'gateway_ips': sorted(x.gateway_ips), 'id': x.id },
             existing_object.properties.lans
         ))
-        existing_lans = list(map(
+        new_lans = list(map(
             lambda x: { 'gateway_ips': sorted(x['gateway_ips']), 'id': x['id'] },
             module.params.get('lans')
         ))
@@ -277,7 +277,11 @@ def _should_update_object(module, existing_object):
 
 
 def _get_object_list(module, client):
-    datacenter_id = module.params.get('datacenter_id')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
     return ionoscloud.NATGatewaysApi(client).datacenters_natgateways_get(datacenter_id, depth=1)
 
 
@@ -293,14 +297,15 @@ def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
     public_ips = module.params.get('public_ips')
     lans = module.params.get('lans')
-    datacenter_id = module.params.get('datacenter_id')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
         public_ips = existing_object.properties.public_ips if public_ips is None else public_ips
         lans = existing_object.properties.lans if lans is None else lans
-
-    wait = module.params.get('wait')
-    wait_timeout = int(module.params.get('wait_timeout'))
 
     nat_gateways_api = ionoscloud.NATGatewaysApi(client)
     
@@ -316,9 +321,9 @@ def _create_object(module, client, existing_object=None):
         nat_gateway_response, _, headers = nat_gateways_api.datacenters_natgateways_post_with_http_info(
             datacenter_id, nat_gateway,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
     except ApiException as e:
         module.fail_json(msg="failed to create the new NAT Gateway: %s" % to_native(e))
     return nat_gateway_response
@@ -328,9 +333,11 @@ def _update_object(module, client, existing_object):
     name = module.params.get('name')
     public_ips = module.params.get('public_ips')
     lans = module.params.get('lans')
-    datacenter_id = module.params.get('datacenter_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
 
     nat_gateways_api = ionoscloud.NATGatewaysApi(client)
 
@@ -344,9 +351,9 @@ def _update_object(module, client, existing_object):
         nat_gateway_response, _, headers = nat_gateways_api.datacenters_natgateways_patch_with_http_info(
             datacenter_id, existing_object.id, nat_gateway_properties,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
 
         return nat_gateway_response
     except ApiException as e:
@@ -354,9 +361,11 @@ def _update_object(module, client, existing_object):
 
 
 def _remove_object(module, client, existing_object):
-    datacenter_id = module.params.get('datacenter_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
 
     nat_gateways_api = ionoscloud.NATGatewaysApi(client)
 
@@ -364,9 +373,9 @@ def _remove_object(module, client, existing_object):
         _, _, headers = nat_gateways_api.datacenters_natgateways_delete_with_http_info(
             datacenter_id, existing_object.id,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
     except ApiException as e:
         module.fail_json(msg="failed to remove the NAT Gateway: %s" % to_native(e))
 

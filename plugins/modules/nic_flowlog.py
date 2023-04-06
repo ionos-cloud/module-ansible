@@ -51,20 +51,20 @@ OPTIONS = {
         'required': ['update', 'absent'],
         'type': 'str',
     },
-    'datacenter_id': {
-        'description': ['The ID of the virtual datacenter.'],
+    'datacenter': {
+        'description': ['The ID or name of the virtual datacenter.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
     },
-    'server_id': {
-        'description': ['The ID of the Server.'],
+    'server': {
+        'description': ['The ID or name of the Server.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
     },
-    'nic_id': {
-        'description': ['The ID of the NIC.'],
+    'nic': {
+        'description': ['The ID or name of the NIC.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -191,9 +191,9 @@ EXAMPLE_PER_STATE = {
     action: "ACCEPTED"
     direction: "INGRESS"
     bucket: "sdktest"
-    datacenter_id: "{{ datacenter_response.datacenter.id }}"
-    server_id: "{{ server_response.machines[0].id }}"
-    nic_id: "{{ nic_response.nic.id }}"
+    datacenter: "{{ datacenter_response.datacenter.id }}"
+    server: "{{ server_response.machines[0].id }}"
+    nic: "{{ nic_response.nic.id }}"
   register: flowlog_response
   ''',
     'update': '''- name: Update a nic flowlog
@@ -202,18 +202,18 @@ EXAMPLE_PER_STATE = {
     action: "ALL"
     direction: "INGRESS"
     bucket: "sdktest"
-    datacenter_id: "{{ datacenter_response.datacenter.id }}"
-    server_id: "{{ server_response.machines[0].id }}"
-    nic_id: "{{ nic_response.nic.id }}"
-    flowlog_id: "{{ flowlog_response.flowlog.id }}"
+    datacenter: "{{ datacenter_response.datacenter.id }}"
+    server: "{{ server_response.machines[0].id }}"
+    nic: "{{ nic_response.nic.id }}"
+    flowlog: "{{ flowlog_response.flowlog.id }}"
   register: flowlog_update_response
   ''',
     'absent': '''- name: Delete a nic flowlog
   nic_flowlog:
-    datacenter_id: "{{ datacenter_response.datacenter.id }}"
-    server_id: "{{ server_response.machines[0].id }}"
-    nic_id: "{{ nic_response.nic.id }}"
-    flowlog_id: "{{ flowlog_response.flowlog.id }}"
+    datacenter: "{{ datacenter_response.datacenter.id }}"
+    server: "{{ server_response.machines[0].id }}"
+    nic: "{{ nic_response.nic.id }}"
+    flowlog: "{{ flowlog_response.flowlog.id }}"
     name: "{{ name }}"
     state: absent
     wait: true
@@ -292,9 +292,23 @@ def _should_update_object(module, existing_object):
 
 
 def _get_object_list(module, client):
-    datacenter_id = module.params.get('datacenter_id')
-    server_id = module.params.get('server_id')
-    nic_id = module.params.get('nic_id')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    server_id = get_resource_id(
+        module, 
+        ionoscloud.ServersApi(client).datacenters_servers_get(datacenter_id, depth=1),
+        module.params.get('server'),
+    )
+    nic_id = get_resource_id(
+        module, 
+        ionoscloud.NetworkInterfacesApi(client).datacenters_servers_nics_get(
+            datacenter_id, server_id, depth=1,
+        ),
+        module.params.get('nic'),
+    )
 
     return ionoscloud.FlowLogsApi(client).datacenters_servers_nics_flowlogs_get(
         datacenter_id=datacenter_id, server_id=server_id, nic_id=nic_id,
@@ -320,27 +334,39 @@ def _create_object(module, client, existing_object=None):
         bucket = existing_object.properties.bucket if bucket is None else bucket
         name = existing_object.properties.name if name is None else name
 
-    datacenter_id = module.params.get('datacenter_id')
-    server_id = module.params.get('server_id')
-    nic_id = module.params.get('nic_id')
-    wait = module.params.get('wait')
-    wait_timeout = int(module.params.get('wait_timeout'))
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    server_id = get_resource_id(
+        module, 
+        ionoscloud.ServersApi(client).datacenters_servers_get(datacenter_id, depth=1),
+        module.params.get('server'),
+    )
+    nic_id = get_resource_id(
+        module, 
+        ionoscloud.NetworkInterfacesApi(client).datacenters_servers_nics_get(
+            datacenter_id, server_id, depth=1,
+        ),
+        module.params.get('nic'),
+    )
 
     nic_flowlogs_api = ionoscloud.FlowLogsApi(client)
 
     flowlog = FlowLog(properties=FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket))
 
     try:
-        flowlog_response, _, headers = nic_flowlogs_api.datacenters_servers_nics_flowlogs_post_with_http_info(
+        response, _, headers = nic_flowlogs_api.datacenters_servers_nics_flowlogs_post_with_http_info(
             datacenter_id, server_id, nic_id, flowlog,
         )
 
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
     except ApiException as e:
         module.fail_json(msg="failed to create the new Flowlog: %s" % to_native(e))
-    return flowlog_response
+    return response
 
 
 def _update_object(module, client, existing_object):
@@ -348,35 +374,59 @@ def _update_object(module, client, existing_object):
     action = module.params.get('action')
     direction = module.params.get('direction')
     bucket = module.params.get('bucket')
-    datacenter_id = module.params.get('datacenter_id')
-    server_id = module.params.get('server_id')
-    nic_id = module.params.get('nic_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    server_id = get_resource_id(
+        module, 
+        ionoscloud.ServersApi(client).datacenters_servers_get(datacenter_id, depth=1),
+        module.params.get('server'),
+    )
+    nic_id = get_resource_id(
+        module, 
+        ionoscloud.NetworkInterfacesApi(client).datacenters_servers_nics_get(
+            datacenter_id, server_id, depth=1,
+        ),
+        module.params.get('nic'),
+    )
 
     nic_flowlogs_api = ionoscloud.NetworkInterfacesApi(api_client=client)
 
     flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
 
     try:
-        flowlog_response, _, headers = nic_flowlogs_api.datacenters_servers_nics_flowlogs_patch_with_http_info(
+        response, _, headers = nic_flowlogs_api.datacenters_servers_nics_flowlogs_patch_with_http_info(
             datacenter_id, server_id, nic_id, existing_object.id, flowlog_properties,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
 
-        return flowlog_response
+        return response
     except ApiException as e:
         module.fail_json(msg="failed to update the Flowlog: %s" % to_native(e))
 
 
 def _remove_object(module, client, existing_object):
-    datacenter_id = module.params.get('datacenter_id')
-    server_id = module.params.get('server_id')
-    nic_id = module.params.get('nic_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    server_id = get_resource_id(
+        module, 
+        ionoscloud.ServersApi(client).datacenters_servers_get(datacenter_id, depth=1),
+        module.params.get('server'),
+    )
+    nic_id = get_resource_id(
+        module, 
+        ionoscloud.NetworkInterfacesApi(client).datacenters_servers_nics_get(
+            datacenter_id, server_id, depth=1,
+        ),
+        module.params.get('nic'),
+    )
 
     nic_flowlogs_api = ionoscloud.NetworkInterfacesApi(api_client=client)
 
@@ -384,9 +434,9 @@ def _remove_object(module, client, existing_object):
         _, _, headers = nic_flowlogs_api.datacenters_servers_nics_flowlogs_delete_with_http_info(
             datacenter_id, server_id, nic_id, existing_object.id,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
     except ApiException as e:
         module.fail_json(msg="failed to remove the Flowlog: %s" % to_native(e))
 

@@ -9,12 +9,12 @@ This is a simple module that supports creating or removing S3Keys.
 
   - name: Create an s3key
     s3key:
-      user_id: "{{ user_id }}"
+      user: "{{ user_id }}"
   
 
   - name: Update an s3key
     s3key:
-      user_id: "{{ user_id }}"
+      user: "{{ user_id }}"
       key_id: "00ca413c94eecc56857d"
       active: False
       state: update
@@ -22,7 +22,7 @@ This is a simple module that supports creating or removing S3Keys.
 
   - name: Remove an s3key
     s3key:
-      user_id: "{{ user_id }}"
+      user: "{{ user_id }}"
       key_id: "00ca413c94eecc56857d"
       state: absent
   
@@ -36,7 +36,7 @@ This is a simple module that supports creating or removing S3Keys.
   
   - name: Create an s3key
     s3key:
-      user_id: "{{ user_id }}"
+      user: "{{ user_id }}"
   
 ```
 ### Available parameters for state **present**:
@@ -45,7 +45,7 @@ This is a simple module that supports creating or removing S3Keys.
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | active | False | bool |  | Denotes weather the S3 key is active. |
-  | user_id | True | str |  | The ID of the user |
+  | user | True | str |  | The ID or email of the user |
   | key_id | False | str |  | The ID of the S3 key. |
   | idempotency | False | bool | False | Flag that dictates respecting idempotency. If an s3key already exists, returns with already existing key instead of creating more. |
   | api_url | False | str |  | The Ionos API base URL. |
@@ -65,7 +65,7 @@ This is a simple module that supports creating or removing S3Keys.
   
   - name: Remove an s3key
     s3key:
-      user_id: "{{ user_id }}"
+      user: "{{ user_id }}"
       key_id: "00ca413c94eecc56857d"
       state: absent
   
@@ -75,7 +75,7 @@ This is a simple module that supports creating or removing S3Keys.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | user_id | True | str |  | The ID of the user |
+  | user | True | str |  | The ID or email of the user |
   | key_id | True | str |  | The ID of the S3 key. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -94,7 +94,7 @@ This is a simple module that supports creating or removing S3Keys.
   
   - name: Update an s3key
     s3key:
-      user_id: "{{ user_id }}"
+      user: "{{ user_id }}"
       key_id: "00ca413c94eecc56857d"
       active: False
       state: update
@@ -106,7 +106,7 @@ This is a simple module that supports creating or removing S3Keys.
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | active | False | bool |  | Denotes weather the S3 key is active. |
-  | user_id | True | str |  | The ID of the user |
+  | user | True | str |  | The ID or email of the user |
   | key_id | True | str |  | The ID of the S3 key. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |

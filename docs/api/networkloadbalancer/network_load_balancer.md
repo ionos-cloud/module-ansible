@@ -9,7 +9,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   - name: Create Network Load Balancer
     network_load_balancer:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       name: "{{ name }}"
       ips:
         - "10.12.118.224"
@@ -21,7 +21,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   - name: Update Network Load Balancer
     network_load_balancer:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       name: "{{ name }} - UPDATE"
       listener_lan: "{{ listener_lan.lan.id }}"
@@ -34,7 +34,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
   - name: Remove Network Load Balancer
     network_load_balancer:
       network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       wait: true
       state: absent
   
@@ -48,7 +48,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
   
   - name: Create Network Load Balancer
     network_load_balancer:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       name: "{{ name }}"
       ips:
         - "10.12.118.224"
@@ -68,7 +68,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
   | ips | False | list |  | Collection of the Network Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers. |
   | target_lan | True | str |  | ID of the balanced private target LAN (outbound). |
   | lb_private_ips | False | list |  | Collection of private IP addresses with subnet mask of the Network Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -88,7 +88,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
   - name: Remove Network Load Balancer
     network_load_balancer:
       network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       wait: true
       state: absent
   
@@ -99,7 +99,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the Network Loadbalancer. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
   | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -118,7 +118,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
   
   - name: Update Network Load Balancer
     network_load_balancer:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       name: "{{ name }} - UPDATE"
       listener_lan: "{{ listener_lan.lan.id }}"
@@ -138,7 +138,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
   | ips | False | list |  | Collection of the Network Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers. |
   | target_lan | True | str |  | ID of the balanced private target LAN (outbound). |
   | lb_private_ips | False | list |  | Collection of private IP addresses with subnet mask of the Network Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
   | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |

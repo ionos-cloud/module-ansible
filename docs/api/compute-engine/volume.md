@@ -66,7 +66,7 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
   | licence_type | False | str | UNKNOWN | The licence type for the volume. This is used when the image is non-standard. |
   | availability_zone | False | str |  | The storage availability zone assigned to the volume. |
   | count | False | int | 1 | The number of volumes you wish to create. |
-  | backupunit_id | False | str |  | The ID of the backup unit that the user has access to. The property is immutable and is only allowed to be set on creation of a new a volume. It is mandatory to provide either 'public image' or 'imageAlias' in conjunction with this property. |
+  | backupunit | False | str |  | The ID or name of the backup unit that the user has access to. The property is immutable and is only allowed to be set on creation of a new a volume. It is mandatory to provide either 'public image' or 'imageAlias' in conjunction with this property. |
   | user_data | False | str |  | The cloud-init configuration for the volume as base64 encoded string. The property is immutable and is only allowed to be set on creation of a new a volume. It is mandatory to provide either 'public image' or 'imageAlias' that has cloud-init compatibility in conjunction with this property. |
   | cpu_hot_plug | False | bool |  | Hot-plug capable CPU (no reboot required). |
   | ram_hot_plug | False | bool |  | Hot-plug capable RAM (no reboot required) |
@@ -106,7 +106,7 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter in which to create the volumes. |
   | name | False | str |  | The name of the volumes. Names are enumerated if count &gt; 1. |
-  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
+  | instance_ids | False | list |  | list of instance ids or names. Should only contain one ID if renaming in update state |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -142,7 +142,7 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
   | size | False | int | 10 | The size of the volume. |
   | bus | False | str | VIRTIO | The bus type. |
   | availability_zone | False | str |  | The storage availability zone assigned to the volume. |
-  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
+  | instance_ids | False | list |  | list of instance ids or names. Should only contain one ID if renaming in update state |
   | cpu_hot_plug | False | bool |  | Hot-plug capable CPU (no reboot required). |
   | ram_hot_plug | False | bool |  | Hot-plug capable RAM (no reboot required) |
   | nic_hot_plug | False | bool |  | Hot-plug capable NIC (no reboot required). |

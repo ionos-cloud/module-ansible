@@ -9,7 +9,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
 
   - name: Create NAT Gateway
     nat_gateway:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       name: "{{ name }}"
       public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
       lans:
@@ -21,7 +21,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
 
   - name: Update NAT Gateway
     nat_gateway:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       name: "{{ name }} - UPDATED"
       public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
       nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
@@ -33,7 +33,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
   - name: Remove NAT Gateway
     nat_gateway:
       nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       wait: true
       wait_timeout: 2000
       state: absent
@@ -48,7 +48,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
   
   - name: Create NAT Gateway
     nat_gateway:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       name: "{{ name }}"
       public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
       lans:
@@ -66,7 +66,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
   | name | True | str |  | The name of the NAT Gateway. |
   | public_ips | True | list |  | Collection of public IP addresses of the NAT Gateway. Should be customer reserved IP addresses in that location. |
   | lans | False | list |  | Collection of LANs connected to the NAT Gateway. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -86,7 +86,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
   - name: Remove NAT Gateway
     nat_gateway:
       nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       wait: true
       wait_timeout: 2000
       state: absent
@@ -98,7 +98,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the NAT Gateway. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
   | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -117,7 +117,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
   
   - name: Update NAT Gateway
     nat_gateway:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       name: "{{ name }} - UPDATED"
       public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
       nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
@@ -134,7 +134,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
   | name | False | str |  | The name of the NAT Gateway. |
   | public_ips | False | list |  | Collection of public IP addresses of the NAT Gateway. Should be customer reserved IP addresses in that location. |
   | lans | False | list |  | Collection of LANs connected to the NAT Gateway. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
   | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |

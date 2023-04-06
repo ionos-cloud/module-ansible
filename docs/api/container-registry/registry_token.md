@@ -8,7 +8,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
 ```yaml
 - name: Create Registry Token
     registry_token:
-        registry_id: "{{ registry_id }}"
+        registry: "{{ registry_id }}"
         name: test_registry_token
         scopes:
             - actions: 
@@ -23,7 +23,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
   
 - name: Update Registry Token
     registry_token:
-        registry_id: "{{ registry_id }}"
+        registry: "{{ registry_id }}"
         registry_token: test_registry_token
         scopes:
             - actions: 
@@ -36,7 +36,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
   
 - name: Delete Registry Token
     registry_token:
-        registry_id: "{{ registry_id }}"
+        registry: "{{ registry_id }}"
         registry_token: test_registry_token
         state: absent
   
@@ -49,7 +49,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
 ```yaml
   - name: Create Registry Token
     registry_token:
-        registry_id: "{{ registry_id }}"
+        registry: "{{ registry_id }}"
         name: test_registry_token
         scopes:
             - actions: 
@@ -72,7 +72,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
   | expiry_date | False | str |  | The expiry date for the token in iso format |
   | status | False | str |  | The status of the token |
   | name | True | str |  | The name of your token. |
-  | registry_id | True | str |  | The ID of an existing Registry. |
+  | registry | True | str |  | The ID or name of an existing Registry. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -89,7 +89,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
 ```yaml
   - name: Delete Registry Token
     registry_token:
-        registry_id: "{{ registry_id }}"
+        registry: "{{ registry_id }}"
         registry_token: test_registry_token
         state: absent
   
@@ -100,7 +100,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | registry_token | True | str |  | The ID or name of an existing token. |
-  | registry_id | True | str |  | The ID of an existing Registry. |
+  | registry | True | str |  | The ID or name of an existing Registry. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -116,7 +116,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
 ```yaml
   - name: Update Registry Token
     registry_token:
-        registry_id: "{{ registry_id }}"
+        registry: "{{ registry_id }}"
         registry_token: test_registry_token
         scopes:
             - actions: 
@@ -138,7 +138,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
   | status | False | str |  | The status of the token |
   | name | False | str |  | The name of your token. |
   | registry_token | True | str |  | The ID or name of an existing token. |
-  | registry_id | True | str |  | The ID of an existing Registry. |
+  | registry | True | str |  | The ID or name of an existing Registry. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

@@ -23,7 +23,7 @@
 
     - name: Create an s3key
       s3key:
-        user_id: "{{ user_response.user.id }}"
+        user: "{{ user_response.user.properties.email }}"
       register: result
 
     - name: Debug - Show S3key
@@ -32,19 +32,19 @@
 
     - name: Update an s3key
       s3key:
-        user_id: "{{ user_response.user.id }}"
+        user: "{{ user_response.user.id }}"
         key_id: "{{ result.s3key.id }}"
         active: False
         state: update
 
     - name: Create an s3key with idempotency
       s3key:
-        user_id: "{{ user_response.user.id }}"
+        user: "{{ user_response.user.id }}"
         idempotency: True
 
     - name: List S3Keys
       s3key_info:
-        user_id: "{{ user_response.user.id }}"
+        user: "{{ user_response.user.id }}"
       register: s3keys_info_response
 
     - name: Debug - Show response of s3keys_info
@@ -59,13 +59,13 @@
 
     - name: Remove an s3key
       s3key:
-        user_id: "{{ user_response.user.id }}"
+        user: "{{ user_response.user.id }}"
         key_id: "{{ result.s3key.id }}"
         state: absent
 
     - name: Remove an s3key - non existent
       s3key:
-        user_id: "{{ user_response.user.id }}"
+        user: "{{ user_response.user.id }}"
         key_id: "not-existent-key"
         state: absent
     

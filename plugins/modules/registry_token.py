@@ -57,8 +57,8 @@ OPTIONS = {
         'required': ['update', 'absent'],
         'type': 'str',
     },
-    'registry_id': {
-        'description': ['The ID of an existing Registry.'],
+    'registry': {
+        'description': ['The ID or name of an existing Registry.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -157,7 +157,7 @@ author:
 EXAMPLE_PER_STATE = {
     'present': '''- name: Create Registry Token
     registry_token:
-        registry_id: "{{ registry_id }}"
+        registry: "{{ registry_id }}"
         name: test_registry_token
         scopes:
             - actions: 
@@ -172,7 +172,7 @@ EXAMPLE_PER_STATE = {
   ''',
     'update': '''- name: Update Registry Token
     registry_token:
-        registry_id: "{{ registry_id }}"
+        registry: "{{ registry_id }}"
         registry_token: test_registry_token
         scopes:
             - actions: 
@@ -185,7 +185,7 @@ EXAMPLE_PER_STATE = {
   ''',
     'absent': '''- name: Delete Registry Token
     registry_token:
-        registry_id: "{{ registry_id }}"
+        registry: "{{ registry_id }}"
         registry_token: test_registry_token
         state: absent
   ''',
@@ -276,9 +276,12 @@ def _should_update_object(module, existing_object):
 
 
 def _get_object_list(module, client):
-    return ionoscloud_container_registry.TokensApi(client).registries_tokens_get(
-        module.params.get('registry_id'),
+    registry_id = get_resource_id(
+        module, 
+        ionoscloud_container_registry.RegistriesApi(client).registries_get(),
+        module.params.get('registry'),
     )
+    return ionoscloud_container_registry.TokensApi(client).registries_tokens_get(registry_id)
 
 
 def _get_object_name(module):
@@ -294,7 +297,11 @@ def _create_object(module, client, existing_object=None):
     status = module.params.get('status')
     name = module.params.get('name')
     scopes = list(map(scope_dict_to_object, module.params.get('scopes')))
-    registry_id = module.params.get('registry_id')
+    registry_id = get_resource_id(
+        module, 
+        ionoscloud_container_registry.RegistriesApi(client).registries_get(),
+        module.params.get('registry'),
+    )
 
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
@@ -321,7 +328,11 @@ def _create_object(module, client, existing_object=None):
 
 
 def _update_object(module, client, existing_object):
-    registry_id = module.params.get('registry_id')
+    registry_id = get_resource_id(
+        module, 
+        ionoscloud_container_registry.RegistriesApi(client).registries_get(),
+        module.params.get('registry'),
+    )
 
     tokens_api = ionoscloud_container_registry.TokensApi(client)
     
@@ -344,7 +355,11 @@ def _update_object(module, client, existing_object):
 
 
 def _remove_object(module, client, existing_object):
-    registry_id = module.params.get('registry_id')
+    registry_id = get_resource_id(
+        module, 
+        ionoscloud_container_registry.RegistriesApi(client).registries_get(),
+        module.params.get('registry'),
+    )
     tokens_api = ionoscloud_container_registry.TokensApi(client)
 
     try:

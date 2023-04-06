@@ -25,7 +25,7 @@
 
     - name: Create NAT Gateway
       nat_gateway:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         public_ips: "{{ ipblock_response.ipblock.properties.ips }}"
         wait: true
@@ -37,8 +37,8 @@
 
     - name: Create NAT Gateway Rule
       nat_gateway_rule:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
         name: "{{ name }}"
         type: "SNAT"
         protocol: "TCP"
@@ -57,8 +57,8 @@
 
     - name: Update NAT Gateway Rule
       nat_gateway_rule:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
         nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
         public_ip: "{{ ipblock_response.ipblock.properties.ips[1] }}"
         name: "{{ name }} - UPDATED"
@@ -75,22 +75,22 @@
 
     - name: Delete NAT Gateway Rule
       nat_gateway_rule:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
         nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
         state: absent
 
     - name: Delete NAT Gateway Rule
       nat_gateway_rule:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
         nat_gateway_rule: "invalid-id"
         state: absent
 
     - name: Remove NAT Gateway
       nat_gateway:
        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
        wait_timeout: 2000
        state: absent

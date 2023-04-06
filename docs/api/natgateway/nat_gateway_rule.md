@@ -9,8 +9,8 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
 
   - name: Create NAT Gateway Rule
     nat_gateway_rule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       name: "{{ name }}"
       type: "SNAT"
       protocol: "TCP"
@@ -26,8 +26,8 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
 
   - name: Update NAT Gateway Rule
     nat_gateway_rule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
       public_ip: "{{ ipblock_response.ipblock.properties.ips[1] }}"
       name: "{{ name }} - UPDATED"
@@ -41,8 +41,8 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
 
   - name: Delete NAT Gateway Rule
     nat_gateway_rule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
       state: absent
   
@@ -56,8 +56,8 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
   
   - name: Create NAT Gateway Rule
     nat_gateway_rule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       name: "{{ name }}"
       type: "SNAT"
       protocol: "TCP"
@@ -83,8 +83,8 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
   | public_ip | True | str |  | Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource. |
   | target_subnet | False | str |  | Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address. |
   | target_port_range | False | dict |  | Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
-  | nat_gateway_id | True | str |  | The ID of the NAT Gateway. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
+  | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -103,8 +103,8 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
   
   - name: Delete NAT Gateway Rule
     nat_gateway_rule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
       state: absent
   
@@ -115,8 +115,8 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the NAT Gateway rule. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
-  | nat_gateway_id | True | str |  | The ID of the NAT Gateway. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
+  | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
   | nat_gateway_rule | True | str |  | The ID or name of the NAT Gateway rule. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -135,8 +135,8 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
   
   - name: Update NAT Gateway Rule
     nat_gateway_rule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
       public_ip: "{{ ipblock_response.ipblock.properties.ips[1] }}"
       name: "{{ name }} - UPDATED"
@@ -160,8 +160,8 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
   | public_ip | False | str |  | Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource. |
   | target_subnet | False | str |  | Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address. |
   | target_port_range | False | dict |  | Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
-  | nat_gateway_id | True | str |  | The ID of the NAT Gateway. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
+  | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
   | nat_gateway_rule | True | str |  | The ID or name of the NAT Gateway rule. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |

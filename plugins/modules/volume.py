@@ -119,14 +119,14 @@ OPTIONS = {
         'type': 'int',
     },
     'instance_ids': {
-        'description': ["list of instance ids. Should only contain one ID if renaming in update state"],
+        'description': ["list of instance ids or names. Should only contain one ID if renaming in update state"],
         'available': ['absent', 'update'],
         'default': [],
         'type': 'list',
     },
-    'backupunit_id': {
+    'backupunit': {
         'description': [
-            "The ID of the backup unit that the user has access to. The property is immutable and is only "
+            "The ID or name of the backup unit that the user has access to. The property is immutable and is only "
             "allowed to be set on creation of a new a volume. It is mandatory to provide either 'public image' or 'imageAlias' "
             "in conjunction with this property.",
         ],
@@ -348,6 +348,12 @@ def _get_request_id(headers):
 
 
 def _should_replace_object(module, existing_object):
+    backupunit_id = get_resource_id(
+        module,
+        ionoscloud.BackupUnitsApi.backupunits_get(depth=1), 
+        module.params.get('backupunit'),
+    )
+
     return (
         module.params.get('size') is not None
         and int(existing_object.properties.size) != int(module.params.get('size'))
@@ -359,8 +365,8 @@ def _should_replace_object(module, existing_object):
         and 'AUTO' != module.params.get('availability_zone')
         or module.params.get('licence_type') is not None
         and existing_object.properties.licence_type != module.params.get('licence_type')
-        or module.params.get('backupunit_id') is not None
-        and existing_object.properties.backupunit_id != module.params.get('backupunit_id')
+        or backupunit_id is not None
+        and existing_object.properties.backupunit_id != backupunit_id
         or module.params.get('user_data') is not None
         and existing_object.properties.user_data != module.params.get('user_data')
     )
@@ -377,7 +383,7 @@ def _should_update_object(module, existing_object, new_object_name):
 
 
 def update_replace_object(module, client, existing_object, new_object_name):
-    if _should_replace_object(module, existing_object):
+    if _should_replace_object(module, existing_object, client):
         if module.params.get('do_not_replace'):
             module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
     
@@ -422,7 +428,11 @@ def _create_object(module, client, name, existing_object=None):
     nic_hot_unplug = module.params.get('nic_hot_unplug')
     disc_virtio_hot_plug = module.params.get('disc_virtio_hot_plug')
     disc_virtio_hot_unplug = module.params.get('disc_virtio_hot_unplug')
-    backupunit_id = module.params.get('backupunit_id')
+    backupunit_id = get_resource_id(
+        module,
+        ionoscloud.BackupUnitsApi.backupunits_get(depth=1), 
+        module.params.get('backupunit'),
+    )
     user_data = module.params.get('user_data')
 
     if existing_object is not None:

@@ -33,8 +33,8 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'bool',
     },
-    'user_id': {
-        'description': ['The ID of the user'],
+    'user': {
+        'description': ['The ID or email of the user'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -143,12 +143,12 @@ EXAMPLE_PER_STATE = {
     'present': '''
   - name: Create an s3key
     s3key:
-      user_id: "{{ user_id }}"
+      user: "{{ user_id }}"
   ''',
     'update': '''
   - name: Update an s3key
     s3key:
-      user_id: "{{ user_id }}"
+      user: "{{ user_id }}"
       key_id: "00ca413c94eecc56857d"
       active: False
       state: update
@@ -156,7 +156,7 @@ EXAMPLE_PER_STATE = {
     'absent': '''
   - name: Remove an s3key
     s3key:
-      user_id: "{{ user_id }}"
+      user: "{{ user_id }}"
       key_id: "00ca413c94eecc56857d"
       state: absent
   ''',
@@ -214,8 +214,12 @@ def _get_request_id(headers):
 
 
 def create_s3key(module, client):
-    user_id = module.params.get('user_id')
-    wait = module.params.get('wait')
+    user_id = get_resource_id(
+        module,
+        ionoscloud.UserManagementApi.um_users_get(depth=1), 
+        module.params.get('user'),
+        [['id'], ['properties', 'email']],
+    )
     do_idempotency = module.params.get('idempotency')
     key_id = module.params.get('key_id')
     active = module.params.get('active')
@@ -243,7 +247,7 @@ def create_s3key(module, client):
                 user_id, s3key.id, S3Key(properties=S3KeyProperties(active=active)),
             )
 
-            if wait:
+            if module.params.get('wait'):
                 request_id = _get_request_id(headers['Location'])
                 client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
@@ -264,7 +268,12 @@ def create_s3key(module, client):
 
 
 def delete_s3key(module, client):
-    user_id = module.params.get('user_id')
+    user_id = get_resource_id(
+        module,
+        ionoscloud.UserManagementApi.um_users_get(depth=1), 
+        module.params.get('user'),
+        [['id'], ['properties', 'email']],
+    )
     key_id = module.params.get('key_id')
 
     user_s3keys_server = ionoscloud.UserS3KeysApi(client)
@@ -293,11 +302,14 @@ def delete_s3key(module, client):
 
 
 def update_s3key(module, client):
-    user_id = module.params.get('user_id')
+    user_id = get_resource_id(
+        module,
+        ionoscloud.UserManagementApi.um_users_get(depth=1), 
+        module.params.get('user'),
+        [['id'], ['properties', 'email']],
+    )
     key_id = module.params.get('key_id')
     active = module.params.get('active')
-    wait = module.params.get('wait')
-    wait_timeout = int(module.params.get('wait_timeout'))
 
     changed = False
 
@@ -317,9 +329,9 @@ def update_s3key(module, client):
                 user_id, s3key.id, S3Key(properties=S3KeyProperties(active=active)),
             )
 
-            if wait:
+            if module.params.get('wait'):
                 request_id = _get_request_id(headers['Location'])
-                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+                client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
 
         return {
             'changed': changed,

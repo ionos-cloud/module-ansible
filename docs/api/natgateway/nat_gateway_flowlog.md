@@ -13,16 +13,16 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
       action: "ACCEPTED"
       direction: "INGRESS"
       bucket: "sdktest"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       wait: true
     register: nat_gateway_flowlog_response
   
 
   - name: Update NAT Gateway Flowlog
     nat_gateway_flowlog:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
       name: "{{ name }}"
       action: "ALL"
@@ -35,8 +35,8 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
 
   - name: Delete NAT Gateway Flowlog
     nat_gateway_flowlog:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
       state: absent
   
@@ -54,8 +54,8 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
       action: "ACCEPTED"
       direction: "INGRESS"
       bucket: "sdktest"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       wait: true
     register: nat_gateway_flowlog_response
   
@@ -69,8 +69,8 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
   | action | True | str |  | Specifies the traffic action pattern. |
   | direction | True | str |  | Specifies the traffic direction pattern. |
   | bucket | True | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
-  | nat_gateway_id | True | str |  | The ID of the NAT Gateway. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
+  | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -89,8 +89,8 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
   
   - name: Delete NAT Gateway Flowlog
     nat_gateway_flowlog:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
       state: absent
   
@@ -101,8 +101,8 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the flowlog. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
-  | nat_gateway_id | True | str |  | The ID of the NAT Gateway. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
+  | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
   | flowlog | True | str |  | The ID or name of the Flowlog. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -121,8 +121,8 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
   
   - name: Update NAT Gateway Flowlog
     nat_gateway_flowlog:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
       name: "{{ name }}"
       action: "ALL"
@@ -142,8 +142,8 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
   | action | False | str |  | Specifies the traffic action pattern. |
   | direction | False | str |  | Specifies the traffic direction pattern. |
   | bucket | False | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |
-  | datacenter_id | True | str |  | The ID of the datacenter. |
-  | nat_gateway_id | True | str |  | The ID of the NAT Gateway. |
+  | datacenter | True | str |  | The ID or name of the datacenter. |
+  | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
   | flowlog | True | str |  | The ID or name of the Flowlog. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |

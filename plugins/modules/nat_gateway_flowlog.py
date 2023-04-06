@@ -61,14 +61,14 @@ OPTIONS = {
         'required': ['present'],
         'type': 'str',
     },
-    'datacenter_id': {
-        'description': ['The ID of the datacenter.'],
+    'datacenter': {
+        'description': ['The ID or name of the datacenter.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
     },
-    'nat_gateway_id': {
-        'description': ['The ID of the NAT Gateway.'],
+    'nat_gateway': {
+        'description': ['The ID or name of the NAT Gateway.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -180,16 +180,16 @@ EXAMPLE_PER_STATE = {
       action: "ACCEPTED"
       direction: "INGRESS"
       bucket: "sdktest"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       wait: true
     register: nat_gateway_flowlog_response
   ''',
   'update' : '''
   - name: Update NAT Gateway Flowlog
     nat_gateway_flowlog:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
       name: "{{ name }}"
       action: "ALL"
@@ -202,8 +202,8 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete NAT Gateway Flowlog
     nat_gateway_flowlog:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
       state: absent
   ''',
@@ -281,8 +281,18 @@ def _should_update_object(module, existing_object):
 
 
 def _get_object_list(module, client):
-    datacenter_id = module.params.get('datacenter_id')
-    nat_gateway_id = module.params.get('nat_gateway_id')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    nat_gateway_id = get_resource_id(
+        module, 
+        ionoscloud.NATGatewaysApi(client).datacenters_natgateways_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('nat_gateway'),
+    )
 
     return ionoscloud.NATGatewaysApi(client).datacenters_natgateways_flowlogs_get(
         datacenter_id, nat_gateway_id, depth=1,
@@ -302,17 +312,24 @@ def _create_object(module, client, existing_object=None):
     action = module.params.get('action')
     direction = module.params.get('direction')
     bucket = module.params.get('bucket')
-    datacenter_id = module.params.get('datacenter_id')
-    nat_gateway_id = module.params.get('nat_gateway_id')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    nat_gateway_id = get_resource_id(
+        module, 
+        ionoscloud.NATGatewaysApi(client).datacenters_natgateways_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('nat_gateway'),
+    )
 
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
         action = existing_object.properties.type if action is None else action
         direction = existing_object.properties.direction if direction is None else direction
         bucket = existing_object.properties.bucket if bucket is None else bucket
-
-    wait = module.params.get('wait')
-    wait_timeout = int(module.params.get('wait_timeout'))
 
     nat_gateways_api = ionoscloud.NATGatewaysApi(client)
     
@@ -323,9 +340,9 @@ def _create_object(module, client, existing_object=None):
         response, _, headers = nat_gateways_api.datacenters_natgateways_flowlogs_post_with_http_info(
             datacenter_id, nat_gateway_id, nat_gateway_flowlog,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=int(module.params.get('wait_timeout')))
     except ApiException as e:
         module.fail_json(msg="failed to create the new NAT Gateway Flowlog: %s" % to_native(e))
     return response
@@ -336,10 +353,18 @@ def _update_object(module, client, existing_object):
     action = module.params.get('action')
     direction = module.params.get('direction')
     bucket = module.params.get('bucket')
-    datacenter_id = module.params.get('datacenter_id')
-    nat_gateway_id = module.params.get('nat_gateway_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    nat_gateway_id = get_resource_id(
+        module, 
+        ionoscloud.NATGatewaysApi(client).datacenters_natgateways_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('nat_gateway'),
+    )
 
     nat_gateways_api = ionoscloud.NATGatewaysApi(client)
 
@@ -350,9 +375,9 @@ def _update_object(module, client, existing_object):
             datacenter_id, nat_gateway_id, existing_object.id, flowlog_properties,
         )
 
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
 
         return flowlog_response
     except ApiException as e:
@@ -360,10 +385,18 @@ def _update_object(module, client, existing_object):
 
 
 def _remove_object(module, client, existing_object):
-    datacenter_id = module.params.get('datacenter_id')
-    nat_gateway_id = module.params.get('nat_gateway_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    nat_gateway_id = get_resource_id(
+        module, 
+        ionoscloud.NATGatewaysApi(client).datacenters_natgateways_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('nat_gateway'),
+    )
 
     nat_gateways_api = ionoscloud.NATGatewaysApi(client)
 
@@ -372,9 +405,9 @@ def _remove_object(module, client, existing_object):
             datacenter_id, nat_gateway_id, existing_object.id,
         )
 
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
     except ApiException as e:
         module.fail_json(msg="failed to remove the NAT Gateway Flowlog: %s" % to_native(e))
 

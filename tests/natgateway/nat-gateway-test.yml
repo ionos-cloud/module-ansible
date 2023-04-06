@@ -40,7 +40,7 @@
 
     - name: Create NAT Gateway
       nat_gateway:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
         lans:
@@ -55,7 +55,7 @@
 
     - name: Update NAT Gateway
       nat_gateway:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }} - UPDATED"
         public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
         nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
@@ -70,7 +70,7 @@
     - name: Remove NAT Gateway
       nat_gateway:
        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: false
        wait_timeout: 2000
        state: absent
@@ -78,7 +78,7 @@
     - name: Remove NAT Gateway
       nat_gateway:
        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
        wait_timeout: 2000
        state: absent
@@ -86,7 +86,7 @@
     - name: Remove NAT Gateway
       nat_gateway:
        nat_gateway: "invalid-id"
-       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
        wait_timeout: 2000
        state: absent

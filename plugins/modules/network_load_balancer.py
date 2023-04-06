@@ -71,8 +71,8 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'list',
     },
-    'datacenter_id': {
-        'description': ['The ID of the datacenter.'],
+    'datacenter': {
+        'description': ['The ID or name of the datacenter.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -180,7 +180,7 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Network Load Balancer
     network_load_balancer:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       name: "{{ name }}"
       ips:
         - "10.12.118.224"
@@ -192,7 +192,7 @@ EXAMPLE_PER_STATE = {
   'update' : '''
   - name: Update Network Load Balancer
     network_load_balancer:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       name: "{{ name }} - UPDATE"
       listener_lan: "{{ listener_lan.lan.id }}"
@@ -205,7 +205,7 @@ EXAMPLE_PER_STATE = {
   - name: Remove Network Load Balancer
     network_load_balancer:
       network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       wait: true
       state: absent
   ''',
@@ -284,7 +284,11 @@ def _should_update_object(module, existing_object):
 
 
 def _get_object_list(module, client):
-    datacenter_id = module.params.get('datacenter_id')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
     return ionoscloud.NetworkLoadBalancersApi(client).datacenters_networkloadbalancers_get(datacenter_id, depth=1)
 
 
@@ -302,16 +306,17 @@ def _create_object(module, client, existing_object=None):
     listener_lan = module.params.get('listener_lan')
     target_lan = module.params.get('target_lan')
     lb_private_ips = module.params.get('lb_private_ips')
-    datacenter_id = module.params.get('datacenter_id')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
         ips = existing_object.properties.ips if ips is None else ips
         listener_lan = existing_object.properties.listener_lan if listener_lan is None else listener_lan
         target_lan = existing_object.properties.target_lan if target_lan is None else target_lan
         lb_private_ips = existing_object.properties.lb_private_ips if lb_private_ips is None else lb_private_ips
-
-    wait = module.params.get('wait')
-    wait_timeout = int(module.params.get('wait_timeout'))
 
     network_loadbalancers_api = ionoscloud.NetworkLoadBalancersApi(client)
     
@@ -325,9 +330,9 @@ def _create_object(module, client, existing_object=None):
         response, _, headers = network_loadbalancers_api.datacenters_networkloadbalancers_post_with_http_info(
             datacenter_id, network_load_balancer,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
     except ApiException as e:
         module.fail_json(msg="failed to create the new Network Loadbalancer: %s" % to_native(e))
     return response
@@ -339,9 +344,11 @@ def _update_object(module, client, existing_object):
     listener_lan = module.params.get('listener_lan')
     target_lan = module.params.get('target_lan')
     lb_private_ips = module.params.get('lb_private_ips')
-    datacenter_id = module.params.get('datacenter_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
 
     nlbs_api = ionoscloud.NetworkLoadBalancersApi(client)
     
@@ -354,9 +361,9 @@ def _update_object(module, client, existing_object):
         response, _, headers = nlbs_api.datacenters_networkloadbalancers_patch_with_http_info(
             datacenter_id, existing_object.id, nlb_properties,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
 
         return response
     except ApiException as e:
@@ -364,9 +371,11 @@ def _update_object(module, client, existing_object):
 
 
 def _remove_object(module, client, existing_object):
-    datacenter_id = module.params.get('datacenter_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
 
     nlbs_api = ionoscloud.NetworkLoadBalancersApi(client)
 
@@ -374,9 +383,9 @@ def _remove_object(module, client, existing_object):
         _, _, headers = nlbs_api.datacenters_networkloadbalancers_delete_with_http_info(
             datacenter_id, existing_object.id,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
     except ApiException as e:
         module.fail_json(msg="failed to remove the Network Loadbalancer: %s" % to_native(e))
 
