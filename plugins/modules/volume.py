@@ -430,7 +430,7 @@ def _create_object(module, client, name, existing_object=None):
     disc_virtio_hot_unplug = module.params.get('disc_virtio_hot_unplug')
     backupunit_id = get_resource_id(
         module,
-        ionoscloud.BackupUnitsApi.backupunits_get(depth=1), 
+        ionoscloud.BackupUnitsApi(client).backupunits_get(depth=1), 
         module.params.get('backupunit'),
     )
     user_data = module.params.get('user_data')
