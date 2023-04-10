@@ -258,7 +258,7 @@ def _should_replace_object(module, existing_object):
 def _should_update_object(module, existing_object):
     if module.params.get('lans'):
         existing_lans = list(map(
-            lambda x: { 'gateway_ips': sorted(x.gateway_ips), 'id': x.id },
+            lambda x: { 'gateway_ips': sorted(x.gateway_ips), 'id': str(x.id) },
             existing_object.properties.lans
         ))
         new_lans = list(map(
