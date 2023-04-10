@@ -63,7 +63,7 @@ OPTIONS = {
         'required': ['present'],
         'type': 'str',
     },
-    'lan_ids': {
+    'lans': {
         'description': ['Array of additional LANs attached to worker nodes.'],
         'available': ['update', 'present'],
         'type': 'list',
@@ -317,6 +317,21 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     resource = get_resource(module, resource_list, identity, identity_paths)
     return resource.id if resource is not None else None
 
+def _get_lans(lans_param):
+    def _get_routes(routes_param):
+        return [
+            ionoscloud.KubernetesNodePoolLanRoutes(
+                network=route['network'],
+                gateway_ip=route['gateway_ip'],
+            ) for route in routes_param
+        ]
+    return [
+        ionoscloud.KubernetesNodePoolLan(
+            id=lan_param['id'],
+            dhcp=lan_param['dhcp'],
+            routes=_get_routes(lan_param.get('routes', [])),
+        ) for lan_param in lans_param
+    ]
 
 def _should_replace_object(module, existing_object, client):
     datacenter_id = get_resource_id(
@@ -345,6 +360,34 @@ def _should_replace_object(module, existing_object, client):
 
 
 def _should_update_object(module, existing_object):
+    def sort_func(el):
+        return el['id']
+    def sort_func_routes(el):
+        return el['gateway_ip'], el['network']
+
+    if module.params.get('lans'):
+        existing_lans = sorted(map(
+            lambda x: {
+                'id': str(x.id),
+                'dhcp': x.dhcp,
+                'routes': sorted(
+                    map(
+                        lambda y: {
+                            'gateway_ip': y.gateway_ip,
+                            'network': y.network,
+                        },
+                        x.routes if x.routes else [],
+                    ),
+                    key=sort_func_routes,
+                ),
+            },
+            existing_object.properties.lans,
+        ), key=sort_func)
+        lans_input = module.params.get('lans')
+        for lan_input in lans_input:
+            lan_input['routes'] = sorted(lan_input.get('routes', []), key=sort_func_routes)
+        new_lans = sorted(module.params.get('lans'), key=sort_func)
+
     return (
         module.params.get('k8s_version') is not None
         and existing_object.properties.k8s_version != module.params.get('k8s_version')
@@ -353,8 +396,8 @@ def _should_update_object(module, existing_object):
             existing_object.properties.maintenance_window.day_of_the_week != module.params.get('maintenance_window').get('day_of_the_week')
             or existing_object.properties.maintenance_window.time != module.params.get('maintenance_window').get('time')
         )
-        or module.params.get('lan_ids') is not None
-        and sorted(existing_object.properties.lan_ids) != sorted(module.params.get('lan_ids'))
+        or module.params.get('lans') is not None
+        and existing_lans != new_lans
         or module.params.get('public_ips') is not None
         and sorted(existing_object.properties.public_ips) != sorted(module.params.get('public_ips'))
         or module.params.get('node_count') is not None
@@ -402,7 +445,7 @@ def _create_object(module, client, existing_object=None):
     )
     k8s_version = module.params.get('k8s_version')
     nodepool_name = module.params.get('nodepool_name')
-    lan_ids = module.params.get('lan_ids')
+    lans = _get_lans(module.params.get('lans', []))
     node_count = module.params.get('node_count')
     cpu_family = module.params.get('cpu_family')
     cores_count = module.params.get('cores_count')
@@ -430,7 +473,7 @@ def _create_object(module, client, existing_object=None):
     if existing_object is not None:
         nodepool_name = existing_object.properties.name if nodepool_name is None else nodepool_name
         k8s_version = existing_object.properties.k8s_version if k8s_version is None else k8s_version
-        lan_ids = existing_object.properties.lans if lan_ids is None else lan_ids
+        lans = existing_object.properties.lans if lans is None else lans
         datacenter_id = existing_object.properties.datacenter_id if datacenter_id is None else datacenter_id
         node_count = existing_object.properties.node_count if node_count is None else node_count
         cpu_family = existing_object.properties.cpu_family if cpu_family is None else cpu_family
@@ -458,7 +501,7 @@ def _create_object(module, client, existing_object=None):
         k8s_version=k8s_version,
         maintenance_window=maintenance_window,
         auto_scaling=auto_scaling,
-        lans=lan_ids,
+        lans=lans,
         labels=labels,
         annotations=annotations,
         public_ips=public_ips,
@@ -494,7 +537,7 @@ def _update_object(module, client, existing_object):
     node_count = module.params.get('node_count')
     maintenance = module.params.get('maintenance_window')
     auto_scaling_dict = module.params.get('auto_scaling')
-    lan_ids = module.params.get('lan_ids')
+    lans = _get_lans(module.params.get('lans', []))
     k8s_version = module.params.get('k8s_version')
     public_ips = module.params.get('public_ips')
     labels = module.params.get('labels')
@@ -519,7 +562,7 @@ def _update_object(module, client, existing_object):
         k8s_version=k8s_version,
         maintenance_window=maintenance_window,
         auto_scaling=auto_scaling,
-        lans=lan_ids,
+        lans=lans,
         public_ips=public_ips,
         labels=labels,
         annotations=annotations,

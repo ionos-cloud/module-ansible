@@ -59,7 +59,7 @@
         storage_type: "HDD"
         storage_size: "100"
         public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
-        lan_ids:
+        lans:
           - id: "{{ lan_response.lan.id }}"
             dhcp: false
         auto_scaling:
@@ -153,6 +153,3 @@
         datacenter: "{{ datacenter }}"
         state: absent
         wait: true
-
-
-

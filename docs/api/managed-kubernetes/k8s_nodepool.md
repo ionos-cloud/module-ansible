@@ -74,7 +74,7 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   | nodepool_name | True | str |  | The name of the K8s Nodepool. |
   | k8s_version | False | str |  | The Kubernetes version the nodepool is running. |
   | datacenter | True | str |  | A valid ID or name of the data center, to which the user has access. |
-  | lan_ids | False | list |  | Array of additional LANs attached to worker nodes. |
+  | lans | False | list |  | Array of additional LANs attached to worker nodes. |
   | node_count | False | int |  | The number of nodes that make up the node pool. |
   | cpu_family | True | str |  | A valid CPU family name. |
   | cores_count | True | int |  | The number of cores for the node. |
@@ -158,7 +158,7 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   | nodepool_name | False | str |  | The name of the K8s Nodepool. |
   | k8s_version | False | str |  | The Kubernetes version the nodepool is running. |
   | datacenter | False | str |  | A valid ID or name of the data center, to which the user has access. |
-  | lan_ids | False | list |  | Array of additional LANs attached to worker nodes. |
+  | lans | False | list |  | Array of additional LANs attached to worker nodes. |
   | node_count | False | int |  | The number of nodes that make up the node pool. |
   | cpu_family | False | str |  | A valid CPU family name. |
   | cores_count | False | int |  | The number of cores for the node. |
