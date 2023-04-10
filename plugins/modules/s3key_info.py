@@ -25,8 +25,8 @@ STATES = ['info']
 OBJECT_NAME = 'S3 Keys'
 
 OPTIONS = {
-    'user_id': {
-        'description': ['The ID of the user'],
+    'user': {
+        'description': ['The ID or email of the user'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -177,8 +177,52 @@ def apply_filters(module, item_list):
     return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
 
 
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+        identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+        resource_identity = []
+
+        for identity_path in identity_paths:
+            current = resource
+            for el in identity_path:
+                current = getattr(current, el)
+            resource_identity.append(current)
+
+        return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
+
+
 def get_s3keys(module, client):
-    user_id = module.params.get('user_id')
+    user_id = get_resource_id(
+        module,
+        ionoscloud.UserManagementApi(client).um_users_get(depth=1), 
+        module.params.get('user'),
+        [['id'], ['properties', 'email']],
+    )
     depth = module.params.get('depth', 1)
     user_s3keys_server = ionoscloud.UserS3KeysApi(client)
 
@@ -280,9 +324,11 @@ def main():
         try:
             module.exit_json(**get_s3keys(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
-                                                                                             error=to_native(e),
-                                                                                             state=state))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(
+                object_name=OBJECT_NAME,
+                error=to_native(e),
+                state=state,
+            ))
 
 
 if __name__ == '__main__':

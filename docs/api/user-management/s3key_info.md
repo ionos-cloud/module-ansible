@@ -22,7 +22,7 @@ This is a simple module that supports listing S3Keys.
 
 | Name | Required | Type | Default | Description |
 | :--- | :---: | :--- | :--- | :--- |
-| user_id | True | str |  | The ID of the user |
+| user | True | str |  | The ID or email of the user |
 | filters | False | dict |  | Filter that can be used to list only objects which have a certain set of propeties. Filters should be a dict with a key containing keys and value pair in the following format:'properties.name': 'server_name' |
 | depth | False | int | 1 | The depth used when retrieving the items. |
 | api_url | False | str |  | The Ionos API base URL. |

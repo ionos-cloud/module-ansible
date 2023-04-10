@@ -216,7 +216,7 @@ def _get_request_id(headers):
 def create_s3key(module, client):
     user_id = get_resource_id(
         module,
-        ionoscloud.UserManagementApi.um_users_get(depth=1), 
+        ionoscloud.UserManagementApi(client).um_users_get(depth=1), 
         module.params.get('user'),
         [['id'], ['properties', 'email']],
     )
@@ -270,7 +270,7 @@ def create_s3key(module, client):
 def delete_s3key(module, client):
     user_id = get_resource_id(
         module,
-        ionoscloud.UserManagementApi.um_users_get(depth=1), 
+        ionoscloud.UserManagementApi(client).um_users_get(depth=1), 
         module.params.get('user'),
         [['id'], ['properties', 'email']],
     )
@@ -304,7 +304,7 @@ def delete_s3key(module, client):
 def update_s3key(module, client):
     user_id = get_resource_id(
         module,
-        ionoscloud.UserManagementApi.um_users_get(depth=1), 
+        ionoscloud.UserManagementApi(client).um_users_get(depth=1), 
         module.params.get('user'),
         [['id'], ['properties', 'email']],
     )
