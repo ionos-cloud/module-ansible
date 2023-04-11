@@ -318,6 +318,8 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 def _get_lans(lans_param):
+    if lans_param is None:
+        return []
     def _get_routes(routes_param):
         return [
             ionoscloud.KubernetesNodePoolLanRoutes(
@@ -445,7 +447,7 @@ def _create_object(module, client, existing_object=None):
     )
     k8s_version = module.params.get('k8s_version')
     nodepool_name = module.params.get('nodepool_name')
-    lans = _get_lans(module.params.get('lans', []))
+    lans = _get_lans(module.params.get('lans'))
     node_count = module.params.get('node_count')
     cpu_family = module.params.get('cpu_family')
     cores_count = module.params.get('cores_count')
@@ -537,7 +539,7 @@ def _update_object(module, client, existing_object):
     node_count = module.params.get('node_count')
     maintenance = module.params.get('maintenance_window')
     auto_scaling_dict = module.params.get('auto_scaling')
-    lans = _get_lans(module.params.get('lans', []))
+    lans = _get_lans(module.params.get('lans'))
     k8s_version = module.params.get('k8s_version')
     public_ips = module.params.get('public_ips')
     labels = module.params.get('labels')
