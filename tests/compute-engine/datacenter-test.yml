@@ -10,28 +10,73 @@
       datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }}"
-        location: de/fra
+        location: "{{ location }}"
       register: datacenter_response
 
-    - name: Debug - Show Datacenter
-      debug:
-        msg: "{{ datacenter_response }}"
+    # - name: Debug - Show Datacenter
+    #   debug:
+    #     msg: "{{ datacenter_response }}"
+  
+    - name: Check Create datacenter
+      ansible.builtin.assert:
+        that:
+          - datacenter_response.datacenter.properties.name == datacenter
+          - datacenter_response.datacenter.properties.description == description
+          - datacenter_response.datacenter.properties.location == location
+        success_msg: "Datacenter created successfully"
 
-    - name: Update datacenter
+    - name: Update datacenter 1
       datacenter:
-        datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ datacenter }}"
+        description: "{{ description }} CHANGED"
+        location: "{{ location }}"
+        do_not_replace: true
+      register: datacenter_response2
+  
+    - name: Check Update datacenter 1
+      ansible.builtin.assert:
+        that:
+          - datacenter_response2.datacenter.id == datacenter_response.datacenter.id
+          - datacenter_response2.datacenter.properties.name == datacenter
+          - datacenter_response2.datacenter.properties.description == description + ' CHANGED'
+          - datacenter_response2.datacenter.properties.location == location
+        success_msg: "Datacenter updated successfully"
+
+    - name: Replace datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        location: "{{ new_location }}"
+      register: replaced_datacenter1
+  
+    - name: Check Replace datacenter
+      ansible.builtin.assert:
+        that:
+          - replaced_datacenter1.datacenter.id != datacenter_response2.datacenter.id
+          - replaced_datacenter1.datacenter.properties.name == datacenter
+          - replaced_datacenter1.datacenter.properties.description == description + ' CHANGED'
+          - replaced_datacenter1.datacenter.properties.location == new_location
+        success_msg: "Datacenter replaced successfully"
+
+    - name: Update datacenter 2
+      datacenter:
+        datacenter: "{{ replaced_datacenter1.datacenter.properties.name }}"
+        name: "{{ datacenter }} RENAMED"
         description: "{{ description }} - RENAMED"
         state: update
       register: updated_datacenter
-
-    - name: Debug - Show Updated Datacenter
-      debug:
-        msg: "{{ updated_datacenter }}"
+  
+    - name: Check Update datacenter 2
+      ansible.builtin.assert:
+        that:
+          - updated_datacenter.datacenter.id == replaced_datacenter1.datacenter.id
+          - updated_datacenter.datacenter.properties.name == datacenter + ' RENAMED'
+          - updated_datacenter.datacenter.properties.description == description + ' - RENAMED'
+          - updated_datacenter.datacenter.properties.location == new_location
+        success_msg: "Datacenter replaced successfully"
 
     - name: Remove datacenter
       datacenter:
-        datacenter: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ updated_datacenter.datacenter.id }}"
         name: "{{ datacenter }}"
         state: absent
         wait: true
@@ -39,12 +84,8 @@
 
     - name: Remove datacenter
       datacenter:
-        datacenter: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ updated_datacenter.datacenter.id }}"
         name: "{{ datacenter }}"
         state: absent
         wait: true
       register: deleted_datacenter
-
-    - name: Debug - Show Deleted Datacenter
-      debug:
-        msg: "{{ deleted_datacenter }}"
