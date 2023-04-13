@@ -1,0 +1,45 @@
+    - name: Create {{ module_name }}
+      {{ module_name }}:
+{{#parameters}}
+        {{.}}: "{{double_curl_open}} {{.}} {{double_curl_close}}"
+{{/parameters}}
+      register: {{ module_name }}_present_create_response
+  
+    - name: Check Create {{ module_name }} state present
+      ansible.builtin.assert:
+        that:
+{{#parameters}}
+        - {{ module_name }}_present_create_response.{{ module_name }}.properties.{{.}} == {{.}}
+{{/parameters}}
+        success_msg: "{{ module_name }} created successfully"
+
+    - name: Update {{ module_name }} state present
+      {{ module_name }}:
+{{#parameters}}
+        {{.}}: "{{double_curl_open}} {{.}}_update {{double_curl_close}}"
+{{/parameters}}
+        do_not_replace: true
+      register: {{ module_name }}_present_update_response
+  
+    - name: Check Update {{ module_name }} state present
+      ansible.builtin.assert:
+        that:
+{{#parameters}}
+        - {{ module_name }}_present_create_response.{{ module_name }}.properties.{{.}} == {{.}}_update
+{{/parameters}}
+        success_msg: "{{ module_name }} updated successfully"
+
+    - name: Replace {{ module_name }} state present
+      {{ module_name }}:
+{{#parameters}}
+        {{.}}: "{{double_curl_open}} {{.}}_update {{double_curl_close}}"
+{{/parameters}}
+      register: {{ module_name }}_present_replace_response
+  
+    - name: Check Replace {{ module_name }} state present
+      ansible.builtin.assert:
+        that:
+{{#parameters}}
+        - {{ module_name }}_present_create_response.{{ module_name }}.properties.{{.}} == {{.}}_update
+{{/parameters}}
+        success_msg: "{{ module_name }} replaced successfully"

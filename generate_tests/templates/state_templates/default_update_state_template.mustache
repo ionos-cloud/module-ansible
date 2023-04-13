@@ -1,0 +1,14 @@
+    - name: Update {{ module_name }}
+      {{ module_name }}:
+{{#parameters}}
+        {{.}}: "{{double_curl_open}} {{.}}_update {{double_curl_close}}"
+{{/parameters}}
+      register: {{ module_name }}_update_response
+  
+    - name: Check Update {{ module_name }} state update
+      ansible.builtin.assert:
+        that:
+{{#parameters}}
+        - {{ module_name }}_update_response.{{ module_name }}.properties.{{.}} == {{.}}_update
+{{/parameters}}
+        success_msg: "{{ module_name }} created successfully"

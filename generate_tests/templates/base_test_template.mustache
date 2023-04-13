@@ -1,0 +1,13 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+{{{ initial_setup }}}
+{{{ present }}}
+{{{ update }}}
+{{{ absent }}}
+{{{ cleanup }}}

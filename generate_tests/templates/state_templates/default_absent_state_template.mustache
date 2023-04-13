@@ -1,0 +1,15 @@
+    - name: Remove {{ module_name }}
+      {{ module_name }}:
+{{#parameters}}
+        {{.}}: "{{double_curl_open}} {{.}} {{double_curl_close}}"
+{{/parameters}}
+        state: absent
+        wait: true
+
+    - name: Remove {{ module_name }}
+      {{ module_name }}:
+{{#parameters}}
+        {{.}}: "{{double_curl_open}} {{.}} {{double_curl_close}}"
+{{/parameters}}
+        state: absent
+        wait: true
