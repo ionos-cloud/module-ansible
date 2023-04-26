@@ -1,0 +1,5 @@
+    - name: Remove dependency pcc
+      pcc:
+        pcc: "{{ pcc }}"
+        state: absent
+        wait: true

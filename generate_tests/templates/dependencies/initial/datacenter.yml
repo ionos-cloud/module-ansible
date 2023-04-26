@@ -1,0 +1,6 @@
+    - name: Create dependency datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        location: "{{ datacenter_location }}"
+        wait: true
+      register: datacenter_response

@@ -1,15 +1,17 @@
     - name: Remove {{ module_name }}
       {{ module_name }}:
-{{#parameters}}
+        {{module_name}}: {{ module_name }}_present_replace_response.{{ module_name }}.id
+{{#dependencies}}
         {{.}}: "{{double_curl_open}} {{.}} {{double_curl_close}}"
-{{/parameters}}
+{{/dependencies}}
         state: absent
         wait: true
 
     - name: Remove {{ module_name }}
       {{ module_name }}:
-{{#parameters}}
+        {{module_name}}: {{ module_name }}_present_replace_response.{{ module_name }}.id
+{{#dependencies}}
         {{.}}: "{{double_curl_open}} {{.}} {{double_curl_close}}"
-{{/parameters}}
+{{/dependencies}}
         state: absent
         wait: true

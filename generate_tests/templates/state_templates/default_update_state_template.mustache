@@ -1,14 +1,18 @@
     - name: Update {{ module_name }}
       {{ module_name }}:
-{{#parameters}}
+        {{module_name}}: {{ module_name }}_present_replace_response.{{ module_name }}.id
+{{#dependencies}}
+        {{.}}: "{{double_curl_open}} {{.}} {{double_curl_close}}"
+{{/dependencies}}
+{{#paramaters_to_check}}
         {{.}}: "{{double_curl_open}} {{.}}_update {{double_curl_close}}"
-{{/parameters}}
+{{/paramaters_to_check}}
       register: {{ module_name }}_update_response
   
     - name: Check Update {{ module_name }} state update
       ansible.builtin.assert:
         that:
-{{#parameters}}
+{{#paramaters_to_check}}
         - {{ module_name }}_update_response.{{ module_name }}.properties.{{.}} == {{.}}_update
-{{/parameters}}
+{{/paramaters_to_check}}
         success_msg: "{{ module_name }} created successfully"

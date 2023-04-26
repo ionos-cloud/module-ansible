@@ -8,38 +8,44 @@
     - name: Check Create {{ module_name }} state present
       ansible.builtin.assert:
         that:
-{{#parameters}}
+{{#paramaters_to_check}}
         - {{ module_name }}_present_create_response.{{ module_name }}.properties.{{.}} == {{.}}
-{{/parameters}}
+{{/paramaters_to_check}}
         success_msg: "{{ module_name }} created successfully"
 
     - name: Update {{ module_name }} state present
       {{ module_name }}:
-{{#parameters}}
+{{#dependencies}}
+        {{.}}: "{{double_curl_open}} {{.}} {{double_curl_close}}"
+{{/dependencies}}
+{{#paramaters_to_check}}
         {{.}}: "{{double_curl_open}} {{.}}_update {{double_curl_close}}"
-{{/parameters}}
+{{/paramaters_to_check}}
         do_not_replace: true
       register: {{ module_name }}_present_update_response
   
     - name: Check Update {{ module_name }} state present
       ansible.builtin.assert:
         that:
-{{#parameters}}
-        - {{ module_name }}_present_create_response.{{ module_name }}.properties.{{.}} == {{.}}_update
-{{/parameters}}
+{{#paramaters_to_check}}
+        - {{ module_name }}_present_update_response.{{ module_name }}.properties.{{.}} == {{.}}_update
+{{/paramaters_to_check}}
         success_msg: "{{ module_name }} updated successfully"
 
     - name: Replace {{ module_name }} state present
       {{ module_name }}:
-{{#parameters}}
+{{#dependencies}}
+        {{.}}: "{{double_curl_open}} {{.}} {{double_curl_close}}"
+{{/dependencies}}
+{{#paramaters_to_check}}
         {{.}}: "{{double_curl_open}} {{.}}_update {{double_curl_close}}"
-{{/parameters}}
+{{/paramaters_to_check}}
       register: {{ module_name }}_present_replace_response
   
     - name: Check Replace {{ module_name }} state present
       ansible.builtin.assert:
         that:
-{{#parameters}}
-        - {{ module_name }}_present_create_response.{{ module_name }}.properties.{{.}} == {{.}}_update
-{{/parameters}}
+{{#paramaters_to_check}}
+        - {{ module_name }}_present_replace_response.{{ module_name }}.properties.{{.}} == {{.}}_update
+{{/paramaters_to_check}}
         success_msg: "{{ module_name }} replaced successfully"

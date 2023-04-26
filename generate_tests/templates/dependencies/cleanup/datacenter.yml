@@ -1,0 +1,5 @@
+    - name: Remove dependency datacenter
+      datacenter:
+        datacenter: "{{ datacenter }}"
+        state: absent
+        wait: true

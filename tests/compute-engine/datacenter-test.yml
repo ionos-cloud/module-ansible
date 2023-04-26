@@ -6,18 +6,14 @@
     - ./vars.yml
 
   tasks:
-    - name: Create datacenter
+    - name: Create datacenter state present
       datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: "{{ location }}"
       register: datacenter_response
-
-    # - name: Debug - Show Datacenter
-    #   debug:
-    #     msg: "{{ datacenter_response }}"
   
-    - name: Check Create datacenter
+    - name: Check Create datacenter state present
       ansible.builtin.assert:
         that:
           - datacenter_response.datacenter.properties.name == datacenter
@@ -25,7 +21,7 @@
           - datacenter_response.datacenter.properties.location == location
         success_msg: "Datacenter created successfully"
 
-    - name: Update datacenter 1
+    - name: Update datacenter state present
       datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }} CHANGED"
@@ -33,7 +29,7 @@
         do_not_replace: true
       register: datacenter_response2
   
-    - name: Check Update datacenter 1
+    - name: Check Update datacenter state present
       ansible.builtin.assert:
         that:
           - datacenter_response2.datacenter.id == datacenter_response.datacenter.id
@@ -42,13 +38,13 @@
           - datacenter_response2.datacenter.properties.location == location
         success_msg: "Datacenter updated successfully"
 
-    - name: Replace datacenter
+    - name: Replace datacenter state present
       datacenter:
         name: "{{ datacenter }}"
         location: "{{ new_location }}"
       register: replaced_datacenter1
   
-    - name: Check Replace datacenter
+    - name: Check Replace datacenter state present
       ansible.builtin.assert:
         that:
           - replaced_datacenter1.datacenter.id != datacenter_response2.datacenter.id
@@ -57,7 +53,7 @@
           - replaced_datacenter1.datacenter.properties.location == new_location
         success_msg: "Datacenter replaced successfully"
 
-    - name: Update datacenter 2
+    - name: Update datacenter state update
       datacenter:
         datacenter: "{{ replaced_datacenter1.datacenter.properties.name }}"
         name: "{{ datacenter }} RENAMED"
@@ -65,7 +61,7 @@
         state: update
       register: updated_datacenter
   
-    - name: Check Update datacenter 2
+    - name: Check Update datacenter state present
       ansible.builtin.assert:
         that:
           - updated_datacenter.datacenter.id == replaced_datacenter1.datacenter.id
