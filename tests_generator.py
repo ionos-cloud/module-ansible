@@ -36,7 +36,7 @@ def resolve_dependencies(dependencies):
     
     return initial_setup, cleanup
 
-def generate_module_tests(module_name, dependencies):
+def generate_module_tests(module_name, dependencies, extra_options):
     module = importlib.import_module('plugins.modules.' + module_name)
     directory = os.path.join(TARGET_DIRECTORY, module.DOC_DIRECTORY)
 
@@ -76,6 +76,8 @@ def generate_module_tests(module_name, dependencies):
                     'paramaters_to_check': paramaters_to_check,
                     'double_curl_open': '{{',
                     'double_curl_close': '}}',
+                    'skip_update': extra_options.get('skip_update', False),
+                    'skip_replace': extra_options.get('skip_replace', False),
                 },
             )
 
@@ -86,8 +88,8 @@ def generate_module_tests(module_name, dependencies):
 
 
 modules_to_generate_tests = [
-    ('lan', [{'name': 'pcc', 'parameter': True}, {'name': 'datacenter'} ]),
+    ('lan', [{'name': 'pcc', 'parameter': True}, {'name': 'datacenter'} ], {'skip_replace': True}),
 ]
 
-for module_name, dependencies in modules_to_generate_tests:
-    generate_module_tests(module_name, dependencies)
+for module_name, dependencies, extra_options in modules_to_generate_tests:
+    generate_module_tests(module_name, dependencies, extra_options)

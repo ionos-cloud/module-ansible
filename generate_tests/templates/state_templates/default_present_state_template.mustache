@@ -13,6 +13,9 @@
 {{/paramaters_to_check}}
         success_msg: "{{ module_name }} created successfully"
 
+{{#skip_update}}
+{{/skip_update}}
+{{^skip_update}}
     - name: Update {{ module_name }} state present
       {{ module_name }}:
 {{#dependencies}}
@@ -31,14 +34,17 @@
         - {{ module_name }}_present_update_response.{{ module_name }}.properties.{{.}} == {{.}}_update
 {{/paramaters_to_check}}
         success_msg: "{{ module_name }} updated successfully"
-
+{{/skip_update}}
+{{#skip_replace}}
+{{/skip_replace}}
+{{^skip_replace}}
     - name: Replace {{ module_name }} state present
       {{ module_name }}:
 {{#dependencies}}
         {{.}}: "{{double_curl_open}} {{.}} {{double_curl_close}}"
 {{/dependencies}}
 {{#paramaters_to_check}}
-        {{.}}: "{{double_curl_open}} {{.}}_update {{double_curl_close}}"
+        {{.}}: "{{double_curl_open}} {{.}}_replace {{double_curl_close}}"
 {{/paramaters_to_check}}
       register: {{ module_name }}_present_replace_response
   
@@ -46,6 +52,7 @@
       ansible.builtin.assert:
         that:
 {{#paramaters_to_check}}
-        - {{ module_name }}_present_replace_response.{{ module_name }}.properties.{{.}} == {{.}}_update
+        - {{ module_name }}_present_replace_response.{{ module_name }}.properties.{{.}} == {{.}}_replace
 {{/paramaters_to_check}}
         success_msg: "{{ module_name }} replaced successfully"
+{{/skip_replace}}
