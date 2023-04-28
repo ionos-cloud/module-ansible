@@ -59,8 +59,11 @@ This module allows you to create, update or remove a NIC.
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
   | server | True | str |  | The server name or UUID. |
   | dhcp | False | bool |  | Boolean value indicating if the NIC is using DHCP or not. |
+  | dhcpv6 | False | bool |  | [The IPv6 feature is in beta phase and not ready for production usage.] Indicates if the NIC will reserve an IPv6 using DHCP. It can be set to 'true' or 'false' only if this NIC is connected to an IPv6-enabled LAN. |
   | firewall_active | False | bool |  | Boolean value indicating if the firewall is active. |
   | ips | False | list |  | A list of IPs to be assigned to the NIC. |
+  | ipv6_ips | False | list |  | [The IPv6 feature is in beta phase and not ready for production usage.] The IPv6 IP addresses if this NIC is connected to an IPv6-enabled LAN. The maximum number of IPv6 IP addresses per NIC is 50. If you leave this 'null' when adding a NIC, when changing the NIC's IPv6 CIDR block, or when moving the NIC to a different IPv6-enabled LAN, we will automatically assign the new IPv6 CIDR block's first IP address to this NIC. If you leave this 'null' while not changing the CIDR block, the IPv6 IP addresses won't be changed either. You can also provide your own self choosen IPv6 addresses, which then must be inside the IPv6 CIDR block of this NIC. |
+  | ipv6_cidr | False | str |  | [The IPv6 feature is in beta phase and not ready for production usage.] The /80 IPv6 CIDR block if this NIC is connected to an IPv6-enabled LAN. If you leave this 'null' when adding a NIC to an IPv6-enabled LAN, an IPv6 block will be automatically assigned to the NIC, but you can also specify an /80 IPv6 CIDR block for the NIC on your own, which then must be inside the IPv6 CIDR block of the LAN. An IPv6-enabled LAN is limited to a maximum of 65,536 NICs. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -130,8 +133,11 @@ This module allows you to create, update or remove a NIC.
   | server | True | str |  | The server name or UUID. |
   | lan | False | str |  | The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create. |
   | dhcp | False | bool |  | Boolean value indicating if the NIC is using DHCP or not. |
+  | dhcpv6 | False | bool |  | [The IPv6 feature is in beta phase and not ready for production usage.] Indicates if the NIC will reserve an IPv6 using DHCP. It can be set to 'true' or 'false' only if this NIC is connected to an IPv6-enabled LAN. |
   | firewall_active | False | bool |  | Boolean value indicating if the firewall is active. |
   | ips | False | list |  | A list of IPs to be assigned to the NIC. |
+  | ipv6_ips | False | list |  | [The IPv6 feature is in beta phase and not ready for production usage.] The IPv6 IP addresses if this NIC is connected to an IPv6-enabled LAN. The maximum number of IPv6 IP addresses per NIC is 50. If you leave this 'null' when adding a NIC, when changing the NIC's IPv6 CIDR block, or when moving the NIC to a different IPv6-enabled LAN, we will automatically assign the new IPv6 CIDR block's first IP address to this NIC. If you leave this 'null' while not changing the CIDR block, the IPv6 IP addresses won't be changed either. You can also provide your own self choosen IPv6 addresses, which then must be inside the IPv6 CIDR block of this NIC. |
+  | ipv6_cidr | False | str |  | [The IPv6 feature is in beta phase and not ready for production usage.] The /80 IPv6 CIDR block if this NIC is connected to an IPv6-enabled LAN. If you leave this 'null' when adding a NIC to an IPv6-enabled LAN, an IPv6 block will be automatically assigned to the NIC, but you can also specify an /80 IPv6 CIDR block for the NIC on your own, which then must be inside the IPv6 CIDR block of the LAN. An IPv6-enabled LAN is limited to a maximum of 65,536 NICs. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

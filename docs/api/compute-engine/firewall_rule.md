@@ -101,6 +101,7 @@ This module allows you to create, update or remove a firewall rule.
   | port_range_end | False | int |  | Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave value empty to allow all ports. |
   | icmp_type | False | int |  | Defines the allowed type (from 0 to 254) if the protocol ICMP is chosen. No value allows all types. |
   | icmp_code | False | int |  | Defines the allowed code (from 0 to 254) if protocol ICMP is chosen. No value allows all codes. |
+  | ip_version | False | str |  | The IP version for this rule. If sourceIp or targetIp are specified, you can omit this value - the IP version will then be deduced from the IP address(es) used; if you specify it anyway, it must match the specified IP address(es). If neither sourceIp nor targetIp are specified, this rule allows traffic only for the specified IP version. If neither sourceIp, targetIp nor ipVersion are specified, this rule will only allow IPv4 traffic. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -177,6 +178,7 @@ This module allows you to create, update or remove a firewall rule.
   | port_range_end | False | int |  | Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave value empty to allow all ports. |
   | icmp_type | False | int |  | Defines the allowed type (from 0 to 254) if the protocol ICMP is chosen. No value allows all types. |
   | icmp_code | False | int |  | Defines the allowed code (from 0 to 254) if protocol ICMP is chosen. No value allows all codes. |
+  | ip_version | False | str |  | The IP version for this rule. If sourceIp or targetIp are specified, you can omit this value - the IP version will then be deduced from the IP address(es) used; if you specify it anyway, it must match the specified IP address(es). If neither sourceIp nor targetIp are specified, this rule allows traffic only for the specified IP version. If neither sourceIp, targetIp nor ipVersion are specified, this rule will only allow IPv4 traffic. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

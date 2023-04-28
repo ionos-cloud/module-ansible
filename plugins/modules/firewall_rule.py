@@ -111,6 +111,18 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'int',
     },
+    'ip_version': {
+        'description': [
+            'The IP version for this rule. If sourceIp or targetIp are specified, you can omit this '
+            'value - the IP version will then be deduced from the IP address(es) used; if you specify '
+            'it anyway, it must match the specified IP address(es). If neither sourceIp nor targetIp '
+            'are specified, this rule allows traffic only for the specified IP version. If neither '
+            'sourceIp, targetIp nor ipVersion are specified, this rule will only allow IPv4 traffic.',
+        ],
+        'available': ['present', 'update'],
+        'choices': ['IPv4', 'IPv6'],
+        'type': 'str',
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -310,6 +322,8 @@ def create_firewall_rule(module, client):
     source_mac = module.params.get('source_mac')
     source_ip = module.params.get('source_ip')
     target_ip = module.params.get('target_ip')
+    ip_version = module.params.get('ip_version')
+    
     port_range_start = module.params.get('port_range_start')
     port_range_end = module.params.get('port_range_end')
     icmp_type = module.params.get('icmp_type')
@@ -361,7 +375,7 @@ def create_firewall_rule(module, client):
         module.fail_json(msg='Unable to activate the NIC firewall.' % to_native(e))
 
     firewall_properties = FirewallruleProperties(name=name, protocol=protocol, source_mac=source_mac,
-                                                 source_ip=source_ip,
+                                                 source_ip=source_ip, ip_version=ip_version,
                                                  target_ip=target_ip, icmp_code=icmp_code, icmp_type=icmp_type,
                                                  port_range_start=port_range_start,
                                                  port_range_end=port_range_end)
@@ -406,6 +420,7 @@ def update_firewall_rule(module, client):
     source_mac = module.params.get('source_mac')
     source_ip = module.params.get('source_ip')
     target_ip = module.params.get('target_ip')
+    ip_version = module.params.get('ip_version')
     port_range_start = module.params.get('port_range_start')
     port_range_end = module.params.get('port_range_end')
     icmp_type = module.params.get('icmp_type')
@@ -441,7 +456,8 @@ def update_firewall_rule(module, client):
     try:
         firewall_rule_properties = FirewallruleProperties(source_mac=source_mac,
                                                           source_ip=source_ip,
-                                                          target_ip=target_ip)
+                                                          target_ip=target_ip,
+                                                          ip_version=ip_version)
 
         if port_range_start or port_range_end:
             firewall_rule_properties.port_range_start = port_range_start

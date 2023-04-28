@@ -74,6 +74,16 @@ OPTIONS = {
         'type': 'bool',
         'version_added': '2.4',
     },
+    'dhcpv6': {
+        'description': [
+            "[The IPv6 feature is in beta phase and not ready for production usage.] Indicates if "
+            "the NIC will reserve an IPv6 using DHCP. It can be set to 'true' or 'false' only if "
+            "this NIC is connected to an IPv6-enabled LAN."
+        ],
+        'available': ['present', 'update'],
+        'type': 'bool',
+        'version_added': '2.4',
+    },
     'firewall_active': {
         'description': ['Boolean value indicating if the firewall is active.'],
         'available': ['present', 'update'],
@@ -85,6 +95,33 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'list',
         'version_added': '2.4',
+    },
+    'ipv6_ips': {
+        'description': [
+            "[The IPv6 feature is in beta phase and not ready for production usage.] The IPv6 IP "
+            "addresses if this NIC is connected to an IPv6-enabled LAN. The maximum number of IPv6 "
+            "IP addresses per NIC is 50. If you leave this 'null' when adding a NIC, when changing "
+            "the NIC's IPv6 CIDR block, or when moving the NIC to a different IPv6-enabled LAN, we "
+            "will automatically assign the new IPv6 CIDR block's first IP address to this NIC. If "
+            "you leave this 'null' while not changing the CIDR block, the IPv6 IP addresses won't "
+            "be changed either. You can also provide your own self choosen IPv6 addresses, which then "
+            "must be inside the IPv6 CIDR block of this NIC.",
+        ],
+        'available': ['present', 'update'],
+        'type': 'list',
+        'version_added': '2.4',
+    },
+    'ipv6_cidr': {
+        'description': [
+            "[The IPv6 feature is in beta phase and not ready for production usage.] The /80 IPv6 CIDR "
+            "block if this NIC is connected to an IPv6-enabled LAN. If you leave this 'null' when "
+            "adding a NIC to an IPv6-enabled LAN, an IPv6 block will be automatically assigned to the "
+            "NIC, but you can also specify an /80 IPv6 CIDR block for the NIC on your own, which then "
+            "must be inside the IPv6 CIDR block of the LAN. An IPv6-enabled LAN is limited to a maximum "
+            "of 65,536 NICs.",
+        ],
+        'available': ['present', 'update'],
+        'type': 'str',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -271,8 +308,11 @@ def create_nic(module, client):
     server = module.params.get('server')
     lan = module.params.get('lan')
     dhcp = module.params.get('dhcp')
+    dhcpv6 = module.params.get('dhcpv6')
     firewall_active = module.params.get('firewall_active')
     ips = module.params.get('ips')
+    ipv6_ips = module.params.get('ipv6_ips')
+    ipv6_cidr = module.params.get('ipv6_cidr')
     name = module.params.get('name')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
@@ -312,7 +352,10 @@ def create_nic(module, client):
         }
 
     try:
-        nic_properties = NicProperties(name=name, ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active)
+        nic_properties = NicProperties(
+            name=name, ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active,
+            dhcpv6=dhcpv6, ipv6_ips=ipv6_ips, ipv6_cidr=ipv6_cidr,
+        )
         nic = Nic(properties=nic_properties)
 
         response = nic_server.datacenters_servers_nics_post_with_http_info(datacenter_id=datacenter, server_id=server,
@@ -352,6 +395,9 @@ def update_nic(module, client):
     dhcp = module.params.get('dhcp')
     firewall_active = module.params.get('firewall_active')
     ips = module.params.get('ips')
+    dhcpv6 = module.params.get('dhcpv6')
+    ipv6_ips = module.params.get('ipv6_ips')
+    ipv6_cidr = module.params.get('ipv6_cidr')
     id = module.params.get('id')
     name = module.params.get('name')
     wait = module.params.get('wait')
@@ -391,7 +437,10 @@ def update_nic(module, client):
         if dhcp is None:
             dhcp = nic.properties.dhcp
 
-        nic_properties = NicProperties(ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active, name=name)
+        nic_properties = NicProperties(
+            ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active, name=name,
+            dhcpv6=dhcpv6, ipv6_ips=ipv6_ips, ipv6_cidr=ipv6_cidr,
+        )
 
         response = nic_server.datacenters_servers_nics_patch_with_http_info(datacenter_id=datacenter_id, server_id=server_id,
                                                                             nic_id=nic.id, nic=nic_properties)
