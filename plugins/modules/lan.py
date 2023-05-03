@@ -12,7 +12,7 @@ HAS_SDK = True
 try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
-    from ionoscloud.models import Lan, LanPost, LanProperties, LanPropertiesPost
+    from ionoscloud.models import Lan, LanProperties
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
@@ -283,7 +283,7 @@ def create_lan(module, client):
 
     lan_response = None
     try:
-        lan = LanPost(properties=LanPropertiesPost(name=name, public=public, ipv6_cidr_block=ipv6_cidr))
+        lan = Lan(properties=LanProperties(name=name, public=public, ipv6_cidr_block=ipv6_cidr))
 
         lan_response, _, headers = lan_server.datacenters_lans_post_with_http_info(datacenter_id=datacenter_id, lan=lan)
 

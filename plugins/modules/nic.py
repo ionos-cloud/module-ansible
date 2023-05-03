@@ -354,7 +354,7 @@ def create_nic(module, client):
     try:
         nic_properties = NicProperties(
             name=name, ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active,
-            dhcpv6=dhcpv6, ipv6_ips=ipv6_ips, ipv6_cidr=ipv6_cidr,
+            dhcpv6=dhcpv6, ipv6_ips=ipv6_ips, ipv6_cidr_block=ipv6_cidr,
         )
         nic = Nic(properties=nic_properties)
 
@@ -439,7 +439,7 @@ def update_nic(module, client):
 
         nic_properties = NicProperties(
             ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active, name=name,
-            dhcpv6=dhcpv6, ipv6_ips=ipv6_ips, ipv6_cidr=ipv6_cidr,
+            dhcpv6=dhcpv6, ipv6_ips=ipv6_ips, ipv6_cidr_block=ipv6_cidr,
         )
 
         response = nic_server.datacenters_servers_nics_patch_with_http_info(datacenter_id=datacenter_id, server_id=server_id,
