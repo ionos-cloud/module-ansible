@@ -51,7 +51,7 @@ OPTIONS = {
     'location': {
         'description': ['The datacenter location.'],
         'required': ['present'],
-        'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
+        'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr', 'es/vit'],
         'available': ['present', 'update'],
         'type': 'str',
     },

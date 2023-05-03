@@ -17,8 +17,8 @@ try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import (Volume, VolumeProperties, Server, ServerProperties, Datacenter,
-                                   DatacenterProperties, Nic, NicProperties, LanPropertiesPost,
-                                   LanPost, ServerEntities, Nics, Volumes)
+                                   DatacenterProperties, Nic, NicProperties, LanProperties,
+                                   Lan, ServerEntities, Nics, Volumes)
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
@@ -530,8 +530,8 @@ def _create_object(module, client, name, existing_object=None):
         public_ip_lan_id = public_lan.id if public_lan is not None else None
 
         if public_ip_lan_id is None:
-            lan_properties = LanPropertiesPost(name='public', public=True)
-            lan_post = LanPost(properties=lan_properties)
+            lan_properties = LanProperties(name='public', public=True)
+            lan_post = Lan(properties=lan_properties)
 
             response = lans_api.datacenters_lans_post_with_http_info(datacenter_id=datacenter_id, lan=lan_post)
             (lan_response, _, headers) = response
