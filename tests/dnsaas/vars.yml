@@ -1,0 +1,7 @@
+zone_name: updated.com
+zone_description: Test zone
+zone_enabled: true
+
+zone_name_update: test.com
+zone_description_update: Test zone UPDATED
+zone_enabled_update: false

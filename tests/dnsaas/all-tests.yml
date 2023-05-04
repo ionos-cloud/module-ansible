@@ -1,0 +1,6 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+- name: Run Zone Test
+  import_playbook: zone-test.yml

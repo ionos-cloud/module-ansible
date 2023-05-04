@@ -1,0 +1,38 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+
+  - name: Create Zone
+    zone:
+      name: "{{ zone_name }}"
+      description: "{{ zone_description }}"
+      enabled: "{{ zone_enabled }}"
+    register: zone_response
+
+  - name: List Zones
+    zone_info:
+    register: zones_response
+
+  - name: Show Zones
+    debug:
+      var: zones_response.result
+
+  - name: Update Zone
+    zone:
+      zone: "{{ zone_response.zone.id }}"
+      name: "{{ zone_name_update }}"
+      description: "{{ zone_description_update }}"
+      enabled: "{{ zone_enabled_update }}"
+      state: update
+    register: updated_zone_response
+
+  - name: Delete Zone
+    zone:
+      zone: "{{ zone_response.zone.properties.zone_name }}"
+      wait: true
+      state: absent
