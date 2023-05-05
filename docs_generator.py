@@ -112,7 +112,11 @@ modules_to_generate = [
     'dataplatform_nodepool',
     'dataplatform_nodepool_info',
     'certificate',
-    'certificate_info'
+    'certificate_info',
+    'record',
+    'record_info',
+    'zone',
+    'zone_info',
 ]
 
 for module_name in modules_to_generate:

@@ -5,3 +5,17 @@ zone_enabled: true
 zone_name_update: test.com
 zone_description_update: Test zone UPDATED
 zone_enabled_update: false
+
+record_name: testRecord
+record_content: 1.2.3.4
+record_type: AAAA
+record_enabled: true
+record_ttl: 7200
+record_priority: 4
+
+record_name_update: testRecordUpdate
+record_content_update: 1.2.3.4.7
+record_type_update: SRV
+record_enabled_update: false
+record_ttl_update: 4600
+record_priority_update: 20

@@ -1,0 +1,62 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+  - name: Create Zone
+    zone:
+      name: "{{ zone_name }}"
+      description: "{{ zone_description }}"
+      enabled: "{{ zone_enabled }}"
+    register: zone_response
+
+  - name: Create Record
+    record:
+      zone: "{{ zone_response.zone.id }}"
+      name: "{{ record_name }}"
+      type: "{{ record_type }}"
+      content: "{{ record_content }}"
+      enabled: "{{ record_enabled }}"
+      ttl: "{{ record_ttl }}"
+      priority: "{{ record_priority }}"
+    register: record_response
+
+  - name: List Records
+    record_info:
+    register: records_response
+
+  - name: List Records
+    record_info:
+      zone: "{{ zone_name }}"
+    register: records_response
+
+  - name: Show Records
+    debug:
+      var: records_response.result
+
+  - name: Update Record
+    record:
+      zone: "{{ zone_response.zone.id }}"
+      name: "{{ record_name_update }}"
+      type: "{{ record_type_update }}"
+      content: "{{ record_content_update }}"
+      enabled: "{{ record_enabled_update }}"
+      ttl: "{{ record_ttl_update }}"
+      priority: "{{ record_priority_update }}"
+    register: record_response_update
+
+  - name: Delete Record
+    record:
+      zone: "{{ zone_response.zone.id }}"
+      record: "{{ record_response_update.record.id }}"
+      wait: true
+      state: absent
+
+  - name: Delete Zone
+    zone:
+      zone: "{{ zone_response.zone.properties.zone_name }}"
+      wait: true
+      state: absent

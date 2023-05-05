@@ -39,6 +39,7 @@ OPTIONS = {
     'name': {
         'description': ['The name of the zone.'],
         'available': ['present', 'update'],
+        'required': ['present'],
         'type': 'str',
     },
     'description': {
@@ -149,29 +150,31 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
 
+
 EXAMPLE_PER_STATE = {
-  'present' : '''# Create a Datacenter
-  - name: Create datacenter
-    datacenter:
-      name: "Example DC"
-      description: "description"
-      location: de/fra
-    register: datacenter_response
+  'present' : '''
+  - name: Create Zone
+    zone:
+      name: "{{ zone_name }}"
+      description: "{{ zone_description }}"
+      enabled: "{{ zone_enabled }}"
+    register: zone_response
   ''',
-  'update' : '''# Update a datacenter description
-  - name: Update datacenter
-    datacenter:
-      id: "{{ datacenter_response.datacenter.id }}"
-      name: "Example DC"
-      description: "description - RENAMED"
+  'update' : '''
+  - name: Update Zone
+    zone:
+      zone: "{{ zone_response.zone.id }}"
+      name: "{{ zone_name_update }}"
+      description: "{{ zone_description_update }}"
+      enabled: "{{ zone_enabled_update }}"
       state: update
-    register: updated_datacenter
+    register: updated_zone_response
   ''',
-  'absent' : '''# Destroy a Datacenter. This will remove all servers, volumes, and other objects in the datacenter.
-  - name: Remove datacenter
-    datacenter:
-      id: "{{ datacenter_response.datacenter.id }}"
-      name: "Example DC"
+  'absent' : '''
+  - name: Delete Zone
+    zone:
+      zone: "{{ zone_response.zone.properties.zone_name }}"
+      wait: true
       state: absent
   ''',
 }
@@ -228,13 +231,14 @@ def _get_request_id(headers):
 
 
 def _should_replace_object(module, existing_object):
-    return False
-
-def _should_update_object(module, existing_object):
     return (
         module.params.get('name') is not None
         and existing_object.properties.zone_name != module.params.get('name')
-        or module.params.get('description') is not None
+    )
+
+def _should_update_object(module, existing_object):
+    return (
+        module.params.get('description') is not None
         and existing_object.properties.description != module.params.get('description')
         or module.params.get('enabled') is not None
         and existing_object.properties.enabled != module.params.get('enabled')
@@ -292,7 +296,9 @@ def _update_object(module, client, existing_object):
 
 
     zone_properties = ionoscloud_dnsaas.ZoneUpdateRequestProperties(
-        zone_name=name, description=description, enabled=enabled,
+        zone_name=name if name is not None else existing_object.properties.zone_name,
+        description=description if description is not None else existing_object.properties.description,
+        enabled=enabled if enabled is not None else existing_object.properties.enabled,
     )
     zone = ionoscloud_dnsaas.ZoneUpdateRequest(properties=zone_properties)
 
