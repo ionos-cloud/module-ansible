@@ -6,16 +6,16 @@ zone_name_update: test.com
 zone_description_update: Test zone UPDATED
 zone_enabled_update: false
 
-record_name: testRecord
-record_content: 1.2.3.4
-record_type: AAAA
+record_name: example.com
+record_content: 192.168.1.1
+record_type: A
 record_enabled: true
 record_ttl: 7200
 record_priority: 4
 
-record_name_update: testRecordUpdate
-record_content_update: 1.2.3.4.7
-record_type_update: SRV
+record_name_update: example.test.com
+record_content_update: 192.168.1.2
+record_type_update: A
 record_enabled_update: false
 record_ttl_update: 4600
 record_priority_update: 20

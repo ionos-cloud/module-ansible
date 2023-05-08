@@ -39,24 +39,26 @@
 
   - name: Update Record
     record:
-      zone: "{{ zone_response.zone.id }}"
+      zone: "{{ zone_name }}"
+      record: "{{ zone_name }}"
       name: "{{ record_name_update }}"
       type: "{{ record_type_update }}"
       content: "{{ record_content_update }}"
       enabled: "{{ record_enabled_update }}"
       ttl: "{{ record_ttl_update }}"
       priority: "{{ record_priority_update }}"
+      state: update
     register: record_response_update
 
   - name: Delete Record
     record:
-      zone: "{{ zone_response.zone.id }}"
-      record: "{{ record_response_update.record.id }}"
+      zone: "{{ zone_name }}"
+      record: "{{ record_name }}"
       wait: true
       state: absent
 
   - name: Delete Zone
     zone:
-      zone: "{{ zone_response.zone.properties.zone_name }}"
+      zone: "{{ zone_name }}"
       wait: true
       state: absent

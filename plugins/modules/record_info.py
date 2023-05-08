@@ -291,9 +291,9 @@ def main():
                 module, zone_list, module.params.get('zone'),
                 [['id'], ['properties', 'zone_name']],
             )
-            records = ionoscloud_dnsaas.RecordsApi.zones_records_get(zone_id)
+            records = ionoscloud_dnsaas.RecordsApi(dnsaas_api_client).zones_records_get(zone_id)
         else:
-            records = ionoscloud_dnsaas.RecordsApi.records_get()
+            records = ionoscloud_dnsaas.RecordsApi(dnsaas_api_client).records_get()
 
         results = list(map(lambda x: x.to_dict(), apply_filters(module, records.items)))
         module.exit_json(result=results)
