@@ -198,12 +198,14 @@ EXAMPLE_PER_STATE = {
   - name: Update Record
     record:
       zone: "{{ zone_response.zone.id }}"
+      record: "{{ record_response.record.id }}"
       name: "{{ record_name_update }}"
       type: "{{ record_type_update }}"
       content: "{{ record_content_update }}"
       enabled: "{{ record_enabled_update }}"
       ttl: "{{ record_ttl_update }}"
       priority: "{{ record_priority_update }}"
+      state: update
     register: record_response_update
   ''',
   'absent' : '''# Destroy a Datacenter. This will remove all servers, volumes, and other objects in the datacenter.

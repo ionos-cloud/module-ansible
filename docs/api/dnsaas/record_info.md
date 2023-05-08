@@ -1,19 +1,24 @@
 # record_info
 
-This is a simple module that supports listing existing Zones
+This is a simple module that supports listing existing Records
 
 ## Example Syntax
 
 
 ```yaml
 
-    - name: List Zones
-        zone_info:
-        register: zones_response
+    - name: List Records
+        record_info:
+        register: records_response
 
-    - name: Show Zones
+    - name: List Records
+        record_info:
+        zone: "{{ zone_name }}"
+        register: records_response
+
+    - name: Show Records
         debug:
-            var: zones_response.result
+        var: records_response.result
 
 ```
 ### Available parameters:
