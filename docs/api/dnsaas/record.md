@@ -68,7 +68,7 @@ This is a simple module that supports creating or removing records. This module 
   | zone | True | str |  | The ID or name of the zone. |
   | name | True | str |  | The name of the record. |
   | content | True | str |  | The content of the record. |
-  | type | True | str |  | Holds supported DNS resource record types. In the DNS context a record is a DNS resource record. The options are: ['A', 'AAAA', 'CNAME', 'ALIAS', 'MX', 'NS', 'SRV', 'TXT', 'CAA', 'SSHFP', 'TLSA', 'SMIMEA', 'DS', 'HTTPS', 'SVCB', 'OPENPGPKEY', 'CERT', 'URI', 'RP', 'LOC'] |
+  | type | True | str |  | Holds supported DNS resource record types. In the DNS context a record is a DNS resource record. |
   | ttl | False | int |  | Time to live for the record, recommended 3600. |
   | priority | False | int |  | Priority value is between 0 and 65535. Priority is mandatory for MX, SRV and URI record types and ignored for all other types. |
   | enabled | False | bool |  | When true - the record is visible for lookup. |
@@ -140,7 +140,7 @@ This is a simple module that supports creating or removing records. This module 
   | zone | True | str |  | The ID or name of the zone. |
   | name | False | str |  | The name of the record. |
   | content | False | str |  | The content of the record. |
-  | type | False | str |  | Holds supported DNS resource record types. In the DNS context a record is a DNS resource record. The options are: ['A', 'AAAA', 'CNAME', 'ALIAS', 'MX', 'NS', 'SRV', 'TXT', 'CAA', 'SSHFP', 'TLSA', 'SMIMEA', 'DS', 'HTTPS', 'SVCB', 'OPENPGPKEY', 'CERT', 'URI', 'RP', 'LOC'] |
+  | type | False | str |  | Holds supported DNS resource record types. In the DNS context a record is a DNS resource record. |
   | ttl | False | int |  | Time to live for the record, recommended 3600. |
   | priority | False | int |  | Priority value is between 0 and 65535. Priority is mandatory for MX, SRV and URI record types and ignored for all other types. |
   | enabled | False | bool |  | When true - the record is visible for lookup. |

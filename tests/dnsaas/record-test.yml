@@ -40,15 +40,39 @@
   - name: Update Record
     record:
       zone: "{{ zone_name }}"
-      record: "{{ zone_name }}"
-      name: "{{ record_name_update }}"
-      type: "{{ record_type_update }}"
+      record: "{{ record_name }}"
       content: "{{ record_content_update }}"
       enabled: "{{ record_enabled_update }}"
       ttl: "{{ record_ttl_update }}"
       priority: "{{ record_priority_update }}"
       state: update
     register: record_response_update
+
+  - name: Show Record
+    debug:
+      var: record_response_update
+
+  - name: Replace Record
+    record:
+      zone: "{{ zone_name }}"
+      record: "{{ record_name }}"
+      name: "{{ record_name_update }}"
+      type: "{{ record_type_update }}"
+      content: "{{ record_content_replace }}"
+      enabled: "{{ record_enabled_update }}"
+      ttl: "{{ record_ttl_update }}"
+      priority: "{{ record_priority_update }}"
+      state: update
+    register: record_response_update
+
+  - name: List Records
+    record_info:
+      zone: "{{ zone_name }}"
+    register: records_response
+
+  - name: Show Records
+    debug:
+      var: records_response.result
 
   - name: Delete Record
     record:

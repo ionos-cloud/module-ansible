@@ -15,7 +15,8 @@ record_priority: 4
 
 record_name_update: example.test.com
 record_content_update: 192.168.1.2
-record_type_update: A
+record_content_replace: 2001:0db8:85a3:0000:0000:8a2e:0370:7334
+record_type_update: AAAA
 record_enabled_update: false
 record_ttl_update: 4600
 record_priority_update: 20

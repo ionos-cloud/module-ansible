@@ -57,12 +57,14 @@ OPTIONS = {
     'type': {
         'description': [
             'Holds supported DNS resource record types. In the DNS context a record is a '
-            'DNS resource record. The options are: '
-            "['A', 'AAAA', 'CNAME', 'ALIAS', 'MX', 'NS', 'SRV', 'TXT', 'CAA', 'SSHFP', "
-            "'TLSA', 'SMIMEA', 'DS', 'HTTPS', 'SVCB', 'OPENPGPKEY', 'CERT', 'URI', 'RP', 'LOC']",
+            'DNS resource record.',
         ],
         'available': ['present', 'update'],
         'required': ['present'],
+        'choices':[
+            'A', 'AAAA', 'CNAME', 'ALIAS', 'MX', 'NS', 'SRV', 'TXT', 'CAA', 'SSHFP',
+            'TLSA', 'SMIMEA', 'DS', 'HTTPS', 'SVCB', 'OPENPGPKEY', 'CERT', 'URI', 'RP', 'LOC',
+        ],
         'type': 'str',
     },
     'ttl': {
@@ -270,17 +272,18 @@ def _get_request_id(headers):
 
 
 def _should_replace_object(module, existing_object):
-    return False
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+        or module.params.get('type') is not None
+        and existing_object.properties.type != module.params.get('type')
+    )
 
 
 def _should_update_object(module, existing_object):
     return (
-        module.params.get('name') is not None
-        and existing_object.properties.name != module.params.get('name')
-        or module.params.get('content') is not None
+        module.params.get('content') is not None
         and existing_object.properties.content != module.params.get('content')
-        or module.params.get('type') is not None
-        and existing_object.properties.type != module.params.get('type')
         or module.params.get('ttl') is not None
         and existing_object.properties.ttl != module.params.get('ttl')
         or module.params.get('priority') is not None
