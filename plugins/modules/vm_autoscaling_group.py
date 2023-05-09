@@ -9,6 +9,7 @@ import re
 
 HAS_SDK = True
 try:
+    import ionoscloud
     import ionoscloud_vm_autoscaling
 except ImportError:
     HAS_SDK = False
@@ -368,7 +369,77 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
+def get_scale_in_action_object(action_dict):
+    return ionoscloud_vm_autoscaling.GroupPolicyScaleInAction(
+        amount=action_dict.get('amount'),
+        amount_type=action_dict.get('amount_type'),
+        cooldown_period=action_dict.get('cooldown_period'),
+        termination_policy=action_dict.get('termination_policy'),
+        delete_volumes=action_dict.get('delete_volumes'),
+    )
+
+
+def get_scale_out_action_object(action_dict):
+    return ionoscloud_vm_autoscaling.GroupPolicyScaleOutAction(
+        amount=action_dict.get('amount'),
+        amount_type=action_dict.get('amount_type'),
+        cooldown_period=action_dict.get('cooldown_period'),
+    )
+
+
+def get_flow_log_object(flow_log_dict):
+    return ionoscloud_vm_autoscaling.NicFlowLog(
+        name=flow_log_dict.get('name'),
+        action=flow_log_dict.get('action'),
+        direction=flow_log_dict.get('direction'),
+        bucket=flow_log_dict.get('bucket'),
+    )
+
+
+def get_firewall_rule_object(flow_log_dict):
+    return ionoscloud_vm_autoscaling.NicFirewallRule(
+        name=flow_log_dict.get('name'),
+        protocol=flow_log_dict.get('protocol'),
+        source_mac=flow_log_dict.get('source_mac'),
+        source_ip=flow_log_dict.get('source_ip'),
+        target_ip=flow_log_dict.get('target_ip'),
+        icmp_code=flow_log_dict.get('icmp_code'),
+        icmp_type=flow_log_dict.get('icmp_type'),
+        port_range_start=flow_log_dict.get('port_range_start'),
+        port_range_end=flow_log_dict.get('port_range_end'),
+        type=flow_log_dict.get('type'),
+    )
+
+
+def get_nic_object(nic_dict):
+    return ionoscloud_vm_autoscaling.ReplicaNic(
+        lan=nic_dict.get('lan'),
+        name= nic_dict.get('name'),
+        firewall_active=nic_dict.get('firewall_active'),
+        firewall_type=nic_dict.get('firewall_type'),
+        flow_logs=[get_flow_log_object(flow_log) for flow_log in nic_dict.get('flow_logs')],
+        firewall_rules=[get_firewall_rule_object(firewall_rule) for firewall_rule in nic_dict.get('firewall_rules')],
+    )
+
+
+def get_volume_object(volume_dict):
+    return ionoscloud_vm_autoscaling.ReplicaVolumePost(
+        image=volume_dict.get('image'),
+        image_alias=volume_dict.get('image_alias'),
+        name=volume_dict.get('name'),
+        size=volume_dict.get('size'),
+        ssh_keys=volume_dict.get('ssh_keys'),
+        type = volume_dict.get('type'),
+        user_data = volume_dict.get('user_data'),
+        bus = volume_dict.get('bus'),
+        backupunit_id = volume_dict.get('backupunit_id'),
+        boot_order = volume_dict.get('boot_order'),
+        image_password = volume_dict.get('image_password'),
+    )
+
+
 def _should_replace_object(module, existing_object, cloudapi_client):
+
     datacenter_id = lan_id = cidr = None
     if module.params.get('connections'):
         connection = module.params.get('connections')[0]
@@ -405,35 +476,97 @@ def _should_replace_object(module, existing_object, cloudapi_client):
     )
 
 
-def _should_update_object(module, existing_object):
+def _should_update_object(module, existing_object, cloudapi_client):
+    datacenter_id = None
+    if module.params.get('datacenter'):
+        datacenter_list = ionoscloud.DataCentersApi(api_client=cloudapi_client).datacenters_get(depth=1)
+        datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
+
+    scale_in_action_should_update = scale_out_action_should_update = nics_update = volumes_update = False
+    if module.properties.get('scale_in_action'):
+        scale_in_action = get_scale_in_action_object(module.properties.get('scale_in_action'))
+        existing_scale_in_action = existing_object.properties.group_policy.scale_in_action
+
+        if (
+            scale_in_action.amount is not None 
+            and scale_in_action.amount != existing_scale_in_action.amount
+            or scale_in_action.amount_type is not None 
+            and scale_in_action.amount_type != existing_scale_in_action.amount_type
+            or scale_in_action.cooldown_period is not None 
+            and scale_in_action.cooldown_period != existing_scale_in_action.cooldown_period
+            or scale_in_action.termination_policy is not None 
+            and scale_in_action.termination_policy != existing_scale_in_action.termination_policy
+            or scale_in_action.delete_volumes is not None 
+            and scale_in_action.delete_volumes != existing_scale_in_action.delete_volumes
+        ):
+            scale_in_action_should_update = True
+
+    if module.properties.get('scale_out_action'):
+        scale_out_action = get_scale_out_action_object(module.properties.get('scale_out_action'))
+        existing_scale_out_action = existing_object.properties.group_policy.scale_out_action
+
+        if (
+            scale_out_action.amount is not None 
+            and scale_out_action.amount != existing_scale_out_action.amount
+            or scale_out_action.amount_type is not None 
+            and scale_out_action.amount_type != existing_scale_out_action.amount_type
+            or scale_out_action.cooldown_period is not None 
+            and scale_out_action.cooldown_period != existing_scale_out_action.cooldown_period
+        ):
+            scale_out_action_should_update = True
+
+
+    if module.properties.get('nics'):
+        def nic_sort_func(el):
+            return el.name, el.lan
+
+        new_nics = sorted([get_nic_object(nic) for nic in module.properties.get('nics')], key=nic_sort_func)
+        existing_nics = sorted(existing_object.properties.replica_configuration.nics, key=nic_sort_func)
+
+        if len(new_nics) != len(existing_nics):
+            nics_update = True
+
     return (
-        module.params.get('display_name') is not None
-        and existing_object.properties.display_name != module.params.get('display_name')
-                or module.params.get('maintenance_window') is not None
-        and (
-            existing_object.properties.maintenance_window.day_of_the_week != module.params.get('maintenance_window').get('day_of_the_week')
-            or existing_object.properties.maintenance_window.time != module.params.get('maintenance_window').get('time')
-        ) or module.params.get('postgres_version') is not None
-        and existing_object.properties.postgres_version != module.params.get('postgres_version')
-        or module.params.get('instances') is not None
-        and existing_object.properties.instances != module.params.get('instances')
+        scale_in_action_should_update or scale_out_action_should_update or nics_update or volumes_update
+        or module.params.get('max_replica_count') is not None
+        and existing_object.properties.max_replica_count != module.params.get('max_replica_count')
+        or module.params.get('min_replica_count') is not None
+        and existing_object.properties.min_replica_count != module.params.get('min_replica_count')
+        or module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+        or module.params.get('metric') is not None
+        and existing_object.properties.metric != module.params.get('metric')
+        or module.params.get('range') is not None
+        and existing_object.properties.range != module.params.get('range')
+        or module.params.get('unit') is not None
+        and existing_object.properties.unit != module.params.get('unit')
+        or module.params.get('scale_in_threshold') is not None
+        and existing_object.properties.scale_in_threshold != module.params.get('scale_in_threshold')
+        or module.params.get('scale_out_threshold') is not None
+        and existing_object.properties.scale_out_threshold != module.params.get('scale_out_threshold')
+        or module.params.get('availability_zone') is not None
+        and existing_object.properties.availability_zone != module.params.get('availability_zone')
         or module.params.get('cores') is not None
         and existing_object.properties.cores != module.params.get('cores')
+        or module.params.get('cpu_family') is not None
+        and existing_object.properties.cpu_family != module.params.get('cpu_family')
         or module.params.get('ram') is not None
         and existing_object.properties.ram != module.params.get('ram')
+        or module.params.get('datacenter') is not None
+        and existing_object.properties.datacenter.id != datacenter_id
     )
 
 
 def _get_object_list(module, client):
-    return ionoscloud_dbaas_postgres.ClustersApi(client).clusters_get()
+    return ionoscloud_vm_autoscaling.GroupsApi(client).groups_get()
 
 
 def _get_object_name(module):
-    return module.params.get('display_name')
+    return module.params.get('name')
 
 
 def _get_object_identifier(module):
-    return module.params.get('postgres_cluster')
+    return module.params.get('vm_autoscaling_group')
 
 
 def _create_object(module, dbaas_client, cloudapi_client, existing_object=None):
