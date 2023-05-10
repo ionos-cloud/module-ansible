@@ -1,0 +1,39 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+    - name: Create datacenter
+      datacenter:
+        name: "{{ datacenter_name }}"
+        location: "{{ datacenter_location }}"
+        wait: true
+      register: datacenter_response
+
+    - name: Create VM Ausocaling Group
+      vm_autoscaling_group:
+        datacenter: "{{ datacenter_name }}"
+        name: "{{ name }}"
+        max_replica_count: "{{ max_replica_count }}"
+        min_replica_count: "{{ min_replica_count }}"
+        metric: "{{ metric }}"
+        range: "{{ range }}"
+        unit: "{{ unit }}"
+        scale_in_threshold: "{{ scale_in_threshold }}"
+        scale_out_threshold: "{{ scale_out_threshold }}"
+        scale_in_action: "{{ scale_in_action }}"
+        scale_out_action: "{{ scale_out_action }}"
+        availability_zone: "{{ availability_zone }}"
+        cores: "{{ cores }}"
+        cpu_family: "{{ cpu_family }}"
+        ram: "{{ ram }}"
+        nics: "{{ nics }}"
+        volumes: "{{ volumes }}"
+      register: vm_autoscaling_group_response
+
+    - name: Show VM Ausocaling Group
+      debug:
+        var: vm_autoscaling_group_response

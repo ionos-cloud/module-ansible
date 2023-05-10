@@ -1,0 +1,63 @@
+datacenter_name: "AnsibleVMAutoscaling"
+datacenter_location: us/las
+
+name: AnsibleVMAutoscalingGroup
+max_replica_count: 5
+min_replica_count: 1
+metric: INSTANCE_CPU_UTILIZATION_AVERAGE
+range: P1D
+unit: PER_HOUR
+scale_in_threshold: 33
+scale_out_threshold: 77
+scale_in_action: {
+  'amount': 1,
+  'amount_type': 'ABSOLUTE',
+  'cooldown_period': '5m',
+  'termination_policy': 'RANDOM',
+  'delete_volumes': true
+}
+scale_out_action: {
+  'amount': 1,
+  'amount_type': 'ABSOLUTE',
+  'cooldown_period': 'PT5M'
+}
+availability_zone: AUTO
+cores: 2
+cpu_family: INTEL_XEON
+ram: 1024
+nics: [
+  {
+    'lan': 1,
+    'name': 'SDK_TEST_NIC1',
+    'dhcp': true
+  },
+  {
+    'lan': 1,
+    'name': 'SDK_TEST_NIC2',
+    'dhcp': false
+  }
+]
+volumes: [
+  {
+    'image': '58e45812-38b1-11ed-be62-eec5f4d7ee1e',
+    'image_password': 'test12345',
+    'name': 'SDK_TEST_VOLUME',
+    'size': 50,
+    'type': 'HDD',
+    'bus': 'IDE',
+    'boot_order': 'AUTO'
+  }
+]
+
+name_update: AnsibleVMAutoscalingGroupUPDATED
+max_replica_count_update: 1
+min_replica_count_update: 0
+metric_udpate: INSTANCE_NETWORK_IN_BYTES
+scale_out_threshold_update: 86
+unit_update: PER_MINUTE
+scale_in_action_update: {
+  'amount': 1,
+}
+scale_out_action_update: {
+  'amount': 1,
+}

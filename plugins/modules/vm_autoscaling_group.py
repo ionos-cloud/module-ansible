@@ -20,7 +20,8 @@ ANSIBLE_METADATA = {
     'supported_by': 'community',
 }
 
-USER_AGENT = 'ansible-module/%s_sdk-python-vm-autoscaling/%s' % (
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, ionoscloud.__version__)
+VM_AUTOSCALING_USER_AGENT = 'ansible-module/%s_sdk-python-vm-autoscaling/%s' % (
     __version__, ionoscloud_vm_autoscaling.__version__,
 )
 DOC_DIRECTORY = 'vm-autoscaling'
@@ -370,6 +371,8 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
 
 
 def get_scale_in_action_object(action_dict):
+    if type(action_dict) != dict:
+        return None
     return ionoscloud_vm_autoscaling.GroupPolicyScaleInAction(
         amount=action_dict.get('amount'),
         amount_type=action_dict.get('amount_type'),
@@ -380,6 +383,8 @@ def get_scale_in_action_object(action_dict):
 
 
 def get_scale_out_action_object(action_dict):
+    if type(action_dict) != dict:
+        return None
     return ionoscloud_vm_autoscaling.GroupPolicyScaleOutAction(
         amount=action_dict.get('amount'),
         amount_type=action_dict.get('amount_type'),
@@ -388,6 +393,8 @@ def get_scale_out_action_object(action_dict):
 
 
 def get_flow_log_object(flow_log_dict):
+    if type(flow_log_dict) != dict:
+        return None
     return ionoscloud_vm_autoscaling.NicFlowLog(
         name=flow_log_dict.get('name'),
         action=flow_log_dict.get('action'),
@@ -396,39 +403,46 @@ def get_flow_log_object(flow_log_dict):
     )
 
 
-def get_firewall_rule_object(flow_log_dict):
+def get_firewall_rule_object(firewall_rule_dict):
+    if type(firewall_rule_dict) != dict:
+        return None
     return ionoscloud_vm_autoscaling.NicFirewallRule(
-        name=flow_log_dict.get('name'),
-        protocol=flow_log_dict.get('protocol'),
-        source_mac=flow_log_dict.get('source_mac'),
-        source_ip=flow_log_dict.get('source_ip'),
-        target_ip=flow_log_dict.get('target_ip'),
-        icmp_code=flow_log_dict.get('icmp_code'),
-        icmp_type=flow_log_dict.get('icmp_type'),
-        port_range_start=flow_log_dict.get('port_range_start'),
-        port_range_end=flow_log_dict.get('port_range_end'),
-        type=flow_log_dict.get('type'),
+        name=firewall_rule_dict.get('name'),
+        protocol=firewall_rule_dict.get('protocol'),
+        source_mac=firewall_rule_dict.get('source_mac'),
+        source_ip=firewall_rule_dict.get('source_ip'),
+        target_ip=firewall_rule_dict.get('target_ip'),
+        icmp_code=firewall_rule_dict.get('icmp_code'),
+        icmp_type=firewall_rule_dict.get('icmp_type'),
+        port_range_start=firewall_rule_dict.get('port_range_start'),
+        port_range_end=firewall_rule_dict.get('port_range_end'),
+        type=firewall_rule_dict.get('type'),
     )
 
 
 def get_nic_object(nic_dict):
+    if type(nic_dict) != dict:
+        return None
     return ionoscloud_vm_autoscaling.ReplicaNic(
         lan=nic_dict.get('lan'),
+        dhcp=nic_dict.get('dhcp'),
         name= nic_dict.get('name'),
         firewall_active=nic_dict.get('firewall_active'),
         firewall_type=nic_dict.get('firewall_type'),
-        flow_logs=[get_flow_log_object(flow_log) for flow_log in nic_dict.get('flow_logs')],
-        firewall_rules=[get_firewall_rule_object(firewall_rule) for firewall_rule in nic_dict.get('firewall_rules')],
+        flow_logs=[get_flow_log_object(flow_log) for flow_log in nic_dict.get('flow_logs', [])],
+        firewall_rules=[get_firewall_rule_object(firewall_rule) for firewall_rule in nic_dict.get('firewall_rules', [])],
     )
 
 
 def get_volume_object(volume_dict):
+    if type(volume_dict) != dict:
+        return None
     return ionoscloud_vm_autoscaling.ReplicaVolumePost(
         image=volume_dict.get('image'),
         image_alias=volume_dict.get('image_alias'),
         name=volume_dict.get('name'),
         size=volume_dict.get('size'),
-        ssh_keys=volume_dict.get('ssh_keys'),
+        ssh_keys=volume_dict.get('ssh_keys', []),
         type = volume_dict.get('type'),
         user_data = volume_dict.get('user_data'),
         bus = volume_dict.get('bus'),
@@ -479,12 +493,12 @@ def _should_replace_object(module, existing_object, cloudapi_client):
 def _should_update_object(module, existing_object, cloudapi_client):
     datacenter_id = None
     if module.params.get('datacenter'):
-        datacenter_list = ionoscloud.DataCentersApi(api_client=cloudapi_client).datacenters_get(depth=1)
+        datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
         datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
 
     scale_in_action_should_update = scale_out_action_should_update = nics_update = volumes_update = False
-    if module.properties.get('scale_in_action'):
-        scale_in_action = get_scale_in_action_object(module.properties.get('scale_in_action'))
+    if module.params.get('scale_in_action'):
+        scale_in_action = get_scale_in_action_object(module.params.get('scale_in_action'))
         existing_scale_in_action = existing_object.properties.group_policy.scale_in_action
 
         if (
@@ -501,8 +515,8 @@ def _should_update_object(module, existing_object, cloudapi_client):
         ):
             scale_in_action_should_update = True
 
-    if module.properties.get('scale_out_action'):
-        scale_out_action = get_scale_out_action_object(module.properties.get('scale_out_action'))
+    if module.params.get('scale_out_action'):
+        scale_out_action = get_scale_out_action_object(module.params.get('scale_out_action'))
         existing_scale_out_action = existing_object.properties.group_policy.scale_out_action
 
         if (
@@ -515,16 +529,41 @@ def _should_update_object(module, existing_object, cloudapi_client):
         ):
             scale_out_action_should_update = True
 
-
-    if module.properties.get('nics'):
+    if module.params.get('nics'):
         def nic_sort_func(el):
             return el.name, el.lan
 
-        new_nics = sorted([get_nic_object(nic) for nic in module.properties.get('nics')], key=nic_sort_func)
-        existing_nics = sorted(existing_object.properties.replica_configuration.nics, key=nic_sort_func)
+        def firewall_rule_sort_func(el):
+            return el.name, el.protocol
 
-        if len(new_nics) != len(existing_nics):
+        def flow_log_sort_func(el):
+            return el.name, el.bucket
+
+        new_nics = sorted([get_nic_object(nic) for nic in module.params.get('nics')], key=nic_sort_func)
+        for nic in new_nics:
+            nic.firewall_rules = sorted(nic.firewall_rules, key=firewall_rule_sort_func)
+            nic.flow_logs = sorted(nic.flow_logs, key=flow_log_sort_func)
+        new_nics = ionoscloud.ApiClient.sanitize_for_serialization(new_nics)
+        existing_nics = sorted(existing_object.properties.replica_configuration.nics, key=nic_sort_func)
+        for nic in existing_nics:
+            nic.firewall_rules = sorted(nic.firewall_rules, key=firewall_rule_sort_func)
+            nic.flow_logs = sorted(nic.flow_logs, key=flow_log_sort_func)
+        existing_nics = ionoscloud.ApiClient.sanitize_for_serialization(existing_nics)
+        
+        if new_nics != existing_nics:
             nics_update = True
+
+    if module.params.get('volumes'):
+        def volume_sort_func(el):
+            return el.name, el.lan
+
+        new_volumes = sorted([get_volume_object(volume) for volume in module.params.get('volumes')], key=volume_sort_func)
+        new_volumes = ionoscloud.ApiClient.sanitize_for_serialization(new_volumes)
+        existing_volumes = sorted(existing_object.properties.replica_configuration.volumes, key=volume_sort_func)
+        existing_volumes = ionoscloud.ApiClient.sanitize_for_serialization(existing_volumes)
+
+        if new_volumes != existing_volumes:
+            volumes_update = True
 
     return (
         scale_in_action_should_update or scale_out_action_should_update or nics_update or volumes_update
@@ -569,158 +608,190 @@ def _get_object_identifier(module):
     return module.params.get('vm_autoscaling_group')
 
 
-def _create_object(module, dbaas_client, cloudapi_client, existing_object=None):
-    maintenance_window = module.params.get('maintenance_window')
-    if maintenance_window:
-        maintenance_window = dict(module.params.get('maintenance_window'))
-        maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
-    backup_location=module.params.get('backup_location')
+def _create_object(module, vm_autoscaling_client, cloudapi_client, existing_object=None):
+    datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
+    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
+    max_replica_count = module.params.get('max_replica_count')
+    min_replica_count = module.params.get('min_replica_count')
+    name = module.params.get('name')
+    metric = module.params.get('metric')
+    policy_range = module.params.get('range')
+    unit = module.params.get('unit')
+    scale_in_threshold = module.params.get('scale_in_threshold')
+    scale_out_threshold = module.params.get('scale_out_threshold')
+    availability_zone = module.params.get('availability_zone')
+    cores = module.params.get('cores')
+    cpu_family = module.params.get('cpu_family')
+    ram = module.params.get('ram')
+    scale_in_action = get_scale_in_action_object(module.params.get('scale_in_action'))
+    scale_out_action = get_scale_out_action_object(module.params.get('scale_out_action'))
+    nics = [get_nic_object(nic) for nic in module.params.get('nics')]
+    volumes = [get_volume_object(volume) for volume in module.params.get('volumes')]
+
     if existing_object is not None:
-        backup_location = existing_object.properties.backup_location if backup_location is None else backup_location
-        maintenance_window = existing_object.properties.maintenance_window if maintenance_window is None else maintenance_window
+        max_replica_count = existing_object.properties.max_replica_count if max_replica_count is None else max_replica_count
+        min_replica_count = existing_object.properties.min_replica_count if min_replica_count is None else min_replica_count
+        name = existing_object.properties.name if name is None else name
+        metric = existing_object.properties.policy.metric if metric is None else metric
+        policy_range = existing_object.properties.policy.range if policy_range is None else policy_range
+        unit = existing_object.properties.policy.unit if unit is None else unit
+        scale_in_threshold = existing_object.properties.policy.scale_in_threshold if scale_in_threshold is None else scale_in_threshold
+        scale_out_threshold = existing_object.properties.policy.scale_out_threshold if scale_out_threshold is None else scale_out_threshold
+        scale_in_action = existing_object.properties.policy.scale_in_action if scale_in_action is None else scale_in_action
+        scale_out_action = existing_object.properties.policy.scale_out_action if scale_out_action is None else scale_out_action
+        cores = existing_object.properties.replica_configuration.cores if cores is None else cores
+        ram = existing_object.properties.replica_configuration.ram if ram is None else ram
+        cpu_family = existing_object.properties.replica_configuration.cpu_family if cpu_family is None else cpu_family
+        availability_zone = existing_object.properties.replica_configuration.availability_zone if availability_zone is None else availability_zone
+        nics = existing_object.properties.replica_configuration.nics if nics is None else nics
+        volumes = existing_object.properties.replica_configuration.volumes if volumes is None else volumes
 
-    connection = module.params.get('connections')[0]
-
-    datacenter_id = get_resource_id(module, ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=2), connection['datacenter'])
-
-    if datacenter_id is None:
-        module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))
-    
-    lan_id = get_resource_id(module, ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1), connection['lan'])
-
-    if lan_id is None:
-        module.fail_json('LAN {} not found.'.format(connection['lan']))
-
-    connections = [
-        ionoscloud_dbaas_postgres.Connection(datacenter_id=datacenter_id, lan_id=lan_id, cidr=connection['cidr']),
-    ]
-
-    clusters_api = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
-
-    postgres_cluster_properties = ionoscloud_dbaas_postgres.CreateClusterProperties(
-        postgres_version=module.params.get('postgres_version'),
-        instances=module.params.get('instances'),
-        cores=module.params.get('cores'),
-        ram=module.params.get('ram'),
-        storage_size=module.params.get('storage_size'),
-        storage_type=module.params.get('storage_type'),
-        connections=connections,
-        location=module.params.get('location'),
-        backup_location=backup_location,
-        display_name=module.params.get('display_name'),
-        maintenance_window=maintenance_window,
-        credentials=ionoscloud_dbaas_postgres.DBUser(
-            username=module.params.get('db_username'),
-            password=module.params.get('db_password'),
-        ),
-        synchronization_mode=module.params.get('synchronization_mode'),
-        from_backup=ionoscloud_dbaas_postgres.CreateRestoreRequest(
-            backup_id=module.params.get('backup_id'),
-            recovery_target_time=module.params.get('recovery_target_time'),
-        ),
-    )
-
-    postgres_cluster = ionoscloud_dbaas_postgres.CreateClusterRequest(properties=postgres_cluster_properties)
-
-    try:
-        postgres_cluster = clusters_api.clusters_post(postgres_cluster)
-        if module.params.get('wait'):
-            dbaas_client.wait_for(
-                fn_request=lambda: clusters_api.clusters_find_by_id(postgres_cluster.id),
-                fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
-                scaleup=10000,
-            )
-    except Exception as e:
-        module.fail_json(msg="failed to create the new Postgres Cluster: %s" % to_native(e))
-    return postgres_cluster
-
-
-def _update_object(module, dbaas_client, existing_object):
-    clusters_api = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
-    dbaas_client.wait_for(
-        fn_request=lambda: clusters_api.clusters_find_by_id(existing_object.id),
-        fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
-        scaleup=10000,
-    )
-
-    maintenance_window = module.params.get('maintenance_window')
-    if maintenance_window:
-        maintenance_window = dict(module.params.get('maintenance_window'))
-        maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
-
-    display_name=module.params.get('display_name')
-
-    postgres_cluster_properties = ionoscloud_dbaas_postgres.PatchClusterProperties(
-        postgres_version=module.params.get('postgres_version'),
-        instances=module.params.get('instances'),
-        cores=module.params.get('cores'),
-        ram=module.params.get('ram'),
-        storage_size=module.params.get('storage_size'),
-        display_name=display_name,
-        maintenance_window=maintenance_window,
-    )
-    postgres_cluster = ionoscloud_dbaas_postgres.PatchClusterRequest(properties=postgres_cluster_properties)
-
-    try:
-        postgres_cluster = clusters_api.clusters_patch(
-            cluster_id=existing_object.id,
-            patch_cluster_request=postgres_cluster,
+    vm_autoscaling_group = ionoscloud_vm_autoscaling.Group(
+        properties=ionoscloud_vm_autoscaling.GroupProperties(
+            datacenter=ionoscloud_vm_autoscaling.GroupPropertiesDatacenter(id=datacenter_id),
+            max_replica_count=max_replica_count,
+            min_replica_count=min_replica_count,
+            name=name,
+            policy=ionoscloud_vm_autoscaling.GroupPolicy(
+                metric=metric,
+                range=policy_range,
+                unit=unit,
+                scale_in_threshold=scale_in_threshold,
+                scale_out_threshold=scale_out_threshold,
+                scale_in_action=scale_in_action,
+                scale_out_action=scale_out_action,
+            ),
+            replica_configuration=ionoscloud_vm_autoscaling.ReplicaPropertiesPost(
+                cores=cores,
+                ram=ram,
+                cpu_family=cpu_family,
+                availability_zone=availability_zone,
+                nics=nics,
+                volumes=volumes,
+            ),
         )
+    )
+
+    groups_api = ionoscloud_vm_autoscaling.GroupsApi(vm_autoscaling_client)
+    try:
+        response = groups_api.groups_post(vm_autoscaling_group)
+        if module.params.get('wait'):
+            vm_autoscaling_client.wait_for(
+                fn_request=lambda: groups_api.groups_find_by_id(response.id),
+                fn_check=lambda group: group.metadata.state == 'AVAILABLE',
+                scaleup=10000,
+                timeout=module.params.get('wait_timeout'),
+            )
+    except Exception as e:
+        module.fail_json(msg="failed to create the new VM Autoscaling Group: %s" % to_native(e))
+    return response
+
+
+def _update_object(module, vm_autoscaling_client, cloudapi_client, existing_object):
+    datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
+    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
+    max_replica_count = module.params.get('max_replica_count')
+    min_replica_count = module.params.get('min_replica_count')
+    name = module.params.get('name')
+    metric = module.params.get('metric')
+    policy_range = module.params.get('range')
+    unit = module.params.get('unit')
+    scale_in_threshold = module.params.get('scale_in_threshold')
+    scale_out_threshold = module.params.get('scale_out_threshold')
+    availability_zone = module.params.get('availability_zone')
+    cores = module.params.get('cores')
+    cpu_family = module.params.get('cpu_family')
+    ram = module.params.get('ram')
+    scale_in_action = get_scale_in_action_object(module.params.get('scale_in_action'))
+    scale_out_action = get_scale_out_action_object(module.params.get('scale_out_action'))
+    nics = [get_nic_object(nic) for nic in module.params.get('nics')]
+    volumes = [get_volume_object(volume) for volume in module.params.get('volumes')]
+
+    vm_autoscaling_group = ionoscloud_vm_autoscaling.Group(
+        properties=ionoscloud_vm_autoscaling.GroupProperties(
+            datacenter=ionoscloud_vm_autoscaling.GroupPropertiesDatacenter(id=datacenter_id),
+            max_replica_count=max_replica_count,
+            min_replica_count=min_replica_count,
+            name=name,
+            policy=ionoscloud_vm_autoscaling.GroupPolicy(
+                metric=metric,
+                range=policy_range,
+                unit=unit,
+                scale_in_threshold=scale_in_threshold,
+                scale_out_threshold=scale_out_threshold,
+                scale_in_action=scale_in_action,
+                scale_out_action=scale_out_action,
+            ),
+            replica_configuration=ionoscloud_vm_autoscaling.ReplicaPropertiesPost(
+                cores=cores,
+                ram=ram,
+                cpu_family=cpu_family,
+                availability_zone=availability_zone,
+                nics=nics,
+                volumes=volumes,
+            ),
+        )
+    )
+
+    groups_api = ionoscloud_vm_autoscaling.GroupsApi(vm_autoscaling_client)
+
+    try:
+        response = groups_api.groups_put(existing_object.id, vm_autoscaling_group)
 
         if module.params.get('wait'):
-            dbaas_client.wait_for(
-                fn_request=lambda: clusters_api.clusters_find_by_id(postgres_cluster.id),
-                fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
+            vm_autoscaling_client.wait_for(
+                fn_request=lambda: groups_api.groups_find_by_id(response.id),
+                fn_check=lambda group: group.metadata.state == 'AVAILABLE',
                 scaleup=10000,
+                timeout=module.params.get('wait_timeout'),
             )
 
     except Exception as e:
-        module.fail_json(msg="failed to update the Postgres Cluster: %s" % to_native(e))
-    return postgres_cluster
+        module.fail_json(msg="failed to update the VM Autoscaling Group: %s" % to_native(e))
+    return response
 
 
-def _remove_object(module, dbaas_client, existing_object):
-    clusters_api = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
+def _remove_object(module, vm_autoscaling_client, existing_object):
+    groups_api = ionoscloud_vm_autoscaling.GroupsApi(vm_autoscaling_client)
 
     try:
-        if existing_object.metadata.state != 'DESTROYING':
-            clusters_api.clusters_delete(existing_object.id)
+        groups_api.groups_delete(existing_object.id)
 
         if module.params.get('wait'):
             try:
-                dbaas_client.wait_for(
-                    fn_request=lambda: clusters_api.clusters_find_by_id(existing_object.id),
+                vm_autoscaling_client.wait_for(
+                    fn_request=lambda: groups_api.groups_find_by_id(existing_object.id),
                     fn_check=lambda _: False,
                     scaleup=10000,
                 )
-            except ionoscloud_dbaas_postgres.ApiException as e:
+            except vm_autoscaling_client.ApiException as e:
                 if e.status != 404:
                     raise e
     except Exception as e:
-        module.fail_json(msg="failed to delete the Postgres cluster: %s" % to_native(e))
+        module.fail_json(msg="failed to delete the VM Autoscaling Group: %s" % to_native(e))
 
 
-def update_replace_object(module, dbaas_client, cloudapi_client, existing_object):
+def update_replace_object(module, vm_autoscaling_client, cloudapi_client, existing_object):
     if _should_replace_object(module, existing_object, cloudapi_client):
 
         if module.params.get('do_not_replace'):
             module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
 
-        new_object = _create_object(module, dbaas_client, cloudapi_client, existing_object).to_dict()
-        _remove_object(module, dbaas_client, existing_object)
+        new_object = _create_object(module, vm_autoscaling_client, cloudapi_client, existing_object).to_dict()
+        _remove_object(module, vm_autoscaling_client, existing_object)
         return {
             'changed': True,
             'failed': False,
             'action': 'create',
             RETURNED_KEY: new_object,
         }
-    if _should_update_object(module, existing_object):
+    if _should_update_object(module, existing_object, cloudapi_client):
         # Update
         return {
             'changed': True,
             'failed': False,
             'action': 'update',
-            RETURNED_KEY: _update_object(module, dbaas_client, existing_object).to_dict()
+            RETURNED_KEY: _update_object(module, vm_autoscaling_client, existing_object).to_dict()
         }
 
     # No action
@@ -732,20 +803,19 @@ def update_replace_object(module, dbaas_client, cloudapi_client, existing_object
     }
 
 
-def create_object(module, dbaas_client, cloudapi_client):
+def create_object(module, vm_autoscaling_client, cloudapi_client):
     existing_object = get_resource(
-        module, _get_object_list(module, dbaas_client), _get_object_name(module),
-        [['id'], ['properties', 'display_name']],
+        module, _get_object_list(module, vm_autoscaling_client), _get_object_name(module),
     )
 
     if existing_object:
-        return update_replace_object(module, dbaas_client, cloudapi_client, existing_object)
+        return update_replace_object(module, vm_autoscaling_client, cloudapi_client, existing_object)
 
     return {
         'changed': True,
         'failed': False,
         'action': 'create',
-        RETURNED_KEY: _create_object(module, dbaas_client, cloudapi_client).to_dict()
+        RETURNED_KEY: _create_object(module, vm_autoscaling_client, cloudapi_client).to_dict()
     }
 
 
@@ -753,18 +823,12 @@ def update_object(module, dbaas_postgres_api_client, cloudapi_api_client):
     object_name = _get_object_name(module)
     object_list = _get_object_list(module, dbaas_postgres_api_client)
 
-    existing_object = get_resource(
-        module, object_list, _get_object_identifier(module),
-        [['id'], ['properties', 'display_name']],
-    )
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
 
     if existing_object is None:
         module.exit_json(changed=False)
 
-    existing_object_id_by_new_name = get_resource_id(
-        module, object_list, object_name,
-        [['id'], ['properties', 'display_name']],
-    )
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
     if (
         existing_object.id is not None
@@ -784,7 +848,6 @@ def remove_object(module, client):
 
     existing_object = get_resource(
         module, _get_object_list(module, client), _get_object_identifier(module),
-        [['id'], ['properties', 'display_name']],
     )
 
     if existing_object is None:
@@ -797,45 +860,6 @@ def remove_object(module, client):
         'changed': True,
         'id': existing_object.id,
     }
-
-
-def restore_object(module, dbaas_client):
-    postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
-
-    postgres_cluster_id = get_resource_id(
-        module,
-        postgres_cluster_server.clusters_get(),
-        module.params.get('postgres_cluster'),
-        [['id'], ['properties', 'display_name']],
-    )
-
-    restore_request = ionoscloud_dbaas_postgres.CreateRestoreRequest(
-        backup_id=module.params.get('backup_id'),
-        recovery_target_time=module.params.get('recovery_target_time'),
-    )
-
-    try:
-        ionoscloud_dbaas_postgres.RestoresApi(dbaas_client).cluster_restore_post(postgres_cluster_id, restore_request)
-
-        if module.params.get('wait'):
-            dbaas_client.wait_for(
-                fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster_id),
-                fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
-                scaleup=10000,
-            )
-
-        return {
-            'action': 'restore',
-            'changed': True,
-            'id': postgres_cluster_id,
-        }
-    except Exception as e:
-        module.fail_json(msg="failed to restore the Postgres cluster: %s" % to_native(e))
-        return {
-            'action': 'restore',
-            'changed': False,
-            'id': postgres_cluster_id,
-        }
 
 
 def get_module_arguments():
@@ -915,13 +939,13 @@ def main():
     module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
     if not HAS_SDK:
-        module.fail_json(msg='both ionoscloud and ionoscloud_dbaas_postgres are required for this module, '
-                             'run `pip install ionoscloud ionoscloud_dbaas_postgres`')
+        module.fail_json(msg='both ionoscloud and ionoscloud_vm_autoscaling are required for this module, '
+                             'run `pip install ionoscloud ionoscloud_vm_autoscaling`')
 
     cloudapi_api_client = ionoscloud.ApiClient(get_sdk_config(module, ionoscloud))
     cloudapi_api_client.user_agent = USER_AGENT
-    dbaas_postgres_api_client = ionoscloud_dbaas_postgres.ApiClient(get_sdk_config(module, ionoscloud_dbaas_postgres))
-    dbaas_postgres_api_client.user_agent = DBAAS_POSTGRES_USER_AGENT
+    vm_autoscaling_api_client = ionoscloud_vm_autoscaling.ApiClient(get_sdk_config(module, ionoscloud_vm_autoscaling))
+    vm_autoscaling_api_client.user_agent = VM_AUTOSCALING_USER_AGENT
 
     state = module.params.get('state')
 
@@ -929,17 +953,16 @@ def main():
 
     try:
         if state == 'present':
-            module.exit_json(**create_object(module, dbaas_postgres_api_client, cloudapi_api_client))
+            module.exit_json(**create_object(module, vm_autoscaling_api_client, cloudapi_api_client))
         elif state == 'absent':
-            module.exit_json(**remove_object(module, dbaas_postgres_api_client))
+            module.exit_json(**remove_object(module, vm_autoscaling_api_client))
         elif state == 'update':
-            module.exit_json(**update_object(module, dbaas_postgres_api_client, cloudapi_api_client))
-        elif state == 'restore':
-            module.exit_json(**restore_object(module, dbaas_postgres_api_client))
+            module.exit_json(**update_object(module, vm_autoscaling_api_client, cloudapi_api_client))
     except Exception as e:
         module.fail_json(
-            msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e),
-                                                                            state=state))
+            msg='failed to set {object_name} state {state}: {error}'.format(
+                object_name=OBJECT_NAME, error=to_native(e), state=state,
+            ))
 
 
 if __name__ == '__main__':
