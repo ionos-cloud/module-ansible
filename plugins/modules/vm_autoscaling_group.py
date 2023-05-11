@@ -452,7 +452,7 @@ def get_volume_object(volume_dict):
     )
 
 
-def _should_replace_object(module, existing_object, cloudapi_client):
+def _should_replace_object(module, existing_object, vm_autoscaling_client, cloudapi_client):
 
     datacenter_id = lan_id = cidr = None
     if module.params.get('connections'):
@@ -490,7 +490,7 @@ def _should_replace_object(module, existing_object, cloudapi_client):
     )
 
 
-def _should_update_object(module, existing_object, cloudapi_client):
+def _should_update_object(module, existing_object, vm_autoscaling_client, cloudapi_client):
     datacenter_id = None
     if module.params.get('datacenter'):
         datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
@@ -499,7 +499,7 @@ def _should_update_object(module, existing_object, cloudapi_client):
     scale_in_action_should_update = scale_out_action_should_update = nics_update = volumes_update = False
     if module.params.get('scale_in_action'):
         scale_in_action = get_scale_in_action_object(module.params.get('scale_in_action'))
-        existing_scale_in_action = existing_object.properties.group_policy.scale_in_action
+        existing_scale_in_action = existing_object.properties.policy.scale_in_action
 
         if (
             scale_in_action.amount is not None 
@@ -517,7 +517,7 @@ def _should_update_object(module, existing_object, cloudapi_client):
 
     if module.params.get('scale_out_action'):
         scale_out_action = get_scale_out_action_object(module.params.get('scale_out_action'))
-        existing_scale_out_action = existing_object.properties.group_policy.scale_out_action
+        existing_scale_out_action = existing_object.properties.policy.scale_out_action
 
         if (
             scale_out_action.amount is not None 
@@ -543,27 +543,33 @@ def _should_update_object(module, existing_object, cloudapi_client):
         for nic in new_nics:
             nic.firewall_rules = sorted(nic.firewall_rules, key=firewall_rule_sort_func)
             nic.flow_logs = sorted(nic.flow_logs, key=flow_log_sort_func)
-        new_nics = ionoscloud.ApiClient.sanitize_for_serialization(new_nics)
+        new_nics = vm_autoscaling_client.sanitize_for_serialization(new_nics)
         existing_nics = sorted(existing_object.properties.replica_configuration.nics, key=nic_sort_func)
         for nic in existing_nics:
             nic.firewall_rules = sorted(nic.firewall_rules, key=firewall_rule_sort_func)
             nic.flow_logs = sorted(nic.flow_logs, key=flow_log_sort_func)
-        existing_nics = ionoscloud.ApiClient.sanitize_for_serialization(existing_nics)
+        existing_nics = vm_autoscaling_client.sanitize_for_serialization(existing_nics)
         
         if new_nics != existing_nics:
             nics_update = True
 
     if module.params.get('volumes'):
         def volume_sort_func(el):
-            return el.name, el.lan
+            return el.name, el.type
 
         new_volumes = sorted([get_volume_object(volume) for volume in module.params.get('volumes')], key=volume_sort_func)
-        new_volumes = ionoscloud.ApiClient.sanitize_for_serialization(new_volumes)
-        existing_volumes = sorted(existing_object.properties.replica_configuration.volumes, key=volume_sort_func)
-        existing_volumes = ionoscloud.ApiClient.sanitize_for_serialization(existing_volumes)
+        new_volumes = vm_autoscaling_client.sanitize_for_serialization(new_volumes)
 
-        if new_volumes != existing_volumes:
-            volumes_update = True
+        for volume in new_volumes:
+            if volume.get('image_password'):
+                volumes_update = True
+
+        if not volumes_update:
+            existing_volumes = sorted(existing_object.properties.replica_configuration.volumes, key=volume_sort_func)
+            existing_volumes = vm_autoscaling_client.sanitize_for_serialization(existing_volumes)
+
+            if new_volumes != existing_volumes:
+                volumes_update = True
 
     return (
         scale_in_action_should_update or scale_out_action_should_update or nics_update or volumes_update
@@ -574,30 +580,30 @@ def _should_update_object(module, existing_object, cloudapi_client):
         or module.params.get('name') is not None
         and existing_object.properties.name != module.params.get('name')
         or module.params.get('metric') is not None
-        and existing_object.properties.metric != module.params.get('metric')
+        and existing_object.properties.policy.metric != module.params.get('metric')
         or module.params.get('range') is not None
-        and existing_object.properties.range != module.params.get('range')
+        and existing_object.properties.policy.range != module.params.get('range')
         or module.params.get('unit') is not None
-        and existing_object.properties.unit != module.params.get('unit')
+        and existing_object.properties.policy.unit != module.params.get('unit')
         or module.params.get('scale_in_threshold') is not None
-        and existing_object.properties.scale_in_threshold != module.params.get('scale_in_threshold')
+        and existing_object.properties.policy.scale_in_threshold != module.params.get('scale_in_threshold')
         or module.params.get('scale_out_threshold') is not None
-        and existing_object.properties.scale_out_threshold != module.params.get('scale_out_threshold')
+        and existing_object.properties.policy.scale_out_threshold != module.params.get('scale_out_threshold')
         or module.params.get('availability_zone') is not None
-        and existing_object.properties.availability_zone != module.params.get('availability_zone')
+        and existing_object.properties.replica_configuration.availability_zone != module.params.get('availability_zone')
         or module.params.get('cores') is not None
-        and existing_object.properties.cores != module.params.get('cores')
+        and existing_object.properties.replica_configuration.cores != int(module.params.get('cores'))
         or module.params.get('cpu_family') is not None
-        and existing_object.properties.cpu_family != module.params.get('cpu_family')
+        and existing_object.properties.replica_configuration.cpu_family != module.params.get('cpu_family')
         or module.params.get('ram') is not None
-        and existing_object.properties.ram != module.params.get('ram')
+        and existing_object.properties.replica_configuration.ram != module.params.get('ram')
         or module.params.get('datacenter') is not None
         and existing_object.properties.datacenter.id != datacenter_id
     )
 
 
 def _get_object_list(module, client):
-    return ionoscloud_vm_autoscaling.GroupsApi(client).groups_get()
+    return ionoscloud_vm_autoscaling.GroupsApi(client).groups_get(depth=1)
 
 
 def _get_object_name(module):
@@ -625,10 +631,11 @@ def _create_object(module, vm_autoscaling_client, cloudapi_client, existing_obje
     ram = module.params.get('ram')
     scale_in_action = get_scale_in_action_object(module.params.get('scale_in_action'))
     scale_out_action = get_scale_out_action_object(module.params.get('scale_out_action'))
-    nics = [get_nic_object(nic) for nic in module.params.get('nics')]
-    volumes = [get_volume_object(volume) for volume in module.params.get('volumes')]
+    nics = [get_nic_object(nic) for nic in module.params.get('nics')] if module.params.get('nics') else None
+    volumes = [get_volume_object(volume) for volume in module.params.get('volumes')] if module.params.get('volumes') else None
 
     if existing_object is not None:
+        datacenter_id = existing_object.properties.datacenter.id if datacenter_id is None else datacenter_id
         max_replica_count = existing_object.properties.max_replica_count if max_replica_count is None else max_replica_count
         min_replica_count = existing_object.properties.min_replica_count if min_replica_count is None else min_replica_count
         name = existing_object.properties.name if name is None else name
@@ -704,31 +711,33 @@ def _update_object(module, vm_autoscaling_client, cloudapi_client, existing_obje
     ram = module.params.get('ram')
     scale_in_action = get_scale_in_action_object(module.params.get('scale_in_action'))
     scale_out_action = get_scale_out_action_object(module.params.get('scale_out_action'))
-    nics = [get_nic_object(nic) for nic in module.params.get('nics')]
-    volumes = [get_volume_object(volume) for volume in module.params.get('volumes')]
+    nics = [get_nic_object(nic) for nic in module.params.get('nics')] if module.params.get('nics') else None
+    volumes = [get_volume_object(volume) for volume in module.params.get('volumes')] if module.params.get('volumes') else None
 
     vm_autoscaling_group = ionoscloud_vm_autoscaling.Group(
         properties=ionoscloud_vm_autoscaling.GroupProperties(
-            datacenter=ionoscloud_vm_autoscaling.GroupPropertiesDatacenter(id=datacenter_id),
-            max_replica_count=max_replica_count,
-            min_replica_count=min_replica_count,
-            name=name,
+            datacenter=ionoscloud_vm_autoscaling.GroupPropertiesDatacenter(
+                id=datacenter_id if datacenter_id else existing_object.properties.datacenter.id,
+            ),
+            max_replica_count=max_replica_count if max_replica_count else existing_object.properties.max_replica_count,
+            min_replica_count=min_replica_count if min_replica_count else existing_object.properties.min_replica_count,
+            name=name if name else existing_object.properties.name,
             policy=ionoscloud_vm_autoscaling.GroupPolicy(
-                metric=metric,
-                range=policy_range,
-                unit=unit,
-                scale_in_threshold=scale_in_threshold,
-                scale_out_threshold=scale_out_threshold,
-                scale_in_action=scale_in_action,
-                scale_out_action=scale_out_action,
+                metric=metric if metric else existing_object.properties.policy.metric,
+                range=policy_range if policy_range else existing_object.properties.policy.range,
+                unit=unit if unit else existing_object.properties.policy.unit,
+                scale_in_threshold=scale_in_threshold if scale_in_threshold else existing_object.properties.policy.scale_in_threshold,
+                scale_out_threshold=scale_out_threshold if scale_out_threshold else existing_object.properties.policy.scale_out_threshold,
+                scale_in_action=scale_in_action if scale_in_action else existing_object.properties.policy.scale_in_action,
+                scale_out_action=scale_out_action if scale_out_action else existing_object.properties.policy.scale_out_action,
             ),
             replica_configuration=ionoscloud_vm_autoscaling.ReplicaPropertiesPost(
-                cores=cores,
-                ram=ram,
-                cpu_family=cpu_family,
-                availability_zone=availability_zone,
-                nics=nics,
-                volumes=volumes,
+                cores=cores if cores else existing_object.properties.replica_configuration.cores,
+                ram=ram if ram else existing_object.properties.replica_configuration.ram,
+                cpu_family=cpu_family if cpu_family else existing_object.properties.replica_configuration.cpu_family,
+                availability_zone=availability_zone if availability_zone else existing_object.properties.replica_configuration.availability_zone,
+                nics=nics if nics else existing_object.properties.replica_configuration.nics,
+                volumes=volumes if volumes else existing_object.properties.replica_configuration.volumes,
             ),
         )
     )
@@ -772,7 +781,7 @@ def _remove_object(module, vm_autoscaling_client, existing_object):
 
 
 def update_replace_object(module, vm_autoscaling_client, cloudapi_client, existing_object):
-    if _should_replace_object(module, existing_object, cloudapi_client):
+    if _should_replace_object(module, existing_object, vm_autoscaling_client, cloudapi_client):
 
         if module.params.get('do_not_replace'):
             module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
@@ -785,13 +794,13 @@ def update_replace_object(module, vm_autoscaling_client, cloudapi_client, existi
             'action': 'create',
             RETURNED_KEY: new_object,
         }
-    if _should_update_object(module, existing_object, cloudapi_client):
+    if _should_update_object(module, existing_object, vm_autoscaling_client, cloudapi_client):
         # Update
         return {
             'changed': True,
             'failed': False,
             'action': 'update',
-            RETURNED_KEY: _update_object(module, vm_autoscaling_client, existing_object).to_dict()
+            RETURNED_KEY: _update_object(module, vm_autoscaling_client, cloudapi_client, existing_object).to_dict()
         }
 
     # No action
@@ -822,7 +831,6 @@ def create_object(module, vm_autoscaling_client, cloudapi_client):
 def update_object(module, dbaas_postgres_api_client, cloudapi_api_client):
     object_name = _get_object_name(module)
     object_list = _get_object_list(module, dbaas_postgres_api_client)
-
     existing_object = get_resource(module, object_list, _get_object_identifier(module))
 
     if existing_object is None:

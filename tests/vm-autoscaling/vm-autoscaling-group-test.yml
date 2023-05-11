@@ -30,10 +30,51 @@
         cores: "{{ cores }}"
         cpu_family: "{{ cpu_family }}"
         ram: "{{ ram }}"
-        nics: "{{ nics }}"
-        volumes: "{{ volumes }}"
+        nics: "{{ nics_update }}"
+        volumes: "{{ volumes_no_change }}"
       register: vm_autoscaling_group_response
+
+    - name: List VM Autoscaling Group Actions
+      vm_autoscaling_action_info:
+        vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
+      register: vm_autoscaling_actions_response
+
+    - name: Show VM Autoscaling Group Actions
+      debug:
+        var: vm_autoscaling_actions_response.result
+
+    - name: List VM Autoscaling Group Servers
+      vm_autoscaling_server_info:
+        vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
+      register: vm_autoscaling_servers_response
+
+    - name: Show VM Autoscaling Group Servers
+      debug:
+        var: vm_autoscaling_servers_response.result
+
+    - name: List VM Autoscaling Groups
+      vm_autoscaling_group_info:
+      register: vm_autoscaling_groups_response
+
+    - name: Show VM Autoscaling Groups
+      debug:
+        var: vm_autoscaling_groups_response.result
 
     - name: Show VM Ausocaling Group
       debug:
-        var: vm_autoscaling_group_response
+        var: vm_autoscaling_group_response.vm_autoscaling_group
+
+    # - name: Update VM Ausocaling Group
+    #   vm_autoscaling_group:
+    #     vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
+    #     nics: "{{ nics_update }}"
+    #     volumes: "{{ volumes }}"
+    #     state: update
+    #   register: vm_autoscaling_group_response
+
+    # - name: Remove VM Ausocaling Group
+    #   vm_autoscaling_group:
+    #     vm_autoscaling_group: "{{ name }}"
+    #     state: absent
+    #   register: vm_autoscaling_group_response
+

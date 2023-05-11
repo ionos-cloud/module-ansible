@@ -20,14 +20,9 @@ VM_AUTOSCALING_USER_AGENT = 'ansible-module/%s_sdk-python-vm-autoscaling/%s' % (
     __version__, ionoscloud_vm_autoscaling.__version__)
 DOC_DIRECTORY = 'vm-autoscaling'
 STATES = ['info']
-OBJECT_NAME = 'VM Autoscaling Group Actions'
+OBJECT_NAME = 'VM Autoscaling Groups'
 
 OPTIONS = {
-    'vm_autoscaling_group': {
-        'description': ['The ID or name of an existing VM Autoscaling Group.'],
-        'available': STATES,
-        'type': 'str',
-    },
     'filters': {
         'description': [
             'Filter that can be used to list only objects which have a certain set of propeties. Filters '
@@ -87,10 +82,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: vm_autoscaling_action_info
-short_description: List VM Autoscaling Group Actions
+module: vm_autoscaling_group_info
+short_description: List VM Autoscaling Groups
 description:
-     - This is a simple module that supports listing existing VM Autoscaling Group Actions
+     - This is a simple module that supports listing existing VM Autoscaling Groups
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -104,14 +99,13 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: List VM Autoscaling Group Actions
-        vm_autoscaling_action_info:
-            vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
-        register: vm_autoscaling_actions_response
+    - name: List VM Autoscaling Groups
+        vm_autoscaling_group_info:
+        register: vm_autoscaling_groups_response
 
-    - name: Show VM Autoscaling Group Actions
+    - name: Show VM Autoscaling Groups
         debug:
-            var: vm_autoscaling_actions_response.result
+            var: vm_autoscaling_groups_response.result
 '''
 
 
@@ -168,45 +162,6 @@ def apply_filters(module, item_list):
     filter_methods = list(map(get_method_from_filter, filters.items()))
 
     return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
-
-
-def _get_matched_resources(resource_list, identity, identity_paths=None):
-    """
-    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
-    are found an error is printed and None is returned.
-    """
-
-    if identity_paths is None:
-      identity_paths = [['id'], ['properties', 'name']]
-
-    def check_identity_method(resource):
-      resource_identity = []
-
-      for identity_path in identity_paths:
-        current = resource
-        for el in identity_path:
-          current = getattr(current, el)
-        resource_identity.append(current)
-
-      return identity in resource_identity
-
-    return list(filter(check_identity_method, resource_list.items))
-
-
-def get_resource(module, resource_list, identity, identity_paths=None):
-    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
-
-    if len(matched_resources) == 1:
-        return matched_resources[0]
-    elif len(matched_resources) > 1:
-        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
-    else:
-        return None
-
-
-def get_resource_id(module, resource_list, identity, identity_paths=None):
-    resource = get_resource(module, resource_list, identity, identity_paths)
-    return resource.id if resource is not None else None
 
 
 def get_module_arguments():
@@ -292,15 +247,8 @@ def main():
 
     check_required_arguments(module, OBJECT_NAME)
     try:
-
-        groups_api = ionoscloud_vm_autoscaling.GroupsApi(vm_autoscaling_api_client)
-        group_id = get_resource_id(
-            module,
-            groups_api.groups_get(depth=1),
-            module.params.get('vm_autoscaling_group'),
-        )
-        actions = groups_api.groups_actions_get(group_id, depth=1)
-        results = list(map(lambda x: x.to_dict(), apply_filters(module, actions.items)))
+        groups = ionoscloud_vm_autoscaling.GroupsApi(vm_autoscaling_api_client).groups_get(depth=1)
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, groups.items)))
         module.exit_json(result=results)
     except Exception as e:
         module.fail_json(

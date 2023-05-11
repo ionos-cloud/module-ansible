@@ -5,14 +5,14 @@ name: AnsibleVMAutoscalingGroup
 max_replica_count: 5
 min_replica_count: 1
 metric: INSTANCE_CPU_UTILIZATION_AVERAGE
-range: P1D
+range: PT24H
 unit: PER_HOUR
 scale_in_threshold: 33
 scale_out_threshold: 77
 scale_in_action: {
   'amount': 1,
   'amount_type': 'ABSOLUTE',
-  'cooldown_period': '5m',
+  'cooldown_period': 'PT5M',
   'termination_policy': 'RANDOM',
   'delete_volumes': true
 }
@@ -29,7 +29,14 @@ nics: [
   {
     'lan': 1,
     'name': 'SDK_TEST_NIC1',
-    'dhcp': true
+    'dhcp': true,
+    'firewall_rules': [
+      {
+        'name': 'test',
+        'protocol': 'TCP',
+        'port_range_end': 12
+      }
+    ]
   },
   {
     'lan': 1,
@@ -46,6 +53,36 @@ volumes: [
     'type': 'HDD',
     'bus': 'IDE',
     'boot_order': 'AUTO'
+  }
+]
+volumes_no_change: [
+  {
+    'image': '58e45812-38b1-11ed-be62-eec5f4d7ee1e',
+    'name': 'SDK_TEST_VOLUME',
+    'size': 50,
+    'type': 'HDD',
+    'bus': 'IDE',
+    'boot_order': 'AUTO'
+  }
+]
+
+nics_update: [
+  {
+    'lan': 1,
+    'name': 'SDK_TEST_NIC1',
+    'dhcp': true,
+    'firewall_rules': [
+      {
+        'name': 'test2',
+        'protocol': 'TCP',
+        'port_range_end': 12
+      }
+    ]
+  },
+  {
+    'lan': 1,
+    'name': 'SDK_TEST_NIC2',
+    'dhcp': false
   }
 ]
 
