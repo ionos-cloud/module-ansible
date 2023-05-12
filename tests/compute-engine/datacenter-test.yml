@@ -77,7 +77,6 @@
     - name: Remove datacenter
       datacenter:
         datacenter: "{{ updated_datacenter.datacenter.id }}"
-        name: "{{ datacenter }}"
         state: absent
         wait: true
       register: deleted_datacenter
@@ -85,7 +84,6 @@
     - name: Remove datacenter
       datacenter:
         datacenter: "{{ updated_datacenter.datacenter.id }}"
-        name: "{{ datacenter }}"
         state: absent
         wait: true
       register: deleted_datacenter

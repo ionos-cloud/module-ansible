@@ -83,7 +83,6 @@ OPTIONS = {
             'Specifies the time range for which the samples are to be aggregated. Must be >= 2 minutes.',
         ],
         'available': ['present', 'update'],
-        'required': ['present'],
         'type': 'str',
     },
     'unit': {
@@ -92,7 +91,6 @@ OPTIONS = {
             "'INSTANCE_CPU_UTILIZATION_AVERAGE'.",
         ],
         'available': ['present', 'update'],
-        'required': ['present'],
         'choices': [
           'PER_HOUR',
           'PER_MINUTE',
@@ -110,6 +108,7 @@ OPTIONS = {
             "same time.",
         ],
         'available': ['present', 'update'],
+        'required': ['present'],
         'type': 'int',
     },
     'scale_out_threshold': {
@@ -121,6 +120,7 @@ OPTIONS = {
             "If 'properties.policy.unit=TOTAL', a value >= 40 must be chosen.",
         ],
         'available': ['present', 'update'],
+        'required': ['present'],
         'type': 'int',
     },
     'scale_in_action': {
@@ -130,6 +130,7 @@ OPTIONS = {
             "termination policy is 'OLDEST_SERVER_FIRST' is effective.",
         ],
         'available': ['present', 'update'],
+        'required': ['present'],
         'type': 'dict',
     },
     'scale_out_action': {
@@ -138,6 +139,7 @@ OPTIONS = {
             "scaling is always about adding new VMs to this VM Auto Scaling Group.",
         ],
         'available': ['present', 'update'],
+        'required': ['present'],
         'type': 'dict',
     },
     'nics': {
@@ -162,6 +164,7 @@ OPTIONS = {
     'cores': {
         'description': ['The total number of cores for the VMs.'],
         'available': ['present', 'update'],
+        'required': ['present'],
         'type': 'str',
     },
     'cpu_family': {
@@ -184,6 +187,7 @@ OPTIONS = {
             "the RAM size to more than 240 GB, 'ramHotPlug=FALSE' is fixed."
         ],
         'available': ['present', 'update'],
+        'required': ['present'],
         'type': 'int',
     },
     'vm_autoscaling_group': {
@@ -453,40 +457,17 @@ def get_volume_object(volume_dict):
 
 
 def _should_replace_object(module, existing_object, vm_autoscaling_client, cloudapi_client):
-
-    datacenter_id = lan_id = cidr = None
-    if module.params.get('connections'):
-        connection = module.params.get('connections')[0]
+    datacenter_id = None
+    if module.params.get('datacenter'):
         datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
-        datacenter_id = get_resource_id(module, datacenter_list, connection['datacenter'])
-
+        datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
         if datacenter_id is None:
             module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))
         
-        lan_id = get_resource_id(
-            module,
-            ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1),
-            connection['lan'],
-        )
-        if lan_id is None:
-            module.fail_json('LAN {} not found.'.format(connection['lan']))
-        cidr = connection['cidr']
 
     return (
-        module.params.get('backup_location') is not None
-        and existing_object.properties.backup_location != module.params.get('backup_location')
-        or module.params.get('location') is not None
-        and existing_object.properties.location != module.params.get('location')
-        or module.params.get('synchronization_mode') is not None
-        and existing_object.properties.synchronization_mode != module.params.get('synchronization_mode')
-        or module.params.get('storage_type') is not None
-        and existing_object.properties.storage_type != module.params.get('storage_type')
-        or module.params.get('connections') is not None
-        and (
-            existing_object.properties.connections[0].datacenter_id != datacenter_id
-            or existing_object.properties.connections[0].lan_id != lan_id
-            or existing_object.properties.connections[0].cidr != cidr
-        )
+        module.params.get('datacenter') is not None
+        and existing_object.properties.datacenter.id != datacenter_id
     )
 
 
@@ -597,8 +578,6 @@ def _should_update_object(module, existing_object, vm_autoscaling_client, clouda
         and existing_object.properties.replica_configuration.cpu_family != module.params.get('cpu_family')
         or module.params.get('ram') is not None
         and existing_object.properties.replica_configuration.ram != module.params.get('ram')
-        or module.params.get('datacenter') is not None
-        and existing_object.properties.datacenter.id != datacenter_id
     )
 
 
@@ -773,7 +752,7 @@ def _remove_object(module, vm_autoscaling_client, existing_object):
                     fn_check=lambda _: False,
                     scaleup=10000,
                 )
-            except vm_autoscaling_client.ApiException as e:
+            except ionoscloud_vm_autoscaling.ApiException as e:
                 if e.status != 404:
                     raise e
     except Exception as e:
