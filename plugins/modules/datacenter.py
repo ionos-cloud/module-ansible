@@ -284,6 +284,8 @@ def create_datacenter(module, client):
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        
+        datacenter_response = datacenter_server.datacenters_find_by_id(datacenter_response.id)
 
         results = {
             'changed': True,
