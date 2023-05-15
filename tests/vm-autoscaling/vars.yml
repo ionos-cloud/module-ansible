@@ -30,13 +30,6 @@ nics: [
     'lan': 1,
     'name': 'SDK_TEST_NIC1',
     'dhcp': true,
-    'firewall_rules': [
-      {
-        'name': 'test',
-        'protocol': 'TCP',
-        'port_range_end': 12
-      }
-    ]
   },
   {
     'lan': 1,
