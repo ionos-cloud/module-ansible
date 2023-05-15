@@ -11,6 +11,7 @@
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: es/vit
+        wait: true
       register: datacenter_response
 
     - name: Debug - Show Datacenter
@@ -85,14 +86,14 @@
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          nic: "{{ nic }}"
-         name: "SSH"
+         firewall_rule: "SSH"
          wait: true
          wait_timeout: "{{ wait_timeout }}"
          state: absent
 
     - name: Remove NIC
       nic:
-         name: "{{ ionos_cloud_nic.nic.id }}"
+         nic: "{{ ionos_cloud_nic.nic.id }}"
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          wait: true
@@ -101,6 +102,6 @@
 
     - name: Remove datacenter
       datacenter:
-        name: "{{ datacenter }}"
+        datacenter: "{{ datacenter }}"
         state: absent
         wait: true

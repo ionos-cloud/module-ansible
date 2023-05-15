@@ -269,9 +269,6 @@ def _create_object(module, client, existing_object=None):
         location = existing_object.properties.location if location is None else location
         description = existing_object.properties.description if description is None else description
 
-    wait = module.params.get('wait')
-    wait_timeout = int(module.params.get('wait_timeout'))
-
     datacenters_api = ionoscloud.DataCentersApi(client)
 
     datacenter_properties = DatacenterProperties(name=name, description=description, location=location)
@@ -279,9 +276,10 @@ def _create_object(module, client, existing_object=None):
 
     try:
         datacenter_response, _, headers = datacenters_api.datacenters_post_with_http_info(datacenter=datacenter)
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=int(module.params.get('wait_timeout')))
+            datacenter_response = datacenters_api.datacenters_find_by_id(datacenter_response.id)
     except ApiException as e:
         module.fail_json(msg="failed to create the new datacenter: %s" % to_native(e))
     return datacenter_response
@@ -290,8 +288,6 @@ def _create_object(module, client, existing_object=None):
 def _update_object(module, client, existing_object):
     name = module.params.get('name')
     description = module.params.get('description')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
 
     datacenters_api = ionoscloud.DataCentersApi(client)
 
@@ -302,9 +298,9 @@ def _update_object(module, client, existing_object):
             datacenter_id=existing_object.id,
             datacenter=datacenter_properties,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
 
         return datacenter_response
     except ApiException as e:
@@ -312,18 +308,15 @@ def _update_object(module, client, existing_object):
 
 
 def _remove_object(module, client, existing_object):
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-
     datacenters_api = ionoscloud.DataCentersApi(client)
 
     try:
         _, _, headers = datacenters_api.datacenters_delete_with_http_info(
             datacenter_id=existing_object.id,
         )
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
     except ApiException as e:
         module.fail_json(msg="failed to remove the datacenter: %s" % to_native(e))
 
