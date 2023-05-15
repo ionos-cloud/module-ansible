@@ -11,6 +11,7 @@
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: es/vit
+        wait: true
       register: datacenter_response
 
     - name: Debug - Show Datacenter
