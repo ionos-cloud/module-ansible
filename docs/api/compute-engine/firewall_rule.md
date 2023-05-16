@@ -95,8 +95,8 @@ This module allows you to create, update or remove a firewall rule.
   | name | True | str |  | The name or UUID of the firewall rule. |
   | protocol | True | str |  | The protocol for the firewall rule. |
   | source_mac | False | str |  | Only traffic originating from the respective MAC address is allowed. No value allows all source MAC addresses. |
-  | source_ip | False | str |  | Only traffic originating from the respective IPv4 address is allowed. No value allows all source IPs. |
-  | target_ip | False | str |  | In case the target NIC has multiple IP addresses, only traffic directed to the respective IP address of the NIC is allowed.No value allows all target IPs. |
+  | source_ip | False | str |  | Only traffic originating from the respective IP address (or CIDR block) is allowed. Value null allows traffic from any IP address (according to the selected ipVersion). |
+  | target_ip | False | str |  | If the target NIC has multiple IP addresses, only the traffic directed to the respective IP address (or CIDR block) of the NIC is allowed. Value null allows traffic to any target IP address (according to the selected ipVersion). |
   | port_range_start | False | int |  | Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave value empty to allow all ports. |
   | port_range_end | False | int |  | Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave value empty to allow all ports. |
   | icmp_type | False | int |  | Defines the allowed type (from 0 to 254) if the protocol ICMP is chosen. No value allows all types. |
@@ -174,8 +174,8 @@ This module allows you to create, update or remove a firewall rule.
   | name | False | str |  | The name or UUID of the firewall rule. |
   | protocol | False | str |  | The protocol for the firewall rule. |
   | source_mac | False | str |  | Only traffic originating from the respective MAC address is allowed. No value allows all source MAC addresses. |
-  | source_ip | False | str |  | Only traffic originating from the respective IPv4 address is allowed. No value allows all source IPs. |
-  | target_ip | False | str |  | In case the target NIC has multiple IP addresses, only traffic directed to the respective IP address of the NIC is allowed.No value allows all target IPs. |
+  | source_ip | False | str |  | Only traffic originating from the respective IP address (or CIDR block) is allowed. Value null allows traffic from any IP address (according to the selected ipVersion). |
+  | target_ip | False | str |  | If the target NIC has multiple IP addresses, only the traffic directed to the respective IP address (or CIDR block) of the NIC is allowed. Value null allows traffic to any target IP address (according to the selected ipVersion). |
   | port_range_start | False | int |  | Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave value empty to allow all ports. |
   | port_range_end | False | int |  | Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave value empty to allow all ports. |
   | icmp_type | False | int |  | Defines the allowed type (from 0 to 254) if the protocol ICMP is chosen. No value allows all types. |

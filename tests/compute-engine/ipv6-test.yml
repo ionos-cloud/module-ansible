@@ -74,10 +74,8 @@
           server: "{{ server }}"
           nic: "{{ nic }}"
           name: "SSH"
-          protocol: "TCP"
+          protocol: "ICMPv6"
           source_mac: "01:23:45:67:89:00"
-          port_range_start: 22
-          port_range_end: 24
           ip_version: IPv6
           state: present
 

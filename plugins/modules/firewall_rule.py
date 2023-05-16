@@ -74,7 +74,7 @@ OPTIONS = {
         'description': ['The protocol for the firewall rule.'],
         'required': ['present'],
         'available': ['present', 'update'],
-        'choices': ['TCP', 'UDP', 'ICMP', 'ANY'],
+        'choices': ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'ANY'],
         'type': 'str',
     },
     'source_mac': {
@@ -83,14 +83,18 @@ OPTIONS = {
         'type': 'str',
     },
     'source_ip': {
-        'description': ['Only traffic originating from the respective IPv4 address is allowed. No value allows all source IPs.'],
+        'description': [
+            'Only traffic originating from the respective IP address (or CIDR block) is allowed. Value '
+            'null allows traffic from any IP address (according to the selected ipVersion).'
+        ],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'target_ip': {
         'description': [
-            'In case the target NIC has multiple IP addresses, only traffic directed to the respective IP address of the NIC is allowed.'
-            'No value allows all target IPs.',
+            'If the target NIC has multiple IP addresses, only the traffic directed to the respective IP '
+            'address (or CIDR block) of the NIC is allowed. Value null allows traffic to any target IP '
+            'address (according to the selected ipVersion).',
         ],
         'available': ['present', 'update'],
         'type': 'str',
