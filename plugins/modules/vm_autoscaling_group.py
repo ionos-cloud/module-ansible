@@ -293,42 +293,55 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-    'present': '''- name: Create Postgres Cluster
-    postgres_cluster:
-      postgres_version: 12
-      instances: 1
-      cores: 1
-      ram: 2048
-      storage_size: 20480
-      storage_type: HDD
-      location: de/fra
-      connections:
-        - cidr: 192.168.1.106/24
-          datacenter: "{{ datacenter_response.datacenter.id }}"
-          lan: "{{ lan_response1.lan.id }}"
-      display_name: backuptest-04
-      synchronization_mode: ASYNCHRONOUS
-      db_username: test
-      db_password: 7357cluster
-      wait: true
-    register: cluster_response
+    'present': '''- name: Create VM Autoscaling Group
+      vm_autoscaling_group:
+        datacenter: "{{ datacenter_name }}"
+        name: "{{ name }}"
+        max_replica_count: "{{ max_replica_count }}"
+        min_replica_count: "{{ min_replica_count }}"
+        metric: "{{ metric }}"
+        range: "{{ range }}"
+        unit: "{{ unit }}"
+        scale_in_threshold: "{{ scale_in_threshold }}"
+        scale_out_threshold: "{{ scale_out_threshold }}"
+        scale_in_action: "{{ scale_in_action }}"
+        scale_out_action: "{{ scale_out_action }}"
+        availability_zone: "{{ availability_zone }}"
+        cores: "{{ cores }}"
+        cpu_family: "{{ cpu_family }}"
+        ram: "{{ ram }}"
+        nics: "{{ nics }}"
+        volumes: "{{ volumes }}"
+      register: vm_autoscaling_group_response
   ''',
-    'update': '''- name: Update Postgres Cluster
-    postgres_cluster:
-      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
-      postgres_version: 12
-      instances: 2
-      cores: 2
-      ram: 4096
-      storage_size: 30480
-      state: update
-      wait: true
-    register: updated_cluster_response
+    'update': '''- name: Update VM Ausocaling Group
+      vm_autoscaling_group:
+        vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
+        datacenter: "{{ datacenter_name_update }}"
+        name: "{{ name_update }}"
+        max_replica_count: "{{ max_replica_count_update }}"
+        min_replica_count: "{{ min_replica_count_update }}"
+        metric: "{{ metric_update }}"
+        range: "{{ range_update }}"
+        unit: "{{ unit_update }}"
+        scale_in_threshold: "{{ scale_in_threshold_update }}"
+        scale_out_threshold: "{{ scale_out_threshold_update }}"
+        scale_in_action: "{{ scale_in_action_update }}"
+        scale_out_action: "{{ scale_out_action_update }}"
+        availability_zone: "{{ availability_zone_update }}"
+        cores: "{{ cores_update }}"
+        cpu_family: "{{ cpu_family_update }}"
+        ram: "{{ ram_update }}"
+        nics: "{{ nics_update }}"
+        volumes: "{{ volumes_update }}"
+        state: update
+      register: vm_autoscaling_group_response
   ''',
-    'absent': '''- name: Delete Postgres Cluster
-    postgres_cluster:
-      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
-      state: absent
+    'absent': '''- name: Remove VM Ausocaling Group
+      vm_autoscaling_group:
+        vm_autoscaling_group: "{{ name }}"
+        state: absent
+      register: vm_autoscaling_group_response
   ''',
 }
 

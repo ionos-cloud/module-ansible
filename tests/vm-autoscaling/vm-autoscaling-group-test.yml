@@ -20,7 +20,7 @@
         wait: true
       register: datacenter_response_update
 
-    - name: Create VM Ausocaling Group
+    - name: Create VM Autoscaling Group
       vm_autoscaling_group:
         datacenter: "{{ datacenter_name }}"
         name: "{{ name }}"
