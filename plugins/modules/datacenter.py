@@ -38,18 +38,18 @@ RETURNED_KEY = 'datacenter'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the virtual datacenter.'],
+        'description': ['The name of the  resource.'],
         'required': ['present'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'description': {
-        'description': ['The description of the virtual datacenter.'],
+        'description': ['A description for the datacenter, such as staging, production.'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'location': {
-        'description': ['The datacenter location.'],
+        'description': ['The physical location where the datacenter will be created. This will be where all of your servers live. Property cannot be modified after datacenter creation (disallowed in update requests).'],
         'required': ['present'],
         'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
         'available': ['present', 'update'],
