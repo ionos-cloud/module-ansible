@@ -29,7 +29,7 @@ RETURNED_KEY = 'backupunit'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the virtual Backup Unit.'],
+        'description': ['The name of the  resource (alphanumeric characters only).'],
         'required': ['present'],
         'available': ['present'],
         'type': 'str',
@@ -41,13 +41,13 @@ OPTIONS = {
         'type': 'str',
     },
     'backupunit_password': {
-        'description': ['The password of the Backup Unit.'],
+        'description': ['The password associated with that resource.'],
         'available': ['present'],
         'no_log': True,
         'type': 'str',
     },
     'backupunit_email': {
-        'description': ['The email of the Backup Unit.'],
+        'description': ['The email associated with the backup unit. Bear in mind that this email does not be the same email as of the user.'],
         'required': ['present'],
         'available': ['present'],
         'type': 'str',

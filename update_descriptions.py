@@ -17,15 +17,33 @@ POSTGRES_SWAGGER = {
     'url': 'https://ionos-cloud.github.io/rest-api/docs/public-postgresql-v1.ga.yml',
     'filename': 'postgres_swagger.yml',
 }
+OPTIONS_TO_IGNORE = [
+    'do_not_replace',
+    'api_url',
+    'certificate_fingerprint',
+    'username',
+    'password',
+    'token',
+    'wait',
+    'wait_timeout',
+    'state',
+]
+
+
+
 Path(SWAGGER_CACHE).mkdir(parents=True, exist_ok=True)
 
+
+def to_camel_case(snake_str):
+    aux = ''.join(x.capitalize() for x in snake_str.lower().split('_'))
+    return aux[0].lower() + aux[1:]
 
 def check_download_swagger(swagger):
     filename = os.path.join(SWAGGER_CACHE, swagger['filename'])
     if os.path.isfile(filename):
         return
 
-    bashCommand = "wget -q -O {destination_file} {url}".format(
+    bashCommand = 'wget -q -O {destination_file} {url}'.format(
         destination_file=filename, url=swagger['url'],
     )
     process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
@@ -36,8 +54,7 @@ def check_download_swagger(swagger):
 
 
 def extract_endpoint_info(filename, resource_endpoint):
-
-    bashCommand = "ruby {parser} {filename} {resource_endpoint}".format(
+    bashCommand = 'ruby {parser} {filename} {resource_endpoint}'.format(
         parser=SWAGGER_PARSER,
         filename=os.path.join(SWAGGER_CACHE, filename),
         resource_endpoint=resource_endpoint
@@ -50,18 +67,30 @@ def extract_endpoint_info(filename, resource_endpoint):
 
     return output
 
+
 def update_module(module_name, to_change):
     with open(os.path.join(MODULES_DIR, module_name + '.py'), 'r') as f:
         module_content = f.read()
 
     for old_line, new_line in to_change:
-        module_content = module_content.replace(old_line, new_line, 1)
+        module_content = module_content.replace(old_line.replace('\'', '\\\''), new_line.replace('\'', '\\\''), 1)
 
     with open(os.path.join(MODULES_DIR, module_name + '.py'), 'w') as f:
         f.write(module_content)
 
 
-def update_descriptions(module_name, swagger, resource_endpoint):
+def get_info_from_swagger(endpoint_info_dict, option):
+    if '.' not in option:
+        return endpoint_info_dict.get(option)
+
+    endpoint_info_dict_for_option = endpoint_info_dict
+    option_path = option.split('.')
+    for path_part in option_path[:-1]:
+        endpoint_info_dict_for_option = endpoint_info_dict[path_part]['properties']
+
+    return endpoint_info_dict_for_option[-1][option]
+
+def update_descriptions(module_name, swagger, resource_endpoint, aliases):
     module = importlib.import_module('plugins.modules.' + module_name)
 
     check_download_swagger(swagger)
@@ -69,17 +98,31 @@ def update_descriptions(module_name, swagger, resource_endpoint):
 
     to_change = []
     for option_name, option_details in module.OPTIONS.items():
-        swagger_option = endpoint_info.get(option_name)
+        if option_name in OPTIONS_TO_IGNORE:
+            continue
+        swagger_option = get_info_from_swagger(endpoint_info, aliases.get(option_name, to_camel_case(option_name)))
         if swagger_option:
             swagger_description = swagger_option.get('description')
             if swagger_description != option_details['description'][0]:
+                print('Description changes detected for {}'.format(option_name))
                 to_change.append((option_details['description'][0], swagger_description))
     
     if len(to_change) > 0:
+        print('Updating descriptions in {}...\n'.format(module_name))
         update_module(module_name, to_change)
 
 modules_to_generate = [
-    ['datacenter', CLOUDAPI_SWAGGER, '/datacenters']
+    ['application_load_balancer_flowlog', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/applicationloadbalancers/{applicationLoadBalancerId}/flowlogs', {}],
+    ['application_load_balancer_forwardingrule', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/applicationloadbalancers/{applicationLoadBalancerId}/forwardingrules', {}],
+    ['application_load_balancer', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/applicationloadbalancers', {}],
+    [
+        'backupunit', CLOUDAPI_SWAGGER, '/backupunits', {
+            'backupunit_password': 'password',
+            'backupunit_email': 'email',
+        },
+    ],
+    ['datacenter', CLOUDAPI_SWAGGER, '/datacenters', {}],
+    ['lan', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/lans', {}],
 ]
 
 for module in modules_to_generate:

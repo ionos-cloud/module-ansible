@@ -58,19 +58,19 @@ OPTIONS = {
         'type': 'str',
     },
     'protocol': {
-        'description': ['Balancing protocol.'],
+        'description': ['The balancing protocol.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'listener_ip': {
-        'description': ['Listening (inbound) IP.'],
+        'description': ['The listening (inbound) IP.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'listener_port': {
-        'description': ['Listening (inbound) port number; valid range is 1 to 65535.'],
+        'description': ['The listening (inbound) port number; the valid range is 1 to 65535.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -81,17 +81,13 @@ OPTIONS = {
         'type': 'int',
     },
     'http_rules': {
-        'description': [
-          'An array of items in the collection. The original order of rules is perserved during processing, except for '
-          'Forward-type rules are processed after the rules with other action defined. The relative order of Forward-type '
-          'rules is also preserved during the processing.',
-        ],
+        'description': ['An array of items in the collection. The original order of rules is preserved during processing, except that rules of the \'FORWARD\' type are processed after the rules with other defined actions. The relative order of the \'FORWARD\' type rules is also preserved during the processing.'],
         'available': ['present', 'update'],
         'type': 'list',
         'elements': 'dict',
     },
     'server_certificates': {
-        'description': ['An array of items in the collection.'],
+        'description': ['Array of items in the collection.'],
         'available': ['present', 'update'],
         'type': 'list',
     },

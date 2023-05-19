@@ -49,24 +49,24 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name of the LAN.'],
+        'description': ['The name of the  resource.'],
         'required': ['present'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'pcc': {
-        'description': ['The ID or name of the PCC.'],
+        'description': ['The unique identifier of the private Cross-Connect the LAN is connected to, if any.'],
         'available': ['update'],
         'type': 'str',
     },
     'ip_failover': {
-        'description': ['The IP failover group.'],
+        'description': ['IP failover configurations for lan'],
         'available': ['update'],
         'type': 'list',
         'elements': 'dict',
     },
     'public': {
-        'description': ['If true, the LAN will have public Internet access.'],
+        'description': ['This LAN faces the public Internet.'],
         'available': ['present', 'update'],
         'default': False,
         'type': 'bool',

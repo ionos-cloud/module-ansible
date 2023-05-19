@@ -38,36 +38,30 @@ RETURNED_KEY = 'application_load_balancer'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the Application Load Balancer.'],
+        'description': ['The Application Load Balancer name.'],
         'available': STATES,
         'required': ['present', 'update'],
         'type': 'str',
     },
     'listener_lan': {
-        'description': ['ID or name of the listening LAN (inbound).'],
+        'description': ['The ID of the listening (inbound) LAN.'],
         'available': ['present', 'update'],
         'required': ['present', 'update'],
         'type': 'str',
     },
     'ips': {
-        'description': [
-            'Collection of the Application Load Balancer IP addresses. (Inbound and outbound) '
-            'IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers.',
-        ],
+        'description': ['Collection of the Application Load Balancer IP addresses. (Inbound and outbound) IPs of the \'listenerLan\' are customer-reserved public IPs for the public load balancers, and private IPs for the private load balancers.'],
         'available': ['present', 'update'],
         'type': 'list',
     },
     'target_lan': {
-        'description': ['ID or name of the balanced private target LAN (outbound).'],
+        'description': ['The ID of the balanced private target LAN (outbound).'],
         'available': ['present', 'update'],
         'required': ['present', 'update'],
         'type': 'str',
     },
     'lb_private_ips': {
-        'description': [
-            'Collection of private IP addresses with subnet mask of the Application Load Balancer. '
-            'IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet.',
-        ],
+        'description': ['Collection of private IP addresses with the subnet mask of the Application Load Balancer. IPs must contain valid a subnet mask. If no IP is provided, the system will generate an IP with /24 subnet.'],
         'available': ['present', 'update'],
         'type': 'list',
     },
