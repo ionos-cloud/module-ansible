@@ -53,41 +53,41 @@ OPTIONS = {
         'type': 'str',
     },
     'k8s_version': {
-        'description': ['The Kubernetes version the nodepool is running.'],
+        'description': ['The Kubernetes version running in the node pool. Note that this imposes restrictions on which Kubernetes versions can run in the node pools of a cluster. Also, not all Kubernetes versions are suitable upgrade targets for all earlier versions.'],
         'available': ['update', 'present'],
         'type': 'str',
     },
     'datacenter': {
-        'description': ['A valid ID or name of the data center, to which the user has access.'],
+        'description': ['The unique identifier of the VDC where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
     },
     'lans': {
-        'description': ['Array of additional LANs attached to worker nodes.'],
+        'description': ['The array of existing private LANs to attach to worker nodes.'],
         'available': ['update', 'present'],
         'type': 'list',
         'elements': 'dict',
     },
     'node_count': {
-        'description': ['The number of nodes that make up the node pool.'],
+        'description': ['The number of worker nodes of the node pool.'],
         'available': ['update', 'present'],
         'type': 'int',
     },
     'cpu_family': {
-        'description': ['A valid CPU family name.'],
+        'description': ['The CPU type for the nodes.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
     },
     'cores_count': {
-        'description': ['The number of cores for the node.'],
+        'description': ['The total number of cores for the nodes.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'int',
     },
     'ram_size': {
-        'description': ['The RAM size for the node. Must be set in multiples of 1024 MB, with minimum size is of 2048 MB.'],
+        'description': ['The RAM size for the nodes. Must be specified in multiples of 1024 MB, with a minimum size of 2048 MB.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'int',
@@ -99,32 +99,29 @@ OPTIONS = {
         'type': 'str',
     },
     'storage_type': {
-        'description': ['The type of hardware for the volume.'],
+        'description': ['The storage type for the nodes.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
     },
     'storage_size': {
-        'description': ['The size of the volume in GB. The size should be greater than 10GB.'],
+        'description': ['The allocated volume size in GB. The allocated volume size in GB. To achieve good performance, we recommend a size greater than 100GB for SSD.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'int',
     },
     'maintenance_window': {
-        'description': [
-            "The maintenance window is used for updating the software on the nodepool's nodes and for "
-            "upgrading the nodepool's K8s version. If no value is given, one is chosen dynamically, so there is no fixed default.",
-        ],
+        'description': ['The maintenance window is used to update the software on the node pool nodes and update the K8s version of the node pool. If no value is specified, a value is selected dynamically, so there is no fixed default value.'],
         'available': ['present', 'update'],
         'type': 'dict',
     },
     'labels': {
-        'description': ['Map of labels attached to node pool.'],
+        'description': ['The labels attached to the node pool.'],
         'available': ['present', 'update'],
         'type': 'dict',
     },
     'annotations': {
-        'description': ['Map of annotations attached to node pool.'],
+        'description': ['The annotations attached to the node pool.'],
         'available': ['present','update'],
         'type': 'dict',
     },
@@ -134,11 +131,7 @@ OPTIONS = {
         'type': 'dict',
     },
     'public_ips': {
-        'description': [
-            'Optional array of reserved public IP addresses to be used by the nodes. IPs must be from same location as the data center '
-            'used for the node pool. The array must contain one more IP than maximum number possible number of nodes (nodeCount+1 for '
-            'fixed number of nodes or maxNodeCount+1 when auto scaling is used). The extra IP is used when the nodes are rebuilt.',
-        ],
+        'description': ['Optional array of reserved public IP addresses to be used by the nodes. The IPs must be from the exact location of the node pool\'s data center. If autoscaling is used, the array must contain one more IP than the maximum possible number of nodes (nodeCount+1 for a fixed number of nodes or maxNodeCount+1). The extra IP is used when the nodes are rebuilt.'],
         'available': ['present', 'update'],
         'type': 'list',
         'elements': 'str',

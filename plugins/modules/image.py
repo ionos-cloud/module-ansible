@@ -36,12 +36,12 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name of the image.'],
+        'description': ['The resource name.'],
         'available': STATES,
         'type': 'str',
     },
     'description': {
-        'description': ['The description of the image.'],
+        'description': ['Human-readable description.'],
         'available': ['update'],
         'type': 'str',
     },
@@ -56,7 +56,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'ram_hot_plug': {
-        'description': ['Hot-plug capable RAM (no reboot required)'],
+        'description': ['Hot-plug capable RAM (no reboot required).'],
         'available': ['update'],
         'type': 'bool',
     },
@@ -71,7 +71,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'nic_hot_unplug': {
-        'description': ['Hot-unplug capable NIC (no reboot required)'],
+        'description': ['Hot-unplug capable NIC (no reboot required).'],
         'available': ['update'],
         'type': 'bool',
     },
@@ -96,7 +96,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'licence_type': {
-        'description': ['OS type for this image.'],
+        'description': ['The OS type of this image.'],
         'available': ['update'],
         'required': ['update'],
         'type': 'str',

@@ -39,7 +39,7 @@ RETURNED_KEY = 'nat_gateway'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the NAT Gateway.'],
+        'description': ['Name of the NAT Gateway.'],
         'available': STATES,
         'required': ['present'],
         'type': 'str',
@@ -51,10 +51,7 @@ OPTIONS = {
         'type': 'list',
     },
     'lans': {
-        'description': [
-            'Collection of LANs connected to the NAT Gateway. IPs must contain a valid subnet mask. '
-            'If no IP is provided, the system will generate an IP with /24 subnet.',
-        ],
+        'description': ['Collection of LANs connected to the NAT Gateway. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet.'],
         'available': ['present', 'update'],
         'type': 'list',
     },

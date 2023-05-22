@@ -56,36 +56,24 @@ OPTIONS = {
         'type': 'str',
     },
     'source_subnet': {
-        'description': [
-            'Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this '
-            'translation rule applies to based on the packets source IP address.',
-        ],
+        'description': ['Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets source IP address.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'public_ip': {
-        'description': [
-            'Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing '
-            'packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource.',
-        ],
+        'description': ['Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'target_subnet': {
-        'description': [
-            'Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets '
-            'this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address.',
-        ],
+        'description': ['Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address.'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'target_port_range': {
-        'description': [
-            'Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation '
-            'rule applies to based on destination port. If none is provided, rule will match any port.',
-        ],
+        'description': ['Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port'],
         'available': ['present', 'update'],
         'type': 'dict',
     },

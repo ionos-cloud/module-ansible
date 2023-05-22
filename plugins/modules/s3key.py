@@ -46,8 +46,7 @@ OPTIONS = {
         'type': 'str',
     },
     'idempotency': {
-        'description': ['Flag that dictates respecting idempotency. If an s3key already exists, returns with already '
-                        'existing key instead of creating more.'],
+        'description': ['Flag that dictates respecting idempotency. If an s3key already exists, returns with already existing key instead of creating more.'],
         'default': False,
         'available': 'present',
         'choices': [True, False],

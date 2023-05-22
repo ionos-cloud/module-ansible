@@ -30,7 +30,6 @@ OPTIONS_TO_IGNORE = [
 ]
 
 
-
 Path(SWAGGER_CACHE).mkdir(parents=True, exist_ok=True)
 
 
@@ -53,11 +52,12 @@ def check_download_swagger(swagger):
         print(error)
 
 
-def extract_endpoint_info(filename, resource_endpoint):
-    bashCommand = 'ruby {parser} {filename} {resource_endpoint}'.format(
+def extract_endpoint_info(filename, resource_endpoint, verb):
+    bashCommand = 'ruby {parser} {filename} {resource_endpoint} {verb}'.format(
         parser=SWAGGER_PARSER,
         filename=os.path.join(SWAGGER_CACHE, filename),
-        resource_endpoint=resource_endpoint
+        resource_endpoint=resource_endpoint,
+        verb=verb,
     )
     process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
     output, error = process.communicate()
@@ -73,7 +73,14 @@ def update_module(module_name, to_change):
         module_content = f.read()
 
     for old_line, new_line in to_change:
-        module_content = module_content.replace(old_line.replace('\'', '\\\''), new_line.replace('\'', '\\\''), 1)
+        if type(old_line) == str:
+            module_content = module_content.replace(
+                old_line.replace('\n', '').replace('\'', '\\\''),
+                new_line.replace('\n', '').replace('\'', '\\\''),
+                1,
+            )
+        else:
+            module_content = module_content.replace(str(old_line), str(new_line), 1)
 
     with open(os.path.join(MODULES_DIR, module_name + '.py'), 'w') as f:
         f.write(module_content)
@@ -90,11 +97,11 @@ def get_info_from_swagger(endpoint_info_dict, option):
 
     return endpoint_info_dict_for_option[-1][option]
 
-def update_descriptions(module_name, swagger, resource_endpoint, aliases):
+def update_descriptions(module_name, swagger, resource_endpoint, verb, aliases):
     module = importlib.import_module('plugins.modules.' + module_name)
 
     check_download_swagger(swagger)
-    endpoint_info = json.loads(extract_endpoint_info(swagger['filename'], resource_endpoint))
+    endpoint_info = json.loads(extract_endpoint_info(swagger['filename'], resource_endpoint, verb))
 
     to_change = []
     for option_name, option_details in module.OPTIONS.items():
@@ -103,26 +110,57 @@ def update_descriptions(module_name, swagger, resource_endpoint, aliases):
         swagger_option = get_info_from_swagger(endpoint_info, aliases.get(option_name, to_camel_case(option_name)))
         if swagger_option:
             swagger_description = swagger_option.get('description')
-            if swagger_description != option_details['description'][0]:
+            swagger_enum = swagger_option.get('enum')
+            option_enum = option_details.get('choices')
+            if swagger_enum and option_enum and swagger_enum != option_enum:
+                print('Enum changes detected for {}'.format(option_name))
+                to_change.append((option_enum, swagger_enum))
+            if swagger_description and swagger_description.replace('\n', '') != option_details['description'][0]:
                 print('Description changes detected for {}'.format(option_name))
                 to_change.append((option_details['description'][0], swagger_description))
     
     if len(to_change) > 0:
-        print('Updating descriptions in {}...\n'.format(module_name))
+        print('Updating descriptions/enums in {}...\n'.format(module_name))
         update_module(module_name, to_change)
 
 modules_to_generate = [
-    ['application_load_balancer_flowlog', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/applicationloadbalancers/{applicationLoadBalancerId}/flowlogs', {}],
-    ['application_load_balancer_forwardingrule', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/applicationloadbalancers/{applicationLoadBalancerId}/forwardingrules', {}],
-    ['application_load_balancer', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/applicationloadbalancers', {}],
+    ['application_load_balancer_flowlog', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/applicationloadbalancers/{applicationLoadBalancerId}/flowlogs', 'post', {}],
+    ['application_load_balancer_forwardingrule', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/applicationloadbalancers/{applicationLoadBalancerId}/forwardingrules', 'post', {}],
+    ['application_load_balancer', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/applicationloadbalancers', 'post', {}],
     [
-        'backupunit', CLOUDAPI_SWAGGER, '/backupunits', {
+        'backupunit', CLOUDAPI_SWAGGER, '/backupunits', 'post', {
             'backupunit_password': 'password',
             'backupunit_email': 'email',
         },
     ],
-    ['datacenter', CLOUDAPI_SWAGGER, '/datacenters', {}],
-    ['lan', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/lans', {}],
+    ['cube_server', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/servers', 'post', {}],
+    ['datacenter', CLOUDAPI_SWAGGER, '/datacenters', 'post', {}],
+    [
+        'firewall_rule', CLOUDAPI_SWAGGER,
+        '/datacenters/{datacenterId}/servers/{serverId}/nics/{nicId}/firewallrules', 'post', {},
+    ],
+    ['group', CLOUDAPI_SWAGGER, '/um/groups', 'post', {}],
+    ['image', CLOUDAPI_SWAGGER, '/images/{imageId}', 'put', {}],
+    ['ipblock', CLOUDAPI_SWAGGER, '/ipblocks', 'post', {}],
+    ['k8s_cluster', CLOUDAPI_SWAGGER, '/k8s', 'post', {'s3_buckets_param': 's3Buckets'}],
+    ['k8s_nodepool', CLOUDAPI_SWAGGER, '/k8s/{k8sClusterId}/nodepools', 'post', {'datacenter': 'datacenterId'}],
+    ['lan', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/lans', 'post', {}],
+    ['nat_gateway_flowlog', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/natgateways/{natGatewayId}/flowlogs', 'post', {}],
+    ['nat_gateway_rule', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/natgateways/{natGatewayId}/rules', 'post', {}],
+    ['nat_gateway', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/natgateways', 'post', {}],
+    ['network_load_balancer_flowlog', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/networkloadbalancers/{networkLoadBalancerId}/flowlogs', 'post', {}],
+    ['network_load_balancer_rule', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/networkloadbalancers/{networkLoadBalancerId}/forwardingrules', 'post', {}],
+    ['network_load_balancer', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/networkloadbalancers', 'post', {}],
+    ['nic_flowlog', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/servers/{serverId}/nics/{nicId}/flowlogs', 'post', {}],
+    ['nic', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/servers/{serverId}/nics', 'post', {}],
+    ['pcc', CLOUDAPI_SWAGGER, '/pccs', 'post', {}],
+    ['s3key', CLOUDAPI_SWAGGER, '/um/users/{userId}/s3keys/{keyId}', 'put', {}],
+    ['server', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/servers', 'post', {}],
+    ['share', CLOUDAPI_SWAGGER, '/um/groups/{groupId}/shares/{resourceId}', 'post', {}],
+    ['snapshot', CLOUDAPI_SWAGGER, '/snapshots/{snapshotId}', 'put', {}],
+    ['target_group', CLOUDAPI_SWAGGER, '/targetgroups', 'post', {}],
+    ['user', CLOUDAPI_SWAGGER, '/um/users', 'post', {}],
+    ['volume', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/volumes', 'post', {'backupunit': 'backupunitId'}],
 ]
 
 for module in modules_to_generate:

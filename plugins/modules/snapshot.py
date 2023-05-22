@@ -35,7 +35,6 @@ DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update', 'restore']
 OBJECT_NAME = 'Snapshot'
 
-LICENCE_TYPES = ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016']
 OPTIONS = {
     'datacenter': {
         'description': ['The datacenter in which the volumes reside.'],
@@ -50,7 +49,7 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name of the snapshot.'],
+        'description': ['The name of the  resource.'],
         'available': ['create'],
         'required': ['create'],
         'type': 'str',
@@ -62,13 +61,13 @@ OPTIONS = {
         'type': 'str',
     },
     'description': {
-        'description': ['The description of the snapshot.'],
+        'description': ['Human-readable description.'],
         'available': ['present'],
         'type': 'str',
     },
     'licence_type': {
-        'description': ['The license type used'],
-        'choices': ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016'],
+        'description': ['OS type of this snapshot'],
+        'choices': ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'LINUX', 'OTHER'],
         'available': ['update'],
         'type': 'str',
     },
@@ -83,7 +82,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'ram_hot_plug': {
-        'description': ['Hot-plug capable RAM (no reboot required)'],
+        'description': ['Hot-plug capable RAM (no reboot required).'],
         'available': ['update'],
         'type': 'bool',
     },
@@ -98,7 +97,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'nic_hot_unplug': {
-        'description': ['Hot-unplug capable NIC (no reboot required)'],
+        'description': ['Hot-unplug capable NIC (no reboot required).'],
         'available': ['update'],
         'type': 'bool',
     },
@@ -108,7 +107,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'disc_scsi_hot_unplug': {
-        'description': ['Hot-unplug capable SCSI drive (no reboot required). Not supported with Windows VMs.'],
+        'description': ['Is capable of SCSI drive hot unplug (no reboot required). This works only for non-Windows virtual Machines.'],
         'available': ['update'],
         'type': 'bool',
     },

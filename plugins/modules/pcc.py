@@ -30,7 +30,7 @@ RETURNED_KEY = 'pcc'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the PCC.'],
+        'description': ['The name of the  resource.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -42,7 +42,7 @@ OPTIONS = {
         'type': 'str',
     },
     'description': {
-        'description': ['The description of the PCC.'],
+        'description': ['Human-readable description.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',

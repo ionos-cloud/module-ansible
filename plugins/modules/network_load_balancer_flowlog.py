@@ -38,7 +38,7 @@ RETURNED_KEY = 'flowlog'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the flowlog.'],
+        'description': ['The resource name.'],
         'available': STATES,
         'required': ['present'],
         'type': 'str',
@@ -56,7 +56,7 @@ OPTIONS = {
         'type': 'str',
     },
     'bucket': {
-        'description': ['S3 bucket name of an existing IONOS Cloud S3 bucket.'],
+        'description': ['The S3 bucket name of an existing IONOS Cloud S3 bucket.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',

@@ -38,19 +38,19 @@ RETURNED_KEY = 'user'
 
 OPTIONS = {
     'firstname': {
-        'description': ["The user's first name."],
+        'description': ['The first name of the user.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'lastname': {
-        'description': ["The user's last name."],
+        'description': ['The last name of the user.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'email': {
-        'description': ["The user's email"],
+        'description': ['The email address of the user.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -69,21 +69,17 @@ OPTIONS = {
         'no_log': True,
     },
     'administrator': {
-        'description': ['Boolean value indicating if the user has administrative rights.'],
+        'description': ['Indicates if the user has admin rights.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'force_sec_auth': {
-        'description': [
-            'Boolean value indicating if secure (two-factor) authentication should be forced for the user.'],
+        'description': ['Indicates if secure authentication should be forced on the user.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'groups': {
-        'description': [
-            'A list of group IDs or names where the user (non-administrator) is to be added.'
-            'Set to empty list ([]) to remove the user from all groups.',
-        ],
+        'description': ['A list of group IDs or names where the user (non-administrator) is to be added. Set to empty list ([]) to remove the user from all groups.'],
         'available': ['present', 'update'],
         'type': 'list',
     },

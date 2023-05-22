@@ -38,7 +38,7 @@ RETURNED_KEY = 'network_load_balancer'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the Network Loadbalancer.'],
+        'description': ['The name of the Network Load Balancer.'],
         'available': STATES,
         'required': ['present', 'update'],
         'type': 'str',
@@ -50,10 +50,7 @@ OPTIONS = {
         'type': 'str',
     },
     'ips': {
-        'description': [
-            'Collection of the Network Load Balancer IP addresses. (Inbound and outbound) '
-            'IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers.',
-        ],
+        'description': ['Collection of the Network Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers.'],
         'available': ['present', 'update'],
         'type': 'list',
     },
@@ -64,10 +61,7 @@ OPTIONS = {
         'type': 'str',
     },
     'lb_private_ips': {
-        'description': [
-            'Collection of private IP addresses with subnet mask of the Network Load Balancer. '
-            'IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet.',
-        ],
+        'description': ['Collection of private IP addresses with subnet mask of the Network Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet.'],
         'available': ['present', 'update'],
         'type': 'list',
     },

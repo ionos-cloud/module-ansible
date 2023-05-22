@@ -39,19 +39,19 @@ RETURNED_KEY = 'forwarding_rule'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the Network Loadbalancer forwarding rule.'],
+        'description': ['The name of the Network Load Balancer forwarding rule.'],
         'available': STATES,
         'required': ['present'],
         'type': 'str',
     },
     'algorithm': {
-        'description': ['Balancing algorithm.'],
+        'description': ['Balancing algorithm'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'protocol': {
-        'description': ['Balancing protocol.'],
+        'description': ['Balancing protocol'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -74,7 +74,7 @@ OPTIONS = {
         'type': 'dict',
     },
     'targets': {
-        'description': ['Array of targets.'],
+        'description': ['Array of items in the collection.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'list',
