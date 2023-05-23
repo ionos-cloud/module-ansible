@@ -92,15 +92,15 @@ This module allows you to create, update or remove a firewall rule.
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
   | server | True | str |  | The server name or UUID. |
   | nic | True | str |  | The NIC name or UUID. |
-  | name | True | str |  | The name or UUID of the firewall rule. |
-  | protocol | True | str |  | The protocol for the firewall rule. |
-  | source_mac | False | str |  | Only traffic originating from the respective MAC address is allowed. No value allows all source MAC addresses. |
-  | source_ip | False | str |  | Only traffic originating from the respective IPv4 address is allowed. No value allows all source IPs. |
-  | target_ip | False | str |  | In case the target NIC has multiple IP addresses, only traffic directed to the respective IP address of the NIC is allowed.No value allows all target IPs. |
-  | port_range_start | False | int |  | Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave value empty to allow all ports. |
-  | port_range_end | False | int |  | Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave value empty to allow all ports. |
-  | icmp_type | False | int |  | Defines the allowed type (from 0 to 254) if the protocol ICMP is chosen. No value allows all types. |
-  | icmp_code | False | int |  | Defines the allowed code (from 0 to 254) if protocol ICMP is chosen. No value allows all codes. |
+  | name | True | str |  | The name of the  resource. |
+  | protocol | True | str |  | The protocol for the rule. Property cannot be modified after it is created (disallowed in update requests). |
+  | source_mac | False | str |  | Only traffic originating from the respective MAC address is allowed. Valid format: aa:bb:cc:dd:ee:ff. Value null allows traffic from any MAC address. |
+  | source_ip | False | str |  | Only traffic originating from the respective IP address (or CIDR block) is allowed. Value null allows traffic from any IP address (according to the selected ipVersion). |
+  | target_ip | False | str |  | If the target NIC has multiple IP addresses, only the traffic directed to the respective IP address (or CIDR block) of the NIC is allowed. Value null allows traffic to any target IP address (according to the selected ipVersion). |
+  | port_range_start | False | int |  | Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd value null to allow all ports. |
+  | port_range_end | False | int |  | Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd null to allow all ports. |
+  | icmp_type | False | int |  | Defines the allowed type (from 0 to 254) if the protocol ICMP or ICMPv6 is chosen. Value null allows all types. |
+  | icmp_code | False | int |  | Defines the allowed code (from 0 to 254) if protocol ICMP or ICMPv6 is chosen. Value null allows all codes. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -170,15 +170,15 @@ This module allows you to create, update or remove a firewall rule.
   | server | True | str |  | The server name or UUID. |
   | nic | True | str |  | The NIC name or UUID. |
   | firewall_rule | True | str |  | The Firewall Rule name or UUID. |
-  | name | False | str |  | The name or UUID of the firewall rule. |
-  | protocol | False | str |  | The protocol for the firewall rule. |
-  | source_mac | False | str |  | Only traffic originating from the respective MAC address is allowed. No value allows all source MAC addresses. |
-  | source_ip | False | str |  | Only traffic originating from the respective IPv4 address is allowed. No value allows all source IPs. |
-  | target_ip | False | str |  | In case the target NIC has multiple IP addresses, only traffic directed to the respective IP address of the NIC is allowed.No value allows all target IPs. |
-  | port_range_start | False | int |  | Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave value empty to allow all ports. |
-  | port_range_end | False | int |  | Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave value empty to allow all ports. |
-  | icmp_type | False | int |  | Defines the allowed type (from 0 to 254) if the protocol ICMP is chosen. No value allows all types. |
-  | icmp_code | False | int |  | Defines the allowed code (from 0 to 254) if protocol ICMP is chosen. No value allows all codes. |
+  | name | False | str |  | The name of the  resource. |
+  | protocol | False | str |  | The protocol for the rule. Property cannot be modified after it is created (disallowed in update requests). |
+  | source_mac | False | str |  | Only traffic originating from the respective MAC address is allowed. Valid format: aa:bb:cc:dd:ee:ff. Value null allows traffic from any MAC address. |
+  | source_ip | False | str |  | Only traffic originating from the respective IP address (or CIDR block) is allowed. Value null allows traffic from any IP address (according to the selected ipVersion). |
+  | target_ip | False | str |  | If the target NIC has multiple IP addresses, only the traffic directed to the respective IP address (or CIDR block) of the NIC is allowed. Value null allows traffic to any target IP address (according to the selected ipVersion). |
+  | port_range_start | False | int |  | Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd value null to allow all ports. |
+  | port_range_end | False | int |  | Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd null to allow all ports. |
+  | icmp_type | False | int |  | Defines the allowed type (from 0 to 254) if the protocol ICMP or ICMPv6 is chosen. Value null allows all types. |
+  | icmp_code | False | int |  | Defines the allowed code (from 0 to 254) if protocol ICMP or ICMPv6 is chosen. Value null allows all codes. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |

@@ -76,20 +76,20 @@ This is a module that supports creating, updating, restoring or destroying Postg
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | maintenance_window | False | dict |  | Dict containing &quot;time&quot; (the time of the day when to perform the maintenance) and &quot;day_of_the_week&quot; (the Day Of the week when to perform the maintenance). |
-  | postgres_version | True | str |  | The PostgreSQL version of your cluster |
+  | maintenance_window | False | dict |  | A weekly 4 hour-long window, during which maintenance might occur. |
+  | postgres_version | True | str |  | The PostgreSQL version of your cluster. |
   | instances | True | int |  | The total number of instances in the cluster (one master and n-1 standbys). |
   | cores | True | int |  | The number of CPU cores per instance. |
-  | ram | True | int |  | The amount of memory per instance(should be a multiple of 1024). |
-  | storage_size | True | int |  | The amount of storage per instance. |
-  | storage_type | True | str |  | The storage type used in your cluster. Value &quot;SSD&quot; is deprecated. Use the equivalent &quot;SSD Premium&quot; instead. |
+  | ram | True | int |  | The amount of memory per instance in megabytes. Has to be a multiple of 1024. |
+  | storage_size | True | int |  | The amount of storage per instance in megabytes. |
+  | storage_type | True | str |  | The storage type used in your cluster. (Value &quot;SSD&quot; is deprecated. Use the equivalent &quot;SSD Premium&quot; instead) |
   | connections | True | list |  | Array of VDCs to connect to your cluster. |
-  | location | True | str |  | The physical location where the cluster will be created. This will be where all of your instances live. Property cannot be modified after datacenter creation (disallowed in update requests) |
+  | location | True | str |  | The physical location where the cluster will be created. This will be where all of your instances live. Property cannot be modified after datacenter creation. |
   | display_name | True | str |  | The friendly name of your cluster. |
-  | db_username | True | str |  | The username for the initial postgres user. Some system usernames are restricted (e.g. &quot;postgres&quot;, &quot;admin&quot;, &quot;standby&quot;) |
-  | db_password | True | str |  | The username for the initial postgres user. |
+  | db_username | True | str |  | The username for the initial PostgreSQL user. Some system usernames are restricted (e.g. &quot;postgres&quot;, &quot;admin&quot;, &quot;standby&quot;). |
+  | db_password | True | str |  | The password for the initial postgres user. |
   | synchronization_mode | True | str |  | Represents different modes of replication. |
-  | backup_location | False | str |  | The S3 location where the backups will be stored. One of [&quot;de&quot;, &quot;eu-south-2&quot;, &quot;eu-central-2&quot;] |
+  | backup_location | False | str |  | The S3 location where the backups will be stored. |
   | backup_id | False | str |  | The ID of the backup to be used. |
   | recovery_target_time | False | str |  | Recovery target time. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
@@ -151,12 +151,12 @@ This is a module that supports creating, updating, restoring or destroying Postg
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | maintenance_window | False | dict |  | Dict containing &quot;time&quot; (the time of the day when to perform the maintenance) and &quot;day_of_the_week&quot; (the Day Of the week when to perform the maintenance). |
-  | postgres_version | False | str |  | The PostgreSQL version of your cluster |
+  | maintenance_window | False | dict |  | A weekly 4 hour-long window, during which maintenance might occur. |
+  | postgres_version | False | str |  | The PostgreSQL version of your cluster. |
   | instances | False | int |  | The total number of instances in the cluster (one master and n-1 standbys). |
   | cores | False | int |  | The number of CPU cores per instance. |
-  | ram | False | int |  | The amount of memory per instance(should be a multiple of 1024). |
-  | storage_size | False | int |  | The amount of storage per instance. |
+  | ram | False | int |  | The amount of memory per instance in megabytes. Has to be a multiple of 1024. |
+  | storage_size | False | int |  | The amount of storage per instance in megabytes. |
   | display_name | False | str |  | The friendly name of your cluster. |
   | postgres_cluster | True | str |  | The ID or name of an existing Postgres Cluster. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |

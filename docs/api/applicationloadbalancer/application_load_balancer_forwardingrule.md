@@ -87,12 +87,12 @@ This is a simple module that supports creating or removing Application Loadbalan
   | :--- | :---: | :--- | :--- | :--- |
   | name | True | str |  | The name of the Application Load Balancer forwarding rule. |
   | algorithm | False | str |  | Balancing algorithm. |
-  | protocol | True | str |  | Balancing protocol. |
-  | listener_ip | True | str |  | Listening (inbound) IP. |
-  | listener_port | True | str |  | Listening (inbound) port number; valid range is 1 to 65535. |
+  | protocol | True | str |  | The balancing protocol. |
+  | listener_ip | True | str |  | The listening (inbound) IP. |
+  | listener_port | True | str |  | The listening (inbound) port number; the valid range is 1 to 65535. |
   | client_timeout | False | int |  | The maximum time in milliseconds to wait for the client to acknowledge or send data; default is 50,000 (50 seconds). |
-  | http_rules | False | list |  | An array of items in the collection. The original order of rules is perserved during processing, except for Forward-type rules are processed after the rules with other action defined. The relative order of Forward-type rules is also preserved during the processing. |
-  | server_certificates | False | list |  | An array of items in the collection. |
+  | http_rules | False | list |  | An array of items in the collection. The original order of rules is preserved during processing, except that rules of the 'FORWARD' type are processed after the rules with other defined actions. The relative order of the 'FORWARD' type rules is also preserved during the processing. |
+  | server_certificates | False | list |  | Array of items in the collection. |
   | new_server_certificates | False | list |  | An array of dict with information used to uploade new certificates and add them to the forwarding rule.A dict should contain 'certificate_file', 'private_key_file', 'certificate_chain_file'(optional), 'certificate_name' as keys.File paths should be absolute. |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | application_load_balancer | True | str |  | The ID or name of the Application Loadbalancer. |
@@ -163,12 +163,12 @@ This is a simple module that supports creating or removing Application Loadbalan
   | :--- | :---: | :--- | :--- | :--- |
   | name | False | str |  | The name of the Application Load Balancer forwarding rule. |
   | algorithm | False | str |  | Balancing algorithm. |
-  | protocol | False | str |  | Balancing protocol. |
-  | listener_ip | False | str |  | Listening (inbound) IP. |
-  | listener_port | False | str |  | Listening (inbound) port number; valid range is 1 to 65535. |
+  | protocol | False | str |  | The balancing protocol. |
+  | listener_ip | False | str |  | The listening (inbound) IP. |
+  | listener_port | False | str |  | The listening (inbound) port number; the valid range is 1 to 65535. |
   | client_timeout | False | int |  | The maximum time in milliseconds to wait for the client to acknowledge or send data; default is 50,000 (50 seconds). |
-  | http_rules | False | list |  | An array of items in the collection. The original order of rules is perserved during processing, except for Forward-type rules are processed after the rules with other action defined. The relative order of Forward-type rules is also preserved during the processing. |
-  | server_certificates | False | list |  | An array of items in the collection. |
+  | http_rules | False | list |  | An array of items in the collection. The original order of rules is preserved during processing, except that rules of the 'FORWARD' type are processed after the rules with other defined actions. The relative order of the 'FORWARD' type rules is also preserved during the processing. |
+  | server_certificates | False | list |  | Array of items in the collection. |
   | new_server_certificates | False | list |  | An array of dict with information used to uploade new certificates and add them to the forwarding rule.A dict should contain 'certificate_file', 'private_key_file', 'certificate_chain_file'(optional), 'certificate_name' as keys.File paths should be absolute. |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | application_load_balancer | True | str |  | The ID or name of the Application Loadbalancer. |

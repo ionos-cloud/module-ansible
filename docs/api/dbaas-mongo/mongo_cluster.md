@@ -58,13 +58,13 @@ This is a module that supports creating and destroying Mongo Clusters
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | maintenance_window | False | dict |  | Dict containing &quot;time&quot; (the time of the day when to perform the maintenance) and &quot;day_of_the_week&quot; (the Day Of the week when to perform the maintenance). |
-  | mongo_db_version | True | str |  | The MongoDB version of your cluster |
-  | instances | True | int |  | The total number of instances in the cluster (one master and n-1 standbys). |
+  | maintenance_window | False | dict |  | A weekly window of 4 hours during which maintenance work can be performed. |
+  | mongo_db_version | True | str |  | The MongoDB version of your cluster. |
+  | instances | True | int |  | The total number of instances in the cluster (one primary and n-1 secondaries). |
   | connections | True | list |  | Array of VDCs to connect to your cluster. |
-  | template_id | True | str |  | The unique template ID |
-  | location | True | str |  | The physical location where the cluster will be created. This will be where all of your instances live. Property cannot be modified after datacenter creation (disallowed in update requests) |
-  | display_name | True | str |  | The friendly name of your cluster. |
+  | template_id | True | str |  | The unique ID of the template, which specifies the number of cores, storage size, and memory. You cannot downgrade to a smaller template or minor edition (e.g. from business to playground). To get a list of all templates to confirm the changes use the /templates endpoint. |
+  | location | True | str |  | The physical location where the cluster will be created. This is the location where all your instances will be located. This property is immutable. |
+  | display_name | True | str |  | The name of your cluster. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -112,13 +112,13 @@ This is a module that supports creating and destroying Mongo Clusters
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | mongo_cluster | True | str |  | The ID or name of an existing Mongo Cluster. |
-  | maintenance_window | False | dict |  | Dict containing &quot;time&quot; (the time of the day when to perform the maintenance) and &quot;day_of_the_week&quot; (the Day Of the week when to perform the maintenance). |
-  | mongo_db_version | False | str |  | The MongoDB version of your cluster |
-  | instances | False | int |  | The total number of instances in the cluster (one master and n-1 standbys). |
+  | maintenance_window | False | dict |  | A weekly window of 4 hours during which maintenance work can be performed. |
+  | mongo_db_version | False | str |  | The MongoDB version of your cluster. |
+  | instances | False | int |  | The total number of instances in the cluster (one primary and n-1 secondaries). |
   | connections | False | list |  | Array of VDCs to connect to your cluster. |
-  | template_id | False | str |  | The unique template ID |
-  | location | False | str |  | The physical location where the cluster will be created. This will be where all of your instances live. Property cannot be modified after datacenter creation (disallowed in update requests) |
-  | display_name | False | str |  | The friendly name of your cluster. |
+  | template_id | False | str |  | The unique ID of the template, which specifies the number of cores, storage size, and memory. You cannot downgrade to a smaller template or minor edition (e.g. from business to playground). To get a list of all templates to confirm the changes use the /templates endpoint. |
+  | location | False | str |  | The physical location where the cluster will be created. This is the location where all your instances will be located. This property is immutable. |
+  | display_name | False | str |  | The name of your cluster. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

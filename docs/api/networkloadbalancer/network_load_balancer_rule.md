@@ -74,13 +74,13 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the Network Loadbalancer forwarding rule. |
-  | algorithm | True | str |  | Balancing algorithm. |
-  | protocol | True | str |  | Balancing protocol. |
+  | name | True | str |  | The name of the Network Load Balancer forwarding rule. |
+  | algorithm | True | str |  | Balancing algorithm |
+  | protocol | True | str |  | Balancing protocol |
   | listener_ip | True | str |  | Listening (inbound) IP. |
   | listener_port | True | str |  | Listening (inbound) port number; valid range is 1 to 65535. |
   | health_check | False | dict |  | Health check properties for Network Load Balancer forwarding rule. |
-  | targets | True | list |  | Array of targets. |
+  | targets | True | list |  | Array of items in the collection. |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
@@ -112,7 +112,7 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the Network Loadbalancer forwarding rule. |
+  | name | False | str |  | The name of the Network Load Balancer forwarding rule. |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
   | forwarding_rule | True | str |  | The ID or name of the Network Loadbalancer forwarding rule. |
@@ -149,13 +149,13 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the Network Loadbalancer forwarding rule. |
-  | algorithm | False | str |  | Balancing algorithm. |
-  | protocol | False | str |  | Balancing protocol. |
+  | name | False | str |  | The name of the Network Load Balancer forwarding rule. |
+  | algorithm | False | str |  | Balancing algorithm |
+  | protocol | False | str |  | Balancing protocol |
   | listener_ip | False | str |  | Listening (inbound) IP. |
   | listener_port | False | str |  | Listening (inbound) port number; valid range is 1 to 65535. |
   | health_check | False | dict |  | Health check properties for Network Load Balancer forwarding rule. |
-  | targets | False | list |  | Array of targets. |
+  | targets | False | list |  | Array of items in the collection. |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
   | forwarding_rule | True | str |  | The ID or name of the Network Loadbalancer forwarding rule. |

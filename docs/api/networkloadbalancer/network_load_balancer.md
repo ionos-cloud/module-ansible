@@ -63,7 +63,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the Network Loadbalancer. |
+  | name | True | str |  | The name of the Network Load Balancer. |
   | listener_lan | True | str |  | ID of the listening LAN (inbound). |
   | ips | False | list |  | Collection of the Network Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers. |
   | target_lan | True | str |  | ID of the balanced private target LAN (outbound). |
@@ -98,7 +98,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the Network Loadbalancer. |
+  | name | False | str |  | The name of the Network Load Balancer. |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
   | api_url | False | str |  | The Ionos API base URL. |
@@ -133,7 +133,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the Network Loadbalancer. |
+  | name | True | str |  | The name of the Network Load Balancer. |
   | listener_lan | True | str |  | ID of the listening LAN (inbound). |
   | ips | False | list |  | Collection of the Network Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers. |
   | target_lan | True | str |  | ID of the balanced private target LAN (outbound). |

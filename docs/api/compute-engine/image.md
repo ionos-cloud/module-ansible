@@ -52,7 +52,7 @@ This is a simple module that supports updating or removing Images. This module h
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | image_id | True | str |  | The ID of the image. |
-  | name | False | str |  | The name of the image. |
+  | name | False | str |  | The resource name. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -94,19 +94,19 @@ This is a simple module that supports updating or removing Images. This module h
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | image_id | True | str |  | The ID of the image. |
-  | name | False | str |  | The name of the image. |
-  | description | False | str |  | The description of the image. |
+  | name | False | str |  | The resource name. |
+  | description | False | str |  | Human-readable description. |
   | cpu_hot_plug | False | bool |  | Hot-plug capable CPU (no reboot required). |
   | cpu_hot_unplug | False | bool |  | Hot-unplug capable CPU (no reboot required). |
-  | ram_hot_plug | False | bool |  | Hot-plug capable RAM (no reboot required) |
+  | ram_hot_plug | False | bool |  | Hot-plug capable RAM (no reboot required). |
   | ram_hot_unplug | False | bool |  | Hot-unplug capable RAM (no reboot required). |
   | nic_hot_plug | False | bool |  | Hot-plug capable NIC (no reboot required). |
-  | nic_hot_unplug | False | bool |  | Hot-unplug capable NIC (no reboot required) |
+  | nic_hot_unplug | False | bool |  | Hot-unplug capable NIC (no reboot required). |
   | disc_scsi_hot_plug | False | bool |  | Hot-plug capable SCSI drive (no reboot required). |
   | disc_scsi_hot_unplug | False | bool |  | Hot-unplug capable SCSI drive (no reboot required). Not supported with Windows VMs. |
   | disc_virtio_hot_plug | False | bool |  | Hot-plug capable Virt-IO drive (no reboot required). |
   | disc_virtio_hot_unplug | False | bool |  | Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows VMs. |
-  | licence_type | True | str |  | OS type for this image. |
+  | licence_type | True | str |  | The OS type of this image. |
   | cloud_init | False | str |  | Cloud init compatibility. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |

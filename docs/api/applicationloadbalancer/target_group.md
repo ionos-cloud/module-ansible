@@ -90,12 +90,12 @@ This is a simple module that supports creating or removing Target Groups.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the Target Group. |
-  | algorithm | True | str |  | Balancing algorithm. |
-  | protocol | True | str |  | Balancing protocol. |
+  | name | True | str |  | The target group name. |
+  | algorithm | True | str |  | The balancing algorithm. A balancing algorithm consists of predefined rules with the logic that a load balancer uses to distribute network traffic between servers.  - **Round Robin**: Targets are served alternately according to their weighting.  - **Least Connection**: The target with the least active connection is served.  - **Random**: The targets are served based on a consistent pseudorandom algorithm.  - **Source IP**: It is ensured that the same client IP address reaches the same target. |
+  | protocol | True | str |  | The forwarding protocol. Only the value 'HTTP' is allowed. |
   | health_check | False | dict |  | Health check properties for target group. |
   | http_health_check | False | dict |  | HTTP health check properties for target group. |
-  | targets | False | list |  | An array of items in the collection. |
+  | targets | False | list |  | Array of items in the collection. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -125,7 +125,7 @@ This is a simple module that supports creating or removing Target Groups.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the Target Group. |
+  | name | False | str |  | The target group name. |
   | target_group | True | str |  | The ID or name of the Target Group. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -158,12 +158,12 @@ This is a simple module that supports creating or removing Target Groups.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the Target Group. |
-  | algorithm | False | str |  | Balancing algorithm. |
-  | protocol | False | str |  | Balancing protocol. |
+  | name | False | str |  | The target group name. |
+  | algorithm | False | str |  | The balancing algorithm. A balancing algorithm consists of predefined rules with the logic that a load balancer uses to distribute network traffic between servers.  - **Round Robin**: Targets are served alternately according to their weighting.  - **Least Connection**: The target with the least active connection is served.  - **Random**: The targets are served based on a consistent pseudorandom algorithm.  - **Source IP**: It is ensured that the same client IP address reaches the same target. |
+  | protocol | False | str |  | The forwarding protocol. Only the value 'HTTP' is allowed. |
   | health_check | False | dict |  | Health check properties for target group. |
   | http_health_check | False | dict |  | HTTP health check properties for target group. |
-  | targets | False | list |  | An array of items in the collection. |
+  | targets | False | list |  | Array of items in the collection. |
   | target_group | True | str |  | The ID or name of the Target Group. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |

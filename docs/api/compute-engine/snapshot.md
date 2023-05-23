@@ -60,7 +60,7 @@ This module allows you to create or remove a snapshot.
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter in which the volumes reside. |
   | volume | True | str |  | The name or UUID of the volume. |
-  | description | False | str |  | The description of the snapshot. |
+  | description | False | str |  | Human-readable description. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -116,15 +116,15 @@ This module allows you to create or remove a snapshot.
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | snapshot | True | str |  | The ID or name of an existing snapshot. |
-  | licence_type | False | str |  | The license type used |
+  | licence_type | False | str |  | OS type of this snapshot |
   | cpu_hot_plug | False | bool |  | Hot-plug capable CPU (no reboot required). |
   | cpu_hot_unplug | False | bool |  | Hot-unplug capable CPU (no reboot required). |
-  | ram_hot_plug | False | bool |  | Hot-plug capable RAM (no reboot required) |
+  | ram_hot_plug | False | bool |  | Hot-plug capable RAM (no reboot required). |
   | ram_hot_unplug | False | bool |  | Hot-unplug capable RAM (no reboot required). |
   | nic_hot_plug | False | bool |  | Hot-plug capable NIC (no reboot required). |
-  | nic_hot_unplug | False | bool |  | Hot-unplug capable NIC (no reboot required) |
+  | nic_hot_unplug | False | bool |  | Hot-unplug capable NIC (no reboot required). |
   | disc_scsi_hot_plug | False | bool |  | Hot-plug capable SCSI drive (no reboot required). |
-  | disc_scsi_hot_unplug | False | bool |  | Hot-unplug capable SCSI drive (no reboot required). Not supported with Windows VMs. |
+  | disc_scsi_hot_unplug | False | bool |  | Is capable of SCSI drive hot unplug (no reboot required). This works only for non-Windows virtual Machines. |
   | disc_virtio_hot_plug | False | bool |  | Hot-plug capable Virt-IO drive (no reboot required). |
   | disc_virtio_hot_unplug | False | bool |  | Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows VMs. |
   | api_url | False | str |  | The Ionos API base URL. |

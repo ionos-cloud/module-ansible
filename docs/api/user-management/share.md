@@ -59,8 +59,8 @@ This module allows you to add, update or remove resource shares.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | edit_privilege | False | bool |  | Boolean value indicating that the group has permission to edit privileges on the resource. |
-  | share_privilege | False | bool |  | Boolean value indicating that the group has permission to share the resource. |
+  | edit_privilege | False | bool |  | edit privilege on a resource |
+  | share_privilege | False | bool |  | share privilege on a resource |
   | group | True | str |  | The name or ID of the group. |
   | resource_ids | True | list |  | A list of resource IDs to add, update or remove as shares. |
   | api_url | False | str |  | The Ionos API base URL. |
@@ -123,8 +123,8 @@ This module allows you to add, update or remove resource shares.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | edit_privilege | False | bool |  | Boolean value indicating that the group has permission to edit privileges on the resource. |
-  | share_privilege | False | bool |  | Boolean value indicating that the group has permission to share the resource. |
+  | edit_privilege | False | bool |  | edit privilege on a resource |
+  | share_privilege | False | bool |  | share privilege on a resource |
   | group | True | str |  | The name or ID of the group. |
   | resource_ids | True | list |  | A list of resource IDs to add, update or remove as shares. |
   | api_url | False | str |  | The Ionos API base URL. |

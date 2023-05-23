@@ -63,7 +63,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the NAT Gateway. |
+  | name | True | str |  | Name of the NAT Gateway. |
   | public_ips | True | list |  | Collection of public IP addresses of the NAT Gateway. Should be customer reserved IP addresses in that location. |
   | lans | False | list |  | Collection of LANs connected to the NAT Gateway. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
   | datacenter | True | str |  | The ID or name of the datacenter. |
@@ -97,7 +97,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the NAT Gateway. |
+  | name | False | str |  | Name of the NAT Gateway. |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
   | api_url | False | str |  | The Ionos API base URL. |
@@ -131,7 +131,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the NAT Gateway. |
+  | name | False | str |  | Name of the NAT Gateway. |
   | public_ips | False | list |  | Collection of public IP addresses of the NAT Gateway. Should be customer reserved IP addresses in that location. |
   | lans | False | list |  | Collection of LANs connected to the NAT Gateway. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
   | datacenter | True | str |  | The ID or name of the datacenter. |

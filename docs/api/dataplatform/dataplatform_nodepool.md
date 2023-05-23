@@ -64,16 +64,16 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of your node pool. Must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
+  | name | True | str |  | The name of your node pool. Must be 63 characters or less and must begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
   | cluster | True | str |  | The name or ID of the Data Platform cluster. |
   | node_count | True | int |  | The number of nodes that make up the node pool. |
-  | cpu_family | True | str |  | A valid CPU family name or `AUTO` if the platform shall choose the best fitting option.Available CPU architectures can be retrieved from the datacenter resource. |
-  | cores_count | True | int |  | The number of cores for the node. |
-  | ram_size | True | int |  | The RAM size for the node. Must be set in multiples of 1024 MB, with minimum size is of 2048 MB. |
-  | availability_zone | True | str |  | The availability zone of the virtual datacenter region where the node pool resources should be provisioned. |
+  | cpu_family | True | str |  | A valid CPU family name or `AUTO` if the platform shall choose the best fitting option. Available CPU architectures can be retrieved from the data center resource. |
+  | cores_count | True | int |  | The number of CPU cores per node. |
+  | ram_size | True | int |  | The RAM size for one node in MB. Must be set in multiples of 1024 MB, with a minimum size is of 2048 MB. |
+  | availability_zone | True | str |  | The availability zone of the virtual data center region where the node pool resources should be provisioned. |
   | storage_type | True | str |  | The type of hardware for the volume. |
-  | storage_size | True | int |  | The size of the volume in GB. The size should be greater than 10GB. |
-  | maintenance_window | False | dict |  | The maintenance window is used for updating the software on the nodepool's nodes and for upgrading the nodepool's version. If no value is given, one is chosen dynamically, so there is no fixed default. |
+  | storage_size | True | int |  | The size of the volume in GB. The size must be greater than 10 GB. |
+  | maintenance_window | False | dict |  | Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format |
   | labels | False | dict |  | Key-value pairs attached to the node pool resource as [Kubernetes labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/) |
   | annotations | False | dict |  | Key-value pairs attached to node pool resource as [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/) |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
@@ -136,11 +136,11 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of your node pool. Must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
+  | name | False | str |  | The name of your node pool. Must be 63 characters or less and must begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
   | cluster | True | str |  | The name or ID of the Data Platform cluster. |
   | nodepool | True | str |  | The name or ID of the Data Platform nodepool. |
   | node_count | False | int |  | The number of nodes that make up the node pool. |
-  | maintenance_window | False | dict |  | The maintenance window is used for updating the software on the nodepool's nodes and for upgrading the nodepool's version. If no value is given, one is chosen dynamically, so there is no fixed default. |
+  | maintenance_window | False | dict |  | Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format |
   | labels | False | dict |  | Key-value pairs attached to the node pool resource as [Kubernetes labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/) |
   | annotations | False | dict |  | Key-value pairs attached to node pool resource as [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/) |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |

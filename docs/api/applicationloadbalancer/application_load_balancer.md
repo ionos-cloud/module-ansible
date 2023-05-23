@@ -63,11 +63,11 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the Application Load Balancer. |
-  | listener_lan | True | str |  | ID or name of the listening LAN (inbound). |
-  | ips | False | list |  | Collection of the Application Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers. |
-  | target_lan | True | str |  | ID or name of the balanced private target LAN (outbound). |
-  | lb_private_ips | False | list |  | Collection of private IP addresses with subnet mask of the Application Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
+  | name | True | str |  | The Application Load Balancer name. |
+  | listener_lan | True | str |  | The ID of the listening (inbound) LAN. |
+  | ips | False | list |  | Collection of the Application Load Balancer IP addresses. (Inbound and outbound) IPs of the 'listenerLan' are customer-reserved public IPs for the public load balancers, and private IPs for the private load balancers. |
+  | target_lan | True | str |  | The ID of the balanced private target LAN (outbound). |
+  | lb_private_ips | False | list |  | Collection of private IP addresses with the subnet mask of the Application Load Balancer. IPs must contain valid a subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
@@ -98,7 +98,7 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the Application Load Balancer. |
+  | name | False | str |  | The Application Load Balancer name. |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | application_load_balancer | True | str |  | The ID or name of the Application Loadbalancer. |
   | api_url | False | str |  | The Ionos API base URL. |
@@ -133,11 +133,11 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the Application Load Balancer. |
-  | listener_lan | True | str |  | ID or name of the listening LAN (inbound). |
-  | ips | False | list |  | Collection of the Application Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers. |
-  | target_lan | True | str |  | ID or name of the balanced private target LAN (outbound). |
-  | lb_private_ips | False | list |  | Collection of private IP addresses with subnet mask of the Application Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
+  | name | True | str |  | The Application Load Balancer name. |
+  | listener_lan | True | str |  | The ID of the listening (inbound) LAN. |
+  | ips | False | list |  | Collection of the Application Load Balancer IP addresses. (Inbound and outbound) IPs of the 'listenerLan' are customer-reserved public IPs for the public load balancers, and private IPs for the private load balancers. |
+  | target_lan | True | str |  | The ID of the balanced private target LAN (outbound). |
+  | lb_private_ips | False | list |  | Collection of private IP addresses with the subnet mask of the Application Load Balancer. IPs must contain valid a subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | application_load_balancer | True | str |  | The ID or name of the Application Loadbalancer. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |

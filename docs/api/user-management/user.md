@@ -58,13 +58,13 @@ This module allows you to create, update or remove a user.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | firstname | True | str |  | The user's first name. |
-  | lastname | True | str |  | The user's last name. |
-  | email | True | str |  | The user's email |
+  | firstname | True | str |  | The first name of the user. |
+  | lastname | True | str |  | The last name of the user. |
+  | email | True | str |  | The email address of the user. |
   | user_password | True | str |  | A password for the user. |
-  | administrator | False | bool |  | Boolean value indicating if the user has administrative rights. |
-  | force_sec_auth | False | bool |  | Boolean value indicating if secure (two-factor) authentication should be forced for the user. |
-  | groups | False | list |  | A list of group IDs or names where the user (non-administrator) is to be added.Set to empty list ([]) to remove the user from all groups. |
+  | administrator | False | bool |  | Indicates if the user has admin rights. |
+  | force_sec_auth | False | bool |  | Indicates if secure authentication should be forced on the user. |
+  | groups | False | list |  | A list of group IDs or names where the user (non-administrator) is to be added. Set to empty list ([]) to remove the user from all groups. |
   | sec_auth_active | False | bool |  | Indicates if secure authentication is active for the user. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
@@ -127,14 +127,14 @@ This module allows you to create, update or remove a user.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | firstname | False | str |  | The user's first name. |
-  | lastname | False | str |  | The user's last name. |
-  | email | False | str |  | The user's email |
+  | firstname | False | str |  | The first name of the user. |
+  | lastname | False | str |  | The last name of the user. |
+  | email | False | str |  | The email address of the user. |
   | user | True | str |  | The ID or name of the user. |
   | user_password | False | str |  | A password for the user. |
-  | administrator | False | bool |  | Boolean value indicating if the user has administrative rights. |
-  | force_sec_auth | False | bool |  | Boolean value indicating if secure (two-factor) authentication should be forced for the user. |
-  | groups | False | list |  | A list of group IDs or names where the user (non-administrator) is to be added.Set to empty list ([]) to remove the user from all groups. |
+  | administrator | False | bool |  | Indicates if the user has admin rights. |
+  | force_sec_auth | False | bool |  | Indicates if secure authentication should be forced on the user. |
+  | groups | False | list |  | A list of group IDs or names where the user (non-administrator) is to be added. Set to empty list ([]) to remove the user from all groups. |
   | sec_auth_active | False | bool |  | Indicates if secure authentication is active for the user. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |

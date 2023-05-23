@@ -17,6 +17,23 @@ POSTGRES_SWAGGER = {
     'url': 'https://ionos-cloud.github.io/rest-api/docs/public-postgresql-v1.ga.yml',
     'filename': 'postgres_swagger.yml',
 }
+CONTAINTER_REGISTRY_SWAGGER = {
+    'url': 'https://ionos-cloud.github.io/rest-api/docs/public-containerregistry-v1.ga.yml',
+    'filename': 'container_registry_swagger.yml',
+}
+MONGODB_SWAGGER = {
+    'url': 'https://ionos-cloud.github.io/rest-api/docs/public-mongodb-v1.ga.yml',
+    'filename': 'mongodb_swagger.yml',
+}
+DATAPLATFORM_SWAGGER = {
+    'url': 'https://ionos-cloud.github.io/rest-api/docs/public-dataplatform-v1.ea.yml',
+    'filename': 'dataplatform_swagger.yml',
+}
+CERTIFICATE_MANAGER_SWAGGER = {
+    'url': 'https://ionos-cloud.github.io/rest-api/docs/public-certificatemanager-v1.ga.json',
+    'filename': 'certificatemanager_swagger.json',
+}
+
 OPTIONS_TO_IGNORE = [
     'do_not_replace',
     'api_url',
@@ -36,6 +53,7 @@ Path(SWAGGER_CACHE).mkdir(parents=True, exist_ok=True)
 def to_camel_case(snake_str):
     aux = ''.join(x.capitalize() for x in snake_str.lower().split('_'))
     return aux[0].lower() + aux[1:]
+
 
 def check_download_swagger(swagger):
     filename = os.path.join(SWAGGER_CACHE, swagger['filename'])
@@ -75,8 +93,8 @@ def update_module(module_name, to_change):
     for old_line, new_line in to_change:
         if type(old_line) == str:
             module_content = module_content.replace(
-                old_line.replace('\n', '').replace('\'', '\\\''),
-                new_line.replace('\n', '').replace('\'', '\\\''),
+                old_line.replace('\n', ' ').replace('\'', '\\\'').strip(),
+                new_line.replace('\n', ' ').replace('\'', '\\\'').strip(),
                 1,
             )
         else:
@@ -95,14 +113,14 @@ def get_info_from_swagger(endpoint_info_dict, option):
     for path_part in option_path[:-1]:
         endpoint_info_dict_for_option = endpoint_info_dict[path_part]['properties']
 
-    return endpoint_info_dict_for_option[-1][option]
+    return endpoint_info_dict_for_option.get(option_path[-1])
+
 
 def update_descriptions(module_name, swagger, resource_endpoint, verb, aliases):
     module = importlib.import_module('plugins.modules.' + module_name)
 
     check_download_swagger(swagger)
     endpoint_info = json.loads(extract_endpoint_info(swagger['filename'], resource_endpoint, verb))
-
     to_change = []
     for option_name, option_details in module.OPTIONS.items():
         if option_name in OPTIONS_TO_IGNORE:
@@ -115,13 +133,14 @@ def update_descriptions(module_name, swagger, resource_endpoint, verb, aliases):
             if swagger_enum and option_enum and swagger_enum != option_enum:
                 print('Enum changes detected for {}'.format(option_name))
                 to_change.append((option_enum, swagger_enum))
-            if swagger_description and swagger_description.replace('\n', '') != option_details['description'][0]:
+            if swagger_description and swagger_description.replace('\n', ' ').strip() != option_details['description'][0]:
                 print('Description changes detected for {}'.format(option_name))
                 to_change.append((option_details['description'][0], swagger_description))
     
     if len(to_change) > 0:
         print('Updating descriptions/enums in {}...\n'.format(module_name))
         update_module(module_name, to_change)
+
 
 modules_to_generate = [
     ['application_load_balancer_flowlog', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/applicationloadbalancers/{applicationLoadBalancerId}/flowlogs', 'post', {}],
@@ -161,6 +180,38 @@ modules_to_generate = [
     ['target_group', CLOUDAPI_SWAGGER, '/targetgroups', 'post', {}],
     ['user', CLOUDAPI_SWAGGER, '/um/users', 'post', {}],
     ['volume', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/volumes', 'post', {'backupunit': 'backupunitId'}],
+    [
+        'postgres_cluster', POSTGRES_SWAGGER, '/clusters', 'post',
+        {
+            'db_username': 'credentials.username', 'db_password': 'credentials.password'
+        },
+    ],
+    # ['registry', CONTAINTER_REGISTRY_SWAGGER, '/registries', 'post', {}],
+    # ['registry_token', CONTAINTER_REGISTRY_SWAGGER, '/registries/{registryId}/tokens', 'post', {}],
+    [
+        'mongo_cluster', MONGODB_SWAGGER, '/clusters', 'post',
+        {
+            'mongo_db_version': 'mongoDBVersion',
+            'template_id': 'templateID',
+        },
+    ],
+    [
+        'mongo_cluster_user', MONGODB_SWAGGER, '/clusters/{clusterId}/users', 'post',
+        {
+            'mongo_username': 'username',
+            'mongo_password': 'password',
+            'user_roles': 'roles',
+        },
+    ],
+    [
+        'dataplatform_cluster', DATAPLATFORM_SWAGGER, '/clusters', 'post',
+        {
+            'dataplatform_version': 'dataPlatformVersion',
+            'datacenter': 'datacenterId',
+        },
+    ],
+    ['dataplatform_nodepool', DATAPLATFORM_SWAGGER, '/clusters/{clusterId}/nodepools', 'post', {}],
+    # ['certificate', CERTIFICATE_MANAGER_SWAGGER, '/certificatemanager/certificates', 'post', {}],
 ]
 
 for module in modules_to_generate:

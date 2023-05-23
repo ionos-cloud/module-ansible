@@ -55,12 +55,12 @@ This module allows you to create, update or remove a NIC.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the NIC. |
+  | name | True | str |  | The name of the  resource. |
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
   | server | True | str |  | The server name or UUID. |
-  | dhcp | False | bool |  | Boolean value indicating if the NIC is using DHCP or not. |
-  | firewall_active | False | bool |  | Boolean value indicating if the firewall is active. |
-  | ips | False | list |  | A list of IPs to be assigned to the NIC. |
+  | dhcp | False | bool |  | Indicates if the NIC will reserve an IP using DHCP. |
+  | firewall_active | False | bool |  | Activate or deactivate the firewall. By default, an active firewall without any defined rules will block all incoming network traffic except for the firewall rules that explicitly allows certain protocols, IP addresses and ports. |
+  | ips | False | list |  | Collection of IP addresses, assigned to the NIC. Explicitly assigned public IPs need to come from reserved IP blocks. Passing value null or empty array will assign an IP address automatically. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -125,14 +125,14 @@ This module allows you to create, update or remove a NIC.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the NIC. |
+  | name | False | str |  | The name of the  resource. |
   | nic | True | str |  | The ID or name of an existing NIC. |
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
   | server | True | str |  | The server name or UUID. |
-  | lan | False | str |  | The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create. |
-  | dhcp | False | bool |  | Boolean value indicating if the NIC is using DHCP or not. |
-  | firewall_active | False | bool |  | Boolean value indicating if the firewall is active. |
-  | ips | False | list |  | A list of IPs to be assigned to the NIC. |
+  | lan | False | str |  | The LAN ID the NIC will be on. If the LAN ID does not exist, it will be implicitly created. |
+  | dhcp | False | bool |  | Indicates if the NIC will reserve an IP using DHCP. |
+  | firewall_active | False | bool |  | Activate or deactivate the firewall. By default, an active firewall without any defined rules will block all incoming network traffic except for the firewall rules that explicitly allows certain protocols, IP addresses and ports. |
+  | ips | False | list |  | Collection of IP addresses, assigned to the NIC. Explicitly assigned public IPs need to come from reserved IP blocks. Passing value null or empty array will assign an IP address automatically. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |

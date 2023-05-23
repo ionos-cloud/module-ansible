@@ -158,7 +158,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the virtual machine. |
+  | name | False | str |  | The name of the  resource. |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | api_url | False | str |  | The Ionos API base URL. |
@@ -194,7 +194,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the virtual machine. |
+  | name | True | str |  | The name of the  resource. |
   | assign_public_ip | False | bool | False | This will assign the machine to the public LAN. If no LAN exists with public Internet access it is created. |
   | image | True | str |  | The image alias or ID for creating the virtual machine. |
   | image_password | False | str |  | Password set for the administrative user. |
@@ -202,10 +202,10 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | user_data | False | str |  | The cloud-init configuration for the volume as base64 encoded string. |
   | volume_availability_zone | False | str |  | The storage availability zone assigned to the volume. |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | cores | False | int | 2 | The number of CPU cores to allocate to the virtual machine. |
-  | ram | False | int | 2048 | The amount of memory to allocate to the virtual machine. |
-  | cpu_family | False | str | AMD_OPTERON | The amount of memory to allocate to the virtual machine. |
-  | availability_zone | False | str | AUTO | The availability zone assigned to the server. |
+  | cores | False | int | 2 | The total number of cores for the enterprise server. |
+  | ram | False | int | 2048 | The memory size for the enterprise server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB. |
+  | cpu_family | False | str | AMD_OPTERON | CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers. |
+  | availability_zone | False | str | AUTO | The availability zone in which the server should be provisioned. |
   | volume_size | False | int | 10 | The size in GB of the boot volume. |
   | bus | False | str | VIRTIO | The bus type for the volume. |
   | count | False | int | 1 | The number of virtual machines to create. |
@@ -260,10 +260,10 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the virtual machine. |
+  | name | False | str |  | The name of the  resource. |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | cores | False | int | 2 | The number of CPU cores to allocate to the virtual machine. |
-  | ram | False | int | 2048 | The amount of memory to allocate to the virtual machine. |
+  | cores | False | int | 2 | The total number of cores for the enterprise server. |
+  | ram | False | int | 2048 | The memory size for the enterprise server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB. |
   | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | boot_volume | False | str |  | The volume used for boot. |
   | boot_cdrom | False | str |  | The CDROM used for boot. |

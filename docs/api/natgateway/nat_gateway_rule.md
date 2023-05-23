@@ -80,9 +80,9 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
   | type | True | str |  | Type of the NAT Gateway rule. |
   | protocol | False | str |  | Protocol of the NAT Gateway rule. Defaults to ALL. If protocol is 'ICMP' then targetPortRange start and end cannot be set. |
   | source_subnet | True | str |  | Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets source IP address. |
-  | public_ip | True | str |  | Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource. |
+  | public_ip | True | str |  | Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource |
   | target_subnet | False | str |  | Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address. |
-  | target_port_range | False | dict |  | Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port. |
+  | target_port_range | False | dict |  | Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
@@ -157,9 +157,9 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
   | type | False | str |  | Type of the NAT Gateway rule. |
   | protocol | False | str |  | Protocol of the NAT Gateway rule. Defaults to ALL. If protocol is 'ICMP' then targetPortRange start and end cannot be set. |
   | source_subnet | False | str |  | Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets source IP address. |
-  | public_ip | False | str |  | Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource. |
+  | public_ip | False | str |  | Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource |
   | target_subnet | False | str |  | Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address. |
-  | target_port_range | False | dict |  | Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port. |
+  | target_port_range | False | dict |  | Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
   | nat_gateway_rule | True | str |  | The ID or name of the NAT Gateway rule. |

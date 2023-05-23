@@ -147,7 +147,7 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the virtual machine. |
+  | name | False | str |  | The name of the  resource. |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | api_url | False | str |  | The Ionos API base URL. |
@@ -179,14 +179,14 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the virtual machine. |
+  | name | True | str |  | The name of the  resource. |
   | assign_public_ip | False | bool | False | This will assign the machine to the public LAN. If no LAN exists with public Internet access it is created. |
   | image | True | str |  | The image alias or ID for creating the virtual machine. |
   | image_password | False | str |  | Password set for the administrative user. |
   | ssh_keys | False | list |  | Public SSH keys allowing access to the virtual machine. |
   | user_data | False | str |  | The cloud-init configuration for the volume as base64 encoded string. |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | availability_zone | False | str | AUTO | The availability zone assigned to the server. |
+  | availability_zone | False | str | AUTO | The availability zone in which the server should be provisioned. |
   | bus | False | str | VIRTIO | The bus type for the volume. |
   | count | False | int | 1 | The number of virtual machines to create. |
   | location | False | str | us/las | The datacenter location. Use only if you want to create the Datacenter or else this value is ignored. |
@@ -195,7 +195,7 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
   | remove_boot_volume | False | bool | True | Remove the bootVolume of the virtual machine you're destroying. |
   | disk_type | False | str | HDD | The disk type for the volume. |
   | nic_ips | False | list |  | The list of IPS for the NIC. |
-  | template_uuid | False | str |  | The template used when crating a CUBE server. |
+  | template_uuid | False | str |  | The ID of the template for creating a CUBE server; the available templates for CUBE servers can be found on the templates resource. |
   | boot_volume | False | str |  | The volume used for boot. |
   | boot_cdrom | False | str |  | The CDROM used for boot. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
@@ -234,7 +234,7 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the virtual machine. |
+  | name | False | str |  | The name of the  resource. |
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
   | boot_volume | False | str |  | The volume used for boot. |

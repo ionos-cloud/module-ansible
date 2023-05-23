@@ -41,9 +41,9 @@ This module allows you to create or remove an IPBlock.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the IPBlock. |
-  | location | True | str | us/las | The IP Block location. |
-  | size | False | int | 1 | The number of IP addresses to allocate in the IPBlock. |
+  | name | False | str |  | The name of the  resource. |
+  | location | True | str | us/las | Location of that IP block. Property cannot be modified after it is created (disallowed in update requests). |
+  | size | False | int | 1 | The size of the IP block. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -72,7 +72,7 @@ This module allows you to create or remove an IPBlock.
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | ipblock | True | str |  | The name or ID of an existing IPBlock. |
-  | name | False | str |  | The name of the IPBlock. |
+  | name | False | str |  | The name of the  resource. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

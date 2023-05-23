@@ -72,21 +72,21 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   | :--- | :---: | :--- | :--- | :--- |
   | k8s_cluster | True | str |  | The ID or name of the K8s cluster. |
   | nodepool_name | True | str |  | The name of the K8s Nodepool. |
-  | k8s_version | False | str |  | The Kubernetes version the nodepool is running. |
-  | datacenter | True | str |  | A valid ID or name of the data center, to which the user has access. |
-  | lans | False | list |  | Array of additional LANs attached to worker nodes. |
-  | node_count | False | int |  | The number of nodes that make up the node pool. |
-  | cpu_family | True | str |  | A valid CPU family name. |
-  | cores_count | True | int |  | The number of cores for the node. |
-  | ram_size | True | int |  | The RAM size for the node. Must be set in multiples of 1024 MB, with minimum size is of 2048 MB. |
+  | k8s_version | False | str |  | The Kubernetes version running in the node pool. Note that this imposes restrictions on which Kubernetes versions can run in the node pools of a cluster. Also, not all Kubernetes versions are suitable upgrade targets for all earlier versions. |
+  | datacenter | True | str |  | The unique identifier of the VDC where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located. |
+  | lans | False | list |  | The array of existing private LANs to attach to worker nodes. |
+  | node_count | False | int |  | The number of worker nodes of the node pool. |
+  | cpu_family | True | str |  | The CPU type for the nodes. |
+  | cores_count | True | int |  | The total number of cores for the nodes. |
+  | ram_size | True | int |  | The RAM size for the nodes. Must be specified in multiples of 1024 MB, with a minimum size of 2048 MB. |
   | availability_zone | True | str |  | The availability zone in which the target VM should be provisioned. |
-  | storage_type | True | str |  | The type of hardware for the volume. |
-  | storage_size | True | int |  | The size of the volume in GB. The size should be greater than 10GB. |
-  | maintenance_window | False | dict |  | The maintenance window is used for updating the software on the nodepool's nodes and for upgrading the nodepool's K8s version. If no value is given, one is chosen dynamically, so there is no fixed default. |
-  | labels | False | dict |  | Map of labels attached to node pool. |
-  | annotations | False | dict |  | Map of annotations attached to node pool. |
+  | storage_type | True | str |  | The storage type for the nodes. |
+  | storage_size | True | int |  | The allocated volume size in GB. The allocated volume size in GB. To achieve good performance, we recommend a size greater than 100GB for SSD. |
+  | maintenance_window | False | dict |  | The maintenance window is used to update the software on the node pool nodes and update the K8s version of the node pool. If no value is specified, a value is selected dynamically, so there is no fixed default value. |
+  | labels | False | dict |  | The labels attached to the node pool. |
+  | annotations | False | dict |  | The annotations attached to the node pool. |
   | auto_scaling | False | dict |  | Property to be set when auto-scaling needs to be enabled for the nodepool. By default, auto-scaling is not enabled. |
-  | public_ips | False | list |  | Optional array of reserved public IP addresses to be used by the nodes. IPs must be from same location as the data center used for the node pool. The array must contain one more IP than maximum number possible number of nodes (nodeCount+1 for fixed number of nodes or maxNodeCount+1 when auto scaling is used). The extra IP is used when the nodes are rebuilt. |
+  | public_ips | False | list |  | Optional array of reserved public IP addresses to be used by the nodes. The IPs must be from the exact location of the node pool's data center. If autoscaling is used, the array must contain one more IP than the maximum possible number of nodes (nodeCount+1 for a fixed number of nodes or maxNodeCount+1). The extra IP is used when the nodes are rebuilt. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -156,21 +156,21 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   | k8s_cluster | True | str |  | The ID or name of the K8s cluster. |
   | k8s_nodepool | True | str |  | The ID or name of the K8s nodepool. |
   | nodepool_name | False | str |  | The name of the K8s Nodepool. |
-  | k8s_version | False | str |  | The Kubernetes version the nodepool is running. |
-  | datacenter | False | str |  | A valid ID or name of the data center, to which the user has access. |
-  | lans | False | list |  | Array of additional LANs attached to worker nodes. |
-  | node_count | False | int |  | The number of nodes that make up the node pool. |
-  | cpu_family | False | str |  | A valid CPU family name. |
-  | cores_count | False | int |  | The number of cores for the node. |
-  | ram_size | False | int |  | The RAM size for the node. Must be set in multiples of 1024 MB, with minimum size is of 2048 MB. |
+  | k8s_version | False | str |  | The Kubernetes version running in the node pool. Note that this imposes restrictions on which Kubernetes versions can run in the node pools of a cluster. Also, not all Kubernetes versions are suitable upgrade targets for all earlier versions. |
+  | datacenter | False | str |  | The unique identifier of the VDC where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located. |
+  | lans | False | list |  | The array of existing private LANs to attach to worker nodes. |
+  | node_count | False | int |  | The number of worker nodes of the node pool. |
+  | cpu_family | False | str |  | The CPU type for the nodes. |
+  | cores_count | False | int |  | The total number of cores for the nodes. |
+  | ram_size | False | int |  | The RAM size for the nodes. Must be specified in multiples of 1024 MB, with a minimum size of 2048 MB. |
   | availability_zone | False | str |  | The availability zone in which the target VM should be provisioned. |
-  | storage_type | False | str |  | The type of hardware for the volume. |
-  | storage_size | False | int |  | The size of the volume in GB. The size should be greater than 10GB. |
-  | maintenance_window | False | dict |  | The maintenance window is used for updating the software on the nodepool's nodes and for upgrading the nodepool's K8s version. If no value is given, one is chosen dynamically, so there is no fixed default. |
-  | labels | False | dict |  | Map of labels attached to node pool. |
-  | annotations | False | dict |  | Map of annotations attached to node pool. |
+  | storage_type | False | str |  | The storage type for the nodes. |
+  | storage_size | False | int |  | The allocated volume size in GB. The allocated volume size in GB. To achieve good performance, we recommend a size greater than 100GB for SSD. |
+  | maintenance_window | False | dict |  | The maintenance window is used to update the software on the node pool nodes and update the K8s version of the node pool. If no value is specified, a value is selected dynamically, so there is no fixed default value. |
+  | labels | False | dict |  | The labels attached to the node pool. |
+  | annotations | False | dict |  | The annotations attached to the node pool. |
   | auto_scaling | False | dict |  | Property to be set when auto-scaling needs to be enabled for the nodepool. By default, auto-scaling is not enabled. |
-  | public_ips | False | list |  | Optional array of reserved public IP addresses to be used by the nodes. IPs must be from same location as the data center used for the node pool. The array must contain one more IP than maximum number possible number of nodes (nodeCount+1 for fixed number of nodes or maxNodeCount+1 when auto scaling is used). The extra IP is used when the nodes are rebuilt. |
+  | public_ips | False | list |  | Optional array of reserved public IP addresses to be used by the nodes. The IPs must be from the exact location of the node pool's data center. If autoscaling is used, the array must contain one more IP than the maximum possible number of nodes (nodeCount+1 for a fixed number of nodes or maxNodeCount+1). The extra IP is used when the nodes are rebuilt. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |

@@ -54,8 +54,8 @@ This module allows you to create or remove a LAN.
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
-  | name | True | str |  | The name of the LAN. |
-  | public | False | bool | False | If true, the LAN will have public Internet access. |
+  | name | True | str |  | The name of the  resource. |
+  | public | False | bool | False | This LAN faces the public Internet. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -119,10 +119,10 @@ This module allows you to create or remove a LAN.
   | :--- | :---: | :--- | :--- | :--- |
   | datacenter | True | str |  | The datacenter name or UUID in which to operate. |
   | lan | True | str |  | The LAN name or UUID. |
-  | name | False | str |  | The name of the LAN. |
-  | pcc | False | str |  | The ID or name of the PCC. |
-  | ip_failover | False | list |  | The IP failover group. |
-  | public | False | bool | False | If true, the LAN will have public Internet access. |
+  | name | False | str |  | The name of the  resource. |
+  | pcc | False | str |  | The unique identifier of the private Cross-Connect the LAN is connected to, if any. |
+  | ip_failover | False | list |  | IP failover configurations for lan |
+  | public | False | bool | False | This LAN faces the public Internet. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |

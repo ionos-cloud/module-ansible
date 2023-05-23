@@ -47,9 +47,9 @@ This is a simple module that supports creating or removing Backup Units. This mo
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the virtual Backup Unit. |
-  | backupunit_password | False | str |  | The password of the Backup Unit. |
-  | backupunit_email | True | str |  | The email of the Backup Unit. |
+  | name | True | str |  | The name of the  resource (alphanumeric characters only). |
+  | backupunit_password | False | str |  | The password associated with that resource. |
+  | backupunit_email | True | str |  | The email associated with the backup unit. Bear in mind that this email does not be the same email as of the user. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
