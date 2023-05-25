@@ -84,7 +84,7 @@ OPTIONS = {
     'volume_availability_zone': {
         'description': ['The storage availability zone assigned to the volume.'],
         'available': ['present'],
-        'choices': ['AUTO', 'ZONE_1', 'ZONE_2'],
+        'choices': ['AUTO', 'ZONE_1', 'ZONE_2', 'ZONE_3'],
         'type': 'str',
         'version_added': '2.3',
     },
