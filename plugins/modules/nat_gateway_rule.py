@@ -192,9 +192,9 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create NAT Gateway Rule
     nat_gateway_rule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      name: "{{ name }}"
+      datacenter: Datacentername
+      nat_gateway: NATGatewayName
+      name: RuleName
       type: "SNAT"
       protocol: "TCP"
       source_subnet: "10.0.1.0/24"
@@ -202,18 +202,18 @@ EXAMPLE_PER_STATE = {
       target_port_range:
         start: 10000
         end: 20000
-      public_ip: "{{ ipblock_response.ipblock.properties.ips[0] }}"
+      public_ip: <ip>
       wait: true
     register: nat_gateway_rule_response
   ''',
   'update' : '''
   - name: Update NAT Gateway Rule
     nat_gateway_rule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
-      public_ip: "{{ ipblock_response.ipblock.properties.ips[1] }}"
-      name: "{{ name }} - UPDATED"
+      datacenter: Datacentername
+      nat_gateway: NATGatewayName
+      nat_gateway_rule: RuleName
+      public_ip: <newIp>
+      name: "RuleName - UPDATED"
       type: "SNAT"
       protocol: "TCP"
       source_subnet: "10.0.1.0/24"
@@ -224,9 +224,9 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete NAT Gateway Rule
     nat_gateway_rule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
+      datacenter: Datacentername
+      nat_gateway: NATGatewayName
+      nat_gateway_rule: "RuleName - UPDATED"
       state: absent
   ''',
 }

@@ -185,18 +185,26 @@ author:
 
 EXAMPLE_PER_STATE = {
     'present': '''# Create a NIC
-  - nic:
-      datacenter: Tardis One
-      server: node002
-      lan: 2
-      wait_timeout: 500
-      state: present
+    - name: Create NIC
+      nic:
+       name: NicName
+       datacenter: DatacenterName
+       server: ServerName
+       lan: 2
+       dhcp: true
+       firewall_active: true
+       ips:
+         - 10.0.0.1
+       wait: true
+       wait_timeout: 600
+       state: present
+      register: ionos_cloud_nic
   ''',
     'update': '''# Update a NIC
   - nic:
-      datacenter: Tardis One
-      server: node002
-      name: 7341c2454f
+      datacenter: DatacenterName
+      server: ServerName
+      nic: NicName
       lan: 1
       ips:
         - 158.222.103.23
@@ -206,9 +214,9 @@ EXAMPLE_PER_STATE = {
   ''',
     'absent': '''# Remove a NIC
   - nic:
-      datacenter: Tardis One
-      server: node002
-      name: 7341c2454f
+      datacenter: DatacenterName
+      server: ServerName
+      nic: NicName
       wait_timeout: 500
       state: absent
   ''',

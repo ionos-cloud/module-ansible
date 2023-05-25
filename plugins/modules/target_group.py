@@ -176,7 +176,7 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Target Group
     target_group:
-      name: "{{ name }}"
+      name: "AnsibleAutoTestCompute"
       algorithm: "ROUND_ROBIN"
       protocol: "HTTP"
       targets:
@@ -202,10 +202,10 @@ EXAMPLE_PER_STATE = {
   'update' : '''
   - name: Update Target Group
     target_group:
-      name: "{{ name }} - UPDATED"
+      name: "AnsibleAutoTestCompute - UPDATED"
       algorithm: "ROUND_ROBIN"
       protocol: "HTTP"
-      target_group_id: "{{ target_group_response.target_group.id }}"
+      target_group: "AnsibleAutoTestCompute"
       wait: true
       state: update
     register: target_group_response_update
@@ -213,7 +213,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Remove Target Group
     target_group:
-      target_group_id: "{{ target_group_response.target_group.id }}"
+      target_group: "AnsibleAutoTestCompute - UPDATED"
       wait: true
       wait_timeout: 2000
       state: absent

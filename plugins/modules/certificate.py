@@ -149,23 +149,23 @@ EXAMPLE_PER_STATE = {
     'present': '''
     - name: Create Certificate
         certificate:
-            certificate_name: "{{ certificate_name }}"
-            certificate_file: "{{ certificate_path }}"
-            private_key_file: "{{ certificate_key_path }}"
+            certificate_name: CertificateName
+            certificate_file: "certificate.pem"
+            private_key_file: "key.pem"
         register: certificate
   ''',
     'update': '''
     - name: Update Certificate
         certificate:
-            certificate: "{{ certificate.certificate.id }}"
-            certificate_name: "{{ certificate_updated_name }}"
+            certificate: CertificateName
+            certificate_name: CertificateNewName
             state: update
         register: updated_certificate
   ''',
     'absent': '''
     - name: Delete Certificate
         certificate:
-            certificate: "{{ certificate.certificate.id }}"
+            certificate: CertificateNewName
             state: delete
   ''',
 }

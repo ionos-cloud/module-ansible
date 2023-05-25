@@ -190,8 +190,8 @@ EXAMPLE_PER_STATE = {
     user:
       firstname: John
       lastname: Doe
-      email: john.doe@example.com
-      user_password: secretpassword123
+      email: <email>
+      user_password: <password>
       administrator: true
       state: present
   ''',
@@ -200,7 +200,7 @@ EXAMPLE_PER_STATE = {
     user:
       firstname: John II
       lastname: Doe
-      email: john.doe@example.com
+      email: <email>
       administrator: false
       force_sec_auth: false
       groups:
@@ -211,7 +211,7 @@ EXAMPLE_PER_STATE = {
     'absent': '''# Remove a user
   - name: Remove user
     user:
-      user: john.doe@example.com
+      user: <email>
       state: absent
   ''',
 }

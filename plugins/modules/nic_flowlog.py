@@ -187,34 +187,34 @@ author:
 EXAMPLE_PER_STATE = {
     'present': '''- name: Create a nic flowlog
   nic_flowlog:
-    name: "{{ name }}"
+    name: FlowlogName
     action: "ACCEPTED"
     direction: "INGRESS"
     bucket: "sdktest"
-    datacenter: "{{ datacenter_response.datacenter.id }}"
-    server: "{{ server_response.machines[0].id }}"
-    nic: "{{ nic_response.nic.id }}"
+    datacenter: DatacenterName
+    server: ServerName
+    nic: NicName
   register: flowlog_response
   ''',
     'update': '''- name: Update a nic flowlog
   nic_flowlog:
-    name: "{{ name }}"
+    name: "FlowlogName"
     action: "ALL"
     direction: "INGRESS"
     bucket: "sdktest"
-    datacenter: "{{ datacenter_response.datacenter.id }}"
-    server: "{{ server_response.machines[0].id }}"
-    nic: "{{ nic_response.nic.id }}"
-    flowlog: "{{ flowlog_response.flowlog.id }}"
+    datacenter: DatacenterName
+    server: ServerName
+    nic: NicName
+    flowlog: FlowlogName
   register: flowlog_update_response
   ''',
     'absent': '''- name: Delete a nic flowlog
   nic_flowlog:
-    datacenter: "{{ datacenter_response.datacenter.id }}"
-    server: "{{ server_response.machines[0].id }}"
-    nic: "{{ nic_response.nic.id }}"
-    flowlog: "{{ flowlog_response.flowlog.id }}"
-    name: "{{ name }}"
+    datacenter: DatacenterName
+    server: ServerName
+    nic: NicName
+    flowlog: FlowlogName
+    name: "FlowlogName"
     state: absent
     wait: true
   register: flowlog_delete_response

@@ -258,31 +258,54 @@ author:
 
 EXAMPLE_PER_STATE = {
   'present' : '''# Create Multiple Volumes
-  - volume:
-    datacenter: Tardis One
-    name: vol%02d
-    count: 5
-    wait_timeout: 500
-    state: present
+    - name: Create volumes
+      volume:
+        datacenter: "AnsibleDatacenter"
+        name: "AnsibleAutoTestCompute %02d"
+        disk_type: SSD Premium
+        image: "centos:7"
+        image_password: "<password>"
+        count: 2
+        size: 20
+        availability_zone: AUTO
+        cpu_hot_plug: false
+        ram_hot_plug: true
+        nic_hot_plug: true
+        nic_hot_unplug: true
+        disc_virtio_hot_plug: true
+        disc_virtio_hot_unplug: true
+        wait_timeout: 600
+        wait: true
+        state: present
+      register: volume_create_response
   ''',
   'update' : '''# Update Volumes - only one ID if renaming
-  - volume:
-    name: 'new_vol_name'
-    datacenter: Tardis One
-    instance_ids: 'vol01'
-    size: 50
-    bus: IDE
-    wait_timeout: 500
-    state: update
+    - name: Update volume
+      volume:
+        datacenter: "AnsibleDatacenter"
+        instance_ids:
+          - "AnsibleAutoTestCompute 01"
+        name: "AnsibleAutoTestCompute modified"
+        size: 25
+        cpu_hot_plug: false
+        ram_hot_plug: true
+        nic_hot_plug: true
+        nic_hot_unplug: true
+        disc_virtio_hot_plug: true
+        disc_virtio_hot_unplug: true
+        wait_timeout: 600
+        wait: true
+        state: update
   ''',
   'absent' : '''# Remove Volumes
-  - volume:
-    datacenter: Tardis One
-    instance_ids:
-      - 'vol01'
-      - 'vol02'
-    wait_timeout: 500
-    state: absent
+  - name: Delete volumes
+      volume:
+        datacenter: "{{ datacenter }}"
+        instance_ids:
+          - "AnsibleAutoTestCompute modified"
+          - "AnsibleAutoTestCompute 02"
+        wait_timeout: 600
+        state: absent
   ''',
 }
 

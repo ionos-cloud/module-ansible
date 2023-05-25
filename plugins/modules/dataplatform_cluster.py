@@ -151,7 +151,7 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Data Platform cluster
     dataplatform_cluster:
-      name: "{{ cluster_name }}"
+      name: ClusterName
   ''',
   'update' : '''
   - name: Update Data Platform cluster

@@ -166,8 +166,7 @@ EXAMPLE_PER_STATE = {
   'update' : '''# Update a datacenter description
   - name: Update datacenter
     datacenter:
-      id: "{{ datacenter_response.datacenter.id }}"
-      name: "Example DC"
+      datacenter: "Example DC"
       description: "description - RENAMED"
       state: update
     register: updated_datacenter
@@ -175,8 +174,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''# Destroy a Datacenter. This will remove all servers, volumes, and other objects in the datacenter.
   - name: Remove datacenter
     datacenter:
-      id: "{{ datacenter_response.datacenter.id }}"
-      name: "Example DC"
+      datacenter: "Example DC"
       state: absent
   ''',
 }

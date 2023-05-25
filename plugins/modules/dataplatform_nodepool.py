@@ -196,7 +196,7 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Data Platform nodepool
     dataplatform_nodepool:
-      name: "{{ name }}"
+      name: NodepoolName
       cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       node_count: 1
       cpu_family: "AMD_OPTERON"
@@ -209,8 +209,8 @@ EXAMPLE_PER_STATE = {
   'update' : '''
   - name: Update Data Platform nodepool
     dataplatform_nodepool:
-      name: "{{ name }}"
-      cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+      nodepool: NodepoolName
+      cluster: ClusterName
       node_count: 1
       cores_count: 1
       maintenance_window:
