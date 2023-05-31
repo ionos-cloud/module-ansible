@@ -9,7 +9,7 @@
     - name: Create datacenter
       datacenter:
         name: "{{ datacenter }}"
-        location: "gb/lhr"
+        location: "de/txl"
         wait: True
       register: datacenter_response
 

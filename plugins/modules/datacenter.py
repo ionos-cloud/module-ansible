@@ -280,6 +280,7 @@ def _create_object(module, client, existing_object=None):
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            datacenter_response = datacenters_api.datacenters_find_by_id(datacenter_response.id)
     except ApiException as e:
         module.fail_json(msg="failed to create the new datacenter: %s" % to_native(e))
     return datacenter_response

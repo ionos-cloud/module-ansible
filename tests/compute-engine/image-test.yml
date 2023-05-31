@@ -25,6 +25,12 @@
         licence_type: "LINUX"
         cloud_init: V1
         state: update
+      register: image_output
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{image_output}}"
+    #     dest: ../../docs/returned_object_examples/image.json
 
     - name: Delete image
       image:

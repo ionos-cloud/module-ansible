@@ -4,8 +4,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-from plugins.modules.k8s_nodepool import RETURNED_KEY
-
 __metaclass__ = type
 
 import copy
@@ -613,11 +611,11 @@ def main():
 
         try:
             if state == 'absent':
-                module.exit_json(**remove_flowlog(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             if state == 'present':
-                module.exit_json(**create_flowlog(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_flowlog(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
                                                                                              error=to_native(e),

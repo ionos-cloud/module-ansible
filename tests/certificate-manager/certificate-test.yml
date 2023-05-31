@@ -28,6 +28,20 @@
         private_key_file: "{{ certificate_key_path }}"
       register: certificate
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{certificate}}"
+    #     dest: ../../docs/returned_object_examples/certificate.json
+
+    - name: List Certificates
+      certificate_info:
+      register: certificates_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{certificates_response}}"
+    #     dest: ../../docs/returned_object_examples/certificate_info.json
+
     - name: Create Certificate
       certificate:
         certificate_name: "{{ certificate_name }}"

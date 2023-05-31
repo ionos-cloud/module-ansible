@@ -286,7 +286,7 @@ def main():
             module.params.get('mongo_cluster'),
             [['id'], ['properties', 'display_name']],
         )
-        users = ionoscloud_dbaas_mongo.UsersApi(dbaas_mongo_api_client).users_get(mongo_cluster_id)
+        users = ionoscloud_dbaas_mongo.UsersApi(dbaas_mongo_api_client).clusters_users_get(mongo_cluster_id)
         results = list(map(lambda x: x.to_dict(), apply_filters(module, users.items)))
         module.exit_json(result=results)
     except Exception as e:

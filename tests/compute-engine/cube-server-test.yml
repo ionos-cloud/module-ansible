@@ -30,6 +30,12 @@
          wait: true
          wait_timeout: "{{ wait_timeout }}"
          state: present
+      register: server_cube
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{server_cube}}"
+    #     dest: ../../docs/returned_object_examples/cube_server.json
 
     - name: Update server
       cube_server:

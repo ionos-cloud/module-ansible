@@ -31,6 +31,11 @@
         wait: true
       register: nat_gateway_response
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nat_gateway_response}}"
+    #     dest: ../../docs/returned_object_examples/nat_gateway.json
+
     - name: Debug - Show NAT Gateway
       debug:
          msg: "{{ nat_gateway_response }}"
@@ -50,6 +55,11 @@
         public_ip: "{{ ipblock_response.ipblock.properties.ips[0] }}"
         wait: true
       register: nat_gateway_rule_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nat_gateway_rule_response}}"
+    #     dest: ../../docs/returned_object_examples/nat_gateway_rule.json
 
     - name: Debug - Show NAT Gateway Rule
       debug:
