@@ -98,7 +98,7 @@ OPTIONS = {
     },
     'licence_type': {
         'description': ['The licence type for the volume. This is used when the image is non-standard.'],
-        'choices': ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016'],
+        'choices': ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016', 'RHEL'],
         'default': 'UNKNOWN',
         'available': ['present'],
         'type': 'str',
@@ -247,7 +247,7 @@ options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 6.0.2"
+    - "ionoscloud >= 6.1.6"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
