@@ -35,7 +35,7 @@ DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update', 'restore']
 OBJECT_NAME = 'Snapshot'
 
-LICENCE_TYPES = ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016']
+LICENCE_TYPES = ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016', 'RHEL']
 OPTIONS = {
     'datacenter': {
         'description': ['The datacenter in which the volumes reside.'],
@@ -62,7 +62,7 @@ OPTIONS = {
     },
     'licence_type': {
         'description': ['The license type used'],
-        'choices': ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016'],
+        'choices': ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016', 'RHEL'],
         'available': ['update'],
         'type': 'str',
     },
@@ -197,7 +197,7 @@ options:
     default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 6.0.2"
+    - "ionoscloud >= 6.1.6"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
