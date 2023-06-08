@@ -1,0 +1,127 @@
+{
+    "action": "info",
+    "changed": false,
+    "servers": [
+        {
+            "entities": {
+                "cdroms": {
+                    "links": null,
+                    "href": "https://api.ionos.com/cloudapi/v6/datacenters/b5f23974-a370-4c47-88b7-ce66d63db86e/servers/249bd475-d379-4a07-b0ce-00570046049e/cdroms",
+                    "id": "249bd475-d379-4a07-b0ce-00570046049e/cdroms",
+                    "items": null,
+                    "limit": null,
+                    "offset": null,
+                    "type": "collection"
+                },
+                "nics": {
+                    "links": null,
+                    "href": "https://api.ionos.com/cloudapi/v6/datacenters/b5f23974-a370-4c47-88b7-ce66d63db86e/servers/249bd475-d379-4a07-b0ce-00570046049e/nics",
+                    "id": "249bd475-d379-4a07-b0ce-00570046049e/nics",
+                    "items": null,
+                    "limit": null,
+                    "offset": null,
+                    "type": "collection"
+                },
+                "volumes": {
+                    "links": null,
+                    "href": "https://api.ionos.com/cloudapi/v6/datacenters/b5f23974-a370-4c47-88b7-ce66d63db86e/servers/249bd475-d379-4a07-b0ce-00570046049e/volumes",
+                    "id": "249bd475-d379-4a07-b0ce-00570046049e/volumes",
+                    "items": null,
+                    "limit": null,
+                    "offset": null,
+                    "type": "collection"
+                }
+            },
+            "href": "https://api.ionos.com/cloudapi/v6/datacenters/b5f23974-a370-4c47-88b7-ce66d63db86e/servers/249bd475-d379-4a07-b0ce-00570046049e",
+            "id": "249bd475-d379-4a07-b0ce-00570046049e",
+            "metadata": {
+                "created_by": "<USER_EMAIL>",
+                "created_by_user_id": "<USER_ID>",
+                "created_date": "2023-06-06T11:43:47+00:00",
+                "etag": "08ac4abb0e26b41a39867762f9c38000",
+                "last_modified_by": "<USER_EMAIL>",
+                "last_modified_by_user_id": "<USER_ID>",
+                "last_modified_date": "2023-06-06T11:43:47+00:00",
+                "state": "AVAILABLE"
+            },
+            "properties": {
+                "availability_zone": "ZONE_1",
+                "boot_cdrom": null,
+                "boot_volume": {
+                    "href": "https://api.ionos.com/cloudapi/v6/datacenters/b5f23974-a370-4c47-88b7-ce66d63db86e/volumes/d6080c8e-ea9c-4722-8dca-2d9bf4110438",
+                    "id": "d6080c8e-ea9c-4722-8dca-2d9bf4110438",
+                    "type": "volume"
+                },
+                "cores": 1,
+                "cpu_family": "INTEL_SKYLAKE",
+                "name": "AnsibleAutoTestCompute 02",
+                "ram": 1024,
+                "template_uuid": null,
+                "type": "ENTERPRISE",
+                "vm_state": "RUNNING"
+            },
+            "type": "server"
+        },
+        {
+            "entities": {
+                "cdroms": {
+                    "links": null,
+                    "href": "https://api.ionos.com/cloudapi/v6/datacenters/b5f23974-a370-4c47-88b7-ce66d63db86e/servers/ff3bd348-f9a4-4d46-8122-c3a50f15a53a/cdroms",
+                    "id": "ff3bd348-f9a4-4d46-8122-c3a50f15a53a/cdroms",
+                    "items": null,
+                    "limit": null,
+                    "offset": null,
+                    "type": "collection"
+                },
+                "nics": {
+                    "links": null,
+                    "href": "https://api.ionos.com/cloudapi/v6/datacenters/b5f23974-a370-4c47-88b7-ce66d63db86e/servers/ff3bd348-f9a4-4d46-8122-c3a50f15a53a/nics",
+                    "id": "ff3bd348-f9a4-4d46-8122-c3a50f15a53a/nics",
+                    "items": null,
+                    "limit": null,
+                    "offset": null,
+                    "type": "collection"
+                },
+                "volumes": {
+                    "links": null,
+                    "href": "https://api.ionos.com/cloudapi/v6/datacenters/b5f23974-a370-4c47-88b7-ce66d63db86e/servers/ff3bd348-f9a4-4d46-8122-c3a50f15a53a/volumes",
+                    "id": "ff3bd348-f9a4-4d46-8122-c3a50f15a53a/volumes",
+                    "items": null,
+                    "limit": null,
+                    "offset": null,
+                    "type": "collection"
+                }
+            },
+            "href": "https://api.ionos.com/cloudapi/v6/datacenters/b5f23974-a370-4c47-88b7-ce66d63db86e/servers/ff3bd348-f9a4-4d46-8122-c3a50f15a53a",
+            "id": "ff3bd348-f9a4-4d46-8122-c3a50f15a53a",
+            "metadata": {
+                "created_by": "<USER_EMAIL>",
+                "created_by_user_id": "<USER_ID>",
+                "created_date": "2023-06-06T11:41:47+00:00",
+                "etag": "5895c05b33d522e553fd95bad9f9a95b",
+                "last_modified_by": "<USER_EMAIL>",
+                "last_modified_by_user_id": "<USER_ID>",
+                "last_modified_date": "2023-06-06T11:41:47+00:00",
+                "state": "AVAILABLE"
+            },
+            "properties": {
+                "availability_zone": "ZONE_1",
+                "boot_cdrom": null,
+                "boot_volume": {
+                    "href": "https://api.ionos.com/cloudapi/v6/datacenters/b5f23974-a370-4c47-88b7-ce66d63db86e/volumes/452dc8c5-57ef-4808-92f5-46f0e4557bb5",
+                    "id": "452dc8c5-57ef-4808-92f5-46f0e4557bb5",
+                    "type": "volume"
+                },
+                "cores": 1,
+                "cpu_family": "INTEL_SKYLAKE",
+                "name": "AnsibleAutoTestCompute 01",
+                "ram": 1024,
+                "template_uuid": null,
+                "type": "ENTERPRISE",
+                "vm_state": "RUNNING"
+            },
+            "type": "server"
+        }
+    ],
+    "failed": false
+}

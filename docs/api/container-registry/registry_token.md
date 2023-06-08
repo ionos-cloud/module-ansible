@@ -8,7 +8,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
 ```yaml
 - name: Create Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         name: test_registry_token
         scopes:
             - actions: 
@@ -23,7 +23,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
   
 - name: Update Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         registry_token: test_registry_token
         scopes:
             - actions: 
@@ -36,11 +36,58 @@ This is a module that supports creating, updating or destroying Registry Tokens
   
 - name: Delete Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         registry_token: test_registry_token
         state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "registry_token": {
+        "href": "",
+        "id": "1e9f63b6-ff23-41ab-8f7e-57dd1008d6b5",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-29T13:51:29+00:00",
+            "last_modified_by": null,
+            "last_modified_by_user_id": null,
+            "last_modified_date": null,
+            "state": "enabled"
+        },
+        "properties": {
+            "credentials": {
+                "password": "<PASSWORD>",
+                "username": "testRegistryToken"
+            },
+            "expiry_date": null,
+            "name": "testRegistryToken",
+            "scopes": [
+                {
+                    "actions": [
+                        "pull",
+                        "push"
+                    ],
+                    "name": "nume",
+                    "type": "repo"
+                }
+            ],
+            "status": "enabled"
+        },
+        "type": "token"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -49,7 +96,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
 ```yaml
   - name: Create Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         name: test_registry_token
         scopes:
             - actions: 
@@ -89,7 +136,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
 ```yaml
   - name: Delete Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         registry_token: test_registry_token
         state: absent
   
@@ -116,7 +163,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
 ```yaml
   - name: Update Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         registry_token: test_registry_token
         scopes:
             - actions: 

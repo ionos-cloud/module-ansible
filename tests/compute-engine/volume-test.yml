@@ -64,6 +64,16 @@
       debug:
         var: volume_create_response_idempotency
 
+    - name: List Volumes
+      volume_info:
+        datacenter: "{{ datacenter }}"
+      register: volume_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{volume_list_response}}"
+    #     dest: ../../docs/returned_object_examples/volume_info.json
+
     - name: Asserting that changed == false for creation of identical volumes
       assert:
         that:

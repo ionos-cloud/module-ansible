@@ -72,6 +72,82 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
         state: stopped
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": false,
+    "failed": false,
+    "machines": [
+        {
+            "entities": {
+                "cdroms": {
+                    "links": null,
+                    "href": "https://api.ionos.com/cloudapi/v6/datacenters/f6e15460-e5eb-451a-9da7-08c9da65a179/servers/78ce195d-147b-48d8-a20e-57104b99badd/cdroms",
+                    "id": "78ce195d-147b-48d8-a20e-57104b99badd/cdroms",
+                    "items": null,
+                    "limit": null,
+                    "offset": null,
+                    "type": "collection"
+                },
+                "nics": {
+                    "links": null,
+                    "href": "https://api.ionos.com/cloudapi/v6/datacenters/f6e15460-e5eb-451a-9da7-08c9da65a179/servers/78ce195d-147b-48d8-a20e-57104b99badd/nics",
+                    "id": "78ce195d-147b-48d8-a20e-57104b99badd/nics",
+                    "items": null,
+                    "limit": null,
+                    "offset": null,
+                    "type": "collection"
+                },
+                "volumes": {
+                    "links": null,
+                    "href": "https://api.ionos.com/cloudapi/v6/datacenters/f6e15460-e5eb-451a-9da7-08c9da65a179/servers/78ce195d-147b-48d8-a20e-57104b99badd/volumes",
+                    "id": "78ce195d-147b-48d8-a20e-57104b99badd/volumes",
+                    "items": null,
+                    "limit": null,
+                    "offset": null,
+                    "type": "collection"
+                }
+            },
+            "href": "https://api.ionos.com/cloudapi/v6/datacenters/f6e15460-e5eb-451a-9da7-08c9da65a179/servers/78ce195d-147b-48d8-a20e-57104b99badd",
+            "id": "78ce195d-147b-48d8-a20e-57104b99badd",
+            "metadata": {
+                "created_by": "<USER_EMAIL>",
+                "created_by_user_id": "<USER_ID>",
+                "created_date": "2023-05-29T09:17:01+00:00",
+                "etag": "f9b2094caee723ec45475a17c223ddd2",
+                "last_modified_by": "<USER_EMAIL>",
+                "last_modified_by_user_id": "<USER_ID>",
+                "last_modified_date": "2023-05-29T09:17:01+00:00",
+                "state": "AVAILABLE"
+            },
+            "properties": {
+                "availability_zone": "AUTO",
+                "boot_cdrom": null,
+                "boot_volume": {
+                    "href": "https://api.ionos.com/cloudapi/v6/datacenters/f6e15460-e5eb-451a-9da7-08c9da65a179/volumes/4e9d988c-d4d8-4de1-a325-7f1a7b0ea77f",
+                    "id": "4e9d988c-d4d8-4de1-a325-7f1a7b0ea77f",
+                    "type": "volume"
+                },
+                "cores": 1,
+                "cpu_family": "INTEL_SKYLAKE",
+                "name": "AnsibleAutoTestCompute",
+                "ram": 2048,
+                "template_uuid": null,
+                "type": "ENTERPRISE",
+                "vm_state": "RUNNING"
+            },
+            "type": "server"
+        }
+    ],
+    "action": "create"
+}
+
+```
+
 &nbsp;
 
 &nbsp;

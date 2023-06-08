@@ -17,8 +17,8 @@ This is a module that supports creating, updating, restoring or destroying Postg
       location: de/fra
       connections:
         - cidr: 192.168.1.106/24
-          datacenter: "{{ datacenter_response.datacenter.id }}"
-          lan: "{{ lan_response1.lan.id }}"
+          datacenter: DatacenterName
+          lan: LanName
       display_name: backuptest-04
       synchronization_mode: ASYNCHRONOUS
       db_username: test
@@ -28,7 +28,7 @@ This is a module that supports creating, updating, restoring or destroying Postg
   
 - name: Update Postgres Cluster
     postgres_cluster:
-      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_cluster: backuptest-04
       postgres_version: 12
       instances: 2
       cores: 2
@@ -40,10 +40,60 @@ This is a module that supports creating, updating, restoring or destroying Postg
   
 - name: Delete Postgres Cluster
     postgres_cluster:
-      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_cluster: backuptest-04
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "postgres_cluster": {
+        "type": "cluster",
+        "id": "46c151c7-55f8-42a4-86c3-06ad6b4b91ea",
+        "metadata": {
+            "created_date": "2023-05-30T14:35:40+00:00",
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "last_modified_date": null,
+            "last_modified_by": null,
+            "last_modified_by_user_id": null,
+            "state": "BUSY"
+        },
+        "properties": {
+            "display_name": "backuptest-04",
+            "postgres_version": "12",
+            "location": "de/fra",
+            "backup_location": "eu-central-2",
+            "instances": 1,
+            "ram": 2048,
+            "cores": 1,
+            "storage_size": 20480,
+            "storage_type": "SSD Premium",
+            "connections": [
+                {
+                    "datacenter_id": "03a8fdf1-fbc4-43f6-91ce-0506444e17dd",
+                    "lan_id": "2",
+                    "cidr": "<CIDR>"
+                }
+            ],
+            "maintenance_window": {
+                "time": "12:15:19",
+                "day_of_the_week": "Monday"
+            },
+            "synchronization_mode": "ASYNCHRONOUS"
+        }
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -61,8 +111,8 @@ This is a module that supports creating, updating, restoring or destroying Postg
       location: de/fra
       connections:
         - cidr: 192.168.1.106/24
-          datacenter: "{{ datacenter_response.datacenter.id }}"
-          lan: "{{ lan_response1.lan.id }}"
+          datacenter: DatacenterName
+          lan: LanName
       display_name: backuptest-04
       synchronization_mode: ASYNCHRONOUS
       db_username: test
@@ -109,7 +159,7 @@ This is a module that supports creating, updating, restoring or destroying Postg
 ```yaml
   - name: Delete Postgres Cluster
     postgres_cluster:
-      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_cluster: backuptest-04
       state: absent
   
 ```
@@ -135,7 +185,7 @@ This is a module that supports creating, updating, restoring or destroying Postg
 ```yaml
   - name: Update Postgres Cluster
     postgres_cluster:
-      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_cluster: backuptest-04
       postgres_version: 12
       instances: 2
       cores: 2

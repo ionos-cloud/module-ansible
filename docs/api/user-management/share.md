@@ -36,6 +36,40 @@ This module allows you to add, update or remove resource shares.
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "shares": [
+        {
+            "href": "https://api.ionos.com/cloudapi/v6/um/groups/137d33b4-a730-4323-98fd-ad0e3b078a5b/shares/2dd792c1-a5dc-45b6-8aa1-346478d53978",
+            "id": "2dd792c1-a5dc-45b6-8aa1-346478d53978",
+            "properties": {
+                "edit_privilege": true,
+                "share_privilege": true
+            },
+            "type": "resource"
+        },
+        {
+            "href": "https://api.ionos.com/cloudapi/v6/um/groups/137d33b4-a730-4323-98fd-ad0e3b078a5b/shares/9364dbea-d63f-4799-aaf6-e0cf6c21cafc",
+            "id": "9364dbea-d63f-4799-aaf6-e0cf6c21cafc",
+            "properties": {
+                "edit_privilege": true,
+                "share_privilege": true
+            },
+            "type": "resource"
+        }
+    ]
+}
+
+```
+
 &nbsp;
 
 &nbsp;

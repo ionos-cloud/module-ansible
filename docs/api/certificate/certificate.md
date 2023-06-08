@@ -9,26 +9,60 @@ This is a simple module that supports uploading, updating or deleting certificat
 
     - name: Create Certificate
         certificate:
-            certificate_name: "{{ certificate_name }}"
-            certificate_file: "{{ certificate_path }}"
-            private_key_file: "{{ certificate_key_path }}"
+            certificate_name: CertificateName
+            certificate_file: "certificate.pem"
+            private_key_file: "key.pem"
         register: certificate
   
 
     - name: Update Certificate
         certificate:
-            certificate: "{{ certificate.certificate.id }}"
-            certificate_name: "{{ certificate_updated_name }}"
+            certificate: CertificateName
+            certificate_name: CertificateNewName
             state: update
         register: updated_certificate
   
 
     - name: Delete Certificate
         certificate:
-            certificate: "{{ certificate.certificate.id }}"
+            certificate: CertificateNewName
             state: delete
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "certificate": {
+        "id": "58da84bd-5dea-4838-9c43-391b7c75124a",
+        "type": "certificate",
+        "href": "https://api.ionos.com/certificatemanager/certificates/58da84bd-5dea-4838-9c43-391b7c75124a",
+        "metadata": {
+            "etag": null,
+            "created_date": "2023-05-29T13:48:11Z",
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-29T13:48:11Z",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "state": "AVAILABLE"
+        },
+        "properties": {
+            "name": "test_certificate",
+            "certificate": "<CERTIFICATE>",
+            "certificate_chain": null
+        }
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -38,9 +72,9 @@ This is a simple module that supports uploading, updating or deleting certificat
   
     - name: Create Certificate
         certificate:
-            certificate_name: "{{ certificate_name }}"
-            certificate_file: "{{ certificate_path }}"
-            private_key_file: "{{ certificate_key_path }}"
+            certificate_name: CertificateName
+            certificate_file: "certificate.pem"
+            private_key_file: "key.pem"
         register: certificate
   
 ```
@@ -70,7 +104,7 @@ This is a simple module that supports uploading, updating or deleting certificat
   
     - name: Delete Certificate
         certificate:
-            certificate: "{{ certificate.certificate.id }}"
+            certificate: CertificateNewName
             state: delete
   
 ```
@@ -97,8 +131,8 @@ This is a simple module that supports uploading, updating or deleting certificat
   
     - name: Update Certificate
         certificate:
-            certificate: "{{ certificate.certificate.id }}"
-            certificate_name: "{{ certificate_updated_name }}"
+            certificate: CertificateName
+            certificate_name: CertificateNewName
             state: update
         register: updated_certificate
   

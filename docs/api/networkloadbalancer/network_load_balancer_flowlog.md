@@ -9,22 +9,22 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
 
   - name: Create Network Load Balancer Flowlog
     network_load_balancer_flowlog:
-      name: "{{ name }}"
+      name: FlowlogName
       action: "ACCEPTED"
       direction: "INGRESS"
       bucket: "sdktest"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
       wait: true
     register: nlb_flowlog_response
   
 
   - name: Update Network Load Balancer Flowlog
     network_load_balancer_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
+      flowlog: FlowlogName
+      name: FlowlogName
       action: "ALL"
       direction: "INGRESS"
       bucket: "sdktest"
@@ -35,12 +35,47 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
 
   - name: Delete Network Load Balancer Flowlog
     network_load_balancer_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
+      flowlog: FlowlogName
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "flowlog": {
+        "href": "https://api.ionos.com/cloudapi/v6/datacenters/85d05a60-0884-4337-ae24-b0b26d3f5b59/networkloadbalancers/16827845-2470-4903-ba35-acdb3c98e714/flowlogs/9521264d-e208-46b3-b3a0-796bd5907a30",
+        "id": "9521264d-e208-46b3-b3a0-796bd5907a30",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-31T13:29:56+00:00",
+            "etag": "6ccdd322a08ae377ceb9ab00f49d27b3",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-31T13:29:56+00:00",
+            "state": "BUSY"
+        },
+        "properties": {
+            "action": "ACCEPTED",
+            "bucket": "sdktest",
+            "direction": "INGRESS",
+            "name": "AnsibleAutoTestNLB"
+        },
+        "type": "flow-log"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -50,12 +85,12 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
   
   - name: Create Network Load Balancer Flowlog
     network_load_balancer_flowlog:
-      name: "{{ name }}"
+      name: FlowlogName
       action: "ACCEPTED"
       direction: "INGRESS"
       bucket: "sdktest"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
       wait: true
     register: nlb_flowlog_response
   
@@ -89,9 +124,9 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
   
   - name: Delete Network Load Balancer Flowlog
     network_load_balancer_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
+      flowlog: FlowlogName
       state: absent
   
 ```
@@ -121,10 +156,10 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
   
   - name: Update Network Load Balancer Flowlog
     network_load_balancer_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
+      flowlog: FlowlogName
+      name: FlowlogName
       action: "ALL"
       direction: "INGRESS"
       bucket: "sdktest"

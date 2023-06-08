@@ -9,7 +9,6 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
 
   - name: Create k8s cluster nodepool
     k8s_nodepools:
-      cluster_name: "{{ name }}"
       k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       datacenter: "4d495548-e330-434d-83a9-251bfa645875"
       node_count: 1
@@ -23,7 +22,6 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
 
   - name: Update k8s cluster nodepool
     k8s_nodepools:
-      cluster_name: "{{ name }}"
       k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
       k8s_nodepool: "6e9efcc6-649a-4514-bee5-6165b614c89e"
       node_count: 1
@@ -44,6 +42,79 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "nodepool": {
+        "href": "https://api.ionos.com/cloudapi/v6/k8s/b08b63ff-8bee-4091-ad5f-f8296eedd93b/nodepools/2d5b0b1c-67aa-4b9f-a899-c729619fa4ce",
+        "id": "2d5b0b1c-67aa-4b9f-a899-c729619fa4ce",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-31T09:48:08+00:00",
+            "etag": "ddb146ab080132c5d4ecc05871c32c74",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-31T09:48:08+00:00",
+            "state": "DEPLOYING"
+        },
+        "properties": {
+            "annotations": {
+                "ann1": "value1",
+                "ann2": "value2"
+            },
+            "auto_scaling": {
+                "max_node_count": 3,
+                "min_node_count": 1
+            },
+            "availability_zone": "AUTO",
+            "available_upgrade_versions": null,
+            "cores_count": 1,
+            "cpu_family": "INTEL_SKYLAKE",
+            "datacenter_id": "c38a3861-3af3-4ecf-9c83-54021512e9d9",
+            "k8s_version": null,
+            "labels": {
+                "foo": "bar",
+                "color": "red",
+                "size": "10"
+            },
+            "lans": [
+                {
+                    "datacenter_id": null,
+                    "dhcp": false,
+                    "id": 1,
+                    "routes": []
+                }
+            ],
+            "maintenance_window": {
+                "day_of_the_week": "Friday",
+                "time": "22:00:08Z"
+            },
+            "name": "my-nodepool-54",
+            "node_count": 2,
+            "public_ips": [
+                "<IP1>",
+                "<IP2>",
+                "<IP3>",
+                "<IP4>"
+            ],
+            "ram_size": 2048,
+            "storage_size": 100,
+            "storage_type": "HDD"
+        },
+        "type": "nodepool"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -53,7 +124,6 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   
   - name: Create k8s cluster nodepool
     k8s_nodepools:
-      cluster_name: "{{ name }}"
       k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       datacenter: "4d495548-e330-434d-83a9-251bfa645875"
       node_count: 1
@@ -134,7 +204,6 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   
   - name: Update k8s cluster nodepool
     k8s_nodepools:
-      cluster_name: "{{ name }}"
       k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
       k8s_nodepool: "6e9efcc6-649a-4514-bee5-6165b614c89e"
       node_count: 1

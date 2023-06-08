@@ -68,6 +68,10 @@
       debug:
         msg: "{{ flowlog_response }}"
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{flowlog_response}}"
+    #     dest: ../../docs/returned_object_examples/nic_flowlog.json
 
     - name: Update a nic flowlog
       nic_flowlog:
