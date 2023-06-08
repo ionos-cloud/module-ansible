@@ -131,6 +131,7 @@
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         state: absent
         wait: true
+        wait_timeout: 2000
 
     - name: Remove datacenter
       datacenter:
