@@ -37,6 +37,53 @@ This module allows you to create or remove a snapshot.
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "snapshot": {
+        "href": "https://api.ionos.com/cloudapi/v6/snapshots/c77c9be7-fb6d-4747-ac3d-a8489d8499d1",
+        "id": "c77c9be7-fb6d-4747-ac3d-a8489d8499d1",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-29T12:57:58+00:00",
+            "etag": "f47933bc5bead5ca05821105dc943e9f",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-29T12:57:58+00:00",
+            "state": "BUSY"
+        },
+        "properties": {
+            "cpu_hot_plug": false,
+            "cpu_hot_unplug": false,
+            "description": "Ansible test snapshot",
+            "disc_scsi_hot_plug": false,
+            "disc_scsi_hot_unplug": false,
+            "disc_virtio_hot_plug": false,
+            "disc_virtio_hot_unplug": false,
+            "licence_type": "UNKNOWN",
+            "location": "gb/lhr",
+            "name": "AnsibleAutoTestCompute",
+            "nic_hot_plug": false,
+            "nic_hot_unplug": false,
+            "ram_hot_plug": false,
+            "ram_hot_unplug": false,
+            "sec_auth_protection": false,
+            "size": 10.0
+        },
+        "type": "snapshot"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;

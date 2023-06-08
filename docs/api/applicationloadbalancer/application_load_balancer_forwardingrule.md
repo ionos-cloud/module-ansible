@@ -9,9 +9,9 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   - name: Create Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      name: RuleName
       protocol: "HTTP"
       listener_ip: "10.12.118.224"
       listener_port: "8081"
@@ -32,10 +32,10 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   - name: Update Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      forwarding_rule: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
-      name: "{{ name }} - UPDATED"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      forwarding_rule: RuleName
+      name: "RuleName - UPDATED"
       protocol: "HTTP"
       wait: true
       state: update
@@ -44,12 +44,70 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   - name: Delete Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      forwarding_rule: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      forwarding_rule: "RuleName - UPDATED"
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "forwarding_rule": {
+        "href": "https://api.ionos.com/cloudapi/v6/datacenters/0c0e3049-ebbd-4465-a766-62f6950c109e/applicationloadbalancers/5c0b9b00-ae36-4626-bff6-e6c30e6d2809/forwardingrules/e64fb339-1a81-4828-83b1-5e72c238f0a5",
+        "id": "e64fb339-1a81-4828-83b1-5e72c238f0a5",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-29T13:12:17+00:00",
+            "etag": "7d16bc2be7483c6544330b4b3ecdbf8f",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-29T13:12:17+00:00",
+            "state": "BUSY"
+        },
+        "properties": {
+            "client_timeout": null,
+            "http_rules": [
+                {
+                    "conditions": [
+                        {
+                            "condition": "STARTS_WITH",
+                            "key": null,
+                            "negate": false,
+                            "type": "HEADER",
+                            "value": "Friday"
+                        }
+                    ],
+                    "content_type": "application/json",
+                    "drop_query": null,
+                    "location": null,
+                    "name": "Ansible HTTP Rule",
+                    "response_message": "<>",
+                    "status_code": null,
+                    "target_group": null,
+                    "type": "static"
+                }
+            ],
+            "listener_ip": "10.12.118.224",
+            "listener_port": 8081,
+            "name": "AnsibleAutoTestALB",
+            "protocol": "HTTP",
+            "server_certificates": []
+        },
+        "type": "forwarding-rule"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -59,9 +117,9 @@ This is a simple module that supports creating or removing Application Loadbalan
   
   - name: Create Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      name: RuleName
       protocol: "HTTP"
       listener_ip: "10.12.118.224"
       listener_port: "8081"
@@ -114,9 +172,9 @@ This is a simple module that supports creating or removing Application Loadbalan
   
   - name: Delete Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      forwarding_rule: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      forwarding_rule: "RuleName - UPDATED"
       state: absent
   
 ```
@@ -146,10 +204,10 @@ This is a simple module that supports creating or removing Application Loadbalan
   
   - name: Update Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      forwarding_rule: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
-      name: "{{ name }} - UPDATED"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      forwarding_rule: RuleName
+      name: "RuleName - UPDATED"
       protocol: "HTTP"
       wait: true
       state: update

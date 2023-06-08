@@ -9,7 +9,7 @@ This is a simple module that supports listing S3Keys.
 
     - name: List S3Keys for user
       s3key_info:
-        user_id: "{{ user_id }}"
+        user: <user_id/email>
         register: s3key_info_response
 
     - name: Show S3Keys

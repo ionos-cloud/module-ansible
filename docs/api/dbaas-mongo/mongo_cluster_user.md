@@ -8,21 +8,66 @@ This is a module that supports creating and destroying Mongo Cluster Users
 ```yaml
 - name: Create Cluster User
     mongo_cluster_user:
-      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: MongoClusterName
       mongo_username: testuser
-      mongo_password: password123
+      mongo_password: <password>
       user_roles:
         - role: read
           database: test
     register: mongo_user_response
   
+- name: Update User
+    mongo_cluster_user:
+      mongo_cluster: MongoClusterName
+      mongo_username: testuser
+      mongo_password: <newPassword>
+      user_roles:
+        - role: read
+          database: test
+        - role: readWrite
+          database: test
+      state: update
+    register: mongo_user_response
+  
 - name: Delete Cluster User
     mongo_cluster_user:
-      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: MongoClusterName
       mongo_username: testuser
     register: mongo_user_response
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "mongo_cluster_user": {
+        "type": "user",
+        "metadata": {
+            "created_date": "2023-05-30T14:20:09+00:00",
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>"
+        },
+        "properties": {
+            "username": "testuser",
+            "password": null,
+            "roles": [
+                {
+                    "role": "read",
+                    "database": "test"
+                }
+            ]
+        }
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -31,9 +76,9 @@ This is a module that supports creating and destroying Mongo Cluster Users
 ```yaml
   - name: Create Cluster User
     mongo_cluster_user:
-      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: MongoClusterName
       mongo_username: testuser
-      mongo_password: password123
+      mongo_password: <password>
       user_roles:
         - role: read
           database: test
@@ -63,6 +108,18 @@ This is a module that supports creating and destroying Mongo Cluster Users
 &nbsp;
 # state: **update**
 ```yaml
+  - name: Update User
+    mongo_cluster_user:
+      mongo_cluster: MongoClusterName
+      mongo_username: testuser
+      mongo_password: <newPassword>
+      user_roles:
+        - role: read
+          database: test
+        - role: readWrite
+          database: test
+      state: update
+    register: mongo_user_response
   
 ```
 ### Available parameters for state **update**:
@@ -90,7 +147,7 @@ This is a module that supports creating and destroying Mongo Cluster Users
 ```yaml
   - name: Delete Cluster User
     mongo_cluster_user:
-      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: MongoClusterName
       mongo_username: testuser
     register: mongo_user_response
   

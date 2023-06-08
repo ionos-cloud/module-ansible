@@ -31,6 +31,12 @@
         name: "{{ name }}"
         description: Ansible test snapshot
         wait_timeout: 600
+      register: result
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{result}}"
+    #     dest: ../../docs/returned_object_examples/snapshot.json
 
     - name: Update snapshot
       snapshot:

@@ -9,11 +9,13 @@ This is a simple module that supports creating or removing NATGateways. This mod
 
   - name: Create NAT Gateway
     nat_gateway:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      name: "{{ name }}"
-      public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
+      datacenter: DatacenterName
+      name: NATGatewayName
+      public_ips:
+        - <ip1>
+        - <ip2>
       lans:
-        - id: "{{ lan_response.lan.id }}"
+        - id: 1
           gateway_ips: "10.11.2.5/24"
       wait: true
     register: nat_gateway_response
@@ -21,10 +23,12 @@ This is a simple module that supports creating or removing NATGateways. This mod
 
   - name: Update NAT Gateway
     nat_gateway:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      name: "{{ name }} - UPDATED"
-      public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: DatacenterName
+      name: "NATGatewayName - UPDATED"
+      public_ips:
+        - <ip1>
+        - <ip2>
+      nat_gateway: NATGatewayName
       wait: true
       state: update
     register: nat_gateway_response_update
@@ -32,13 +36,67 @@ This is a simple module that supports creating or removing NATGateways. This mod
 
   - name: Remove NAT Gateway
     nat_gateway:
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: NATGatewayName
+      datacenter: DatacenterName
       wait: true
       wait_timeout: 2000
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": false,
+    "failed": false,
+    "action": "create",
+    "nat_gateway": {
+        "entities": {
+            "flowlogs": {
+                "links": null,
+                "href": "https://api.ionos.com/cloudapi/v6/datacenters/0406692b-b25f-4a58-8b41-e3b2d761447c/natgateways/abcc8593-a4a9-4ea0-b63c-04f95f395aa0/flowlogs",
+                "id": "abcc8593-a4a9-4ea0-b63c-04f95f395aa0/flowlogs",
+                "items": null,
+                "limit": null,
+                "offset": null,
+                "type": "collection"
+            },
+            "rules": {
+                "href": "https://api.ionos.com/cloudapi/v6/datacenters/0406692b-b25f-4a58-8b41-e3b2d761447c/natgateways/abcc8593-a4a9-4ea0-b63c-04f95f395aa0/rules",
+                "id": "abcc8593-a4a9-4ea0-b63c-04f95f395aa0/rules",
+                "items": null,
+                "type": "collection"
+            }
+        },
+        "href": "https://api.ionos.com/cloudapi/v6/datacenters/0406692b-b25f-4a58-8b41-e3b2d761447c/natgateways/abcc8593-a4a9-4ea0-b63c-04f95f395aa0",
+        "id": "abcc8593-a4a9-4ea0-b63c-04f95f395aa0",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-31T11:46:08+00:00",
+            "etag": "f64f5fbd951032447f9e9a9b0d7ab1a2",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-31T11:46:08+00:00",
+            "state": "AVAILABLE"
+        },
+        "properties": {
+            "lans": [],
+            "name": "AnsibleAutoTestNAT",
+            "public_ips": [
+                "<IP1>",
+                "<IP2>"
+            ]
+        },
+        "type": "natgateway"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -48,11 +106,13 @@ This is a simple module that supports creating or removing NATGateways. This mod
   
   - name: Create NAT Gateway
     nat_gateway:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      name: "{{ name }}"
-      public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
+      datacenter: DatacenterName
+      name: NATGatewayName
+      public_ips:
+        - <ip1>
+        - <ip2>
       lans:
-        - id: "{{ lan_response.lan.id }}"
+        - id: 1
           gateway_ips: "10.11.2.5/24"
       wait: true
     register: nat_gateway_response
@@ -85,8 +145,8 @@ This is a simple module that supports creating or removing NATGateways. This mod
   
   - name: Remove NAT Gateway
     nat_gateway:
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: NATGatewayName
+      datacenter: DatacenterName
       wait: true
       wait_timeout: 2000
       state: absent
@@ -117,10 +177,12 @@ This is a simple module that supports creating or removing NATGateways. This mod
   
   - name: Update NAT Gateway
     nat_gateway:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      name: "{{ name }} - UPDATED"
-      public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: DatacenterName
+      name: "NATGatewayName - UPDATED"
+      public_ips:
+        - <ip1>
+        - <ip2>
+      nat_gateway: NATGatewayName
       wait: true
       state: update
     register: nat_gateway_response_update

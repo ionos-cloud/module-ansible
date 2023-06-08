@@ -164,12 +164,12 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create k8s cluster
     k8s_cluster:
-      name: "{{ cluster_name }}"
+      name: ClusterName
   ''',
   'update' : '''
   - name: Update k8s cluster
     k8s_cluster:
-      k8s_cluster_id: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
+      k8s_cluster: ClusterName
       maintenance_window:
         day_of_the_week: 'Tuesday'
         time: '13:03:00'
@@ -179,7 +179,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete k8s cluster
     k8s_cluster:
-      k8s_cluster_id: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
+      k8s_cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
       state: absent
   ''',
 }

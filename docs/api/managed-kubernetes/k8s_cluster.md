@@ -9,12 +9,12 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 
   - name: Create k8s cluster
     k8s_cluster:
-      name: "{{ cluster_name }}"
+      name: ClusterName
   
 
   - name: Update k8s cluster
     k8s_cluster:
-      k8s_cluster_id: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
+      k8s_cluster: ClusterName
       maintenance_window:
         day_of_the_week: 'Tuesday'
         time: '13:03:00'
@@ -24,10 +24,52 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 
   - name: Delete k8s cluster
     k8s_cluster:
-      k8s_cluster_id: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
+      k8s_cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "cluster": {
+        "entities": null,
+        "href": "https://api.ionos.com/cloudapi/v6/k8s/b08b63ff-8bee-4091-ad5f-f8296eedd93b",
+        "id": "b08b63ff-8bee-4091-ad5f-f8296eedd93b",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-31T09:42:32+00:00",
+            "etag": "28a43faaa371c59d79d86aca2d6f7792",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-31T09:42:32+00:00",
+            "state": "DEPLOYING"
+        },
+        "properties": {
+            "api_subnet_allow_list": null,
+            "available_upgrade_versions": null,
+            "k8s_version": null,
+            "maintenance_window": {
+                "day_of_the_week": "Wednesday",
+                "time": "12:02:00Z"
+            },
+            "name": "my-cluster-4",
+            "s3_buckets": null,
+            "viable_node_pool_versions": null
+        },
+        "type": "k8s"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -37,7 +79,7 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   
   - name: Create k8s cluster
     k8s_cluster:
-      name: "{{ cluster_name }}"
+      name: ClusterName
   
 ```
 ### Available parameters for state **present**:
@@ -68,7 +110,7 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   
   - name: Delete k8s cluster
     k8s_cluster:
-      k8s_cluster_id: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
+      k8s_cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
       state: absent
   
 ```
@@ -95,7 +137,7 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   
   - name: Update k8s cluster
     k8s_cluster:
-      k8s_cluster_id: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
+      k8s_cluster: ClusterName
       maintenance_window:
         day_of_the_week: 'Tuesday'
         time: '13:03:00'

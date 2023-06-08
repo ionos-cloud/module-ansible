@@ -173,23 +173,23 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Application Load Balancer
     application_load_balancer:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      name:AppLbName
       ips:
         - "10.12.118.224"
-      listener_lan: "{{ listener_lan.lan.id }}"
-      target_lan: "{{ target_lan.lan.id }}"
+      listener_lan: 1
+      target_lan: 2
       wait: true
     register: alb_response
   ''',
   'update' : '''
   - name: Update Application Load Balancer
     application_load_balancer:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      name: "{{ name }} - UPDATE"
-      listener_lan: "{{ listener_lan.lan.id }}"
-      target_lan: "{{ target_lan.lan.id }}"
+      datacenter: DatacenterName
+      application_load_balancer: ApplicationLoadBalancerName
+      name: "AppLbName - UPDATE"
+      listener_lan: 1
+      target_lan: 2
       wait: true
       state: update
     register: alb_response_update
@@ -197,8 +197,8 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Remove Application Load Balancer
     application_load_balancer:
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: ApplicationLoadBalancerName
+      datacenter: DatacenterName
       wait: true
       state: absent
   ''',

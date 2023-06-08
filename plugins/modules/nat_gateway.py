@@ -164,11 +164,13 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create NAT Gateway
     nat_gateway:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      name: "{{ name }}"
-      public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
+      datacenter: DatacenterName
+      name: NATGatewayName
+      public_ips:
+        - <ip1>
+        - <ip2>
       lans:
-        - id: "{{ lan_response.lan.id }}"
+        - id: 1
           gateway_ips: "10.11.2.5/24"
       wait: true
     register: nat_gateway_response
@@ -176,10 +178,12 @@ EXAMPLE_PER_STATE = {
   'update' : '''
   - name: Update NAT Gateway
     nat_gateway:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      name: "{{ name }} - UPDATED"
-      public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: DatacenterName
+      name: "NATGatewayName - UPDATED"
+      public_ips:
+        - <ip1>
+        - <ip2>
+      nat_gateway: NATGatewayName
       wait: true
       state: update
     register: nat_gateway_response_update
@@ -187,8 +191,8 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Remove NAT Gateway
     nat_gateway:
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
+      nat_gateway: NATGatewayName
+      datacenter: DatacenterName
       wait: true
       wait_timeout: 2000
       state: absent

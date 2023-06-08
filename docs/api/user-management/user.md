@@ -11,8 +11,8 @@ This module allows you to create, update or remove a user.
     user:
       firstname: John
       lastname: Doe
-      email: john.doe@example.com
-      user_password: secretpassword123
+      email: <email>
+      user_password: <password>
       administrator: true
       state: present
   
@@ -21,7 +21,7 @@ This module allows you to create, update or remove a user.
     user:
       firstname: John II
       lastname: Doe
-      email: john.doe@example.com
+      email: <email>
       administrator: false
       force_sec_auth: false
       groups:
@@ -32,10 +32,45 @@ This module allows you to create, update or remove a user.
 # Remove a user
   - name: Remove user
     user:
-      user: john.doe@example.com
+      user: <email>
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "user": {
+        "entities": null,
+        "href": "https://api.ionos.com/cloudapi/v6/um/users/<USER_ID>",
+        "id": "<USER_ID>",
+        "metadata": {
+            "created_date": "2023-05-31T13:41:25+00:00",
+            "etag": "37a6259cc0c1dae299a7866489dff0bd",
+            "last_login": null
+        },
+        "properties": {
+            "active": true,
+            "administrator": false,
+            "email": "<EMAIL>",
+            "firstname": "John2",
+            "force_sec_auth": false,
+            "lastname": "Doe",
+            "s3_canonical_user_id": null,
+            "sec_auth_active": false
+        },
+        "type": "user"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -47,8 +82,8 @@ This module allows you to create, update or remove a user.
     user:
       firstname: John
       lastname: Doe
-      email: john.doe@example.com
-      user_password: secretpassword123
+      email: <email>
+      user_password: <password>
       administrator: true
       state: present
   
@@ -84,7 +119,7 @@ This module allows you to create, update or remove a user.
   # Remove a user
   - name: Remove user
     user:
-      user: john.doe@example.com
+      user: <email>
       state: absent
   
 ```
@@ -113,7 +148,7 @@ This module allows you to create, update or remove a user.
     user:
       firstname: John II
       lastname: Doe
-      email: john.doe@example.com
+      email: <email>
       administrator: false
       force_sec_auth: false
       groups:

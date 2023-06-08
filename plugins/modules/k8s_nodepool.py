@@ -233,7 +233,6 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create k8s cluster nodepool
     k8s_nodepools:
-      cluster_name: "{{ name }}"
       k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       datacenter: "4d495548-e330-434d-83a9-251bfa645875"
       node_count: 1
@@ -247,7 +246,6 @@ EXAMPLE_PER_STATE = {
   'update' : '''
   - name: Update k8s cluster nodepool
     k8s_nodepools:
-      cluster_name: "{{ name }}"
       k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
       k8s_nodepool: "6e9efcc6-649a-4514-bee5-6165b614c89e"
       node_count: 1

@@ -176,22 +176,22 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Network Load Balancer Flowlog
     network_load_balancer_flowlog:
-      name: "{{ name }}"
+      name: FlowlogName
       action: "ACCEPTED"
       direction: "INGRESS"
       bucket: "sdktest"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
       wait: true
     register: nlb_flowlog_response
   ''',
   'update' : '''
   - name: Update Network Load Balancer Flowlog
     network_load_balancer_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
+      flowlog: FlowlogName
+      name: FlowlogName
       action: "ALL"
       direction: "INGRESS"
       bucket: "sdktest"
@@ -202,9 +202,9 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete Network Load Balancer Flowlog
     network_load_balancer_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
+      flowlog: FlowlogName
       state: absent
   ''',
 }

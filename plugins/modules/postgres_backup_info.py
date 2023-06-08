@@ -107,7 +107,7 @@ author:
 EXAMPLES = '''
     - name: List Postgres Cluster Backups
         postgres_cluster_info:
-            postgres_cluster: {{ postgres_cluster.id }}
+            postgres_cluster: backuptest-04
         register: postgres_clusters_response
 
     - name: Show Postgres Cluster Backups

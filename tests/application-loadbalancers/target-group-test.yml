@@ -36,6 +36,11 @@
       debug:
          msg: "{{ target_group_response }}"
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{target_group_response}}"
+    #     dest: ../../docs/returned_object_examples/target_group.json
+
     - name: Update Target Group
       target_group:
         name: "{{ name }} - UPDATED"

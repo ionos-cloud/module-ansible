@@ -42,6 +42,11 @@
       state: present
     register: share
 
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{share}}"
+  #     dest: ../../docs/returned_object_examples/share.json
+
   - name: Debug - Show Share
     debug:
       msg: "{{ share }}"

@@ -9,24 +9,59 @@ This is a simple module that supports creating or removing Private Cross Connect
 
   - name: Create pcc
     pcc:
-      name: "{{ name }}"
-      description: "{{ description }}"
+      name: PCCName
+      description: "Description for my PCC"
   
 
   - name: Update pcc
     pcc:
-      pcc: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
-      name: "{{ new_name }}"
-      description: "{{ new_description }}"
+      pcc: PCCName
+      name: NewPCCName
+      description: "New description for my PCC"
       state: update
   
 
   - name: Remove pcc
     pcc:
-      pcc: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
+      pcc: NewPCCName
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "pcc": {
+        "href": "https://api.ionos.com/cloudapi/v6/pccs/9574d5dd-14be-4e4c-b9fb-962bdadc954d",
+        "id": "9574d5dd-14be-4e4c-b9fb-962bdadc954d",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": null,
+            "created_date": "2023-05-29T12:52:28+00:00",
+            "etag": "90244ee1b3bb5db489f5e25999ee177d",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": null,
+            "last_modified_date": "2023-05-29T12:52:28+00:00",
+            "state": "BUSY"
+        },
+        "properties": {
+            "connectable_datacenters": [],
+            "description": "Ansible Compute test description",
+            "name": "AnsibleAutoTestCompute",
+            "peers": []
+        },
+        "type": "pcc"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -36,8 +71,8 @@ This is a simple module that supports creating or removing Private Cross Connect
   
   - name: Create pcc
     pcc:
-      name: "{{ name }}"
-      description: "{{ description }}"
+      name: PCCName
+      description: "Description for my PCC"
   
 ```
 ### Available parameters for state **present**:
@@ -65,7 +100,7 @@ This is a simple module that supports creating or removing Private Cross Connect
   
   - name: Remove pcc
     pcc:
-      pcc: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
+      pcc: NewPCCName
       state: absent
   
 ```
@@ -92,9 +127,9 @@ This is a simple module that supports creating or removing Private Cross Connect
   
   - name: Update pcc
     pcc:
-      pcc: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
-      name: "{{ new_name }}"
-      description: "{{ new_description }}"
+      pcc: PCCName
+      name: NewPCCName
+      description: "New description for my PCC"
       state: update
   
 ```

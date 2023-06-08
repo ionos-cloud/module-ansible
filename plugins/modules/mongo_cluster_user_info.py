@@ -23,6 +23,12 @@ STATES = ['info']
 OBJECT_NAME = 'Mongo Clusters'
 
 OPTIONS = {
+    'mongo_cluster': {
+        'description': ['The UUID or name of an existing Mongo Cluster.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
     'filters': {
         'description': [
             'Filter that can be used to list only objects which have a certain set of propeties. Filters '
@@ -102,6 +108,45 @@ EXAMPLES = '''
         debug:
             var: mongo_clusters_response.result
 '''
+
+
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
 
 
 def get_method_from_filter(filter):
@@ -236,8 +281,12 @@ def main():
 
     check_required_arguments(module, OBJECT_NAME)
     try:
-        mongo_cluster_id = module.params.get('mongo_cluster_id')
-        users = ionoscloud_dbaas_mongo.UsersApi(dbaas_mongo_api_client).users_get(mongo_cluster_id)
+        mongo_cluster_id = get_resource_id(
+            module, ionoscloud_dbaas_mongo.ClustersApi(dbaas_mongo_api_client).clusters_get(),
+            module.params.get('mongo_cluster'),
+            [['id'], ['properties', 'display_name']],
+        )
+        users = ionoscloud_dbaas_mongo.UsersApi(dbaas_mongo_api_client).clusters_users_get(mongo_cluster_id)
         results = list(map(lambda x: x.to_dict(), apply_filters(module, users.items)))
         module.exit_json(result=results)
     except Exception as e:

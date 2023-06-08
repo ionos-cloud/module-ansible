@@ -142,21 +142,21 @@ EXAMPLE_PER_STATE = {
     'present': '''
   - name: Create an s3key
     s3key:
-      user: "{{ user_id }}"
+      user: <user_id/email>
   ''',
     'update': '''
   - name: Update an s3key
     s3key:
-      user: "{{ user_id }}"
-      key_id: "00ca413c94eecc56857d"
+      user: <user_id/email>
+      key_id: "00ca413c94eecc56857d
       active: False
       state: update
   ''',
     'absent': '''
   - name: Remove an s3key
     s3key:
-      user: "{{ user_id }}"
-      key_id: "00ca413c94eecc56857d"
+      user: <user_id/email>
+      key_id: 00ca413c94eecc56857d
       state: absent
   ''',
 }

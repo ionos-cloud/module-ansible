@@ -101,7 +101,7 @@ author:
 EXAMPLES = '''
     - name: List Registry Tokens
         registry_token_info:
-            registry_id: "{{ id }}"
+            registry: "RegistryName"
         register: registry_tokens_response
 
 

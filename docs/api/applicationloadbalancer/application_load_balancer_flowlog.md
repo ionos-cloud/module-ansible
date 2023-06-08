@@ -9,22 +9,22 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   - name: Create Application Load Balancer Flowlog
     application_load_balancer_flowlog:
-      name: "{{ name }}"
+      name: FlowlogName
       action: "ACCEPTED"
       direction: "INGRESS"
       bucket: "sdktest"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
       wait: true
     register: alb_flowlog_response
   
 
   - name: Update Application Load Balancer Flowlog
     application_load_balancer_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      flowlog: "{{ alb_flowlog_response.flowlog.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      flowlog:FlowlogName
+      name: FlowlogName
       action: "ALL"
       direction: "INGRESS"
       bucket: "sdktest"
@@ -35,12 +35,47 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   - name: Delete Application Load Balancer Flowlog
     application_load_balancer_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      flowlog: "{{ alb_flowlog_response.flowlog.id }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      flowlog:FlowlogName
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "flowlog": {
+        "href": "https://api.ionos.com/cloudapi/v6/datacenters/d5b16e3b-d162-441b-9567-d9cca96fb191/applicationloadbalancers/ac62eabb-38da-4d1e-b2c6-4711ce86cfda/flowlogs/48cfe165-18f0-417c-a1ee-4ef0d22167c8",
+        "id": "48cfe165-18f0-417c-a1ee-4ef0d22167c8",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-29T13:34:06+00:00",
+            "etag": "c1ded9c35b5f413afd00360eb9daa807",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-29T13:34:06+00:00",
+            "state": "BUSY"
+        },
+        "properties": {
+            "action": "ACCEPTED",
+            "bucket": "sdktest",
+            "direction": "INGRESS",
+            "name": "AnsibleAutoTestALB"
+        },
+        "type": "flow-log"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -50,12 +85,12 @@ This is a simple module that supports creating or removing Application Loadbalan
   
   - name: Create Application Load Balancer Flowlog
     application_load_balancer_flowlog:
-      name: "{{ name }}"
+      name: FlowlogName
       action: "ACCEPTED"
       direction: "INGRESS"
       bucket: "sdktest"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
       wait: true
     register: alb_flowlog_response
   
@@ -89,9 +124,9 @@ This is a simple module that supports creating or removing Application Loadbalan
   
   - name: Delete Application Load Balancer Flowlog
     application_load_balancer_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      flowlog: "{{ alb_flowlog_response.flowlog.id }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      flowlog:FlowlogName
       state: absent
   
 ```
@@ -121,10 +156,10 @@ This is a simple module that supports creating or removing Application Loadbalan
   
   - name: Update Application Load Balancer Flowlog
     application_load_balancer_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      flowlog: "{{ alb_flowlog_response.flowlog.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      flowlog:FlowlogName
+      name: FlowlogName
       action: "ALL"
       direction: "INGRESS"
       bucket: "sdktest"

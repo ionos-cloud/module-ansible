@@ -9,7 +9,7 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
 
   - name: Create Data Platform nodepool
     dataplatform_nodepool:
-      name: "{{ name }}"
+      name: NodepoolName
       cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       node_count: 1
       cpu_family: "AMD_OPTERON"
@@ -22,8 +22,8 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
 
   - name: Update Data Platform nodepool
     dataplatform_nodepool:
-      name: "{{ name }}"
-      cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+      nodepool: NodepoolName
+      cluster: ClusterName
       node_count: 1
       cores_count: 1
       maintenance_window:
@@ -39,6 +39,64 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "dataplatform_nodepool": {
+        "id": "6fcf85d2-d503-41e7-9f08-cbfa9ac6be80",
+        "type": "nodepool",
+        "href": "https://api.ionos.com/dataplatform/clusters/fe6a5792-7473-4067-ba83-6d135582e623/nodepools/6fcf85d2-d503-41e7-9f08-cbfa9ac6be80",
+        "metadata": {
+            "e_tag": null,
+            "created_date": "2023-05-29T14:06:54+00:00",
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_in_contract_number": "31909592",
+            "last_modified_date": "2023-05-29T14:06:54+00:00",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "current_data_platform_version": "22.11",
+            "current_data_platform_revision": 1,
+            "available_upgrade_versions": [],
+            "state": "DEPLOYING"
+        },
+        "properties": {
+            "name": "my-nodepool",
+            "data_platform_version": null,
+            "datacenter_id": "f68205d8-8334-43b0-9f64-b06babcf5bd6",
+            "node_count": 2,
+            "cpu_family": "INTEL_SKYLAKE",
+            "cores_count": 1,
+            "ram_size": 2048,
+            "availability_zone": "AUTO",
+            "storage_type": "HDD",
+            "storage_size": 100,
+            "maintenance_window": {
+                "time": "12:02:00",
+                "day_of_the_week": "Wednesday"
+            },
+            "labels": {
+                "color": "red",
+                "foo": "bar",
+                "size": "10"
+            },
+            "annotations": {
+                "ann1": "value1",
+                "ann2": "value2"
+            }
+        }
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -48,7 +106,7 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
   
   - name: Create Data Platform nodepool
     dataplatform_nodepool:
-      name: "{{ name }}"
+      name: NodepoolName
       cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       node_count: 1
       cpu_family: "AMD_OPTERON"
@@ -121,8 +179,8 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
   
   - name: Update Data Platform nodepool
     dataplatform_nodepool:
-      name: "{{ name }}"
-      cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+      nodepool: NodepoolName
+      cluster: ClusterName
       node_count: 1
       cores_count: 1
       maintenance_window:

@@ -143,22 +143,22 @@ EXAMPLE_PER_STATE = {
   'present' : '''# Create a Backup Unit
   - name: Create Backup Unit
     backupunit:
-      backupunit_email: "{{ email }}"
-      backupunit_password: "{{ password }}"
-      name: "{{ name }}"
+      backupunit_email: <email>
+      backupunit_password: <password>
+      name: BackupUnitName
   ''',
   'update' : '''# Update a Backup Unit
   - name: Update a Backup Unit
     backupunit:
-      backupunit: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
-      backupunit_email: "{{ updated_email }}"
-      backupunit_password:  "{{ updated_password }}"
+      backupunit: BackupUnitName
+      backupunit_email: <newEmail>
+      backupunit_password: <newPassword>
       state: update
   ''',
   'absent' : '''# Destroy a Backup Unit.
   - name: Remove Backup Unit
     backupunit:
-      backupunit: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+      backupunit: BackupUnitName
       state: absent
   ''',
 }

@@ -9,23 +9,23 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   - name: Create Application Load Balancer
     application_load_balancer:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      name:AppLbName
       ips:
         - "10.12.118.224"
-      listener_lan: "{{ listener_lan.lan.id }}"
-      target_lan: "{{ target_lan.lan.id }}"
+      listener_lan: 1
+      target_lan: 2
       wait: true
     register: alb_response
   
 
   - name: Update Application Load Balancer
     application_load_balancer:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      name: "{{ name }} - UPDATE"
-      listener_lan: "{{ listener_lan.lan.id }}"
-      target_lan: "{{ target_lan.lan.id }}"
+      datacenter: DatacenterName
+      application_load_balancer: ApplicationLoadBalancerName
+      name: "AppLbName - UPDATE"
+      listener_lan: 1
+      target_lan: 2
       wait: true
       state: update
     register: alb_response_update
@@ -33,12 +33,51 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   - name: Remove Application Load Balancer
     application_load_balancer:
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: ApplicationLoadBalancerName
+      datacenter: DatacenterName
       wait: true
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "application_load_balancer": {
+        "entities": null,
+        "href": "https://api.ionos.com/cloudapi/v6/datacenters/0c0e3049-ebbd-4465-a766-62f6950c109e/applicationloadbalancers/5c0b9b00-ae36-4626-bff6-e6c30e6d2809",
+        "id": "5c0b9b00-ae36-4626-bff6-e6c30e6d2809",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-29T13:08:28+00:00",
+            "etag": "45f17e1cad28dd4973ab127082018599",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-29T13:08:28+00:00",
+            "state": "BUSY"
+        },
+        "properties": {
+            "ips": [
+                "<IP>"
+            ],
+            "lb_private_ips": null,
+            "listener_lan": 1,
+            "name": "AnsibleAutoTestALB",
+            "target_lan": 2
+        },
+        "type": "applicationloadbalancer"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -48,12 +87,12 @@ This is a simple module that supports creating or removing Application Loadbalan
   
   - name: Create Application Load Balancer
     application_load_balancer:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      name:AppLbName
       ips:
         - "10.12.118.224"
-      listener_lan: "{{ listener_lan.lan.id }}"
-      target_lan: "{{ target_lan.lan.id }}"
+      listener_lan: 1
+      target_lan: 2
       wait: true
     register: alb_response
   
@@ -87,8 +126,8 @@ This is a simple module that supports creating or removing Application Loadbalan
   
   - name: Remove Application Load Balancer
     application_load_balancer:
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
+      application_load_balancer: ApplicationLoadBalancerName
+      datacenter: DatacenterName
       wait: true
       state: absent
   
@@ -118,11 +157,11 @@ This is a simple module that supports creating or removing Application Loadbalan
   
   - name: Update Application Load Balancer
     application_load_balancer:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      name: "{{ name }} - UPDATE"
-      listener_lan: "{{ listener_lan.lan.id }}"
-      target_lan: "{{ target_lan.lan.id }}"
+      datacenter: DatacenterName
+      application_load_balancer: ApplicationLoadBalancerName
+      name: "AppLbName - UPDATE"
+      listener_lan: 1
+      target_lan: 2
       wait: true
       state: update
     register: alb_response_update

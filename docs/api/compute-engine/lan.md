@@ -33,6 +33,42 @@ This module allows you to create or remove a LAN.
     state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "lan": {
+        "entities": null,
+        "href": "https://api.ionos.com/cloudapi/v6/datacenters/f6e15460-e5eb-451a-9da7-08c9da65a179/lans/1",
+        "id": "1",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-29T09:26:00+00:00",
+            "etag": "5200f351d90b89ae0282b81a8da77efe",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-29T09:26:00+00:00",
+            "state": "BUSY"
+        },
+        "properties": {
+            "ip_failover": null,
+            "name": "AnsibleAutoTestCompute",
+            "pcc": null,
+            "public": true
+        },
+        "type": "lan"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;

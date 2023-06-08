@@ -215,9 +215,9 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      name: RuleName
       protocol: "HTTP"
       listener_ip: "10.12.118.224"
       listener_port: "8081"
@@ -238,10 +238,10 @@ EXAMPLE_PER_STATE = {
   'update' : '''
   - name: Update Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      forwarding_rule: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
-      name: "{{ name }} - UPDATED"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      forwarding_rule: RuleName
+      name: "RuleName - UPDATED"
       protocol: "HTTP"
       wait: true
       state: update
@@ -250,9 +250,9 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      forwarding_rule: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      forwarding_rule: "RuleName - UPDATED"
       state: absent
   ''',
 }

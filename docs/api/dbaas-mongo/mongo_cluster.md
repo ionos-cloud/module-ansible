@@ -17,18 +17,84 @@ This is a module that supports creating and destroying Mongo Clusters
             - 192.168.1.116/24
             - 192.168.1.117/24
             - 192.168.1.118/24
-          datacenter: "{{ datacenter }} - DBaaS Mongo"
+          datacenter: "Datacenter - DBaaS Mongo"
           lan: "test_lan"
       display_name: backuptest-04
       wait: true
     register: cluster_response
   
+- name: Update Cluster
+    mongo_cluster:
+      mongo_cluster: backuptest-04
+      display_name: backuptest-05
+      state: update
+      do_not_replace: true
+      wait: true
+    register: cluster_response
+  
+- name: Restore Mongo Cluster
+    mongo_cluster:
+      mongo_cluster: backuptest-05
+      backup_id: 9ab6545c-b138-4a86-b6ca-0d872a2b0953
+      state: restore
+  
 - name: Delete Mongo Cluster
     mongo_cluster:
-      mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: backuptest-05
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "mongo_cluster": {
+        "type": "cluster",
+        "id": "3fdd2940-f9b4-425d-b52b-4199a84188d2",
+        "metadata": {
+            "created_date": "2023-05-30T13:43:20+00:00",
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "last_modified_date": null,
+            "last_modified_by": null,
+            "last_modified_by_user_id": null,
+            "state": "BUSY",
+            "health": "UNKNOWN"
+        },
+        "properties": {
+            "display_name": "AnsibleTestMongoDBCluster",
+            "mongo_db_version": "5.0",
+            "location": "de/fra",
+            "instances": 3,
+            "connections": [
+                {
+                    "datacenter_id": "6b36f398-2089-414b-a57f-85f7b88aee5b",
+                    "lan_id": "1",
+                    "cidr_list": [
+                        "<CIDR1>",
+                        "<CIDR2>",
+                        "<CIDR3>"
+                    ]
+                }
+            ],
+            "maintenance_window": {
+                "time": "14:13:28",
+                "day_of_the_week": "Thursday"
+            },
+            "template_id": "6b78ea06-ee0e-4689-998c-fc9c46e781f6",
+            "connection_string": "<CONNECTION_STRING>"
+        }
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -46,7 +112,7 @@ This is a module that supports creating and destroying Mongo Clusters
             - 192.168.1.116/24
             - 192.168.1.117/24
             - 192.168.1.118/24
-          datacenter: "{{ datacenter }} - DBaaS Mongo"
+          datacenter: "Datacenter - DBaaS Mongo"
           lan: "test_lan"
       display_name: backuptest-04
       wait: true
@@ -81,7 +147,7 @@ This is a module that supports creating and destroying Mongo Clusters
 ```yaml
   - name: Delete Mongo Cluster
     mongo_cluster:
-      mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: backuptest-05
       state: absent
   
 ```
@@ -104,6 +170,14 @@ This is a module that supports creating and destroying Mongo Clusters
 &nbsp;
 # state: **update**
 ```yaml
+  - name: Update Cluster
+    mongo_cluster:
+      mongo_cluster: backuptest-04
+      display_name: backuptest-05
+      state: update
+      do_not_replace: true
+      wait: true
+    register: cluster_response
   
 ```
 ### Available parameters for state **update**:
@@ -133,6 +207,11 @@ This is a module that supports creating and destroying Mongo Clusters
 &nbsp;
 # state: **restore**
 ```yaml
+  - name: Restore Mongo Cluster
+    mongo_cluster:
+      mongo_cluster: backuptest-05
+      backup_id: 9ab6545c-b138-4a86-b6ca-0d872a2b0953
+      state: restore
   
 ```
 ### Available parameters for state **restore**:
@@ -140,6 +219,7 @@ This is a module that supports creating and destroying Mongo Clusters
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
+  | mongo_cluster | True | str |  | The ID or name of an existing Mongo Cluster. |
   | backup_id | True | str |  | The ID of the backup to be used. |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

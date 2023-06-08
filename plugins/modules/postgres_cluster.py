@@ -241,8 +241,8 @@ EXAMPLE_PER_STATE = {
       location: de/fra
       connections:
         - cidr: 192.168.1.106/24
-          datacenter: "{{ datacenter_response.datacenter.id }}"
-          lan: "{{ lan_response1.lan.id }}"
+          datacenter: DatacenterName
+          lan: LanName
       display_name: backuptest-04
       synchronization_mode: ASYNCHRONOUS
       db_username: test
@@ -252,7 +252,7 @@ EXAMPLE_PER_STATE = {
   ''',
     'update': '''- name: Update Postgres Cluster
     postgres_cluster:
-      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_cluster: backuptest-04
       postgres_version: 12
       instances: 2
       cores: 2
@@ -264,7 +264,7 @@ EXAMPLE_PER_STATE = {
   ''',
     'absent': '''- name: Delete Postgres Cluster
     postgres_cluster:
-      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_cluster: backuptest-04
       state: absent
   ''',
 }

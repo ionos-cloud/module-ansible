@@ -9,7 +9,7 @@ This is a simple module that supports creating or removing Target Groups.
 
   - name: Create Target Group
     target_group:
-      name: "{{ name }}"
+      name: "AnsibleAutoTestCompute"
       algorithm: "ROUND_ROBIN"
       protocol: "HTTP"
       targets:
@@ -35,10 +35,10 @@ This is a simple module that supports creating or removing Target Groups.
 
   - name: Update Target Group
     target_group:
-      name: "{{ name }} - UPDATED"
+      name: "AnsibleAutoTestCompute - UPDATED"
       algorithm: "ROUND_ROBIN"
       protocol: "HTTP"
-      target_group_id: "{{ target_group_response.target_group.id }}"
+      target_group: "AnsibleAutoTestCompute"
       wait: true
       state: update
     register: target_group_response_update
@@ -46,12 +46,68 @@ This is a simple module that supports creating or removing Target Groups.
 
   - name: Remove Target Group
     target_group:
-      target_group_id: "{{ target_group_response.target_group.id }}"
+      target_group: "AnsibleAutoTestCompute - UPDATED"
       wait: true
       wait_timeout: 2000
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "target_group": {
+        "href": "https://api.ionos.com/cloudapi/v6/targetgroups/5f757b12-776b-4ac0-befb-56499db09baf",
+        "id": "5f757b12-776b-4ac0-befb-56499db09baf",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-06-06T10:01:58+00:00",
+            "etag": "8f3a5c9d9ddd3ef6312b02d3bc9c319e",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-06-06T10:01:58+00:00",
+            "state": "BUSY"
+        },
+        "properties": {
+            "algorithm": "ROUND_ROBIN",
+            "health_check": {
+                "check_interval": 1000,
+                "check_timeout": 2000,
+                "retries": 3
+            },
+            "http_health_check": {
+                "match_type": "STATUS_CODE",
+                "method": "GET",
+                "negate": false,
+                "path": "./",
+                "regex": false,
+                "response": "200"
+            },
+            "name": "AnsibleAutoTestALB",
+            "protocol": "HTTP",
+            "targets": [
+                {
+                    "health_check_enabled": true,
+                    "ip": "<IP>",
+                    "maintenance_enabled": null,
+                    "port": 8080,
+                    "weight": 123
+                }
+            ]
+        },
+        "type": "target-group"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -61,7 +117,7 @@ This is a simple module that supports creating or removing Target Groups.
   
   - name: Create Target Group
     target_group:
-      name: "{{ name }}"
+      name: "AnsibleAutoTestCompute"
       algorithm: "ROUND_ROBIN"
       protocol: "HTTP"
       targets:
@@ -114,7 +170,7 @@ This is a simple module that supports creating or removing Target Groups.
   
   - name: Remove Target Group
     target_group:
-      target_group_id: "{{ target_group_response.target_group.id }}"
+      target_group: "AnsibleAutoTestCompute - UPDATED"
       wait: true
       wait_timeout: 2000
       state: absent
@@ -144,10 +200,10 @@ This is a simple module that supports creating or removing Target Groups.
   
   - name: Update Target Group
     target_group:
-      name: "{{ name }} - UPDATED"
+      name: "AnsibleAutoTestCompute - UPDATED"
       algorithm: "ROUND_ROBIN"
       protocol: "HTTP"
-      target_group_id: "{{ target_group_response.target_group.id }}"
+      target_group: "AnsibleAutoTestCompute"
       wait: true
       state: update
     register: target_group_response_update

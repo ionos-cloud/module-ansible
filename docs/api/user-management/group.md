@@ -32,6 +32,45 @@ This module allows you to create, update or remove a group.
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "group": {
+        "entities": null,
+        "href": "https://api.ionos.com/cloudapi/v6/um/groups/247c2dbf-e0d4-484f-934b-03d4bc09b772",
+        "id": "247c2dbf-e0d4-484f-934b-03d4bc09b772",
+        "properties": {
+            "access_activity_log": true,
+            "access_and_manage_certificates": true,
+            "access_and_manage_dns": false,
+            "access_and_manage_monitoring": true,
+            "create_backup_unit": true,
+            "create_data_center": true,
+            "create_flow_log": true,
+            "create_internet_access": true,
+            "create_k8s_cluster": true,
+            "create_pcc": true,
+            "create_snapshot": true,
+            "manage_dbaas": true,
+            "manage_dataplatform": false,
+            "manage_registry": false,
+            "name": "AnsibleAutoTestUM",
+            "reserve_ip": true,
+            "s3_privilege": true
+        },
+        "type": "group"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;

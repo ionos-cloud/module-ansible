@@ -31,8 +31,8 @@ RETURNED_KEY = 'mongo_cluster'
 OPTIONS = {
     'mongo_cluster': {
         'description': ['The ID or name of an existing Mongo Cluster.'],
-        'available': ['update', 'absent'],
-        'required': ['update', 'absent'],
+        'available': ['update', 'absent', 'restore'],
+        'required': ['update', 'absent', 'restore'],
         'type': 'str',
     },
     'backup_id': {
@@ -186,15 +186,30 @@ EXAMPLE_PER_STATE = {
             - 192.168.1.116/24
             - 192.168.1.117/24
             - 192.168.1.118/24
-          datacenter: "{{ datacenter }} - DBaaS Mongo"
+          datacenter: "Datacenter - DBaaS Mongo"
           lan: "test_lan"
       display_name: backuptest-04
       wait: true
     register: cluster_response
   ''',
+    'update': '''- name: Update Cluster
+    mongo_cluster:
+      mongo_cluster: backuptest-04
+      display_name: backuptest-05
+      state: update
+      do_not_replace: true
+      wait: true
+    register: cluster_response
+  ''',
+    'restore': '''- name: Restore Mongo Cluster
+    mongo_cluster:
+      mongo_cluster: backuptest-05
+      backup_id: 9ab6545c-b138-4a86-b6ca-0d872a2b0953
+      state: restore
+  ''',
     'absent': '''- name: Delete Mongo Cluster
     mongo_cluster:
-      mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: backuptest-05
       state: absent
   ''',
 }

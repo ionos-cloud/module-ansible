@@ -166,8 +166,7 @@ EXAMPLE_PER_STATE = {
   'update' : '''# Update a datacenter description
   - name: Update datacenter
     datacenter:
-      id: "{{ datacenter_response.datacenter.id }}"
-      name: "Example DC"
+      datacenter: "Example DC"
       description: "description - RENAMED"
       state: update
     register: updated_datacenter
@@ -175,8 +174,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''# Destroy a Datacenter. This will remove all servers, volumes, and other objects in the datacenter.
   - name: Remove datacenter
     datacenter:
-      id: "{{ datacenter_response.datacenter.id }}"
-      name: "Example DC"
+      datacenter: "Example DC"
       state: absent
   ''',
 }
@@ -282,6 +280,7 @@ def _create_object(module, client, existing_object=None):
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            datacenter_response = datacenters_api.datacenters_find_by_id(datacenter_response.id)
     except ApiException as e:
         module.fail_json(msg="failed to create the new datacenter: %s" % to_native(e))
     return datacenter_response
