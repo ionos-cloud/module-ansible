@@ -65,57 +65,50 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name or UUID of the firewall rule.'],
+        'description': ['The name of the  resource.'],
         'required': ['present'],
         'available': ['update', 'present'],
         'type': 'str',
     },
     'protocol': {
-        'description': ['The protocol for the firewall rule.'],
+        'description': ['The protocol for the rule. Property cannot be modified after it is created (disallowed in update requests).'],
         'required': ['present'],
         'available': ['present', 'update'],
-        'choices': ['TCP', 'UDP', 'ICMP', 'ANY'],
+        'choices': ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'ANY'],
         'type': 'str',
     },
     'source_mac': {
-        'description': ['Only traffic originating from the respective MAC address is allowed. No value allows all source MAC addresses.'],
+        'description': ['Only traffic originating from the respective MAC address is allowed. Valid format: aa:bb:cc:dd:ee:ff. Value null allows traffic from any MAC address.'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'source_ip': {
-        'description': ['Only traffic originating from the respective IPv4 address is allowed. No value allows all source IPs.'],
+        'description': ['Only traffic originating from the respective IP address (or CIDR block) is allowed. Value null allows traffic from any IP address (according to the selected ipVersion).'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'target_ip': {
-        'description': [
-            'In case the target NIC has multiple IP addresses, only traffic directed to the respective IP address of the NIC is allowed.'
-            'No value allows all target IPs.',
-        ],
+        'description': ['If the target NIC has multiple IP addresses, only the traffic directed to the respective IP address (or CIDR block) of the NIC is allowed. Value null allows traffic to any target IP address (according to the selected ipVersion).'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'port_range_start': {
-        'description': [
-            'Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave value empty to allow all ports.',
-        ],
+        'description': ['Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd value null to allow all ports.'],
         'available': ['present', 'update'],
         'type': 'int',
     },
     'port_range_end': {
-        'description': [
-            'Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave value empty to allow all ports.',
-        ],
+        'description': ['Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd null to allow all ports.'],
         'available': ['present', 'update'],
         'type': 'int',
     },
     'icmp_type': {
-        'description': ['Defines the allowed type (from 0 to 254) if the protocol ICMP is chosen. No value allows all types.'],
+        'description': ['Defines the allowed type (from 0 to 254) if the protocol ICMP or ICMPv6 is chosen. Value null allows all types.'],
         'available': ['present', 'update'],
         'type': 'int',
     },
     'icmp_code': {
-        'description': ['Defines the allowed code (from 0 to 254) if protocol ICMP is chosen. No value allows all codes.'],
+        'description': ['Defines the allowed code (from 0 to 254) if protocol ICMP or ICMPv6 is chosen. Value null allows all codes.'],
         'available': ['present', 'update'],
         'type': 'int',
     },

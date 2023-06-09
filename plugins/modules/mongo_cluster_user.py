@@ -152,17 +152,30 @@ author:
 EXAMPLE_PER_STATE = {
     'present': '''- name: Create Cluster User
     mongo_cluster_user:
-      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: MongoClusterName
       mongo_username: testuser
-      mongo_password: password123
+      mongo_password: <password>
       user_roles:
         - role: read
           database: test
     register: mongo_user_response
   ''',
+    'update': '''- name: Update User
+    mongo_cluster_user:
+      mongo_cluster: MongoClusterName
+      mongo_username: testuser
+      mongo_password: <newPassword>
+      user_roles:
+        - role: read
+          database: test
+        - role: readWrite
+          database: test
+      state: update
+    register: mongo_user_response
+  ''',
     'absent': '''- name: Delete Cluster User
     mongo_cluster_user:
-      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: MongoClusterName
       mongo_username: testuser
     register: mongo_user_response
   ''',

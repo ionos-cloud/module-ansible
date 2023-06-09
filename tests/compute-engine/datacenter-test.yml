@@ -11,11 +11,13 @@
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: "{{ location }}"
+        wait: true
       register: datacenter_response
 
-    # - name: Debug - Show Datacenter
-    #   debug:
-    #     msg: "{{ datacenter_response }}"
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{datacenter_response}}"
+    #     dest: ../../docs/returned_object_examples/datacenter.json
   
     - name: Check Create datacenter
       ansible.builtin.assert:

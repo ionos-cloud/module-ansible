@@ -39,19 +39,19 @@ RETURNED_KEY = 'forwarding_rule'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the Network Loadbalancer forwarding rule.'],
+        'description': ['The name of the Network Load Balancer forwarding rule.'],
         'available': STATES,
         'required': ['present'],
         'type': 'str',
     },
     'algorithm': {
-        'description': ['Balancing algorithm.'],
+        'description': ['Balancing algorithm'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'protocol': {
-        'description': ['Balancing protocol.'],
+        'description': ['Balancing protocol'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -74,7 +74,7 @@ OPTIONS = {
         'type': 'dict',
     },
     'targets': {
-        'description': ['Array of targets.'],
+        'description': ['Array of items in the collection.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'list',
@@ -195,7 +195,7 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Network Load Balancer Forwarding Rule
     network_load_balancer_rule:
-      name: "{{ name }}"
+      name: RuleName
       algorithm: "ROUND_ROBIN"
       protocol: "TCP"
       listener_ip: "10.12.118.224"
@@ -204,18 +204,18 @@ EXAMPLE_PER_STATE = {
         - ip: "22.231.2.2"
           port: "8080"
           weight: "123"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
       wait: true
     register: nlb_forwarding_rule_response
   ''',
   'update' : '''
   - name: Update Network Load Balancer Forwarding Rule
     network_load_balancer_rule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      forwarding_rule: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
-      name: "{{ name }} - UPDATED"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
+      forwarding_rule: RuleName
+      name: "RuleName - UPDATED"
       algorithm: "ROUND_ROBIN"
       protocol: "TCP"
       wait: true
@@ -225,9 +225,9 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete Network Load Balancer Forwarding Rule
     network_load_balancer_rule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      forwarding_rule: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
+      forwarding_rule: "RuleName - UPDATED"
       state: absent
   ''',
 }

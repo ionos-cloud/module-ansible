@@ -45,39 +45,24 @@ OPTIONS = {
         'type': 'str',
     },
     'k8s_version': {
-        'description': [
-            'The Kubernetes version the cluster is running. This imposes restrictions on what '
-            "Kubernetes versions can be run in a cluster's nodepools. Additionally, not all "
-            'Kubernetes versions are viable upgrade targets for all prior versions.',
-        ],
+        'description': ['The Kubernetes version that the cluster is running. This limits which Kubernetes versions can run in a cluster\'s node pools. Also, not all Kubernetes versions are suitable upgrade targets for all earlier versions.'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'maintenance_window': {
-        'description': [
-            "The maintenance window is used for updating the cluster's control plane and for "
-            "upgrading the cluster's K8s version. If no value is given, one is chosen dynamically, "
-            'so there is no fixed default.',
-        ],
+        'description': ['The maintenance window is used to update the control plane and the K8s version of the cluster. If no value is specified, it is chosen dynamically, so there is no fixed default value.'],
         'available': ['present', 'update'],
         'required': ['update'],
         'type': 'dict',
     },
     'api_subnet_allow_list': {
-        'description': [
-            'Access to the K8s API server is restricted to these CIDRs. Traffic, internal to the cluster, '
-            'is not affected by this restriction. If no allowlist is specified, access is not restricted. '
-            'If an IP without subnet mask is provided, the default value is used: 32 for IPv4 and 128 for IPv6.',
-        ],
+        'description': ['Access to the K8s API server is restricted to these CIDRs. Intra-cluster traffic is not affected by this restriction. If no AllowList is specified, access is not limited. If an IP is specified without a subnet mask, the default value is 32 for IPv4 and 128 for IPv6.'],
         'available': ['present', 'update'],
         'type': 'list',
         'elements': 'str',
     },
     's3_buckets_param': {
-        'description': [
-            'List of S3 bucket configured for K8s usage. For now it contains only an S3 bucket '
-            'used to store K8s API audit logs.',
-        ],
+        'description': ['List of S3 buckets configured for K8s usage. At the moment, it contains only one S3 bucket that is used to store K8s API audit logs.'],
         'available': ['present', 'update'],
         'type': 'list',
         'elements': 'str',
@@ -179,12 +164,12 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create k8s cluster
     k8s_cluster:
-      name: "{{ cluster_name }}"
+      name: ClusterName
   ''',
   'update' : '''
   - name: Update k8s cluster
     k8s_cluster:
-      k8s_cluster_id: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
+      k8s_cluster: ClusterName
       maintenance_window:
         day_of_the_week: 'Tuesday'
         time: '13:03:00'
@@ -194,7 +179,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete k8s cluster
     k8s_cluster:
-      k8s_cluster_id: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
+      k8s_cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
       state: absent
   ''',
 }

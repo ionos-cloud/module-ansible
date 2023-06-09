@@ -36,6 +36,40 @@ This module allows you to add, update or remove resource shares.
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "shares": [
+        {
+            "href": "https://api.ionos.com/cloudapi/v6/um/groups/137d33b4-a730-4323-98fd-ad0e3b078a5b/shares/2dd792c1-a5dc-45b6-8aa1-346478d53978",
+            "id": "2dd792c1-a5dc-45b6-8aa1-346478d53978",
+            "properties": {
+                "edit_privilege": true,
+                "share_privilege": true
+            },
+            "type": "resource"
+        },
+        {
+            "href": "https://api.ionos.com/cloudapi/v6/um/groups/137d33b4-a730-4323-98fd-ad0e3b078a5b/shares/9364dbea-d63f-4799-aaf6-e0cf6c21cafc",
+            "id": "9364dbea-d63f-4799-aaf6-e0cf6c21cafc",
+            "properties": {
+                "edit_privilege": true,
+                "share_privilege": true
+            },
+            "type": "resource"
+        }
+    ]
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -59,8 +93,8 @@ This module allows you to add, update or remove resource shares.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | edit_privilege | False | bool |  | Boolean value indicating that the group has permission to edit privileges on the resource. |
-  | share_privilege | False | bool |  | Boolean value indicating that the group has permission to share the resource. |
+  | edit_privilege | False | bool |  | edit privilege on a resource |
+  | share_privilege | False | bool |  | share privilege on a resource |
   | group | True | str |  | The name or ID of the group. |
   | resource_ids | True | list |  | A list of resource IDs to add, update or remove as shares. |
   | api_url | False | str |  | The Ionos API base URL. |
@@ -123,8 +157,8 @@ This module allows you to add, update or remove resource shares.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | edit_privilege | False | bool |  | Boolean value indicating that the group has permission to edit privileges on the resource. |
-  | share_privilege | False | bool |  | Boolean value indicating that the group has permission to share the resource. |
+  | edit_privilege | False | bool |  | edit privilege on a resource |
+  | share_privilege | False | bool |  | share privilege on a resource |
   | group | True | str |  | The name or ID of the group. |
   | resource_ids | True | list |  | A list of resource IDs to add, update or remove as shares. |
   | api_url | False | str |  | The Ionos API base URL. |

@@ -32,6 +32,45 @@ This module allows you to create, update or remove a group.
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "group": {
+        "entities": null,
+        "href": "https://api.ionos.com/cloudapi/v6/um/groups/247c2dbf-e0d4-484f-934b-03d4bc09b772",
+        "id": "247c2dbf-e0d4-484f-934b-03d4bc09b772",
+        "properties": {
+            "access_activity_log": true,
+            "access_and_manage_certificates": true,
+            "access_and_manage_dns": false,
+            "access_and_manage_monitoring": true,
+            "create_backup_unit": true,
+            "create_data_center": true,
+            "create_flow_log": true,
+            "create_internet_access": true,
+            "create_k8s_cluster": true,
+            "create_pcc": true,
+            "create_snapshot": true,
+            "manage_dbaas": true,
+            "manage_dataplatform": false,
+            "manage_registry": false,
+            "name": "AnsibleAutoTestUM",
+            "reserve_ip": true,
+            "s3_privilege": true
+        },
+        "type": "group"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -54,17 +93,17 @@ This module allows you to create, update or remove a group.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the group. |
+  | name | True | str |  | The name of the resource. |
   | create_datacenter | False | bool |  | Boolean value indicating if the group is allowed to create virtual data centers. |
-  | create_snapshot | False | bool |  | Boolean value indicating if the group is allowed to create snapshots. |
-  | reserve_ip | False | bool |  | Boolean value indicating if the group is allowed to reserve IP addresses. |
-  | access_activity_log | False | bool |  | Boolean value indicating if the group is allowed to access the activity log. |
-  | create_pcc | False | bool |  | Boolean value indicating if the group is allowed to create PCCs. |
-  | s3_privilege | False | bool |  | Boolean value indicating if the group has S3 privilege. |
-  | create_backup_unit | False | bool |  | Boolean value indicating if the group is allowed to create backup units. |
-  | create_internet_access | False | bool |  | Boolean value indicating if the group is allowed to create internet access. |
-  | create_k8s_cluster | False | bool |  | Boolean value indicating if the group is allowed to create k8s clusters. |
-  | create_flow_log | False | bool |  | Boolean value indicating if the group is allowed to create flowlogs. |
+  | create_snapshot | False | bool |  | Create snapshot privilege. |
+  | reserve_ip | False | bool |  | Reserve IP block privilege. |
+  | access_activity_log | False | bool |  | Activity log access privilege. |
+  | create_pcc | False | bool |  | Create pcc privilege. |
+  | s3_privilege | False | bool |  | S3 privilege. |
+  | create_backup_unit | False | bool |  | Create backup unit privilege. |
+  | create_internet_access | False | bool |  | Create internet access privilege. |
+  | create_k8s_cluster | False | bool |  | Create Kubernetes cluster privilege. |
+  | create_flow_log | False | bool |  | Create Flow Logs privilege. |
   | access_and_manage_monitoring | False | bool |  | Privilege for a group to access and manage monitoring related functionality (access metrics, CRUD on alarms, alarm-actions etc) using Monotoring-as-a-Service (MaaS). |
   | access_and_manage_certificates | False | bool |  | Privilege for a group to access and manage certificates. |
   | manage_dbaas | False | bool |  | Privilege for a group to manage DBaaS related functionality. |
@@ -96,7 +135,7 @@ This module allows you to create, update or remove a group.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the group. |
+  | name | False | str |  | The name of the resource. |
   | group | True | str |  | The ID or name of the group. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
@@ -127,18 +166,18 @@ This module allows you to create, update or remove a group.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the group. |
+  | name | False | str |  | The name of the resource. |
   | group | True | str |  | The ID or name of the group. |
   | create_datacenter | False | bool |  | Boolean value indicating if the group is allowed to create virtual data centers. |
-  | create_snapshot | False | bool |  | Boolean value indicating if the group is allowed to create snapshots. |
-  | reserve_ip | False | bool |  | Boolean value indicating if the group is allowed to reserve IP addresses. |
-  | access_activity_log | False | bool |  | Boolean value indicating if the group is allowed to access the activity log. |
-  | create_pcc | False | bool |  | Boolean value indicating if the group is allowed to create PCCs. |
-  | s3_privilege | False | bool |  | Boolean value indicating if the group has S3 privilege. |
-  | create_backup_unit | False | bool |  | Boolean value indicating if the group is allowed to create backup units. |
-  | create_internet_access | False | bool |  | Boolean value indicating if the group is allowed to create internet access. |
-  | create_k8s_cluster | False | bool |  | Boolean value indicating if the group is allowed to create k8s clusters. |
-  | create_flow_log | False | bool |  | Boolean value indicating if the group is allowed to create flowlogs. |
+  | create_snapshot | False | bool |  | Create snapshot privilege. |
+  | reserve_ip | False | bool |  | Reserve IP block privilege. |
+  | access_activity_log | False | bool |  | Activity log access privilege. |
+  | create_pcc | False | bool |  | Create pcc privilege. |
+  | s3_privilege | False | bool |  | S3 privilege. |
+  | create_backup_unit | False | bool |  | Create backup unit privilege. |
+  | create_internet_access | False | bool |  | Create internet access privilege. |
+  | create_k8s_cluster | False | bool |  | Create Kubernetes cluster privilege. |
+  | create_flow_log | False | bool |  | Create Flow Logs privilege. |
   | access_and_manage_monitoring | False | bool |  | Privilege for a group to access and manage monitoring related functionality (access metrics, CRUD on alarms, alarm-actions etc) using Monotoring-as-a-Service (MaaS). |
   | access_and_manage_certificates | False | bool |  | Privilege for a group to access and manage certificates. |
   | manage_dbaas | False | bool |  | Privilege for a group to manage DBaaS related functionality. |

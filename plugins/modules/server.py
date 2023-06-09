@@ -42,16 +42,9 @@ STATES = ['running', 'stopped', 'absent', 'present', 'update']
 OBJECT_NAME = 'Server'
 RETURNED_KEY = 'server'
 
-AVAILABILITY_ZONES = [
-    'AUTO',
-    'ZONE_1',
-    'ZONE_2',
-    'ZONE_3',
-]
-
 OPTIONS = {
     'name': {
-        'description': ['The name of the virtual machine.'],
+        'description': ['The name of the  resource.'],
         'required': ['present'],
         'available': ['present', 'update', 'absent'],
         'type': 'str',
@@ -91,7 +84,7 @@ OPTIONS = {
     'volume_availability_zone': {
         'description': ['The storage availability zone assigned to the volume.'],
         'available': ['present'],
-        'choices': AVAILABILITY_ZONES,
+        'choices': ['AUTO', 'ZONE_1', 'ZONE_2', 'ZONE_3'],
         'type': 'str',
         'version_added': '2.3',
     },
@@ -102,19 +95,19 @@ OPTIONS = {
         'type': 'str',
     },
     'cores': {
-        'description': ['The number of CPU cores to allocate to the virtual machine.'],
+        'description': ['The total number of cores for the enterprise server.'],
         'available': ['present', 'update'],
         'default': 2,
         'type': 'int',
     },
     'ram': {
-        'description': ['The amount of memory to allocate to the virtual machine.'],
+        'description': ['The memory size for the enterprise server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB.'],
         'available': ['present', 'update'],
         'default': 2048,
         'type': 'int',
     },
     'cpu_family': {
-        'description': ['The amount of memory to allocate to the virtual machine.'],
+        'description': ['CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers.'],
         'available': ['present'],
         'choices': ['AMD_OPTERON', 'INTEL_XEON', 'INTEL_SKYLAKE'],
         'default': 'AMD_OPTERON',
@@ -122,9 +115,9 @@ OPTIONS = {
         'version_added': '2.2',
     },
     'availability_zone': {
-        'description': ['The availability zone assigned to the server.'],
+        'description': ['The availability zone in which the server should be provisioned.'],
         'available': ['present'],
-        'choices': AVAILABILITY_ZONES,
+        'choices': ['AUTO', 'ZONE_1', 'ZONE_2'],
         'default': 'AUTO',
         'type': 'str',
         'version_added': '2.3',

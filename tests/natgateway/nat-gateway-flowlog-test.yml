@@ -46,6 +46,11 @@
         wait: true
       register: nat_gateway_flowlog_response
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nat_gateway_flowlog_response}}"
+    #     dest: ../../docs/returned_object_examples/nat_gateway_flowlog.json
+
     - name: Debug - Show NAT Gateway Flowlog
       debug:
          msg: "{{ nat_gateway_flowlog_response }}"

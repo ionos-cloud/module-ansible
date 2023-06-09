@@ -9,22 +9,22 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
 
   - name: Create NAT Gateway Flowlog
     nat_gateway_flowlog:
-      name: "{{ name }}"
+      name: FlowlogName
       action: "ACCEPTED"
       direction: "INGRESS"
       bucket: "sdktest"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: DatacenterName
+      nat_gateway: NATGatewayName
       wait: true
     register: nat_gateway_flowlog_response
   
 
   - name: Update NAT Gateway Flowlog
     nat_gateway_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      nat_gateway: NATGatewayName
+      flowlog: FlowlogName
+      name: FlowlogName
       action: "ALL"
       direction: "INGRESS"
       bucket: "sdktest"
@@ -35,12 +35,47 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
 
   - name: Delete NAT Gateway Flowlog
     nat_gateway_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
+      datacenter: DatacenterName
+      nat_gateway: NATGatewayName
+      flowlog: FlowlogName
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "flowlog": {
+        "href": "https://api.ionos.com/cloudapi/v6/datacenters/c731955d-f702-4094-bc71-ecb769698c89/natgateways/296af42c-c9ce-4f29-bcb8-f12be048bed8/flowlogs/82b024ed-71f5-47fb-89ca-8deaded744ea",
+        "id": "82b024ed-71f5-47fb-89ca-8deaded744ea",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-31T12:29:48+00:00",
+            "etag": "5a5c4d7049d5814f9e95984ecda08840",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-31T12:29:48+00:00",
+            "state": "BUSY"
+        },
+        "properties": {
+            "action": "ACCEPTED",
+            "bucket": "sdktest",
+            "direction": "INGRESS",
+            "name": "AnsibleAutoTestNAT"
+        },
+        "type": "flow-log"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -50,12 +85,12 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
   
   - name: Create NAT Gateway Flowlog
     nat_gateway_flowlog:
-      name: "{{ name }}"
+      name: FlowlogName
       action: "ACCEPTED"
       direction: "INGRESS"
       bucket: "sdktest"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: DatacenterName
+      nat_gateway: NATGatewayName
       wait: true
     register: nat_gateway_flowlog_response
   
@@ -65,10 +100,10 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the flowlog. |
+  | name | True | str |  | The resource name. |
   | action | True | str |  | Specifies the traffic action pattern. |
   | direction | True | str |  | Specifies the traffic direction pattern. |
-  | bucket | True | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |
+  | bucket | True | str |  | The S3 bucket name of an existing IONOS Cloud S3 bucket. |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
   | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
@@ -89,9 +124,9 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
   
   - name: Delete NAT Gateway Flowlog
     nat_gateway_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
+      datacenter: DatacenterName
+      nat_gateway: NATGatewayName
+      flowlog: FlowlogName
       state: absent
   
 ```
@@ -100,7 +135,7 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the flowlog. |
+  | name | False | str |  | The resource name. |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
   | flowlog | True | str |  | The ID or name of the Flowlog. |
@@ -121,10 +156,10 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
   
   - name: Update NAT Gateway Flowlog
     nat_gateway_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      nat_gateway: NATGatewayName
+      flowlog: FlowlogName
+      name: FlowlogName
       action: "ALL"
       direction: "INGRESS"
       bucket: "sdktest"
@@ -138,10 +173,10 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the flowlog. |
+  | name | False | str |  | The resource name. |
   | action | False | str |  | Specifies the traffic action pattern. |
   | direction | False | str |  | Specifies the traffic direction pattern. |
-  | bucket | False | str |  | S3 bucket name of an existing IONOS Cloud S3 bucket. |
+  | bucket | False | str |  | The S3 bucket name of an existing IONOS Cloud S3 bucket. |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
   | flowlog | True | str |  | The ID or name of the Flowlog. |

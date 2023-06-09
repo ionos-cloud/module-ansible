@@ -44,12 +44,12 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name of the IPBlock.'],
+        'description': ['The name of the  resource.'],
         'available': STATES,
         'type': 'str',
     },
     'location': {
-        'description': ['The IP Block location.'],
+        'description': ['Location of that IP block. Property cannot be modified after it is created (disallowed in update requests).'],
         'required': ['present'],
         'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
         'default': 'us/las',
@@ -57,7 +57,7 @@ OPTIONS = {
         'type': 'str',
     },
     'size': {
-        'description': ['The number of IP addresses to allocate in the IPBlock.'],
+        'description': ['The size of the IP block.'],
         'available': ['present'],
         'default': 1,
         'type': 'int',

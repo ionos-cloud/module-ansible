@@ -38,7 +38,7 @@ RETURNED_KEY = 'network_load_balancer'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the Network Loadbalancer.'],
+        'description': ['The name of the Network Load Balancer.'],
         'available': STATES,
         'required': ['present', 'update'],
         'type': 'str',
@@ -50,10 +50,7 @@ OPTIONS = {
         'type': 'str',
     },
     'ips': {
-        'description': [
-            'Collection of the Network Load Balancer IP addresses. (Inbound and outbound) '
-            'IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers.',
-        ],
+        'description': ['Collection of the Network Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers.'],
         'available': ['present', 'update'],
         'type': 'list',
     },
@@ -64,10 +61,7 @@ OPTIONS = {
         'type': 'str',
     },
     'lb_private_ips': {
-        'description': [
-            'Collection of private IP addresses with subnet mask of the Network Load Balancer. '
-            'IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet.',
-        ],
+        'description': ['Collection of private IP addresses with subnet mask of the Network Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet.'],
         'available': ['present', 'update'],
         'type': 'list',
     },
@@ -180,23 +174,23 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Network Load Balancer
     network_load_balancer:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      name: NLBName
       ips:
         - "10.12.118.224"
-      listener_lan: "{{ listener_lan.lan.id }}"
-      target_lan: "{{ target_lan.lan.id }}"
+      listener_lan: 1
+      target_lan: 2
       wait: true
     register: nlb_response
   ''',
   'update' : '''
   - name: Update Network Load Balancer
     network_load_balancer:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      name: "{{ name }} - UPDATE"
-      listener_lan: "{{ listener_lan.lan.id }}"
-      target_lan: "{{ target_lan.lan.id }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
+      name: "NLBName - UPDATE"
+      listener_lan: 1
+      target_lan: 2
       wait: true
       state: update
     register: nlb_response_update
@@ -204,8 +198,8 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Remove Network Load Balancer
     network_load_balancer:
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer: "NLBName - UPDATE"
+      datacenter: DatacenterName
       wait: true
       state: absent
   ''',

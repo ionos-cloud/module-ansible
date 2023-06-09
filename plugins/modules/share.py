@@ -40,12 +40,12 @@ RETURNED_KEY = 'share'
 
 OPTIONS = {
     'edit_privilege': {
-        'description': ['Boolean value indicating that the group has permission to edit privileges on the resource.'],
+        'description': ['edit privilege on a resource'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'share_privilege': {
-        'description': ['Boolean value indicating that the group has permission to share the resource.'],
+        'description': ['share privilege on a resource'],
         'available': ['present', 'update'],
         'type': 'bool',
     },

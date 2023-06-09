@@ -13,6 +13,11 @@
         name: "My {{ name }}"
       register: create_result
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{create_result}}"
+    #     dest: ../../docs/returned_object_examples/backupunit.json
+
     - name: Debug - Show backupunit
       debug:
         msg: "{{ create_result }}"

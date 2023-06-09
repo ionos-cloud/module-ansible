@@ -30,7 +30,7 @@ RETURNED_KEY = 'pcc'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the PCC.'],
+        'description': ['The name of the  resource.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -42,7 +42,7 @@ OPTIONS = {
         'type': 'str',
     },
     'description': {
-        'description': ['The description of the PCC.'],
+        'description': ['Human-readable description.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -148,21 +148,21 @@ EXAMPLE_PER_STATE = {
     'present': '''
   - name: Create pcc
     pcc:
-      name: "{{ name }}"
-      description: "{{ description }}"
+      name: PCCName
+      description: "Description for my PCC"
   ''',
     'update': '''
   - name: Update pcc
     pcc:
-      pcc: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
-      name: "{{ new_name }}"
-      description: "{{ new_description }}"
+      pcc: PCCName
+      name: NewPCCName
+      description: "New description for my PCC"
       state: update
   ''',
     'absent': '''
   - name: Remove pcc
     pcc:
-      pcc: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
+      pcc: NewPCCName
       state: absent
   ''',
 }

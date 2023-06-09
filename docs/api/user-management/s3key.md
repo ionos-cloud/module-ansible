@@ -9,24 +9,51 @@ This is a simple module that supports creating or removing S3Keys.
 
   - name: Create an s3key
     s3key:
-      user: "{{ user_id }}"
+      user: <user_id/email>
   
 
   - name: Update an s3key
     s3key:
-      user: "{{ user_id }}"
-      key_id: "00ca413c94eecc56857d"
+      user: <user_id/email>
+      key_id: "00ca413c94eecc56857d
       active: False
       state: update
   
 
   - name: Remove an s3key
     s3key:
-      user: "{{ user_id }}"
-      key_id: "00ca413c94eecc56857d"
+      user: <user_id/email>
+      key_id: 00ca413c94eecc56857d
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "s3key": {
+        "href": "https://api.ionos.com/cloudapi/v6/um/users/<USER_ID>/s3keys/<ID>",
+        "id": "<ID>",
+        "metadata": {
+            "created_date": "2023-05-31T13:49:52",
+            "etag": "26c5aad97d5bb95cc0c1ed99addde9fe"
+        },
+        "properties": {
+            "active": true,
+            "secret_key": "<SECRET_KEY>"
+        },
+        "type": "s3key"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -36,7 +63,7 @@ This is a simple module that supports creating or removing S3Keys.
   
   - name: Create an s3key
     s3key:
-      user: "{{ user_id }}"
+      user: <user_id/email>
   
 ```
 ### Available parameters for state **present**:
@@ -65,8 +92,8 @@ This is a simple module that supports creating or removing S3Keys.
   
   - name: Remove an s3key
     s3key:
-      user: "{{ user_id }}"
-      key_id: "00ca413c94eecc56857d"
+      user: <user_id/email>
+      key_id: 00ca413c94eecc56857d
       state: absent
   
 ```
@@ -94,8 +121,8 @@ This is a simple module that supports creating or removing S3Keys.
   
   - name: Update an s3key
     s3key:
-      user: "{{ user_id }}"
-      key_id: "00ca413c94eecc56857d"
+      user: <user_id/email>
+      key_id: "00ca413c94eecc56857d
       active: False
       state: update
   

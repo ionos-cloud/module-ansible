@@ -1,0 +1,26 @@
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "flowlog": {
+        "href": "https://api.ionos.com/cloudapi/v6/datacenters/d5b16e3b-d162-441b-9567-d9cca96fb191/applicationloadbalancers/ac62eabb-38da-4d1e-b2c6-4711ce86cfda/flowlogs/48cfe165-18f0-417c-a1ee-4ef0d22167c8",
+        "id": "48cfe165-18f0-417c-a1ee-4ef0d22167c8",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-29T13:34:06+00:00",
+            "etag": "c1ded9c35b5f413afd00360eb9daa807",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-29T13:34:06+00:00",
+            "state": "BUSY"
+        },
+        "properties": {
+            "action": "ACCEPTED",
+            "bucket": "sdktest",
+            "direction": "INGRESS",
+            "name": "AnsibleAutoTestALB"
+        },
+        "type": "flow-log"
+    }
+}

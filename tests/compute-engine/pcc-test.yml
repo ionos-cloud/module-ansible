@@ -12,6 +12,12 @@
         description: "{{ description }}"
       register: result
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{result}}"
+    #     dest: ../../docs/returned_object_examples/pcc.json
+
+
     - name: Debug - Show PCC
       debug:
         msg: "{{ result }}"

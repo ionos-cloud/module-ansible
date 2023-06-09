@@ -38,7 +38,7 @@ RETURNED_KEY = 'flowlog'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the flowlog.'],
+        'description': ['The resource name.'],
         'available': STATES,
         'required': ['present'],
         'type': 'str',
@@ -56,7 +56,7 @@ OPTIONS = {
         'type': 'str',
     },
     'bucket': {
-        'description': ['S3 bucket name of an existing IONOS Cloud S3 bucket.'],
+        'description': ['The S3 bucket name of an existing IONOS Cloud S3 bucket.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -175,22 +175,22 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Application Load Balancer Flowlog
     application_load_balancer_flowlog:
-      name: "{{ name }}"
+      name: FlowlogName
       action: "ACCEPTED"
       direction: "INGRESS"
       bucket: "sdktest"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
       wait: true
     register: alb_flowlog_response
   ''',
   'update' : '''
   - name: Update Application Load Balancer Flowlog
     application_load_balancer_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      flowlog: "{{ alb_flowlog_response.flowlog.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      flowlog:FlowlogName
+      name: FlowlogName
       action: "ALL"
       direction: "INGRESS"
       bucket: "sdktest"
@@ -201,9 +201,9 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete Application Load Balancer Flowlog
     application_load_balancer_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      flowlog: "{{ alb_flowlog_response.flowlog.id }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      flowlog:FlowlogName
       state: absent
   ''',
 }

@@ -26,6 +26,12 @@
         user_password: "{{ password }}"
         email: "{{ random_user2 }}"
         administrator: false
+      register: user_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{user_response}}"
+    #     dest: ../../docs/returned_object_examples/user.json
 
     - name: Create group
       group:
@@ -44,6 +50,11 @@
         access_and_manage_certificates: True
         manage_dbaas: True
       register: group_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{group_response}}"
+    #     dest: ../../docs/returned_object_examples/group.json
 
     - name: Add user1 to group
       group:

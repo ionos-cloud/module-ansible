@@ -157,7 +157,7 @@ author:
 EXAMPLE_PER_STATE = {
     'present': '''- name: Create Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         name: test_registry_token
         scopes:
             - actions: 
@@ -172,7 +172,7 @@ EXAMPLE_PER_STATE = {
   ''',
     'update': '''- name: Update Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         registry_token: test_registry_token
         scopes:
             - actions: 
@@ -185,7 +185,7 @@ EXAMPLE_PER_STATE = {
   ''',
     'absent': '''- name: Delete Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         registry_token: test_registry_token
         state: absent
   ''',

@@ -120,12 +120,12 @@ author:
 EXAMPLES = '''
     - name: Get all servers for given datacenter
       server_info:
-        datacenter: "{{ datacenter }}"
+        datacenter: AnsibleDatacenter
       register: server_list_response
 
     - name: Get only the servers that need to be upgraded
       server_info:
-        datacenter: "{{ datacenter }}"
+        datacenter: AnsibleDatacenter
         upgrade_needed: true
       register: servers_list_upgrade_response
 

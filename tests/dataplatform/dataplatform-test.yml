@@ -25,6 +25,11 @@
         wait_timeout: 7200
       register: cluster_response
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{cluster_response}}"
+    #     dest: ../../docs/returned_object_examples/dataplatform_cluster.json
+
     - name: Patch Data Platform cluster
       dataplatform_cluster:
         name: "{{ name }}"
@@ -40,6 +45,11 @@
     - name: Get all Data Platform clusters
       dataplatform_cluster_info:
       register: cluster_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{cluster_list_response}}"
+    #     dest: ../../docs/returned_object_examples/dataplatform_cluster_info.json
 
     - name: Get kubeconfig by ID
       dataplatform_cluster_config:
@@ -76,6 +86,11 @@
         wait_timeout: 7200
       register: result
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{result}}"
+    #     dest: ../../docs/returned_object_examples/dataplatform_nodepool.json
+
     - name: Update DataPlatform cluster nodepool
       dataplatform_nodepool:
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
@@ -99,6 +114,11 @@
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
       register: nodepool_list_response
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nodepool_list_response}}"
+    #     dest: ../../docs/returned_object_examples/dataplatform_nodepool_info.json
+
     - name: Delete DataPlatform cluster nodepool
       dataplatform_nodepool:
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
@@ -111,6 +131,7 @@
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         state: absent
         wait: true
+        wait_timeout: 2000
 
     - name: Remove datacenter
       datacenter:

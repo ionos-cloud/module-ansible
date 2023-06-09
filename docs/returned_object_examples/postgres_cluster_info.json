@@ -1,0 +1,42 @@
+{
+    "result": [
+        {
+            "type": "cluster",
+            "id": "46c151c7-55f8-42a4-86c3-06ad6b4b91ea",
+            "metadata": {
+                "created_date": "2023-05-30T14:35:40+00:00",
+                "created_by": "<USER_EMAIL>",
+                "created_by_user_id": "<USER_ID>",
+                "last_modified_date": null,
+                "last_modified_by": null,
+                "last_modified_by_user_id": null,
+                "state": "AVAILABLE"
+            },
+            "properties": {
+                "display_name": "backuptest-04",
+                "postgres_version": "12",
+                "location": "de/fra",
+                "backup_location": "eu-central-2",
+                "instances": 1,
+                "ram": 2048,
+                "cores": 1,
+                "storage_size": 20480,
+                "storage_type": "SSD Premium",
+                "connections": [
+                    {
+                        "datacenter_id": "03a8fdf1-fbc4-43f6-91ce-0506444e17dd",
+                        "lan_id": "2",
+                        "cidr": "<CIDR>"
+                    }
+                ],
+                "maintenance_window": {
+                    "time": "12:15:19",
+                    "day_of_the_week": "Monday"
+                },
+                "synchronization_mode": "ASYNCHRONOUS"
+            }
+        }
+    ],
+    "failed": false,
+    "changed": false
+}

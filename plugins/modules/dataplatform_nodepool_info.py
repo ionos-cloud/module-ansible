@@ -101,7 +101,7 @@ author:
 EXAMPLES = '''
     - name: List DataPlatform Nodepools
         dataplatform_nodepool_info:
-            cluster: {{ cluster_id }}
+            cluster: ClusterName
         register: dataplatform_nodepools_response
 
 

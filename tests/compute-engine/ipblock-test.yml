@@ -12,6 +12,12 @@
         location: "{{ location }}"
         size: 2
         state: present
+      register: response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{response}}"
+    #     dest: ../../docs/returned_object_examples/ipblock.json
 
     - name: Remove ipblock
       ipblock:

@@ -41,19 +41,19 @@ RETURNED_KEY = 'target_group'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the Target Group.'],
+        'description': ['The target group name.'],
         'available': STATES,
         'required': ['present'],
         'type': 'str',
     },
     'algorithm': {
-        'description': ['Balancing algorithm.'],
+        'description': ['The balancing algorithm. A balancing algorithm consists of predefined rules with the logic that a load balancer uses to distribute network traffic between servers.  - **Round Robin**: Targets are served alternately according to their weighting.  - **Least Connection**: The target with the least active connection is served.  - **Random**: The targets are served based on a consistent pseudorandom algorithm.  - **Source IP**: It is ensured that the same client IP address reaches the same target.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'protocol': {
-        'description': ['Balancing protocol.'],
+        'description': ['The forwarding protocol. Only the value \'HTTP\' is allowed.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -69,7 +69,7 @@ OPTIONS = {
         'type': 'dict',
     },
     'targets': {
-        'description': ['An array of items in the collection.'],
+        'description': ['Array of items in the collection.'],
         'available': ['present', 'update'],
         'type': 'list',
         'elements': 'dict',
@@ -176,7 +176,7 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Target Group
     target_group:
-      name: "{{ name }}"
+      name: "AnsibleAutoTestCompute"
       algorithm: "ROUND_ROBIN"
       protocol: "HTTP"
       targets:
@@ -202,10 +202,10 @@ EXAMPLE_PER_STATE = {
   'update' : '''
   - name: Update Target Group
     target_group:
-      name: "{{ name }} - UPDATED"
+      name: "AnsibleAutoTestCompute - UPDATED"
       algorithm: "ROUND_ROBIN"
       protocol: "HTTP"
-      target_group_id: "{{ target_group_response.target_group.id }}"
+      target_group: "AnsibleAutoTestCompute"
       wait: true
       state: update
     register: target_group_response_update
@@ -213,7 +213,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Remove Target Group
     target_group:
-      target_group_id: "{{ target_group_response.target_group.id }}"
+      target_group: "AnsibleAutoTestCompute - UPDATED"
       wait: true
       wait_timeout: 2000
       state: absent

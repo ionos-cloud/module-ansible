@@ -4,8 +4,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-from plugins.modules.k8s_nodepool import RETURNED_KEY
-
 __metaclass__ = type
 
 import copy
@@ -40,7 +38,7 @@ RETURNED_KEY = 'flowlog'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the Flowlog.'],
+        'description': ['The resource name.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -82,7 +80,7 @@ OPTIONS = {
         'type': 'str',
     },
     'bucket': {
-        'description': ['S3 bucket name of an existing IONOS Cloud S3 bucket.'],
+        'description': ['The S3 bucket name of an existing IONOS Cloud S3 bucket.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -187,34 +185,34 @@ author:
 EXAMPLE_PER_STATE = {
     'present': '''- name: Create a nic flowlog
   nic_flowlog:
-    name: "{{ name }}"
+    name: FlowlogName
     action: "ACCEPTED"
     direction: "INGRESS"
     bucket: "sdktest"
-    datacenter: "{{ datacenter_response.datacenter.id }}"
-    server: "{{ server_response.machines[0].id }}"
-    nic: "{{ nic_response.nic.id }}"
+    datacenter: DatacenterName
+    server: ServerName
+    nic: NicName
   register: flowlog_response
   ''',
     'update': '''- name: Update a nic flowlog
   nic_flowlog:
-    name: "{{ name }}"
+    name: "FlowlogName"
     action: "ALL"
     direction: "INGRESS"
     bucket: "sdktest"
-    datacenter: "{{ datacenter_response.datacenter.id }}"
-    server: "{{ server_response.machines[0].id }}"
-    nic: "{{ nic_response.nic.id }}"
-    flowlog: "{{ flowlog_response.flowlog.id }}"
+    datacenter: DatacenterName
+    server: ServerName
+    nic: NicName
+    flowlog: FlowlogName
   register: flowlog_update_response
   ''',
     'absent': '''- name: Delete a nic flowlog
   nic_flowlog:
-    datacenter: "{{ datacenter_response.datacenter.id }}"
-    server: "{{ server_response.machines[0].id }}"
-    nic: "{{ nic_response.nic.id }}"
-    flowlog: "{{ flowlog_response.flowlog.id }}"
-    name: "{{ name }}"
+    datacenter: DatacenterName
+    server: ServerName
+    nic: NicName
+    flowlog: FlowlogName
+    name: "FlowlogName"
     state: absent
     wait: true
   register: flowlog_delete_response
@@ -613,11 +611,11 @@ def main():
 
         try:
             if state == 'absent':
-                module.exit_json(**remove_flowlog(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             if state == 'present':
-                module.exit_json(**create_flowlog(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_flowlog(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
                                                                                              error=to_native(e),

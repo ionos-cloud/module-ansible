@@ -9,23 +9,23 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   - name: Create Network Load Balancer
     network_load_balancer:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      name: NLBName
       ips:
         - "10.12.118.224"
-      listener_lan: "{{ listener_lan.lan.id }}"
-      target_lan: "{{ target_lan.lan.id }}"
+      listener_lan: 1
+      target_lan: 2
       wait: true
     register: nlb_response
   
 
   - name: Update Network Load Balancer
     network_load_balancer:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      name: "{{ name }} - UPDATE"
-      listener_lan: "{{ listener_lan.lan.id }}"
-      target_lan: "{{ target_lan.lan.id }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
+      name: "NLBName - UPDATE"
+      listener_lan: 1
+      target_lan: 2
       wait: true
       state: update
     register: nlb_response_update
@@ -33,12 +33,51 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   - name: Remove Network Load Balancer
     network_load_balancer:
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer: "NLBName - UPDATE"
+      datacenter: DatacenterName
       wait: true
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "network_load_balancer": {
+        "entities": null,
+        "href": "https://api.ionos.com/cloudapi/v6/datacenters/89d7e3e1-a688-4ebd-ab01-8beac27e1f8a/networkloadbalancers/c8fb9d9b-a8ef-4358-a275-c23717aebb51",
+        "id": "c8fb9d9b-a8ef-4358-a275-c23717aebb51",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-31T13:04:34+00:00",
+            "etag": "0f37a620e34ca7724e3c53370eddf75e",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-31T13:04:34+00:00",
+            "state": "BUSY"
+        },
+        "properties": {
+            "ips": [
+                "<IP>"
+            ],
+            "lb_private_ips": null,
+            "listener_lan": 1,
+            "name": "AnsibleAutoTestNLB",
+            "target_lan": 2
+        },
+        "type": "networkloadbalancer"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -48,12 +87,12 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
   
   - name: Create Network Load Balancer
     network_load_balancer:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      name: NLBName
       ips:
         - "10.12.118.224"
-      listener_lan: "{{ listener_lan.lan.id }}"
-      target_lan: "{{ target_lan.lan.id }}"
+      listener_lan: 1
+      target_lan: 2
       wait: true
     register: nlb_response
   
@@ -63,7 +102,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the Network Loadbalancer. |
+  | name | True | str |  | The name of the Network Load Balancer. |
   | listener_lan | True | str |  | ID of the listening LAN (inbound). |
   | ips | False | list |  | Collection of the Network Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers. |
   | target_lan | True | str |  | ID of the balanced private target LAN (outbound). |
@@ -87,8 +126,8 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
   
   - name: Remove Network Load Balancer
     network_load_balancer:
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
+      network_load_balancer: "NLBName - UPDATE"
+      datacenter: DatacenterName
       wait: true
       state: absent
   
@@ -98,7 +137,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the Network Loadbalancer. |
+  | name | False | str |  | The name of the Network Load Balancer. |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
   | api_url | False | str |  | The Ionos API base URL. |
@@ -118,11 +157,11 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
   
   - name: Update Network Load Balancer
     network_load_balancer:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      name: "{{ name }} - UPDATE"
-      listener_lan: "{{ listener_lan.lan.id }}"
-      target_lan: "{{ target_lan.lan.id }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
+      name: "NLBName - UPDATE"
+      listener_lan: 1
+      target_lan: 2
       wait: true
       state: update
     register: nlb_response_update
@@ -133,7 +172,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the Network Loadbalancer. |
+  | name | True | str |  | The name of the Network Load Balancer. |
   | listener_lan | True | str |  | ID of the listening LAN (inbound). |
   | ips | False | list |  | Collection of the Network Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers. |
   | target_lan | True | str |  | ID of the balanced private target LAN (outbound). |

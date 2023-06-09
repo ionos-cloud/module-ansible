@@ -26,6 +26,11 @@
         user: "{{ user_response.user.properties.email }}"
       register: result
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{result}}"
+    #     dest: ../../docs/returned_object_examples/s3key.json
+
     - name: Debug - Show S3key
       debug:
         msg: "{{ result }}"
@@ -46,6 +51,11 @@
       s3key_info:
         user: "{{ user_response.user.id }}"
       register: s3keys_info_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{s3keys_info_response}}"
+    #     dest: ../../docs/returned_object_examples/s3key_info.json
 
     - name: Debug - Show response of s3keys_info
       debug:
