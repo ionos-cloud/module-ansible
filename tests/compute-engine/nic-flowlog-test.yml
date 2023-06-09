@@ -83,13 +83,12 @@
         server: "{{ server_response.machines[0].id }}"
         nic: "{{ nic_response.nic.id }}"
         flowlog: "{{ flowlog_response.flowlog.id }}"
+        state: update
       register: flowlog_update_response
-
 
     - name: Debug - Show Updated Flowlog
       debug:
         msg: "{{ flowlog_update_response }}"
-
 
     - name: Delete a nic flowlog
       nic_flowlog:
@@ -134,7 +133,6 @@
          remove_boot_volume: yes
          wait_timeout: "{{ wait_timeout }}"
          state: absent
-
 
     - name: Remove datacenter
       datacenter:
