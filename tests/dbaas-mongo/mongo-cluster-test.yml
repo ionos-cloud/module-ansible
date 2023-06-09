@@ -111,13 +111,13 @@
 
   - name: List Mongo Cluster Users
     mongo_cluster_user_info:
-      mongo_cluster: "e268c695-4a1f-45a5-96db-a38487389189"
+      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
     register: mongo_cluster_users_response
 
-  - name: Print output to file
-    ansible.builtin.copy:
-      content: "{{mongo_cluster_users_response}}"
-      dest: ../../docs/returned_object_examples/mongo_cluster_user_info.json
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{mongo_cluster_users_response}}"
+  #     dest: ../../docs/returned_object_examples/mongo_cluster_user_info.json
 
   - name: Update User
     mongo_cluster_user:
