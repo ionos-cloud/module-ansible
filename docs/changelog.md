@@ -1,5 +1,10 @@
 # Changelog
 
+## 6.5.1
+### Features
+* New licenceType supported for `snapshot` and `volume` modules: `RHEL`
+* Extend dynamic inventory to support regex-based grouping
+
 ## 6.5.0
 
 ### Features
