@@ -5,6 +5,9 @@
 - name: Run Datacenter Test
   import_playbook: datacenter-test.yml
 
+- name: Run VCPU Server Test
+  import_playbook: vcpu-server-test.yml
+
 - name: Run Attach Volume Test
   import_playbook: attach-volume-test.yml
 
