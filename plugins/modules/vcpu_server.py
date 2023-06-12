@@ -476,7 +476,7 @@ def _create_machine(module, client, datacenter, name):
             nics.append(nic)
 
     server_properties = ServerProperties(
-        type='VCPU_INSTANCE',
+        type='VCPU',
         name=name,
         cores=cores,
         ram=ram,
