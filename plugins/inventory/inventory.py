@@ -122,6 +122,9 @@ class IonosCloudInventory(object):
         self.cache_path = '.'
         self.cache_max_age = 0
 
+        # Group Servers by matching regex, see [regexgroup] section in ini
+        self.regex_group_list = []
+
         # Read settings, environment variables, and CLI arguments
         self.read_cli_args()
         self.read_settings()
@@ -244,6 +247,10 @@ class IonosCloudInventory(object):
                 setattr(self, option, config.getboolean('ionos', option))
             else:
                 setattr(self, option, False)
+
+        # Regex Groups 
+        if config.has_section('regexgroups'):
+            self.regex_group_list = [RegexGroup(group, regex) for group, regex in config.items('regexgroups', raw=True)]
 
         # Inventory Hostname
         option = 'server_name_as_inventory_hostname'
@@ -449,6 +456,14 @@ class IonosCloudInventory(object):
                     self.inventory[zone] = {'hosts': [], 'vars': self.vars}
                 self.inventory[zone]['hosts'].append(host)
 
+            if self.regex_group_list:
+                servername = server.properties.name
+                for rg in self.regex_group_list:
+                    if match_servername(servername, rg.regex):
+                        if rg.group not in self.inventory:
+                            self.inventory[rg.group] = {'hosts': [], 'vars': self.vars}
+                        self.inventory[rg.group]['hosts'].append(host)
+
     def get_host_info(self):
         """Generate a JSON response to a --host call"""
         host = self.args.host
@@ -497,6 +512,13 @@ class IonosCloudInventory(object):
         parts.reverse()
         return parts[position]
 
+def match_servername(servername, regex):
+    """
+    Returns true if `servername` matches regex. Used to build groups based on servername
+    matching the regex.
+    """
+    match = re.search(regex, servername);
+    return bool(match)
 
 def read_password_file(password_file):
     """
@@ -526,6 +548,11 @@ def read_password_file(password_file):
 
     return password
 
+
+class RegexGroup:
+    def __init__(self, group, regex):
+        self.group = group
+        self.regex = regex
 
 def is_executable(path):
     return ((stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH) & os.stat(path)[stat.ST_MODE])

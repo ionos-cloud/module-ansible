@@ -67,7 +67,7 @@ OPTIONS = {
     },
     'licence_type': {
         'description': ['OS type of this snapshot'],
-        'choices': ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'LINUX', 'OTHER'],
+        'choices': ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'RHEL', 'LINUX', 'OTHER'],
         'available': ['update'],
         'type': 'str',
     },
@@ -202,7 +202,7 @@ options:
     default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 6.0.2"
+    - "ionoscloud >= 6.1.6"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
