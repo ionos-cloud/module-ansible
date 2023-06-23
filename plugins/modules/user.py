@@ -244,6 +244,19 @@ def get_resource(module, resource_list, identity, identity_paths=None):
     else:
         return None
 
+def get_users(client):
+    all_users = ionoscloud.Users(items=[])
+    offset = 0
+    limit = 100
+
+    users = client.um_users_get(depth=2, limit=limit, offset=offset)
+    all_users.items += users.items
+    while(users.links.next is not None):
+        offset += limit
+        users = client.um_users_get(depth=2, limit=limit, offset=offset)
+        all_users.items += users.items
+
+    return all_users
 
 def get_resource_id(module, resource_list, identity, identity_paths=None):
     resource = get_resource(module, resource_list, identity, identity_paths)
@@ -278,7 +291,7 @@ def create_user(module, client, api_client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    users = client.um_users_get(depth=2)
+    users = get_users(client)
     user = get_resource(module, users, email, [['id'], ['properties', 'email']])
 
     should_change = user is None
@@ -340,7 +353,7 @@ def update_user(module, client, api_client):
 
     try:
         user_response = None
-        users = client.um_users_get(depth=2)
+        users = get_users(client)
         user = get_resource(module, users, email, [['id'], ['properties', 'email']])
 
         if user:
@@ -433,7 +446,7 @@ def delete_user(module, client):
     email = module.params.get('email')
 
     # Locate UUID for the user
-    user_list = client.um_users_get(depth=2)
+    user_list = get_users(client)
     user_id = get_resource_id(module, user_list, email, [['id'], ['properties', 'email']])
 
     if not user_id:
