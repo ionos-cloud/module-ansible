@@ -279,6 +279,21 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
+def get_users(client):
+    all_users = ionoscloud.Users(items=[])
+    offset = 0
+    limit = 100
+
+    users = client.um_users_get(depth=2, limit=limit, offset=offset)
+    all_users.items += users.items
+    while(users.links.next is not None):
+        offset += limit
+        users = client.um_users_get(depth=2, limit=limit, offset=offset)
+        all_users.items += users.items
+
+    return all_users
+
+
 def create_group(module, client):
     """
     Creates a group.
@@ -454,7 +469,7 @@ def update_group(module, client):
                 for u in user_management_server.um_groups_users_get(group_id, depth=1).items:
                     old_group_user_ids.append(u.id)
 
-                all_users = user_management_server.um_users_get(depth=2)
+                all_users = get_users(user_management_server)
                 new_group_user_ids = []
 
                 for u in module.params.get('users'):
