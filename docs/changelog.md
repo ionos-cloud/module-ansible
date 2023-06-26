@@ -1,7 +1,7 @@
 # Changelog
 
 ## 6.5.2
-### Features
+### Fixes
 * Fixed error when exceeding maximum users per page
 
 ## 6.5.1
