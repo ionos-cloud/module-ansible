@@ -12,6 +12,12 @@
 
 # Ansible Module for IONOS Cloud
 
+**IMPORTANT NOTE**: 
+
+Ansible Module for IONOS Cloud v5 is deprecated and no longer maintained. Please upgrade to v6, which uses the latest stable API version. 
+
+Ansible Module for IONOS Cloud **v5 will reach End of Life by September 30, 2023**. After this date, the v5 API will not be accessible. If you require any assistance, please contact our support team.
+
 
 ## Overview
 
