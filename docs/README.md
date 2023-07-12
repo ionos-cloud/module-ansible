@@ -1,5 +1,12 @@
 # Ansible
 
+**IMPORTANT NOTE**: 
+
+Ansible Module for IONOS Cloud v5 is deprecated and no longer maintained. Please upgrade to v6, which uses the latest stable API version. 
+
+Ansible Module for IONOS Cloud **v5 will reach End of Life by September 30, 2023**. After this date, the v5 API will not be accessible. If you require any assistance, please contact our support team.
+
+
 ## Overview
 
 Ansible is an IT automation tool that allows you to configure, deploy, and orchestrate advanced tasks, such as continuous deployments or zero downtime rolling updates. The IONOS module for Ansible leverages the IONOS Cloud API.
