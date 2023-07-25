@@ -13,7 +13,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
         cores: 4
         ram: 2048
         volume_size: 50
-        cpu_family: INTEL_XEON
         image: ubuntu:latest
         location: us/las
         count: 3
@@ -27,7 +26,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
         - web002.stackpointcloud.com
         cores: 4
         ram: 4096
-        cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
   # Rename virtual machine
@@ -37,7 +35,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
         name: web101.stackpointcloud.com
         cores: 4
         ram: 4096
-        cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
 
@@ -182,7 +179,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
         cores: 4
         ram: 2048
         volume_size: 50
-        cpu_family: INTEL_XEON
         image: ubuntu:latest
         location: us/las
         count: 3
@@ -204,7 +200,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | cores | False | int | 2 | The number of CPU cores to allocate to the virtual machine. |
   | ram | False | int | 2048 | The amount of memory to allocate to the virtual machine. |
-  | cpu_family | False | str | AMD_OPTERON | The amount of memory to allocate to the virtual machine. |
   | availability_zone | False | str | AUTO | The availability zone assigned to the server. |
   | volume_size | False | int | 10 | The size in GB of the boot volume. |
   | bus | False | str | VIRTIO | The bus type for the volume. |
@@ -239,7 +234,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
         - web002.stackpointcloud.com
         cores: 4
         ram: 4096
-        cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
   # Rename virtual machine
@@ -249,7 +243,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
         name: web101.stackpointcloud.com
         cores: 4
         ram: 4096
-        cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
 
