@@ -50,7 +50,7 @@ if `true` and a resource would be replaced it will throw an error instead
 | dataplatform_cluster | datacenter | - |
 | dataplatform_nodepool | name, cpu_family, cores_count, ram_size, availability_zone, storage_type, storage_size | - |
 | ipblock | size, location | - |
-| k8s_nodepool | nodepool_name, cpu_family, cores_count, ram_size, availability_zone, storage_type, storage_size, datacenter | - |
+| k8s_nodepool | name, cpu_family, cores_count, ram_size, availability_zone, storage_type, storage_size, datacenter | - |
 | mongo_cluster | mongo_db_version, location | - |
 | postgres_cluster | connections, backup_location, location, synchronization_mode, storage_type | - |
 | registry_token | name | - |
@@ -106,6 +106,7 @@ k8s_nodepool
 - k8s_cluster_id -> k8s_cluster
 - datacenter_id -> datacenter
 - lan_ids -> lans
+- nodepool_name -> name
 
 lan
 - added lan

@@ -46,7 +46,7 @@ OPTIONS = {
         'required': ['update', 'absent'],
         'type': 'str',
     },
-    'nodepool_name': {
+    'name': {
         'description': ['The name of the K8s Nodepool.'],
         'available': ['update', 'present'],
         'required': ['present'],
@@ -333,8 +333,8 @@ def _should_replace_object(module, existing_object, client):
         module.params.get('datacenter'),
     )
     return (
-        module.params.get('nodepool_name') is not None
-        and existing_object.properties.name != module.params.get('nodepool_name')
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
         or module.params.get('cpu_family') is not None
         and existing_object.properties.cpu_family != module.params.get('cpu_family')
         or module.params.get('cores_count') is not None
@@ -418,7 +418,7 @@ def _get_object_list(module, client):
 
 
 def _get_object_name(module):
-    return module.params.get('nodepool_name')
+    return module.params.get('name')
 
 
 def _get_object_identifier(module):
@@ -437,7 +437,7 @@ def _create_object(module, client, existing_object=None):
         module.params.get('datacenter'),
     )
     k8s_version = module.params.get('k8s_version')
-    nodepool_name = module.params.get('nodepool_name')
+    name = module.params.get('name')
     lans = _get_lans(module.params.get('lans'))
     node_count = module.params.get('node_count')
     cpu_family = module.params.get('cpu_family')
@@ -464,7 +464,7 @@ def _create_object(module, client, existing_object=None):
         auto_scaling['maxNodeCount'] = auto_scaling.pop('max_node_count')
 
     if existing_object is not None:
-        nodepool_name = existing_object.properties.name if nodepool_name is None else nodepool_name
+        name = existing_object.properties.name if name is None else name
         k8s_version = existing_object.properties.k8s_version if k8s_version is None else k8s_version
         lans = existing_object.properties.lans if lans is None else lans
         datacenter_id = existing_object.properties.datacenter_id if datacenter_id is None else datacenter_id
@@ -482,7 +482,7 @@ def _create_object(module, client, existing_object=None):
         public_ips = existing_object.properties.public_ips if public_ips is None else public_ips
 
     k8s_nodepool_properties = KubernetesNodePoolProperties(
-        name=nodepool_name,
+        name=name,
         datacenter_id=datacenter_id,
         node_count=node_count,
         cpu_family=cpu_family,
