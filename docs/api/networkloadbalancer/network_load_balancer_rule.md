@@ -133,7 +133,7 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
   | targets | True | list |  | Array of items in the collection. |
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -209,7 +209,7 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
   | datacenter | True | str |  | The ID or name of the datacenter. |
   | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
   | forwarding_rule | True | str |  | The ID or name of the Network Loadbalancer forwarding rule. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
