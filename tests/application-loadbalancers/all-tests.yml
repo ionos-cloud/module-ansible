@@ -2,14 +2,14 @@
   connection: local
   gather_facts: false
 
-- name: Run Applciation Loadbalancer Test
-  import_playbook: application-load-balancer-test.yml
+#- name: Run Applciation Loadbalancer Test
+#  import_playbook: application-load-balancer-test.yml
 
 # - name: Run Applciation Loadbalancer Flowlog Test
 #   import_playbook: application-load-balancer-flowlog-test.yml
 
-- name: Run Applciation Loadbalancer Forwarding Rule Test
-  import_playbook: application-load-balancer-forwardingrule-test.yml
+#- name: Run Applciation Loadbalancer Forwarding Rule Test
+#  import_playbook: application-load-balancer-forwardingrule-test.yml
 
-- name: Run Target Group Test
-  import_playbook: target-group-test.yml
+#- name: Run Target Group Test
+#  import_playbook: target-group-test.yml

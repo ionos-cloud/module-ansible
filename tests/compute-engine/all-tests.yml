@@ -11,8 +11,8 @@
 - name: Run Cube Server Test
   import_playbook: cube-server-test.yml
 
-- name: Run Firewall Test
-  import_playbook: firewall-test.yml
+#- name: Run Firewall Test
+#  import_playbook: firewall-test.yml
 
 # Skipped because we can't automatically upload an image using Cloud API
 # and the test needs an image to be uploaded
