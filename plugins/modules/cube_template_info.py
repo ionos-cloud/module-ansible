@@ -29,8 +29,8 @@ ANSIBLE_METADATA = {
 }
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
-STATES = ['present']
-OBJECT_NAME = 'CUBE template'
+STATES = ['info']
+OBJECT_NAME = 'CUBE templates'
 
 OPTIONS = {
     'template_id': {
@@ -137,22 +137,23 @@ def get_template(module, client):
 
     template_id = module.params.get('template_id')
     template_server = ionoscloud.TemplatesApi(client)
-    template_response = None
+    results = None
 
     try:
         if template_id:
-            template_response = template_server.templates_find_by_id(template_id)
+            results = template_server.templates_find_by_id(template_id)
 
         else:
-            template_response = template_server.templates_get(depth=2)
+            results = template_server.templates_get(depth=2)
 
     except ApiException as e:
-        module.fail_json(msg="failed to get the template list: %s" % to_native(e))
+        module.fail_json(msg='failed to list the {object_name}: {error}'.format(
+            object_name=OBJECT_NAME, error=to_native(e),
+        ))
 
     return {
         'changed': False,
-        'failed': False,
-        'template': template_response.to_dict()
+        'results': results
     }
 
 

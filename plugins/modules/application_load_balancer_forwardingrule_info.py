@@ -20,9 +20,9 @@ ANSIBLE_METADATA = {
     'supported_by': 'community',
 }
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
-DOC_DIRECTORY = 'compute-engine'
+DOC_DIRECTORY = 'applicationloadbalancer'
 STATES = ['info']
-OBJECT_NAME = 'Servers'
+OBJECT_NAME = 'Application Loadbalancer forwarding rules'
 
 OPTIONS = {
     'datacenter': {
@@ -31,10 +31,11 @@ OPTIONS = {
         'required': STATES,
         'type': 'str',
     },
-    'upgrade_needed': {
-        'description': ['Filter servers that can or that cannot be upgraded.'],
+    'application_load_balancer': {
+        'description': ['The ID or name of the Application Loadbalancer.'],
         'available': STATES,
-        'type': 'bool',
+        'required': STATES,
+        'type': 'str',
     },
     'filters': {
         'description': [
@@ -101,10 +102,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: server_info
-short_description: List Ionos Cloud servers of a given datacenter.
+module: application_load_balancer_forwardingrule_info
+short_description: List Ionos Cloud Forwarding Rules of a given Application Load Balancer.
 description:
-     - This is a simple module that supports listing servers.
+     - This is a simple module that supports listing Forwarding Rules.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -118,24 +119,11 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: Get all servers for given datacenter
-      server_info:
-        datacenter: AnsibleDatacenter
-      register: server_list_response
-
-    - name: Get only the servers that need to be upgraded
-      server_info:
-        datacenter: AnsibleDatacenter
-        upgrade_needed: true
-      register: servers_list_upgrade_response
-
-    - name: Show all servers for the created datacenter
-      debug:
-        var: server_list_response
-
-    - name: Show servers that need an upgrade
-      debug:
-        var: servers_list_upgrade_response
+    - name: Get all Forwarding Rules for given Application Load Balancer
+      application_load_balancer_forwardingrule_info:
+        datacenter: "AnsibleDatacenter"
+        application_load_balancer: "AnsibleAppLoadBalancer"
+      register: forwarding_rules_list_response
 '''
 
 uuid_match = re.compile(
@@ -238,22 +226,23 @@ def apply_filters(module, item_list):
 
 def get_objects(module, client):
     datacenter = module.params.get('datacenter')
-    servers_api = ionoscloud.ServersApi(client)
-    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    upgrade_needed = module.params.get('upgrade_needed')
-    depth = module.params.get('depth')
+    application_load_balancer = module.params.get('application_load_balancer')
+    albs_api = ionoscloud.ApplicationLoadBalancersApi(api_client=client)
+    datacenters_api = ionoscloud.DataCentersApi(api_client=client)
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
-    datacenter = get_resource_id(module, datacenter_list, datacenter)
+    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
+
+    alb_list = albs_api.datacenters_applicationloadbalancers_get(datacenter_id, depth=1)
+    application_load_balancer_id = get_resource_id(module, alb_list, application_load_balancer)
+
+    rules = albs_api.datacenters_applicationloadbalancers_forwardingrules_get(
+        datacenter_id, application_load_balancer_id, depth=module.params.get('depth'),
+    )
 
     try:
-        server_items = servers_api.datacenters_servers_get(
-            datacenter,
-            upgrade_needed=upgrade_needed,
-            depth=depth,
-        )
-        results = list(map(lambda x: x.to_dict(), apply_filters(module, server_items.items)))
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, rules.items)))
         return {
             'changed': False,
             'results': results
@@ -263,7 +252,6 @@ def get_objects(module, client):
         module.fail_json(msg='failed to list the {object_name}: {error}'.format(
             object_name=OBJECT_NAME, error=to_native(e),
         ))
-
 
 
 def get_module_arguments():
@@ -351,9 +339,9 @@ def main():
         try:
             module.exit_json(**get_objects(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
-                                                                                             error=to_native(e),
-                                                                                             state=state))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(
+                object_name=OBJECT_NAME, error=to_native(e), state=state,
+            ))
 
 
 if __name__ == '__main__':

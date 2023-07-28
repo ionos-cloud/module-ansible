@@ -232,7 +232,7 @@ def apply_filters(module, item_list):
     return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
 
 
-def get_volumes(module, client):
+def get_objects(module, client):
     datacenter = module.params.get('datacenter')
     server = module.params.get('server')
     depth = module.params.get('depth')
@@ -258,13 +258,14 @@ def get_volumes(module, client):
     try:
         results = list(map(lambda x: x.to_dict(), apply_filters(module, volumes.items)))
         return {
-            'action': 'info',
             'changed': False,
-            'servers': results
+            'results': results
         }
 
     except Exception as e:
-        module.fail_json(msg="failed to list the volumes: %s" % to_native(e))
+        module.fail_json(msg='failed to list the {object_name}: {error}'.format(
+            object_name=OBJECT_NAME, error=to_native(e),
+        ))
 
 
 def get_module_arguments():
@@ -350,7 +351,7 @@ def main():
         check_required_arguments(module, OBJECT_NAME)
 
         try:
-            module.exit_json(**get_volumes(module, api_client))
+            module.exit_json(**get_objects(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
                                                                                              error=to_native(e),

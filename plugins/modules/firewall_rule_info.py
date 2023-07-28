@@ -22,19 +22,26 @@ ANSIBLE_METADATA = {
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['info']
-OBJECT_NAME = 'Servers'
+OBJECT_NAME = 'Firewall Rules'
 
 OPTIONS = {
     'datacenter': {
-        'description': ['The ID or name of the datacenter.'],
-        'available': STATES,
+        'description': ['The datacenter name or UUID in which to operate.'],
         'required': STATES,
+        'available': STATES,
         'type': 'str',
     },
-    'upgrade_needed': {
-        'description': ['Filter servers that can or that cannot be upgraded.'],
+    'server': {
+        'description': ['The server name or UUID.'],
+        'required': STATES,
         'available': STATES,
-        'type': 'bool',
+        'type': 'str',
+    },
+    'nic': {
+        'description': ['The NIC name or UUID.'],
+        'required': STATES,
+        'available': STATES,
+        'type': 'str',
     },
     'filters': {
         'description': [
@@ -101,10 +108,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: server_info
-short_description: List Ionos Cloud servers of a given datacenter.
+module: firewall_rule_info
+short_description: List Ionos Cloud Firewall Rules of a given NIC.
 description:
-     - This is a simple module that supports listing servers.
+     - This is a simple module that supports listing Firewall Rules.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -118,24 +125,12 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: Get all servers for given datacenter
-      server_info:
-        datacenter: AnsibleDatacenter
-      register: server_list_response
-
-    - name: Get only the servers that need to be upgraded
-      server_info:
-        datacenter: AnsibleDatacenter
-        upgrade_needed: true
-      register: servers_list_upgrade_response
-
-    - name: Show all servers for the created datacenter
-      debug:
-        var: server_list_response
-
-    - name: Show servers that need an upgrade
-      debug:
-        var: servers_list_upgrade_response
+    - name: Get all volumes for given datacenter
+      firewall_rule_info:
+        datacenter: "AnsibleDatacenter"
+        server: "AnsibleServer"
+        nic: "AnsibleNIC"
+      register: firewall_rule_list_response
 '''
 
 uuid_match = re.compile(
@@ -237,23 +232,29 @@ def apply_filters(module, item_list):
 
 
 def get_objects(module, client):
-    datacenter = module.params.get('datacenter')
-    servers_api = ionoscloud.ServersApi(client)
-    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    upgrade_needed = module.params.get('upgrade_needed')
-    depth = module.params.get('depth')
+    firewall_ruless_api = ionoscloud.FirewallRulesApi(api_client=client)
+    servers_api = ionoscloud.ServersApi(api_client=client)
+    nics_api = ionoscloud.NetworkInterfacesApi(api_client=client)
+    datacenters_api = ionoscloud.DataCentersApi(api_client=client)
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
-    datacenter = get_resource_id(module, datacenter_list, datacenter)
+    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
+
+    # Locate UUID for Server
+    server_list = servers_api.datacenters_servers_get(datacenter_id, depth=1)
+    server_id = get_resource_id(module, server_list, module.params.get('server'))
+
+    # Locate UUID for NIC
+    nic_list = nics_api.datacenters_servers_nics_get(datacenter_id, server_id, depth=1)
+    nic_id = get_resource_id(module, nic_list, module.params.get('nic'))
+    
+    firewall_rules = firewall_ruless_api.datacenters_servers_nics_firewallrules_get(
+        datacenter_id, server_id, nic_id, depth=module.params.get('depth'),
+    )
 
     try:
-        server_items = servers_api.datacenters_servers_get(
-            datacenter,
-            upgrade_needed=upgrade_needed,
-            depth=depth,
-        )
-        results = list(map(lambda x: x.to_dict(), apply_filters(module, server_items.items)))
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, firewall_rules.items)))
         return {
             'changed': False,
             'results': results
@@ -263,7 +264,6 @@ def get_objects(module, client):
         module.fail_json(msg='failed to list the {object_name}: {error}'.format(
             object_name=OBJECT_NAME, error=to_native(e),
         ))
-
 
 
 def get_module_arguments():
