@@ -7,12 +7,12 @@ This is a simple module that supports listing volumes.
 
 ```yaml
 
-    - name: Get all volumes for given datacenter
+    - name: Get all volumes for a given datacenter
       volume_info:
         datacenter: "AnsibleDatacenter"
       register: volume_list_response
       
-    - name: Get all volumes for given server
+    - name: Get all volumes for a given server
       volume_info:
         datacenter: "AnsibleDatacenter"
         server: "AnsibleServerName"

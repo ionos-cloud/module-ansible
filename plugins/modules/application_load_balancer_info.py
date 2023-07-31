@@ -113,7 +113,7 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: Get all Application Load Balancers for given Datacenter
+    - name: Get all Application Load Balancers for a given Datacenter
       application_load_balancer_info:
         datacenter: "AnsibleDatacenter"
       register: application_load_balancer_list_response

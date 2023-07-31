@@ -142,7 +142,7 @@
         wait_timeout: "{{ wait_timeout }}"
         state: running
 
-    - name: Get all servers for given datacenter
+    - name: Get all servers for a given datacenter
       server_info:
         datacenter: "{{ datacenter }}"
       register: server_list_response

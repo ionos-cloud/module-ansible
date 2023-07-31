@@ -119,7 +119,7 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: Get all Forwarding Rules for given Application Load Balancer
+    - name: Get all Forwarding Rules for a given Application Load Balancer
       application_load_balancer_forwardingrule_info:
         datacenter: "AnsibleDatacenter"
         application_load_balancer: "AnsibleAppLoadBalancer"

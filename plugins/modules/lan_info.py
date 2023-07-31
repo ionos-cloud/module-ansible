@@ -22,23 +22,11 @@ ANSIBLE_METADATA = {
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['info']
-OBJECT_NAME = 'Firewall Rules'
+OBJECT_NAME = 'Lans'
 
 OPTIONS = {
     'datacenter': {
         'description': ['The datacenter name or UUID in which to operate.'],
-        'required': STATES,
-        'available': STATES,
-        'type': 'str',
-    },
-    'server': {
-        'description': ['The server name or UUID.'],
-        'required': STATES,
-        'available': STATES,
-        'type': 'str',
-    },
-    'nic': {
-        'description': ['The NIC name or UUID.'],
         'required': STATES,
         'available': STATES,
         'type': 'str',
@@ -108,10 +96,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: firewall_rule_info
-short_description: List Ionos Cloud Firewall Rules of a given NIC.
+module: lan_info
+short_description: List Ionos Cloud LANs in a datacenter.
 description:
-     - This is a simple module that supports listing Firewall Rules.
+     - This is a simple module that supports listing LANs.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -125,12 +113,10 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: Get all volumes for a given datacenter
-      firewall_rule_info:
+    - name: Get all LANs for a given datacenter
+      lan_info:
         datacenter: "AnsibleDatacenter"
-        server: "AnsibleServer"
-        nic: "AnsibleNIC"
-      register: firewall_rule_list_response
+      register: lan_list_response
 '''
 
 uuid_match = re.compile(
@@ -231,30 +217,18 @@ def apply_filters(module, item_list):
     return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
 
 
-def get_objects(module, client):
-    firewall_rules_api = ionoscloud.FirewallRulesApi(api_client=client)
-    servers_api = ionoscloud.ServersApi(api_client=client)
-    nics_api = ionoscloud.NetworkInterfacesApi(api_client=client)
+def get_lans(module, client):
+    lans_api = ionoscloud.LANsApi(api_client=client)
     datacenters_api = ionoscloud.DataCentersApi(api_client=client)
 
     # Locate UUID for Datacenter
     datacenter_list = datacenters_api.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
-
-    # Locate UUID for Server
-    server_list = servers_api.datacenters_servers_get(datacenter_id, depth=1)
-    server_id = get_resource_id(module, server_list, module.params.get('server'))
-
-    # Locate UUID for NIC
-    nic_list = nics_api.datacenters_servers_nics_get(datacenter_id, server_id, depth=1)
-    nic_id = get_resource_id(module, nic_list, module.params.get('nic'))
     
-    firewall_rules = firewall_rules_api.datacenters_servers_nics_firewallrules_get(
-        datacenter_id, server_id, nic_id, depth=module.params.get('depth'),
-    )
+    lans = lans_api.datacenters_lans_get(datacenter_id, depth=module.params.get('depth'))
 
     try:
-        results = list(map(lambda x: x.to_dict(), apply_filters(module, firewall_rules.items)))
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, lans.items)))
         return {
             'changed': False,
             'results': results

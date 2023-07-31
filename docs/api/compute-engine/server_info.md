@@ -7,7 +7,7 @@ This is a simple module that supports listing servers.
 
 ```yaml
 
-    - name: Get all servers for given datacenter
+    - name: Get all servers for a given datacenter
       server_info:
         datacenter: AnsibleDatacenter
       register: server_list_response

@@ -22,27 +22,9 @@ ANSIBLE_METADATA = {
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['info']
-OBJECT_NAME = 'Firewall Rules'
+OBJECT_NAME = 'IpBlocks'
 
 OPTIONS = {
-    'datacenter': {
-        'description': ['The datacenter name or UUID in which to operate.'],
-        'required': STATES,
-        'available': STATES,
-        'type': 'str',
-    },
-    'server': {
-        'description': ['The server name or UUID.'],
-        'required': STATES,
-        'available': STATES,
-        'type': 'str',
-    },
-    'nic': {
-        'description': ['The NIC name or UUID.'],
-        'required': STATES,
-        'available': STATES,
-        'type': 'str',
-    },
     'filters': {
         'description': [
             'Filter that can be used to list only objects which have a certain set of propeties. Filters '
@@ -108,10 +90,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: firewall_rule_info
-short_description: List Ionos Cloud Firewall Rules of a given NIC.
+module: ipblock_info
+short_description: List Ionos Cloud IP Blocks.
 description:
-     - This is a simple module that supports listing Firewall Rules.
+     - This is a simple module that supports listing IP Blocks.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -125,12 +107,9 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: Get all volumes for a given datacenter
-      firewall_rule_info:
-        datacenter: "AnsibleDatacenter"
-        server: "AnsibleServer"
-        nic: "AnsibleNIC"
-      register: firewall_rule_list_response
+    - name: Get all IP Blocks
+      ipblock_info:
+      register: ipblock_list_response
 '''
 
 uuid_match = re.compile(
@@ -232,29 +211,12 @@ def apply_filters(module, item_list):
 
 
 def get_objects(module, client):
-    firewall_rules_api = ionoscloud.FirewallRulesApi(api_client=client)
-    servers_api = ionoscloud.ServersApi(api_client=client)
-    nics_api = ionoscloud.NetworkInterfacesApi(api_client=client)
-    datacenters_api = ionoscloud.DataCentersApi(api_client=client)
+    ipblocks_api = ionoscloud.IPBlocksApi(api_client=client)
 
-    # Locate UUID for Datacenter
-    datacenter_list = datacenters_api.datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
-
-    # Locate UUID for Server
-    server_list = servers_api.datacenters_servers_get(datacenter_id, depth=1)
-    server_id = get_resource_id(module, server_list, module.params.get('server'))
-
-    # Locate UUID for NIC
-    nic_list = nics_api.datacenters_servers_nics_get(datacenter_id, server_id, depth=1)
-    nic_id = get_resource_id(module, nic_list, module.params.get('nic'))
-    
-    firewall_rules = firewall_rules_api.datacenters_servers_nics_firewallrules_get(
-        datacenter_id, server_id, nic_id, depth=module.params.get('depth'),
-    )
+    ipblocks_apis = ipblocks_api.ipblocks_get(depth=module.params.get('depth'))
 
     try:
-        results = list(map(lambda x: x.to_dict(), apply_filters(module, firewall_rules.items)))
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, ipblocks_apis.items)))
         return {
             'changed': False,
             'results': results
@@ -351,9 +313,9 @@ def main():
         try:
             module.exit_json(**get_objects(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
-                                                                                             error=to_native(e),
-                                                                                             state=state))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(
+                object_name=OBJECT_NAME, error=to_native(e), state=state,
+            ))
 
 
 if __name__ == '__main__':

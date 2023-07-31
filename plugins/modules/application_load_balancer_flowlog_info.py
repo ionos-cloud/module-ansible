@@ -119,7 +119,7 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: Get all Flowlogs for given Application Load Balancer
+    - name: Get all Flowlogs for a given Application Load Balancer
       application_load_balancer_flowlog_info:
         datacenter: "AnsibleDatacenter"
         application_load_balancer: "AnsibleAppLoadBalancer"
