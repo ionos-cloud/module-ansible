@@ -20,16 +20,15 @@ ANSIBLE_METADATA = {
     'supported_by': 'community',
 }
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
-DOC_DIRECTORY = 'natgateway'
+DOC_DIRECTORY = 'user-management'
 STATES = ['info']
-OBJECT_NAME = 'NAT Gateways'
-RETURNED_KEY = 'nat_gateways'
+OBJECT_NAME = 'Users'
+RETURNED_KEY = 'users'
 
 OPTIONS = {
-    'datacenter': {
-        'description': ['The ID or name of the datacenter.'],
+    'group': {
+        'description': ['The name or ID of the group.'],
         'available': STATES,
-        'required': STATES,
         'type': 'str',
     },
     'filters': {
@@ -97,10 +96,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: nat_gateway_info
-short_description: List Ionos Cloud NAT Gateways of a given Datacenter.
-description:
-     - This is a simple module that supports listing NAT Gateways.
+module: nic_info
+short_description: List Ionos Cloud Users.
+description:e
+     - This is a simple module that supports listing Users.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -114,10 +113,14 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: Get all NAT Gateways in a datacenter
-      nat_gateway_info:
-        datacenter: "AnsibleDatacenter"
-      register: nat_gateway_list_response
+    - name: Get all Users of a group
+      user_info:
+        group: "AnsibleIonosGroup"
+      register: user_list_response
+
+    - name: Get all Users
+      user_info:
+      register: all_user_list_response
 '''
 
 uuid_match = re.compile(
@@ -218,19 +221,47 @@ def apply_filters(module, item_list):
     return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
 
 
+
+def get_users(client, depth, users_get_method, extra_args):
+    all_users = ionoscloud.Users(items=[])
+    offset = 0
+    limit = 100
+
+    users = users_get_method(**extra_args, depth=depth, limit=limit, offset=offset)
+    all_users.items += users.items
+    while(users.links.next is not None):
+        offset += limit
+        users = users_get_method(**extra_args, depth=depth, limit=limit, offset=offset)
+        all_users.items += users.items
+
+    return all_users
+
+
 def get_objects(module, client):
-    datacenter = module.params.get('datacenter')
-    nat_gws_api = ionoscloud.NATGatewaysApi(api_client=client)
-    datacenters_api = ionoscloud.DataCentersApi(api_client=client)
+    group = module.params.get('group')
+    um_api = ionoscloud.UserManagementApi(api_client=client)
 
-    # Locate UUID for Datacenter
-    datacenter_list = datacenters_api.datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
+    if group:
+        # Locate UUID for Group
+        group_list = um_api.um_groups_get(depth=1)
+        group_id = get_resource_id(module, group_list, group)
 
-    nat_gws = nat_gws_api.datacenters_natgateways_get(datacenter_id, depth=module.params.get('depth'))
+        users = get_users(
+            client,
+            module.params.get('depth'),
+            users_get_method=um_api.um_groups_users_get,
+            extra_args={'group_id': group_id},
+        )
+    else:
+        users = get_users(
+            client,
+            module.params.get('depth'),
+            users_get_method=um_api.um_users_get,
+            extra_args={},
+        )
 
     try:
-        results = list(map(lambda x: x.to_dict(), apply_filters(module, nat_gws.items)))
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, users.items)))
         return {
             'changed': False,
             RETURNED_KEY: results

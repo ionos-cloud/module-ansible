@@ -23,6 +23,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['info']
 OBJECT_NAME = 'IpBlocks'
+RETURNED_KEY = 'ipblocks'
 
 OPTIONS = {
     'filters': {
@@ -219,7 +220,7 @@ def get_objects(module, client):
         results = list(map(lambda x: x.to_dict(), apply_filters(module, ipblocks_apis.items)))
         return {
             'changed': False,
-            'results': results
+            RETURNED_KEY: results
         }
 
     except Exception as e:

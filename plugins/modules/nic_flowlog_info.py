@@ -20,14 +20,26 @@ ANSIBLE_METADATA = {
     'supported_by': 'community',
 }
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
-DOC_DIRECTORY = 'natgateway'
+DOC_DIRECTORY = 'compute-engine'
 STATES = ['info']
-OBJECT_NAME = 'NAT Gateways'
-RETURNED_KEY = 'nat_gateways'
+OBJECT_NAME = 'Flowlogs'
+RETURNED_KEY = 'flowlogs'
 
 OPTIONS = {
     'datacenter': {
         'description': ['The ID or name of the datacenter.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'server': {
+        'description': ['The ID or name of the Server.'],
+        'available': STATES,
+        'required': STATES,
+        'type': 'str',
+    },
+    'nic': {
+        'description': ['The ID or name of an existing NIC.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -97,10 +109,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: nat_gateway_info
-short_description: List Ionos Cloud NAT Gateways of a given Datacenter.
+module: nic_flowlog_info
+short_description: List Ionos Cloud Flowlogs of a given NIC.
 description:
-     - This is a simple module that supports listing NAT Gateways.
+     - This is a simple module that supports listing Flowlogs.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -114,10 +126,12 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: Get all NAT Gateways in a datacenter
-      nat_gateway_info:
+    - name: Get all Flowlogs for a NIC
+      nic_flowlog_info:
         datacenter: "AnsibleDatacenter"
-      register: nat_gateway_list_response
+        server: "AnsibleServer"
+        nic: "AnsibleNic"
+      register: flowlog_list_response
 '''
 
 uuid_match = re.compile(
@@ -220,17 +234,31 @@ def apply_filters(module, item_list):
 
 def get_objects(module, client):
     datacenter = module.params.get('datacenter')
-    nat_gws_api = ionoscloud.NATGatewaysApi(api_client=client)
+    server = module.params.get('server')
+    nic = module.params.get('nic')
+    flowlogs_api = ionoscloud.FlowLogsApi(api_client=client)
+    nics_api = ionoscloud.NetworkInterfacesApi(api_client=client)
     datacenters_api = ionoscloud.DataCentersApi(api_client=client)
+    servers_api = ionoscloud.ServersApi(api_client=client)
 
     # Locate UUID for Datacenter
     datacenter_list = datacenters_api.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
-    nat_gws = nat_gws_api.datacenters_natgateways_get(datacenter_id, depth=module.params.get('depth'))
+    # Locate UUID for Server
+    server_list = servers_api.datacenters_servers_get(datacenter_id, depth=1)
+    server_id = get_resource_id(module, server_list, server)
+
+    # Locate UUID for Nlb
+    nic_list = nics_api.datacenters_servers_nics_get(datacenter_id, server_id, depth=1)
+    nic_id = get_resource_id(module, nic_list, nic)
+
+    flowlogs = flowlogs_api.datacenters_servers_nics_flowlogs_get(
+        datacenter_id, server_id, nic_id, depth=module.params.get('depth'),
+    )
 
     try:
-        results = list(map(lambda x: x.to_dict(), apply_filters(module, nat_gws.items)))
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, flowlogs.items)))
         return {
             'changed': False,
             RETURNED_KEY: results

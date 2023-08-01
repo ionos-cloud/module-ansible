@@ -20,14 +20,14 @@ ANSIBLE_METADATA = {
     'supported_by': 'community',
 }
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
-DOC_DIRECTORY = 'natgateway'
+DOC_DIRECTORY = 'user-management'
 STATES = ['info']
-OBJECT_NAME = 'NAT Gateways'
-RETURNED_KEY = 'nat_gateways'
+OBJECT_NAME = 'Shares'
+RETURNED_KEY = 'shares'
 
 OPTIONS = {
-    'datacenter': {
-        'description': ['The ID or name of the datacenter.'],
+    'group': {
+        'description': ['The name or ID of the group.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -97,10 +97,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: nat_gateway_info
-short_description: List Ionos Cloud NAT Gateways of a given Datacenter.
-description:
-     - This is a simple module that supports listing NAT Gateways.
+module: nic_info
+short_description: List Ionos Cloud Shares in a given group.
+description:e
+     - This is a simple module that supports listing Shares.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -114,10 +114,10 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: Get all NAT Gateways in a datacenter
-      nat_gateway_info:
-        datacenter: "AnsibleDatacenter"
-      register: nat_gateway_list_response
+    - name: Get all Shares of a group
+      share_info:
+        group: "AnsibleIonosGroup"
+      register: share_list_response
 '''
 
 uuid_match = re.compile(
@@ -219,18 +219,17 @@ def apply_filters(module, item_list):
 
 
 def get_objects(module, client):
-    datacenter = module.params.get('datacenter')
-    nat_gws_api = ionoscloud.NATGatewaysApi(api_client=client)
-    datacenters_api = ionoscloud.DataCentersApi(api_client=client)
+    group = module.params.get('group')
+    um_api = ionoscloud.UserManagementApi(api_client=client)
 
-    # Locate UUID for Datacenter
-    datacenter_list = datacenters_api.datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
+    # Locate UUID for Group
+    group_list = um_api.um_groups_get(depth=1)
+    group_id = get_resource_id(module, group_list, group)
 
-    nat_gws = nat_gws_api.datacenters_natgateways_get(datacenter_id, depth=module.params.get('depth'))
+    shares = um_api.um_groups_shares_get(group_id, depth=module.params.get('depth'))
 
     try:
-        results = list(map(lambda x: x.to_dict(), apply_filters(module, nat_gws.items)))
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, shares.items)))
         return {
             'changed': False,
             RETURNED_KEY: results

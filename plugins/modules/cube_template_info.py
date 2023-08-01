@@ -31,6 +31,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['info']
 OBJECT_NAME = 'CUBE templates'
+RETURNED_KEY = 'cube_templates'
 
 OPTIONS = {
     'template_id': {
@@ -153,7 +154,7 @@ def get_template(module, client):
 
     return {
         'changed': False,
-        'results': results
+        RETURNED_KEY: results
     }
 
 

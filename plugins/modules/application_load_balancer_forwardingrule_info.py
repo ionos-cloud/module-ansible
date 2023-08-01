@@ -23,6 +23,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'applicationloadbalancer'
 STATES = ['info']
 OBJECT_NAME = 'Application Loadbalancer forwarding rules'
+RETURNED_KEY = 'forwarding_rules'
 
 OPTIONS = {
     'datacenter': {
@@ -245,7 +246,7 @@ def get_objects(module, client):
         results = list(map(lambda x: x.to_dict(), apply_filters(module, rules.items)))
         return {
             'changed': False,
-            'results': results
+            RETURNED_KEY: results
         }
 
     except Exception as e:

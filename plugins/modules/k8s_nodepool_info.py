@@ -23,6 +23,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'managed-kubernetes'
 STATES = ['info']
 OBJECT_NAME = 'K8s Nodepools'
+RETURNED_KEY = 'nodepools'
 
 OPTIONS = {
     'k8s_cluster': {
@@ -229,7 +230,7 @@ def get_objects(module, client):
         results = list(map(lambda x: x.to_dict(), apply_filters(module, nodepools.items)))
         return {
             'changed': False,
-            'results': results
+            RETURNED_KEY: results
         }
 
     except Exception as e:

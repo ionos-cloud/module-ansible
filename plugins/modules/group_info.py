@@ -23,6 +23,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'user-management'
 STATES = ['info']
 OBJECT_NAME = 'Groups'
+RETURNED_KEY = 'groups'
 
 OPTIONS = {
     'user': {
@@ -251,7 +252,7 @@ def get_objects(module, client):
         results = list(map(lambda x: x.to_dict(), apply_filters(module, groups.items)))
         return {
             'changed': False,
-            'results': results
+            RETURNED_KEY: results
         }
 
     except Exception as e:

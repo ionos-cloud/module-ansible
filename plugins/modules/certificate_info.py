@@ -175,7 +175,7 @@ def main():
         results = []
         for certificate in ionoscloud_cert_manager.CertificatesApi(api_client).certificates_get().items:
             results.append(certificate.to_dict())
-        module.exit_json(result=results)
+        module.exit_json(RETURNED_KEY=results)
     except Exception as e:
         module.fail_json(
             msg='failed to retrieve {object_name}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))

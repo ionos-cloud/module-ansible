@@ -21,6 +21,7 @@ __version__, ionoscloud_dataplatform.__version__)
 DOC_DIRECTORY = 'dataplatform'
 STATES = ['info']
 OBJECT_NAME = 'DataPlatform Clusters'
+RETURNED_KEY = 'dataplatform_clusters'
 
 OPTIONS = {
     'filters': {
@@ -239,7 +240,7 @@ def main():
     try:
         clusters = ionoscloud_dataplatform.DataPlatformClusterApi(dataplatform_api_client).get_clusters()
         results = list(map(lambda x: x.to_dict(), apply_filters(module, clusters.items)))
-        module.exit_json(result=results)
+        module.exit_json(RETURNED_KEY=results)
     except Exception as e:
         module.fail_json(
             msg='failed to retrieve {object_name}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))

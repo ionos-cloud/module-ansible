@@ -23,6 +23,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'networkloadbalancer'
 STATES = ['info']
 OBJECT_NAME = 'Network Loadbalancers'
+RETURNED_KEY = 'network_load_balancers'
 
 OPTIONS = {
     'datacenter': {
@@ -232,7 +233,7 @@ def get_objects(module, client):
         results = list(map(lambda x: x.to_dict(), apply_filters(module, nlbs.items)))
         return {
             'changed': False,
-            'results': results
+            RETURNED_KEY: results
         }
     except Exception as e:
         module.fail_json(msg='failed to list the {object_name}: {error}'.format(

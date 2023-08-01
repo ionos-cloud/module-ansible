@@ -23,6 +23,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['info']
 OBJECT_NAME = 'Lans'
+RETURNED_KEY = 'lans'
 
 OPTIONS = {
     'datacenter': {
@@ -231,7 +232,7 @@ def get_lans(module, client):
         results = list(map(lambda x: x.to_dict(), apply_filters(module, lans.items)))
         return {
             'changed': False,
-            'results': results
+            RETURNED_KEY: results
         }
 
     except Exception as e:

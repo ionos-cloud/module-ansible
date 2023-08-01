@@ -22,6 +22,7 @@ DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-postgres/%s' % (
 DOC_DIRECTORY = 'dbaas-postgres'
 STATES = ['info']
 OBJECT_NAME = 'Postgres Cluster Backups'
+RETURNED_KEY = 'postgres_backups'
 
 OPTIONS = {
     'postgres_cluster': {
@@ -314,7 +315,7 @@ def main():
 
         results = list(map(lambda x: x.to_dict(), apply_filters(module, backups.items)))
 
-        module.exit_json(result=results)
+        module.exit_json(RETURNED_KEY=results)
     except Exception as e:
         module.fail_json(
             msg='failed to retrieve {object_name}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
