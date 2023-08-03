@@ -7,6 +7,17 @@
     - ./vars.yml
 
   tasks:
+    - name: List Images
+      image_info:
+          filters: 
+            "properties.name": "debian-10.0.0-amd64-netinst.iso"
+      register: image_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{image_list_response}}"
+    #     dest: ../../docs/returned_object_examples/image_info.json
+
     - name: Update image
       image:
         image_id: "87fe5b95-05e4-11ee-a7cb-028794406dc9"

@@ -39,6 +39,15 @@ OPTIONS = {
         'available': STATES,
         'type': 'str',
     },
+    'filters': {
+        'description': [
+            'Filter that can be used to list only objects which have a certain set of propeties. Filters '
+            'should be a dict with a key containing keys and value pair in the following format:'
+            "'properties.name': 'server_name'"
+        ],
+        'available': STATES,
+        'type': 'dict',
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
@@ -75,13 +84,6 @@ OPTIONS = {
         'available': STATES,
         'no_log': True,
         'env_fallback': 'IONOS_TOKEN',
-        'type': 'str',
-    },
-    'state': {
-        'description': ['Indicate desired state of the resource.'],
-        'default': 'present',
-        'choices': STATES,
-        'available': STATES,
         'type': 'str',
     },
 }
@@ -125,6 +127,61 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
+def get_method_from_filter(filter):
+    '''
+    Returns the method which check a filter for one object. Such a method would work in the following way:
+    for filter = ('properties.name', 'server_name') the resulting method would be
+    def method(item):
+        return item.properties.name == 'server_name'
+
+    Parameters:
+            filter (touple): Key, value pair representing the filter.
+
+    Returns:
+            the wanted method
+    '''
+    key, value = filter
+    def method(item):
+        current = item
+        for key_part in key.split('.'):
+            current = getattr(current, key_part)
+        return current == value
+    return method
+
+
+def get_method_to_apply_filters_to_item(filter_list):
+    '''
+    Returns the method which applies a list of filtering methods obtained using get_method_from_filter to 
+    one object and returns true if all the filters return true
+    Parameters:
+            filter_list (list): List of filtering methods
+    Returns:
+            the wanted method
+    '''
+    def f(item):
+        return all([f(item) for f in filter_list])
+    return f
+
+
+def apply_filters(module, item_list):
+    '''
+    Creates a list of filtering methods from the filters module parameter, filters item_list to keep only the
+    items for which every filter matches using get_method_to_apply_filters_to_item to make that check and returns
+    those items
+    Parameters:
+            module: The current Ansible module
+            item_list (list): List of items to be filtered
+    Returns:
+            List of items which match the filters
+    '''
+    filters = module.params.get('filters')
+    if not filters:
+        return item_list    
+    filter_methods = list(map(get_method_from_filter, filters.items()))
+
+    return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
+
+
 def get_template(module, client):
     """
     List templates or find template by UUID
@@ -142,15 +199,17 @@ def get_template(module, client):
 
     try:
         if template_id:
-            results = template_server.templates_find_by_id(template_id)
+            templates = template_server.templates_find_by_id(template_id)
 
         else:
-            results = template_server.templates_get(depth=2)
+            templates = template_server.templates_get(depth=2)
 
     except ApiException as e:
         module.fail_json(msg='failed to list the {object_name}: {error}'.format(
             object_name=OBJECT_NAME, error=to_native(e),
         ))
+    
+    results = list(map(lambda x: x.to_dict(), apply_filters(module, templates.items)))
 
     return {
         'changed': False,

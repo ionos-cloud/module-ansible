@@ -51,6 +51,16 @@
     debug:
       msg: "{{ share }}"
 
+  - name: List Shares
+    share_info:
+      group: Demo
+    register: share_list_response
+
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{share_list_response}}"
+  #     dest: ../../docs/returned_object_examples/share_info.json
+
   # Update shares
   - name: Update shares
     share:

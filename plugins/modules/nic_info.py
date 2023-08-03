@@ -105,7 +105,7 @@ DOCUMENTATION = '''
 ---
 module: nic_info
 short_description: List Ionos Cloud NICs of a given Server.
-description:e
+description:
      - This is a simple module that supports listing NICs.
 version_added: "2.0"
 options:

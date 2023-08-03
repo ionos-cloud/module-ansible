@@ -19,6 +19,15 @@
     #     content: "{{response}}"
     #     dest: ../../docs/returned_object_examples/ipblock.json
 
+    - name: List IP Blocks
+      ipblock_info:
+      register: ipblock_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{ipblock_list_response}}"
+    #     dest: ../../docs/returned_object_examples/ipblock_info.json
+
     - name: Remove ipblock
       ipblock:
         ipblock: "{{ name }}"

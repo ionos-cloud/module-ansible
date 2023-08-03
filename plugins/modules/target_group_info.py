@@ -212,7 +212,7 @@ def apply_filters(module, item_list):
 
 
 def get_objects(module, client):
-    target_groups = ionoscloud.TargetGroupsApi.targetgroups_get(depth=module.params.get('depth'))
+    target_groups = ionoscloud.TargetGroupsApi(client).targetgroups_get(depth=module.params.get('depth'))
     try:
         results = list(map(lambda x: x.to_dict(), apply_filters(module, target_groups.items)))
         return {

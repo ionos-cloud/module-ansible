@@ -98,7 +98,7 @@ DOCUMENTATION = '''
 ---
 module: nic_info
 short_description: List Ionos Cloud Users.
-description:e
+description:
      - This is a simple module that supports listing Users.
 version_added: "2.0"
 options:

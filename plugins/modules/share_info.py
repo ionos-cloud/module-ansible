@@ -99,7 +99,7 @@ DOCUMENTATION = '''
 ---
 module: nic_info
 short_description: List Ionos Cloud Shares in a given group.
-description:e
+description:
      - This is a simple module that supports listing Shares.
 version_added: "2.0"
 options:

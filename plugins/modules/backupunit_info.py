@@ -212,7 +212,7 @@ def apply_filters(module, item_list):
 
 
 def get_objects(module, client):
-    backupunits = ionoscloud.BackupUnitsApi.backupunits_get(depth=module.params.get('depth'))
+    backupunits = ionoscloud.BackupUnitsApi(client).backupunits_get(depth=module.params.get('depth'))
     try:
         results = list(map(lambda x: x.to_dict(), apply_filters(module, backupunits.items)))
         return {

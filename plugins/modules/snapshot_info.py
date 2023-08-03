@@ -212,7 +212,7 @@ def apply_filters(module, item_list):
 
 
 def get_objects(module, client):
-    snapshots = ionoscloud.SnapshotsApi.snapshots_get(depth=module.params.get('depth'))
+    snapshots = ionoscloud.SnapshotsApi(client).snapshots_get(depth=module.params.get('depth'))
     try:
         results = list(map(lambda x: x.to_dict(), apply_filters(module, snapshots.items)))
         return {

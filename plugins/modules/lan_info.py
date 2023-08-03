@@ -218,7 +218,7 @@ def apply_filters(module, item_list):
     return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
 
 
-def get_lans(module, client):
+def get_objects(module, client):
     lans_api = ionoscloud.LANsApi(api_client=client)
     datacenters_api = ionoscloud.DataCentersApi(api_client=client)
 

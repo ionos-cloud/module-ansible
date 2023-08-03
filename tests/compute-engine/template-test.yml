@@ -7,19 +7,24 @@
 
   tasks:
     - name: List templates
-      cube_template:
+      cube_template_info:
         state: present
       register: template_list
 
     - name: Debug - Show Templates List
       debug:
-        msg: "{{  template_list.template }}"
+        msg: "{{  template_list.cube_templates }}"
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{template_list}}"
+    #     dest: ../../docs/returned_object_examples/cube_template_info.json
 
     - name: Get template by template id
-      cube_template:
+      cube_template_info:
         template_id: "{{ template_list.template['items'][0]['id'] }}"
       register: template_response
 
     - name: Debug - Show Template
       debug:
-        msg: "{{ template_response.template }}"
+        msg: "{{ template_response.cube_templates }}"
