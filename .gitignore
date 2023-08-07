@@ -97,3 +97,5 @@ ansible.cfg
 
 # tests/*.retry
 *.retry
+
+update_description_utils
