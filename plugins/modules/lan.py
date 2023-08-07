@@ -49,24 +49,24 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name of the LAN.'],
+        'description': ['The name of the  resource.'],
         'required': ['present'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'pcc': {
-        'description': ['The ID or name of the PCC.'],
+        'description': ['The unique identifier of the private Cross-Connect the LAN is connected to, if any.'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'ip_failover': {
-        'description': ['The IP failover group.'],
+        'description': ['IP failover configurations for lan'],
         'available': ['present', 'update'],
         'type': 'list',
         'elements': 'dict',
     },
     'public': {
-        'description': ['If true, the LAN will have public Internet access.'],
+        'description': ['This LAN faces the public Internet.'],
         'available': ['present', 'update'],
         'default': False,
         'type': 'bool',
@@ -89,7 +89,7 @@ OPTIONS = {
     'do_not_replace': {
         'description': [
             'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],

@@ -46,6 +46,11 @@
         wait: true
       register: cluster
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{cluster}}"
+    #     dest: ../../../docs/returned_object_examples/k8s_cluster.json
+
     - name: Create k8s cluster nodepool
       k8s_nodepool:
         nodepool_name: "my-nodepool-{{ 100 |random}}"
@@ -74,6 +79,11 @@
           ann2: value2
         wait: true
       register: result
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{result}}"
+    #     dest: ../../../docs/returned_object_examples/k8s_nodepool.json
 
     - name: Debug - Show nodepool
       debug:

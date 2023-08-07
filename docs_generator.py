@@ -6,11 +6,22 @@ import yaml
 from pathlib import Path
 
 
+EXAMPLES_DIR = os.path.join('docs', 'returned_object_examples')
+TEMPLATES_DIR = os.path.join('docs', 'templates')
+
+
 def generate_doc_file(module, module_name, states_parameters, template_file):
-    with open(os.path.join('docs', os.path.join('templates', template_file)), 'r') as template_file:
+    with open(os.path.join(TEMPLATES_DIR, template_file), 'r') as template_file:
         target_directory = os.path.join('docs', os.path.join('api', module.DOC_DIRECTORY))
         Path(target_directory).mkdir(parents=True, exist_ok=True)
         target_filename = os.path.join(target_directory, module_name + '.md')
+        
+        try:
+            with open(os.path.join(EXAMPLES_DIR, '{}.json'.format(module_name)), 'r') as example_file:
+                return_example = example_file.read()
+        except Exception:
+            return_example = None
+            print('!!! No return example found for {}\n'.format(module_name))
 
         with open(target_filename, 'w') as target_file:
             target_file.write(chevron.render(
@@ -20,6 +31,7 @@ def generate_doc_file(module, module_name, states_parameters, template_file):
                     'description': '\n\n'.join(yaml.safe_load(module.DOCUMENTATION)['description']),
                     'example': module.EXAMPLES,
                     'states_parameters': states_parameters,
+                    'return_example': return_example,
                 },
             ))
             print('Generated docs for <{}> in {}'.format(module_name, target_filename))

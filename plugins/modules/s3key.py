@@ -46,8 +46,7 @@ OPTIONS = {
         'type': 'str',
     },
     'idempotency': {
-        'description': ['Flag that dictates respecting idempotency. If an s3key already exists, returns with already '
-                        'existing key instead of creating more.'],
+        'description': ['Flag that dictates respecting idempotency. If an s3key already exists, returns with already existing key instead of creating more.'],
         'default': False,
         'available': 'present',
         'choices': [True, False],
@@ -143,21 +142,21 @@ EXAMPLE_PER_STATE = {
     'present': '''
   - name: Create an s3key
     s3key:
-      user: "{{ user_id }}"
+      user: <user_id/email>
   ''',
     'update': '''
   - name: Update an s3key
     s3key:
-      user: "{{ user_id }}"
-      key_id: "00ca413c94eecc56857d"
+      user: <user_id/email>
+      key_id: "00ca413c94eecc56857d
       active: False
       state: update
   ''',
     'absent': '''
   - name: Remove an s3key
     s3key:
-      user: "{{ user_id }}"
-      key_id: "00ca413c94eecc56857d"
+      user: <user_id/email>
+      key_id: 00ca413c94eecc56857d
       state: absent
   ''',
 }

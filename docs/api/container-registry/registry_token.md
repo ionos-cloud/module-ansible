@@ -8,7 +8,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
 ```yaml
 - name: Create Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         name: test_registry_token
         scopes:
             - actions: 
@@ -23,7 +23,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
   
 - name: Update Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         registry_token: test_registry_token
         scopes:
             - actions: 
@@ -36,11 +36,58 @@ This is a module that supports creating, updating or destroying Registry Tokens
   
 - name: Delete Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         registry_token: test_registry_token
         state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "registry_token": {
+        "href": "",
+        "id": "1e9f63b6-ff23-41ab-8f7e-57dd1008d6b5",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-29T13:51:29+00:00",
+            "last_modified_by": null,
+            "last_modified_by_user_id": null,
+            "last_modified_date": null,
+            "state": "enabled"
+        },
+        "properties": {
+            "credentials": {
+                "password": "<PASSWORD>",
+                "username": "testRegistryToken"
+            },
+            "expiry_date": null,
+            "name": "testRegistryToken",
+            "scopes": [
+                {
+                    "actions": [
+                        "pull",
+                        "push"
+                    ],
+                    "name": "nume",
+                    "type": "repo"
+                }
+            ],
+            "status": "enabled"
+        },
+        "type": "token"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -49,7 +96,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
 ```yaml
   - name: Create Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         name: test_registry_token
         scopes:
             - actions: 
@@ -73,7 +120,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
   | status | False | str |  | The status of the token |
   | name | True | str |  | The name of your token. |
   | registry | True | str |  | The ID or name of an existing Registry. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -89,7 +136,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
 ```yaml
   - name: Delete Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         registry_token: test_registry_token
         state: absent
   
@@ -116,7 +163,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
 ```yaml
   - name: Update Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         registry_token: test_registry_token
         scopes:
             - actions: 
@@ -139,7 +186,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
   | name | False | str |  | The name of your token. |
   | registry_token | True | str |  | The ID or name of an existing token. |
   | registry | True | str |  | The ID or name of an existing Registry. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |

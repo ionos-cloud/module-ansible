@@ -32,6 +32,49 @@ This is a module that supports creating, updating or destroying Registries
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "registry": {
+        "href": "",
+        "id": "9bc72c7b-14d3-493e-a700-f9bc06b25614",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-29T13:51:25+00:00",
+            "last_modified_by": null,
+            "last_modified_by_user_id": null,
+            "last_modified_date": null,
+            "state": "New"
+        },
+        "properties": {
+            "garbage_collection_schedule": {
+                "days": [
+                    "Wednesday"
+                ],
+                "time": "04:17:00+00:00"
+            },
+            "hostname": "",
+            "location": "de/fra",
+            "name": "ansibletest123",
+            "storage_usage": {
+                "bytes": 0,
+                "updated_at": null
+            }
+        },
+        "type": "registry"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -57,7 +100,7 @@ This is a module that supports creating, updating or destroying Registries
   | garbage_collection_schedule | False | dict |  | Dict containing &quot;time&quot; (the time of the day when to perform the garbage_collection) and &quot;days&quot; (the days when to perform the garbage_collection). |
   | location | True | str |  | The location of your registry |
   | name | True | str |  | The name of your registry. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
@@ -116,7 +159,7 @@ This is a module that supports creating, updating or destroying Registries
   | location | False | str |  | The location of your registry |
   | name | False | str |  | The name of your registry. |
   | registry | True | str |  | The ID or name of an existing Registry. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
   | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |

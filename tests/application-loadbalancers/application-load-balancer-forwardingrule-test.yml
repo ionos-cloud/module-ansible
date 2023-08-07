@@ -40,6 +40,11 @@
         wait: true
       register: alb_response
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{alb_response}}"
+    #     dest: ../../docs/returned_object_examples/application_load_balancer.json
+
     - name: Debug - Show Application Load Balancer
       debug:
          msg: "{{ alb_response }}"
@@ -64,6 +69,11 @@
 
         wait: true
       register: alb_forwarding_rule_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{alb_forwarding_rule_response}}"
+    #     dest: ../../docs/returned_object_examples/application_load_balancer_forwardingrule.json
 
     - name: Debug - Show Application Load Balancer Forwarding Rule
       debug:

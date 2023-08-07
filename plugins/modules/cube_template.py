@@ -114,18 +114,10 @@ EXAMPLE_PER_STATE = {
         state: present
       register: template_list
 
-    - name: Debug - Show Templates List
-      debug:
-        msg: "{{  template_list.template }}"
-
     - name: Get template by template id
       cube_template:
-        template_id: "{{ template_list.template['items'][0]['id'] }}"
+        template_id: 9ab6545c-b138-4a86-b6ca-0d872a2b0953
       register: template_response
-
-    - name: Debug - Show Template
-      debug:
-        msg: "{{ template_response.template }}"
   ''',
 }
 

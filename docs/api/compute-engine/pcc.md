@@ -9,24 +9,59 @@ This is a simple module that supports creating or removing Private Cross Connect
 
   - name: Create pcc
     pcc:
-      name: "{{ name }}"
-      description: "{{ description }}"
+      name: PCCName
+      description: "Description for my PCC"
   
 
   - name: Update pcc
     pcc:
-      pcc: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
-      name: "{{ new_name }}"
-      description: "{{ new_description }}"
+      pcc: PCCName
+      name: NewPCCName
+      description: "New description for my PCC"
       state: update
   
 
   - name: Remove pcc
     pcc:
-      pcc: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
+      pcc: NewPCCName
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "pcc": {
+        "href": "https://api.ionos.com/cloudapi/v6/pccs/9574d5dd-14be-4e4c-b9fb-962bdadc954d",
+        "id": "9574d5dd-14be-4e4c-b9fb-962bdadc954d",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": null,
+            "created_date": "2023-05-29T12:52:28+00:00",
+            "etag": "90244ee1b3bb5db489f5e25999ee177d",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": null,
+            "last_modified_date": "2023-05-29T12:52:28+00:00",
+            "state": "BUSY"
+        },
+        "properties": {
+            "connectable_datacenters": [],
+            "description": "Ansible Compute test description",
+            "name": "AnsibleAutoTestCompute",
+            "peers": []
+        },
+        "type": "pcc"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -36,8 +71,8 @@ This is a simple module that supports creating or removing Private Cross Connect
   
   - name: Create pcc
     pcc:
-      name: "{{ name }}"
-      description: "{{ description }}"
+      name: PCCName
+      description: "Description for my PCC"
   
 ```
 ### Available parameters for state **present**:
@@ -45,9 +80,9 @@ This is a simple module that supports creating or removing Private Cross Connect
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the PCC. |
-  | description | True | str |  | The description of the PCC. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
+  | name | True | str |  | The name of the  resource. |
+  | description | True | str |  | Human-readable description. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -65,7 +100,7 @@ This is a simple module that supports creating or removing Private Cross Connect
   
   - name: Remove pcc
     pcc:
-      pcc: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
+      pcc: NewPCCName
       state: absent
   
 ```
@@ -92,9 +127,9 @@ This is a simple module that supports creating or removing Private Cross Connect
   
   - name: Update pcc
     pcc:
-      pcc: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
-      name: "{{ new_name }}"
-      description: "{{ new_description }}"
+      pcc: PCCName
+      name: NewPCCName
+      description: "New description for my PCC"
       state: update
   
 ```
@@ -103,10 +138,10 @@ This is a simple module that supports creating or removing Private Cross Connect
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the PCC. |
+  | name | False | str |  | The name of the  resource. |
   | pcc | True | str |  | The ID or name of an existing PCC. |
-  | description | False | str |  | The description of the PCC. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead |
+  | description | False | str |  | Human-readable description. |
+  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |

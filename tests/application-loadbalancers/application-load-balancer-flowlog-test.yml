@@ -55,6 +55,11 @@
         wait: true
       register: alb_flowlog_response
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{alb_flowlog_response}}"
+    #     dest: ../../docs/returned_object_examples/application_load_balancer_flowlog.json
+
     - name: Debug - Show Application Load Balancer Flowlog
       debug:
          msg: "{{ alb_flowlog_response }}"

@@ -40,7 +40,7 @@ RETURNED_KEY = 'nic'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the NIC.'],
+        'description': ['The name of the  resource.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -64,14 +64,13 @@ OPTIONS = {
         'type': 'str',
     },
     'lan': {
-        'description': [
-            "The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create."],
+        'description': ['The LAN ID the NIC will be on. If the LAN ID does not exist, it will be implicitly created.'],
         'required': ['present'],
         'available': ['update'],
         'type': 'str',
     },
     'dhcp': {
-        'description': ['Boolean value indicating if the NIC is using DHCP or not.'],
+        'description': ['Indicates if the NIC will reserve an IP using DHCP.'],
         'available': ['present', 'update'],
         'type': 'bool',
         'version_added': '2.4',
@@ -87,13 +86,13 @@ OPTIONS = {
         'version_added': '2.4',
     },
     'firewall_active': {
-        'description': ['Boolean value indicating if the firewall is active.'],
+        'description': ['Activate or deactivate the firewall. By default, an active firewall without any defined rules will block all incoming network traffic except for the firewall rules that explicitly allows certain protocols, IP addresses and ports.'],
         'available': ['present', 'update'],
         'type': 'bool',
         'version_added': '2.4',
     },
     'ips': {
-        'description': ['A list of IPs to be assigned to the NIC.'],
+        'description': ['Collection of IP addresses, assigned to the NIC. Explicitly assigned public IPs need to come from reserved IP blocks. Passing value null or empty array will assign an IP address automatically.'],
         'available': ['present', 'update'],
         'type': 'list',
         'version_added': '2.4',
@@ -128,7 +127,7 @@ OPTIONS = {
     'do_not_replace': {
         'description': [
             'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -223,18 +222,26 @@ author:
 
 EXAMPLE_PER_STATE = {
     'present': '''# Create a NIC
-  - nic:
-      datacenter: Tardis One
-      server: node002
-      lan: 2
-      wait_timeout: 500
-      state: present
+    - name: Create NIC
+      nic:
+       name: NicName
+       datacenter: DatacenterName
+       server: ServerName
+       lan: 2
+       dhcp: true
+       firewall_active: true
+       ips:
+         - 10.0.0.1
+       wait: true
+       wait_timeout: 600
+       state: present
+      register: ionos_cloud_nic
   ''',
     'update': '''# Update a NIC
   - nic:
-      datacenter: Tardis One
-      server: node002
-      name: 7341c2454f
+      datacenter: DatacenterName
+      server: ServerName
+      nic: NicName
       lan: 1
       ips:
         - 158.222.103.23
@@ -244,9 +251,9 @@ EXAMPLE_PER_STATE = {
   ''',
     'absent': '''# Remove a NIC
   - nic:
-      datacenter: Tardis One
-      server: node002
-      name: 7341c2454f
+      datacenter: DatacenterName
+      server: ServerName
+      nic: NicName
       wait_timeout: 500
       state: absent
   ''',

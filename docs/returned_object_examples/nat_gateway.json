@@ -1,0 +1,45 @@
+{
+    "changed": false,
+    "failed": false,
+    "action": "create",
+    "nat_gateway": {
+        "entities": {
+            "flowlogs": {
+                "links": null,
+                "href": "https://api.ionos.com/cloudapi/v6/datacenters/0406692b-b25f-4a58-8b41-e3b2d761447c/natgateways/abcc8593-a4a9-4ea0-b63c-04f95f395aa0/flowlogs",
+                "id": "abcc8593-a4a9-4ea0-b63c-04f95f395aa0/flowlogs",
+                "items": null,
+                "limit": null,
+                "offset": null,
+                "type": "collection"
+            },
+            "rules": {
+                "href": "https://api.ionos.com/cloudapi/v6/datacenters/0406692b-b25f-4a58-8b41-e3b2d761447c/natgateways/abcc8593-a4a9-4ea0-b63c-04f95f395aa0/rules",
+                "id": "abcc8593-a4a9-4ea0-b63c-04f95f395aa0/rules",
+                "items": null,
+                "type": "collection"
+            }
+        },
+        "href": "https://api.ionos.com/cloudapi/v6/datacenters/0406692b-b25f-4a58-8b41-e3b2d761447c/natgateways/abcc8593-a4a9-4ea0-b63c-04f95f395aa0",
+        "id": "abcc8593-a4a9-4ea0-b63c-04f95f395aa0",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-31T11:46:08+00:00",
+            "etag": "f64f5fbd951032447f9e9a9b0d7ab1a2",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-31T11:46:08+00:00",
+            "state": "AVAILABLE"
+        },
+        "properties": {
+            "lans": [],
+            "name": "AnsibleAutoTestNAT",
+            "public_ips": [
+                "<IP1>",
+                "<IP2>"
+            ]
+        },
+        "type": "natgateway"
+    }
+}

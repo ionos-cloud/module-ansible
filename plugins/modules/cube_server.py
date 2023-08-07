@@ -42,16 +42,9 @@ STATES = ['resume', 'suspend', 'absent', 'present', 'update']
 OBJECT_NAME = 'CUBE Server'
 RETURNED_KEY = 'server'
 
-AVAILABILITY_ZONES = [
-    'AUTO',
-    'ZONE_1',
-    'ZONE_2',
-    'ZONE_3',
-]
-
 OPTIONS = {
     'name': {
-        'description': ['The name of the virtual machine.'],
+        'description': ['The name of the  resource.'],
         'required': ['present'],
         'available': ['present', 'update', 'absent'],
         'type': 'str',
@@ -95,9 +88,9 @@ OPTIONS = {
         'type': 'str',
     },
     'availability_zone': {
-        'description': ['The availability zone assigned to the server.'],
+        'description': ['The availability zone in which the server should be provisioned.'],
         'available': ['present'],
-        'choices': AVAILABILITY_ZONES,
+        'choices': ['AUTO', 'ZONE_1', 'ZONE_2'],
         'default': 'AUTO',
         'type': 'str',
         'version_added': '2.3',
@@ -162,7 +155,7 @@ OPTIONS = {
         'elements': 'str',
     },
     'template_uuid': {
-        'description': ['The template used when crating a CUBE server.'],
+        'description': ['The ID of the template for creating a CUBE server; the available templates for CUBE servers can be found on the templates resource.'],
         'available': ['present'],
         'type': 'str',
     },
@@ -179,7 +172,7 @@ OPTIONS = {
     'do_not_replace': {
         'description': [
             'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],

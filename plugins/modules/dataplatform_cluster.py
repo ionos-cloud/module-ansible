@@ -31,11 +31,7 @@ RETURNED_KEY = 'dataplatform_cluster'
 
 OPTIONS = {
     'name': {
-        'description': [
-            'The name of your cluster. Must be 63 characters or less and must be empty or '
-            'begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), '
-            'underscores (_), dots (.), and alphanumerics between.',
-        ],
+        'description': ['The name of your cluster. Must be 63 characters or less and must begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -47,22 +43,19 @@ OPTIONS = {
         'type': 'str',
     },
     'dataplatform_version': {
-        'description': ['The version of the DataPlatform.'],
+        'description': ['The version of the data platform.'],
         'available': ['present', 'update'],
         'required': ['update'],
         'type': 'str',
     },
     'datacenter': {
-        'description': ['The name or UUID of the virtual data center (VDC) the cluster is provisioned.'],
+        'description': ['The UUID of the virtual data center (VDC) the cluster is provisioned.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
     },
     'maintenance_window': {
-        'description': [
-            'Starting time of a weekly 4 hour-long window, during which '
-            'maintenance might occur in hh:mm:ss format',
-        ],
+        'description': ['Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format'],
         'available': ['present', 'update'],
         'required': ['update'],
         'type': 'dict',
@@ -70,7 +63,7 @@ OPTIONS = {
     'do_not_replace': {
         'description': [
             'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -144,6 +137,7 @@ short_description: Create or destroy a Data Platform Cluster.
 description:
      - This is a simple module that supports creating or removing Data Platform Clusters.
        This module has a dependency on ionoscloud >= 6.0.2
+     - ⚠️ **Note:** Data Platform is currently in the Early Access (EA) phase. We recommend keeping usage and testing to non-production critical applications. Please contact your sales representative or support for more information.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
@@ -158,7 +152,7 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Data Platform cluster
     dataplatform_cluster:
-      name: "{{ cluster_name }}"
+      name: ClusterName
   ''',
   'update' : '''
   - name: Update Data Platform cluster

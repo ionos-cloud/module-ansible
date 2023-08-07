@@ -29,7 +29,7 @@ RETURNED_KEY = 'backupunit'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the virtual Backup Unit.'],
+        'description': ['The name of the  resource (alphanumeric characters only).'],
         'required': ['present'],
         'available': ['present'],
         'type': 'str',
@@ -41,13 +41,13 @@ OPTIONS = {
         'type': 'str',
     },
     'backupunit_password': {
-        'description': ['The password of the Backup Unit.'],
+        'description': ['The password associated with that resource.'],
         'available': ['present'],
         'no_log': True,
         'type': 'str',
     },
     'backupunit_email': {
-        'description': ['The email of the Backup Unit.'],
+        'description': ['The email associated with the backup unit. Bear in mind that this email does not be the same email as of the user.'],
         'required': ['present'],
         'available': ['present'],
         'type': 'str',
@@ -55,7 +55,7 @@ OPTIONS = {
     'do_not_replace': {
         'description': [
             'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -143,22 +143,22 @@ EXAMPLE_PER_STATE = {
   'present' : '''# Create a Backup Unit
   - name: Create Backup Unit
     backupunit:
-      backupunit_email: "{{ email }}"
-      backupunit_password: "{{ password }}"
-      name: "{{ name }}"
+      backupunit_email: <email>
+      backupunit_password: <password>
+      name: BackupUnitName
   ''',
   'update' : '''# Update a Backup Unit
   - name: Update a Backup Unit
     backupunit:
-      backupunit: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
-      backupunit_email: "{{ updated_email }}"
-      backupunit_password:  "{{ updated_password }}"
+      backupunit: BackupUnitName
+      backupunit_email: <newEmail>
+      backupunit_password: <newPassword>
       state: update
   ''',
   'absent' : '''# Destroy a Backup Unit.
   - name: Remove Backup Unit
     backupunit:
-      backupunit: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+      backupunit: BackupUnitName
       state: absent
   ''',
 }

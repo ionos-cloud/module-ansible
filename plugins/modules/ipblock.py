@@ -44,12 +44,12 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name of the IPBlock.'],
+        'description': ['The name of the  resource.'],
         'available': STATES,
         'type': 'str',
     },
     'location': {
-        'description': ['The IP Block location.'],
+        'description': ['Location of that IP block. Property cannot be modified after it is created (disallowed in update requests).'],
         'required': ['present'],
         'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
         'default': 'us/las',
@@ -57,7 +57,7 @@ OPTIONS = {
         'type': 'str',
     },
     'size': {
-        'description': ['The number of IP addresses to allocate in the IPBlock.'],
+        'description': ['The size of the IP block.'],
         'available': ['present'],
         'default': 1,
         'type': 'int',
@@ -65,7 +65,7 @@ OPTIONS = {
     'do_not_replace': {
         'description': [
             'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],

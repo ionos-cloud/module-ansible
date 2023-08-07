@@ -1,0 +1,70 @@
+{
+    "result": [
+        {
+            "id": "3a199f09-9699-4493-a858-82d9f55a382e",
+            "name": null,
+            "edition": null,
+            "cores": null,
+            "ram": null,
+            "storage_size": null
+        },
+        {
+            "id": "609f3099-ff0d-456a-8ac7-4dd379a6ee14",
+            "name": null,
+            "edition": null,
+            "cores": null,
+            "ram": null,
+            "storage_size": null
+        },
+        {
+            "id": "8c2c51c7-f1f8-4f44-bf3e-6e5cc8e50f07",
+            "name": null,
+            "edition": null,
+            "cores": null,
+            "ram": null,
+            "storage_size": null
+        },
+        {
+            "id": "d5d6aa0a-6db0-4440-a5ac-00cd42b00bb3",
+            "name": null,
+            "edition": null,
+            "cores": null,
+            "ram": null,
+            "storage_size": null
+        },
+        {
+            "id": "7f646ba1-a739-485f-b5f6-1039958553d5",
+            "name": null,
+            "edition": null,
+            "cores": null,
+            "ram": null,
+            "storage_size": null
+        },
+        {
+            "id": "6b78ea06-ee0e-4689-998c-fc9c46e781f6",
+            "name": null,
+            "edition": null,
+            "cores": null,
+            "ram": null,
+            "storage_size": null
+        },
+        {
+            "id": "14d23a55-22d6-46f9-b884-2f864f3fda0f",
+            "name": null,
+            "edition": null,
+            "cores": null,
+            "ram": null,
+            "storage_size": null
+        },
+        {
+            "id": "33457e53-1f8b-4ed2-8a12-2d42355aa759",
+            "name": null,
+            "edition": null,
+            "cores": null,
+            "ram": null,
+            "storage_size": null
+        }
+    ],
+    "failed": false,
+    "changed": false
+}

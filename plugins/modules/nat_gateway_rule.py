@@ -56,36 +56,24 @@ OPTIONS = {
         'type': 'str',
     },
     'source_subnet': {
-        'description': [
-            'Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this '
-            'translation rule applies to based on the packets source IP address.',
-        ],
+        'description': ['Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets source IP address.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'public_ip': {
-        'description': [
-            'Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing '
-            'packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource.',
-        ],
+        'description': ['Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'target_subnet': {
-        'description': [
-            'Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets '
-            'this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address.',
-        ],
+        'description': ['Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address.'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'target_port_range': {
-        'description': [
-            'Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation '
-            'rule applies to based on destination port. If none is provided, rule will match any port.',
-        ],
+        'description': ['Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port'],
         'available': ['present', 'update'],
         'type': 'dict',
     },
@@ -110,7 +98,7 @@ OPTIONS = {
     'do_not_replace': {
         'description': [
             'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -204,9 +192,9 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create NAT Gateway Rule
     nat_gateway_rule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      name: "{{ name }}"
+      datacenter: Datacentername
+      nat_gateway: NATGatewayName
+      name: RuleName
       type: "SNAT"
       protocol: "TCP"
       source_subnet: "10.0.1.0/24"
@@ -214,18 +202,18 @@ EXAMPLE_PER_STATE = {
       target_port_range:
         start: 10000
         end: 20000
-      public_ip: "{{ ipblock_response.ipblock.properties.ips[0] }}"
+      public_ip: <ip>
       wait: true
     register: nat_gateway_rule_response
   ''',
   'update' : '''
   - name: Update NAT Gateway Rule
     nat_gateway_rule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
-      public_ip: "{{ ipblock_response.ipblock.properties.ips[1] }}"
-      name: "{{ name }} - UPDATED"
+      datacenter: Datacentername
+      nat_gateway: NATGatewayName
+      nat_gateway_rule: RuleName
+      public_ip: <newIp>
+      name: "RuleName - UPDATED"
       type: "SNAT"
       protocol: "TCP"
       source_subnet: "10.0.1.0/24"
@@ -236,9 +224,9 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete NAT Gateway Rule
     nat_gateway_rule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
+      datacenter: Datacentername
+      nat_gateway: NATGatewayName
+      nat_gateway_rule: "RuleName - UPDATED"
       state: absent
   ''',
 }

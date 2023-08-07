@@ -86,6 +86,7 @@ module: dataplatform_nodepool_info
 short_description: List DataPlatform Nodepools
 description:
      - This is a simple module that supports listing existing DataPlatform Nodepools
+     - ⚠️ **Note:** Data Platform is currently in the Early Access (EA) phase. We recommend keeping usage and testing to non-production critical applications. Please contact your sales representative or support for more information.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -101,7 +102,7 @@ author:
 EXAMPLES = '''
     - name: List DataPlatform Nodepools
         dataplatform_nodepool_info:
-            cluster: {{ cluster_id }}
+            cluster: ClusterName
         register: dataplatform_nodepools_response
 
 

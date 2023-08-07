@@ -33,6 +33,56 @@ This is a simple module that supports updating or removing Images. This module h
       state: absent
   
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "update",
+    "image": {
+        "href": "https://api.ionos.com/cloudapi/v6/images/87fe5b95-05e4-11ee-a7cb-028794406dc9",
+        "id": "87fe5b95-05e4-11ee-a7cb-028794406dc9",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-06-08T10:09:18+00:00",
+            "etag": "1a305d1a2beaabd6027d5ad4fe5940a8",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-06-08T10:15:32+00:00",
+            "state": "BUSY"
+        },
+        "properties": {
+            "cloud_init": "V1",
+            "cpu_hot_plug": true,
+            "cpu_hot_unplug": false,
+            "description": "An image used for testing the Ansible Module",
+            "disc_scsi_hot_plug": true,
+            "disc_scsi_hot_unplug": false,
+            "disc_virtio_hot_plug": true,
+            "disc_virtio_hot_unplug": true,
+            "image_aliases": [],
+            "image_type": "CDROM",
+            "licence_type": "LINUX",
+            "location": "de/fra",
+            "name": "debian-11.7.0-amd64-netinst-renamed.iso",
+            "nic_hot_plug": true,
+            "nic_hot_unplug": true,
+            "public": false,
+            "ram_hot_plug": true,
+            "ram_hot_unplug": true,
+            "size": 0.39
+        },
+        "type": "image"
+    }
+}
+
+```
+
 &nbsp;
 
 &nbsp;
@@ -52,7 +102,7 @@ This is a simple module that supports updating or removing Images. This module h
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | image_id | True | str |  | The ID of the image. |
-  | name | False | str |  | The name of the image. |
+  | name | False | str |  | The resource name. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
   | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
@@ -94,19 +144,19 @@ This is a simple module that supports updating or removing Images. This module h
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
   | image_id | True | str |  | The ID of the image. |
-  | name | False | str |  | The name of the image. |
-  | description | False | str |  | The description of the image. |
+  | name | False | str |  | The resource name. |
+  | description | False | str |  | Human-readable description. |
   | cpu_hot_plug | False | bool |  | Hot-plug capable CPU (no reboot required). |
   | cpu_hot_unplug | False | bool |  | Hot-unplug capable CPU (no reboot required). |
-  | ram_hot_plug | False | bool |  | Hot-plug capable RAM (no reboot required) |
+  | ram_hot_plug | False | bool |  | Hot-plug capable RAM (no reboot required). |
   | ram_hot_unplug | False | bool |  | Hot-unplug capable RAM (no reboot required). |
   | nic_hot_plug | False | bool |  | Hot-plug capable NIC (no reboot required). |
-  | nic_hot_unplug | False | bool |  | Hot-unplug capable NIC (no reboot required) |
+  | nic_hot_unplug | False | bool |  | Hot-unplug capable NIC (no reboot required). |
   | disc_scsi_hot_plug | False | bool |  | Hot-plug capable SCSI drive (no reboot required). |
   | disc_scsi_hot_unplug | False | bool |  | Hot-unplug capable SCSI drive (no reboot required). Not supported with Windows VMs. |
   | disc_virtio_hot_plug | False | bool |  | Hot-plug capable Virt-IO drive (no reboot required). |
   | disc_virtio_hot_unplug | False | bool |  | Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows VMs. |
-  | licence_type | True | str |  | OS type for this image. |
+  | licence_type | True | str |  | The OS type of this image. |
   | cloud_init | False | str |  | Cloud init compatibility. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |

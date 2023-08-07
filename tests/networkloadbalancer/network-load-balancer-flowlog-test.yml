@@ -55,6 +55,11 @@
         wait: true
       register: nlb_flowlog_response
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nlb_flowlog_response}}"
+    #     dest: ../../docs/returned_object_examples/network_load_balancer_flowlog.json
+
     - name: Debug - Show Network Load Balancer Flowlog
       debug:
          msg: "{{ nlb_flowlog_response }}"

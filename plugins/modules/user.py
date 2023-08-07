@@ -38,19 +38,19 @@ RETURNED_KEY = 'user'
 
 OPTIONS = {
     'firstname': {
-        'description': ["The user's first name."],
+        'description': ['The first name of the user.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'lastname': {
-        'description': ["The user's last name."],
+        'description': ['The last name of the user.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'email': {
-        'description': ["The user's email"],
+        'description': ['The email address of the user.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -69,21 +69,17 @@ OPTIONS = {
         'no_log': True,
     },
     'administrator': {
-        'description': ['Boolean value indicating if the user has administrative rights.'],
+        'description': ['Indicates if the user has admin rights.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'force_sec_auth': {
-        'description': [
-            'Boolean value indicating if secure (two-factor) authentication should be forced for the user.'],
+        'description': ['Indicates if secure authentication should be forced on the user.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'groups': {
-        'description': [
-            'A list of group IDs or names where the user (non-administrator) is to be added.'
-            'Set to empty list ([]) to remove the user from all groups.',
-        ],
+        'description': ['A list of group IDs or names where the user (non-administrator) is to be added. Set to empty list ([]) to remove the user from all groups.'],
         'available': ['present', 'update'],
         'type': 'list',
     },
@@ -95,7 +91,7 @@ OPTIONS = {
     'do_not_replace': {
         'description': [
             'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -194,8 +190,8 @@ EXAMPLE_PER_STATE = {
     user:
       firstname: John
       lastname: Doe
-      email: john.doe@example.com
-      user_password: secretpassword123
+      email: <email>
+      user_password: <password>
       administrator: true
       state: present
   ''',
@@ -204,7 +200,7 @@ EXAMPLE_PER_STATE = {
     user:
       firstname: John II
       lastname: Doe
-      email: john.doe@example.com
+      email: <email>
       administrator: false
       force_sec_auth: false
       groups:
@@ -215,7 +211,7 @@ EXAMPLE_PER_STATE = {
     'absent': '''# Remove a user
   - name: Remove user
     user:
-      user: john.doe@example.com
+      user: <email>
       state: absent
   ''',
 }

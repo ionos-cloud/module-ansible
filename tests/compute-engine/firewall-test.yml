@@ -28,12 +28,24 @@
          wait_timeout: "{{ wait_timeout }}"
          state: present
       register: ionos_cloud
+    
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{ionos_cloud}}"
+    #     dest: ../../docs/returned_object_examples/server.json
 
     - name: Create LAN
       lan:
         datacenter: "{{ datacenter }}"
         name: "{{ lan }}"
         public: true
+      register: ionos_lan
+    
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{ionos_lan}}"
+    #     dest: ../../docs/returned_object_examples/lan.json
+
 
     - name: Create NIC
       nic:
@@ -47,6 +59,11 @@
          wait_timeout: "{{ wait_timeout }}"
          state: present
       register: ionos_cloud_nic
+    
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{ionos_cloud_nic}}"
+    #     dest: ../../docs/returned_object_examples/nic.json
 
     - name: Create a firewall rule
       firewall_rule:
@@ -59,6 +76,13 @@
           port_range_start: 22
           port_range_end: 24
           state: present
+      register: ionos_firewall_rule
+    
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{ionos_firewall_rule}}"
+    #     dest: ../../docs/returned_object_examples/firewall_rule.json
+
 
     - name: Update firewall rule
       firewall_rule:

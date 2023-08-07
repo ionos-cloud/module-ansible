@@ -66,7 +66,7 @@ OPTIONS = {
     'do_not_replace': {
         'description': [
             'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -157,7 +157,7 @@ author:
 EXAMPLE_PER_STATE = {
     'present': '''- name: Create Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         name: test_registry_token
         scopes:
             - actions: 
@@ -172,7 +172,7 @@ EXAMPLE_PER_STATE = {
   ''',
     'update': '''- name: Update Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         registry_token: test_registry_token
         scopes:
             - actions: 
@@ -185,7 +185,7 @@ EXAMPLE_PER_STATE = {
   ''',
     'absent': '''- name: Delete Registry Token
     registry_token:
-        registry: "{{ registry_id }}"
+        registry: RegistryName
         registry_token: test_registry_token
         state: absent
   ''',

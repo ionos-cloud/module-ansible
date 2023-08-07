@@ -38,18 +38,18 @@ RETURNED_KEY = 'datacenter'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the virtual datacenter.'],
+        'description': ['The name of the  resource.'],
         'required': ['present'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'description': {
-        'description': ['The description of the virtual datacenter.'],
+        'description': ['A description for the datacenter, such as staging, production.'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'location': {
-        'description': ['The datacenter location.'],
+        'description': ['The physical location where the datacenter will be created. This will be where all of your servers live. Property cannot be modified after datacenter creation (disallowed in update requests).'],
         'required': ['present'],
         'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr', 'es/vit'],
         'available': ['present', 'update'],
@@ -64,7 +64,7 @@ OPTIONS = {
     'do_not_replace': {
         'description': [
             'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -166,8 +166,7 @@ EXAMPLE_PER_STATE = {
   'update' : '''# Update a datacenter description
   - name: Update datacenter
     datacenter:
-      id: "{{ datacenter_response.datacenter.id }}"
-      name: "Example DC"
+      datacenter: "Example DC"
       description: "description - RENAMED"
       state: update
     register: updated_datacenter
@@ -175,8 +174,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''# Destroy a Datacenter. This will remove all servers, volumes, and other objects in the datacenter.
   - name: Remove datacenter
     datacenter:
-      id: "{{ datacenter_response.datacenter.id }}"
-      name: "Example DC"
+      datacenter: "Example DC"
       state: absent
   ''',
 }

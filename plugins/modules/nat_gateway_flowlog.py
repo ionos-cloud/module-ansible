@@ -38,7 +38,7 @@ RETURNED_KEY = 'flowlog'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the flowlog.'],
+        'description': ['The resource name.'],
         'available': STATES,
         'required': ['present'],
         'type': 'str',
@@ -56,7 +56,7 @@ OPTIONS = {
         'type': 'str',
     },
     'bucket': {
-        'description': ['S3 bucket name of an existing IONOS Cloud S3 bucket.'],
+        'description': ['The S3 bucket name of an existing IONOS Cloud S3 bucket.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -82,7 +82,7 @@ OPTIONS = {
     'do_not_replace': {
         'description': [
             'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -176,22 +176,22 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create NAT Gateway Flowlog
     nat_gateway_flowlog:
-      name: "{{ name }}"
+      name: FlowlogName
       action: "ACCEPTED"
       direction: "INGRESS"
       bucket: "sdktest"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+      datacenter: DatacenterName
+      nat_gateway: NATGatewayName
       wait: true
     register: nat_gateway_flowlog_response
   ''',
   'update' : '''
   - name: Update NAT Gateway Flowlog
     nat_gateway_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      nat_gateway: NATGatewayName
+      flowlog: FlowlogName
+      name: FlowlogName
       action: "ALL"
       direction: "INGRESS"
       bucket: "sdktest"
@@ -202,9 +202,9 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete NAT Gateway Flowlog
     nat_gateway_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-      flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
+      datacenter: DatacenterName
+      nat_gateway: NATGatewayName
+      flowlog: FlowlogName
       state: absent
   ''',
 }
