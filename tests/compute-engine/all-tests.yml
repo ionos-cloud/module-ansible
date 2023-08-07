@@ -22,6 +22,9 @@
 - name: Run IP Block Test
   import_playbook: ipblock-test.yml
 
+- name: Run IPV6 Test
+  import_playbook: ipv6-test.yml
+
 - name: Run Lan Test
   import_playbook: lan-test.yml
 
