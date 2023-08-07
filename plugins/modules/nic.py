@@ -322,7 +322,7 @@ def _should_update_object(module, existing_object):
         module.params.get('ips') is not None
         and sorted(existing_object.properties.ips) != sorted(module.params.get('ips'))
         or module.params.get('ipv6_cidr') is not None
-        and sorted(existing_object.properties.ipv6_cidr_block) != sorted(module.params.get('ipv6_cidr'))
+        and existing_object.properties.ipv6_cidr_block != module.params.get('ipv6_cidr')
         or module.params.get('ipv6_ips') is not None
         and sorted(existing_object.properties.ipv6_ips) != sorted(module.params.get('ipv6_ips'))
         or module.params.get('dhcp') is not None
