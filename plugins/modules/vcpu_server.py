@@ -280,7 +280,7 @@ author:
 
 EXAMPLE_PER_STATE = {
   'present' : '''# Provisioning example. This will create three servers and enumerate their names.
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         name: web%02d.stackpointcloud.com
         cores: 4
@@ -292,7 +292,7 @@ EXAMPLE_PER_STATE = {
         assign_public_ip: true
   ''',
   'update' : '''# Update Virtual machines
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         instance_ids:
         - web001.stackpointcloud.com
@@ -302,7 +302,7 @@ EXAMPLE_PER_STATE = {
         availability_zone: ZONE_1
         state: update
   # Rename virtual machine
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         instance_ids: web001.stackpointcloud.com
         name: web101.stackpointcloud.com
@@ -312,7 +312,7 @@ EXAMPLE_PER_STATE = {
         state: update
 ''',
   'absent' : '''# Removing Virtual machines
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
@@ -322,7 +322,7 @@ EXAMPLE_PER_STATE = {
         state: absent
   ''',
   'running' : '''# Starting Virtual Machines.
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
@@ -332,7 +332,7 @@ EXAMPLE_PER_STATE = {
         state: running
   ''',
   'stopped' : '''# Stopping Virtual Machines
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'

@@ -7,42 +7,39 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 
 ```yaml
 # Provisioning example. This will create three servers and enumerate their names.
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         name: web%02d.stackpointcloud.com
         cores: 4
         ram: 2048
         volume_size: 50
-        cpu_family: INTEL_XEON
         image: ubuntu:latest
         location: us/las
         count: 3
         assign_public_ip: true
   
 # Update Virtual machines
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         instance_ids:
         - web001.stackpointcloud.com
         - web002.stackpointcloud.com
         cores: 4
         ram: 4096
-        cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
   # Rename virtual machine
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         instance_ids: web001.stackpointcloud.com
         name: web101.stackpointcloud.com
         cores: 4
         ram: 4096
-        cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
 
 # Removing Virtual machines
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
@@ -52,7 +49,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
         state: absent
   
 # Starting Virtual Machines.
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
@@ -62,7 +59,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
         state: running
   
 # Stopping Virtual Machines
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
@@ -79,7 +76,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 # state: **running**
 ```yaml
   # Starting Virtual Machines.
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
@@ -111,7 +108,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 # state: **stopped**
 ```yaml
   # Stopping Virtual Machines
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
@@ -143,7 +140,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 # state: **absent**
 ```yaml
   # Removing Virtual machines
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         instance_ids:
         - 'web001.stackpointcloud.com'
@@ -176,13 +173,12 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 # state: **present**
 ```yaml
   # Provisioning example. This will create three servers and enumerate their names.
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         name: web%02d.stackpointcloud.com
         cores: 4
         ram: 2048
         volume_size: 50
-        cpu_family: INTEL_XEON
         image: ubuntu:latest
         location: us/las
         count: 3
@@ -204,7 +200,6 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
   | datacenter | True | str |  | The datacenter to provision this virtual machine. |
   | cores | False | int | 2 | The number of CPU cores to allocate to the virtual machine. |
   | ram | False | int | 2048 | The amount of memory to allocate to the virtual machine. |
-  | cpu_family | False | str | AMD_OPTERON | The amount of memory to allocate to the virtual machine. |
   | availability_zone | False | str | AUTO | The availability zone assigned to the server. |
   | volume_size | False | int | 10 | The size in GB of the boot volume. |
   | bus | False | str | VIRTIO | The bus type for the volume. |
@@ -232,24 +227,22 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 # state: **update**
 ```yaml
   # Update Virtual machines
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         instance_ids:
         - web001.stackpointcloud.com
         - web002.stackpointcloud.com
         cores: 4
         ram: 4096
-        cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
   # Rename virtual machine
-    - server:
+    - vcpu_server:
         datacenter: Tardis One
         instance_ids: web001.stackpointcloud.com
         name: web101.stackpointcloud.com
         cores: 4
         ram: 4096
-        cpu_family: INTEL_XEON
         availability_zone: ZONE_1
         state: update
 
