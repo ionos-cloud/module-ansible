@@ -14,7 +14,7 @@
     - name: Create datacenter
       datacenter:
         name: "{{ datacenter }}"
-        location: "{{ location }}"
+        location: "de/txl"
 
     - name: Base64 encode the cloud-init config file '{{ cloud_init_file }}' for user_data in server provisioning
       shell: base64 -w 0 "{{ cloud_init_file }}"
@@ -39,7 +39,7 @@
         disk_type: SSD Standard
         image: "{{ image_alias }}"
         image_password: "{{ password }}"
-        location: "{{ location }}"
+        location: "de/txl"
         user_data: "{{ cloud_init_config.stdout }}"
         count: 2
         remove_boot_volume: true
@@ -61,7 +61,7 @@
         disk_type: SSD Standard
         image: "{{ image_alias }}"
         image_password: "{{ password }}"
-        location: "{{ location }}"
+        location: "de/txl"
         user_data: "{{ cloud_init_config.stdout }}"
         count: 2
         remove_boot_volume: true
