@@ -47,7 +47,7 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name of the K8s Nodepool.'],
+        'description': ['A Kubernetes node pool name. Valid Kubernetes node pool name must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
@@ -58,7 +58,7 @@ OPTIONS = {
         'type': 'str',
     },
     'datacenter': {
-        'description': ['The unique identifier of the datacenter where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located.'],
+        'description': ['The unique identifier of the VDC where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',

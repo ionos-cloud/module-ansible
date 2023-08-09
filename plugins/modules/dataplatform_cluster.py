@@ -49,7 +49,7 @@ OPTIONS = {
         'type': 'str',
     },
     'datacenter': {
-        'description': ['The UUID of the virtual data center the cluster is provisioned.'],
+        'description': ['The UUID of the virtual data center (VDC) the cluster is provisioned.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
