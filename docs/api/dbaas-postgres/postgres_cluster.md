@@ -133,7 +133,7 @@ This is a module that supports creating, updating, restoring or destroying Postg
   | ram | True | int |  | The amount of memory per instance in megabytes. Has to be a multiple of 1024. |
   | storage_size | True | int |  | The amount of storage per instance in megabytes. |
   | storage_type | True | str |  | The storage type used in your cluster. (Value &quot;SSD&quot; is deprecated. Use the equivalent &quot;SSD Premium&quot; instead) |
-  | connections | True | list |  | Array of VDCs to connect to your cluster. |
+  | connections | True | list |  | Array of datacenters to connect to your cluster. |
   | location | True | str |  | The physical location where the cluster will be created. This will be where all of your instances live. Property cannot be modified after datacenter creation. |
   | display_name | True | str |  | The friendly name of your cluster. |
   | db_username | True | str |  | The username for the initial PostgreSQL user. Some system usernames are restricted (e.g. &quot;postgres&quot;, &quot;admin&quot;, &quot;standby&quot;). |

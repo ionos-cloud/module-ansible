@@ -142,7 +142,7 @@ DOCUMENTATION = '''
 module: datacenter
 short_description: Create or destroy a Ionos Cloud Virtual Datacenter.
 description:
-     - This is a simple module that supports creating or removing vDCs. A vDC is required before you can create servers.
+     - This is a simple module that supports creating or removing datacenters. A datacenter is required before you can create servers.
        This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:

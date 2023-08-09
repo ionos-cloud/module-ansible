@@ -143,7 +143,7 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   | k8s_cluster | True | str |  | The ID or name of the K8s cluster. |
   | name | True | str |  | The name of the K8s Nodepool. |
   | k8s_version | False | str |  | The Kubernetes version running in the node pool. Note that this imposes restrictions on which Kubernetes versions can run in the node pools of a cluster. Also, not all Kubernetes versions are suitable upgrade targets for all earlier versions. |
-  | datacenter | True | str |  | The unique identifier of the VDC where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located. |
+  | datacenter | True | str |  | The unique identifier of the datacenter where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located. |
   | lans | False | list |  | The array of existing private LANs to attach to worker nodes. |
   | node_count | False | int |  | The number of worker nodes of the node pool. |
   | cpu_family | True | str |  | The CPU type for the nodes. |
@@ -226,7 +226,7 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   | k8s_nodepool | True | str |  | The ID or name of the K8s nodepool. |
   | name | False | str |  | The name of the K8s Nodepool. |
   | k8s_version | False | str |  | The Kubernetes version running in the node pool. Note that this imposes restrictions on which Kubernetes versions can run in the node pools of a cluster. Also, not all Kubernetes versions are suitable upgrade targets for all earlier versions. |
-  | datacenter | False | str |  | The unique identifier of the VDC where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located. |
+  | datacenter | False | str |  | The unique identifier of the datacenter where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located. |
   | lans | False | list |  | The array of existing private LANs to attach to worker nodes. |
   | node_count | False | int |  | The number of worker nodes of the node pool. |
   | cpu_family | False | str |  | The CPU type for the nodes. |

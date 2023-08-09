@@ -58,7 +58,7 @@ OPTIONS = {
         'type': 'str',
     },
     'datacenter': {
-        'description': ['The unique identifier of the VDC where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located.'],
+        'description': ['The unique identifier of the datacenter where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',

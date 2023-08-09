@@ -72,7 +72,7 @@ OPTIONS = {
         'type': 'str',
     },
     'connections': {
-        'description': ['Array of VDCs to connect to your cluster.'],
+        'description': ['Array of datacenters to connect to your cluster.'],
         'available': ['present'],
         'required': ['present'],
         'type': 'list',

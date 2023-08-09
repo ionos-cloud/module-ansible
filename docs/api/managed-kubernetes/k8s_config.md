@@ -9,7 +9,7 @@ This is a simple module that supports getting config of K8s clusters This module
 
   - name: Get k8s config
   k8s_config:
-    k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+    k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
     config_file: 'config.yaml'
   
 ```
@@ -36,7 +36,7 @@ This is a simple module that supports getting config of K8s clusters This module
   
   - name: Get k8s config
   k8s_config:
-    k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+    k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
     config_file: 'config.yaml'
   
 ```
@@ -45,7 +45,7 @@ This is a simple module that supports getting config of K8s clusters This module
 
   | Name | Required | Type | Default | Description |
   | :--- | :---: | :--- | :--- | :--- |
-  | k8s_cluster_id | True | str |  | The ID of the K8s cluster. |
+  | k8s_cluster | True | str |  | The ID or name of the K8s cluster. |
   | config_file | True | str |  | The name of the file in which to save the config. |
   | api_url | False | str |  | The Ionos API base URL. |
   | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
