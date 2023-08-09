@@ -238,7 +238,7 @@ def main():
     try:
         registries = ionoscloud_container_registry.RegistriesApi(container_registry_api_client).registries_get()
         results = list(map(lambda x: x.to_dict(), apply_filters(module, registries.items)))
-        module.exit_json(RETURNED_KEY=results)
+        module.exit_json(**{RETURNED_KEY:results})
     except Exception as e:
         module.fail_json(
             msg='failed to retrieve {object_name}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))

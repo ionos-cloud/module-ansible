@@ -289,7 +289,7 @@ def main():
         )
         users = ionoscloud_dbaas_mongo.UsersApi(dbaas_mongo_api_client).clusters_users_get(mongo_cluster_id)
         results = list(map(lambda x: x.to_dict(), apply_filters(module, users.items)))
-        module.exit_json(RETURNED_KEY=results)
+        module.exit_json(**{RETURNED_KEY:results})
     except Exception as e:
         module.fail_json(
             msg='failed to retrieve {object_name}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))

@@ -178,7 +178,7 @@ def main():
         results = []
         for template in ionoscloud_dbaas_mongo.TemplatesApi(dbaas_mongo_api_client).templates_get().items:
             results.append(template.to_dict())
-        module.exit_json(RETURNED_KEY=results)
+        module.exit_json(**{RETURNED_KEY:results})
     except Exception as e:
         module.fail_json(
             msg='failed to retrieve {object_name}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))

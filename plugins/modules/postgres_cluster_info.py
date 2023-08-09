@@ -251,7 +251,7 @@ def main():
     try:
         clusters = ionoscloud_dbaas_postgres.ClustersApi(dbaas_postgres_api_client).clusters_get()
         results = list(map(lambda x: x.to_dict(), apply_filters(module, clusters.items)))
-        module.exit_json(RETURNED_KEY=results)
+        module.exit_json(**{RETURNED_KEY:results})
     except Exception as e:
         module.fail_json(
             msg='failed to retrieve {object_name}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
