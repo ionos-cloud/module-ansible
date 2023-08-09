@@ -14,6 +14,11 @@ This is a simple module that supports listing Forwarding Rules.
       register: forwarding_rules_list_response
 
 ```
+
+
+&nbsp;
+
+&nbsp;
 ### Available parameters:
 &nbsp;
 

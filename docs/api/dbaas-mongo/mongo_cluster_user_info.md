@@ -17,6 +17,42 @@ This is a simple module that supports listing existing Mongo Clusters
             var: mongo_clusters_response.result
 
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "result": [
+        {
+            "type": "user",
+            "metadata": {
+                "created_date": "2023-05-30T14:20:09+00:00",
+                "created_by": "<USER_EMAIL>",
+                "created_by_user_id": "<USER_ID>"
+            },
+            "properties": {
+                "username": "testuser",
+                "password": null,
+                "roles": [
+                    {
+                        "role": "read",
+                        "database": "test"
+                    }
+                ]
+            }
+        }
+    ],
+    "failed": false,
+    "changed": false
+}
+
+```
+
+&nbsp;
+
+&nbsp;
 ### Available parameters:
 &nbsp;
 

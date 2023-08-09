@@ -13,6 +13,11 @@ This is a simple module that supports listing Application Load Balancers.
       register: application_load_balancer_list_response
 
 ```
+
+
+&nbsp;
+
+&nbsp;
 ### Available parameters:
 &nbsp;
 

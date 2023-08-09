@@ -12,6 +12,11 @@ This is a simple module that supports listing Target Groups.
       register: target_group_list_response
 
 ```
+
+
+&nbsp;
+
+&nbsp;
 ### Available parameters:
 &nbsp;
 

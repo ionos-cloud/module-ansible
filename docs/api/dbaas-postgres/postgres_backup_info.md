@@ -17,6 +17,39 @@ This is a simple module that supports listing existing Postgres Cluster backups
             var: postgres_clusters_response.result
 
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "postgres_backups": [
+        {
+            "type": "backup",
+            "id": "06b53b38-398a-4fc6-8eed-a8f3d4847a76-4oymiqu-12",
+            "metadata": {
+                "created_date": "2023-08-09T14:55:33+00:00",
+                "state": "AVAILABLE"
+            },
+            "properties": {
+                "id": null,
+                "cluster_id": "06b53b38-398a-4fc6-8eed-a8f3d4847a76",
+                "version": "12",
+                "is_active": true,
+                "earliest_recovery_target_time": "2023-08-09T15:07:48+00:00"
+            }
+        }
+    ],
+    "failed": false,
+    "changed": false
+}
+
+```
+
+&nbsp;
+
+&nbsp;
 ### Available parameters:
 &nbsp;
 

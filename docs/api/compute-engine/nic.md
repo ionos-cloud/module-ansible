@@ -95,7 +95,7 @@ This module allows you to create, update or remove a NIC.
                 "<IP>"
             ],
             "lan": 1,
-            "mac": "02:01:27:82:a8:45",
+            "mac": "<MAC>",
             "name": "AnsibleAutoTestCompute",
             "pci_slot": 6
         },

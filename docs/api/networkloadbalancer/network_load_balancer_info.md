@@ -13,6 +13,11 @@ This is a simple module that supports listing Network Loadbalancers.
       register: nlb_list_response
 
 ```
+
+
+&nbsp;
+
+&nbsp;
 ### Available parameters:
 &nbsp;
 

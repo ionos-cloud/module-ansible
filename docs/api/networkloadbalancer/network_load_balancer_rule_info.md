@@ -14,6 +14,11 @@ This is a simple module that supports listing Network Loadbalancer forwarding ru
       register: rule_list_response
 
 ```
+
+
+&nbsp;
+
+&nbsp;
 ### Available parameters:
 &nbsp;
 

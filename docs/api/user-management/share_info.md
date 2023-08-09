@@ -13,6 +13,42 @@ This is a simple module that supports listing Shares.
       register: share_list_response
 
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": false,
+    "shares": [
+        {
+            "href": "https://api.ionos.com/cloudapi/v6/um/groups/0e191818-5dd6-4248-b226-a0c863c71d03/shares/82ad5ad2-7f10-4c2f-ad22-6ae36575f730",
+            "id": "82ad5ad2-7f10-4c2f-ad22-6ae36575f730",
+            "properties": {
+                "edit_privilege": true,
+                "share_privilege": true
+            },
+            "type": "resource"
+        },
+        {
+            "href": "https://api.ionos.com/cloudapi/v6/um/groups/0e191818-5dd6-4248-b226-a0c863c71d03/shares/b22cf038-aa2a-4806-a2c1-2a4e3507c37a",
+            "id": "b22cf038-aa2a-4806-a2c1-2a4e3507c37a",
+            "properties": {
+                "edit_privilege": true,
+                "share_privilege": true
+            },
+            "type": "resource"
+        }
+    ],
+    "failed": false
+}
+
+```
+
+&nbsp;
+
+&nbsp;
 ### Available parameters:
 &nbsp;
 

@@ -13,6 +13,11 @@ This is a simple module that supports listing NAT Gateways.
       register: nat_gateway_list_response
 
 ```
+
+
+&nbsp;
+
+&nbsp;
 ### Available parameters:
 &nbsp;
 

@@ -14,6 +14,11 @@ This is a simple module that supports listing NAT Gateway Rules.
       register: rule_list_response
 
 ```
+
+
+&nbsp;
+
+&nbsp;
 ### Available parameters:
 &nbsp;
 
