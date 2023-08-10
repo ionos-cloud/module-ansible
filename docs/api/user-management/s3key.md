@@ -71,18 +71,18 @@ This is a simple module that supports creating or removing S3Keys.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | active<br /><span style="color:#003d8f">bool</span> | False | Denotes weather the S3 key is active. |
-  | user<br /><span style="color:#003d8f">str</span> | True | The ID or email of the user |
-  | key_id<br /><span style="color:#003d8f">str</span> | False | The ID of the S3 key. |
-  | idempotency<br /><span style="color:#003d8f">bool</span> | False | Flag that dictates respecting idempotency. If an s3key already exists, returns with already existing key instead of creating more.<br />Default: False<br />Options: [True, False] |
-  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | active<br /><span class="blue-span">bool</span> | False | Denotes weather the S3 key is active. |
+  | user<br /><span class="blue-span">str</span> | True | The ID or email of the user |
+  | key_id<br /><span class="blue-span">str</span> | False | The ID of the S3 key. |
+  | idempotency<br /><span class="blue-span">bool</span> | False | Flag that dictates respecting idempotency. If an s3key already exists, returns with already existing key instead of creating more.<br />Default: False<br />Options: [True, False] |
+  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span class="blue-span">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -102,16 +102,16 @@ This is a simple module that supports creating or removing S3Keys.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | user<br /><span style="color:#003d8f">str</span> | True | The ID or email of the user |
-  | key_id<br /><span style="color:#003d8f">str</span> | True | The ID of the S3 key. |
-  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | user<br /><span class="blue-span">str</span> | True | The ID or email of the user |
+  | key_id<br /><span class="blue-span">str</span> | True | The ID of the S3 key. |
+  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span class="blue-span">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -132,17 +132,17 @@ This is a simple module that supports creating or removing S3Keys.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | active<br /><span style="color:#003d8f">bool</span> | False | Denotes weather the S3 key is active. |
-  | user<br /><span style="color:#003d8f">str</span> | True | The ID or email of the user |
-  | key_id<br /><span style="color:#003d8f">str</span> | True | The ID of the S3 key. |
-  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | active<br /><span class="blue-span">bool</span> | False | Denotes weather the S3 key is active. |
+  | user<br /><span class="blue-span">str</span> | True | The ID or email of the user |
+  | key_id<br /><span class="blue-span">str</span> | True | The ID of the S3 key. |
+  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span class="blue-span">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 

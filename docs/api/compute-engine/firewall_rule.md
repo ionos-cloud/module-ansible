@@ -131,27 +131,27 @@ This module allows you to create, update or remove a firewall rule.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | datacenter<br /><span style="color:#003d8f">str</span> | True | The datacenter name or UUID in which to operate. |
-  | server<br /><span style="color:#003d8f">str</span> | True | The server name or UUID. |
-  | nic<br /><span style="color:#003d8f">str</span> | True | The NIC name or UUID. |
-  | name<br /><span style="color:#003d8f">str</span> | True | The name of the  resource. |
-  | protocol<br /><span style="color:#003d8f">str</span> | True | The protocol for the rule. Property cannot be modified after it is created (disallowed in update requests).<br />Options: ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'ANY'] |
-  | source_mac<br /><span style="color:#003d8f">str</span> | False | Only traffic originating from the respective MAC address is allowed. Valid format: aa:bb:cc:dd:ee:ff. Value null allows traffic from any MAC address. |
-  | source_ip<br /><span style="color:#003d8f">str</span> | False | Only traffic originating from the respective IP address (or CIDR block) is allowed. Value null allows traffic from any IP address (according to the selected ipVersion). |
-  | target_ip<br /><span style="color:#003d8f">str</span> | False | If the target NIC has multiple IP addresses, only the traffic directed to the respective IP address (or CIDR block) of the NIC is allowed. Value null allows traffic to any target IP address (according to the selected ipVersion). |
-  | port_range_start<br /><span style="color:#003d8f">int</span> | False | Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd value null to allow all ports. |
-  | port_range_end<br /><span style="color:#003d8f">int</span> | False | Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd null to allow all ports. |
-  | icmp_type<br /><span style="color:#003d8f">int</span> | False | Defines the allowed type (from 0 to 254) if the protocol ICMP or ICMPv6 is chosen. Value null allows all types. |
-  | icmp_code<br /><span style="color:#003d8f">int</span> | False | Defines the allowed code (from 0 to 254) if protocol ICMP or ICMPv6 is chosen. Value null allows all codes. |
-  | do_not_replace<br /><span style="color:#003d8f">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | datacenter<br /><span class="blue-span">str</span> | True | The datacenter name or UUID in which to operate. |
+  | server<br /><span class="blue-span">str</span> | True | The server name or UUID. |
+  | nic<br /><span class="blue-span">str</span> | True | The NIC name or UUID. |
+  | name<br /><span class="blue-span">str</span> | True | The name of the  resource. |
+  | protocol<br /><span class="blue-span">str</span> | True | The protocol for the rule. Property cannot be modified after it is created (disallowed in update requests).<br />Options: ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'ANY'] |
+  | source_mac<br /><span class="blue-span">str</span> | False | Only traffic originating from the respective MAC address is allowed. Valid format: aa:bb:cc:dd:ee:ff. Value null allows traffic from any MAC address. |
+  | source_ip<br /><span class="blue-span">str</span> | False | Only traffic originating from the respective IP address (or CIDR block) is allowed. Value null allows traffic from any IP address (according to the selected ipVersion). |
+  | target_ip<br /><span class="blue-span">str</span> | False | If the target NIC has multiple IP addresses, only the traffic directed to the respective IP address (or CIDR block) of the NIC is allowed. Value null allows traffic to any target IP address (according to the selected ipVersion). |
+  | port_range_start<br /><span class="blue-span">int</span> | False | Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd value null to allow all ports. |
+  | port_range_end<br /><span class="blue-span">int</span> | False | Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd null to allow all ports. |
+  | icmp_type<br /><span class="blue-span">int</span> | False | Defines the allowed type (from 0 to 254) if the protocol ICMP or ICMPv6 is chosen. Value null allows all types. |
+  | icmp_code<br /><span class="blue-span">int</span> | False | Defines the allowed code (from 0 to 254) if protocol ICMP or ICMPv6 is chosen. Value null allows all codes. |
+  | do_not_replace<br /><span class="blue-span">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span class="blue-span">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -173,18 +173,18 @@ This module allows you to create, update or remove a firewall rule.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | datacenter<br /><span style="color:#003d8f">str</span> | True | The datacenter name or UUID in which to operate. |
-  | server<br /><span style="color:#003d8f">str</span> | True | The server name or UUID. |
-  | nic<br /><span style="color:#003d8f">str</span> | True | The NIC name or UUID. |
-  | firewall_rule<br /><span style="color:#003d8f">str</span> | True | The Firewall Rule name or UUID. |
-  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | datacenter<br /><span class="blue-span">str</span> | True | The datacenter name or UUID in which to operate. |
+  | server<br /><span class="blue-span">str</span> | True | The server name or UUID. |
+  | nic<br /><span class="blue-span">str</span> | True | The NIC name or UUID. |
+  | firewall_rule<br /><span class="blue-span">str</span> | True | The Firewall Rule name or UUID. |
+  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span class="blue-span">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -208,28 +208,28 @@ This module allows you to create, update or remove a firewall rule.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | datacenter<br /><span style="color:#003d8f">str</span> | True | The datacenter name or UUID in which to operate. |
-  | server<br /><span style="color:#003d8f">str</span> | True | The server name or UUID. |
-  | nic<br /><span style="color:#003d8f">str</span> | True | The NIC name or UUID. |
-  | firewall_rule<br /><span style="color:#003d8f">str</span> | True | The Firewall Rule name or UUID. |
-  | name<br /><span style="color:#003d8f">str</span> | False | The name of the  resource. |
-  | protocol<br /><span style="color:#003d8f">str</span> | False | The protocol for the rule. Property cannot be modified after it is created (disallowed in update requests).<br />Options: ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'ANY'] |
-  | source_mac<br /><span style="color:#003d8f">str</span> | False | Only traffic originating from the respective MAC address is allowed. Valid format: aa:bb:cc:dd:ee:ff. Value null allows traffic from any MAC address. |
-  | source_ip<br /><span style="color:#003d8f">str</span> | False | Only traffic originating from the respective IP address (or CIDR block) is allowed. Value null allows traffic from any IP address (according to the selected ipVersion). |
-  | target_ip<br /><span style="color:#003d8f">str</span> | False | If the target NIC has multiple IP addresses, only the traffic directed to the respective IP address (or CIDR block) of the NIC is allowed. Value null allows traffic to any target IP address (according to the selected ipVersion). |
-  | port_range_start<br /><span style="color:#003d8f">int</span> | False | Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd value null to allow all ports. |
-  | port_range_end<br /><span style="color:#003d8f">int</span> | False | Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd null to allow all ports. |
-  | icmp_type<br /><span style="color:#003d8f">int</span> | False | Defines the allowed type (from 0 to 254) if the protocol ICMP or ICMPv6 is chosen. Value null allows all types. |
-  | icmp_code<br /><span style="color:#003d8f">int</span> | False | Defines the allowed code (from 0 to 254) if protocol ICMP or ICMPv6 is chosen. Value null allows all codes. |
-  | do_not_replace<br /><span style="color:#003d8f">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | datacenter<br /><span class="blue-span">str</span> | True | The datacenter name or UUID in which to operate. |
+  | server<br /><span class="blue-span">str</span> | True | The server name or UUID. |
+  | nic<br /><span class="blue-span">str</span> | True | The NIC name or UUID. |
+  | firewall_rule<br /><span class="blue-span">str</span> | True | The Firewall Rule name or UUID. |
+  | name<br /><span class="blue-span">str</span> | False | The name of the  resource. |
+  | protocol<br /><span class="blue-span">str</span> | False | The protocol for the rule. Property cannot be modified after it is created (disallowed in update requests).<br />Options: ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'ANY'] |
+  | source_mac<br /><span class="blue-span">str</span> | False | Only traffic originating from the respective MAC address is allowed. Valid format: aa:bb:cc:dd:ee:ff. Value null allows traffic from any MAC address. |
+  | source_ip<br /><span class="blue-span">str</span> | False | Only traffic originating from the respective IP address (or CIDR block) is allowed. Value null allows traffic from any IP address (according to the selected ipVersion). |
+  | target_ip<br /><span class="blue-span">str</span> | False | If the target NIC has multiple IP addresses, only the traffic directed to the respective IP address (or CIDR block) of the NIC is allowed. Value null allows traffic to any target IP address (according to the selected ipVersion). |
+  | port_range_start<br /><span class="blue-span">int</span> | False | Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd value null to allow all ports. |
+  | port_range_end<br /><span class="blue-span">int</span> | False | Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd null to allow all ports. |
+  | icmp_type<br /><span class="blue-span">int</span> | False | Defines the allowed type (from 0 to 254) if the protocol ICMP or ICMPv6 is chosen. Value null allows all types. |
+  | icmp_code<br /><span class="blue-span">int</span> | False | Defines the allowed code (from 0 to 254) if protocol ICMP or ICMPv6 is chosen. Value null allows all codes. |
+  | do_not_replace<br /><span class="blue-span">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span class="blue-span">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 

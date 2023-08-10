@@ -47,13 +47,13 @@ This is a simple module that supports getting config of DataPlatform clusters
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | cluster<br /><span style="color:#003d8f">str</span> | True | The name or the ID of the Data Platform cluster. |
-  | config_file<br /><span style="color:#003d8f">str</span> | True | The name of the file in which to save the config. |
-  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
-  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present'] |
+  | cluster<br /><span class="blue-span">str</span> | True | The name or the ID of the Data Platform cluster. |
+  | config_file<br /><span class="blue-span">str</span> | True | The name of the file in which to save the config. |
+  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
+  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present'] |
 
 &nbsp;
 
