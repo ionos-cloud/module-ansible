@@ -83,18 +83,18 @@ This is a simple module that supports uploading, updating or deleting certificat
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | certificate_name<br /><span class="blue-span">str</span> | False | The certificate name. |
-  | certificate_file<br /><span class="blue-span">str</span> | True | File containing the certificate body. |
-  | private_key_file<br /><span class="blue-span">str</span> | True | File containing the private key blob. |
-  | certificate_chain_file<br /><span class="blue-span">str</span> | False | File containing the certificate chain. |
-  | do_not_replace<br /><span class="blue-span">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | certificate_name<br /><span>\<str\></span> | False | The certificate name. |
+  | certificate_file<br /><span>\<str\></span> | True | File containing the certificate body. |
+  | private_key_file<br /><span>\<str\></span> | True | File containing the private key blob. |
+  | certificate_chain_file<br /><span>\<str\></span> | False | File containing the certificate chain. |
+  | do_not_replace<br /><span>\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -113,15 +113,15 @@ This is a simple module that supports uploading, updating or deleting certificat
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | certificate<br /><span class="blue-span">str</span> | False | The certificate name or ID. |
-  | certificate_name<br /><span class="blue-span">str</span> | False | The certificate name. |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | certificate<br /><span>\<str\></span> | False | The certificate name or ID. |
+  | certificate_name<br /><span>\<str\></span> | False | The certificate name. |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -142,16 +142,16 @@ This is a simple module that supports uploading, updating or deleting certificat
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | certificate<br /><span class="blue-span">str</span> | True | The certificate name or ID. |
-  | certificate_name<br /><span class="blue-span">str</span> | True | The certificate name. |
-  | do_not_replace<br /><span class="blue-span">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | certificate<br /><span>\<str\></span> | True | The certificate name or ID. |
+  | certificate_name<br /><span>\<str\></span> | True | The certificate name. |
+  | do_not_replace<br /><span>\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 

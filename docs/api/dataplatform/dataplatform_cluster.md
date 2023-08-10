@@ -89,18 +89,18 @@ This is a simple module that supports creating or removing Data Platform Cluster
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | name<br /><span class="blue-span">str</span> | True | The name of your cluster. Must be 63 characters or less and must begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
-  | dataplatform_version<br /><span class="blue-span">str</span> | False | The version of the data platform. |
-  | datacenter<br /><span class="blue-span">str</span> | True | The UUID of the virtual data center (VDC) the cluster is provisioned. |
-  | maintenance_window<br /><span class="blue-span">dict</span> | False | Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format |
-  | do_not_replace<br /><span class="blue-span">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | name<br /><span>\<str\></span> | True | The name of your cluster. Must be 63 characters or less and must begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
+  | dataplatform_version<br /><span>\<str\></span> | False | The version of the data platform. |
+  | datacenter<br /><span>\<str\></span> | True | The UUID of the virtual data center (VDC) the cluster is provisioned. |
+  | maintenance_window<br /><span>\<dict\></span> | False | Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format |
+  | do_not_replace<br /><span>\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -119,14 +119,14 @@ This is a simple module that supports creating or removing Data Platform Cluster
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | cluster<br /><span class="blue-span">str</span> | True | The ID or name of the Data Platform cluster. |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | cluster<br /><span>\<str\></span> | True | The ID or name of the Data Platform cluster. |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -149,19 +149,19 @@ This is a simple module that supports creating or removing Data Platform Cluster
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | name<br /><span class="blue-span">str</span> | False | The name of your cluster. Must be 63 characters or less and must begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
-  | cluster<br /><span class="blue-span">str</span> | True | The ID or name of the Data Platform cluster. |
-  | dataplatform_version<br /><span class="blue-span">str</span> | True | The version of the data platform. |
-  | datacenter<br /><span class="blue-span">str</span> | False | The UUID of the virtual data center (VDC) the cluster is provisioned. |
-  | maintenance_window<br /><span class="blue-span">dict</span> | True | Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format |
-  | do_not_replace<br /><span class="blue-span">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | name<br /><span>\<str\></span> | False | The name of your cluster. Must be 63 characters or less and must begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
+  | cluster<br /><span>\<str\></span> | True | The ID or name of the Data Platform cluster. |
+  | dataplatform_version<br /><span>\<str\></span> | True | The version of the data platform. |
+  | datacenter<br /><span>\<str\></span> | False | The UUID of the virtual data center (VDC) the cluster is provisioned. |
+  | maintenance_window<br /><span>\<dict\></span> | True | Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format |
+  | do_not_replace<br /><span>\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 

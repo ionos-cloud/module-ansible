@@ -102,21 +102,21 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | name<br /><span class="blue-span">str</span> | True | The name of the Network Load Balancer. |
-  | listener_lan<br /><span class="blue-span">str</span> | True | ID of the listening LAN (inbound). |
-  | ips<br /><span class="blue-span">list</span> | False | Collection of the Network Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers. |
-  | target_lan<br /><span class="blue-span">str</span> | True | ID of the balanced private target LAN (outbound). |
-  | lb_private_ips<br /><span class="blue-span">list</span> | False | Collection of private IP addresses with subnet mask of the Network Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
-  | datacenter<br /><span class="blue-span">str</span> | True | The ID or name of the datacenter. |
-  | do_not_replace<br /><span class="blue-span">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span class="blue-span">str</span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | name<br /><span>\<str\></span> | True | The name of the Network Load Balancer. |
+  | listener_lan<br /><span>\<str\></span> | True | ID of the listening LAN (inbound). |
+  | ips<br /><span>\<list\></span> | False | Collection of the Network Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers. |
+  | target_lan<br /><span>\<str\></span> | True | ID of the balanced private target LAN (outbound). |
+  | lb_private_ips<br /><span>\<list\></span> | False | Collection of private IP addresses with subnet mask of the Network Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
+  | datacenter<br /><span>\<str\></span> | True | The ID or name of the datacenter. |
+  | do_not_replace<br /><span>\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span>\<str\></span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -137,17 +137,17 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | name<br /><span class="blue-span">str</span> | False | The name of the Network Load Balancer. |
-  | datacenter<br /><span class="blue-span">str</span> | True | The ID or name of the datacenter. |
-  | network_load_balancer<br /><span class="blue-span">str</span> | True | The ID or name of the Network Loadbalancer. |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span class="blue-span">str</span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | name<br /><span>\<str\></span> | False | The name of the Network Load Balancer. |
+  | datacenter<br /><span>\<str\></span> | True | The ID or name of the datacenter. |
+  | network_load_balancer<br /><span>\<str\></span> | True | The ID or name of the Network Loadbalancer. |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span>\<str\></span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -172,22 +172,22 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | name<br /><span class="blue-span">str</span> | True | The name of the Network Load Balancer. |
-  | listener_lan<br /><span class="blue-span">str</span> | True | ID of the listening LAN (inbound). |
-  | ips<br /><span class="blue-span">list</span> | False | Collection of the Network Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers. |
-  | target_lan<br /><span class="blue-span">str</span> | True | ID of the balanced private target LAN (outbound). |
-  | lb_private_ips<br /><span class="blue-span">list</span> | False | Collection of private IP addresses with subnet mask of the Network Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
-  | datacenter<br /><span class="blue-span">str</span> | True | The ID or name of the datacenter. |
-  | network_load_balancer<br /><span class="blue-span">str</span> | True | The ID or name of the Network Loadbalancer. |
-  | do_not_replace<br /><span class="blue-span">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span class="blue-span">str</span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | name<br /><span>\<str\></span> | True | The name of the Network Load Balancer. |
+  | listener_lan<br /><span>\<str\></span> | True | ID of the listening LAN (inbound). |
+  | ips<br /><span>\<list\></span> | False | Collection of the Network Load Balancer IP addresses. (Inbound and outbound) IPs of the listenerLan must be customer-reserved IPs for public Load Balancers, and private IPs for private Load Balancers. |
+  | target_lan<br /><span>\<str\></span> | True | ID of the balanced private target LAN (outbound). |
+  | lb_private_ips<br /><span>\<list\></span> | False | Collection of private IP addresses with subnet mask of the Network Load Balancer. IPs must contain a valid subnet mask. If no IP is provided, the system will generate an IP with /24 subnet. |
+  | datacenter<br /><span>\<str\></span> | True | The ID or name of the datacenter. |
+  | network_load_balancer<br /><span>\<str\></span> | True | The ID or name of the Network Loadbalancer. |
+  | do_not_replace<br /><span>\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span>\<str\></span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 

@@ -124,21 +124,21 @@ This is a module that supports creating and destroying Mongo Clusters
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | maintenance_window<br /><span class="blue-span">dict</span> | False | A weekly window of 4 hours during which maintenance work can be performed. |
-  | mongo_db_version<br /><span class="blue-span">str</span> | True | The MongoDB version of your cluster. |
-  | instances<br /><span class="blue-span">int</span> | True | The total number of instances in the cluster (one primary and n-1 secondaries). |
-  | connections<br /><span class="blue-span">list</span> | True | Array of VDCs to connect to your cluster. |
-  | template_id<br /><span class="blue-span">str</span> | True | The unique ID of the template, which specifies the number of cores, storage size, and memory. You cannot downgrade to a smaller template or minor edition (e.g. from business to playground). To get a list of all templates to confirm the changes use the /templates endpoint. |
-  | location<br /><span class="blue-span">str</span> | True | The physical location where the cluster will be created. This is the location where all your instances will be located. This property is immutable. |
-  | display_name<br /><span class="blue-span">str</span> | True | The name of your cluster. |
-  | do_not_replace<br /><span class="blue-span">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
+  | maintenance_window<br /><span>\<dict\></span> | False | A weekly window of 4 hours during which maintenance work can be performed. |
+  | mongo_db_version<br /><span>\<str\></span> | True | The MongoDB version of your cluster. |
+  | instances<br /><span>\<int\></span> | True | The total number of instances in the cluster (one primary and n-1 secondaries). |
+  | connections<br /><span>\<list\></span> | True | Array of VDCs to connect to your cluster. |
+  | template_id<br /><span>\<str\></span> | True | The unique ID of the template, which specifies the number of cores, storage size, and memory. You cannot downgrade to a smaller template or minor edition (e.g. from business to playground). To get a list of all templates to confirm the changes use the /templates endpoint. |
+  | location<br /><span>\<str\></span> | True | The physical location where the cluster will be created. This is the location where all your instances will be located. This property is immutable. |
+  | display_name<br /><span>\<str\></span> | True | The name of your cluster. |
+  | do_not_replace<br /><span>\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
 
 &nbsp;
 
@@ -156,14 +156,14 @@ This is a module that supports creating and destroying Mongo Clusters
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | mongo_cluster<br /><span class="blue-span">str</span> | True | The ID or name of an existing Mongo Cluster. |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
+  | mongo_cluster<br /><span>\<str\></span> | True | The ID or name of an existing Mongo Cluster. |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
 
 &nbsp;
 
@@ -185,22 +185,22 @@ This is a module that supports creating and destroying Mongo Clusters
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | mongo_cluster<br /><span class="blue-span">str</span> | True | The ID or name of an existing Mongo Cluster. |
-  | maintenance_window<br /><span class="blue-span">dict</span> | False | A weekly window of 4 hours during which maintenance work can be performed. |
-  | mongo_db_version<br /><span class="blue-span">str</span> | False | The MongoDB version of your cluster. |
-  | instances<br /><span class="blue-span">int</span> | False | The total number of instances in the cluster (one primary and n-1 secondaries). |
-  | connections<br /><span class="blue-span">list</span> | False | Array of VDCs to connect to your cluster. |
-  | template_id<br /><span class="blue-span">str</span> | False | The unique ID of the template, which specifies the number of cores, storage size, and memory. You cannot downgrade to a smaller template or minor edition (e.g. from business to playground). To get a list of all templates to confirm the changes use the /templates endpoint. |
-  | location<br /><span class="blue-span">str</span> | False | The physical location where the cluster will be created. This is the location where all your instances will be located. This property is immutable. |
-  | display_name<br /><span class="blue-span">str</span> | False | The name of your cluster. |
-  | do_not_replace<br /><span class="blue-span">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
+  | mongo_cluster<br /><span>\<str\></span> | True | The ID or name of an existing Mongo Cluster. |
+  | maintenance_window<br /><span>\<dict\></span> | False | A weekly window of 4 hours during which maintenance work can be performed. |
+  | mongo_db_version<br /><span>\<str\></span> | False | The MongoDB version of your cluster. |
+  | instances<br /><span>\<int\></span> | False | The total number of instances in the cluster (one primary and n-1 secondaries). |
+  | connections<br /><span>\<list\></span> | False | Array of VDCs to connect to your cluster. |
+  | template_id<br /><span>\<str\></span> | False | The unique ID of the template, which specifies the number of cores, storage size, and memory. You cannot downgrade to a smaller template or minor edition (e.g. from business to playground). To get a list of all templates to confirm the changes use the /templates endpoint. |
+  | location<br /><span>\<str\></span> | False | The physical location where the cluster will be created. This is the location where all your instances will be located. This property is immutable. |
+  | display_name<br /><span>\<str\></span> | False | The name of your cluster. |
+  | do_not_replace<br /><span>\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
 
 &nbsp;
 
@@ -219,15 +219,15 @@ This is a module that supports creating and destroying Mongo Clusters
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | mongo_cluster<br /><span class="blue-span">str</span> | True | The ID or name of an existing Mongo Cluster. |
-  | backup_id<br /><span class="blue-span">str</span> | True | The ID of the backup to be used. |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
+  | mongo_cluster<br /><span>\<str\></span> | True | The ID or name of an existing Mongo Cluster. |
+  | backup_id<br /><span>\<str\></span> | True | The ID of the backup to be used. |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
 
 &nbsp;
 

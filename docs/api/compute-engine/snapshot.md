@@ -105,17 +105,17 @@ This module allows you to create or remove a snapshot.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | datacenter<br /><span class="blue-span">str</span> | True | The datacenter in which the volumes reside. |
-  | volume<br /><span class="blue-span">str</span> | True | The name or UUID of the volume. |
-  | description<br /><span class="blue-span">str</span> | False | Human-readable description. |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span class="blue-span">str</span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
+  | datacenter<br /><span>\<str\></span> | True | The datacenter in which the volumes reside. |
+  | volume<br /><span>\<str\></span> | True | The name or UUID of the volume. |
+  | description<br /><span>\<str\></span> | False | Human-readable description. |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span>\<str\></span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
 
 &nbsp;
 
@@ -134,15 +134,15 @@ This module allows you to create or remove a snapshot.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | snapshot<br /><span class="blue-span">str</span> | True | The ID or name of an existing snapshot. |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span class="blue-span">str</span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
+  | snapshot<br /><span>\<str\></span> | True | The ID or name of an existing snapshot. |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span>\<str\></span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
 
 &nbsp;
 
@@ -162,26 +162,26 @@ This module allows you to create or remove a snapshot.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | snapshot<br /><span class="blue-span">str</span> | True | The ID or name of an existing snapshot. |
-  | licence_type<br /><span class="blue-span">str</span> | False | OS type of this snapshot<br />Options: ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'RHEL', 'LINUX', 'OTHER'] |
-  | cpu_hot_plug<br /><span class="blue-span">bool</span> | False | Hot-plug capable CPU (no reboot required). |
-  | cpu_hot_unplug<br /><span class="blue-span">bool</span> | False | Hot-unplug capable CPU (no reboot required). |
-  | ram_hot_plug<br /><span class="blue-span">bool</span> | False | Hot-plug capable RAM (no reboot required). |
-  | ram_hot_unplug<br /><span class="blue-span">bool</span> | False | Hot-unplug capable RAM (no reboot required). |
-  | nic_hot_plug<br /><span class="blue-span">bool</span> | False | Hot-plug capable NIC (no reboot required). |
-  | nic_hot_unplug<br /><span class="blue-span">bool</span> | False | Hot-unplug capable NIC (no reboot required). |
-  | disc_scsi_hot_plug<br /><span class="blue-span">bool</span> | False | Hot-plug capable SCSI drive (no reboot required). |
-  | disc_scsi_hot_unplug<br /><span class="blue-span">bool</span> | False | Is capable of SCSI drive hot unplug (no reboot required). This works only for non-Windows virtual Machines. |
-  | disc_virtio_hot_plug<br /><span class="blue-span">bool</span> | False | Hot-plug capable Virt-IO drive (no reboot required). |
-  | disc_virtio_hot_unplug<br /><span class="blue-span">bool</span> | False | Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows VMs. |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span class="blue-span">str</span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
+  | snapshot<br /><span>\<str\></span> | True | The ID or name of an existing snapshot. |
+  | licence_type<br /><span>\<str\></span> | False | OS type of this snapshot<br />Options: ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'RHEL', 'LINUX', 'OTHER'] |
+  | cpu_hot_plug<br /><span>\<bool\></span> | False | Hot-plug capable CPU (no reboot required). |
+  | cpu_hot_unplug<br /><span>\<bool\></span> | False | Hot-unplug capable CPU (no reboot required). |
+  | ram_hot_plug<br /><span>\<bool\></span> | False | Hot-plug capable RAM (no reboot required). |
+  | ram_hot_unplug<br /><span>\<bool\></span> | False | Hot-unplug capable RAM (no reboot required). |
+  | nic_hot_plug<br /><span>\<bool\></span> | False | Hot-plug capable NIC (no reboot required). |
+  | nic_hot_unplug<br /><span>\<bool\></span> | False | Hot-unplug capable NIC (no reboot required). |
+  | disc_scsi_hot_plug<br /><span>\<bool\></span> | False | Hot-plug capable SCSI drive (no reboot required). |
+  | disc_scsi_hot_unplug<br /><span>\<bool\></span> | False | Is capable of SCSI drive hot unplug (no reboot required). This works only for non-Windows virtual Machines. |
+  | disc_virtio_hot_plug<br /><span>\<bool\></span> | False | Hot-plug capable Virt-IO drive (no reboot required). |
+  | disc_virtio_hot_unplug<br /><span>\<bool\></span> | False | Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows VMs. |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span>\<str\></span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
 
 &nbsp;
 
@@ -202,17 +202,17 @@ This module allows you to create or remove a snapshot.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | datacenter<br /><span class="blue-span">str</span> | True | The datacenter in which the volumes reside. |
-  | volume<br /><span class="blue-span">str</span> | True | The name or UUID of the volume. |
-  | snapshot<br /><span class="blue-span">str</span> | True | The ID or name of an existing snapshot. |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span class="blue-span">str</span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
+  | datacenter<br /><span>\<str\></span> | True | The datacenter in which the volumes reside. |
+  | volume<br /><span>\<str\></span> | True | The name or UUID of the volume. |
+  | snapshot<br /><span>\<str\></span> | True | The ID or name of an existing snapshot. |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span>\<str\></span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
 
 &nbsp;
 

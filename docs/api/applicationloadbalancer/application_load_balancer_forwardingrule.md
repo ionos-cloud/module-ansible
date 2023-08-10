@@ -143,26 +143,26 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | name<br /><span class="blue-span">str</span> | True | The name of the Application Load Balancer forwarding rule. |
-  | algorithm<br /><span class="blue-span">str</span> | False | Balancing algorithm. |
-  | protocol<br /><span class="blue-span">str</span> | True | The balancing protocol. |
-  | listener_ip<br /><span class="blue-span">str</span> | True | The listening (inbound) IP. |
-  | listener_port<br /><span class="blue-span">str</span> | True | The listening (inbound) port number; the valid range is 1 to 65535. |
-  | client_timeout<br /><span class="blue-span">int</span> | False | The maximum time in milliseconds to wait for the client to acknowledge or send data; default is 50,000 (50 seconds). |
-  | http_rules<br /><span class="blue-span">list</span> | False | An array of items in the collection. The original order of rules is preserved during processing, except that rules of the 'FORWARD' type are processed after the rules with other defined actions. The relative order of the 'FORWARD' type rules is also preserved during the processing. |
-  | server_certificates<br /><span class="blue-span">list</span> | False | Array of items in the collection. |
-  | new_server_certificates<br /><span class="blue-span">list</span> | False | An array of dict with information used to uploade new certificates and add them to the forwarding rule.A dict should contain 'certificate_file', 'private_key_file', 'certificate_chain_file'(optional), 'certificate_name' as keys.File paths should be absolute. |
-  | datacenter<br /><span class="blue-span">str</span> | True | The ID or name of the datacenter. |
-  | application_load_balancer<br /><span class="blue-span">str</span> | True | The ID or name of the Application Loadbalancer. |
-  | do_not_replace<br /><span class="blue-span">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span class="blue-span">str</span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | name<br /><span>\<str\></span> | True | The name of the Application Load Balancer forwarding rule. |
+  | algorithm<br /><span>\<str\></span> | False | Balancing algorithm. |
+  | protocol<br /><span>\<str\></span> | True | The balancing protocol. |
+  | listener_ip<br /><span>\<str\></span> | True | The listening (inbound) IP. |
+  | listener_port<br /><span>\<str\></span> | True | The listening (inbound) port number; the valid range is 1 to 65535. |
+  | client_timeout<br /><span>\<int\></span> | False | The maximum time in milliseconds to wait for the client to acknowledge or send data; default is 50,000 (50 seconds). |
+  | http_rules<br /><span>\<list\></span> | False | An array of items in the collection. The original order of rules is preserved during processing, except that rules of the 'FORWARD' type are processed after the rules with other defined actions. The relative order of the 'FORWARD' type rules is also preserved during the processing. |
+  | server_certificates<br /><span>\<list\></span> | False | Array of items in the collection. |
+  | new_server_certificates<br /><span>\<list\></span> | False | An array of dict with information used to uploade new certificates and add them to the forwarding rule.A dict should contain 'certificate_file', 'private_key_file', 'certificate_chain_file'(optional), 'certificate_name' as keys.File paths should be absolute. |
+  | datacenter<br /><span>\<str\></span> | True | The ID or name of the datacenter. |
+  | application_load_balancer<br /><span>\<str\></span> | True | The ID or name of the Application Loadbalancer. |
+  | do_not_replace<br /><span>\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span>\<str\></span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -183,18 +183,18 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | name<br /><span class="blue-span">str</span> | False | The name of the Application Load Balancer forwarding rule. |
-  | datacenter<br /><span class="blue-span">str</span> | True | The ID or name of the datacenter. |
-  | application_load_balancer<br /><span class="blue-span">str</span> | True | The ID or name of the Application Loadbalancer. |
-  | forwarding_rule<br /><span class="blue-span">str</span> | True | The ID or name of the Application Loadbalancer forwarding rule. |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span class="blue-span">str</span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | name<br /><span>\<str\></span> | False | The name of the Application Load Balancer forwarding rule. |
+  | datacenter<br /><span>\<str\></span> | True | The ID or name of the datacenter. |
+  | application_load_balancer<br /><span>\<str\></span> | True | The ID or name of the Application Loadbalancer. |
+  | forwarding_rule<br /><span>\<str\></span> | True | The ID or name of the Application Loadbalancer forwarding rule. |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span>\<str\></span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -219,27 +219,27 @@ This is a simple module that supports creating or removing Application Loadbalan
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | name<br /><span class="blue-span">str</span> | False | The name of the Application Load Balancer forwarding rule. |
-  | algorithm<br /><span class="blue-span">str</span> | False | Balancing algorithm. |
-  | protocol<br /><span class="blue-span">str</span> | False | The balancing protocol. |
-  | listener_ip<br /><span class="blue-span">str</span> | False | The listening (inbound) IP. |
-  | listener_port<br /><span class="blue-span">str</span> | False | The listening (inbound) port number; the valid range is 1 to 65535. |
-  | client_timeout<br /><span class="blue-span">int</span> | False | The maximum time in milliseconds to wait for the client to acknowledge or send data; default is 50,000 (50 seconds). |
-  | http_rules<br /><span class="blue-span">list</span> | False | An array of items in the collection. The original order of rules is preserved during processing, except that rules of the 'FORWARD' type are processed after the rules with other defined actions. The relative order of the 'FORWARD' type rules is also preserved during the processing. |
-  | server_certificates<br /><span class="blue-span">list</span> | False | Array of items in the collection. |
-  | new_server_certificates<br /><span class="blue-span">list</span> | False | An array of dict with information used to uploade new certificates and add them to the forwarding rule.A dict should contain 'certificate_file', 'private_key_file', 'certificate_chain_file'(optional), 'certificate_name' as keys.File paths should be absolute. |
-  | datacenter<br /><span class="blue-span">str</span> | True | The ID or name of the datacenter. |
-  | application_load_balancer<br /><span class="blue-span">str</span> | True | The ID or name of the Application Loadbalancer. |
-  | forwarding_rule<br /><span class="blue-span">str</span> | True | The ID or name of the Application Loadbalancer forwarding rule. |
-  | do_not_replace<br /><span class="blue-span">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span class="blue-span">str</span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span class="blue-span">str</span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span class="blue-span">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span class="blue-span">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span class="blue-span">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span class="blue-span">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span class="blue-span">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span class="blue-span">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | name<br /><span>\<str\></span> | False | The name of the Application Load Balancer forwarding rule. |
+  | algorithm<br /><span>\<str\></span> | False | Balancing algorithm. |
+  | protocol<br /><span>\<str\></span> | False | The balancing protocol. |
+  | listener_ip<br /><span>\<str\></span> | False | The listening (inbound) IP. |
+  | listener_port<br /><span>\<str\></span> | False | The listening (inbound) port number; the valid range is 1 to 65535. |
+  | client_timeout<br /><span>\<int\></span> | False | The maximum time in milliseconds to wait for the client to acknowledge or send data; default is 50,000 (50 seconds). |
+  | http_rules<br /><span>\<list\></span> | False | An array of items in the collection. The original order of rules is preserved during processing, except that rules of the 'FORWARD' type are processed after the rules with other defined actions. The relative order of the 'FORWARD' type rules is also preserved during the processing. |
+  | server_certificates<br /><span>\<list\></span> | False | Array of items in the collection. |
+  | new_server_certificates<br /><span>\<list\></span> | False | An array of dict with information used to uploade new certificates and add them to the forwarding rule.A dict should contain 'certificate_file', 'private_key_file', 'certificate_chain_file'(optional), 'certificate_name' as keys.File paths should be absolute. |
+  | datacenter<br /><span>\<str\></span> | True | The ID or name of the datacenter. |
+  | application_load_balancer<br /><span>\<str\></span> | True | The ID or name of the Application Loadbalancer. |
+  | forwarding_rule<br /><span>\<str\></span> | True | The ID or name of the Application Loadbalancer forwarding rule. |
+  | do_not_replace<br /><span>\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span>\<str\></span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
