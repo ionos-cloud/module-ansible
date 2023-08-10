@@ -115,26 +115,26 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
 ### Available parameters for state **present**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the NAT Gateway rule. |
-  | type | True | str |  | Type of the NAT Gateway rule. |
-  | protocol | False | str |  | Protocol of the NAT Gateway rule. Defaults to ALL. If protocol is 'ICMP' then targetPortRange start and end cannot be set. |
-  | source_subnet | True | str |  | Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets source IP address. |
-  | public_ip | True | str |  | Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource |
-  | target_subnet | False | str |  | Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address. |
-  | target_port_range | False | dict |  | Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port |
-  | datacenter | True | str |  | The ID or name of the datacenter. |
-  | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | name<br /><span style="color:#003d8f">str</span> | True | The name of the NAT Gateway rule. |
+  | type<br /><span style="color:#003d8f">str</span> | True | Type of the NAT Gateway rule. |
+  | protocol<br /><span style="color:#003d8f">str</span> | False | Protocol of the NAT Gateway rule. Defaults to ALL. If protocol is 'ICMP' then targetPortRange start and end cannot be set. |
+  | source_subnet<br /><span style="color:#003d8f">str</span> | True | Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets source IP address. |
+  | public_ip<br /><span style="color:#003d8f">str</span> | True | Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource |
+  | target_subnet<br /><span style="color:#003d8f">str</span> | False | Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address. |
+  | target_port_range<br /><span style="color:#003d8f">dict</span> | False | Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port |
+  | datacenter<br /><span style="color:#003d8f">str</span> | True | The ID or name of the datacenter. |
+  | nat_gateway<br /><span style="color:#003d8f">str</span> | True | The ID or name of the NAT Gateway. |
+  | do_not_replace<br /><span style="color:#003d8f">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -153,20 +153,20 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
 ### Available parameters for state **absent**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the NAT Gateway rule. |
-  | datacenter | True | str |  | The ID or name of the datacenter. |
-  | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
-  | nat_gateway_rule | True | str |  | The ID or name of the NAT Gateway rule. |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | name<br /><span style="color:#003d8f">str</span> | False | The name of the NAT Gateway rule. |
+  | datacenter<br /><span style="color:#003d8f">str</span> | True | The ID or name of the datacenter. |
+  | nat_gateway<br /><span style="color:#003d8f">str</span> | True | The ID or name of the NAT Gateway. |
+  | nat_gateway_rule<br /><span style="color:#003d8f">str</span> | True | The ID or name of the NAT Gateway rule. |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -192,27 +192,27 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
 ### Available parameters for state **update**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the NAT Gateway rule. |
-  | type | False | str |  | Type of the NAT Gateway rule. |
-  | protocol | False | str |  | Protocol of the NAT Gateway rule. Defaults to ALL. If protocol is 'ICMP' then targetPortRange start and end cannot be set. |
-  | source_subnet | False | str |  | Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets source IP address. |
-  | public_ip | False | str |  | Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource |
-  | target_subnet | False | str |  | Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address. |
-  | target_port_range | False | dict |  | Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port |
-  | datacenter | True | str |  | The ID or name of the datacenter. |
-  | nat_gateway | True | str |  | The ID or name of the NAT Gateway. |
-  | nat_gateway_rule | True | str |  | The ID or name of the NAT Gateway rule. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | name<br /><span style="color:#003d8f">str</span> | False | The name of the NAT Gateway rule. |
+  | type<br /><span style="color:#003d8f">str</span> | False | Type of the NAT Gateway rule. |
+  | protocol<br /><span style="color:#003d8f">str</span> | False | Protocol of the NAT Gateway rule. Defaults to ALL. If protocol is 'ICMP' then targetPortRange start and end cannot be set. |
+  | source_subnet<br /><span style="color:#003d8f">str</span> | False | Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets source IP address. |
+  | public_ip<br /><span style="color:#003d8f">str</span> | False | Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource |
+  | target_subnet<br /><span style="color:#003d8f">str</span> | False | Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address. |
+  | target_port_range<br /><span style="color:#003d8f">dict</span> | False | Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port |
+  | datacenter<br /><span style="color:#003d8f">str</span> | True | The ID or name of the datacenter. |
+  | nat_gateway<br /><span style="color:#003d8f">str</span> | True | The ID or name of the NAT Gateway. |
+  | nat_gateway_rule<br /><span style="color:#003d8f">str</span> | True | The ID or name of the NAT Gateway rule. |
+  | do_not_replace<br /><span style="color:#003d8f">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 

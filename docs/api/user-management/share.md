@@ -91,20 +91,20 @@ This module allows you to add, update or remove resource shares.
 ### Available parameters for state **present**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | edit_privilege | False | bool |  | edit privilege on a resource |
-  | share_privilege | False | bool |  | share privilege on a resource |
-  | group | True | str |  | The name or ID of the group. |
-  | resource_ids | True | list |  | A list of resource IDs to add, update or remove as shares. |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | edit_privilege<br /><span style="color:#003d8f">bool</span> | False | edit privilege on a resource |
+  | share_privilege<br /><span style="color:#003d8f">bool</span> | False | share privilege on a resource |
+  | group<br /><span style="color:#003d8f">str</span> | True | The name or ID of the group. |
+  | resource_ids<br /><span style="color:#003d8f">list</span> | True | A list of resource IDs to add, update or remove as shares. |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -124,18 +124,18 @@ This module allows you to add, update or remove resource shares.
 ### Available parameters for state **absent**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | group | True | str |  | The name or ID of the group. |
-  | resource_ids | True | list |  | A list of resource IDs to add, update or remove as shares. |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | group<br /><span style="color:#003d8f">str</span> | True | The name or ID of the group. |
+  | resource_ids<br /><span style="color:#003d8f">list</span> | True | A list of resource IDs to add, update or remove as shares. |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -155,20 +155,20 @@ This module allows you to add, update or remove resource shares.
 ### Available parameters for state **update**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | edit_privilege | False | bool |  | edit privilege on a resource |
-  | share_privilege | False | bool |  | share privilege on a resource |
-  | group | True | str |  | The name or ID of the group. |
-  | resource_ids | True | list |  | A list of resource IDs to add, update or remove as shares. |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | edit_privilege<br /><span style="color:#003d8f">bool</span> | False | edit privilege on a resource |
+  | share_privilege<br /><span style="color:#003d8f">bool</span> | False | share privilege on a resource |
+  | group<br /><span style="color:#003d8f">str</span> | True | The name or ID of the group. |
+  | resource_ids<br /><span style="color:#003d8f">list</span> | True | A list of resource IDs to add, update or remove as shares. |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 

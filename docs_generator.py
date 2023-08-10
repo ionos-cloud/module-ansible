@@ -49,6 +49,8 @@ def generate_module_docs(module_name):
             el[1]['name'] = el[0]
             el[1]['description'] = ''.join(el[1]['description'])
             el[1]['required'] = el[1].get('required', []) != []
+            el[1]['hasDefault'] = (el[1].get('default') is not None)
+            el[1]['hasChoices'] = (el[1].get('choices') is not None)
             state_parameters.append(el[1])
         
         target_filename = generate_doc_file(module, module_name, state_parameters, 'info_module.mustache')
@@ -62,6 +64,8 @@ def generate_module_docs(module_name):
                 el[1]['name'] = el[0]
                 el[1]['description'] = ''.join(el[1]['description'])
                 el[1]['required'] = state in el[1].get('required', [])
+                el[1]['hasDefault'] = (el[1].get('default') is not None)
+                el[1]['hasChoices'] = (el[1].get('choices') is not None)
                 state_parameters.append(el[1])
             parameters_per_state.append({
                 'state': state,

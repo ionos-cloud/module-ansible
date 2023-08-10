@@ -248,17 +248,17 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 ### Available parameters for state **resume**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | datacenter<br /><span style="color:#003d8f">str</span> | True | The datacenter to provision this virtual machine. |
+  | instance_ids<br /><span style="color:#003d8f">list</span> | False | list of instance ids. Should only contain one ID if renaming in update state<br />Default:  |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['resume', 'suspend', 'absent', 'present', 'update'] |
 
 &nbsp;
 
@@ -279,17 +279,17 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 ### Available parameters for state **suspend**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | datacenter<br /><span style="color:#003d8f">str</span> | True | The datacenter to provision this virtual machine. |
+  | instance_ids<br /><span style="color:#003d8f">list</span> | False | list of instance ids. Should only contain one ID if renaming in update state<br />Default:  |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['resume', 'suspend', 'absent', 'present', 'update'] |
 
 &nbsp;
 
@@ -310,18 +310,18 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 ### Available parameters for state **absent**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the  resource. |
-  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | name<br /><span style="color:#003d8f">str</span> | False | The name of the  resource. |
+  | datacenter<br /><span style="color:#003d8f">str</span> | True | The datacenter to provision this virtual machine. |
+  | instance_ids<br /><span style="color:#003d8f">list</span> | False | list of instance ids. Should only contain one ID if renaming in update state<br />Default:  |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['resume', 'suspend', 'absent', 'present', 'update'] |
 
 &nbsp;
 
@@ -342,35 +342,35 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 ### Available parameters for state **present**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the  resource. |
-  | assign_public_ip | False | bool | False | This will assign the machine to the public LAN. If no LAN exists with public Internet access it is created. |
-  | image | True | str |  | The image alias or ID for creating the virtual machine. |
-  | image_password | False | str |  | Password set for the administrative user. |
-  | ssh_keys | False | list |  | Public SSH keys allowing access to the virtual machine. |
-  | user_data | False | str |  | The cloud-init configuration for the volume as base64 encoded string. |
-  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | availability_zone | False | str | AUTO | The availability zone in which the server should be provisioned. |
-  | bus | False | str | VIRTIO | The bus type for the volume. |
-  | count | False | int | 1 | The number of virtual machines to create. |
-  | location | False | str | us/las | The datacenter location. Use only if you want to create the Datacenter or else this value is ignored. |
-  | lan | False | str |  | The ID or name of the LAN you wish to add the servers to (can be a string or a number). |
-  | nat | False | bool | False | Boolean value indicating if the private IP address has outbound access to the public Internet. |
-  | remove_boot_volume | False | bool | True | Remove the bootVolume of the virtual machine you're destroying. |
-  | disk_type | False | str | HDD | The disk type for the volume. |
-  | nic_ips | False | list |  | The list of IPS for the NIC. |
-  | template_uuid | False | str |  | The ID of the template for creating a CUBE server; the available templates for CUBE servers can be found on the templates resource. |
-  | boot_volume | False | str |  | The volume used for boot. |
-  | boot_cdrom | False | str |  | The CDROM used for boot. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | name<br /><span style="color:#003d8f">str</span> | True | The name of the  resource. |
+  | assign_public_ip<br /><span style="color:#003d8f">bool</span> | False | This will assign the machine to the public LAN. If no LAN exists with public Internet access it is created.<br />Default: False<br />Options: [True, False] |
+  | image<br /><span style="color:#003d8f">str</span> | True | The image alias or ID for creating the virtual machine. |
+  | image_password<br /><span style="color:#003d8f">str</span> | False | Password set for the administrative user. |
+  | ssh_keys<br /><span style="color:#003d8f">list</span> | False | Public SSH keys allowing access to the virtual machine.<br />Default:  |
+  | user_data<br /><span style="color:#003d8f">str</span> | False | The cloud-init configuration for the volume as base64 encoded string. |
+  | datacenter<br /><span style="color:#003d8f">str</span> | True | The datacenter to provision this virtual machine. |
+  | availability_zone<br /><span style="color:#003d8f">str</span> | False | The availability zone in which the server should be provisioned.<br />Default: AUTO<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2'] |
+  | bus<br /><span style="color:#003d8f">str</span> | False | The bus type for the volume.<br />Default: VIRTIO<br />Options: ['IDE', 'VIRTIO'] |
+  | count<br /><span style="color:#003d8f">int</span> | False | The number of virtual machines to create.<br />Default: 1 |
+  | location<br /><span style="color:#003d8f">str</span> | False | The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.<br />Default: us/las<br />Options: ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'] |
+  | lan<br /><span style="color:#003d8f">str</span> | False | The ID or name of the LAN you wish to add the servers to (can be a string or a number). |
+  | nat<br /><span style="color:#003d8f">bool</span> | False | Boolean value indicating if the private IP address has outbound access to the public Internet.<br />Default: False<br />Options: [True, False] |
+  | remove_boot_volume<br /><span style="color:#003d8f">bool</span> | False | Remove the bootVolume of the virtual machine you're destroying.<br />Default: True<br />Options: [True, False] |
+  | disk_type<br /><span style="color:#003d8f">str</span> | False | The disk type for the volume.<br />Default: HDD<br />Options: ['HDD', 'SSD', 'SSD Standard', 'SSD Premium', 'DAS'] |
+  | nic_ips<br /><span style="color:#003d8f">list</span> | False | The list of IPS for the NIC. |
+  | template_uuid<br /><span style="color:#003d8f">str</span> | False | The ID of the template for creating a CUBE server; the available templates for CUBE servers can be found on the templates resource. |
+  | boot_volume<br /><span style="color:#003d8f">str</span> | False | The volume used for boot. |
+  | boot_cdrom<br /><span style="color:#003d8f">str</span> | False | The CDROM used for boot. |
+  | do_not_replace<br /><span style="color:#003d8f">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['resume', 'suspend', 'absent', 'present', 'update'] |
 
 &nbsp;
 
@@ -397,21 +397,21 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 ### Available parameters for state **update**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the  resource. |
-  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
-  | boot_volume | False | str |  | The volume used for boot. |
-  | boot_cdrom | False | str |  | The CDROM used for boot. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | name<br /><span style="color:#003d8f">str</span> | False | The name of the  resource. |
+  | datacenter<br /><span style="color:#003d8f">str</span> | True | The datacenter to provision this virtual machine. |
+  | instance_ids<br /><span style="color:#003d8f">list</span> | False | list of instance ids. Should only contain one ID if renaming in update state<br />Default:  |
+  | boot_volume<br /><span style="color:#003d8f">str</span> | False | The volume used for boot. |
+  | boot_cdrom<br /><span style="color:#003d8f">str</span> | False | The CDROM used for boot. |
+  | do_not_replace<br /><span style="color:#003d8f">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['resume', 'suspend', 'absent', 'present', 'update'] |
 
 &nbsp;
 

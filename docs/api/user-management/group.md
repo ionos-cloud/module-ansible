@@ -91,32 +91,32 @@ This module allows you to create, update or remove a group.
 ### Available parameters for state **present**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the resource. |
-  | create_datacenter | False | bool |  | Boolean value indicating if the group is allowed to create virtual data centers. |
-  | create_snapshot | False | bool |  | Create snapshot privilege. |
-  | reserve_ip | False | bool |  | Reserve IP block privilege. |
-  | access_activity_log | False | bool |  | Activity log access privilege. |
-  | create_pcc | False | bool |  | Create pcc privilege. |
-  | s3_privilege | False | bool |  | S3 privilege. |
-  | create_backup_unit | False | bool |  | Create backup unit privilege. |
-  | create_internet_access | False | bool |  | Create internet access privilege. |
-  | create_k8s_cluster | False | bool |  | Create Kubernetes cluster privilege. |
-  | create_flow_log | False | bool |  | Create Flow Logs privilege. |
-  | access_and_manage_monitoring | False | bool |  | Privilege for a group to access and manage monitoring related functionality (access metrics, CRUD on alarms, alarm-actions etc) using Monotoring-as-a-Service (MaaS). |
-  | access_and_manage_certificates | False | bool |  | Privilege for a group to access and manage certificates. |
-  | manage_dbaas | False | bool |  | Privilege for a group to manage DBaaS related functionality. |
-  | users | False | list |  | A list of (non-administrator) user IDs or emails to associate with the group. Set to empty list ([]) to remove all users from the group. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | name<br /><span style="color:#003d8f">str</span> | True | The name of the resource. |
+  | create_datacenter<br /><span style="color:#003d8f">bool</span> | False | Boolean value indicating if the group is allowed to create virtual data centers. |
+  | create_snapshot<br /><span style="color:#003d8f">bool</span> | False | Create snapshot privilege. |
+  | reserve_ip<br /><span style="color:#003d8f">bool</span> | False | Reserve IP block privilege. |
+  | access_activity_log<br /><span style="color:#003d8f">bool</span> | False | Activity log access privilege. |
+  | create_pcc<br /><span style="color:#003d8f">bool</span> | False | Create pcc privilege. |
+  | s3_privilege<br /><span style="color:#003d8f">bool</span> | False | S3 privilege. |
+  | create_backup_unit<br /><span style="color:#003d8f">bool</span> | False | Create backup unit privilege. |
+  | create_internet_access<br /><span style="color:#003d8f">bool</span> | False | Create internet access privilege. |
+  | create_k8s_cluster<br /><span style="color:#003d8f">bool</span> | False | Create Kubernetes cluster privilege. |
+  | create_flow_log<br /><span style="color:#003d8f">bool</span> | False | Create Flow Logs privilege. |
+  | access_and_manage_monitoring<br /><span style="color:#003d8f">bool</span> | False | Privilege for a group to access and manage monitoring related functionality (access metrics, CRUD on alarms, alarm-actions etc) using Monotoring-as-a-Service (MaaS). |
+  | access_and_manage_certificates<br /><span style="color:#003d8f">bool</span> | False | Privilege for a group to access and manage certificates. |
+  | manage_dbaas<br /><span style="color:#003d8f">bool</span> | False | Privilege for a group to manage DBaaS related functionality. |
+  | users<br /><span style="color:#003d8f">list</span> | False | A list of (non-administrator) user IDs or emails to associate with the group. Set to empty list ([]) to remove all users from the group. |
+  | do_not_replace<br /><span style="color:#003d8f">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -133,18 +133,18 @@ This module allows you to create, update or remove a group.
 ### Available parameters for state **absent**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the resource. |
-  | group | True | str |  | The ID or name of the group. |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | name<br /><span style="color:#003d8f">str</span> | False | The name of the resource. |
+  | group<br /><span style="color:#003d8f">str</span> | True | The ID or name of the group. |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -164,33 +164,33 @@ This module allows you to create, update or remove a group.
 ### Available parameters for state **update**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the resource. |
-  | group | True | str |  | The ID or name of the group. |
-  | create_datacenter | False | bool |  | Boolean value indicating if the group is allowed to create virtual data centers. |
-  | create_snapshot | False | bool |  | Create snapshot privilege. |
-  | reserve_ip | False | bool |  | Reserve IP block privilege. |
-  | access_activity_log | False | bool |  | Activity log access privilege. |
-  | create_pcc | False | bool |  | Create pcc privilege. |
-  | s3_privilege | False | bool |  | S3 privilege. |
-  | create_backup_unit | False | bool |  | Create backup unit privilege. |
-  | create_internet_access | False | bool |  | Create internet access privilege. |
-  | create_k8s_cluster | False | bool |  | Create Kubernetes cluster privilege. |
-  | create_flow_log | False | bool |  | Create Flow Logs privilege. |
-  | access_and_manage_monitoring | False | bool |  | Privilege for a group to access and manage monitoring related functionality (access metrics, CRUD on alarms, alarm-actions etc) using Monotoring-as-a-Service (MaaS). |
-  | access_and_manage_certificates | False | bool |  | Privilege for a group to access and manage certificates. |
-  | manage_dbaas | False | bool |  | Privilege for a group to manage DBaaS related functionality. |
-  | users | False | list |  | A list of (non-administrator) user IDs or emails to associate with the group. Set to empty list ([]) to remove all users from the group. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | name<br /><span style="color:#003d8f">str</span> | False | The name of the resource. |
+  | group<br /><span style="color:#003d8f">str</span> | True | The ID or name of the group. |
+  | create_datacenter<br /><span style="color:#003d8f">bool</span> | False | Boolean value indicating if the group is allowed to create virtual data centers. |
+  | create_snapshot<br /><span style="color:#003d8f">bool</span> | False | Create snapshot privilege. |
+  | reserve_ip<br /><span style="color:#003d8f">bool</span> | False | Reserve IP block privilege. |
+  | access_activity_log<br /><span style="color:#003d8f">bool</span> | False | Activity log access privilege. |
+  | create_pcc<br /><span style="color:#003d8f">bool</span> | False | Create pcc privilege. |
+  | s3_privilege<br /><span style="color:#003d8f">bool</span> | False | S3 privilege. |
+  | create_backup_unit<br /><span style="color:#003d8f">bool</span> | False | Create backup unit privilege. |
+  | create_internet_access<br /><span style="color:#003d8f">bool</span> | False | Create internet access privilege. |
+  | create_k8s_cluster<br /><span style="color:#003d8f">bool</span> | False | Create Kubernetes cluster privilege. |
+  | create_flow_log<br /><span style="color:#003d8f">bool</span> | False | Create Flow Logs privilege. |
+  | access_and_manage_monitoring<br /><span style="color:#003d8f">bool</span> | False | Privilege for a group to access and manage monitoring related functionality (access metrics, CRUD on alarms, alarm-actions etc) using Monotoring-as-a-Service (MaaS). |
+  | access_and_manage_certificates<br /><span style="color:#003d8f">bool</span> | False | Privilege for a group to access and manage certificates. |
+  | manage_dbaas<br /><span style="color:#003d8f">bool</span> | False | Privilege for a group to manage DBaaS related functionality. |
+  | users<br /><span style="color:#003d8f">list</span> | False | A list of (non-administrator) user IDs or emails to associate with the group. Set to empty list ([]) to remove all users from the group. |
+  | do_not_replace<br /><span style="color:#003d8f">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 

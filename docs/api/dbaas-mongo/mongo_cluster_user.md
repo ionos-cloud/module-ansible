@@ -88,20 +88,20 @@ This is a module that supports creating and destroying Mongo Cluster Users
 ### Available parameters for state **present**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | mongo_cluster | True | str |  | The UUID or name of an existing Mongo Cluster. |
-  | mongo_username | True | str |  | The username of the user. |
-  | mongo_password | True | str |  | The password of the user. |
-  | user_roles | True | list |  | A list of mongodb user roles. A user role is represented as a dict containing 2 keys:'role': has one of the following values: 'read', 'readWrite' or 'readAnyDatabase''database': the name of the databse to which the role applies |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | mongo_cluster<br /><span style="color:#003d8f">str</span> | True | The UUID or name of an existing Mongo Cluster. |
+  | mongo_username<br /><span style="color:#003d8f">str</span> | True | The username of the user. |
+  | mongo_password<br /><span style="color:#003d8f">str</span> | True | The password of the user. |
+  | user_roles<br /><span style="color:#003d8f">list</span> | True | A list of mongodb user roles. A user role is represented as a dict containing 2 keys:'role': has one of the following values: 'read', 'readWrite' or 'readAnyDatabase''database': the name of the databse to which the role applies |
+  | do_not_replace<br /><span style="color:#003d8f">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'update', 'absent'] |
 
 &nbsp;
 
@@ -125,20 +125,20 @@ This is a module that supports creating and destroying Mongo Cluster Users
 ### Available parameters for state **update**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | mongo_cluster | True | str |  | The UUID or name of an existing Mongo Cluster. |
-  | mongo_username | True | str |  | The username of the user. |
-  | mongo_password | False | str |  | The password of the user. |
-  | user_roles | False | list |  | A list of mongodb user roles. A user role is represented as a dict containing 2 keys:'role': has one of the following values: 'read', 'readWrite' or 'readAnyDatabase''database': the name of the databse to which the role applies |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | mongo_cluster<br /><span style="color:#003d8f">str</span> | True | The UUID or name of an existing Mongo Cluster. |
+  | mongo_username<br /><span style="color:#003d8f">str</span> | True | The username of the user. |
+  | mongo_password<br /><span style="color:#003d8f">str</span> | False | The password of the user. |
+  | user_roles<br /><span style="color:#003d8f">list</span> | False | A list of mongodb user roles. A user role is represented as a dict containing 2 keys:'role': has one of the following values: 'read', 'readWrite' or 'readAnyDatabase''database': the name of the databse to which the role applies |
+  | do_not_replace<br /><span style="color:#003d8f">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'update', 'absent'] |
 
 &nbsp;
 
@@ -155,17 +155,17 @@ This is a module that supports creating and destroying Mongo Cluster Users
 ### Available parameters for state **absent**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | mongo_cluster | True | str |  | The UUID or name of an existing Mongo Cluster. |
-  | mongo_username | True | str |  | The username of the user. |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | mongo_cluster<br /><span style="color:#003d8f">str</span> | True | The UUID or name of an existing Mongo Cluster. |
+  | mongo_username<br /><span style="color:#003d8f">str</span> | True | The username of the user. |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'update', 'absent'] |
 
 &nbsp;
 

@@ -30,14 +30,14 @@ This is a simple module that supports listing servers.
 ### Available parameters:
 &nbsp;
 
-| Name | Required | Type | Default | Description |
-| :--- | :---: | :--- | :--- | :--- |
-| datacenter | True | str |  | The ID or name of the datacenter. |
-| upgrade_needed | False | bool |  | Filter servers that can or that cannot be upgraded. |
-| filters | False | dict |  | Filter that can be used to list only objects which have a certain set of propeties. Filters should be a dict with a key containing keys and value pair in the following format:'properties.name': 'server_name' |
-| depth | False | int | 1 | The depth used when retrieving the items. |
-| api_url | False | str |  | The Ionos API base URL. |
-| certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-| username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-| password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-| token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+| Name | Required | Description |
+| :--- | :---: | :--- |
+| datacenter<br /><span style="color:#003d8f">str</span> | True | The ID or name of the datacenter. |
+| upgrade_needed<br /><span style="color:#003d8f">bool</span> | False | Filter servers that can or that cannot be upgraded. |
+| filters<br /><span style="color:#003d8f">dict</span> | False | Filter that can be used to list only objects which have a certain set of propeties. Filters should be a dict with a key containing keys and value pair in the following format:'properties.name': 'server_name' |
+| depth<br /><span style="color:#003d8f">int</span> | False | The depth used when retrieving the items.<br />Default: 1 |
+| api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+| certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
+| username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+| password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+| token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |

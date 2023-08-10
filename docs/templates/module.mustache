@@ -33,10 +33,10 @@
 ### Available parameters for state **{{ state }}**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
   {{#parameters}}
-  | {{name}} | {{required}} | {{type}} | {{default}} | {{description}} |
+  | {{name}}<br /><span style="color:#003d8f">{{type}}</span> | {{required}} | {{description}}{{#hasDefault}}<br />Default: {{default}}{{/hasDefault}}{{#hasChoices}}<br />Options: {{choices}}{{/hasChoices}} |
   {{/parameters}}
 
 &nbsp;

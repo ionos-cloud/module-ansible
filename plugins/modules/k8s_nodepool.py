@@ -47,7 +47,7 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name of the K8s Nodepool.'],
+        'description': ['A Kubernetes node pool name. Valid Kubernetes node pool name must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
@@ -95,13 +95,15 @@ OPTIONS = {
     'availability_zone': {
         'description': ['The availability zone in which the target VM should be provisioned.'],
         'available': ['update', 'present'],
-        'required': ['present'],
+        'choices': ['AUTO', 'ZONE_1', 'ZONE_2'],
+        'default': 'AUTO',
         'type': 'str',
     },
     'storage_type': {
         'description': ['The storage type for the nodes.'],
         'available': ['update', 'present'],
         'required': ['present'],
+        'choices': ['HDD', 'SSD'],
         'type': 'str',
     },
     'storage_size': {

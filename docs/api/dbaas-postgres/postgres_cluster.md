@@ -124,33 +124,33 @@ This is a module that supports creating, updating, restoring or destroying Postg
 ### Available parameters for state **present**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | maintenance_window | False | dict |  | A weekly 4 hour-long window, during which maintenance might occur. |
-  | postgres_version | True | str |  | The PostgreSQL version of your cluster. |
-  | instances | True | int |  | The total number of instances in the cluster (one master and n-1 standbys). |
-  | cores | True | int |  | The number of CPU cores per instance. |
-  | ram | True | int |  | The amount of memory per instance in megabytes. Has to be a multiple of 1024. |
-  | storage_size | True | int |  | The amount of storage per instance in megabytes. |
-  | storage_type | True | str |  | The storage type used in your cluster. (Value &quot;SSD&quot; is deprecated. Use the equivalent &quot;SSD Premium&quot; instead) |
-  | connections | True | list |  | Array of VDCs to connect to your cluster. |
-  | location | True | str |  | The physical location where the cluster will be created. This will be where all of your instances live. Property cannot be modified after datacenter creation. |
-  | display_name | True | str |  | The friendly name of your cluster. |
-  | db_username | True | str |  | The username for the initial PostgreSQL user. Some system usernames are restricted (e.g. &quot;postgres&quot;, &quot;admin&quot;, &quot;standby&quot;). |
-  | db_password | True | str |  | The password for the initial postgres user. |
-  | synchronization_mode | True | str |  | Represents different modes of replication. |
-  | backup_location | False | str |  | The S3 location where the backups will be stored. |
-  | backup_id | False | str |  | The ID of the backup to be used. |
-  | recovery_target_time | False | str |  | Recovery target time. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | maintenance_window<br /><span style="color:#003d8f">dict</span> | False | A weekly 4 hour-long window, during which maintenance might occur. |
+  | postgres_version<br /><span style="color:#003d8f">str</span> | True | The PostgreSQL version of your cluster. |
+  | instances<br /><span style="color:#003d8f">int</span> | True | The total number of instances in the cluster (one master and n-1 standbys). |
+  | cores<br /><span style="color:#003d8f">int</span> | True | The number of CPU cores per instance. |
+  | ram<br /><span style="color:#003d8f">int</span> | True | The amount of memory per instance in megabytes. Has to be a multiple of 1024. |
+  | storage_size<br /><span style="color:#003d8f">int</span> | True | The amount of storage per instance in megabytes. |
+  | storage_type<br /><span style="color:#003d8f">str</span> | True | The storage type used in your cluster. (Value &quot;SSD&quot; is deprecated. Use the equivalent &quot;SSD Premium&quot; instead)<br />Options: ['HDD', 'SSD', 'SSD Standard', 'SSD Premium'] |
+  | connections<br /><span style="color:#003d8f">list</span> | True | Array of VDCs to connect to your cluster. |
+  | location<br /><span style="color:#003d8f">str</span> | True | The physical location where the cluster will be created. This will be where all of your instances live. Property cannot be modified after datacenter creation. |
+  | display_name<br /><span style="color:#003d8f">str</span> | True | The friendly name of your cluster. |
+  | db_username<br /><span style="color:#003d8f">str</span> | True | The username for the initial PostgreSQL user. Some system usernames are restricted (e.g. &quot;postgres&quot;, &quot;admin&quot;, &quot;standby&quot;). |
+  | db_password<br /><span style="color:#003d8f">str</span> | True | The password for the initial postgres user. |
+  | synchronization_mode<br /><span style="color:#003d8f">str</span> | True | Represents different modes of replication. |
+  | backup_location<br /><span style="color:#003d8f">str</span> | False | The S3 location where the backups will be stored. |
+  | backup_id<br /><span style="color:#003d8f">str</span> | False | The ID of the backup to be used. |
+  | recovery_target_time<br /><span style="color:#003d8f">str</span> | False | Recovery target time. |
+  | do_not_replace<br /><span style="color:#003d8f">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
 
 &nbsp;
 
@@ -166,17 +166,17 @@ This is a module that supports creating, updating, restoring or destroying Postg
 ### Available parameters for state **absent**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | postgres_cluster | True | str |  | The ID or name of an existing Postgres Cluster. |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | postgres_cluster<br /><span style="color:#003d8f">str</span> | True | The ID or name of an existing Postgres Cluster. |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
 
 &nbsp;
 
@@ -199,25 +199,25 @@ This is a module that supports creating, updating, restoring or destroying Postg
 ### Available parameters for state **update**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | maintenance_window | False | dict |  | A weekly 4 hour-long window, during which maintenance might occur. |
-  | postgres_version | False | str |  | The PostgreSQL version of your cluster. |
-  | instances | False | int |  | The total number of instances in the cluster (one master and n-1 standbys). |
-  | cores | False | int |  | The number of CPU cores per instance. |
-  | ram | False | int |  | The amount of memory per instance in megabytes. Has to be a multiple of 1024. |
-  | storage_size | False | int |  | The amount of storage per instance in megabytes. |
-  | display_name | False | str |  | The friendly name of your cluster. |
-  | postgres_cluster | True | str |  | The ID or name of an existing Postgres Cluster. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | maintenance_window<br /><span style="color:#003d8f">dict</span> | False | A weekly 4 hour-long window, during which maintenance might occur. |
+  | postgres_version<br /><span style="color:#003d8f">str</span> | False | The PostgreSQL version of your cluster. |
+  | instances<br /><span style="color:#003d8f">int</span> | False | The total number of instances in the cluster (one master and n-1 standbys). |
+  | cores<br /><span style="color:#003d8f">int</span> | False | The number of CPU cores per instance. |
+  | ram<br /><span style="color:#003d8f">int</span> | False | The amount of memory per instance in megabytes. Has to be a multiple of 1024. |
+  | storage_size<br /><span style="color:#003d8f">int</span> | False | The amount of storage per instance in megabytes. |
+  | display_name<br /><span style="color:#003d8f">str</span> | False | The friendly name of your cluster. |
+  | postgres_cluster<br /><span style="color:#003d8f">str</span> | True | The ID or name of an existing Postgres Cluster. |
+  | do_not_replace<br /><span style="color:#003d8f">bool</span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
 
 &nbsp;
 
@@ -229,19 +229,19 @@ This is a module that supports creating, updating, restoring or destroying Postg
 ### Available parameters for state **restore**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | backup_id | True | str |  | The ID of the backup to be used. |
-  | recovery_target_time | False | str |  | Recovery target time. |
-  | postgres_cluster | True | str |  | The ID or name of an existing Postgres Cluster. |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+  | Name | Required | Description |
+  | :--- | :---: | :--- |
+  | backup_id<br /><span style="color:#003d8f">str</span> | True | The ID of the backup to be used. |
+  | recovery_target_time<br /><span style="color:#003d8f">str</span> | False | Recovery target time. |
+  | postgres_cluster<br /><span style="color:#003d8f">str</span> | True | The ID or name of an existing Postgres Cluster. |
+  | api_url<br /><span style="color:#003d8f">str</span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span style="color:#003d8f">str</span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span style="color:#003d8f">str</span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:#003d8f">str</span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:#003d8f">str</span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:#003d8f">bool</span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:#003d8f">int</span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:#003d8f">str</span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
 
 &nbsp;
 
