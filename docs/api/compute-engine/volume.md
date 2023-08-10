@@ -149,35 +149,35 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | datacenter<br /><span>\<str\></span> | True | The datacenter in which to create the volumes. |
-  | server<br /><span>\<str\></span> | False | The server to which to attach the volume. |
-  | name<br /><span>\<str\></span> | True | The name of the  resource. |
-  | size<br /><span>\<int\></span> | False | The size of the volume in GB.<br />Default: 10 |
-  | bus<br /><span>\<str\></span> | False | The bus type for this volume; default is VIRTIO.<br />Default: VIRTIO<br />Options: ['VIRTIO', 'IDE', 'UNKNOWN'] |
-  | image<br /><span>\<str\></span> | False | Image or snapshot ID to be used as template for this volume. |
-  | image_password<br /><span>\<str\></span> | False | Initial password to be set for installed OS. Works with public images only. Not modifiable, forbidden in update requests. Password rules allows all characters from a-z, A-Z, 0-9. |
-  | ssh_keys<br /><span>\<list\></span> | False | Public SSH keys are set on the image as authorized keys for appropriate SSH login to the instance using the corresponding private key. This field may only be set in creation requests. When reading, it always returns null. SSH keys are only supported if a public Linux image is used for the volume creation.<br />Default:  |
-  | disk_type<br /><span>\<str\></span> | False | The disk type of the volume.<br />Default: HDD<br />Options: ['HDD', 'SSD', 'SSD Premium', 'SSD Standard'] |
-  | licence_type<br /><span>\<str\></span> | False | OS type for this volume.<br />Default: UNKNOWN<br />Options: ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'RHEL', 'LINUX', 'OTHER'] |
-  | availability_zone<br /><span>\<str\></span> | False | The availability zone in which the volume should be provisioned. The storage volume will be provisioned on as few physical storage devices as possible, but this cannot be guaranteed upfront. This is uavailable for DAS (Direct Attached Storage), and subject to availability for SSD.<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2', 'ZONE_3'] |
-  | count<br /><span>\<int\></span> | False | The number of volumes you wish to create.<br />Default: 1 |
-  | backupunit<br /><span>\<str\></span> | False | The ID of the backup unit that the user has access to. The property is immutable and is only allowed to be set on creation of a new a volume. It is mandatory to provide either 'public image' or 'imageAlias' in conjunction with this property. |
-  | user_data<br /><span>\<str\></span> | False | The cloud-init configuration for the volume as base64 encoded string. The property is immutable and is only allowed to be set on creation of a new a volume. It is mandatory to provide either 'public image' or 'imageAlias' that has cloud-init compatibility in conjunction with this property. |
-  | cpu_hot_plug<br /><span>\<bool\></span> | False | Hot-plug capable CPU (no reboot required). |
-  | ram_hot_plug<br /><span>\<bool\></span> | False | Hot-plug capable RAM (no reboot required). |
-  | nic_hot_plug<br /><span>\<bool\></span> | False | Hot-plug capable NIC (no reboot required). |
-  | nic_hot_unplug<br /><span>\<bool\></span> | False | Hot-unplug capable NIC (no reboot required). |
-  | disc_virtio_hot_plug<br /><span>\<bool\></span> | False | Hot-plug capable Virt-IO drive (no reboot required). |
-  | disc_virtio_hot_unplug<br /><span>\<bool\></span> | False | Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows VMs. |
-  | do_not_replace<br /><span>\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span>\<str\></span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | datacenter<br /><span style="color:blue">\<str\></span> | True | The datacenter in which to create the volumes. |
+  | server<br /><span style="color:blue">\<str\></span> | False | The server to which to attach the volume. |
+  | name<br /><span style="color:blue">\<str\></span> | True | The name of the  resource. |
+  | size<br /><span style="color:blue">\<int\></span> | False | The size of the volume in GB.<br />Default: 10 |
+  | bus<br /><span style="color:blue">\<str\></span> | False | The bus type for this volume; default is VIRTIO.<br />Default: VIRTIO<br />Options: ['VIRTIO', 'IDE', 'UNKNOWN'] |
+  | image<br /><span style="color:blue">\<str\></span> | False | Image or snapshot ID to be used as template for this volume. |
+  | image_password<br /><span style="color:blue">\<str\></span> | False | Initial password to be set for installed OS. Works with public images only. Not modifiable, forbidden in update requests. Password rules allows all characters from a-z, A-Z, 0-9. |
+  | ssh_keys<br /><span style="color:blue">\<list\></span> | False | Public SSH keys are set on the image as authorized keys for appropriate SSH login to the instance using the corresponding private key. This field may only be set in creation requests. When reading, it always returns null. SSH keys are only supported if a public Linux image is used for the volume creation.<br />Default:  |
+  | disk_type<br /><span style="color:blue">\<str\></span> | False | The disk type of the volume.<br />Default: HDD<br />Options: ['HDD', 'SSD', 'SSD Premium', 'SSD Standard'] |
+  | licence_type<br /><span style="color:blue">\<str\></span> | False | OS type for this volume.<br />Default: UNKNOWN<br />Options: ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'RHEL', 'LINUX', 'OTHER'] |
+  | availability_zone<br /><span style="color:blue">\<str\></span> | False | The availability zone in which the volume should be provisioned. The storage volume will be provisioned on as few physical storage devices as possible, but this cannot be guaranteed upfront. This is uavailable for DAS (Direct Attached Storage), and subject to availability for SSD.<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2', 'ZONE_3'] |
+  | count<br /><span style="color:blue">\<int\></span> | False | The number of volumes you wish to create.<br />Default: 1 |
+  | backupunit<br /><span style="color:blue">\<str\></span> | False | The ID of the backup unit that the user has access to. The property is immutable and is only allowed to be set on creation of a new a volume. It is mandatory to provide either 'public image' or 'imageAlias' in conjunction with this property. |
+  | user_data<br /><span style="color:blue">\<str\></span> | False | The cloud-init configuration for the volume as base64 encoded string. The property is immutable and is only allowed to be set on creation of a new a volume. It is mandatory to provide either 'public image' or 'imageAlias' that has cloud-init compatibility in conjunction with this property. |
+  | cpu_hot_plug<br /><span style="color:blue">\<bool\></span> | False | Hot-plug capable CPU (no reboot required). |
+  | ram_hot_plug<br /><span style="color:blue">\<bool\></span> | False | Hot-plug capable RAM (no reboot required). |
+  | nic_hot_plug<br /><span style="color:blue">\<bool\></span> | False | Hot-plug capable NIC (no reboot required). |
+  | nic_hot_unplug<br /><span style="color:blue">\<bool\></span> | False | Hot-unplug capable NIC (no reboot required). |
+  | disc_virtio_hot_plug<br /><span style="color:blue">\<bool\></span> | False | Hot-plug capable Virt-IO drive (no reboot required). |
+  | disc_virtio_hot_unplug<br /><span style="color:blue">\<bool\></span> | False | Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows VMs. |
+  | do_not_replace<br /><span style="color:blue">\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span style="color:blue">\<str\></span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span style="color:blue">\<str\></span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span style="color:blue">\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:blue">\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:blue">\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:blue">\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:blue">\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:blue">\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -200,17 +200,17 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | datacenter<br /><span>\<str\></span> | True | The datacenter in which to create the volumes. |
-  | name<br /><span>\<str\></span> | False | The name of the  resource. |
-  | instance_ids<br /><span>\<list\></span> | False | list of instance ids or names. Should only contain one ID if renaming in update state<br />Default:  |
-  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span>\<str\></span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | datacenter<br /><span style="color:blue">\<str\></span> | True | The datacenter in which to create the volumes. |
+  | name<br /><span style="color:blue">\<str\></span> | False | The name of the  resource. |
+  | instance_ids<br /><span style="color:blue">\<list\></span> | False | list of instance ids or names. Should only contain one ID if renaming in update state<br />Default:  |
+  | api_url<br /><span style="color:blue">\<str\></span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span style="color:blue">\<str\></span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span style="color:blue">\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:blue">\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:blue">\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:blue">\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:blue">\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:blue">\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -241,27 +241,27 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | datacenter<br /><span>\<str\></span> | True | The datacenter in which to create the volumes. |
-  | name<br /><span>\<str\></span> | False | The name of the  resource. |
-  | size<br /><span>\<int\></span> | False | The size of the volume in GB.<br />Default: 10 |
-  | bus<br /><span>\<str\></span> | False | The bus type for this volume; default is VIRTIO.<br />Default: VIRTIO<br />Options: ['VIRTIO', 'IDE', 'UNKNOWN'] |
-  | availability_zone<br /><span>\<str\></span> | False | The availability zone in which the volume should be provisioned. The storage volume will be provisioned on as few physical storage devices as possible, but this cannot be guaranteed upfront. This is uavailable for DAS (Direct Attached Storage), and subject to availability for SSD.<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2', 'ZONE_3'] |
-  | instance_ids<br /><span>\<list\></span> | False | list of instance ids or names. Should only contain one ID if renaming in update state<br />Default:  |
-  | cpu_hot_plug<br /><span>\<bool\></span> | False | Hot-plug capable CPU (no reboot required). |
-  | ram_hot_plug<br /><span>\<bool\></span> | False | Hot-plug capable RAM (no reboot required). |
-  | nic_hot_plug<br /><span>\<bool\></span> | False | Hot-plug capable NIC (no reboot required). |
-  | nic_hot_unplug<br /><span>\<bool\></span> | False | Hot-unplug capable NIC (no reboot required). |
-  | disc_virtio_hot_plug<br /><span>\<bool\></span> | False | Hot-plug capable Virt-IO drive (no reboot required). |
-  | disc_virtio_hot_unplug<br /><span>\<bool\></span> | False | Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows VMs. |
-  | do_not_replace<br /><span>\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span>\<str\></span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | datacenter<br /><span style="color:blue">\<str\></span> | True | The datacenter in which to create the volumes. |
+  | name<br /><span style="color:blue">\<str\></span> | False | The name of the  resource. |
+  | size<br /><span style="color:blue">\<int\></span> | False | The size of the volume in GB.<br />Default: 10 |
+  | bus<br /><span style="color:blue">\<str\></span> | False | The bus type for this volume; default is VIRTIO.<br />Default: VIRTIO<br />Options: ['VIRTIO', 'IDE', 'UNKNOWN'] |
+  | availability_zone<br /><span style="color:blue">\<str\></span> | False | The availability zone in which the volume should be provisioned. The storage volume will be provisioned on as few physical storage devices as possible, but this cannot be guaranteed upfront. This is uavailable for DAS (Direct Attached Storage), and subject to availability for SSD.<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2', 'ZONE_3'] |
+  | instance_ids<br /><span style="color:blue">\<list\></span> | False | list of instance ids or names. Should only contain one ID if renaming in update state<br />Default:  |
+  | cpu_hot_plug<br /><span style="color:blue">\<bool\></span> | False | Hot-plug capable CPU (no reboot required). |
+  | ram_hot_plug<br /><span style="color:blue">\<bool\></span> | False | Hot-plug capable RAM (no reboot required). |
+  | nic_hot_plug<br /><span style="color:blue">\<bool\></span> | False | Hot-plug capable NIC (no reboot required). |
+  | nic_hot_unplug<br /><span style="color:blue">\<bool\></span> | False | Hot-unplug capable NIC (no reboot required). |
+  | disc_virtio_hot_plug<br /><span style="color:blue">\<bool\></span> | False | Hot-plug capable Virt-IO drive (no reboot required). |
+  | disc_virtio_hot_unplug<br /><span style="color:blue">\<bool\></span> | False | Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows VMs. |
+  | do_not_replace<br /><span style="color:blue">\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><span style="color:blue">\<str\></span> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><span style="color:blue">\<str\></span> | False | The Ionos API certificate fingerprint. |
+  | username<br /><span style="color:blue">\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><span style="color:blue">\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><span style="color:blue">\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><span style="color:blue">\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><span style="color:blue">\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><span style="color:blue">\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
