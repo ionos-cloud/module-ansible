@@ -104,6 +104,7 @@ modules_to_generate = [
     's3key_info',
     'share',
     'user',
+    'vcpu_server',
     'dataplatform_cluster',
     'dataplatform_cluster_config',
     'dataplatform_cluster_info',

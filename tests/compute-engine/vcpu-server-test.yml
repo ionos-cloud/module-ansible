@@ -1,0 +1,173 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    ssh_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    cloud_init_file: ../_resources/cloud-init.txt
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+    - name: Create datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        location: "de/txl"
+
+    - name: Base64 encode the cloud-init config file '{{ cloud_init_file }}' for user_data in server provisioning
+      shell: base64 -w 0 "{{ cloud_init_file }}"
+      register: cloud_init_config
+
+    - name: Create LAN
+      lan:
+        datacenter: "{{ datacenter }}"
+        name: "{{ lan }}"
+        public: true
+
+    - name: Provision two servers
+      vcpu_server:
+        datacenter: "{{ datacenter }}"
+        name: "{{ name }} %02d"
+        cores: 1
+        ram: 1024
+        availability_zone: ZONE_1
+        lan: "{{ lan }}"
+        volume_availability_zone: ZONE_3
+        volume_size: 20
+        disk_type: SSD Standard
+        image: "{{ image_alias }}"
+        image_password: "{{ password }}"
+        location: "de/txl"
+        user_data: "{{ cloud_init_config.stdout }}"
+        count: 2
+        remove_boot_volume: true
+        wait: true
+        wait_timeout: "{{ wait_timeout }}"
+        state: present
+      register: server_create_result
+
+    - name: Provision same two servers again (idempotency)
+      vcpu_server:
+        datacenter: "{{ datacenter }}"
+        name: "{{ name }} %02d"
+        cores: 1
+        ram: 1024
+        availability_zone: ZONE_1
+        lan: "{{ lan }}"
+        volume_availability_zone: ZONE_3
+        volume_size: 20
+        disk_type: SSD Standard
+        image: "{{ image_alias }}"
+        image_password: "{{ password }}"
+        location: "de/txl"
+        user_data: "{{ cloud_init_config.stdout }}"
+        count: 2
+        remove_boot_volume: true
+        wait: true
+        wait_timeout: "{{ wait_timeout }}"
+        state: present
+      register: server_create_result_idempotency
+
+    - name: Debug - show result of server create
+      debug:
+        msg: "{{ server_create_result }}"
+
+    - name: Debug - show result of server create (idempotency)
+      debug:
+        msg: "{{ server_create_result_idempotency }}"
+
+    - name: Asserting that changed == false for creation of identical servers
+      assert:
+        that:
+          - server_create_result_idempotency.changed == false
+        msg: "Changed should be false for idempotency create"
+
+    - name: Update servers
+      vcpu_server:
+        datacenter: "{{ datacenter }}"
+        instance_ids:
+          - "{{ name }} 01"
+          - "{{ name }} 02"
+        cores: 2
+        ram: 2048
+        wait_timeout: "{{ wait_timeout }}"
+        state: update
+
+    - name: Update server with new name
+      vcpu_server:
+        datacenter: "{{ datacenter }}"
+        instance_ids: "{{ name }} 01"
+        name: "{{ name }}"
+        cores: 2
+        ram: 2048
+        wait_timeout: "{{ wait_timeout }}"
+        state: update
+      register: server_rename_result
+
+    - name: Debug - show result of server rename
+      debug:
+        msg: "{{ server_rename_result }}"
+
+    - name: Stop servers
+      vcpu_server:
+        datacenter: "{{ datacenter }}"
+        instance_ids:
+          - "{{ name }}"
+          - "{{ name }} 02"
+        wait_timeout: "{{ wait_timeout }}"
+        state: stopped
+
+    - name: Start servers
+      vcpu_server:
+        datacenter: "{{ datacenter }}"
+        instance_ids:
+          - "{{ name }}"
+          - "{{ name }} 02"
+        wait_timeout: "{{ wait_timeout }}"
+        state: running
+
+    - name: Get all servers for given datacenter
+      server_info:
+        datacenter: "{{ datacenter }}"
+      register: server_list_response
+
+    - name: Get only the servers that need to be upgraded
+      server_info:
+        datacenter: "{{ datacenter }}"
+        upgrade_needed: true
+      register: servers_list_upgrade_response
+
+    - name: Show all servers for the created datacenter
+      debug:
+        var: server_list_response
+
+    - name: Show servers that need an upgrade
+      debug:
+        var: servers_list_upgrade_response
+
+    - name: Start servers
+      vcpu_server:
+        datacenter: "{{ datacenter }}"
+        instance_ids:
+          - "{{ name }}"
+          - "{{ name }} 02"
+        wait_timeout: "{{ wait_timeout }}"
+        state: running
+
+    - name: Remove servers
+      vcpu_server:
+        datacenter: "{{ datacenter }}"
+        instance_ids:
+          - "{{ name }}"
+          - "{{ name }} 02"
+        remove_boot_volume: yes
+        wait_timeout: "{{ wait_timeout }}"
+        state: absent
+
+    - name: Remove datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        state: absent
+        wait: true
