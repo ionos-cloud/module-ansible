@@ -171,9 +171,9 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="20%">Name</th>
-      <th width="15%" align="center">Required</th>
-      <th width="65%">Description</th>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
     </tr>
   </thead>
   <tbody>
@@ -252,9 +252,9 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="20%">Name</th>
-      <th width="15%" align="center">Required</th>
-      <th width="65%">Description</th>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
     </tr>
   </thead>
   <tbody>
@@ -333,9 +333,9 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="20%">Name</th>
-      <th width="15%" align="center">Required</th>
-      <th width="65%">Description</th>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
     </tr>
   </thead>
   <tbody>
@@ -422,9 +422,9 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="20%">Name</th>
-      <th width="15%" align="center">Required</th>
-      <th width="65%">Description</th>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
     </tr>
   </thead>
   <tbody>
@@ -625,9 +625,9 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="20%">Name</th>
-      <th width="15%" align="center">Required</th>
-      <th width="65%">Description</th>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
     </tr>
   </thead>
   <tbody>

@@ -134,9 +134,9 @@ This module allows you to create, update or remove a NIC.
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="20%">Name</th>
-      <th width="15%" align="center">Required</th>
-      <th width="65%">Description</th>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
     </tr>
   </thead>
   <tbody>
@@ -238,9 +238,9 @@ This module allows you to create, update or remove a NIC.
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="20%">Name</th>
-      <th width="15%" align="center">Required</th>
-      <th width="65%">Description</th>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
     </tr>
   </thead>
   <tbody>
@@ -326,9 +326,9 @@ This module allows you to create, update or remove a NIC.
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="20%">Name</th>
-      <th width="15%" align="center">Required</th>
-      <th width="65%">Description</th>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
     </tr>
   </thead>
   <tbody>

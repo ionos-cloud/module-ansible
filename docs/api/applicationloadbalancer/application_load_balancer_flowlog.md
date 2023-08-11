@@ -101,9 +101,9 @@ This is a simple module that supports creating or removing Application Loadbalan
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="20%">Name</th>
-      <th width="15%" align="center">Required</th>
-      <th width="65%">Description</th>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
     </tr>
   </thead>
   <tbody>
@@ -205,9 +205,9 @@ This is a simple module that supports creating or removing Application Loadbalan
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="20%">Name</th>
-      <th width="15%" align="center">Required</th>
-      <th width="65%">Description</th>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
     </tr>
   </thead>
   <tbody>
@@ -300,9 +300,9 @@ This is a simple module that supports creating or removing Application Loadbalan
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="20%">Name</th>
-      <th width="15%" align="center">Required</th>
-      <th width="65%">Description</th>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
     </tr>
   </thead>
   <tbody>
