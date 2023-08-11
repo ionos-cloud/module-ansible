@@ -124,33 +124,142 @@ This is a module that supports creating, updating, restoring or destroying Postg
 ### Available parameters for state **present**:
 &nbsp;
 
-  | Name | Required | Description |
-  | :--- | :---: | :--- |
-  | maintenance_window<br /><mark style="color:blue;">\<dict\></mark> | False | A weekly 4 hour-long window, during which maintenance might occur. |
-  | postgres_version<br /><mark style="color:blue;">\<str\></mark> | True | The PostgreSQL version of your cluster. |
-  | instances<br /><mark style="color:blue;">\<int\></mark> | True | The total number of instances in the cluster (one master and n-1 standbys). |
-  | cores<br /><mark style="color:blue;">\<int\></mark> | True | The number of CPU cores per instance. |
-  | ram<br /><mark style="color:blue;">\<int\></mark> | True | The amount of memory per instance in megabytes. Has to be a multiple of 1024. |
-  | storage_size<br /><mark style="color:blue;">\<int\></mark> | True | The amount of storage per instance in megabytes. |
-  | storage_type<br /><mark style="color:blue;">\<str\></mark> | True | The storage type used in your cluster. (Value &quot;SSD&quot; is deprecated. Use the equivalent &quot;SSD Premium&quot; instead)<br />Options: ['HDD', 'SSD', 'SSD Standard', 'SSD Premium'] |
-  | connections<br /><mark style="color:blue;">\<list\></mark> | True | Array of VDCs to connect to your cluster. |
-  | location<br /><mark style="color:blue;">\<str\></mark> | True | The physical location where the cluster will be created. This will be where all of your instances live. Property cannot be modified after datacenter creation. |
-  | display_name<br /><mark style="color:blue;">\<str\></mark> | True | The friendly name of your cluster. |
-  | db_username<br /><mark style="color:blue;">\<str\></mark> | True | The username for the initial PostgreSQL user. Some system usernames are restricted (e.g. &quot;postgres&quot;, &quot;admin&quot;, &quot;standby&quot;). |
-  | db_password<br /><mark style="color:blue;">\<str\></mark> | True | The password for the initial postgres user. |
-  | synchronization_mode<br /><mark style="color:blue;">\<str\></mark> | True | Represents different modes of replication. |
-  | backup_location<br /><mark style="color:blue;">\<str\></mark> | False | The S3 location where the backups will be stored. |
-  | backup_id<br /><mark style="color:blue;">\<str\></mark> | False | The ID of the backup to be used. |
-  | recovery_target_time<br /><mark style="color:blue;">\<str\></mark> | False | Recovery target time. |
-  | do_not_replace<br /><mark style="color:blue;">\<bool\></mark> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API certificate fingerprint. |
-  | username<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><mark style="color:blue;">\<bool\></mark> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><mark style="color:blue;">\<int\></mark> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><mark style="color:blue;">\<str\></mark> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="22.8vw">Name</th>
+      <th width="10.8vw" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>maintenance_window<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>A weekly 4 hour-long window, during which maintenance might occur.</td>
+  </tr>
+  <tr>
+  <td>postgres_version<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The PostgreSQL version of your cluster.</td>
+  </tr>
+  <tr>
+  <td>instances<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">True</td>
+  <td>The total number of instances in the cluster (one master and n-1 standbys).</td>
+  </tr>
+  <tr>
+  <td>cores<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">True</td>
+  <td>The number of CPU cores per instance.</td>
+  </tr>
+  <tr>
+  <td>ram<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">True</td>
+  <td>The amount of memory per instance in megabytes. Has to be a multiple of 1024.</td>
+  </tr>
+  <tr>
+  <td>storage_size<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">True</td>
+  <td>The amount of storage per instance in megabytes.</td>
+  </tr>
+  <tr>
+  <td>storage_type<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The storage type used in your cluster. (Value &quot;SSD&quot; is deprecated. Use the equivalent &quot;SSD Premium&quot; instead)<br />Options: ['HDD', 'SSD', 'SSD Standard', 'SSD Premium']</td>
+  </tr>
+  <tr>
+  <td>connections<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">True</td>
+  <td>Array of VDCs to connect to your cluster.</td>
+  </tr>
+  <tr>
+  <td>location<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The physical location where the cluster will be created. This will be where all of your instances live. Property cannot be modified after datacenter creation.</td>
+  </tr>
+  <tr>
+  <td>display_name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The friendly name of your cluster.</td>
+  </tr>
+  <tr>
+  <td>db_username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The username for the initial PostgreSQL user. Some system usernames are restricted (e.g. &quot;postgres&quot;, &quot;admin&quot;, &quot;standby&quot;).</td>
+  </tr>
+  <tr>
+  <td>db_password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The password for the initial postgres user.</td>
+  </tr>
+  <tr>
+  <td>synchronization_mode<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>Represents different modes of replication.</td>
+  </tr>
+  <tr>
+  <td>backup_location<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The S3 location where the backups will be stored.</td>
+  </tr>
+  <tr>
+  <td>backup_id<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The ID of the backup to be used.</td>
+  </tr>
+  <tr>
+  <td>recovery_target_time<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Recovery target time.</td>
+  </tr>
+  <tr>
+  <td>do_not_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 
@@ -166,17 +275,62 @@ This is a module that supports creating, updating, restoring or destroying Postg
 ### Available parameters for state **absent**:
 &nbsp;
 
-  | Name | Required | Description |
-  | :--- | :---: | :--- |
-  | postgres_cluster<br /><mark style="color:blue;">\<str\></mark> | True | The ID or name of an existing Postgres Cluster. |
-  | api_url<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API certificate fingerprint. |
-  | username<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><mark style="color:blue;">\<bool\></mark> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><mark style="color:blue;">\<int\></mark> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><mark style="color:blue;">\<str\></mark> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="22.8vw">Name</th>
+      <th width="10.8vw" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>postgres_cluster<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of an existing Postgres Cluster.</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 
@@ -199,25 +353,102 @@ This is a module that supports creating, updating, restoring or destroying Postg
 ### Available parameters for state **update**:
 &nbsp;
 
-  | Name | Required | Description |
-  | :--- | :---: | :--- |
-  | maintenance_window<br /><mark style="color:blue;">\<dict\></mark> | False | A weekly 4 hour-long window, during which maintenance might occur. |
-  | postgres_version<br /><mark style="color:blue;">\<str\></mark> | False | The PostgreSQL version of your cluster. |
-  | instances<br /><mark style="color:blue;">\<int\></mark> | False | The total number of instances in the cluster (one master and n-1 standbys). |
-  | cores<br /><mark style="color:blue;">\<int\></mark> | False | The number of CPU cores per instance. |
-  | ram<br /><mark style="color:blue;">\<int\></mark> | False | The amount of memory per instance in megabytes. Has to be a multiple of 1024. |
-  | storage_size<br /><mark style="color:blue;">\<int\></mark> | False | The amount of storage per instance in megabytes. |
-  | display_name<br /><mark style="color:blue;">\<str\></mark> | False | The friendly name of your cluster. |
-  | postgres_cluster<br /><mark style="color:blue;">\<str\></mark> | True | The ID or name of an existing Postgres Cluster. |
-  | do_not_replace<br /><mark style="color:blue;">\<bool\></mark> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API certificate fingerprint. |
-  | username<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><mark style="color:blue;">\<bool\></mark> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><mark style="color:blue;">\<int\></mark> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><mark style="color:blue;">\<str\></mark> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="22.8vw">Name</th>
+      <th width="10.8vw" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>maintenance_window<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>A weekly 4 hour-long window, during which maintenance might occur.</td>
+  </tr>
+  <tr>
+  <td>postgres_version<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The PostgreSQL version of your cluster.</td>
+  </tr>
+  <tr>
+  <td>instances<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>The total number of instances in the cluster (one master and n-1 standbys).</td>
+  </tr>
+  <tr>
+  <td>cores<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>The number of CPU cores per instance.</td>
+  </tr>
+  <tr>
+  <td>ram<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>The amount of memory per instance in megabytes. Has to be a multiple of 1024.</td>
+  </tr>
+  <tr>
+  <td>storage_size<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>The amount of storage per instance in megabytes.</td>
+  </tr>
+  <tr>
+  <td>display_name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The friendly name of your cluster.</td>
+  </tr>
+  <tr>
+  <td>postgres_cluster<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of an existing Postgres Cluster.</td>
+  </tr>
+  <tr>
+  <td>do_not_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 
@@ -229,19 +460,72 @@ This is a module that supports creating, updating, restoring or destroying Postg
 ### Available parameters for state **restore**:
 &nbsp;
 
-  | Name | Required | Description |
-  | :--- | :---: | :--- |
-  | backup_id<br /><mark style="color:blue;">\<str\></mark> | True | The ID of the backup to be used. |
-  | recovery_target_time<br /><mark style="color:blue;">\<str\></mark> | False | Recovery target time. |
-  | postgres_cluster<br /><mark style="color:blue;">\<str\></mark> | True | The ID or name of an existing Postgres Cluster. |
-  | api_url<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API certificate fingerprint. |
-  | username<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><mark style="color:blue;">\<bool\></mark> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><mark style="color:blue;">\<int\></mark> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><mark style="color:blue;">\<str\></mark> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore'] |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="22.8vw">Name</th>
+      <th width="10.8vw" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>backup_id<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID of the backup to be used.</td>
+  </tr>
+  <tr>
+  <td>recovery_target_time<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Recovery target time.</td>
+  </tr>
+  <tr>
+  <td>postgres_cluster<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of an existing Postgres Cluster.</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'restore']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 

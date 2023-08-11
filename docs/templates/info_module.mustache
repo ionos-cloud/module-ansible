@@ -11,8 +11,21 @@
 ### Available parameters:
 &nbsp;
 
-| Name | Required | Description |
-| :--- | :---: | :--- |
-{{#states_parameters}}
-| {{name}}<br /><mark style="color:blue;">\<{{type}}\></mark> | {{required}} | {{description}}{{#hasDefault}}<br />Default: {{default}}{{/hasDefault}}{{#hasChoices}}<br />Options: {{choices}}{{/hasChoices}} |
-{{/states_parameters}}
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="22.8vw">Name</th>
+      <th width="10.8vw" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{#states_parameters}}
+  <tr>
+  <td>{{name}}<br/><mark style="color:blue;">{{type}}</mark></td>
+  <td align="center">{{required}}</td>
+  <td>{{description}}{{#hasDefault}}<br />Default: {{default}}{{/hasDefault}}{{#hasChoices}}<br />Options: {{choices}}{{/hasChoices}}</td>
+  </tr>
+  {{/states_parameters}}
+  </tbody>
+</table>
