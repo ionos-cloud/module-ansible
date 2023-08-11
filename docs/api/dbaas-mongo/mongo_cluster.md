@@ -125,7 +125,7 @@ This is a module that supports creating and destroying Mongo Clusters
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="246">Name</th>
+      <th width="150">Name</th>
       <th width="116.66666666666663" align="center">Required</th>
       <th>Description</th>
     </tr>
@@ -226,7 +226,7 @@ This is a module that supports creating and destroying Mongo Clusters
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="246">Name</th>
+      <th width="150">Name</th>
       <th width="116.66666666666663" align="center">Required</th>
       <th>Description</th>
     </tr>
@@ -296,7 +296,7 @@ This is a module that supports creating and destroying Mongo Clusters
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="246">Name</th>
+      <th width="150">Name</th>
       <th width="116.66666666666663" align="center">Required</th>
       <th>Description</th>
     </tr>
@@ -403,7 +403,7 @@ This is a module that supports creating and destroying Mongo Clusters
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="246">Name</th>
+      <th width="150">Name</th>
       <th width="116.66666666666663" align="center">Required</th>
       <th>Description</th>
     </tr>
