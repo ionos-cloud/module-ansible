@@ -84,8 +84,8 @@ This is a simple module that supports uploading, updating or deleting certificat
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="150">Name</th>
-      <th width="116.66666666666663" align="center">Required</th>
+      <th width="15vw">Name</th>
+      <th width="7vw" align="center">Required</th>
       <th>Description</th>
     </tr>
   </thead>
@@ -171,8 +171,8 @@ This is a simple module that supports uploading, updating or deleting certificat
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="150">Name</th>
-      <th width="116.66666666666663" align="center">Required</th>
+      <th width="15vw">Name</th>
+      <th width="7vw" align="center">Required</th>
       <th>Description</th>
     </tr>
   </thead>
@@ -245,8 +245,8 @@ This is a simple module that supports uploading, updating or deleting certificat
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="150">Name</th>
-      <th width="116.66666666666663" align="center">Required</th>
+      <th width="15vw">Name</th>
+      <th width="7vw" align="center">Required</th>
       <th>Description</th>
     </tr>
   </thead>
