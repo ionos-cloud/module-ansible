@@ -88,8 +88,8 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="15vw">Name</th>
-      <th width="7vw" align="center">Required</th>
+      <th width="140">Name</th>
+      <th width="87" align="center">Required</th>
       <th>Description</th>
     </tr>
   </thead>
@@ -185,8 +185,8 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="15vw">Name</th>
-      <th width="7vw" align="center">Required</th>
+      <th width="140">Name</th>
+      <th width="87" align="center">Required</th>
       <th>Description</th>
     </tr>
   </thead>
@@ -261,8 +261,8 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="15vw">Name</th>
-      <th width="7vw" align="center">Required</th>
+      <th width="140">Name</th>
+      <th width="87" align="center">Required</th>
       <th>Description</th>
     </tr>
   </thead>

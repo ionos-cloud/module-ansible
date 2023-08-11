@@ -81,8 +81,8 @@ This module allows you to create or remove an IPBlock.
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="15vw">Name</th>
-      <th width="7vw" align="center">Required</th>
+      <th width="140">Name</th>
+      <th width="87" align="center">Required</th>
       <th>Description</th>
     </tr>
   </thead>
@@ -168,8 +168,8 @@ This module allows you to create or remove an IPBlock.
 <table data-full-width="true">
   <thead>
     <tr>
-      <th width="15vw">Name</th>
-      <th width="7vw" align="center">Required</th>
+      <th width="140">Name</th>
+      <th width="87" align="center">Required</th>
       <th>Description</th>
     </tr>
   </thead>
