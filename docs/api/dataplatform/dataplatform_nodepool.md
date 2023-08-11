@@ -124,26 +124,26 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | name<br /><span>\<str\></span> | True | The name of your node pool. Must be 63 characters or less and must begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
-  | cluster<br /><span>\<str\></span> | True | The name or ID of the Data Platform cluster. |
-  | node_count<br /><span>\<int\></span> | True | The number of nodes that make up the node pool. |
-  | cpu_family<br /><span>\<str\></span> | True | A valid CPU family name or `AUTO` if the platform shall choose the best fitting option. Available CPU architectures can be retrieved from the data center resource. |
-  | cores_count<br /><span>\<int\></span> | True | The number of CPU cores per node. |
-  | ram_size<br /><span>\<int\></span> | True | The RAM size for one node in MB. Must be set in multiples of 1024 MB, with a minimum size is of 2048 MB. |
-  | availability_zone<br /><span>\<str\></span> | True | The availability zone of the virtual data center region where the node pool resources should be provisioned. |
-  | storage_type<br /><span>\<str\></span> | True | The type of hardware for the volume. |
-  | storage_size<br /><span>\<int\></span> | True | The size of the volume in GB. The size must be greater than 10 GB. |
-  | maintenance_window<br /><span>\<dict\></span> | False | Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format |
-  | labels<br /><span>\<dict\></span> | False | Key-value pairs attached to the node pool resource as [Kubernetes labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/) |
-  | annotations<br /><span>\<dict\></span> | False | Key-value pairs attached to node pool resource as [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/) |
-  | do_not_replace<br /><span>\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
-  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | name<br /><mark style="color:blue;">\<str\></mark> | True | The name of your node pool. Must be 63 characters or less and must begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
+  | cluster<br /><mark style="color:blue;">\<str\></mark> | True | The name or ID of the Data Platform cluster. |
+  | node_count<br /><mark style="color:blue;">\<int\></mark> | True | The number of nodes that make up the node pool. |
+  | cpu_family<br /><mark style="color:blue;">\<str\></mark> | True | A valid CPU family name or `AUTO` if the platform shall choose the best fitting option. Available CPU architectures can be retrieved from the data center resource. |
+  | cores_count<br /><mark style="color:blue;">\<int\></mark> | True | The number of CPU cores per node. |
+  | ram_size<br /><mark style="color:blue;">\<int\></mark> | True | The RAM size for one node in MB. Must be set in multiples of 1024 MB, with a minimum size is of 2048 MB. |
+  | availability_zone<br /><mark style="color:blue;">\<str\></mark> | True | The availability zone of the virtual data center region where the node pool resources should be provisioned. |
+  | storage_type<br /><mark style="color:blue;">\<str\></mark> | True | The type of hardware for the volume. |
+  | storage_size<br /><mark style="color:blue;">\<int\></mark> | True | The size of the volume in GB. The size must be greater than 10 GB. |
+  | maintenance_window<br /><mark style="color:blue;">\<dict\></mark> | False | Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format |
+  | labels<br /><mark style="color:blue;">\<dict\></mark> | False | Key-value pairs attached to the node pool resource as [Kubernetes labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/) |
+  | annotations<br /><mark style="color:blue;">\<dict\></mark> | False | Key-value pairs attached to node pool resource as [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/) |
+  | do_not_replace<br /><mark style="color:blue;">\<bool\></mark> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API base URL. |
+  | username<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><mark style="color:blue;">\<bool\></mark> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><mark style="color:blue;">\<int\></mark> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><mark style="color:blue;">\<str\></mark> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -163,15 +163,15 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | cluster<br /><span>\<str\></span> | True | The name or ID of the Data Platform cluster. |
-  | nodepool<br /><span>\<str\></span> | True | The name or ID of the Data Platform nodepool. |
-  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
-  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | cluster<br /><mark style="color:blue;">\<str\></mark> | True | The name or ID of the Data Platform cluster. |
+  | nodepool<br /><mark style="color:blue;">\<str\></mark> | True | The name or ID of the Data Platform nodepool. |
+  | api_url<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API base URL. |
+  | username<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><mark style="color:blue;">\<bool\></mark> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><mark style="color:blue;">\<int\></mark> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><mark style="color:blue;">\<str\></mark> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -196,21 +196,21 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | name<br /><span>\<str\></span> | False | The name of your node pool. Must be 63 characters or less and must begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
-  | cluster<br /><span>\<str\></span> | True | The name or ID of the Data Platform cluster. |
-  | nodepool<br /><span>\<str\></span> | True | The name or ID of the Data Platform nodepool. |
-  | node_count<br /><span>\<int\></span> | False | The number of nodes that make up the node pool. |
-  | maintenance_window<br /><span>\<dict\></span> | False | Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format |
-  | labels<br /><span>\<dict\></span> | False | Key-value pairs attached to the node pool resource as [Kubernetes labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/) |
-  | annotations<br /><span>\<dict\></span> | False | Key-value pairs attached to node pool resource as [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/) |
-  | do_not_replace<br /><span>\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
-  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | name<br /><mark style="color:blue;">\<str\></mark> | False | The name of your node pool. Must be 63 characters or less and must begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
+  | cluster<br /><mark style="color:blue;">\<str\></mark> | True | The name or ID of the Data Platform cluster. |
+  | nodepool<br /><mark style="color:blue;">\<str\></mark> | True | The name or ID of the Data Platform nodepool. |
+  | node_count<br /><mark style="color:blue;">\<int\></mark> | False | The number of nodes that make up the node pool. |
+  | maintenance_window<br /><mark style="color:blue;">\<dict\></mark> | False | Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format |
+  | labels<br /><mark style="color:blue;">\<dict\></mark> | False | Key-value pairs attached to the node pool resource as [Kubernetes labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/) |
+  | annotations<br /><mark style="color:blue;">\<dict\></mark> | False | Key-value pairs attached to node pool resource as [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/) |
+  | do_not_replace<br /><mark style="color:blue;">\<bool\></mark> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API base URL. |
+  | username<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><mark style="color:blue;">\<bool\></mark> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><mark style="color:blue;">\<int\></mark> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><mark style="color:blue;">\<str\></mark> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 

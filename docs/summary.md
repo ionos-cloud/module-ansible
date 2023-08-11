@@ -54,9 +54,9 @@
 * Managed Backup
     * [Backup unit](api/managed-backup/backupunit.md)
 * Managed Kubernetes
-    * [Kubernetes cluster](api/managed-kubernetes/k8scluster.md)
-    * [Kubernetes nodepool](api/managed-kubernetes/k8snodepool.md)
-    * [Kubernetes configuration](api/managed-kubernetes/k8sconfig.md)
+    * [Kubernetes cluster](api/managed-kubernetes/k8s_cluster.md)
+    * [Kubernetes nodepool](api/managed-kubernetes/k8s_nodepool.md)
+    * [Kubernetes configuration](api/managed-kubernetes/k8s_config.md)
 * NAT Gateway
     * [NAT Gateway](api/natgateway/nat_gateway.md)
     * [NAT Gateway Rule](api/natgateway/nat_gateway_rule.md)

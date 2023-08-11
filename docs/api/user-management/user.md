@@ -93,23 +93,23 @@ This module allows you to create, update or remove a user.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | firstname<br /><span>\<str\></span> | True | The first name of the user. |
-  | lastname<br /><span>\<str\></span> | True | The last name of the user. |
-  | email<br /><span>\<str\></span> | True | The email address of the user. |
-  | user_password<br /><span>\<str\></span> | True | A password for the user. |
-  | administrator<br /><span>\<bool\></span> | False | Indicates if the user has admin rights. |
-  | force_sec_auth<br /><span>\<bool\></span> | False | Indicates if secure authentication should be forced on the user. |
-  | groups<br /><span>\<list\></span> | False | A list of group IDs or names where the user (non-administrator) is to be added. Set to empty list ([]) to remove the user from all groups. |
-  | sec_auth_active<br /><span>\<bool\></span> | False | Indicates if secure authentication is active for the user. |
-  | do_not_replace<br /><span>\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span>\<str\></span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | firstname<br /><mark style="color:blue;">\<str\></mark> | True | The first name of the user. |
+  | lastname<br /><mark style="color:blue;">\<str\></mark> | True | The last name of the user. |
+  | email<br /><mark style="color:blue;">\<str\></mark> | True | The email address of the user. |
+  | user_password<br /><mark style="color:blue;">\<str\></mark> | True | A password for the user. |
+  | administrator<br /><mark style="color:blue;">\<bool\></mark> | False | Indicates if the user has admin rights. |
+  | force_sec_auth<br /><mark style="color:blue;">\<bool\></mark> | False | Indicates if secure authentication should be forced on the user. |
+  | groups<br /><mark style="color:blue;">\<list\></mark> | False | A list of group IDs or names where the user (non-administrator) is to be added. Set to empty list ([]) to remove the user from all groups. |
+  | sec_auth_active<br /><mark style="color:blue;">\<bool\></mark> | False | Indicates if secure authentication is active for the user. |
+  | do_not_replace<br /><mark style="color:blue;">\<bool\></mark> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API certificate fingerprint. |
+  | username<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><mark style="color:blue;">\<bool\></mark> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><mark style="color:blue;">\<int\></mark> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><mark style="color:blue;">\<str\></mark> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -128,15 +128,15 @@ This module allows you to create, update or remove a user.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | user<br /><span>\<str\></span> | True | The ID or name of the user. |
-  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span>\<str\></span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | user<br /><mark style="color:blue;">\<str\></mark> | True | The ID or name of the user. |
+  | api_url<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API certificate fingerprint. |
+  | username<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><mark style="color:blue;">\<bool\></mark> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><mark style="color:blue;">\<int\></mark> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><mark style="color:blue;">\<str\></mark> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 
@@ -162,24 +162,24 @@ This module allows you to create, update or remove a user.
 
   | Name | Required | Description |
   | :--- | :---: | :--- |
-  | firstname<br /><span>\<str\></span> | False | The first name of the user. |
-  | lastname<br /><span>\<str\></span> | False | The last name of the user. |
-  | email<br /><span>\<str\></span> | False | The email address of the user. |
-  | user<br /><span>\<str\></span> | True | The ID or name of the user. |
-  | user_password<br /><span>\<str\></span> | False | A password for the user. |
-  | administrator<br /><span>\<bool\></span> | False | Indicates if the user has admin rights. |
-  | force_sec_auth<br /><span>\<bool\></span> | False | Indicates if secure authentication should be forced on the user. |
-  | groups<br /><span>\<list\></span> | False | A list of group IDs or names where the user (non-administrator) is to be added. Set to empty list ([]) to remove the user from all groups. |
-  | sec_auth_active<br /><span>\<bool\></span> | False | Indicates if secure authentication is active for the user. |
-  | do_not_replace<br /><span>\<bool\></span> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
-  | api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
-  | certificate_fingerprint<br /><span>\<str\></span> | False | The Ionos API certificate fingerprint. |
-  | username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait<br /><span>\<bool\></span> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
-  | wait_timeout<br /><span>\<int\></span> | False | How long before wait gives up, in seconds.<br />Default: 600 |
-  | state<br /><span>\<str\></span> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
+  | firstname<br /><mark style="color:blue;">\<str\></mark> | False | The first name of the user. |
+  | lastname<br /><mark style="color:blue;">\<str\></mark> | False | The last name of the user. |
+  | email<br /><mark style="color:blue;">\<str\></mark> | False | The email address of the user. |
+  | user<br /><mark style="color:blue;">\<str\></mark> | True | The ID or name of the user. |
+  | user_password<br /><mark style="color:blue;">\<str\></mark> | False | A password for the user. |
+  | administrator<br /><mark style="color:blue;">\<bool\></mark> | False | Indicates if the user has admin rights. |
+  | force_sec_auth<br /><mark style="color:blue;">\<bool\></mark> | False | Indicates if secure authentication should be forced on the user. |
+  | groups<br /><mark style="color:blue;">\<list\></mark> | False | A list of group IDs or names where the user (non-administrator) is to be added. Set to empty list ([]) to remove the user from all groups. |
+  | sec_auth_active<br /><mark style="color:blue;">\<bool\></mark> | False | Indicates if secure authentication is active for the user. |
+  | do_not_replace<br /><mark style="color:blue;">\<bool\></mark> | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False |
+  | api_url<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API base URL. |
+  | certificate_fingerprint<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API certificate fingerprint. |
+  | username<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+  | password<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+  | token<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+  | wait<br /><mark style="color:blue;">\<bool\></mark> | False | Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False] |
+  | wait_timeout<br /><mark style="color:blue;">\<int\></mark> | False | How long before wait gives up, in seconds.<br />Default: 600 |
+  | state<br /><mark style="color:blue;">\<str\></mark> | False | Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update'] |
 
 &nbsp;
 

@@ -22,7 +22,7 @@ This is a simple module that supports listing existing Mongo Cluster Templates
 
 | Name | Required | Description |
 | :--- | :---: | :--- |
-| api_url<br /><span>\<str\></span> | False | The Ionos API base URL. |
-| username<br /><span>\<str\></span> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-| password<br /><span>\<str\></span> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-| token<br /><span>\<str\></span> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+| api_url<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos API base URL. |
+| username<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
+| password<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
+| token<br /><mark style="color:blue;">\<str\></mark> | False | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
