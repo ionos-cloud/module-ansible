@@ -97,6 +97,10 @@ This is a module that supports creating and destroying Mongo Clusters
 
 &nbsp;
 
+ **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
+## Parameters that can trigger a resource replacement:
+  * location 
+  * mongo_db_version 
 &nbsp;
 
 # state: **present**

@@ -44,7 +44,7 @@ if `true` and a resource would be replaced it will throw an error instead
 | module | replace if changed | replace if set |
 | :--- | :--- | :--- |
 | backupunit | name | - |
-| certificate | certificate_filem, certificate_chain_file | private_key_file |
+| certificate | certificate_file, certificate_chain_file | private_key_file |
 | cube_server | template_uuid, availability_zone | - |
 | datacenter | location | - |
 | dataplatform_cluster | datacenter | - |

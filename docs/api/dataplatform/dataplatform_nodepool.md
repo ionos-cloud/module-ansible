@@ -101,6 +101,15 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
 
 &nbsp;
 
+ **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
+## Parameters that can trigger a resource replacement:
+  * name 
+  * cpu_family 
+  * cores_count 
+  * ram_size 
+  * availability_zone 
+  * storage_type 
+  * storage_size 
 &nbsp;
 
 # state: **present**

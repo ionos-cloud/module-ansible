@@ -147,6 +147,11 @@ OPTIONS = {
     },
 }
 
+IMMUTABLE_OPTIONS = [
+    { "name": "location", "note": "" },
+    { "name": "mongo_db_version", "note": "" },
+]
+
 
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES)

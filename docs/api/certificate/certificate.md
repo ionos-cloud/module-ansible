@@ -65,6 +65,11 @@ This is a simple module that supports uploading, updating or deleting certificat
 
 &nbsp;
 
+ **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
+## Parameters that can trigger a resource replacement:
+  * certificate_file 
+  * certificate_chain_file 
+  * private_key_file (Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!)
 &nbsp;
 
 # state: **present**

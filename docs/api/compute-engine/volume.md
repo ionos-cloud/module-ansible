@@ -117,6 +117,14 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
 
 &nbsp;
 
+ **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
+## Parameters that can trigger a resource replacement:
+  * backupunit 
+  * size 
+  * disk_type 
+  * availability_zone 
+  * licence_type 
+  * user_data 
 &nbsp;
 
 # state: **present**
@@ -204,7 +212,7 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
   <tr>
   <td>licence_type<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>OS type for this volume.<br />Default: UNKNOWN<br />Options: ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'RHEL', 'LINUX', 'OTHER']</td>
+  <td>OS type for this volume.<br />Options: ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'RHEL', 'LINUX', 'OTHER']</td>
   </tr>
   <tr>
   <td>availability_zone<br/><mark style="color:blue;">str</mark></td>

@@ -62,6 +62,10 @@ This module allows you to create or remove an IPBlock.
 
 &nbsp;
 
+ **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
+## Parameters that can trigger a resource replacement:
+  * size 
+  * location 
 &nbsp;
 
 # state: **present**

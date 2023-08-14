@@ -118,6 +118,15 @@ OPTIONS = {
     },
 }
 
+IMMUTABLE_OPTIONS = [
+    { "name": "certificate_file", "note": "" },
+    { "name": "certificate_chain_file", "note": "" },
+    {
+        "name": "private_key_file",
+        "note": "Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!",
+    },
+]
+
 
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES)

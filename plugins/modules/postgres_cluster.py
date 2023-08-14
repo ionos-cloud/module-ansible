@@ -202,6 +202,14 @@ OPTIONS = {
     },
 }
 
+IMMUTABLE_OPTIONS = [
+    { "name": "connections", "note": "" },
+    { "name": "backup_location", "note": "" },
+    { "name": "location", "note": "" },
+    { "name": "synchronization_mode", "note": "" },
+    { "name": "storage_type", "note": "" },
+]
+
 
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES)

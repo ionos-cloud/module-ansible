@@ -90,6 +90,9 @@ This is a module that supports creating, updating or destroying Registry Tokens
 
 &nbsp;
 
+ **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
+## Parameters that can trigger a resource replacement:
+  * name 
 &nbsp;
 
 # state: **present**

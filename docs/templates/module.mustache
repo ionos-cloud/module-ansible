@@ -23,6 +23,13 @@
 
 &nbsp;
 
+{{#has_immutable_parameters}}
+ **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
+## Parameters that can trigger a resource replacement:
+{{#immutable_parameters}}
+  * {{name}} {{#note}}({{note}}){{/note}}
+{{/immutable_parameters}}
+{{/has_immutable_parameters}}
 &nbsp;
 
 {{#states_parameters}}

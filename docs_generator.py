@@ -22,6 +22,11 @@ def generate_doc_file(module, module_name, states_parameters, template_file):
         except Exception:
             return_example = None
             print('!!! No return example found for {}\n'.format(module_name))
+        
+        try:
+            immutable_options = module.IMMUTABLE_OPTIONS
+        except AttributeError:
+            immutable_options = None
 
         with open(target_filename, 'w') as target_file:
             target_file.write(chevron.render(
@@ -31,6 +36,8 @@ def generate_doc_file(module, module_name, states_parameters, template_file):
                     'description': '\n\n'.join(yaml.safe_load(module.DOCUMENTATION)['description']),
                     'example': module.EXAMPLES,
                     'states_parameters': states_parameters,
+                    'has_immutable_parameters': immutable_options is not None,
+                    'immutable_parameters': immutable_options,
                     'return_example': return_example,
                 },
             ))

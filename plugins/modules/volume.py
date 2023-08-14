@@ -62,7 +62,6 @@ OPTIONS = {
     'size': {
         'description': ['The size of the volume in GB.'],
         'available': ['update', 'present'],
-        'default': 10,
         'type': 'int',
     },
     'bus': {
@@ -94,14 +93,12 @@ OPTIONS = {
     'disk_type': {
         'description': ['The disk type of the volume.'],
         'choices': ['HDD', 'SSD', 'SSD Premium', 'SSD Standard'],
-        'default': 'HDD',
         'available': ['present'],
         'type': 'str',
     },
     'licence_type': {
         'description': ['OS type for this volume.'],
         'choices': ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'RHEL', 'LINUX', 'OTHER'],
-        'default': 'UNKNOWN',
         'available': ['present'],
         'type': 'str',
     },
@@ -233,6 +230,16 @@ OPTIONS = {
         'type': 'str',
     },
 }
+
+IMMUTABLE_OPTIONS = [
+    { "name": "backupunit", "note": "" },
+    { "name": "size", "note": "" },
+    { "name": "disk_type", "note": "" },
+    { "name": "availability_zone", "note": "" },
+    { "name": "licence_type", "note": "" },
+    { "name": "user_data", "note": "" },
+]
+
 
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES) 

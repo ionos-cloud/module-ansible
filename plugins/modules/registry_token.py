@@ -127,6 +127,10 @@ OPTIONS = {
     },
 }
 
+IMMUTABLE_OPTIONS = [
+    { "name": "name", "note": "" },
+]
+
 
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES)
