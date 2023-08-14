@@ -205,7 +205,7 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   <tr>
   <td>availability_zone<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The availability zone in which the target VM should be provisioned.<br />Default: AUTO<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2']</td>
+  <td>The availability zone in which the target VM should be provisioned.<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2']</td>
   </tr>
   <tr>
   <td>storage_type<br/><mark style="color:blue;">str</mark></td>
@@ -454,7 +454,7 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
   <tr>
   <td>availability_zone<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The availability zone in which the target VM should be provisioned.<br />Default: AUTO<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2']</td>
+  <td>The availability zone in which the target VM should be provisioned.<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2']</td>
   </tr>
   <tr>
   <td>storage_type<br/><mark style="color:blue;">str</mark></td>

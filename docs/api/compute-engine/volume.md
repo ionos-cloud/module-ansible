@@ -182,7 +182,7 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
   <tr>
   <td>size<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>The size of the volume in GB.<br />Default: 10</td>
+  <td>The size of the volume in GB.</td>
   </tr>
   <tr>
   <td>bus<br/><mark style="color:blue;">str</mark></td>
@@ -207,7 +207,7 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
   <tr>
   <td>disk_type<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The disk type of the volume.<br />Default: HDD<br />Options: ['HDD', 'SSD', 'SSD Premium', 'SSD Standard']</td>
+  <td>The disk type of the volume.<br />Options: ['HDD', 'SSD', 'SSD Premium', 'SSD Standard']</td>
   </tr>
   <tr>
   <td>licence_type<br/><mark style="color:blue;">str</mark></td>
@@ -447,7 +447,7 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
   <tr>
   <td>size<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>The size of the volume in GB.<br />Default: 10</td>
+  <td>The size of the volume in GB.</td>
   </tr>
   <tr>
   <td>bus<br/><mark style="color:blue;">str</mark></td>

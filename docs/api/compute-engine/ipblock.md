@@ -99,12 +99,12 @@ This module allows you to create or remove an IPBlock.
   <tr>
   <td>location<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>Location of that IP block. Property cannot be modified after it is created (disallowed in update requests).<br />Default: us/las<br />Options: ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr']</td>
+  <td>Location of that IP block. Property cannot be modified after it is created (disallowed in update requests).<br />Options: ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr']</td>
   </tr>
   <tr>
   <td>size<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>The size of the IP block.<br />Default: 1</td>
+  <td>The size of the IP block.</td>
   </tr>
   <tr>
   <td>do_not_replace<br/><mark style="color:blue;">bool</mark></td>
