@@ -22,7 +22,7 @@ Example: for `nic` apart from the `nic` parameter used to identify the nic, `dat
     update:
         updates the object if no unchangeable properties are modified
         replaces if they are -> create new object, removes the old one
-        `do_not_replace` can be set to true so the module will fail if this happens to avoid losing resources
+        `allow_replace` can be set to false so the module will fail if this happens to avoid losing resources
 
     absent:
         looks for the object:
@@ -30,14 +30,13 @@ Example: for `nic` apart from the `nic` parameter used to identify the nic, `dat
             exists -> delete
 ```
 
-### the do_not_replace parameter
+### the allow_replace parameter
 
 Defaults to `false`
 
+if `true` will allow the replace behavior to occur
 
-if `false` will allow the replace behavior to occur
-
-if `true` and a resource would be replaced it will throw an error instead
+if `false` and a resource would be replaced it will throw an error instead
 
 ## list of parameters that when changed or set trigger resource replacement
 
