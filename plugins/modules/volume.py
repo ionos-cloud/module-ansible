@@ -249,6 +249,10 @@ IMMUTABLE_OPTIONS = [
         "name": "ssh_keys",
         "note": "Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!",
     },
+    {
+        "name": "backupunit",
+        "note": "Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!",
+    },
 ]
 
 
