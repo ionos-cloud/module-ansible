@@ -47,7 +47,7 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name of the K8s Nodepool.'],
+        'description': ['A Kubernetes node pool name. Valid Kubernetes node pool name must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',

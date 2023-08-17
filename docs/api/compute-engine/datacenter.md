@@ -1,6 +1,6 @@
 # datacenter
 
-This is a simple module that supports creating or removing vDCs. A vDC is required before you can create servers. This module has a dependency on ionoscloud &gt;= 6.0.2
+This is a simple module that supports creating or removing datacenters. A datacenter is required before you can create servers. This module has a dependency on ionoscloud &gt;= 6.0.2
 
 ## Example Syntax
 

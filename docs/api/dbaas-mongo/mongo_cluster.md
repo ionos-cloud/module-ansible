@@ -127,7 +127,7 @@ This is a module that supports creating and destroying Mongo Clusters
   | maintenance_window | False | dict |  | A weekly window of 4 hours during which maintenance work can be performed. |
   | mongo_db_version | True | str |  | The MongoDB version of your cluster. |
   | instances | True | int |  | The total number of instances in the cluster (one primary and n-1 secondaries). |
-  | connections | True | list |  | Array of VDCs to connect to your cluster. |
+  | connections | True | list |  | Array of datacenters to connect to your cluster. |
   | template_id | True | str |  | The unique ID of the template, which specifies the number of cores, storage size, and memory. You cannot downgrade to a smaller template or minor edition (e.g. from business to playground). To get a list of all templates to confirm the changes use the /templates endpoint. |
   | location | True | str |  | The physical location where the cluster will be created. This is the location where all your instances will be located. This property is immutable. |
   | display_name | True | str |  | The name of your cluster. |
@@ -189,7 +189,7 @@ This is a module that supports creating and destroying Mongo Clusters
   | maintenance_window | False | dict |  | A weekly window of 4 hours during which maintenance work can be performed. |
   | mongo_db_version | False | str |  | The MongoDB version of your cluster. |
   | instances | False | int |  | The total number of instances in the cluster (one primary and n-1 secondaries). |
-  | connections | False | list |  | Array of VDCs to connect to your cluster. |
+  | connections | False | list |  | Array of datacenters to connect to your cluster. |
   | template_id | False | str |  | The unique ID of the template, which specifies the number of cores, storage size, and memory. You cannot downgrade to a smaller template or minor edition (e.g. from business to playground). To get a list of all templates to confirm the changes use the /templates endpoint. |
   | location | False | str |  | The physical location where the cluster will be created. This is the location where all your instances will be located. This property is immutable. |
   | display_name | False | str |  | The name of your cluster. |
