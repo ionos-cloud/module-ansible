@@ -52,14 +52,12 @@ OPTIONS = {
         'description': ['Location of that IP block. Property cannot be modified after it is created (disallowed in update requests).'],
         'required': ['present'],
         'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
-        'default': 'us/las',
         'available': ['present'],
         'type': 'str',
     },
     'size': {
         'description': ['The size of the IP block.'],
         'available': ['present'],
-        'default': 1,
         'type': 'int',
     },
     'allow_replace': {
@@ -131,6 +129,11 @@ OPTIONS = {
         'type': 'str',
     },
 }
+
+IMMUTABLE_OPTIONS = [
+    { "name": "size", "note": "" },
+    { "name": "location", "note": "" },
+]
 
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES) 

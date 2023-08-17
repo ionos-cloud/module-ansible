@@ -91,7 +91,6 @@ OPTIONS = {
         'description': ['The availability zone in which the server should be provisioned.'],
         'available': ['present'],
         'choices': ['AUTO', 'ZONE_1', 'ZONE_2'],
-        'default': 'AUTO',
         'type': 'str',
         'version_added': '2.3',
     },
@@ -232,6 +231,11 @@ OPTIONS = {
         'type': 'str',
     },
 }
+
+IMMUTABLE_OPTIONS = [
+    { "name": "template_uuid", "note": "" },
+    { "name": "availability_zone", "note": "" },
+]
 
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES) 

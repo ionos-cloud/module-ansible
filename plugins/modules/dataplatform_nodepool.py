@@ -169,6 +169,16 @@ OPTIONS = {
     },
 }
 
+IMMUTABLE_OPTIONS = [
+    { "name": "name", "note": "" },
+    { "name": "cpu_family", "note": "" },
+    { "name": "cores_count", "note": "" },
+    { "name": "ram_size", "note": "" },
+    { "name": "availability_zone", "note": "" },
+    { "name": "storage_type", "note": "" },
+    { "name": "storage_size", "note": "" },
+]
+
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES) 
     del val['available']

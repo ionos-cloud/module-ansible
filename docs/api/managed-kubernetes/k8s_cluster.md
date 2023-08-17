@@ -85,22 +85,87 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 ### Available parameters for state **present**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | cluster_name | True | str |  | The name of the K8s cluster. |
-  | k8s_version | False | str |  | The Kubernetes version that the cluster is running. This limits which Kubernetes versions can run in a cluster's node pools. Also, not all Kubernetes versions are suitable upgrade targets for all earlier versions. |
-  | maintenance_window | False | dict |  | The maintenance window is used to update the control plane and the K8s version of the cluster. If no value is specified, it is chosen dynamically, so there is no fixed default value. |
-  | api_subnet_allow_list | False | list |  | Access to the K8s API server is restricted to these CIDRs. Intra-cluster traffic is not affected by this restriction. If no AllowList is specified, access is not limited. If an IP is specified without a subnet mask, the default value is 32 for IPv4 and 128 for IPv6. |
-  | s3_buckets_param | False | list |  | List of S3 buckets configured for K8s usage. At the moment, it contains only one S3 bucket that is used to store K8s API audit logs. |
-  | allow_replace | False | bool | False | Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 3600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>cluster_name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The name of the K8s cluster.</td>
+  </tr>
+  <tr>
+  <td>k8s_version<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Kubernetes version that the cluster is running. This limits which Kubernetes versions can run in a cluster's node pools. Also, not all Kubernetes versions are suitable upgrade targets for all earlier versions.</td>
+  </tr>
+  <tr>
+  <td>maintenance_window<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>The maintenance window is used to update the control plane and the K8s version of the cluster. If no value is specified, it is chosen dynamically, so there is no fixed default value.</td>
+  </tr>
+  <tr>
+  <td>api_subnet_allow_list<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>Access to the K8s API server is restricted to these CIDRs. Intra-cluster traffic is not affected by this restriction. If no AllowList is specified, access is not limited. If an IP is specified without a subnet mask, the default value is 32 for IPv4 and 128 for IPv6.</td>
+  </tr>
+  <tr>
+  <td>s3_buckets_param<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>List of S3 buckets configured for K8s usage. At the moment, it contains only one S3 bucket that is used to store K8s API audit logs.</td>
+  </tr>
+  <tr>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 3600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 
@@ -117,17 +182,62 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 ### Available parameters for state **absent**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | k8s_cluster | True | str |  | The ID or name of the K8s cluster. |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 3600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>k8s_cluster<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the K8s cluster.</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 3600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 
@@ -148,23 +258,92 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 ### Available parameters for state **update**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | cluster_name | False | str |  | The name of the K8s cluster. |
-  | k8s_cluster | True | str |  | The ID or name of the K8s cluster. |
-  | k8s_version | False | str |  | The Kubernetes version that the cluster is running. This limits which Kubernetes versions can run in a cluster's node pools. Also, not all Kubernetes versions are suitable upgrade targets for all earlier versions. |
-  | maintenance_window | True | dict |  | The maintenance window is used to update the control plane and the K8s version of the cluster. If no value is specified, it is chosen dynamically, so there is no fixed default value. |
-  | api_subnet_allow_list | False | list |  | Access to the K8s API server is restricted to these CIDRs. Intra-cluster traffic is not affected by this restriction. If no AllowList is specified, access is not limited. If an IP is specified without a subnet mask, the default value is 32 for IPv4 and 128 for IPv6. |
-  | s3_buckets_param | False | list |  | List of S3 buckets configured for K8s usage. At the moment, it contains only one S3 bucket that is used to store K8s API audit logs. |
-  | allow_replace | False | bool | False | Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 3600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>cluster_name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The name of the K8s cluster.</td>
+  </tr>
+  <tr>
+  <td>k8s_cluster<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the K8s cluster.</td>
+  </tr>
+  <tr>
+  <td>k8s_version<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Kubernetes version that the cluster is running. This limits which Kubernetes versions can run in a cluster's node pools. Also, not all Kubernetes versions are suitable upgrade targets for all earlier versions.</td>
+  </tr>
+  <tr>
+  <td>maintenance_window<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">True</td>
+  <td>The maintenance window is used to update the control plane and the K8s version of the cluster. If no value is specified, it is chosen dynamically, so there is no fixed default value.</td>
+  </tr>
+  <tr>
+  <td>api_subnet_allow_list<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>Access to the K8s API server is restricted to these CIDRs. Intra-cluster traffic is not affected by this restriction. If no AllowList is specified, access is not limited. If an IP is specified without a subnet mask, the default value is 32 for IPv4 and 128 for IPv6.</td>
+  </tr>
+  <tr>
+  <td>s3_buckets_param<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>List of S3 buckets configured for K8s usage. At the moment, it contains only one S3 bucket that is used to store K8s API audit logs.</td>
+  </tr>
+  <tr>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 3600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 

@@ -58,7 +58,7 @@ The following parameters, when changed or set, trigger resource replacement:
 | postgres_cluster      | connections, backup_location, location, synchronization_mode, storage_type                         | -                |
 | registry_token        | name                                                                                               | -                |
 | registry              | name, location                                                                                     | -                |
-| volume                | size, disk_type, availability_zone, licence_type, user_data                                        | -                |
+| volume                | image, size, disk_type, availability_zone, licence_type, user_data                                 | backupunit, image_password, ssh_keys                |
 
 ## List of Parameter Changes
 

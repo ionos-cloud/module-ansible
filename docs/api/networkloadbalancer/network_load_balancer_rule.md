@@ -122,26 +122,107 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
 ### Available parameters for state **present**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the Network Load Balancer forwarding rule. |
-  | algorithm | True | str |  | Balancing algorithm |
-  | protocol | True | str |  | Balancing protocol |
-  | listener_ip | True | str |  | Listening (inbound) IP. |
-  | listener_port | True | str |  | Listening (inbound) port number; valid range is 1 to 65535. |
-  | health_check | False | dict |  | Health check properties for Network Load Balancer forwarding rule. |
-  | targets | True | list |  | Array of items in the collection. |
-  | datacenter | True | str |  | The ID or name of the datacenter. |
-  | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
-  | allow_replace | False | bool | False | Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The name of the Network Load Balancer forwarding rule.</td>
+  </tr>
+  <tr>
+  <td>algorithm<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>Balancing algorithm</td>
+  </tr>
+  <tr>
+  <td>protocol<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>Balancing protocol</td>
+  </tr>
+  <tr>
+  <td>listener_ip<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>Listening (inbound) IP.</td>
+  </tr>
+  <tr>
+  <td>listener_port<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>Listening (inbound) port number; valid range is 1 to 65535.</td>
+  </tr>
+  <tr>
+  <td>health_check<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>Health check properties for Network Load Balancer forwarding rule.</td>
+  </tr>
+  <tr>
+  <td>targets<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">True</td>
+  <td>Array of items in the collection.</td>
+  </tr>
+  <tr>
+  <td>datacenter<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the datacenter.</td>
+  </tr>
+  <tr>
+  <td>network_load_balancer<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the Network Loadbalancer.</td>
+  </tr>
+  <tr>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 
@@ -160,20 +241,77 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
 ### Available parameters for state **absent**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the Network Load Balancer forwarding rule. |
-  | datacenter | True | str |  | The ID or name of the datacenter. |
-  | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
-  | forwarding_rule | True | str |  | The ID or name of the Network Loadbalancer forwarding rule. |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The name of the Network Load Balancer forwarding rule.</td>
+  </tr>
+  <tr>
+  <td>datacenter<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the datacenter.</td>
+  </tr>
+  <tr>
+  <td>network_load_balancer<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the Network Loadbalancer.</td>
+  </tr>
+  <tr>
+  <td>forwarding_rule<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the Network Loadbalancer forwarding rule.</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 
@@ -197,27 +335,112 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
 ### Available parameters for state **update**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the Network Load Balancer forwarding rule. |
-  | algorithm | False | str |  | Balancing algorithm |
-  | protocol | False | str |  | Balancing protocol |
-  | listener_ip | False | str |  | Listening (inbound) IP. |
-  | listener_port | False | str |  | Listening (inbound) port number; valid range is 1 to 65535. |
-  | health_check | False | dict |  | Health check properties for Network Load Balancer forwarding rule. |
-  | targets | False | list |  | Array of items in the collection. |
-  | datacenter | True | str |  | The ID or name of the datacenter. |
-  | network_load_balancer | True | str |  | The ID or name of the Network Loadbalancer. |
-  | forwarding_rule | True | str |  | The ID or name of the Network Loadbalancer forwarding rule. |
-  | allow_replace | False | bool | False | Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The name of the Network Load Balancer forwarding rule.</td>
+  </tr>
+  <tr>
+  <td>algorithm<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Balancing algorithm</td>
+  </tr>
+  <tr>
+  <td>protocol<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Balancing protocol</td>
+  </tr>
+  <tr>
+  <td>listener_ip<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Listening (inbound) IP.</td>
+  </tr>
+  <tr>
+  <td>listener_port<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Listening (inbound) port number; valid range is 1 to 65535.</td>
+  </tr>
+  <tr>
+  <td>health_check<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>Health check properties for Network Load Balancer forwarding rule.</td>
+  </tr>
+  <tr>
+  <td>targets<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>Array of items in the collection.</td>
+  </tr>
+  <tr>
+  <td>datacenter<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the datacenter.</td>
+  </tr>
+  <tr>
+  <td>network_load_balancer<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the Network Loadbalancer.</td>
+  </tr>
+  <tr>
+  <td>forwarding_rule<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the Network Loadbalancer forwarding rule.</td>
+  </tr>
+  <tr>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 

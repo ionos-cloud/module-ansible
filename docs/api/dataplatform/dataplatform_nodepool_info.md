@@ -84,11 +84,44 @@ This is a simple module that supports listing existing DataPlatform Nodepools
 ### Available parameters:
 &nbsp;
 
-| Name | Required | Type | Default | Description |
-| :--- | :---: | :--- | :--- | :--- |
-| filters | False | dict |  | Filter that can be used to list only objects which have a certain set of propeties. Filters should be a dict with a key containing keys and value pair in the following format:'properties.name': 'server_name' |
-| cluster | True | str |  | The ID of the Data Platform cluster. |
-| api_url | False | str |  | The Ionos API base URL. |
-| username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-| password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-| token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="22.8vw">Name</th>
+      <th width="10.8vw" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>filters<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>Filter that can be used to list only objects which have a certain set of propeties. Filters should be a dict with a key containing keys and value pair in the following format:'properties.name': 'server_name'</td>
+  </tr>
+  <tr>
+  <td>cluster<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID of the Data Platform cluster.</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  </tbody>
+</table>

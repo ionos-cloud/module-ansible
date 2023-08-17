@@ -117,6 +117,16 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
 
 &nbsp;
 
+ **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
+## Parameters that can trigger a resource replacement:
+  * datacenter 
+  * name 
+  * cpu_family 
+  * cores_count 
+  * ram_size 
+  * availability_zone 
+  * storage_type 
+  * storage_size 
 &nbsp;
 
 # state: **present**
@@ -138,34 +148,147 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
 ### Available parameters for state **present**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | k8s_cluster | True | str |  | The ID or name of the K8s cluster. |
-  | name | True | str |  | A Kubernetes node pool name. Valid Kubernetes node pool name must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
-  | k8s_version | False | str |  | The Kubernetes version running in the node pool. Note that this imposes restrictions on which Kubernetes versions can run in the node pools of a cluster. Also, not all Kubernetes versions are suitable upgrade targets for all earlier versions. |
-  | datacenter | True | str |  | The unique identifier of the VDC where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located. |
-  | lans | False | list |  | The array of existing private LANs to attach to worker nodes. |
-  | node_count | False | int |  | The number of worker nodes of the node pool. |
-  | cpu_family | True | str |  | The CPU type for the nodes. |
-  | cores_count | True | int |  | The total number of cores for the nodes. |
-  | ram_size | True | int |  | The RAM size for the nodes. Must be specified in multiples of 1024 MB, with a minimum size of 2048 MB. |
-  | availability_zone | True | str |  | The availability zone in which the target VM should be provisioned. |
-  | storage_type | True | str |  | The storage type for the nodes. |
-  | storage_size | True | int |  | The allocated volume size in GB. The allocated volume size in GB. To achieve good performance, we recommend a size greater than 100GB for SSD. |
-  | maintenance_window | False | dict |  | The maintenance window is used to update the software on the node pool nodes and update the K8s version of the node pool. If no value is specified, a value is selected dynamically, so there is no fixed default value. |
-  | labels | False | dict |  | The labels attached to the node pool. |
-  | annotations | False | dict |  | The annotations attached to the node pool. |
-  | auto_scaling | False | dict |  | Property to be set when auto-scaling needs to be enabled for the nodepool. By default, auto-scaling is not enabled. |
-  | public_ips | False | list |  | Optional array of reserved public IP addresses to be used by the nodes. The IPs must be from the exact location of the node pool's data center. If autoscaling is used, the array must contain one more IP than the maximum possible number of nodes (nodeCount+1 for a fixed number of nodes or maxNodeCount+1). The extra IP is used when the nodes are rebuilt. |
-  | allow_replace | False | bool | False | Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 3600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>k8s_cluster<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the K8s cluster.</td>
+  </tr>
+  <tr>
+  <td>name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>A Kubernetes node pool name. Valid Kubernetes node pool name must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between.</td>
+  </tr>
+  <tr>
+  <td>k8s_version<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Kubernetes version running in the node pool. Note that this imposes restrictions on which Kubernetes versions can run in the node pools of a cluster. Also, not all Kubernetes versions are suitable upgrade targets for all earlier versions.</td>
+  </tr>
+  <tr>
+  <td>datacenter<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The unique identifier of the VDC where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located.</td>
+  </tr>
+  <tr>
+  <td>lans<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>The array of existing private LANs to attach to worker nodes.</td>
+  </tr>
+  <tr>
+  <td>node_count<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>The number of worker nodes of the node pool.</td>
+  </tr>
+  <tr>
+  <td>cpu_family<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The CPU type for the nodes.</td>
+  </tr>
+  <tr>
+  <td>cores_count<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">True</td>
+  <td>The total number of cores for the nodes.</td>
+  </tr>
+  <tr>
+  <td>ram_size<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">True</td>
+  <td>The RAM size for the nodes. Must be specified in multiples of 1024 MB, with a minimum size of 2048 MB.</td>
+  </tr>
+  <tr>
+  <td>availability_zone<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The availability zone in which the target VM should be provisioned.<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2']</td>
+  </tr>
+  <tr>
+  <td>storage_type<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The storage type for the nodes.<br />Options: ['HDD', 'SSD']</td>
+  </tr>
+  <tr>
+  <td>storage_size<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">True</td>
+  <td>The allocated volume size in GB. The allocated volume size in GB. To achieve good performance, we recommend a size greater than 100GB for SSD.</td>
+  </tr>
+  <tr>
+  <td>maintenance_window<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>The maintenance window is used to update the software on the node pool nodes and update the K8s version of the node pool. If no value is specified, a value is selected dynamically, so there is no fixed default value.</td>
+  </tr>
+  <tr>
+  <td>labels<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>The labels attached to the node pool.</td>
+  </tr>
+  <tr>
+  <td>annotations<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>The annotations attached to the node pool.</td>
+  </tr>
+  <tr>
+  <td>auto_scaling<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>Property to be set when auto-scaling needs to be enabled for the nodepool. By default, auto-scaling is not enabled.</td>
+  </tr>
+  <tr>
+  <td>public_ips<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>Optional array of reserved public IP addresses to be used by the nodes. The IPs must be from the exact location of the node pool's data center. If autoscaling is used, the array must contain one more IP than the maximum possible number of nodes (nodeCount+1 for a fixed number of nodes or maxNodeCount+1). The extra IP is used when the nodes are rebuilt.</td>
+  </tr>
+  <tr>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 3600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 
@@ -183,18 +306,67 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
 ### Available parameters for state **absent**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | k8s_cluster | True | str |  | The ID or name of the K8s cluster. |
-  | k8s_nodepool | True | str |  | The ID or name of the K8s nodepool. |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 3600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>k8s_cluster<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the K8s cluster.</td>
+  </tr>
+  <tr>
+  <td>k8s_nodepool<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the K8s nodepool.</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 3600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 
@@ -220,35 +392,152 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
 ### Available parameters for state **update**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | k8s_cluster | True | str |  | The ID or name of the K8s cluster. |
-  | k8s_nodepool | True | str |  | The ID or name of the K8s nodepool. |
-  | name | False | str |  | A Kubernetes node pool name. Valid Kubernetes node pool name must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between. |
-  | k8s_version | False | str |  | The Kubernetes version running in the node pool. Note that this imposes restrictions on which Kubernetes versions can run in the node pools of a cluster. Also, not all Kubernetes versions are suitable upgrade targets for all earlier versions. |
-  | datacenter | False | str |  | The unique identifier of the VDC where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located. |
-  | lans | False | list |  | The array of existing private LANs to attach to worker nodes. |
-  | node_count | False | int |  | The number of worker nodes of the node pool. |
-  | cpu_family | False | str |  | The CPU type for the nodes. |
-  | cores_count | False | int |  | The total number of cores for the nodes. |
-  | ram_size | False | int |  | The RAM size for the nodes. Must be specified in multiples of 1024 MB, with a minimum size of 2048 MB. |
-  | availability_zone | False | str |  | The availability zone in which the target VM should be provisioned. |
-  | storage_type | False | str |  | The storage type for the nodes. |
-  | storage_size | False | int |  | The allocated volume size in GB. The allocated volume size in GB. To achieve good performance, we recommend a size greater than 100GB for SSD. |
-  | maintenance_window | False | dict |  | The maintenance window is used to update the software on the node pool nodes and update the K8s version of the node pool. If no value is specified, a value is selected dynamically, so there is no fixed default value. |
-  | labels | False | dict |  | The labels attached to the node pool. |
-  | annotations | False | dict |  | The annotations attached to the node pool. |
-  | auto_scaling | False | dict |  | Property to be set when auto-scaling needs to be enabled for the nodepool. By default, auto-scaling is not enabled. |
-  | public_ips | False | list |  | Optional array of reserved public IP addresses to be used by the nodes. The IPs must be from the exact location of the node pool's data center. If autoscaling is used, the array must contain one more IP than the maximum possible number of nodes (nodeCount+1 for a fixed number of nodes or maxNodeCount+1). The extra IP is used when the nodes are rebuilt. |
-  | allow_replace | False | bool | False | Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 3600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>k8s_cluster<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the K8s cluster.</td>
+  </tr>
+  <tr>
+  <td>k8s_nodepool<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the K8s nodepool.</td>
+  </tr>
+  <tr>
+  <td>name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>A Kubernetes node pool name. Valid Kubernetes node pool name must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between.</td>
+  </tr>
+  <tr>
+  <td>k8s_version<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Kubernetes version running in the node pool. Note that this imposes restrictions on which Kubernetes versions can run in the node pools of a cluster. Also, not all Kubernetes versions are suitable upgrade targets for all earlier versions.</td>
+  </tr>
+  <tr>
+  <td>datacenter<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The unique identifier of the VDC where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located.</td>
+  </tr>
+  <tr>
+  <td>lans<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>The array of existing private LANs to attach to worker nodes.</td>
+  </tr>
+  <tr>
+  <td>node_count<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>The number of worker nodes of the node pool.</td>
+  </tr>
+  <tr>
+  <td>cpu_family<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The CPU type for the nodes.</td>
+  </tr>
+  <tr>
+  <td>cores_count<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>The total number of cores for the nodes.</td>
+  </tr>
+  <tr>
+  <td>ram_size<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>The RAM size for the nodes. Must be specified in multiples of 1024 MB, with a minimum size of 2048 MB.</td>
+  </tr>
+  <tr>
+  <td>availability_zone<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The availability zone in which the target VM should be provisioned.<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2']</td>
+  </tr>
+  <tr>
+  <td>storage_type<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The storage type for the nodes.<br />Options: ['HDD', 'SSD']</td>
+  </tr>
+  <tr>
+  <td>storage_size<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>The allocated volume size in GB. The allocated volume size in GB. To achieve good performance, we recommend a size greater than 100GB for SSD.</td>
+  </tr>
+  <tr>
+  <td>maintenance_window<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>The maintenance window is used to update the software on the node pool nodes and update the K8s version of the node pool. If no value is specified, a value is selected dynamically, so there is no fixed default value.</td>
+  </tr>
+  <tr>
+  <td>labels<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>The labels attached to the node pool.</td>
+  </tr>
+  <tr>
+  <td>annotations<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>The annotations attached to the node pool.</td>
+  </tr>
+  <tr>
+  <td>auto_scaling<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>Property to be set when auto-scaling needs to be enabled for the nodepool. By default, auto-scaling is not enabled.</td>
+  </tr>
+  <tr>
+  <td>public_ips<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>Optional array of reserved public IP addresses to be used by the nodes. The IPs must be from the exact location of the node pool's data center. If autoscaling is used, the array must contain one more IP than the maximum possible number of nodes (nodeCount+1 for a fixed number of nodes or maxNodeCount+1). The extra IP is used when the nodes are rebuilt.</td>
+  </tr>
+  <tr>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 3600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 

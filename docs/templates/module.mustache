@@ -23,6 +23,13 @@
 
 &nbsp;
 
+{{#has_immutable_parameters}}
+ **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
+## Parameters that can trigger a resource replacement:
+{{#immutable_parameters}}
+  * {{name}} {{#note}}({{note}}){{/note}}
+{{/immutable_parameters}}
+{{/has_immutable_parameters}}
 &nbsp;
 
 {{#states_parameters}}
@@ -33,11 +40,24 @@
 ### Available parameters for state **{{ state }}**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
   {{#parameters}}
-  | {{name}} | {{required}} | {{type}} | {{default}} | {{description}} |
+  <tr>
+  <td>{{name}}<br/><mark style="color:blue;">{{type}}</mark></td>
+  <td align="center">{{required}}</td>
+  <td>{{description}}{{#hasDefault}}<br />Default: {{default}}{{/hasDefault}}{{#hasChoices}}<br />Options: {{choices}}{{/hasChoices}}</td>
+  </tr>
   {{/parameters}}
+  </tbody>
+</table>
 
 &nbsp;
 

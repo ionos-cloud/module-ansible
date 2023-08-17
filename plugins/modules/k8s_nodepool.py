@@ -95,13 +95,14 @@ OPTIONS = {
     'availability_zone': {
         'description': ['The availability zone in which the target VM should be provisioned.'],
         'available': ['update', 'present'],
-        'required': ['present'],
+        'choices': ['AUTO', 'ZONE_1', 'ZONE_2'],
         'type': 'str',
     },
     'storage_type': {
         'description': ['The storage type for the nodes.'],
         'available': ['update', 'present'],
         'required': ['present'],
+        'choices': ['HDD', 'SSD'],
         'type': 'str',
     },
     'storage_size': {
@@ -205,6 +206,17 @@ OPTIONS = {
         'type': 'str',
     },
 }
+
+IMMUTABLE_OPTIONS = [
+    { "name": "datacenter", "note": "" },
+    { "name": "name", "note": "" },
+    { "name": "cpu_family", "note": "" },
+    { "name": "cores_count", "note": "" },
+    { "name": "ram_size", "note": "" },
+    { "name": "availability_zone", "note": "" },
+    { "name": "storage_type", "note": "" },
+    { "name": "storage_size", "note": "" },
+]
 
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES) 
