@@ -258,6 +258,21 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
+def get_users(client):
+    all_users = ionoscloud.Users(items=[])
+    offset = 0
+    limit = 100
+
+    users = client.um_users_get(depth=2, limit=limit, offset=offset)
+    all_users.items += users.items
+    while(users.links.next is not None):
+        offset += limit
+        users = client.um_users_get(depth=2, limit=limit, offset=offset)
+        all_users.items += users.items
+
+    return all_users
+
+
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -289,7 +304,7 @@ def _should_update_object(module, existing_object):
 
 
 def _get_object_list(module, client):
-    return ionoscloud.UserManagementApi(client).um_users_get(depth=1)
+    return get_users(ionoscloud.UserManagementApi(client))
 
 
 def _get_object_name(module):

@@ -203,6 +203,21 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
+def get_users(client):
+    all_users = ionoscloud.Users(items=[])
+    offset = 0
+    limit = 100
+
+    users = client.um_users_get(depth=2, limit=limit, offset=offset)
+    all_users.items += users.items
+    while(users.links.next is not None):
+        offset += limit
+        users = client.um_users_get(depth=2, limit=limit, offset=offset)
+        all_users.items += users.items
+
+    return all_users
+
+
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -215,7 +230,7 @@ def _get_request_id(headers):
 def create_s3key(module, client):
     user_id = get_resource_id(
         module,
-        ionoscloud.UserManagementApi(client).um_users_get(depth=1), 
+        get_users(ionoscloud.UserManagementApi(client)), 
         module.params.get('user'),
         [['id'], ['properties', 'email']],
     )
@@ -269,7 +284,7 @@ def create_s3key(module, client):
 def delete_s3key(module, client):
     user_id = get_resource_id(
         module,
-        ionoscloud.UserManagementApi(client).um_users_get(depth=1), 
+        get_users(ionoscloud.UserManagementApi(client)), 
         module.params.get('user'),
         [['id'], ['properties', 'email']],
     )
@@ -303,7 +318,7 @@ def delete_s3key(module, client):
 def update_s3key(module, client):
     user_id = get_resource_id(
         module,
-        ionoscloud.UserManagementApi(client).um_users_get(depth=1), 
+        get_users(ionoscloud.UserManagementApi(client)), 
         module.params.get('user'),
         [['id'], ['properties', 'email']],
     )
