@@ -128,6 +128,7 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
   * image (Might trigger replace just by being set as this parameter is retrieved from the API as the image ID, so when using an alias it will always cause a resource replacement!)
   * image_password (Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!)
   * ssh_keys (Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!)
+  * backupunit (Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!)
 &nbsp;
 
 # state: **present**
@@ -268,9 +269,9 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
   <td>Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows VMs.</td>
   </tr>
   <tr>
-  <td>do_not_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -498,9 +499,9 @@ Allows you to create, update or remove a volume from a Ionos datacenter.
   <td>Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows VMs.</td>
   </tr>
   <tr>
-  <td>do_not_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>

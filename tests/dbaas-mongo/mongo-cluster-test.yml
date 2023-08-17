@@ -80,17 +80,17 @@
             - 192.168.1.126/24
           datacenter: "{{ datacenter }} - DBaaS Mongo 2"
           lan: "test_lan2"
-      display_name: "{{ display_name }}"
+      display_name: "{{ display_name }} Replaced"
       wait: true
       wait_timeout: 7200
     register: cluster_response
 
   - name: Update Cluster
     mongo_cluster:
-      mongo_cluster: "{{ display_name }}"
+      mongo_cluster: "{{ display_name }} Replaced"
       display_name: "{{ display_name_updated }}"
       state: update
-      do_not_replace: true
+      allow_replace: false
       wait: true
     register: cluster_response
 

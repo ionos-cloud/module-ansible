@@ -17,6 +17,50 @@ This is a simple module that supports listing S3Keys.
         var: s3key_info_response.result
 
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": false,
+    "s3keys": [
+        {
+            "href": "https://api.ionos.com/cloudapi/v6/um/users/<USER_ID>/s3keys/<ID>",
+            "id": "<ID>",
+            "metadata": {
+                "created_date": "2023-08-03T14:09:10",
+                "etag": "f245addf606d4e505be3ce87c622bf75"
+            },
+            "properties": {
+                "active": true,
+                "secret_key": "<SECRET_KEY>"
+            },
+            "type": "s3key"
+        },
+        {
+            "href": "https://api.ionos.com/cloudapi/v6/um/users/<USER_ID>/s3keys/<ID>",
+            "id": "<ID>",
+            "metadata": {
+                "created_date": "2023-08-03T14:09:11",
+                "etag": "0c24df8cd19a7e35da34e4f4370f305a"
+            },
+            "properties": {
+                "active": true,
+                "secret_key": "<SECRET_KEY>"
+            },
+            "type": "s3key"
+        }
+    ],
+    "failed": false
+}
+
+```
+
+&nbsp;
+
+&nbsp;
 ### Available parameters:
 &nbsp;
 

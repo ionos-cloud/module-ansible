@@ -18,6 +18,57 @@ This is a simple module that supports listing existing Registry Tokens
             var: registry_tokens_response.result
 
 ```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "result": [
+        {
+            "href": "",
+            "id": "1e9f63b6-ff23-41ab-8f7e-57dd1008d6b5",
+            "metadata": {
+                "created_by": "<USER_EMAIL>",
+                "created_by_user_id": "<USER_ID>",
+                "created_date": "2023-05-29T13:51:29+00:00",
+                "last_modified_by": null,
+                "last_modified_by_user_id": null,
+                "last_modified_date": null,
+                "state": "enabled"
+            },
+            "properties": {
+                "credentials": {
+                    "password": "",
+                    "username": "testRegistryToken"
+                },
+                "expiry_date": null,
+                "name": "testRegistryToken",
+                "scopes": [
+                    {
+                        "actions": [
+                            "pull",
+                            "push"
+                        ],
+                        "name": "nume",
+                        "type": "repo"
+                    }
+                ],
+                "status": "enabled"
+            },
+            "type": "token"
+        }
+    ],
+    "failed": false,
+    "changed": false
+}
+
+```
+
+&nbsp;
+
+&nbsp;
 ### Available parameters:
 &nbsp;
 

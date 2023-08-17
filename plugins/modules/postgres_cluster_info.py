@@ -21,6 +21,7 @@ DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-postgres/%s' % (
 DOC_DIRECTORY = 'dbaas-postgres'
 STATES = ['info']
 OBJECT_NAME = 'Postgres Clusters'
+RETURNED_KEY = 'postgres_clusters'
 
 OPTIONS = {
     'filters': {
@@ -250,7 +251,7 @@ def main():
     try:
         clusters = ionoscloud_dbaas_postgres.ClustersApi(dbaas_postgres_api_client).clusters_get()
         results = list(map(lambda x: x.to_dict(), apply_filters(module, clusters.items)))
-        module.exit_json(result=results)
+        module.exit_json(**{RETURNED_KEY:results})
     except Exception as e:
         module.fail_json(
             msg='failed to retrieve {object_name}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))

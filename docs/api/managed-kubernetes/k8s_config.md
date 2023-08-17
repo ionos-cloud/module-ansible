@@ -1,6 +1,6 @@
 # k8s_config
 
-This is a simple module that supports getting config of K8s clusters This module has a dependency on ionoscloud &gt;= 6.0.2
+This is a simple module that supports getting the config of K8s clusters This module has a dependency on ionoscloud &gt;= 6.0.2
 
 ## Example Syntax
 
@@ -9,7 +9,7 @@ This is a simple module that supports getting config of K8s clusters This module
 
   - name: Get k8s config
   k8s_config:
-    k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+    k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
     config_file: 'config.yaml'
   
 ```
@@ -36,7 +36,7 @@ This is a simple module that supports getting config of K8s clusters This module
   
   - name: Get k8s config
   k8s_config:
-    k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+    k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
     config_file: 'config.yaml'
   
 ```
@@ -53,9 +53,9 @@ This is a simple module that supports getting config of K8s clusters This module
   </thead>
   <tbody>
   <tr>
-  <td>k8s_cluster_id<br/><mark style="color:blue;">str</mark></td>
+  <td>k8s_cluster<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The ID of the K8s cluster.</td>
+  <td>The ID or name of the K8s cluster.</td>
   </tr>
   <tr>
   <td>config_file<br/><mark style="color:blue;">str</mark></td>

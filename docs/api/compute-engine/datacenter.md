@@ -1,6 +1,6 @@
 # datacenter
 
-This is a simple module that supports creating or removing vDCs. A vDC is required before you can create servers. This module has a dependency on ionoscloud &gt;= 6.0.2
+This is a simple module that supports creating or removing datacenters. A datacenter is required before you can create servers. This module has a dependency on ionoscloud &gt;= 6.0.2
 
 ## Example Syntax
 
@@ -199,9 +199,9 @@ This is a simple module that supports creating or removing vDCs. A vDC is requir
   <td>The physical location where the datacenter will be created. This will be where all of your servers live. Property cannot be modified after datacenter creation (disallowed in update requests).<br />Options: ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr']</td>
   </tr>
   <tr>
-  <td>do_not_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -365,9 +365,9 @@ This is a simple module that supports creating or removing vDCs. A vDC is requir
   <td>The ID or name of the virtual datacenter.</td>
   </tr>
   <tr>
-  <td>do_not_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>

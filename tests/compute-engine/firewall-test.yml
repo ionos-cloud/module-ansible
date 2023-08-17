@@ -13,6 +13,15 @@
         location: "{{ location }}"
         wait: True
 
+    - name: List Datacenters
+      datacenter_info:
+      register: datacenter_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{datacenter_list_response}}"
+    #     dest: ../../docs/returned_object_examples/datacenter_info.json
+
     - name: Provision server
       server:
          datacenter: "{{ datacenter }}"
@@ -45,7 +54,16 @@
     #   ansible.builtin.copy:
     #     content: "{{ionos_lan}}"
     #     dest: ../../docs/returned_object_examples/lan.json
+          
+    - name: List LANs
+      lan_info:
+         datacenter: "{{ datacenter }}"
+      register: lan_list_response
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{lan_list_response}}"
+    #     dest: ../../docs/returned_object_examples/lan_info.json
 
     - name: Create NIC
       nic:
@@ -64,6 +82,17 @@
     #   ansible.builtin.copy:
     #     content: "{{ionos_cloud_nic}}"
     #     dest: ../../docs/returned_object_examples/nic.json
+          
+    - name: List NICs
+      nic_info:
+         datacenter: "{{ datacenter }}"
+         server: "{{ server }}"
+      register: nic_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nic_list_response}}"
+    #     dest: ../../docs/returned_object_examples/nic_info.json
 
     - name: Create a firewall rule
       firewall_rule:
@@ -83,6 +112,17 @@
     #     content: "{{ionos_firewall_rule}}"
     #     dest: ../../docs/returned_object_examples/firewall_rule.json
 
+    - name: List Firewall Rules
+      firewall_rule_info:
+          datacenter: "{{ datacenter }}"
+          server: "{{ server }}"
+          nic: "{{ nic }}"
+      register: firewall_rule_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{firewall_rule_list_response}}"
+    #     dest: ../../docs/returned_object_examples/firewall_rule_info.json
 
     - name: Update firewall rule
       firewall_rule:

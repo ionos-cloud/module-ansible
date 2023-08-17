@@ -38,6 +38,15 @@
     #     content: "{{result}}"
     #     dest: ../../docs/returned_object_examples/snapshot.json
 
+    - name: List Snapshots
+      snapshot_info:
+      register: snapshot_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{snapshot_list_response}}"
+    #     dest: ../../docs/returned_object_examples/snapshot_info.json
+
     - name: Update snapshot
       snapshot:
         snapshot: "{{ name }}"

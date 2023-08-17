@@ -153,7 +153,7 @@ This is a module that supports creating and destroying Mongo Clusters
   <tr>
   <td>connections<br/><mark style="color:blue;">list</mark></td>
   <td align="center">True</td>
-  <td>Array of VDCs to connect to your cluster.</td>
+  <td>Array of datacenters to connect to your cluster.</td>
   </tr>
   <tr>
   <td>template_id<br/><mark style="color:blue;">str</mark></td>
@@ -171,9 +171,9 @@ This is a module that supports creating and destroying Mongo Clusters
   <td>The name of your cluster.</td>
   </tr>
   <tr>
-  <td>do_not_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -329,7 +329,7 @@ This is a module that supports creating and destroying Mongo Clusters
   <tr>
   <td>connections<br/><mark style="color:blue;">list</mark></td>
   <td align="center">False</td>
-  <td>Array of VDCs to connect to your cluster.</td>
+  <td>Array of datacenters to connect to your cluster.</td>
   </tr>
   <tr>
   <td>template_id<br/><mark style="color:blue;">str</mark></td>
@@ -347,9 +347,9 @@ This is a module that supports creating and destroying Mongo Clusters
   <td>The name of your cluster.</td>
   </tr>
   <tr>
-  <td>do_not_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>

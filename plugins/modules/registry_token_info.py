@@ -21,6 +21,7 @@ __version__, ionoscloud_container_registry.__version__)
 DOC_DIRECTORY = 'container-registry'
 STATES = ['info']
 OBJECT_NAME = 'Registry Tokens'
+RETURNED_KEY = 'registry_tokens'
 
 OPTIONS = {
     'filters': {
@@ -290,7 +291,7 @@ def main():
         )
         tokens = ionoscloud_container_registry.TokensApi(client).registries_tokens_get(registry_id)
         results = list(map(lambda x: x.to_dict(), apply_filters(module, tokens.items)))
-        module.exit_json(result=results)
+        module.exit_json(**{RETURNED_KEY:results})
     except Exception as e:
         module.fail_json(
             msg='failed to retrieve {object_name}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))

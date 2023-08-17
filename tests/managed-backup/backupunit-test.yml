@@ -22,6 +22,15 @@
       debug:
         msg: "{{ create_result }}"
 
+    - name: List backupunits
+      backupunit_info:
+      register: backupunit_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{backupunit_list_response}}"
+    #     dest: ../../docs/returned_object_examples/backupunit_info.json
+
     - name: Recreate backupunit
       backupunit:
         backupunit_email: "{{ email }}"

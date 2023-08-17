@@ -1,13 +1,12 @@
 {
-    "action": "info",
     "changed": false,
     "s3keys": [
         {
             "href": "https://api.ionos.com/cloudapi/v6/um/users/<USER_ID>/s3keys/<ID>",
             "id": "<ID>",
             "metadata": {
-                "created_date": "2023-05-31T13:49:50",
-                "etag": "cdd2e514e040b215f82fcb50888bd2d9"
+                "created_date": "2023-08-03T14:09:10",
+                "etag": "f245addf606d4e505be3ce87c622bf75"
             },
             "properties": {
                 "active": true,
@@ -19,11 +18,11 @@
             "href": "https://api.ionos.com/cloudapi/v6/um/users/<USER_ID>/s3keys/<ID>",
             "id": "<ID>",
             "metadata": {
-                "created_date": "2023-05-31T13:49:52",
-                "etag": "26c5aad97d5bb95cc0c1ed99addde9fe"
+                "created_date": "2023-08-03T14:09:11",
+                "etag": "0c24df8cd19a7e35da34e4f4370f305a"
             },
             "properties": {
-                "active": false,
+                "active": true,
                 "secret_key": "<SECRET_KEY>"
             },
             "type": "s3key"

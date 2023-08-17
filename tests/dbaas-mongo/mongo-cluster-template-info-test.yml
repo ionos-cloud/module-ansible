@@ -14,4 +14,4 @@
 
     # - name: Show Postgres Cluster Templates
     #   debug:
-    #     var: mongo_cluster_templates_response.result
+    #     var: mongo_cluster_templates_response.mongo_cluster_templates
