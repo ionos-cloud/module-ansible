@@ -33,32 +33,32 @@ The update introduces changes in how states will work for the modules:
             - If it exists, delete it.
 ```
 
-### The `do_not_replace` Parameter
+### The allow_replace parameter
 
-The `do_not_replace` parameter defaults to `false`.
+Defaults to `false`
 
-- If set to `false`, the replace behavior is allowed.
-- If set to `true`, when a resource would be replaced, an error will be thrown instead.
+- If set to `true`, the replace behavior is allowed.
+- If set to `false`, when a resource would be replaced, an error will be thrown instead.
 
 ## List of Parameters Triggering Resource Replacement
 
 The following parameters, when changed or set, trigger resource replacement:
 
-| Module             | Replace if Changed                                                                                 | Replace if Set   |
-| :---               | :---              | :---             |
-| backupunit | name                                                                                               | - |
-| certificate | certificate_file, certificate_chain_file                                                           | private_key_file |
-| cube_server | template_uuid, availability_zone                                                                   | - |
-| datacenter | location                                                                                           | - |
-| dataplatform_cluster | datacenter                                                                                         | - |
-| dataplatform_nodepool | name, cpu_family, cores_count, ram_size, availability_zone, storage_type, storage_size             | - |
-| ipblock | size, location                                                                                     | - |
-| k8s_nodepool | name, cpu_family, cores_count, ram_size, availability_zone, storage_type, storage_size, datacenter | - |
-| mongo_cluster | mongo_db_version, location                                                                         | - |
-| postgres_cluster | connections, backup_location, location, synchronization_mode, storage_type                         | - |
-| registry_token | name                                                                                               | - |
-| registry | name, location                                                                                     | - |
-| volume | size, disk_type, availability_zone, licence_type, user_data                                        | - |
+| Module                | Replace if Changed                                                                                 | Replace if Set   |
+|:----------------------|:---------------------------------------------------------------------------------------------------|:-----------------|
+| backupunit            | name                                                                                               | -                |
+| certificate           | certificate_file, certificate_chain_file                                                           | private_key_file |
+| cube_server           | template_uuid, availability_zone                                                                   | -                |
+| datacenter            | location                                                                                           | -                |
+| dataplatform_cluster  | datacenter                                                                                         | -                |
+| dataplatform_nodepool | name, cpu_family, cores_count, ram_size, availability_zone, storage_type, storage_size             | -                |
+| ipblock               | size, location                                                                                     | -                |
+| k8s_nodepool          | name, cpu_family, cores_count, ram_size, availability_zone, storage_type, storage_size, datacenter | -                |
+| mongo_cluster         | mongo_db_version, location                                                                         | -                |
+| postgres_cluster      | connections, backup_location, location, synchronization_mode, storage_type                         | -                |
+| registry_token        | name                                                                                               | -                |
+| registry              | name, location                                                                                     | -                |
+| volume                | size, disk_type, availability_zone, licence_type, user_data                                        | -                |
 
 ## List of Parameter Changes
 
