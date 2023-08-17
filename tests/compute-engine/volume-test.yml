@@ -48,7 +48,7 @@
         nic_hot_unplug: true
         disc_virtio_hot_plug: true
         disc_virtio_hot_unplug: true
-        do_not_replace: true
+        allow_replace: False
         wait_timeout: 600
         wait: true
         state: present
@@ -91,7 +91,7 @@
         nic_hot_unplug: true
         disc_virtio_hot_plug: true
         disc_virtio_hot_unplug: true
-        do_not_replace: true
+        allow_replace: False
         wait_timeout: 600
         wait: true
         state: update

@@ -28,7 +28,7 @@ This is a module that supports creating and destroying Mongo Clusters
       mongo_cluster: backuptest-04
       display_name: backuptest-05
       state: update
-      do_not_replace: true
+      allow_replace: True
       wait: true
     register: cluster_response
   
@@ -289,7 +289,7 @@ This is a module that supports creating and destroying Mongo Clusters
       mongo_cluster: backuptest-04
       display_name: backuptest-05
       state: update
-      do_not_replace: true
+      allow_replace: False
       wait: true
     register: cluster_response
   

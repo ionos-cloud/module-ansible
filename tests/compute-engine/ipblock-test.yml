@@ -14,6 +14,35 @@
         state: present
       register: response
 
+    - name: Create ipblock Update
+      ipblock:
+        name:  "{{ name }}"
+        location: "{{ location }}"
+        size: 2
+        allow_replace: false
+        state: present
+      register: response2
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - response2.changed == false
+        msg: "Changed should be false"
+
+    - name: Create ipblock Update
+      ipblock:
+        name:  "{{ name }}"
+        location: "{{ location }}"
+        allow_replace: false
+        state: present
+      register: response3
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - response3.changed == false
+        msg: "Changed should be false"
+
     # - name: Print output to file
     #   ansible.builtin.copy:
     #     content: "{{response}}"

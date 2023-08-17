@@ -202,7 +202,7 @@ EXAMPLE_PER_STATE = {
       mongo_cluster: backuptest-04
       display_name: backuptest-05
       state: update
-      do_not_replace: true
+      allow_replace: True
       wait: true
     register: cluster_response
   ''',
