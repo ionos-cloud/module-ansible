@@ -107,9 +107,9 @@ def transform_for_documentation(val):
 DOCUMENTATION = '''
 ---
 module: k8s_config
-short_description: Get K8s cluster configs
+short_description: Get K8s cluster config
 description:
-     - This is a simple module that supports getting config of K8s clusters
+     - This is a simple module that supports getting the config of K8s clusters
        This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:

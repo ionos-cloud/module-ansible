@@ -309,7 +309,7 @@ def _get_object_list(module, client):
     )
 
     return ionoscloud.FlowLogsApi(client).datacenters_servers_nics_flowlogs_get(
-        datacenter_id=datacenter_id, server_id=server_id, nic_id=nic_id,
+        datacenter_id=datacenter_id, server_id=server_id, nic_id=nic_id, depth=1
     )
 
 
@@ -390,7 +390,7 @@ def _update_object(module, client, existing_object):
         module.params.get('nic'),
     )
 
-    nic_flowlogs_api = ionoscloud.NetworkInterfacesApi(api_client=client)
+    nic_flowlogs_api = ionoscloud.FlowLogsApi(api_client=client)
 
     flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
 
@@ -426,7 +426,7 @@ def _remove_object(module, client, existing_object):
         module.params.get('nic'),
     )
 
-    nic_flowlogs_api = ionoscloud.NetworkInterfacesApi(api_client=client)
+    nic_flowlogs_api = ionoscloud.FlowLogsApi(api_client=client)
 
     try:
         _, _, headers = nic_flowlogs_api.datacenters_servers_nics_flowlogs_delete_with_http_info(

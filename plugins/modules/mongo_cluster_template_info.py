@@ -175,7 +175,7 @@ def main():
     check_required_arguments(module, OBJECT_NAME)
     try:
         results = []
-        for template in ionoscloud_dbaas_mongo.TemplatesApi(dbaas_mongo_api_client).templates_get().items:
+        for template in ionoscloud_dbaas_mongo.TemplatesApi(dbaas_mongo_api_client).templates_get(depth=1).items:
             results.append(template.to_dict())
         module.exit_json(result=results)
     except Exception as e:

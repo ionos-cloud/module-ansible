@@ -1,6 +1,6 @@
 # k8s_config
 
-This is a simple module that supports getting config of K8s clusters This module has a dependency on ionoscloud &gt;= 6.0.2
+This is a simple module that supports getting the config of K8s clusters This module has a dependency on ionoscloud &gt;= 6.0.2
 
 ## Example Syntax
 
