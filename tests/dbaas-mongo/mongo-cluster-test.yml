@@ -90,7 +90,7 @@
       mongo_cluster: "{{ display_name }}"
       display_name: "{{ display_name_updated }}"
       state: update
-      do_not_replace: true
+      allow_replace: false
       wait: true
     register: cluster_response
 

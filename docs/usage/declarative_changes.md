@@ -25,7 +25,7 @@ The update introduces changes in how states will work for the modules:
     update:
         - Updates the object if no unchangeable properties are modified.
         - Replaces the object if unchangeable properties are modified, creating a new object and removing the old one.
-        - If `do_not_replace` is set to true, the module will fail instead of replacing the object to avoid resource loss.
+        - If `allow_replace` is set to false, the module will fail instead of replacing the object to avoid resource loss.
 
     absent:
         - Looks for the object:

@@ -32,7 +32,7 @@
         name: "{{ datacenter }}"
         description: "{{ description }} CHANGED"
         location: "{{ location }}"
-        do_not_replace: true
+        allow_replace: false
       register: datacenter_response2
   
     - name: Check Update datacenter 1

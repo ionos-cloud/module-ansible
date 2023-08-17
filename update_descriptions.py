@@ -35,7 +35,7 @@ CERTIFICATE_MANAGER_SWAGGER = {
 }
 
 OPTIONS_TO_IGNORE = [
-    'do_not_replace',
+    'allow_replace',
     'api_url',
     'certificate_fingerprint',
     'username',
