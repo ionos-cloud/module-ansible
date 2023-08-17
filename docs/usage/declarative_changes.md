@@ -20,7 +20,7 @@ The update introduces changes in how states will work for the modules:
     present:
         Looks for the object:
             - If it does not exist, create it.
-            - If it already exists, update it.
+            - If it already exists, it will function in the same way as the update state.
 
     update:
         - Updates the object if no unchangeable properties are modified.
