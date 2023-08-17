@@ -23,6 +23,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'user-management'
 STATES = ['info']
 OBJECT_NAME = 'S3 Keys'
+RETURNED_KEY = 's3keys'
 
 OPTIONS = {
     'user': {
@@ -245,9 +246,8 @@ def get_s3keys(module, client):
         s3_keys = user_s3keys_server.um_users_s3keys_get(user_id, depth=depth)
         results = list(map(lambda x: x.to_dict(), apply_filters(module, s3_keys.items)))
         return {
-            'action': 'info',
             'changed': False,
-            's3keys': results
+            RETURNED_KEY: results
         }
 
     except Exception as e:

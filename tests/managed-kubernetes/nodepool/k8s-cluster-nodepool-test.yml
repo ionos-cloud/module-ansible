@@ -51,9 +51,18 @@
     #     content: "{{cluster}}"
     #     dest: ../../../docs/returned_object_examples/k8s_cluster.json
 
+    - name: List Clusters
+      k8s_cluster_info:
+      register: k8s_cluster_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{k8s_cluster_list_response}}"
+    #     dest: ../../../docs/returned_object_examples/k8s_cluster_info.json
+
     - name: Create k8s cluster nodepool
       k8s_nodepool:
-        nodepool_name: "my-nodepool-{{ 100 |random}}"
+        name: "my-nodepool-{{ 100 |random}}"
         k8s_cluster:  "{{ cluster.cluster.id }}"
         datacenter: "{{ datacenter_response.datacenter.id }}"
         node_count: 2
@@ -88,6 +97,16 @@
     - name: Debug - Show nodepool
       debug:
          msg: "{{ result.nodepool }}"
+
+    - name: List Nodepools
+      k8s_nodepool_info:
+        k8s_cluster:  "{{ cluster.cluster.id }}"
+      register: k8s_nodepool_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{k8s_nodepool_list_response}}"
+    #     dest: ../../../docs/returned_object_examples/k8s_nodepool_info.json
 
     - name: Update k8s cluster nodepool
       k8s_nodepool:

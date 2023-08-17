@@ -26,6 +26,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'user-management'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'S3 Key'
+RETURNED_KEY = 's3key'
 
 OPTIONS = {
     'active': {
@@ -269,7 +270,7 @@ def create_s3key(module, client):
             'changed': changed,
             'failed': False,
             'action': 'create',
-            's3key': s3key.to_dict()
+            RETURNED_KEY: s3key.to_dict()
         }
 
     except Exception as e:
@@ -351,7 +352,7 @@ def update_s3key(module, client):
             'changed': changed,
             'failed': False,
             'action': 'update',
-            's3key': s3key.to_dict()
+            RETURNED_KEY: s3key.to_dict()
         }
 
     except Exception as e:

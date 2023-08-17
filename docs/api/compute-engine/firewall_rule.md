@@ -84,7 +84,7 @@ This module allows you to create, update or remove a firewall rule.
             "port_range_start": 22,
             "protocol": "TCP",
             "source_ip": null,
-            "source_mac": "01:23:45:67:89:00",
+            "source_mac": "<MAC>",
             "target_ip": null,
             "type": null
         },

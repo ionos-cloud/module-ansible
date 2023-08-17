@@ -34,6 +34,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update', 'restore']
 OBJECT_NAME = 'Snapshot'
+RETURNED_KEY = 'snapshot'
 
 OPTIONS = {
     'datacenter': {
@@ -334,7 +335,7 @@ def create_snapshot(module, client):
             'changed': False,
             'failed': False,
             'action': 'create',
-            'snapshot': snapshot.to_dict()
+            RETURNED_KEY: snapshot.to_dict()
         }
 
     try:
@@ -351,7 +352,7 @@ def create_snapshot(module, client):
             'changed': True,
             'failed': False,
             'action': 'create',
-            'snapshot': snapshot_response.to_dict()
+            RETURNED_KEY: snapshot_response.to_dict()
         }
 
     except Exception as e:
@@ -404,7 +405,7 @@ def restore_snapshot(module, client):
             'changed': True,
             'failed': False,
             'action': 'restore',
-            'snapshot': snapshot_response
+            RETURNED_KEY: snapshot_response
         }
 
     except Exception as e:
@@ -492,7 +493,7 @@ def update_snapshot(module, client):
             'changed': True,
             'failed': False,
             'action': 'update',
-            'snapshot': snapshot_response.to_dict()
+            RETURNED_KEY: snapshot_response.to_dict()
         }
 
     except Exception as e:
