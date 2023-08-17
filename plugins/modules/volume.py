@@ -231,7 +231,6 @@ OPTIONS = {
 }
 
 IMMUTABLE_OPTIONS = [
-    { "name": "backupunit", "note": "" },
     { "name": "size", "note": "" },
     { "name": "disk_type", "note": "" },
     { "name": "availability_zone", "note": "" },
