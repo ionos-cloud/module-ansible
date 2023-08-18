@@ -15,7 +15,7 @@
     - name: Create Data Platform cluster
       dataplatform_cluster:
         name: "{{ name }}"
-        dataplatform_version: "22.11"
+        dataplatform_version: "23.7"
         datacenter: "{{ datacenter_response.datacenter.id }}"
         maintenance_window:
           day_of_the_week: "Wednesday"
@@ -30,10 +30,65 @@
     #     content: "{{cluster_response}}"
     #     dest: ../../docs/returned_object_examples/dataplatform_cluster.json
 
+    - name: Patch Data Platform cluster no change
+      dataplatform_cluster:
+        name: "{{ name }}"
+        dataplatform_version: "23.7"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+        state: update
+        wait: true
+        wait_timeout: 7200
+      register: cluster_response_nochange
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - cluster_response_nochange.changed == false
+        msg: "Changed should be false"
+
+    - name: Patch Data Platform cluster no change
+      dataplatform_cluster:
+        name: "{{ name }}"
+        dataplatform_version: "23.7"
+        datacenter: "{{ datacenter_response.datacenter.properties.name }}"
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+        state: update
+        allow_replace: False
+        wait: true
+        wait_timeout: 7200
+      register: cluster_response_nochange
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - cluster_response_nochange.changed == false
+        msg: "Changed should be false"
+
+    - name: Patch Data Platform cluster no change
+      dataplatform_cluster:
+        name: "{{ name }}"
+        dataplatform_version: "23.7"
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+        state: update
+        allow_replace: False
+        wait: true
+        wait_timeout: 7200
+      register: cluster_response_nochange
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - cluster_response_nochange.changed == false
+        msg: "Changed should be false"
+
     - name: Patch Data Platform cluster
       dataplatform_cluster:
         name: "{{ name }}"
-        dataplatform_version: "22.11"
+        dataplatform_version: "23.7"
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         maintenance_window:
           day_of_the_week: "Wednesday"
@@ -90,6 +145,65 @@
     #   ansible.builtin.copy:
     #     content: "{{result}}"
     #     dest: ../../docs/returned_object_examples/dataplatform_nodepool.json
+
+    - name: Update DataPlatform cluster nodepool no change
+      dataplatform_nodepool:
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
+        nodepool: "{{ result.dataplatform_nodepool.properties.name }}"
+        name: "my-nodepool"
+        node_count: 2
+        cpu_family: "INTEL_SKYLAKE"
+        cores_count: 1
+        ram_size: 2048
+        availability_zone: "AUTO"
+        storage_type: "HDD"
+        storage_size: "100"
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+        labels:
+          foo: bar
+          color: red
+          size: "10"
+        annotations:
+          ann1: value1
+          ann2: value2
+        allow_replace: False
+        wait: true
+        wait_timeout: 7200
+        state: update
+      register: result_nochange
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - result_nochange.changed == false
+        msg: "Changed should be false"
+
+    - name: Update DataPlatform cluster nodepool no change 2
+      dataplatform_nodepool:
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
+        nodepool: "{{ result.dataplatform_nodepool.properties.name }}"
+        node_count: 2
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+        labels:
+          foo: bar
+          color: red
+          size: "10"
+        annotations:
+          ann1: value1
+          ann2: value2
+        allow_replace: False
+        wait: true
+        wait_timeout: 7200
+        state: update
+      register: result_nochange
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - result_nochange.changed == false
+        msg: "Changed should be false"
 
     - name: Update DataPlatform cluster nodepool
       dataplatform_nodepool:
