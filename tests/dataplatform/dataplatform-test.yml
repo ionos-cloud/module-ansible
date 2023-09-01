@@ -35,9 +35,6 @@
         name: "{{ name }}"
         dataplatform_version: "23.7"
         datacenter: "{{ datacenter_response.datacenter.id }}"
-        maintenance_window:
-          day_of_the_week: "Wednesday"
-        state: update
         wait: true
         wait_timeout: 7200
       register: cluster_response_nochange
@@ -53,9 +50,6 @@
         name: "{{ name }}"
         dataplatform_version: "23.7"
         datacenter: "{{ datacenter_response.datacenter.properties.name }}"
-        maintenance_window:
-          day_of_the_week: "Wednesday"
-        state: update
         allow_replace: False
         wait: true
         wait_timeout: 7200
@@ -69,12 +63,13 @@
 
     - name: Patch Data Platform cluster no change
       dataplatform_cluster:
-        name: "{{ name }}"
+        cluster: "{{ name }}"
         dataplatform_version: "23.7"
+        allow_replace: False
         maintenance_window:
           day_of_the_week: "Wednesday"
+          time: "12:02:00"
         state: update
-        allow_replace: False
         wait: true
         wait_timeout: 7200
       register: cluster_response_nochange
@@ -188,6 +183,7 @@
         storage_size: "100"
         maintenance_window:
           day_of_the_week: "Wednesday"
+          time: "12:02:00"
         labels:
           foo: bar
           color: red
@@ -214,6 +210,7 @@
         node_count: 2
         maintenance_window:
           day_of_the_week: "Wednesday"
+          time: "12:02:00"
         labels:
           foo: bar
           color: red
