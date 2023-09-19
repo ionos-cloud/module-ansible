@@ -231,12 +231,14 @@ OPTIONS = {
 }
 
 IMMUTABLE_OPTIONS = [
-    { "name": "backupunit", "note": "" },
     { "name": "size", "note": "" },
     { "name": "disk_type", "note": "" },
     { "name": "availability_zone", "note": "" },
     { "name": "licence_type", "note": "" },
-    { "name": "user_data", "note": "" },
+    {
+        "name": "user_data",
+        "note": "Might trigger replace just by being set as this parameter is retrieved from the API as the image ID, so when using an alias it will always cause a resource replacement!",
+    },
     {
         "name": "image",
         "note": "Might trigger replace just by being set as this parameter is retrieved from the API as the image ID, so when using an alias it will always cause a resource replacement!",
@@ -407,7 +409,6 @@ def _should_replace_object(module, existing_object, client):
         or backupunit_id is not None
         and existing_object.properties.backupunit_id != backupunit_id
         or module.params.get('user_data') is not None
-        and existing_object.properties.user_data != module.params.get('user_data')
         or module.params.get('image_password') is not None
         or module.params.get('ssh_keys') is not None
     )

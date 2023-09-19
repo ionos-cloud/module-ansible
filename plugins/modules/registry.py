@@ -235,7 +235,7 @@ def _should_update_object(module, existing_object):
         gc_schedule is not None
         and (
             gc_schedule.get('days') is not None
-            and existing_object.properties.garbage_collection_schedule.days != gc_schedule.get('days')
+            and sorted(existing_object.properties.garbage_collection_schedule.days) != sorted(gc_schedule.get('days'))
             or gc_schedule.get('time') is not None
             and existing_object.properties.garbage_collection_schedule.time != gc_schedule.get('time')
         )

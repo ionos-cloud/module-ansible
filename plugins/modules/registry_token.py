@@ -268,6 +268,9 @@ def _should_update_object(module, existing_object):
             existing_object.properties.scopes
         ), key=sort_func)
         new_scopes = sorted(module.params.get('scopes'), key=sort_func)
+        for new_scope in new_scopes:
+            if new_scope.get('actions'):
+                new_scope['actions'] = sorted(new_scope['actions'])
 
     return (
         module.params.get('expiry_date') is not None

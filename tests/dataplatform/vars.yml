@@ -1,4 +1,4 @@
-name: "AnsibleAutoTestDataPlatform3"
+name: "AnsibleAutoTestDataPlatform"
 datacenter: "AnsibleAutoTestDataPlatform"
 description: Ansible test description
 server: "AnsibleAutoTestDataPlatform"
