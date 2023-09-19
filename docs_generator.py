@@ -154,6 +154,7 @@ modules_to_generate = [
     'share',
     'user_info',
     'user',
+    'vcpu_server',
     'dataplatform_cluster',
     'dataplatform_cluster_config',
     'dataplatform_cluster_info',
