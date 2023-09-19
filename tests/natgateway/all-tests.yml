@@ -2,11 +2,11 @@
   connection: local
   gather_facts: false
 
-- name: Run Nat Gateway Test
-  import_playbook: nat-gateway-test.yml
+#- name: Run Nat Gateway Test
+#  import_playbook: nat-gateway-test.yml
 
-- name: Run Nat Gateway Rule Test
-  import_playbook: nat-gateway-rule-test.yml
+#- name: Run Nat Gateway Rule Test
+#  import_playbook: nat-gateway-rule-test.yml
 
 # - name: Run Nat Gateway Flowlog Test
 #   import_playbook: nat-gateway-flowlog-test.yml

@@ -252,6 +252,19 @@ def get_resource(module, resource_list, identity, identity_paths=None):
     else:
         return None
 
+def get_users(client):
+    all_users = ionoscloud.Users(items=[])
+    offset = 0
+    limit = 100
+
+    users = client.um_users_get(depth=2, limit=limit, offset=offset)
+    all_users.items += users.items
+    while(users.links.next is not None):
+        offset += limit
+        users = client.um_users_get(depth=2, limit=limit, offset=offset)
+        all_users.items += users.items
+
+    return all_users
 
 def get_resource_id(module, resource_list, identity, identity_paths=None):
     resource = get_resource(module, resource_list, identity, identity_paths)

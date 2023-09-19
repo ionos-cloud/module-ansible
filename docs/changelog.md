@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.5.2
+### Fixes
+* Fixed error when exceeding maximum users per page
+
 ## 6.5.1
 ### Features
 * New licenceType supported for `snapshot` and `volume` modules: `RHEL`
