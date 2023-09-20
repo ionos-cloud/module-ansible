@@ -349,13 +349,13 @@ def _should_update_object(module, existing_object):
         and existing_object.properties.algorithm != module.params.get('algorithm')
         or module.params.get('protocol') is not None
         and existing_object.properties.protocol != module.params.get('protocol')
-        or module.params.get('health_check') is not None
+        or new_health_check is not None
         and (
             existing_object.properties.health_check.check_timeout != new_health_check.check_timeout
             or existing_object.properties.health_check.check_interval != new_health_check.check_interval
             or existing_object.properties.health_check.retries != new_health_check.retries
         )
-        or module.params.get('http_health_check') is not None
+        or new_http_health_check is not None
         and (
             existing_object.properties.http_health_check.path != new_http_health_check.path
             or existing_object.properties.http_health_check.method != new_http_health_check.method
