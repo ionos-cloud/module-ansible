@@ -429,6 +429,7 @@ def update_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
@@ -451,6 +452,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

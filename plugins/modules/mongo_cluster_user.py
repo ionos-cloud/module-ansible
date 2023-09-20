@@ -407,6 +407,7 @@ def update_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     return update_replace_object(module, client, existing_object)
 
@@ -419,6 +420,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

@@ -342,6 +342,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 
