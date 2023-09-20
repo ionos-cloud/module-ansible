@@ -8,7 +8,6 @@ from ansible.module_utils._text import to_native
 import re
 
 HAS_SDK = True
-import ionoscloud_dbaas_postgres
 try:
     import ionoscloud
     import ionoscloud_dbaas_postgres
