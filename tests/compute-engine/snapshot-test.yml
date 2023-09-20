@@ -20,6 +20,7 @@
         name: "{{ name }}"
         count: 1
         size: 20
+        disk_type: HDD
         image: "{{ image_alias }}"
         image_password: "{{ password }}"
         availability_zone: ZONE_3
