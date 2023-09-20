@@ -19,6 +19,7 @@
         datacenter: "{{ datacenter }}"
         name: "{{ name }}"
         count: 1
+        size: 20
         image: "{{ image_alias }}"
         image_password: "{{ password }}"
         availability_zone: ZONE_3
