@@ -161,6 +161,11 @@ This module allows you to create, update or remove a NIC.
   <td>Indicates if the NIC will reserve an IP using DHCP.</td>
   </tr>
   <tr>
+  <td>dhcpv6<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>[The IPv6 feature is in beta phase and not ready for production usage.] Indicates if the NIC will reserve an IPv6 using DHCP. It can be set to 'true' or 'false' only if this NIC is connected to an IPv6-enabled LAN.</td>
+  </tr>
+  <tr>
   <td>firewall_active<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
   <td>Activate or deactivate the firewall. By default, an active firewall without any defined rules will block all incoming network traffic except for the firewall rules that explicitly allows certain protocols, IP addresses and ports.</td>
@@ -169,6 +174,16 @@ This module allows you to create, update or remove a NIC.
   <td>ips<br/><mark style="color:blue;">list</mark></td>
   <td align="center">False</td>
   <td>Collection of IP addresses, assigned to the NIC. Explicitly assigned public IPs need to come from reserved IP blocks. Passing value null or empty array will assign an IP address automatically.</td>
+  </tr>
+  <tr>
+  <td>ipv6_ips<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>[The IPv6 feature is in beta phase and not ready for production usage.] The IPv6 IP addresses if this NIC is connected to an IPv6-enabled LAN. The maximum number of IPv6 IP addresses per NIC is 50. If you leave this 'null' when adding a NIC, when changing the NIC's IPv6 CIDR block, or when moving the NIC to a different IPv6-enabled LAN, we will automatically assign the new IPv6 CIDR block's first IP address to this NIC. If you leave this 'null' while not changing the CIDR block, the IPv6 IP addresses won't be changed either. You can also provide your own self choosen IPv6 addresses, which then must be inside the IPv6 CIDR block of this NIC.</td>
+  </tr>
+  <tr>
+  <td>ipv6_cidr<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>[The IPv6 feature is in beta phase and not ready for production usage.] The /80 IPv6 CIDR block if this NIC is connected to an IPv6-enabled LAN. If you leave this 'null' when adding a NIC to an IPv6-enabled LAN, an IPv6 block will be automatically assigned to the NIC, but you can also specify an /80 IPv6 CIDR block for the NIC on your own, which then must be inside the IPv6 CIDR block of the LAN. An IPv6-enabled LAN is limited to a maximum of 65,536 NICs.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
@@ -363,6 +378,11 @@ This module allows you to create, update or remove a NIC.
   <td>Indicates if the NIC will reserve an IP using DHCP.</td>
   </tr>
   <tr>
+  <td>dhcpv6<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>[The IPv6 feature is in beta phase and not ready for production usage.] Indicates if the NIC will reserve an IPv6 using DHCP. It can be set to 'true' or 'false' only if this NIC is connected to an IPv6-enabled LAN.</td>
+  </tr>
+  <tr>
   <td>firewall_active<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
   <td>Activate or deactivate the firewall. By default, an active firewall without any defined rules will block all incoming network traffic except for the firewall rules that explicitly allows certain protocols, IP addresses and ports.</td>
@@ -371,6 +391,16 @@ This module allows you to create, update or remove a NIC.
   <td>ips<br/><mark style="color:blue;">list</mark></td>
   <td align="center">False</td>
   <td>Collection of IP addresses, assigned to the NIC. Explicitly assigned public IPs need to come from reserved IP blocks. Passing value null or empty array will assign an IP address automatically.</td>
+  </tr>
+  <tr>
+  <td>ipv6_ips<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>[The IPv6 feature is in beta phase and not ready for production usage.] The IPv6 IP addresses if this NIC is connected to an IPv6-enabled LAN. The maximum number of IPv6 IP addresses per NIC is 50. If you leave this 'null' when adding a NIC, when changing the NIC's IPv6 CIDR block, or when moving the NIC to a different IPv6-enabled LAN, we will automatically assign the new IPv6 CIDR block's first IP address to this NIC. If you leave this 'null' while not changing the CIDR block, the IPv6 IP addresses won't be changed either. You can also provide your own self choosen IPv6 addresses, which then must be inside the IPv6 CIDR block of this NIC.</td>
+  </tr>
+  <tr>
+  <td>ipv6_cidr<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>[The IPv6 feature is in beta phase and not ready for production usage.] The /80 IPv6 CIDR block if this NIC is connected to an IPv6-enabled LAN. If you leave this 'null' when adding a NIC to an IPv6-enabled LAN, an IPv6 block will be automatically assigned to the NIC, but you can also specify an /80 IPv6 CIDR block for the NIC on your own, which then must be inside the IPv6 CIDR block of the LAN. An IPv6-enabled LAN is limited to a maximum of 65,536 NICs.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>

@@ -1,0 +1,105 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+    - name: Create datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        description: "{{ description }}"
+        location: es/vit
+        wait: true
+      register: datacenter_response
+
+    - name: Debug - Show Datacenter
+      debug:
+        msg: "{{ datacenter_response }}"
+
+    - name: Create LAN
+      lan:
+        datacenter: "{{ datacenter }}"
+        name: "{{ lan }}"
+        public: true
+        ipv6_cidr: "{{ datacenter_response.datacenter.properties.ipv6_cidr_block | replace('/56', '/64') }}"
+      register: ionos_cloud_lan
+
+    - name: Debug - Show LAN
+      debug:
+        msg: "{{ ionos_cloud_lan }}"
+
+    - name: Provision server
+      server:
+         datacenter: "{{ datacenter }}"
+         name: "{{ server }}"
+         cores: 1
+         ram: 2048
+         volume_size: 20
+         image: "{{ image_alias }}"
+         image_password: "{{ password }}"
+         location: "{{ location }}"
+         remove_boot_volume: true
+         cpu_family: "INTEL_SKYLAKE"
+         wait: true
+         wait_timeout: "{{ wait_timeout }}"
+         state: present
+      register: ionos_cloud
+
+    - name: Create NIC
+      nic:
+       name: "{{ nic }}"
+       datacenter: "{{ datacenter }}"
+       server: "{{ server }}"
+       lan: 1
+       dhcpv6: true
+       firewall_active: true
+       ipv6_cidr: "{{ datacenter_response.datacenter.properties.ipv6_cidr_block | replace('/56', '/80') }}"
+       ipv6_ips:
+         - "{{ datacenter_response.datacenter.properties.ipv6_cidr_block | replace('/56', '1') }}"
+         - "{{ datacenter_response.datacenter.properties.ipv6_cidr_block | replace('/56', '3') }}"
+       wait: true
+       wait_timeout: "{{ wait_timeout }}"
+       state: present
+      register: ionos_cloud_nic
+
+    - name: Debug - Show NIC
+      debug:
+         msg: "{{ ionos_cloud_nic }}"
+
+    - name: Create a firewall rule
+      firewall_rule:
+          datacenter: "{{ datacenter }}"
+          server: "{{ server }}"
+          nic: "{{ nic }}"
+          name: "SSH"
+          protocol: "ICMPv6"
+          source_mac: "01:23:45:67:89:00"
+          ip_version: IPv6
+          state: present
+
+    - name: Remove firewall rule
+      firewall_rule:
+         datacenter: "{{ datacenter }}"
+         server: "{{ server }}"
+         nic: "{{ nic }}"
+         firewall_rule: "SSH"
+         wait: true
+         wait_timeout: "{{ wait_timeout }}"
+         state: absent
+
+    - name: Remove NIC
+      nic:
+         nic: "{{ ionos_cloud_nic.nic.id }}"
+         datacenter: "{{ datacenter }}"
+         server: "{{ server }}"
+         wait: true
+         wait_timeout: "{{ wait_timeout }}"
+         state: absent
+
+    - name: Remove datacenter
+      datacenter:
+        datacenter: "{{ datacenter }}"
+        state: absent
+        wait: true

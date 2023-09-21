@@ -112,6 +112,18 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'int',
     },
+    'ip_version': {
+        'description': [
+            'The IP version for this rule. If sourceIp or targetIp are specified, you can omit this '
+            'value - the IP version will then be deduced from the IP address(es) used; if you specify '
+            'it anyway, it must match the specified IP address(es). If neither sourceIp nor targetIp '
+            'are specified, this rule allows traffic only for the specified IP version. If neither '
+            'sourceIp, targetIp nor ipVersion are specified, this rule will only allow IPv4 traffic.',
+        ],
+        'available': ['present', 'update'],
+        'choices': ['IPv4', 'IPv6'],
+        'type': 'str',
+    },
     'allow_replace': {
         'description': [
             'Boolean indincating if the resource should be recreated when the state cannot be reached in '
@@ -331,6 +343,8 @@ def _should_update_object(module, existing_object):
         and existing_object.properties.icmp_type != module.params.get('icmp_type')
         or module.params.get('icmp_code') is not None
         and existing_object.properties.icmp_code != module.params.get('icmp_code')
+        or module.params.get('ip_version') is not None
+        and existing_object.properties.ip_version != module.params.get('ip_version')
     )
 
 
@@ -378,6 +392,7 @@ def _create_object(module, client, existing_object=None):
     port_range_end = module.params.get('port_range_end')
     icmp_type = module.params.get('icmp_type')
     icmp_code = module.params.get('icmp_code')
+    ip_version = module.params.get('ip_version')
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
         protocol = existing_object.properties.protocol if protocol is None else protocol
@@ -388,6 +403,7 @@ def _create_object(module, client, existing_object=None):
         port_range_end = existing_object.properties.port_range_end if port_range_end is None else port_range_end
         icmp_type = existing_object.properties.icmp_type if icmp_type is None else icmp_type
         icmp_code = existing_object.properties.icmp_code if icmp_code is None else icmp_code
+        ip_version = existing_object.properties.ip_version if ip_version is None else ip_version
 
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
@@ -408,12 +424,10 @@ def _create_object(module, client, existing_object=None):
 
     firewall_rule = FirewallRule(properties=FirewallruleProperties(
         name=name, protocol=protocol, source_mac=source_mac,
-        source_ip=source_ip,
+        source_ip=source_ip, ip_version=ip_version,
         target_ip=target_ip, icmp_code=icmp_code, icmp_type=icmp_type,
-        port_range_start=port_range_start,
-        port_range_end=port_range_end,
+        port_range_start=port_range_start, port_range_end=port_range_end,
     ))
-
 
     try:
         current_nic = nic_api.datacenters_servers_nics_find_by_id(
@@ -450,6 +464,7 @@ def _update_object(module, client, existing_object):
     port_range_end = module.params.get('port_range_end')
     icmp_type = module.params.get('icmp_type')
     icmp_code = module.params.get('icmp_code')
+    ip_version = module.params.get('ip_version')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
@@ -472,6 +487,7 @@ def _update_object(module, client, existing_object):
         source_mac=source_mac,
         source_ip=source_ip,
         target_ip=target_ip,
+        ip_version=ip_version,
     )
 
     if port_range_start or port_range_end:
