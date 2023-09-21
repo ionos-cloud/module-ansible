@@ -148,6 +148,7 @@ jobs:
       - name: Setup pip, virtualenv, ionoscloud
         run: |
           python3 -m pip install --upgrade pip
+          python3 -m pip install pydantic
           python3 -m pip install ionoscloud
           python3 -m pip install ionoscloud-cert-manager
           python3 -m pip install ionoscloud-dbaas-postgres

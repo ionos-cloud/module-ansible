@@ -32,7 +32,7 @@
         name: "{{ datacenter }}"
         description: "{{ description }} CHANGED"
         location: "{{ location }}"
-        do_not_replace: true
+        allow_replace: false
       register: datacenter_response2
   
     - name: Check Update datacenter 1
@@ -44,10 +44,46 @@
           - datacenter_response2.datacenter.properties.location == location
         success_msg: "Datacenter updated successfully"
 
+    - name: Update datacenter no change 1
+      datacenter:
+        name: "{{ datacenter }}"
+        description: "{{ description }} CHANGED"
+        location: "{{ location }}"
+        allow_replace: false
+      register: datacenter_response_no_change1
+  
+    - name: Check Update datacenter no change 1
+      ansible.builtin.assert:
+        that:
+          - datacenter_response_no_change1.datacenter.id == datacenter_response.datacenter.id
+          - datacenter_response_no_change1.datacenter.properties.name == datacenter
+          - datacenter_response_no_change1.datacenter.properties.description == description + ' CHANGED'
+          - datacenter_response_no_change1.datacenter.properties.location == location
+          - datacenter_response_no_change1.changed == false
+
+    - name: Update datacenter no change 1
+      datacenter:
+        datacenter: "{{ datacenter }}"
+        name: "{{ datacenter }}"
+        description: "{{ description }} CHANGED"
+        state: update
+        allow_replace: false
+      register: datacenter_response_no_change2
+  
+    - name: Check Update datacenter no change 2
+      ansible.builtin.assert:
+        that:
+          - datacenter_response_no_change2.datacenter.id == datacenter_response.datacenter.id
+          - datacenter_response_no_change2.datacenter.properties.name == datacenter
+          - datacenter_response_no_change2.datacenter.properties.description == description + ' CHANGED'
+          - datacenter_response_no_change2.datacenter.properties.location == location
+          - datacenter_response_no_change2.changed == false
+
     - name: Replace datacenter
       datacenter:
         name: "{{ datacenter }}"
         location: "{{ new_location }}"
+        allow_replace: True
       register: replaced_datacenter1
   
     - name: Check Replace datacenter

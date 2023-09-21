@@ -42,17 +42,26 @@
     #     content: "{{certificates_response}}"
     #     dest: ../../docs/returned_object_examples/certificate_info.json
 
-    - name: Create Certificate
+    - name: Create Certificate no change
       certificate:
+        state: update
+        certificate: "{{ certificate.certificate.id }}"
         certificate_name: "{{ certificate_name }}"
         certificate_file: "{{ certificate_path }}"
-        private_key_file: "{{ certificate_key_path }}"
-      register: certificate
+        allow_replace: False
+      register: certificatenochange
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - certificatenochange.changed == false
+        msg: "Changed should be false"
 
     - name: Update Certificate
       certificate:
         certificate: "{{ certificate.certificate.id }}"
         certificate_name: "{{ certificate_updated_name }}"
+        allow_replace: False
         state: update
       register: updated_certificate
 

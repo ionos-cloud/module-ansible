@@ -7,6 +7,12 @@
       postgres_backup_info:
       register: postgres_backup_response
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{postgres_backup_response}}"
+    #     dest: ../../docs/returned_object_examples/postgres_backup_info.json
+
+
     # - name: Show Postgres Cluster Backups
     #   debug:
-    #     var: postgres_backup_response.result
+    #     var: postgres_backup_response.postgres_backups

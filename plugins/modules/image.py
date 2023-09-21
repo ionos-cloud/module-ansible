@@ -26,6 +26,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['absent', 'update']
 OBJECT_NAME = 'Image'
+RETURNED_KEY = 'image'
 
 
 OPTIONS = {
@@ -359,7 +360,7 @@ def update_image(module, client):
         'changed': changed,
         'failed': False,
         'action': 'update',
-        'image': image_response.to_dict()
+        RETURNED_KEY: image_response.to_dict()
     }
 
 

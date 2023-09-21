@@ -52,9 +52,9 @@ OPTIONS = {
         'available': ['present'],
         'type': 'str',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
             'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
@@ -115,6 +115,15 @@ OPTIONS = {
         'type': 'str',
     },
 }
+
+IMMUTABLE_OPTIONS = [
+    { "name": "name", "note": "" },
+    { "name": "backupunit_email", "note": "" },
+    {
+        "name": "backupunit_password",
+        "note": "Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!",
+    },
+]
 
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES) 
@@ -219,15 +228,13 @@ def _should_replace_object(module, existing_object):
     return (
         module.params.get('name') is not None
         and existing_object.properties.name != module.params.get('name')
-    )
-
-def _should_update_object(module, existing_object):
-    return (
-        module.params.get('backupunit_password') is not None
-        and existing_object.properties.password != module.params.get('backupunit_password')
+        or module.params.get('backupunit_password') is not None
         or module.params.get('backupunit_email') is not None
         and existing_object.properties.email != module.params.get('backupunit_email')
     )
+
+def _should_update_object(module, existing_object):
+    return False
 
 
 def _get_object_list(module, client):
@@ -269,26 +276,7 @@ def _create_object(module, client, existing_object=None):
 
 
 def _update_object(module, client, existing_object):
-    password = module.params.get('backupunit_password')
-    email = module.params.get('backupunit_email')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-
-    backupunits_api = ionoscloud.BackupUnitsApi(client)
-
-    backupunit_properties = BackupUnitProperties(password=password, email=email)
-
-    try:
-        backupunit_response, _, headers = backupunits_api.backupunits_patch_with_http_info(
-            existing_object.id, backupunit_properties,
-        )
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-        return backupunit_response
-    except ApiException as e:
-        module.fail_json(msg="failed to update the backupunit: %s" % to_native(e))
+    pass
 
 
 def _remove_object(module, client, existing_object):
@@ -309,8 +297,8 @@ def _remove_object(module, client, existing_object):
 def update_replace_object(module, client, existing_object):
     if _should_replace_object(module, existing_object):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -360,6 +348,7 @@ def update_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
@@ -382,6 +371,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

@@ -73,6 +73,18 @@
     #     content: "{{flowlog_response}}"
     #     dest: ../../docs/returned_object_examples/nic_flowlog.json
 
+    - name: List NIC Flowlogs
+      nic_flowlog_info:
+          datacenter: "{{ datacenter }}"
+          server: "{{ server }}"
+          nic: "{{ nic }}"
+      register: nic_flowlog_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nic_flowlog_list_response}}"
+    #     dest: ../../docs/returned_object_examples/nic_flowlog_info.json
+
     - name: Update a nic flowlog
       nic_flowlog:
         name: "{{ name }}"
@@ -83,13 +95,12 @@
         server: "{{ server_response.machines[0].id }}"
         nic: "{{ nic_response.nic.id }}"
         flowlog: "{{ flowlog_response.flowlog.id }}"
+        state: update
       register: flowlog_update_response
-
 
     - name: Debug - Show Updated Flowlog
       debug:
         msg: "{{ flowlog_update_response }}"
-
 
     - name: Delete a nic flowlog
       nic_flowlog:
@@ -134,7 +145,6 @@
          remove_boot_volume: yes
          wait_timeout: "{{ wait_timeout }}"
          state: absent
-
 
     - name: Remove datacenter
       datacenter:

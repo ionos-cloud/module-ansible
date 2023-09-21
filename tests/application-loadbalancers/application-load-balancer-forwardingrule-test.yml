@@ -45,6 +45,16 @@
     #     content: "{{alb_response}}"
     #     dest: ../../docs/returned_object_examples/application_load_balancer.json
 
+    - name: List Application Load Balancers
+      application_load_balancer_info:
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+      register: alb_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{alb_list_response}}"
+    #     dest: ../../docs/returned_object_examples/application_load_balancer_info.json
+
     - name: Debug - Show Application Load Balancer
       debug:
          msg: "{{ alb_response }}"
@@ -74,6 +84,17 @@
     #   ansible.builtin.copy:
     #     content: "{{alb_forwarding_rule_response}}"
     #     dest: ../../docs/returned_object_examples/application_load_balancer_forwardingrule.json
+
+    - name: List Application Load Balancer Forwarding rules
+      application_load_balancer_forwardingrule_info:
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
+      register: alb_forwardingrule_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{alb_forwardingrule_list_response}}"
+    #     dest: ../../docs/returned_object_examples/application_load_balancer_forwardingrule_info.json
 
     - name: Debug - Show Application Load Balancer Forwarding Rule
       debug:

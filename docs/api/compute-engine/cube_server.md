@@ -230,6 +230,10 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 
 &nbsp;
 
+ **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
+## Parameters that can trigger a resource replacement:
+  * template_uuid 
+  * availability_zone 
 &nbsp;
 
 # state: **resume**
@@ -248,17 +252,62 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 ### Available parameters for state **resume**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>datacenter<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The datacenter to provision this virtual machine.</td>
+  </tr>
+  <tr>
+  <td>instance_ids<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>list of instance ids. Should only contain one ID if renaming in update state<br />Default: </td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['resume', 'suspend', 'absent', 'present', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 
@@ -279,17 +328,62 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 ### Available parameters for state **suspend**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>datacenter<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The datacenter to provision this virtual machine.</td>
+  </tr>
+  <tr>
+  <td>instance_ids<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>list of instance ids. Should only contain one ID if renaming in update state<br />Default: </td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['resume', 'suspend', 'absent', 'present', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 
@@ -310,18 +404,67 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 ### Available parameters for state **absent**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the  resource. |
-  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The name of the  resource.</td>
+  </tr>
+  <tr>
+  <td>datacenter<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The datacenter to provision this virtual machine.</td>
+  </tr>
+  <tr>
+  <td>instance_ids<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>list of instance ids. Should only contain one ID if renaming in update state<br />Default: </td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['resume', 'suspend', 'absent', 'present', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 
@@ -342,35 +485,152 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 ### Available parameters for state **present**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The name of the  resource. |
-  | assign_public_ip | False | bool | False | This will assign the machine to the public LAN. If no LAN exists with public Internet access it is created. |
-  | image | True | str |  | The image alias or ID for creating the virtual machine. |
-  | image_password | False | str |  | Password set for the administrative user. |
-  | ssh_keys | False | list |  | Public SSH keys allowing access to the virtual machine. |
-  | user_data | False | str |  | The cloud-init configuration for the volume as base64 encoded string. |
-  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | availability_zone | False | str | AUTO | The availability zone in which the server should be provisioned. |
-  | bus | False | str | VIRTIO | The bus type for the volume. |
-  | count | False | int | 1 | The number of virtual machines to create. |
-  | location | False | str | us/las | The datacenter location. Use only if you want to create the Datacenter or else this value is ignored. |
-  | lan | False | str |  | The ID or name of the LAN you wish to add the servers to (can be a string or a number). |
-  | nat | False | bool | False | Boolean value indicating if the private IP address has outbound access to the public Internet. |
-  | remove_boot_volume | False | bool | True | Remove the bootVolume of the virtual machine you're destroying. |
-  | disk_type | False | str | HDD | The disk type for the volume. |
-  | nic_ips | False | list |  | The list of IPS for the NIC. |
-  | template_uuid | False | str |  | The ID of the template for creating a CUBE server; the available templates for CUBE servers can be found on the templates resource. |
-  | boot_volume | False | str |  | The volume used for boot. |
-  | boot_cdrom | False | str |  | The CDROM used for boot. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The name of the  resource.</td>
+  </tr>
+  <tr>
+  <td>assign_public_ip<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>This will assign the machine to the public LAN. If no LAN exists with public Internet access it is created.<br />Default: False<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>image<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The image alias or ID for creating the virtual machine.</td>
+  </tr>
+  <tr>
+  <td>image_password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Password set for the administrative user.</td>
+  </tr>
+  <tr>
+  <td>ssh_keys<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>Public SSH keys allowing access to the virtual machine.<br />Default: </td>
+  </tr>
+  <tr>
+  <td>user_data<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The cloud-init configuration for the volume as base64 encoded string.</td>
+  </tr>
+  <tr>
+  <td>datacenter<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The datacenter to provision this virtual machine.</td>
+  </tr>
+  <tr>
+  <td>availability_zone<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The availability zone in which the server should be provisioned.<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2']</td>
+  </tr>
+  <tr>
+  <td>bus<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The bus type for the volume.<br />Default: VIRTIO<br />Options: ['IDE', 'VIRTIO']</td>
+  </tr>
+  <tr>
+  <td>count<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>The number of virtual machines to create.<br />Default: 1</td>
+  </tr>
+  <tr>
+  <td>location<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.<br />Default: us/las<br />Options: ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr']</td>
+  </tr>
+  <tr>
+  <td>lan<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The ID or name of the LAN you wish to add the servers to (can be a string or a number).</td>
+  </tr>
+  <tr>
+  <td>nat<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Boolean value indicating if the private IP address has outbound access to the public Internet.<br />Default: False<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>remove_boot_volume<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Remove the bootVolume of the virtual machine you're destroying.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>disk_type<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The disk type for the volume.<br />Default: HDD<br />Options: ['HDD', 'SSD', 'SSD Standard', 'SSD Premium', 'DAS']</td>
+  </tr>
+  <tr>
+  <td>nic_ips<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>The list of IPS for the NIC.</td>
+  </tr>
+  <tr>
+  <td>template_uuid<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The ID of the template for creating a CUBE server; the available templates for CUBE servers can be found on the templates resource.</td>
+  </tr>
+  <tr>
+  <td>boot_volume<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The volume used for boot.</td>
+  </tr>
+  <tr>
+  <td>boot_cdrom<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The CDROM used for boot.</td>
+  </tr>
+  <tr>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['resume', 'suspend', 'absent', 'present', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 
@@ -397,21 +657,82 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 ### Available parameters for state **update**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The name of the  resource. |
-  | datacenter | True | str |  | The datacenter to provision this virtual machine. |
-  | instance_ids | False | list |  | list of instance ids. Should only contain one ID if renaming in update state |
-  | boot_volume | False | str |  | The volume used for boot. |
-  | boot_cdrom | False | str |  | The CDROM used for boot. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The name of the  resource.</td>
+  </tr>
+  <tr>
+  <td>datacenter<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The datacenter to provision this virtual machine.</td>
+  </tr>
+  <tr>
+  <td>instance_ids<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>list of instance ids. Should only contain one ID if renaming in update state<br />Default: </td>
+  </tr>
+  <tr>
+  <td>boot_volume<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The volume used for boot.</td>
+  </tr>
+  <tr>
+  <td>boot_cdrom<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The CDROM used for boot.</td>
+  </tr>
+  <tr>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['resume', 'suspend', 'absent', 'present', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 

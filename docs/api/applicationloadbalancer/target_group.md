@@ -144,23 +144,92 @@ This is a simple module that supports creating or removing Target Groups.
 ### Available parameters for state **present**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | True | str |  | The target group name. |
-  | algorithm | True | str |  | The balancing algorithm. A balancing algorithm consists of predefined rules with the logic that a load balancer uses to distribute network traffic between servers.  - **Round Robin**: Targets are served alternately according to their weighting.  - **Least Connection**: The target with the least active connection is served.  - **Random**: The targets are served based on a consistent pseudorandom algorithm.  - **Source IP**: It is ensured that the same client IP address reaches the same target. |
-  | protocol | True | str |  | The forwarding protocol. Only the value 'HTTP' is allowed. |
-  | health_check | False | dict |  | Health check properties for target group. |
-  | http_health_check | False | dict |  | HTTP health check properties for target group. |
-  | targets | False | list |  | Array of items in the collection. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The target group name.</td>
+  </tr>
+  <tr>
+  <td>algorithm<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The balancing algorithm. A balancing algorithm consists of predefined rules with the logic that a load balancer uses to distribute network traffic between servers.  - **Round Robin**: Targets are served alternately according to their weighting.  - **Least Connection**: The target with the least active connection is served.  - **Random**: The targets are served based on a consistent pseudorandom algorithm.  - **Source IP**: It is ensured that the same client IP address reaches the same target.</td>
+  </tr>
+  <tr>
+  <td>protocol<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The forwarding protocol. Only the value 'HTTP' is allowed.</td>
+  </tr>
+  <tr>
+  <td>health_check<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>Health check properties for target group.</td>
+  </tr>
+  <tr>
+  <td>http_health_check<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>HTTP health check properties for target group.</td>
+  </tr>
+  <tr>
+  <td>targets<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>Array of items in the collection.</td>
+  </tr>
+  <tr>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 
@@ -179,18 +248,67 @@ This is a simple module that supports creating or removing Target Groups.
 ### Available parameters for state **absent**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The target group name. |
-  | target_group | True | str |  | The ID or name of the Target Group. |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The target group name.</td>
+  </tr>
+  <tr>
+  <td>target_group<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the Target Group.</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 
@@ -212,24 +330,97 @@ This is a simple module that supports creating or removing Target Groups.
 ### Available parameters for state **update**:
 &nbsp;
 
-  | Name | Required | Type | Default | Description |
-  | :--- | :---: | :--- | :--- | :--- |
-  | name | False | str |  | The target group name. |
-  | algorithm | False | str |  | The balancing algorithm. A balancing algorithm consists of predefined rules with the logic that a load balancer uses to distribute network traffic between servers.  - **Round Robin**: Targets are served alternately according to their weighting.  - **Least Connection**: The target with the least active connection is served.  - **Random**: The targets are served based on a consistent pseudorandom algorithm.  - **Source IP**: It is ensured that the same client IP address reaches the same target. |
-  | protocol | False | str |  | The forwarding protocol. Only the value 'HTTP' is allowed. |
-  | health_check | False | dict |  | Health check properties for target group. |
-  | http_health_check | False | dict |  | HTTP health check properties for target group. |
-  | targets | False | list |  | Array of items in the collection. |
-  | target_group | True | str |  | The ID or name of the Target Group. |
-  | do_not_replace | False | bool | False | Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead |
-  | api_url | False | str |  | The Ionos API base URL. |
-  | certificate_fingerprint | False | str |  | The Ionos API certificate fingerprint. |
-  | username | False | str |  | The Ionos username. Overrides the IONOS_USERNAME environment variable. |
-  | password | False | str |  | The Ionos password. Overrides the IONOS_PASSWORD environment variable. |
-  | token | False | str |  | The Ionos token. Overrides the IONOS_TOKEN environment variable. |
-  | wait | False | bool | True | Wait for the resource to be created before returning. |
-  | wait_timeout | False | int | 600 | How long before wait gives up, in seconds. |
-  | state | False | str | present | Indicate desired state of the resource. |
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The target group name.</td>
+  </tr>
+  <tr>
+  <td>algorithm<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The balancing algorithm. A balancing algorithm consists of predefined rules with the logic that a load balancer uses to distribute network traffic between servers.  - **Round Robin**: Targets are served alternately according to their weighting.  - **Least Connection**: The target with the least active connection is served.  - **Random**: The targets are served based on a consistent pseudorandom algorithm.  - **Source IP**: It is ensured that the same client IP address reaches the same target.</td>
+  </tr>
+  <tr>
+  <td>protocol<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The forwarding protocol. Only the value 'HTTP' is allowed.</td>
+  </tr>
+  <tr>
+  <td>health_check<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>Health check properties for target group.</td>
+  </tr>
+  <tr>
+  <td>http_health_check<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>HTTP health check properties for target group.</td>
+  </tr>
+  <tr>
+  <td>targets<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>Array of items in the collection.</td>
+  </tr>
+  <tr>
+  <td>target_group<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of the Target Group.</td>
+  </tr>
+  <tr>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update']</td>
+  </tr>
+  </tbody>
+</table>
 
 &nbsp;
 

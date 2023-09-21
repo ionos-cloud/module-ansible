@@ -85,9 +85,9 @@ OPTIONS = {
         'required': ['present'],
         'type': 'str',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
             'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
@@ -309,7 +309,7 @@ def _get_object_list(module, client):
     )
 
     return ionoscloud.FlowLogsApi(client).datacenters_servers_nics_flowlogs_get(
-        datacenter_id=datacenter_id, server_id=server_id, nic_id=nic_id,
+        datacenter_id=datacenter_id, server_id=server_id, nic_id=nic_id, depth=1
     )
 
 
@@ -390,7 +390,7 @@ def _update_object(module, client, existing_object):
         module.params.get('nic'),
     )
 
-    nic_flowlogs_api = ionoscloud.NetworkInterfacesApi(api_client=client)
+    nic_flowlogs_api = ionoscloud.FlowLogsApi(api_client=client)
 
     flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
 
@@ -426,7 +426,7 @@ def _remove_object(module, client, existing_object):
         module.params.get('nic'),
     )
 
-    nic_flowlogs_api = ionoscloud.NetworkInterfacesApi(api_client=client)
+    nic_flowlogs_api = ionoscloud.FlowLogsApi(api_client=client)
 
     try:
         _, _, headers = nic_flowlogs_api.datacenters_servers_nics_flowlogs_delete_with_http_info(
@@ -442,8 +442,8 @@ def _remove_object(module, client, existing_object):
 def update_replace_object(module, client, existing_object):
     if _should_replace_object(module, existing_object):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -493,6 +493,7 @@ def update_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
@@ -515,6 +516,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

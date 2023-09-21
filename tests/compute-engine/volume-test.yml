@@ -40,17 +40,17 @@
         datacenter: "{{ datacenter }}"
         name: "{{ name }} %02d"
         disk_type: SSD Premium
-        image: "{{ image_alias }}"
-        image_password: "{{ password }}"
         count: 2
         size: 20
         availability_zone: AUTO
-        cpu_hot_plug: false
+        image: 01abcc20-a6b9-11ed-9e9f-e60bb43016ef
+        licence_type: LINUX
         ram_hot_plug: true
         nic_hot_plug: true
         nic_hot_unplug: true
         disc_virtio_hot_plug: true
         disc_virtio_hot_unplug: true
+        allow_replace: False
         wait_timeout: 600
         wait: true
         state: present
@@ -80,6 +80,33 @@
           - volume_create_response_idempotency.changed == false
         msg: "Changed should be false for idempotency create"
 
+    - name: Update no change
+      volume:
+        datacenter: "{{ datacenter }}"
+        instance_ids:
+          - "{{ name }} 01"
+        disk_type: SSD Premium
+        size: 20
+        availability_zone: AUTO
+        image: 01abcc20-a6b9-11ed-9e9f-e60bb43016ef
+        licence_type: LINUX
+        ram_hot_plug: true
+        nic_hot_plug: true
+        nic_hot_unplug: true
+        disc_virtio_hot_plug: true
+        disc_virtio_hot_unplug: true
+        allow_replace: False
+        wait_timeout: 600
+        wait: true
+        state: update
+      register: volume_create_response_nochange
+
+    - name: Asserting that changed == false for creation of identical volumes
+      assert:
+        that:
+          - volume_create_response_nochange.changed == false
+        msg: "Changed should be false for"
+
     - name: Update volume
       volume:
         datacenter: "{{ datacenter }}"
@@ -93,6 +120,7 @@
         nic_hot_unplug: true
         disc_virtio_hot_plug: true
         disc_virtio_hot_unplug: true
+        allow_replace: False
         wait_timeout: 600
         wait: true
         state: update

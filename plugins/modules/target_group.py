@@ -80,9 +80,9 @@ OPTIONS = {
         'required': ['update', 'absent'],
         'type': 'str',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
             'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
@@ -349,13 +349,13 @@ def _should_update_object(module, existing_object):
         and existing_object.properties.algorithm != module.params.get('algorithm')
         or module.params.get('protocol') is not None
         and existing_object.properties.protocol != module.params.get('protocol')
-        or module.params.get('health_check') is not None
+        or new_health_check is not None
         and (
             existing_object.properties.health_check.check_timeout != new_health_check.check_timeout
             or existing_object.properties.health_check.check_interval != new_health_check.check_interval
             or existing_object.properties.health_check.retries != new_health_check.retries
         )
-        or module.params.get('http_health_check') is not None
+        or new_http_health_check is not None
         and (
             existing_object.properties.http_health_check.path != new_http_health_check.path
             or existing_object.properties.http_health_check.method != new_http_health_check.method
@@ -488,8 +488,8 @@ def _remove_object(module, client, existing_object):
 def update_replace_object(module, client, existing_object):
     if _should_replace_object(module, existing_object):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -539,6 +539,7 @@ def update_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
@@ -561,6 +562,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 
