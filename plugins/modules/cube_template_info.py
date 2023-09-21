@@ -199,17 +199,17 @@ def get_template(module, client):
 
     try:
         if template_id:
-            templates = template_server.templates_find_by_id(template_id)
+            templates = [template_server.templates_find_by_id(template_id)]
 
         else:
-            templates = template_server.templates_get(depth=2)
+            templates = template_server.templates_get(depth=2).items
 
     except ApiException as e:
         module.fail_json(msg='failed to list the {object_name}: {error}'.format(
             object_name=OBJECT_NAME, error=to_native(e),
         ))
     
-    results = list(map(lambda x: x.to_dict(), apply_filters(module, templates.items)))
+    results = list(map(lambda x: x.to_dict(), apply_filters(module, templates)))
 
     return {
         'changed': False,

@@ -21,7 +21,7 @@
 
     - name: Get template by template id
       cube_template_info:
-        template_id: "{{ template_list.template['items'][0]['id'] }}"
+        template_id: "{{ template_list.cube_templates[0]['id'] }}"
       register: template_response
 
     - name: Debug - Show Template
