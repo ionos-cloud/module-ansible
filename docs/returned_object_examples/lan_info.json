@@ -1,0 +1,38 @@
+{
+    "changed": false,
+    "lans": [
+        {
+            "entities": {
+                "nics": {
+                    "links": null,
+                    "href": "https://api.ionos.com/cloudapi/v6/datacenters/0487f06f-b02d-4b78-b4e4-f48d86daf293/lans/1/nics",
+                    "id": "1/nics",
+                    "items": null,
+                    "limit": null,
+                    "offset": null,
+                    "type": "collection"
+                }
+            },
+            "href": "https://api.ionos.com/cloudapi/v6/datacenters/0487f06f-b02d-4b78-b4e4-f48d86daf293/lans/1",
+            "id": "1",
+            "metadata": {
+                "created_by": "<USER_EMAIL>",
+                "created_by_user_id": "<USER_ID>",
+                "created_date": "2023-08-03T10:38:01+00:00",
+                "etag": "933196ec0a8386cc137cd4b5ec1165d1",
+                "last_modified_by": "<USER_EMAIL>",
+                "last_modified_by_user_id": "<USER_ID>",
+                "last_modified_date": "2023-08-03T10:38:01+00:00",
+                "state": "AVAILABLE"
+            },
+            "properties": {
+                "ip_failover": [],
+                "name": "AnsibleAutoTestCompute",
+                "pcc": null,
+                "public": true
+            },
+            "type": "lan"
+        }
+    ],
+    "failed": false
+}

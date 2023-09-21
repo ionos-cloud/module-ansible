@@ -36,17 +36,19 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'NIC'
+RETURNED_KEY = 'nic'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the NIC.'],
-        'available': STATES,
-        'required': ['absent'],
+        'description': ['The name of the  resource.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
         'type': 'str',
     },
-    'id': {
-        'description': ['The ID of the NIC.'],
-        'available': ['update'],
+    'nic': {
+        'description': ['The ID or name of an existing NIC.'],
+        'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
         'type': 'str',
     },
     'datacenter': {
@@ -62,29 +64,38 @@ OPTIONS = {
         'type': 'str',
     },
     'lan': {
-        'description': [
-            "The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create."],
+        'description': ['The LAN ID the NIC will be on. If the LAN ID does not exist, it will be implicitly created.'],
         'required': ['present'],
         'available': ['update'],
         'type': 'str',
     },
     'dhcp': {
-        'description': ['Boolean value indicating if the NIC is using DHCP or not.'],
+        'description': ['Indicates if the NIC will reserve an IP using DHCP.'],
         'available': ['present', 'update'],
         'type': 'bool',
         'version_added': '2.4',
     },
     'firewall_active': {
-        'description': ['Boolean value indicating if the firewall is active.'],
+        'description': ['Activate or deactivate the firewall. By default, an active firewall without any defined rules will block all incoming network traffic except for the firewall rules that explicitly allows certain protocols, IP addresses and ports.'],
         'available': ['present', 'update'],
         'type': 'bool',
         'version_added': '2.4',
     },
     'ips': {
-        'description': ['A list of IPs to be assigned to the NIC.'],
+        'description': ['Collection of IP addresses, assigned to the NIC. Explicitly assigned public IPs need to come from reserved IP blocks. Passing value null or empty array will assign an IP address automatically.'],
         'available': ['present', 'update'],
         'type': 'list',
         'version_added': '2.4',
+    },
+    'allow_replace': {
+        'description': [
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -174,18 +185,26 @@ author:
 
 EXAMPLE_PER_STATE = {
     'present': '''# Create a NIC
-  - nic:
-      datacenter: Tardis One
-      server: node002
-      lan: 2
-      wait_timeout: 500
-      state: present
+    - name: Create NIC
+      nic:
+       name: NicName
+       datacenter: DatacenterName
+       server: ServerName
+       lan: 2
+       dhcp: true
+       firewall_active: true
+       ips:
+         - 10.0.0.1
+       wait: true
+       wait_timeout: 600
+       state: present
+      register: ionos_cloud_nic
   ''',
     'update': '''# Update a NIC
   - nic:
-      datacenter: Tardis One
-      server: node002
-      name: 7341c2454f
+      datacenter: DatacenterName
+      server: ServerName
+      nic: NicName
       lan: 1
       ips:
         - 158.222.103.23
@@ -195,9 +214,9 @@ EXAMPLE_PER_STATE = {
   ''',
     'absent': '''# Remove a NIC
   - nic:
-      datacenter: Tardis One
-      server: node002
-      name: 7341c2454f
+      datacenter: DatacenterName
+      server: ServerName
+      nic: NicName
       wait_timeout: 500
       state: absent
   ''',
@@ -257,18 +276,101 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def create_nic(module, client):
-    """
-    Creates a NIC.
+def _should_replace_object(module, existing_object):
+    return False
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
 
-    Returns:
-        The NIC instance being created
-    """
+def _should_update_object(module, existing_object):
+    return (
+        module.params.get('ips') is not None
+        and sorted(existing_object.properties.ips) != sorted(module.params.get('ips'))
+        or module.params.get('dhcp') is not None
+        and existing_object.properties.dhcp != module.params.get('dhcp')
+        or module.params.get('lan') is not None
+        and int(existing_object.properties.lan) != int(module.params.get('lan'))
+        or module.params.get('firewall_active') is not None
+        and existing_object.properties.firewall_active != module.params.get('firewall_active')
+        or module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+    )
+
+
+def _get_object_list(module, client):
     datacenter = module.params.get('datacenter')
     server = module.params.get('server')
+
+    datacenters_api = ionoscloud.DataCentersApi(api_client=client)
+    servers_api = ionoscloud.ServersApi(api_client=client)
+    nics_api = ionoscloud.NetworkInterfacesApi(api_client=client)
+
+    # Locate UUID for Datacenter
+    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter = get_resource_id(module, datacenter_list, datacenter)
+
+    # Locate UUID for Server
+    server_list = servers_api.datacenters_servers_get(datacenter, depth=1)
+    server = get_resource_id(module, server_list, server)
+
+    return nics_api.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server, depth=1)
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('nic')
+
+
+def _create_object(module, client, existing_object=None):
+    lan = module.params.get('lan')
+    dhcp = module.params.get('dhcp')
+    firewall_active = module.params.get('firewall_active')
+    ips = module.params.get('ips')
+    name = module.params.get('name')
+    if existing_object is not None:
+        lan = existing_object.properties.lan if lan is None else lan
+        dhcp = existing_object.properties.dhcp if dhcp is None else dhcp
+        firewall_active = existing_object.properties.firewall_active if firewall_active is None else firewall_active
+        ips = existing_object.properties.ips if ips is None else ips
+        name = existing_object.properties.name if name is None else name
+
+    wait = module.params.get('wait')
+    wait_timeout = int(module.params.get('wait_timeout'))
+
+    datacenters_api = ionoscloud.DataCentersApi(api_client=client)
+    servers_api = ionoscloud.ServersApi(api_client=client)
+    nics_api = ionoscloud.NetworkInterfacesApi(api_client=client)
+
+    # Locate UUID for Datacenter
+    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
+
+    # Locate UUID for Server
+    server_list = servers_api.datacenters_servers_get(datacenter_id, depth=1)
+    server_id = get_resource_id(module, server_list, module.params.get('server'))
+
+    nic = Nic(properties=NicProperties(
+        name=name, ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active,
+    ))
+
+    try:
+        nic_response, _, headers = nics_api.datacenters_servers_nics_post_with_http_info(
+            datacenter_id=datacenter_id, server_id=server_id, nic=nic,
+        )
+
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            nic_response = nics_api.datacenters_servers_nics_find_by_id(
+                datacenter_id=datacenter_id, server_id=server_id, nic_id=nic_response.id,
+            )
+    except ApiException as e:
+        module.fail_json(msg="failed to create the new NIC: %s" % to_native(e))
+    return nic_response
+
+
+def _update_object(module, client, existing_object):
     lan = module.params.get('lan')
     dhcp = module.params.get('dhcp')
     firewall_active = module.params.get('firewall_active')
@@ -277,194 +379,156 @@ def create_nic(module, client):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    server_server = ionoscloud.ServersApi(api_client=client)
-    nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
+    datacenters_api = ionoscloud.DataCentersApi(api_client=client)
+    servers_api = ionoscloud.ServersApi(api_client=client)
+    nics_api = ionoscloud.NetworkInterfacesApi(api_client=client)
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter = get_resource_id(module, datacenter_list, datacenter)
-
-    if datacenter is None:
-        module.fail_json("Datacenter doesn't exist")
+    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
 
     # Locate UUID for Server
-    server_list = server_server.datacenters_servers_get(datacenter, depth=1)
-    server = get_resource_id(module, server_list, server)
+    server_list = servers_api.datacenters_servers_get(datacenter_id, depth=1)
+    server_id = get_resource_id(module, server_list, module.params.get('server'))
 
-    if server is None:
-        module.fail_json("Server doesn't exist")
+    if lan is None:
+        lan = existing_object.properties.lan
+    if firewall_active is None:
+        firewall_active = existing_object.properties.firewall_active
+    if dhcp is None:
+        dhcp = existing_object.properties.dhcp
 
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter, server_id=server, depth=1)
-    nic = get_resource(module, nic_list, name)
-
-    should_change = nic is None
-
-    if module.check_mode:
-        module.exit_json(changed=should_change)
-
-    if not should_change:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'nic': nic.to_dict()
-        }
+    nic_properties = NicProperties(ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active, name=name)
 
     try:
-        nic_properties = NicProperties(name=name, ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active)
-        nic = Nic(properties=nic_properties)
-
-        response = nic_server.datacenters_servers_nics_post_with_http_info(datacenter_id=datacenter, server_id=server,
-                                                                           nic=nic)
-        (nic_response, _, headers) = response
-
+        nic_response, _, headers = nics_api.datacenters_servers_nics_patch_with_http_info(
+            datacenter_id=datacenter_id, server_id=server_id, nic_id=existing_object.id, nic=nic_properties,
+        )
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-            nic_response = nic_server.datacenters_servers_nics_find_by_id(datacenter_id=datacenter, server_id=server,
-                                                                          nic_id=nic_response.id)
+            nic_response = nics_api.datacenters_servers_nics_find_by_id(
+                datacenter_id=datacenter_id, server_id=server_id, nic_id=nic_response.id,
+            )
 
+        return nic_response
+    except ApiException as e:
+        module.fail_json(msg="failed to update the NIC: %s" % to_native(e))
+
+
+def _remove_object(module, client, existing_object):
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    datacenters_api = ionoscloud.DataCentersApi(api_client=client)
+    servers_api = ionoscloud.ServersApi(api_client=client)
+    nics_api = ionoscloud.NetworkInterfacesApi(api_client=client)
+
+    # Locate UUID for Datacenter
+    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
+
+    # Locate UUID for Server
+    server_list = servers_api.datacenters_servers_get(datacenter_id, depth=1)
+    server_id = get_resource_id(module, server_list, module.params.get('server'))
+
+    try:
+        _, _, headers = nics_api.datacenters_servers_nics_delete_with_http_info(
+            datacenter_id=datacenter_id, server_id=server_id, nic_id=existing_object.id,
+        )
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to remove the NIC: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
         return {
             'changed': True,
             'failed': False,
             'action': 'create',
-            'nic': nic_response.to_dict()
+            RETURNED_KEY: new_object,
         }
-
-    except Exception as e:
-        module.fail_json(msg="failed to create the NIC: %s" % to_native(e))
-
-
-def update_nic(module, client):
-    """
-    Updates a NIC.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        The NIC instance being updated
-    """
-    datacenter = module.params.get('datacenter')
-    server = module.params.get('server')
-    lan = module.params.get('lan')
-    dhcp = module.params.get('dhcp')
-    firewall_active = module.params.get('firewall_active')
-    ips = module.params.get('ips')
-    id = module.params.get('id')
-    name = module.params.get('name')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-
-    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    server_server = ionoscloud.ServersApi(api_client=client)
-    nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
-
-    # Locate UUID for Datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
-
-    # Locate UUID for Server
-    server_list = server_server.datacenters_servers_get(datacenter_id, depth=1)
-    server_id = get_resource_id(module, server_list, server)
-
-    # Locate NIC to update
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=1)
-    existing_nic_by_name = get_resource(module, nic_list, name)
-    if existing_nic_by_name is not None:
-        module.fail_json(msg="Failed to update NIC: NIC with name \'%s\' already exists." % name)
-
-    nic = get_resource(module, nic_list, id)
-
-    if not nic:
-        module.fail_json(msg="NIC could not be found.")
-
-    if module.check_mode:
-        module.exit_json(changed=True)
-
-    try:
-        if lan is None:
-            lan = nic.properties.lan
-        if firewall_active is None:
-            firewall_active = nic.properties.firewall_active
-        if dhcp is None:
-            dhcp = nic.properties.dhcp
-
-        nic_properties = NicProperties(ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active, name=name)
-
-        response = nic_server.datacenters_servers_nics_patch_with_http_info(datacenter_id=datacenter_id, server_id=server_id,
-                                                                            nic_id=nic.id, nic=nic_properties)
-        (nic_response, _, headers) = response
-
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-            nic_response = nic_server.datacenters_servers_nics_find_by_id(datacenter_id=datacenter_id, server_id=server_id,
-                                                                          nic_id=nic_response.id)
-
+    if _should_update_object(module, existing_object):
+        # Update
         return {
             'changed': True,
             'failed': False,
             'action': 'update',
-            'nic': nic_response.to_dict()
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
         }
 
-    except Exception as e:
-        module.fail_json(msg="failed to update the NIC: %s" % to_native(e))
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
 
 
-def delete_nic(module, client):
-    """
-    Removes a NIC
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
 
-    Returns:
-        True if the NIC was removed, false otherwise
-    """
-    datacenter = module.params.get('datacenter')
-    server = module.params.get('server')
-    name = module.params.get('name')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
 
-    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    server_server = ionoscloud.ServersApi(api_client=client)
-    nic_server = ionoscloud.NetworkInterfacesApi(api_client=client)
 
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
 
-    server_list = server_server.datacenters_servers_get(datacenter_id, depth=1)
-    server_id = get_resource_id(module, server_list, server)
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
 
-    # Locate UUID for NIC
-    nic_list = nic_server.datacenters_servers_nics_get(datacenter_id=datacenter_id, server_id=server_id, depth=1)
-    nic_id = get_resource_id(module, nic_list, name)
-
-    if nic_id is None:
+    if existing_object is None:
         module.exit_json(changed=False)
+        return
 
-    if module.check_mode:
-        module.exit_json(changed=True)
-    try:
-        response = nic_server.datacenters_servers_nics_delete_with_http_info(datacenter_id=datacenter_id,
-                                                                             server_id=server_id, nic_id=nic_id)
-        (nic_response, _, headers) = response
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
 
-        return {
-            'action': 'delete',
-            'changed': True,
-            'id': nic_id
-        }
-    except Exception as e:
-        module.fail_json(msg="failed to remove the NIC: %s" % to_native(e))
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
+
+    _remove_object(module, client, existing_object)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.id,
+    }
 
 
 def get_module_arguments():
@@ -553,11 +617,11 @@ def main():
 
         try:
             if state == 'absent':
-                module.exit_json(**delete_nic(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'present':
-                module.exit_json(**create_nic(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_nic(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
                                                                                              error=to_native(e),

@@ -26,6 +26,21 @@
         user_password: "{{ password }}"
         email: "{{ random_user2 }}"
         administrator: false
+      register: user_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{user_response}}"
+    #     dest: ../../docs/returned_object_examples/user.json
+
+    - name: List Users
+      user_info:
+      register: user_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{user_list_response}}"
+    #     dest: ../../docs/returned_object_examples/user_info.json
 
     - name: Create group
       group:
@@ -45,9 +60,23 @@
         manage_dbaas: True
       register: group_response
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{group_response}}"
+    #     dest: ../../docs/returned_object_examples/group.json
+
+    - name: List Groups
+      group_info:
+      register: group_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{group_list_response}}"
+    #     dest: ../../docs/returned_object_examples/group_info.json
+
     - name: Add user1 to group
       group:
-        name: "{{ name }}"
+        group: "{{ name }}"
         users:
           - "{{ random_user1 }}"
         state: update
@@ -58,7 +87,7 @@
 
     - name: Update group
       group:
-        name: "{{ name }}"
+        group: "{{ name }}"
         users:
           - "{{ random_user1 }}"
           - "{{ random_user2 }}"
@@ -91,26 +120,26 @@
 
     - name: Remove user from group
       group:
-        name: "{{ name }}"
+        group: "{{ name }}"
         users: []
         state: update
 
     - name: Delete user1
       user:
-        email: "{{ random_user1 }}"
+        user: "{{ random_user1 }}"
         state: absent
 
     - name: Delete user2
       user:
-        email: "{{ random_user2 }}"
+        user: "{{ random_user2 }}"
         state: absent
 
     - name: Delete group
       group:
-        name: "{{ name }}"
+        group: "{{ name }}"
         state: absent
 
     - name: Delete group
       group:
-        name: "{{ name }}"
+        group: "{{ name }}"
         state: absent

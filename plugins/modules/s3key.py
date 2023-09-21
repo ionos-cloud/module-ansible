@@ -26,6 +26,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'user-management'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'S3 Key'
+RETURNED_KEY = 's3key'
 
 OPTIONS = {
     'active': {
@@ -33,21 +34,20 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'bool',
     },
-    'user_id': {
-        'description': ['The ID of the user'],
+    'user': {
+        'description': ['The ID or email of the user'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
     },
     'key_id': {
         'description': ['The ID of the S3 key.'],
-        'available': ['absent', 'update'],
+        'available': ['present', 'absent', 'update'],
         'required': ['absent', 'update'],
         'type': 'str',
     },
     'idempotency': {
-        'description': ['Flag that dictates respecting idempotency. If an s3key already exists, returns with already '
-                        'existing key instead of creating more.'],
+        'description': ['Flag that dictates respecting idempotency. If an s3key already exists, returns with already existing key instead of creating more.'],
         'default': False,
         'available': 'present',
         'choices': [True, False],
@@ -143,21 +143,21 @@ EXAMPLE_PER_STATE = {
     'present': '''
   - name: Create an s3key
     s3key:
-      user_id: "{{ user_id }}"
+      user: <user_id/email>
   ''',
     'update': '''
   - name: Update an s3key
     s3key:
-      user_id: "{{ user_id }}"
-      key_id: "00ca413c94eecc56857d"
+      user: <user_id/email>
+      key_id: "00ca413c94eecc56857d
       active: False
       state: update
   ''',
     'absent': '''
   - name: Remove an s3key
     s3key:
-      user_id: "{{ user_id }}"
-      key_id: "00ca413c94eecc56857d"
+      user: <user_id/email>
+      key_id: 00ca413c94eecc56857d
       state: absent
   ''',
 }
@@ -204,6 +204,21 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
+def get_users(client):
+    all_users = ionoscloud.Users(items=[])
+    offset = 0
+    limit = 100
+
+    users = client.um_users_get(depth=2, limit=limit, offset=offset)
+    all_users.items += users.items
+    while(users.links.next is not None):
+        offset += limit
+        users = client.um_users_get(depth=2, limit=limit, offset=offset)
+        all_users.items += users.items
+
+    return all_users
+
+
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -214,36 +229,48 @@ def _get_request_id(headers):
 
 
 def create_s3key(module, client):
-    user_id = module.params.get('user_id')
-    wait = module.params.get('wait')
+    user_id = get_resource_id(
+        module,
+        get_users(ionoscloud.UserManagementApi(client)), 
+        module.params.get('user'),
+        [['id'], ['properties', 'email']],
+    )
     do_idempotency = module.params.get('idempotency')
+    key_id = module.params.get('key_id')
+    active = module.params.get('active')
     wait_timeout = int(module.params.get('wait_timeout'))
+    changed = False
 
     user_s3keys_server = ionoscloud.UserS3KeysApi(client)
-    s3key_list = user_s3keys_server.um_users_s3keys_get(user_id=user_id)
+    s3key_list = user_s3keys_server.um_users_s3keys_get(user_id=user_id, depth=1)
 
     try:
-        if do_idempotency and len(s3key_list.items) > 0:
-            s3key_response = s3key_list.items[0]
-            return {
-                'changed': False,
-                'failed': False,
-                'action': 'create',
-                's3key': s3key_response.to_dict()
-            }
+        s3key = get_resource(module, s3key_list, key_id, [['id']])
 
-        response = user_s3keys_server.um_users_s3keys_post_with_http_info(user_id=user_id)
-        (s3key_response, _, headers) = response
+        if not s3key and do_idempotency and len(s3key_list.items) > 0:
+            s3key = s3key_list.items[0]
 
-        if wait:
+        if not s3key:
+            changed = True
+            s3key, _, headers = user_s3keys_server.um_users_s3keys_post_with_http_info(user_id=user_id)
+
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+        if s3key.properties.active != active:
+            changed = True
+            s3key, _, headers = user_s3keys_server.um_users_s3keys_put_with_http_info(
+                user_id, s3key.id, S3Key(properties=S3KeyProperties(active=active)),
+            )
+
+            if module.params.get('wait'):
+                request_id = _get_request_id(headers['Location'])
+                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
         return {
-            'changed': True,
+            'changed': changed,
             'failed': False,
             'action': 'create',
-            's3key': s3key_response.to_dict()
+            RETURNED_KEY: s3key.to_dict()
         }
 
     except Exception as e:
@@ -256,7 +283,12 @@ def create_s3key(module, client):
 
 
 def delete_s3key(module, client):
-    user_id = module.params.get('user_id')
+    user_id = get_resource_id(
+        module,
+        get_users(ionoscloud.UserManagementApi(client)), 
+        module.params.get('user'),
+        [['id'], ['properties', 'email']],
+    )
     key_id = module.params.get('key_id')
 
     user_s3keys_server = ionoscloud.UserS3KeysApi(client)
@@ -285,36 +317,42 @@ def delete_s3key(module, client):
 
 
 def update_s3key(module, client):
-    user_id = module.params.get('user_id')
+    user_id = get_resource_id(
+        module,
+        get_users(ionoscloud.UserManagementApi(client)), 
+        module.params.get('user'),
+        [['id'], ['properties', 'email']],
+    )
     key_id = module.params.get('key_id')
     active = module.params.get('active')
-    wait = module.params.get('wait')
-    wait_timeout = int(module.params.get('wait_timeout'))
+
+    changed = False
 
     user_s3keys_server = ionoscloud.UserS3KeysApi(client)
     s3key_list = user_s3keys_server.um_users_s3keys_get(user_id=user_id, depth=1)
-    s3key_id = get_resource_id(module, s3key_list, key_id, [['id']])
+    s3key = get_resource(module, s3key_list, key_id, [['id']])
 
-    if not s3key_id:
+    if not s3key:
         module.exit_json(changed=False)
-
-    properties = S3KeyProperties(active=active)
 
     if module.check_mode:
         module.exit_json(changed=True)
     try:
-        response = user_s3keys_server.um_users_s3keys_put_with_http_info(user_id, s3key_id, S3Key(properties=properties))
-        (s3key_response, _, headers) = response
+        if s3key.properties.active != active:
+            changed = True
+            s3key, _, headers = user_s3keys_server.um_users_s3keys_put_with_http_info(
+                user_id, s3key.id, S3Key(properties=S3KeyProperties(active=active)),
+            )
 
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            if module.params.get('wait'):
+                request_id = _get_request_id(headers['Location'])
+                client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
 
         return {
-            'changed': True,
+            'changed': changed,
             'failed': False,
             'action': 'update',
-            's3key': s3key_response.to_dict()
+            RETURNED_KEY: s3key.to_dict()
         }
 
     except Exception as e:

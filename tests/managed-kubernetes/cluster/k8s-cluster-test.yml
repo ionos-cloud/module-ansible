@@ -16,14 +16,14 @@
 
     - name: Get k8s config
       k8s_config:
-        k8s_cluster_id: "{{ cluster_response.cluster.id }}"
+        k8s_cluster: "{{ cluster_response.cluster.id }}"
         config_file: 'config.yaml'
         state: present
 
     - name: Update k8s cluster
       k8s_cluster:
         cluster_name: "my_cluster"
-        k8s_cluster_id:  "{{ cluster_response.cluster.id }}"
+        k8s_cluster:  "{{ cluster_response.cluster.id }}"
         maintenance_window:
           day_of_the_week: "Wednesday"
           time: "12:02:00"
@@ -31,17 +31,17 @@
 
     - name: Delete k8s cluster
       k8s_cluster:
-        k8s_cluster_id: "{{ cluster_response.cluster.id }}"
+        k8s_cluster: "{{ cluster_response.cluster.id }}"
         state: absent
         wait: false
 
     - name: Delete k8s cluster
       k8s_cluster:
-        k8s_cluster_id: "{{ cluster_response.cluster.id }}"
+        k8s_cluster: "{{ cluster_response.cluster.id }}"
         state: absent
         wait: true
 
     - name: Delete k8s cluster
       k8s_cluster:
-        k8s_cluster_id: "non-existent-cluster-id"
+        k8s_cluster: "non-existent-cluster-id"
         state: absent

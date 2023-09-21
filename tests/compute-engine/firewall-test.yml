@@ -13,6 +13,15 @@
         location: "{{ location }}"
         wait: True
 
+    - name: List Datacenters
+      datacenter_info:
+      register: datacenter_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{datacenter_list_response}}"
+    #     dest: ../../docs/returned_object_examples/datacenter_info.json
+
     - name: Provision server
       server:
          datacenter: "{{ datacenter }}"
@@ -28,12 +37,33 @@
          wait_timeout: "{{ wait_timeout }}"
          state: present
       register: ionos_cloud
+    
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{ionos_cloud}}"
+    #     dest: ../../docs/returned_object_examples/server.json
 
     - name: Create LAN
       lan:
         datacenter: "{{ datacenter }}"
         name: "{{ lan }}"
         public: true
+      register: ionos_lan
+    
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{ionos_lan}}"
+    #     dest: ../../docs/returned_object_examples/lan.json
+          
+    - name: List LANs
+      lan_info:
+         datacenter: "{{ datacenter }}"
+      register: lan_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{lan_list_response}}"
+    #     dest: ../../docs/returned_object_examples/lan_info.json
 
     - name: Create NIC
       nic:
@@ -47,6 +77,22 @@
          wait_timeout: "{{ wait_timeout }}"
          state: present
       register: ionos_cloud_nic
+    
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{ionos_cloud_nic}}"
+    #     dest: ../../docs/returned_object_examples/nic.json
+          
+    - name: List NICs
+      nic_info:
+         datacenter: "{{ datacenter }}"
+         server: "{{ server }}"
+      register: nic_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nic_list_response}}"
+    #     dest: ../../docs/returned_object_examples/nic_info.json
 
     - name: Create a firewall rule
       firewall_rule:
@@ -59,13 +105,31 @@
           port_range_start: 22
           port_range_end: 24
           state: present
+      register: ionos_firewall_rule
+    
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{ionos_firewall_rule}}"
+    #     dest: ../../docs/returned_object_examples/firewall_rule.json
+
+    - name: List Firewall Rules
+      firewall_rule_info:
+          datacenter: "{{ datacenter }}"
+          server: "{{ server }}"
+          nic: "{{ nic }}"
+      register: firewall_rule_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{firewall_rule_list_response}}"
+    #     dest: ../../docs/returned_object_examples/firewall_rule_info.json
 
     - name: Update firewall rule
       firewall_rule:
           datacenter: "{{ datacenter }}"
           server: "{{ server }}"
           nic: "{{ nic }}"
-          name: "SSH"
+          firewall_rule: "SSH"
           port_range_start: 22
           port_range_end: 23
           state: update
@@ -75,7 +139,7 @@
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          nic: "{{ nic }}"
-         name: "SSH"
+         firewall_rule: "SSH"
          wait: true
          wait_timeout: "{{ wait_timeout }}"
          state: absent
@@ -85,7 +149,7 @@
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          nic: "{{ nic }}"
-         name: "SSH2"
+         firewall_rule: "SSH2"
          wait: true
          wait_timeout: "{{ wait_timeout }}"
          state: absent
@@ -93,5 +157,5 @@
     - name: Remove datacenter
       datacenter:
         wait: true
-        name: "{{ datacenter }}"
+        datacenter: "{{ datacenter }}"
         state: absent

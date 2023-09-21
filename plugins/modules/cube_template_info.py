@@ -29,14 +29,24 @@ ANSIBLE_METADATA = {
 }
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
-STATES = ['present']
-OBJECT_NAME = 'CUBE template'
+STATES = ['info']
+OBJECT_NAME = 'CUBE templates'
+RETURNED_KEY = 'cube_templates'
 
 OPTIONS = {
     'template_id': {
         'description': ['The ID of the template.'],
         'available': STATES,
         'type': 'str',
+    },
+    'filters': {
+        'description': [
+            'Filter that can be used to list only objects which have a certain set of propeties. Filters '
+            'should be a dict with a key containing keys and value pair in the following format:'
+            "'properties.name': 'server_name'"
+        ],
+        'available': STATES,
+        'type': 'dict',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -76,13 +86,6 @@ OPTIONS = {
         'env_fallback': 'IONOS_TOKEN',
         'type': 'str',
     },
-    'state': {
-        'description': ['Indicate desired state of the resource.'],
-        'default': 'present',
-        'choices': STATES,
-        'available': STATES,
-        'type': 'str',
-    },
 }
 
 def transform_for_documentation(val):
@@ -114,22 +117,69 @@ EXAMPLE_PER_STATE = {
         state: present
       register: template_list
 
-    - name: Debug - Show Templates List
-      debug:
-        msg: "{{  template_list.template }}"
-
     - name: Get template by template id
       cube_template:
-        template_id: "{{ template_list.template['items'][0]['id'] }}"
+        template_id: 9ab6545c-b138-4a86-b6ca-0d872a2b0953
       register: template_response
-
-    - name: Debug - Show Template
-      debug:
-        msg: "{{ template_response.template }}"
   ''',
 }
 
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+
+
+def get_method_from_filter(filter):
+    '''
+    Returns the method which check a filter for one object. Such a method would work in the following way:
+    for filter = ('properties.name', 'server_name') the resulting method would be
+    def method(item):
+        return item.properties.name == 'server_name'
+
+    Parameters:
+            filter (touple): Key, value pair representing the filter.
+
+    Returns:
+            the wanted method
+    '''
+    key, value = filter
+    def method(item):
+        current = item
+        for key_part in key.split('.'):
+            current = getattr(current, key_part)
+        return current == value
+    return method
+
+
+def get_method_to_apply_filters_to_item(filter_list):
+    '''
+    Returns the method which applies a list of filtering methods obtained using get_method_from_filter to 
+    one object and returns true if all the filters return true
+    Parameters:
+            filter_list (list): List of filtering methods
+    Returns:
+            the wanted method
+    '''
+    def f(item):
+        return all([f(item) for f in filter_list])
+    return f
+
+
+def apply_filters(module, item_list):
+    '''
+    Creates a list of filtering methods from the filters module parameter, filters item_list to keep only the
+    items for which every filter matches using get_method_to_apply_filters_to_item to make that check and returns
+    those items
+    Parameters:
+            module: The current Ansible module
+            item_list (list): List of items to be filtered
+    Returns:
+            List of items which match the filters
+    '''
+    filters = module.params.get('filters')
+    if not filters:
+        return item_list    
+    filter_methods = list(map(get_method_from_filter, filters.items()))
+
+    return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
 
 
 def get_template(module, client):
@@ -145,22 +195,25 @@ def get_template(module, client):
 
     template_id = module.params.get('template_id')
     template_server = ionoscloud.TemplatesApi(client)
-    template_response = None
+    results = None
 
     try:
         if template_id:
-            template_response = template_server.templates_find_by_id(template_id)
+            templates = [template_server.templates_find_by_id(template_id)]
 
         else:
-            template_response = template_server.templates_get(depth=2)
+            templates = template_server.templates_get(depth=2).items
 
     except ApiException as e:
-        module.fail_json(msg="failed to get the template list: %s" % to_native(e))
+        module.fail_json(msg='failed to list the {object_name}: {error}'.format(
+            object_name=OBJECT_NAME, error=to_native(e),
+        ))
+    
+    results = list(map(lambda x: x.to_dict(), apply_filters(module, templates)))
 
     return {
         'changed': False,
-        'failed': False,
-        'template': template_response.to_dict()
+        RETURNED_KEY: results
     }
 
 

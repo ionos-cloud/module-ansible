@@ -67,7 +67,7 @@
        datacenter: "{{ datacenter }}"
        server: "{{ server }}"
        name: "new-nic"
-       id: "{{ ionos_cloud_nic.nic.id }}"
+       nic: "{{ ionos_cloud_nic.nic.id }}"
        dhcp: false
        wait: true
        wait_timeout: "{{ wait_timeout }}"
@@ -80,7 +80,7 @@
 
     - name: Remove NIC
       nic:
-         name: "{{ ionos_cloud_nic.nic.id }}"
+         nic: "{{ ionos_cloud_nic.nic.id }}"
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          wait: true
@@ -89,7 +89,7 @@
 
     - name: Remove non-existent NIC
       nic:
-         name: "non-existent-nic"
+         nic: "non-existent-nic"
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          wait: true
@@ -98,6 +98,6 @@
 
     - name: Remove datacenter
       datacenter:
-        name: "{{ datacenter }}"
+        datacenter: "{{ datacenter }}"
         state: absent
         wait: true

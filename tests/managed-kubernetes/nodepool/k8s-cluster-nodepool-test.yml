@@ -46,11 +46,25 @@
         wait: true
       register: cluster
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{cluster}}"
+    #     dest: ../../../docs/returned_object_examples/k8s_cluster.json
+
+    - name: List Clusters
+      k8s_cluster_info:
+      register: k8s_cluster_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{k8s_cluster_list_response}}"
+    #     dest: ../../../docs/returned_object_examples/k8s_cluster_info.json
+
     - name: Create k8s cluster nodepool
       k8s_nodepool:
-        nodepool_name: "my-nodepool-{{ 100 |random}}"
-        k8s_cluster_id:  "{{ cluster.cluster.id }}"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        name: "my-nodepool-{{ 100 |random}}"
+        k8s_cluster:  "{{ cluster.cluster.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         node_count: 2
         cpu_family: "INTEL_SKYLAKE"
         cores_count: "1"
@@ -59,7 +73,7 @@
         storage_type: "HDD"
         storage_size: "100"
         public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
-        lan_ids:
+        lans:
           - id: "{{ lan_response.lan.id }}"
             dhcp: false
         auto_scaling:
@@ -75,15 +89,96 @@
         wait: true
       register: result
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{result}}"
+    #     dest: ../../../docs/returned_object_examples/k8s_nodepool.json
+
     - name: Debug - Show nodepool
       debug:
          msg: "{{ result.nodepool }}"
 
+    - name: List Nodepools
+      k8s_nodepool_info:
+        k8s_cluster:  "{{ cluster.cluster.id }}"
+      register: k8s_nodepool_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{k8s_nodepool_list_response}}"
+    #     dest: ../../../docs/returned_object_examples/k8s_nodepool_info.json
+
+    - name: Update k8s cluster nodepool no change
+      k8s_nodepool:
+        k8s_cluster: "{{ cluster.cluster.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        k8s_nodepool: "{{ result.nodepool.id }}"
+        name: "{{ result.nodepool.properties.name }}"
+        node_count: 2
+        cpu_family: "INTEL_SKYLAKE"
+        cores_count: "1"
+        ram_size: "2048"
+        availability_zone: "AUTO"
+        storage_type: "HDD"
+        storage_size: "100"
+        public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
+        lans:
+          - id: "{{ lan_response.lan.id }}"
+            dhcp: false
+        auto_scaling:
+          min_node_count: 1
+          max_node_count: 3
+        labels:
+          foo: bar
+          color: red
+          size: "10"
+        annotations:
+          ann1: value1
+          ann2: value2
+        wait: true
+        state: update
+      register: result_no_change
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - result_no_change.changed == false
+        msg: "Changed should be false"
+
+    - name: Update k8s cluster nodepool no change
+      k8s_nodepool:
+        k8s_cluster: "{{ cluster.cluster.id }}"
+        k8s_nodepool: "{{ result.nodepool.id }}"
+        node_count: 2
+        public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
+        lans:
+          - id: "{{ lan_response.lan.id }}"
+            dhcp: false
+        auto_scaling:
+          min_node_count: 1
+          max_node_count: 3
+        labels:
+          foo: bar
+          color: red
+          size: "10"
+        annotations:
+          ann1: value1
+          ann2: value2
+        wait: true
+        state: update
+      register: result_no_change
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - result_no_change.changed == false
+        msg: "Changed should be false"
+
     - name: Update k8s cluster nodepool
       k8s_nodepool:
-        k8s_cluster_id: "{{ cluster.cluster.id }}"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        nodepool_id: "{{ result.nodepool.id }}"
+        k8s_cluster: "{{ cluster.cluster.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        k8s_nodepool: "{{ result.nodepool.id }}"
         node_count: 2
         cpu_family: "INTEL_SKYLAKE"
         cores_count: "1"
@@ -106,53 +201,50 @@
 
     - name: Delete k8s cluster nodepool
       k8s_nodepool:
-        k8s_cluster_id: "{{ cluster.cluster.id }}"
-        nodepool_id: "{{ result.nodepool.id }}"
+        k8s_cluster: "{{ cluster.cluster.id }}"
+        k8s_nodepool: "{{ result.nodepool.id }}"
         wait: false
         state: absent
 
     - name: Delete k8s cluster nodepool
       k8s_nodepool:
-        k8s_cluster_id: "{{ cluster.cluster.id }}"
-        nodepool_id: "{{ result.nodepool.id }}"
+        k8s_cluster: "{{ cluster.cluster.id }}"
+        k8s_nodepool: "{{ result.nodepool.id }}"
         wait: true
         state: absent
 
     - name: Delete non-existent k8s cluster nodepool
       k8s_nodepool:
-        k8s_cluster_id: "{{ cluster.cluster.id }}"
-        nodepool_id: "non-existent-nodepool"
+        k8s_cluster: "{{ cluster.cluster.id }}"
+        k8s_nodepool: "non-existent-nodepool"
         wait: true
         state: absent
 
     - name: Delete k8s cluster
       k8s_cluster:
-        k8s_cluster_id: "{{ cluster.cluster.id }}"
+        k8s_cluster: "{{ cluster.cluster.id }}"
         wait: true
         state: absent
 
     - name: Remove ipblock for create nodepool
       ipblock:
-        name: "{{ name }} - create"
+        ipblock: "{{ name }} - create"
         state: absent
 
     - name: Remove ipblock for update nodepool
       ipblock:
-        name: "{{ name }} - update"
+        ipblock: "{{ name }} - update"
         state: absent
 
     - name: Remove LAN
       lan:
         datacenter: "{{ datacenter }}"
-        name: "{{ lan }}"
+        lan: "{{ lan }}"
         state: absent
         wait: true
 
     - name: Remove datacenter
       datacenter:
-        name: "{{ datacenter }}"
+        datacenter: "{{ datacenter }}"
         state: absent
         wait: true
-
-
-

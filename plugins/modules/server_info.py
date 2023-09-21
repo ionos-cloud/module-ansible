@@ -23,6 +23,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['info']
 OBJECT_NAME = 'Servers'
+RETURNED_KEY = 'servers'
 
 OPTIONS = {
     'datacenter': {
@@ -118,14 +119,14 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: Get all servers for given datacenter
+    - name: Get all servers for a given datacenter
       server_info:
-        datacenter: "{{ datacenter }}"
+        datacenter: AnsibleDatacenter
       register: server_list_response
 
     - name: Get only the servers that need to be upgraded
       server_info:
-        datacenter: "{{ datacenter }}"
+        datacenter: AnsibleDatacenter
         upgrade_needed: true
       register: servers_list_upgrade_response
 
@@ -236,7 +237,7 @@ def apply_filters(module, item_list):
     return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
 
 
-def get_servers(module, client):
+def get_objects(module, client):
     datacenter = module.params.get('datacenter')
     servers_api = ionoscloud.ServersApi(client)
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
@@ -254,15 +255,16 @@ def get_servers(module, client):
             depth=depth,
         )
         results = list(map(lambda x: x.to_dict(), apply_filters(module, server_items.items)))
-
         return {
-            'action': 'info',
             'changed': False,
-            'servers': results
+            RETURNED_KEY: results
         }
 
     except Exception as e:
-        module.fail_json(msg="failed to list the servers: %s" % to_native(e))
+        module.fail_json(msg='failed to list the {object_name}: {error}'.format(
+            object_name=OBJECT_NAME, error=to_native(e),
+        ))
+
 
 
 def get_module_arguments():
@@ -348,7 +350,7 @@ def main():
         check_required_arguments(module, OBJECT_NAME)
 
         try:
-            module.exit_json(**get_servers(module, api_client))
+            module.exit_json(**get_objects(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
                                                                                              error=to_native(e),

@@ -31,7 +31,7 @@
 
     - name: Create Network Load Balancer
       network_load_balancer:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         ips:
           - "10.12.118.224"
@@ -39,6 +39,21 @@
         target_lan: "{{ target_lan.lan.id }}"
         wait: true
       register: nlb_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nlb_response}}"
+    #     dest: ../../docs/returned_object_examples/network_load_balancer.json
+
+    - name: List Network Load Balancers
+      network_load_balancer_info:
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+      register: nlb_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nlb_list_response}}"
+    #     dest: ../../docs/returned_object_examples/network_load_balancer_info.json
 
     - name: Debug - Show Network Load Balancer
       debug:
@@ -60,10 +75,26 @@
           connect_timeout: 5000
           target_timeout: 5000
           retries: 1
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
         wait: true
       register: nlb_forwarding_rule_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nlb_forwarding_rule_response}}"
+    #     dest: ../../docs/returned_object_examples/network_load_balancer_rule.json
+
+    - name: List Network Load Balancer Forwarding rules
+      network_load_balancer_forwardingrule_info:
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+      register: nlb_forwardingrule_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nlb_forwardingrule_list_response}}"
+    #     dest: ../../docs/returned_object_examples/network_load_balancer_forwardingrule_info.json
 
     - name: Debug - Show Network Load Balancer Forwarding Rule
       debug:
@@ -71,9 +102,9 @@
 
     - name: Update Network Load Balancer Forwarding Rule
       network_load_balancer_rule:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-        forwarding_rule_id: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+        forwarding_rule: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
         name: "{{ name }} - UPDATED"
         algorithm: "ROUND_ROBIN"
         protocol: "TCP"
@@ -87,22 +118,22 @@
 
     - name: Delete Network Load Balancer Forwarding Rule
       network_load_balancer_rule:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-        forwarding_rule_id: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+        forwarding_rule: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
         state: absent
 
     - name: Delete Network Load Balancer Forwarding Rule
       network_load_balancer_rule:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-        forwarding_rule_id: "invalid-id"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+        forwarding_rule: "invalid-id"
         state: absent
 
     - name: Remove Network Load Balancer
       network_load_balancer:
-       network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+       datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
        wait_timeout: 2000
        state: absent
@@ -110,17 +141,17 @@
     - name: Remove Listener LAN
       lan:
         datacenter: "{{ datacenter }}"
-        name: "listener_lan"
+        lan: "listener_lan"
         state: absent
 
     - name: Remove Target LAN
       lan:
         datacenter: "{{ datacenter }}"
-        name: "target_lan"
+        lan: "target_lan"
         state: absent
 
     - name: Remove datacenter
       datacenter:
-        name: "{{ datacenter }}"
+        datacenter: "{{ datacenter }}"
         wait: true
         state: absent

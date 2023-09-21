@@ -54,6 +54,11 @@
       tags:
         - create
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{disk}}"
+    #     dest: ../../docs/returned_object_examples/volume.json
+
     - name: Delete volumes
       volume:
         datacenter: "{{ datacenter }}"
@@ -73,6 +78,6 @@
 
     - name: Remove datacenter
       datacenter:
-        name: "{{ datacenter }}"
+        datacenter: "{{ datacenter }}"
         state: absent
         wait: true

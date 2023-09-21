@@ -26,25 +26,36 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'PCC'
+RETURNED_KEY = 'pcc'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the PCC.'],
+        'description': ['The name of the  resource.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
-    'pcc_id': {
-        'description': ['The ID of the PCC.'],
+    'pcc': {
+        'description': ['The ID or name of an existing PCC.'],
         'available': ['update', 'absent'],
         'required': ['update', 'absent'],
         'type': 'str',
     },
     'description': {
-        'description': ['The description of the PCC.'],
+        'description': ['Human-readable description.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
+    },
+    'allow_replace': {
+        'description': [
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -137,21 +148,21 @@ EXAMPLE_PER_STATE = {
     'present': '''
   - name: Create pcc
     pcc:
-      name: "{{ name }}"
-      description: "{{ description }}"
+      name: PCCName
+      description: "Description for my PCC"
   ''',
     'update': '''
   - name: Update pcc
     pcc:
-      pcc_id: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
-      name: "{{ new_name }}"
-      description: "{{ new_description }}"
+      pcc: PCCName
+      name: NewPCCName
+      description: "New description for my PCC"
       state: update
   ''',
     'absent': '''
   - name: Remove pcc
     pcc:
-      pcc_id: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
+      pcc: NewPCCName
       state: absent
   ''',
 }
@@ -207,113 +218,181 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def create_pcc(module, client):
+
+def _should_replace_object(module, existing_object):
+    return False
+
+
+def _should_update_object(module, existing_object):
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+        or module.params.get('description') is not None
+        and existing_object.properties.description != module.params.get('description')
+    )
+
+
+def _get_object_list(module, client):
+    return ionoscloud.PrivateCrossConnectsApi(client).pccs_get(depth=1)
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('pcc')
+
+
+def _create_object(module, client, existing_object=None):
+    name = module.params.get('name')
+    description = module.params.get('description')
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        description = existing_object.properties.description if description is None else description
+
+    wait = module.params.get('wait')
+    wait_timeout = int(module.params.get('wait_timeout'))
+
+    pccs_api = ionoscloud.PrivateCrossConnectsApi(client)
+
+    pcc = PrivateCrossConnect(properties=PrivateCrossConnectProperties(name=name, description=description))
+
+    try:
+        pcc_response, _, headers = pccs_api.pccs_post_with_http_info(pcc)
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to create the new PCC: %s" % to_native(e))
+    return pcc_response
+
+
+def _update_object(module, client, existing_object):
     name = module.params.get('name')
     description = module.params.get('description')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    pcc_server = ionoscloud.PrivateCrossConnectsApi(client)
-
-    # Locate pcc by name/UUID
-    pcc_list = pcc_server.pccs_get(depth=2)
-    existing_pcc = get_resource(module, pcc_list, name)
-
-    if existing_pcc is not None:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'pcc': existing_pcc.to_dict()
-        }
+    pccs_api = ionoscloud.PrivateCrossConnectsApi(client)
 
     pcc_properties = PrivateCrossConnectProperties(name=name, description=description)
-    pcc = PrivateCrossConnect(properties=pcc_properties)
 
     try:
-        response = pcc_server.pccs_post_with_http_info(pcc)
-        (pcc_response, _, headers) = response
-
+        pcc_response, _, headers = pccs_api.pccs_patch_with_http_info(
+            pcc_id=existing_object.id,
+            pcc=pcc_properties,
+        )
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
+        return pcc_response
+    except ApiException as e:
+        module.fail_json(msg="failed to update the PCC: %s" % to_native(e))
+
+
+def _remove_object(module, client, existing_object):
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    pccs_api = ionoscloud.PrivateCrossConnectsApi(client)
+
+    try:
+        _, _, headers = pccs_api.pccs_delete_with_http_info(existing_object.id)
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to remove the PCC: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
         return {
             'changed': True,
             'failed': False,
             'action': 'create',
-            'pcc': pcc_response.to_dict()
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
         }
 
-    except Exception as e:
-        module.fail_json(msg="failed to create the pcc: %s" % to_native(e))
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
 
 
-def delete_pcc(module, client):
-    pcc_id = module.params.get('pcc_id')
-    pcc_server = ionoscloud.PrivateCrossConnectsApi(client)
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
 
-    pcc_list = pcc_server.pccs_get(depth=2)
-    pcc = get_resource_id(module, pcc_list, pcc_id)
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
 
-    if not pcc:
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
+
+
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
+
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
+
+    if existing_object is None:
         module.exit_json(changed=False)
+        return
 
-    try:
-        pcc_server.pccs_delete(pcc_id)
-        return {
-            'action': 'delete',
-            'changed': True,
-            'id': pcc_id
-        }
-    except Exception as e:
-        module.fail_json(msg="failed to delete the pcc: %s" % to_native(e))
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
 
 
-def update_pcc(module, client):
-    pcc_id = module.params.get('pcc_id')
-    name = module.params.get('name')
-    description = module.params.get('description')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
 
-    pcc_server = ionoscloud.PrivateCrossConnectsApi(client)
-    pcc_list = pcc_server.pccs_get(depth=2)
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
 
-    existing_pcc_with_name = get_resource(module, pcc_list, name)
-    if existing_pcc_with_name is not None:
-        module.fail_json(msg="failed to update the pcc: pcc with name \'%s\' already exists!" % name)
+    _remove_object(module, client, existing_object)
 
-    pcc = get_resource(module, pcc_list, pcc_id)
-    if pcc is None:
-        module.fail_json(msg="failed to update the pcc: pcc with id \'%s\' does not exist!" % pcc_id)
-
-    pcc_properties = PrivateCrossConnectProperties(name=name, description=description)
-
-    if module.check_mode:
-        module.exit_json(changed=True)
-    try:
-        response = pcc_server.pccs_patch_with_http_info(pcc_id=pcc.id, pcc=pcc_properties)
-        (pcc_response, _, headers) = response
-
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'update',
-            'pcc': pcc_response.to_dict()
-        }
-
-    except Exception as e:
-        module.fail_json(msg="failed to update the pcc: %s" % to_native(e))
-        return {
-            'changed': False,
-            'failed': True,
-            'action': 'update',
-        }
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.id,
+    }
 
 
 def get_module_arguments():
@@ -402,15 +481,15 @@ def main():
 
         try:
             if state == 'present':
-                module.exit_json(**create_pcc(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'absent':
-                module.exit_json(**delete_pcc(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_pcc(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
-                                                                                             error=to_native(e),
-                                                                                             state=state))
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(
+                object_name=OBJECT_NAME, error=to_native(e), state=state,
+            ))
 
 
 if __name__ == '__main__':

@@ -13,3 +13,5 @@ mongo_password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_le
 wait_timeout: 500
 email: ansible.test@mail.com
 updated_email: updated.ansible.test@mail.com
+display_name: "AnsibleTestMongoDBCluster"
+display_name_updated: "AnsibleTestMongoDBCluster UPDATED"

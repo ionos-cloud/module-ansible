@@ -35,6 +35,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'natgateway'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'NAT Gateway rule'
+RETURNED_KEY = 'nat_gateway_rule'
 
 OPTIONS = {
     'name': {
@@ -55,55 +56,54 @@ OPTIONS = {
         'type': 'str',
     },
     'source_subnet': {
-        'description': [
-            'Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this '
-            'translation rule applies to based on the packets source IP address.',
-        ],
+        'description': ['Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets source IP address.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'public_ip': {
-        'description': [
-            'Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing '
-            'packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource.',
-        ],
+        'description': ['Public IP address of the NAT Gateway rule. Specifies the address used for masking outgoing packets source address field. Should be one of the customer reserved IP address already configured on the NAT Gateway resource'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'target_subnet': {
-        'description': [
-            'Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets '
-            'this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address.',
-        ],
+        'description': ['Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on the packets destination IP address. If none is provided, rule will match any address.'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'target_port_range': {
-        'description': [
-            'Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation '
-            'rule applies to based on destination port. If none is provided, rule will match any port.',
-        ],
+        'description': ['Target port range of the NAT Gateway rule. For SNAT rules it specifies which packets this translation rule applies to based on destination port. If none is provided, rule will match any port'],
         'available': ['present', 'update'],
         'type': 'dict',
     },
-    'datacenter_id': {
-        'description': ['The ID of the datacenter.'],
+    'datacenter': {
+        'description': ['The ID or name of the datacenter.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
     },
-    'nat_gateway_id': {
-        'description': ['The ID of the NAT Gateway.'],
+    'nat_gateway': {
+        'description': ['The ID or name of the NAT Gateway.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
     },
-    'nat_gateway_rule_id': {
-        'description': ['The ID of the NAT Gateway rule.'],
+    'nat_gateway_rule': {
+        'description': ['The ID or name of the NAT Gateway rule.'],
         'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
         'type': 'str',
+    },
+    'allow_replace': {
+        'description': [
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -192,9 +192,9 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create NAT Gateway Rule
     nat_gateway_rule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-      name: "{{ name }}"
+      datacenter: Datacentername
+      nat_gateway: NATGatewayName
+      name: RuleName
       type: "SNAT"
       protocol: "TCP"
       source_subnet: "10.0.1.0/24"
@@ -202,18 +202,18 @@ EXAMPLE_PER_STATE = {
       target_port_range:
         start: 10000
         end: 20000
-      public_ip: "{{ ipblock_response.ipblock.properties.ips[0] }}"
+      public_ip: <ip>
       wait: true
     register: nat_gateway_rule_response
   ''',
   'update' : '''
   - name: Update NAT Gateway Rule
     nat_gateway_rule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-      nat_gateway_rule_id: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
-      public_ip: "{{ ipblock_response.ipblock.properties.ips[1] }}"
-      name: "{{ name }} - UPDATED"
+      datacenter: Datacentername
+      nat_gateway: NATGatewayName
+      nat_gateway_rule: RuleName
+      public_ip: <newIp>
+      name: "RuleName - UPDATED"
       type: "SNAT"
       protocol: "TCP"
       source_subnet: "10.0.1.0/24"
@@ -224,9 +224,9 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete NAT Gateway Rule
     nat_gateway_rule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-      nat_gateway_rule_id: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
+      datacenter: Datacentername
+      nat_gateway: NATGatewayName
+      nat_gateway_rule: "RuleName - UPDATED"
       state: absent
   ''',
 }
@@ -275,25 +275,6 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def _update_nat_gateway_rule(module, client, nat_gateway_server, datacenter_id, nat_gateway_id, nat_gateway_rule_id,
-                             nat_gateway_rule_properties):
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-
-    nat_gateway_rule_response, _, headers = nat_gateway_server.datacenters_natgateways_rules_patch_with_http_info(
-        datacenter_id,
-        nat_gateway_id,
-        nat_gateway_rule_id,
-        nat_gateway_rule_properties,
-    )
-
-    if wait:
-        request_id = _get_request_id(headers['Location'])
-        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-    return nat_gateway_rule_response
-
-
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -303,46 +284,91 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def create_nat_gateway_rule(module, client):
-    """
-    Creates a NAT Gateway Rule
+def _should_replace_object(module, existing_object):
+    return False
 
-    This will create a new NAT Gateway Rule in the specified Datacenter.
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
+def _should_update_object(module, existing_object):
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+        or module.params.get('type') is not None
+        and existing_object.properties.type != module.params.get('type')
+        or module.params.get('protocol') is not None
+        and existing_object.properties.protocol != module.params.get('protocol')
+        or module.params.get('source_subnet') is not None
+        and existing_object.properties.source_subnet != module.params.get('source_subnet')
+        or module.params.get('public_ip') is not None
+        and existing_object.properties.public_ip != module.params.get('public_ip')
+        or module.params.get('target_subnet') is not None
+        and existing_object.properties.target_subnet != module.params.get('target_subnet')
+        or module.params.get('target_port_range') is not None
+        and existing_object.properties.target_port_range != module.params.get('target_port_range')
+    )
 
-    Returns:
-        The NAT Gateway Rule ID if a new NAT Gateway Rule was created.
-    """
+
+def _get_object_list(module, client):
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    nat_gateway_id = get_resource_id(
+        module, 
+        ionoscloud.NATGatewaysApi(client).datacenters_natgateways_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('nat_gateway'),
+    )
+
+    return ionoscloud.NATGatewaysApi(client).datacenters_natgateways_rules_get(
+        datacenter_id, nat_gateway_id, depth=1,
+    )
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('nat_gateway_rule')
+
+
+def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
-    type = module.params.get('type')
+    nat_gateway_type = module.params.get('type')
     protocol = module.params.get('protocol')
     source_subnet = module.params.get('source_subnet')
     public_ip = module.params.get('public_ip')
     target_subnet = module.params.get('target_subnet')
     target_port_range = module.params.get('target_port_range')
-    datacenter_id = module.params.get('datacenter_id')
-    nat_gateway_id = module.params.get('nat_gateway_id')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    nat_gateway_id = get_resource_id(
+        module, 
+        ionoscloud.NATGatewaysApi(client).datacenters_natgateways_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('nat_gateway'),
+    )
 
-    wait = module.params.get('wait')
-    wait_timeout = int(module.params.get('wait_timeout'))
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        nat_gateway_type = existing_object.properties.type if nat_gateway_type is None else nat_gateway_type
+        protocol = existing_object.properties.protocol if protocol is None else protocol
+        source_subnet = existing_object.properties.source_subnet if source_subnet is None else source_subnet
+        public_ip = existing_object.properties.public_ip if public_ip is None else public_ip
+        target_subnet = existing_object.properties.target_subnet if target_subnet is None else target_subnet
+        target_port_range = existing_object.properties.target_port_range if target_port_range is None else target_port_range
+        target_subnet = existing_object.properties.target_subnet if target_subnet is None else target_subnet
 
-    nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-    nat_gateway_rules = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id, nat_gateway_id, depth=1)
-
-    existing_rule = get_resource(module, nat_gateway_rules, name)
-
-    if existing_rule:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'nat_gateway_rule': existing_rule.to_dict(),
-        }
-
+    nat_gateways_api = ionoscloud.NATGatewaysApi(client)
+    
     nat_gateway_rule_properties = NatGatewayRuleProperties(
-        name=name, type=type, protocol=protocol,
+        name=name, type=nat_gateway_type, protocol=protocol,
         source_subnet=source_subnet, public_ip=public_ip,
         target_subnet=target_subnet,
         target_port_range=target_port_range,
@@ -350,133 +376,173 @@ def create_nat_gateway_rule(module, client):
     nat_gateway_rule = NatGatewayRule(properties=nat_gateway_rule_properties)
 
     try:
-        nat_gateway_rule_response, _, headers = nat_gateway_server.datacenters_natgateways_rules_post_with_http_info(
+        nat_gateway_rule_response, _, headers = nat_gateways_api.datacenters_natgateways_rules_post_with_http_info(
             datacenter_id, nat_gateway_id, nat_gateway_rule,
         )
-
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            'nat_gateway_rule': nat_gateway_rule_response.to_dict()
-        }
-
+            client.wait_for_completion(request_id=request_id, timeout=int(module.params.get('wait_timeout')))
     except ApiException as e:
         module.fail_json(msg="failed to create the new NAT Gateway Rule: %s" % to_native(e))
+    return nat_gateway_rule_response
 
 
-def update_nat_gateway_rule(module, client):
-    """
-    Updates a NAT Gateway Rule.
-
-    This will update a NAT Gateway Rule.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        True if the NAT Gateway Rule was updated, false otherwise
-    """
+def _update_object(module, client, existing_object):
     name = module.params.get('name')
-    type = module.params.get('type')
+    nat_gateway_type = module.params.get('type')
     protocol = module.params.get('protocol')
     source_subnet = module.params.get('source_subnet')
     public_ip = module.params.get('public_ip')
     target_subnet = module.params.get('target_subnet')
     target_port_range = module.params.get('target_port_range')
-    datacenter_id = module.params.get('datacenter_id')
-    nat_gateway_id = module.params.get('nat_gateway_id')
-    nat_gateway_rule_id = module.params.get('nat_gateway_rule_id')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    nat_gateway_id = get_resource_id(
+        module, 
+        ionoscloud.NATGatewaysApi(client).datacenters_natgateways_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('nat_gateway'),
+    )
 
-    nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-    nat_gateway_rule_response = None
-
-    nat_gateway_rules = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id, nat_gateway_id, depth=1)
-    existing_rule_id_by_name = get_resource_id(module, nat_gateway_rules, name)
-
-    if nat_gateway_rule_id is not None and existing_rule_id_by_name is not None and existing_rule_id_by_name != nat_gateway_rule_id:
-            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
-
-    nat_gateway_rule_id = existing_rule_id_by_name if nat_gateway_rule_id is None else nat_gateway_rule_id
+    nat_gateways_api = ionoscloud.NATGatewaysApi(client)
 
     nat_gateway_rule_properties = NatGatewayRuleProperties(
-        name=name, type=type, protocol=protocol,
+        name=name, type=nat_gateway_type, protocol=protocol,
         source_subnet=source_subnet, public_ip=public_ip,
         target_subnet=target_subnet,
         target_port_range=target_port_range,
     )
 
-    if not nat_gateway_rule_id:
-        module.fail_json(msg="failed to update the NAT Gateway Rule: The resource does not exist")
+    try:
+        response, _, headers = nat_gateways_api.datacenters_natgateways_rules_patch_with_http_info(
+            datacenter_id, nat_gateway_id, existing_object.id, nat_gateway_rule_properties,
+        )
 
-    nat_gateway_rule_response = _update_nat_gateway_rule(
-        module, client, nat_gateway_server, datacenter_id,
-        nat_gateway_id, nat_gateway_rule_id,
-        nat_gateway_rule_properties,
+        if module.params.get('wait'):
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
+
+        return response
+    except ApiException as e:
+        module.fail_json(msg="failed to update the NAT Gateway Rule: %s" % to_native(e))
+
+
+def _remove_object(module, client, existing_object):
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    nat_gateway_id = get_resource_id(
+        module, 
+        ionoscloud.NATGatewaysApi(client).datacenters_natgateways_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('nat_gateway'),
     )
 
+    nat_gateways_api = ionoscloud.NATGatewaysApi(client)
+
+    try:
+        _, _, headers = nat_gateways_api.datacenters_natgateways_rules_delete_with_http_info(
+            datacenter_id, nat_gateway_id, existing_object.id,
+        )
+        if module.params.get('wait'):
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
+    except ApiException as e:
+        module.fail_json(msg="failed to remove the NAT Gateway Rule: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
+        }
+
+    # No action
     return {
-        'changed': True,
-        'action': 'update',
+        'changed': False,
         'failed': False,
-        'nat_gateway_rule': nat_gateway_rule_response.to_dict()
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
     }
 
 
-def remove_nat_gateway_rule(module, client):
-    """
-    Removes a NAT Gateway Rule.
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
 
-    This will remove a NAT Gateway Rule.
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
 
-    Returns:
-        True if the NAT Gateway Rule was deleted, false otherwise
-    """
-    name = module.params.get('name')
-    datacenter_id = module.params.get('datacenter_id')
-    nat_gateway_id = module.params.get('nat_gateway_id')
-    nat_gateway_rule_id = module.params.get('nat_gateway_rule_id')
 
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
 
-    nat_gateway_server = ionoscloud.NATGatewaysApi(client)
-    changed = False
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
 
-    try:
-        nat_gateway_rule_list = nat_gateway_server.datacenters_natgateways_rules_get(datacenter_id, nat_gateway_id, depth=1)
-        if nat_gateway_rule_id:
-            nat_gateway_rule = get_resource(module, nat_gateway_rule_list, nat_gateway_rule_id)
-        else:
-            nat_gateway_rule = get_resource(module, nat_gateway_rule_list, name)
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
 
-        if not nat_gateway_rule:
-            module.exit_json(changed=False)
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
-        response = nat_gateway_server.datacenters_natgateways_rules_delete_with_http_info(datacenter_id, nat_gateway_id, nat_gateway_rule.id)
-        _, _, headers = response
-
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-        changed = True
-
-    except Exception as e:
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
         module.fail_json(
-            msg="failed to delete the NAT Gateway Rule: %s" % to_native(e))
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
+
+    _remove_object(module, client, existing_object)
 
     return {
         'action': 'delete',
-        'changed': changed,
-        'id': nat_gateway_rule.id
+        'changed': True,
+        'id': existing_object.id,
     }
 
 
@@ -564,18 +630,13 @@ def main():
         api_client.user_agent = USER_AGENT
         check_required_arguments(module, state, OBJECT_NAME)
 
-        if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('nat_gateway_rule_id'):
-            module.fail_json(
-                msg='either name or nat_gateway_rule_id parameter is required for {object_name} state present'.format(object_name=OBJECT_NAME),
-            )
-
         try:
             if state == 'present':
-                module.exit_json(**create_nat_gateway_rule(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_nat_gateway_rule(module, api_client))
+                module.exit_json(**update_object(module, api_client))
             elif state == 'absent':
-                module.exit_json(**remove_nat_gateway_rule(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 

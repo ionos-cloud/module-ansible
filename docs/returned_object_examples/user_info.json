@@ -1,0 +1,74 @@
+{
+    "changed": false,
+    "users": [
+        {
+            "entities": {
+                "groups": {
+                    "href": "https://api.ionos.com/cloudapi/v6/um/users/<USER_ID>/groups",
+                    "id": "<USER_ID>/groups",
+                    "items": null,
+                    "type": "collection"
+                },
+                "owns": {
+                    "href": "https://api.ionos.com/cloudapi/v6/um/users/<USER_ID>/owns",
+                    "id": "<USER_ID>/owns",
+                    "items": null,
+                    "type": "collection"
+                }
+            },
+            "href": "https://api.ionos.com/cloudapi/v6/um/users/<USER_ID>",
+            "id": "<USER_ID>",
+            "metadata": {
+                "created_date": "2023-02-09T16:26:34+00:00",
+                "etag": "37a6259cc0c1dae299a7866489dff0bd",
+                "last_login": null
+            },
+            "properties": {
+                "active": true,
+                "administrator": false,
+                "email": "<EMAIL>",
+                "firstname": "John",
+                "force_sec_auth": false,
+                "lastname": "Doe",
+                "s3_canonical_user_id": "<s3_canonical_user_id>",
+                "sec_auth_active": false
+            },
+            "type": "user"
+        },
+        {
+            "entities": {
+                "groups": {
+                    "href": "https://api.ionos.com/cloudapi/v6/um/users/<USER_ID>/groups",
+                    "id": "<USER_ID>/groups",
+                    "items": null,
+                    "type": "collection"
+                },
+                "owns": {
+                    "href": "https://api.ionos.com/cloudapi/v6/um/users/<USER_ID>/owns",
+                    "id": "<USER_ID>/owns",
+                    "items": null,
+                    "type": "collection"
+                }
+            },
+            "href": "https://api.ionos.com/cloudapi/v6/um/users/<USER_ID>",
+            "id": "<USER_ID>",
+            "metadata": {
+                "created_date": "2023-08-03T14:07:59+00:00",
+                "etag": "37a6259cc0c1dae299a7866489dff0bd",
+                "last_login": null
+            },
+            "properties": {
+                "active": true,
+                "administrator": false,
+                "email": "<EMAIL>",
+                "firstname": "John1",
+                "force_sec_auth": false,
+                "lastname": "Doe",
+                "s3_canonical_user_id": "<s3_canonical_user_id>",
+                "sec_auth_active": false
+            },
+            "type": "user"
+        }
+    ],
+    "failed": false
+}

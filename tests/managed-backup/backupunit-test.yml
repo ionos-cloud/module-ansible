@@ -13,17 +13,65 @@
         name: "My {{ name }}"
       register: create_result
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{create_result}}"
+    #     dest: ../../docs/returned_object_examples/backupunit.json
+
     - name: Debug - Show backupunit
       debug:
         msg: "{{ create_result }}"
 
-    - name: Update a backupunit
+    - name: List backupunits
+      backupunit_info:
+      register: backupunit_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{backupunit_list_response}}"
+    #     dest: ../../docs/returned_object_examples/backupunit_info.json
+
+    - name: Recreate backupunit
       backupunit:
-        backupunit_id: "{{ create_result.backupunit.id }}"
+        backupunit: "My {{ name }}"
         backupunit_email: "{{ updated_email }}"
-        backupunit_password:  "{{ updated_password }}"
+        backupunit_password: "{{ updated_password }}"
+        name: "My {{ name }} UPDATED"
+        allow_replace: True
+        state: update
+      register: recreate_result
+
+    # - name: Debug - Show backupunit
+    #   debug:
+    #     msg: "{{ recreate_result }}"
+
+    - name: Update a backupunit no change
+      backupunit:
+        backupunit: "My {{ name }} UPDATED"
+        backupunit_email: "{{ updated_email }}"
+        name: "My {{ name }} UPDATED"
+        allow_replace: False
         state: update
       register: update_result
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - update_result.changed == false
+        msg: "Changed should be false"
+
+    - name: Update a backupunit no change 2
+      backupunit:
+        backupunit: "My {{ name }} UPDATED"
+        allow_replace: False
+        state: update
+      register: update_result2
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - update_result2.changed == false
+        msg: "Changed should be false"
 
     - name: Debug - Show updated backupunit
       debug:
@@ -31,7 +79,7 @@
 
     - name: Remove backupunit
       backupunit:
-        backupunit_id: "{{ create_result.backupunit.id }}"
+        backupunit: "My {{ name }} UPDATED"
         state: absent
         wait: true
       register: delete_result
@@ -40,10 +88,9 @@
       debug:
         msg: "{{ delete_result }}"
 
-
     - name: Remove backupunit
       backupunit:
-        backupunit_id: "{{ create_result.backupunit.id }}"
+        backupunit: "My {{ name }} UPDATED"
         state: absent
         wait: true
       register: delete_result

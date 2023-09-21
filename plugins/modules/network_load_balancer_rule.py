@@ -35,22 +35,23 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'networkloadbalancer'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Network Loadbalancer forwarding rule'
+RETURNED_KEY = 'forwarding_rule'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the Network Loadbalancer forwarding rule.'],
+        'description': ['The name of the Network Load Balancer forwarding rule.'],
         'available': STATES,
         'required': ['present'],
         'type': 'str',
     },
     'algorithm': {
-        'description': ['Balancing algorithm.'],
+        'description': ['Balancing algorithm'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'protocol': {
-        'description': ['Balancing protocol.'],
+        'description': ['Balancing protocol'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -73,28 +74,39 @@ OPTIONS = {
         'type': 'dict',
     },
     'targets': {
-        'description': ['Array of targets.'],
+        'description': ['Array of items in the collection.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'list',
         'elements': 'dict',
     },
-    'datacenter_id': {
-        'description': ['The ID of the datacenter.'],
+    'datacenter': {
+        'description': ['The ID or name of the datacenter.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
     },
-    'network_load_balancer_id': {
-        'description': ['The ID of the Network Loadbalancer.'],
+    'network_load_balancer': {
+        'description': ['The ID or name of the Network Loadbalancer.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
     },
-    'forwarding_rule_id': {
-        'description': ['The ID of the Network Loadbalancer forwarding rule.'],
+    'forwarding_rule': {
+        'description': ['The ID or name of the Network Loadbalancer forwarding rule.'],
         'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
         'type': 'str',
+    },
+    'allow_replace': {
+        'description': [
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
@@ -183,7 +195,7 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Network Load Balancer Forwarding Rule
     network_load_balancer_rule:
-      name: "{{ name }}"
+      name: RuleName
       algorithm: "ROUND_ROBIN"
       protocol: "TCP"
       listener_ip: "10.12.118.224"
@@ -192,18 +204,18 @@ EXAMPLE_PER_STATE = {
         - ip: "22.231.2.2"
           port: "8080"
           weight: "123"
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
       wait: true
     register: nlb_forwarding_rule_response
   ''',
   'update' : '''
   - name: Update Network Load Balancer Forwarding Rule
     network_load_balancer_rule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-      forwarding_rule_id: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
-      name: "{{ name }} - UPDATED"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
+      forwarding_rule: RuleName
+      name: "RuleName - UPDATED"
       algorithm: "ROUND_ROBIN"
       protocol: "TCP"
       wait: true
@@ -213,9 +225,9 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete Network Load Balancer Forwarding Rule
     network_load_balancer_rule:
-      datacenter_id: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-      forwarding_rule_id: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
+      forwarding_rule: "RuleName - UPDATED"
       state: absent
   ''',
 }
@@ -264,23 +276,6 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def _update_nlb_forwarding_rule(module, client, nlb_server, datacenter_id, network_load_balancer_id, forwarding_rule_id,
-                                forwarding_rule_properties):
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-    response = nlb_server.datacenters_networkloadbalancers_forwardingrules_patch_with_http_info(datacenter_id,
-                                                                                                network_load_balancer_id,
-                                                                                                forwarding_rule_id,
-                                                                                                forwarding_rule_properties)
-    (forwarding_rule_response, _, headers) = response
-
-    if wait:
-        request_id = _get_request_id(headers['Location'])
-        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-    return forwarding_rule_response
-
-
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -306,120 +301,154 @@ def _get_health_check(health_check_param):
     return health_check
 
 
+def _should_replace_object(module, existing_object):
+    return False
 
-def create_nlb_forwarding_rule(module, client):
-    """
-    Creates a Network Load Balancer Forwarding Rule
 
-    This will create a new Network Load Balancer Forwarding Rule in the specified Datacenter.
+def _should_update_object(module, existing_object):
+    new_health_check = _get_health_check(module.params.get('health_check'))
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
+    def sort_func(el):
+        return el['ip'], el['port']
 
-    Returns:
-        The Network Load Balancer Forwarding Rule ID if a new Network Load Balancer Forwarding Rule was created.
-    """
+    if module.params.get('targets'):
+        existing_targets = sorted(map(
+            lambda x: { 'ip': x.ip, 'port': x.port, 'weight': x.weight },
+            existing_object.properties.targets
+        ), key=sort_func)
+        new_targets = sorted(module.params.get('targets'), key=sort_func)
+
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+        or module.params.get('algorithm') is not None
+        and existing_object.properties.algorithm != module.params.get('algorithm')
+        or module.params.get('protocol') is not None
+        and existing_object.properties.protocol != module.params.get('protocol')
+        or module.params.get('listener_ip') is not None
+        and existing_object.properties.listener_ip != module.params.get('listener_ip')
+        or module.params.get('listener_port') is not None
+        and existing_object.properties.listener_port != module.params.get('listener_port')
+        or module.params.get('target_subnet') is not None
+        and existing_object.properties.target_subnet != module.params.get('target_subnet')
+        or module.params.get('target_port_range') is not None
+        and existing_object.properties.target_port_range != module.params.get('target_port_range')
+        or module.params.get('targets') is not None
+        and new_targets != existing_targets
+        or module.params.get('health_check') is not None
+        and (
+            existing_object.properties.health_check.client_timeout != new_health_check.client_timeout
+            or existing_object.properties.health_check.connect_timeout != new_health_check.connect_timeout
+            or existing_object.properties.health_check.target_timeout != new_health_check.target_timeout
+            or existing_object.properties.health_check.retries != new_health_check.retries
+        )
+    )
+
+
+def _get_object_list(module, client):
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    network_load_balancer_id = get_resource_id(
+        module, 
+        ionoscloud.NetworkLoadBalancersApi(client).datacenters_networkloadbalancers_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('network_load_balancer'),
+    )
+
+    return ionoscloud.NetworkLoadBalancersApi(client).datacenters_networkloadbalancers_forwardingrules_get(
+        datacenter_id, network_load_balancer_id, depth=1,
+    )
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('forwarding_rule')
+
+
+def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
     algorithm = module.params.get('algorithm')
     protocol = module.params.get('protocol')
     listener_ip = module.params.get('listener_ip')
     listener_port = module.params.get('listener_port')
-    health_check_param = module.params.get('health_check')
+    health_check_param = _get_health_check(module.params.get('health_check'))
     targets = module.params.get('targets')
-    datacenter_id = module.params.get('datacenter_id')
-    network_load_balancer_id = module.params.get('network_load_balancer_id')
-
-    wait = module.params.get('wait')
-    wait_timeout = int(module.params.get('wait_timeout'))
-
-    nlb_server = ionoscloud.NetworkLoadBalancersApi(client)
-    nlb_forwarding_rules = nlb_server.datacenters_networkloadbalancers_forwardingrules_get(
-        datacenter_id, network_load_balancer_id, depth=1,
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
     )
-    nlb_forwarding_rule_response = None
+    network_load_balancer_id = get_resource_id(
+        module, 
+        ionoscloud.NetworkLoadBalancersApi(client).datacenters_networkloadbalancers_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('network_load_balancer'),
+    )
 
-    existing_rule = get_resource(module, nlb_forwarding_rules, name)
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        algorithm = existing_object.properties.algorithm if algorithm is None else algorithm
+        protocol = existing_object.properties.protocol if protocol is None else protocol
+        listener_ip = existing_object.properties.listener_ip if listener_ip is None else listener_ip
+        listener_port = existing_object.properties.listener_port if listener_port is None else listener_port
+        health_check_param = existing_object.properties.health_check if health_check_param is None else health_check_param
+        targets = existing_object.properties.targets if targets is None else targets
 
-    if existing_rule:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'forwarding_rule': existing_rule.to_dict(),
-        }
 
-    health_check = _get_health_check(health_check_param)
-
+    nlbs_api = ionoscloud.NetworkLoadBalancersApi(client)
+    
     nlb_forwarding_rule_properties = NetworkLoadBalancerForwardingRuleProperties(
         name=name, algorithm=algorithm,
         protocol=protocol,
         listener_ip=listener_ip,
         listener_port=listener_port,
-        health_check=health_check,
+        health_check=health_check_param,
         targets=targets,
     )
     nlb_forwarding_rule = NetworkLoadBalancerForwardingRule(properties=nlb_forwarding_rule_properties)
 
     try:
-        nlb_forwarding_rule_response, _, headers = nlb_server.datacenters_networkloadbalancers_forwardingrules_post_with_http_info(
+        response, _, headers = nlbs_api.datacenters_networkloadbalancers_forwardingrules_post_with_http_info(
             datacenter_id, network_load_balancer_id, nlb_forwarding_rule,
         )
-
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
     except ApiException as e:
-        module.fail_json(msg="failed to create the new Network Load Balancer Forwarding Rule: %s" % to_native(e))
-
-    return {
-        'changed': True,
-        'failed': False,
-        'action': 'create',
-        'forwarding_rule': nlb_forwarding_rule_response.to_dict()
-    }
+        module.fail_json(msg="failed to create the new Network Loadbalancer Rule: %s" % to_native(e))
+    return response
 
 
-def update_nlb_forwarding_rule(module, client):
-    """
-    Updates a Network Load Balancer Forwarding Rule.
-
-    This will update a Network Load Balancer Forwarding Rule.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        True if the Network Load Balancer Forwarding Rule was updated, false otherwise
-    """
+def _update_object(module, client, existing_object):
     name = module.params.get('name')
     algorithm = module.params.get('algorithm')
     protocol = module.params.get('protocol')
     listener_ip = module.params.get('listener_ip')
     listener_port = module.params.get('listener_port')
-    health_check_param = module.params.get('health_check')
+    health_check = _get_health_check(module.params.get('health_check'))
     targets = module.params.get('targets')
-    datacenter_id = module.params.get('datacenter_id')
-    network_load_balancer_id = module.params.get('network_load_balancer_id')
-    forwarding_rule_id = module.params.get('forwarding_rule_id')
-
-    health_check = _get_health_check(health_check_param)
-
-    nlb_server = ionoscloud.NetworkLoadBalancersApi(client)
-    forwarding_rule_response = None
-
-    forwarding_rules = nlb_server.datacenters_networkloadbalancers_forwardingrules_get(
-        datacenter_id, network_load_balancer_id, depth=1,
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
     )
-    existing_rule_id_by_name = get_resource_id(module, forwarding_rules, name)
+    network_load_balancer_id = get_resource_id(
+        module, 
+        ionoscloud.NetworkLoadBalancersApi(client).datacenters_networkloadbalancers_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('network_load_balancer'),
+    )
 
-    if forwarding_rule_id is not None and existing_rule_id_by_name is not None and existing_rule_id_by_name != forwarding_rule_id:
-            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
-
-    forwarding_rule_id = existing_rule_id_by_name if forwarding_rule_id is None else forwarding_rule_id
-    
-    if not forwarding_rule_id:
-        module.fail_json(msg="failed to update the Network Load Balancer Rule: The resource does not exist")
+    nlbs_api = ionoscloud.NetworkLoadBalancersApi(client)
 
     nlb_forwarding_rule_properties = NetworkLoadBalancerForwardingRuleProperties(
         name=name, algorithm=algorithm,
@@ -430,74 +459,132 @@ def update_nlb_forwarding_rule(module, client):
         targets=targets,
     )
 
-    forwarding_rule_response = _update_nlb_forwarding_rule(
-        module, client, nlb_server, datacenter_id,
-        network_load_balancer_id, forwarding_rule_id,
-        nlb_forwarding_rule_properties,
+    try:
+        response, _, headers = nlbs_api.datacenters_networkloadbalancers_forwardingrules_patch_with_http_info(
+            datacenter_id, network_load_balancer_id, existing_object.id, nlb_forwarding_rule_properties,
+        )
+
+        if module.params.get('wait'):
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
+
+        return response
+    except ApiException as e:
+        module.fail_json(msg="failed to update the Network Loadbalancer Rule: %s" % to_native(e))
+
+
+def _remove_object(module, client, existing_object):
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    network_load_balancer_id = get_resource_id(
+        module, 
+        ionoscloud.NetworkLoadBalancersApi(client).datacenters_networkloadbalancers_get(
+            datacenter_id, depth=1,
+        ),
+        module.params.get('network_load_balancer'),
     )
 
+    nlbs_api = ionoscloud.NetworkLoadBalancersApi(client)
+
+    try:
+        _, _, headers = nlbs_api.datacenters_networkloadbalancers_forwardingrules_delete_with_http_info(
+            datacenter_id, network_load_balancer_id, existing_object.id,
+        )
+        if module.params.get('wait'):
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
+    except ApiException as e:
+        module.fail_json(msg="failed to remove the Network Loadbalancer Rule: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
+        }
+
+    # No action
     return {
-        'changed': True,
-        'action': 'update',
+        'changed': False,
         'failed': False,
-        'forwarding_rule': forwarding_rule_response.to_dict()
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
     }
 
 
-def remove_nlb_forwarding_rule(module, client):
-    """
-    Removes a Network Load Balancer Forwarding Rule.
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
 
-    This will remove a Network Load Balancer Forwarding Rule.
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        True if the Network Load Balancer Forwarding Rule was deleted, false otherwise
-    """
-    name = module.params.get('name')
-    datacenter_id = module.params.get('datacenter_id')
-    network_load_balancer_id = module.params.get('network_load_balancer_id')
-    forwarding_rule_id = module.params.get('forwarding_rule_id')
-
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-
-    nlb_server = ionoscloud.NetworkLoadBalancersApi(client)
-    changed = False
-
-    try:
-        network_load_balancer_rule_list = nlb_server.datacenters_networkloadbalancers_forwardingrules_get(
-            datacenter_id, network_load_balancer_id, depth=1,
-        )
-        if forwarding_rule_id:
-            network_load_balancer_rule = get_resource(module, network_load_balancer_rule_list, forwarding_rule_id)
-        else:
-            network_load_balancer_rule = get_resource(module, network_load_balancer_rule_list, name)
-
-        if not network_load_balancer_rule:
-            module.exit_json(changed=False)
-
-        _, _, headers = nlb_server.datacenters_networkloadbalancers_forwardingrules_delete_with_http_info(
-            datacenter_id, network_load_balancer_id, network_load_balancer_rule.id,
-        )
-
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-        changed = True
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
 
 
-    except Exception as e:
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
+
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
+
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
         module.fail_json(
-            msg="failed to delete the Network Load Balancer Forwarding Rule: %s" % to_native(e))
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
+
+    _remove_object(module, client, existing_object)
 
     return {
         'action': 'delete',
-        'changed': changed,
-        'id': forwarding_rule_id
+        'changed': True,
+        'id': existing_object.id,
     }
 
 
@@ -585,16 +672,13 @@ def main():
         api_client.user_agent = USER_AGENT
         check_required_arguments(module, state, OBJECT_NAME)
 
-        if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('forwarding_rule_id'):
-            module.fail_json(msg='either name or forwarding_rule_id parameter is required for {object_name} state present'.format(object_name=OBJECT_NAME))
-
         try:
             if state == 'absent':
-                module.exit_json(**remove_nlb_forwarding_rule(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'present':
-                module.exit_json(**create_nlb_forwarding_rule(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_nlb_forwarding_rule(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 

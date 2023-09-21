@@ -1,0 +1,30 @@
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "ipblock": {
+        "href": "https://api.ionos.com/cloudapi/v6/ipblocks/0bce3fe3-67fd-4d7e-ba86-2e734ad2a79b",
+        "id": "0bce3fe3-67fd-4d7e-ba86-2e734ad2a79b",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-29T11:45:10+00:00",
+            "etag": "59558fb22d91e9d6d7a9750aba57fa47",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-29T11:45:10+00:00",
+            "state": "BUSY"
+        },
+        "properties": {
+            "ip_consumers": [],
+            "ips": [
+                "<IP1>",
+                "<IP2>"
+            ],
+            "location": "gb/lhr",
+            "name": "AnsibleAutoTestCompute",
+            "size": 2
+        },
+        "type": "ipblock"
+    }
+}

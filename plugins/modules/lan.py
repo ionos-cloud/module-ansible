@@ -33,6 +33,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'LAN'
+RETURNED_KEY = 'lan'
 
 OPTIONS = {
     'datacenter': {
@@ -41,25 +42,41 @@ OPTIONS = {
         'required': STATES,
         'type': 'str',
     },
-    'name': {
-        'description': ['The name or ID of the LAN.'],
-        'required': STATES,
-        'available': STATES,
+    'lan': {
+        'description': ['The LAN name or UUID.'],
+        'available': ['absent', 'update'],
+        'required': ['absent', 'update'],
         'type': 'str',
     },
-    'pcc_id': {
-        'description': ['The ID of the PCC.'],
+    'name': {
+        'description': ['The name of the  resource.'],
+        'required': ['present'],
         'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'pcc': {
+        'description': ['The unique identifier of the private Cross-Connect the LAN is connected to, if any.'],
+        'available': ['update'],
         'type': 'str',
     },
     'ip_failover': {
-        'description': ['The IP failover group.'],
-        'available': ['present', 'update'],
+        'description': ['IP failover configurations for lan'],
+        'available': ['update'],
         'type': 'list',
         'elements': 'dict',
     },
     'public': {
-        'description': ['If true, the LAN will have public Internet access.'],
+        'description': ['This LAN faces the public Internet.'],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
+    },
+    'allow_replace': {
+        'description': [
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
+            'value to an immutable property. An error will be thrown instead',
+        ],
         'available': ['present', 'update'],
         'default': False,
         'type': 'bool',
@@ -226,162 +243,209 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def create_lan(module, client):
-    """
-    Creates a LAN.
+def _should_replace_object(module, existing_object):
+    return False
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
 
-    Returns:
-        The LAN instance
-    """
-    datacenter = module.params.get('datacenter')
+def _should_update_object(module, existing_object, client):
+    pcc_id = get_resource_id(
+        module, 
+        ionoscloud.PrivateCrossConnectsApi(client).pccs_get(depth=1),
+        module.params.get('pcc'),
+    )
+
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+        or module.params.get('public') is not None
+        and existing_object.properties.public != module.params.get('public')
+        or module.params.get('ip_failover') is not None
+        and existing_object.properties.ip_failover != list(map(lambda el: {'ip': el.ip, 'nic_uuid': el.nic_uuid}, module.params.get('ip_failover')))
+        or pcc_id is not None
+        and existing_object.properties.pcc != pcc_id
+    )
+
+
+def _get_object_list(module, client):
+    datacenter_list = ionoscloud.DataCentersApi(api_client=client).datacenters_get(depth=1)
+    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
+
+    return ionoscloud.LANsApi(client).datacenters_lans_get(datacenter_id, depth=1)
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('lan')
+
+
+def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
     public = module.params.get('public')
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        public = existing_object.properties.public if public is None else public
+
     wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
+    wait_timeout = int(module.params.get('wait_timeout'))
 
-    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    lan_server = ionoscloud.LANsApi(api_client=client)
+    datacenters_api = ionoscloud.DataCentersApi(client)
+    lans_api = ionoscloud.LANsApi(client)
 
-    # Locate UUID for virtual datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
+    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
 
-    # Need depth 2 for nested nic properties
-    lan_list = lan_server.datacenters_lans_get(datacenter_id, depth=2)
-
-    existing_lan = get_resource(module, lan_list, name)
-
-    if existing_lan:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'lan': existing_lan.to_dict(),
-        }
-
-    if module.check_mode:
-        module.exit_json(changed=False)
-
-    lan_response = None
-    try:
-        lan = LanPost(properties=LanPropertiesPost(name=name, public=public))
-
-        lan_response, _, headers = lan_server.datacenters_lans_post_with_http_info(datacenter_id=datacenter_id, lan=lan)
-
-        request_id = _get_request_id(headers['Location'])
-        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-        return {
-            'failed': False,
-            'changed': True,
-            'action': 'create',
-            'lan': lan_response.to_dict()
-        }
-
-    except Exception as e:
-        module.fail_json(msg="failed to create the LAN: %s" % to_native(e))
-
-
-def update_lan(module, client):
-    """
-    Updates a LAN.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        The LAN instance
-    """
-    datacenter = module.params.get('datacenter')
-    name = module.params.get('name')
-    public = module.params.get('public')
-    ip_failover = module.params.get('ip_failover')
-    pcc_id = module.params.get('pcc_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-
-    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    lan_server = ionoscloud.LANsApi(api_client=client)
-
-    # Locate UUID for virtual datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
-
-    # Prefetch a list of LANs.
-    lan_list = lan_server.datacenters_lans_get(datacenter_id, depth=1)
-    lan_id = get_resource_id(module, lan_list, name)
-
-    if module.check_mode:
-        module.exit_json(changed=True)
+    lan = LanPost(properties=LanPropertiesPost(name=name, public=public))
 
     try:
-        if ip_failover:
-            for elem in ip_failover:
-                elem['nicUuid'] = elem.pop('nic_uuid')
-
-        lan_properties = LanProperties(name=name, ip_failover=ip_failover, pcc=pcc_id, public=public)
-        lan = Lan(properties=lan_properties)
-
-        response = lan_server.datacenters_lans_put_with_http_info(datacenter_id=datacenter_id, lan_id=lan_id, lan=lan)
-        (lan_response, _, headers) = response
-
+        lan_response, _, headers = lans_api.datacenters_lans_post_with_http_info(datacenter_id, lan=lan)
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to create the new LAN: %s" % to_native(e))
+    return lan_response
 
-        return {
-            'failed': False,
-            'changed': True,
-            'action': 'update',
-            'lan': lan_response.to_dict()
-        }
 
-    except Exception as e:
+def _update_object(module, client, existing_object):
+    name = module.params.get('name')
+    public = module.params.get('public')
+    ip_failover = module.params.get('ip_failover')
+    pcc_id = get_resource_id(
+        module, 
+        ionoscloud.PrivateCrossConnectsApi(client).pccs_get(depth=1),
+        module.params.get('pcc'),
+    )
+
+    datacenters_api = ionoscloud.DataCentersApi(client)
+    lans_api = ionoscloud.LANsApi(client)
+
+    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
+
+    if ip_failover:
+        for elem in ip_failover:
+            elem['nicUuid'] = elem.pop('nic_uuid')
+
+    lan_properties = LanProperties(name=name, ip_failover=ip_failover, pcc=pcc_id, public=public)
+
+    try:
+        lan_response, _, headers = lans_api.datacenters_lans_patch_with_http_info(
+            datacenter_id, existing_object.id, lan_properties,
+        )
+        if module.params.get('wait'):
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
+
+        return lan_response
+    except ApiException as e:
         module.fail_json(msg="failed to update the LAN: %s" % to_native(e))
 
 
-def delete_lan(module, client):
-    """
-    Removes a LAN
+def _remove_object(module, client, existing_object):
+    datacenters_api = ionoscloud.DataCentersApi(client)
+    lans_api = ionoscloud.LANsApi(client)
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        True if the LAN was removed, false otherwise
-    """
-    datacenter = module.params.get('datacenter')
-    name = module.params.get('name')
-
-    datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    lan_server = ionoscloud.LANsApi(api_client=client)
-
-    # Locate UUID for virtual datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
-    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
-
-    # Locate ID for LAN
-    lan_list = lan_server.datacenters_lans_get(datacenter_id=datacenter_id, depth=1)
-    lan_id = get_resource_id(module, lan_list, name)
-
-    if not lan_id:
-        module.exit_json(changed=False)
-
-    if module.check_mode:
-        module.exit_json(changed=True)
+    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
 
     try:
-        lan_server.datacenters_lans_delete(datacenter_id=datacenter_id, lan_id=lan_id)
-        return {
-            'action': 'delete',
-            'changed': True,
-            'id': lan_id
-        }
-    except Exception as e:
+        _, _, headers = lans_api.datacenters_lans_delete_with_http_info(datacenter_id, existing_object.id)
+        if module.params.get('wait'):
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
+    except ApiException as e:
         module.fail_json(msg="failed to remove the LAN: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object, client):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
+        }
+
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
+
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
+
+
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
+
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
+
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
+
+    _remove_object(module, client, existing_object)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.id,
+    }
 
 
 def get_module_arguments():
@@ -470,11 +534,11 @@ def main():
 
         try:
             if state == 'absent':
-                module.exit_json(**delete_lan(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'present':
-                module.exit_json(**create_lan(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_lan(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 

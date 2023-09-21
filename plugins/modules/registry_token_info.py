@@ -21,6 +21,7 @@ __version__, ionoscloud_container_registry.__version__)
 DOC_DIRECTORY = 'container-registry'
 STATES = ['info']
 OBJECT_NAME = 'Registry Tokens'
+RETURNED_KEY = 'registry_tokens'
 
 OPTIONS = {
     'filters': {
@@ -32,8 +33,8 @@ OPTIONS = {
         'available': STATES,
         'type': 'dict',
     },
-    'registry_id': {
-        'description': ['The ID of an existing Registry.'],
+    'registry': {
+        'description': ['The ID or name of an existing Registry.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -101,7 +102,7 @@ author:
 EXAMPLES = '''
     - name: List Registry Tokens
         registry_token_info:
-            registry_id: "{{ id }}"
+            registry: "RegistryName"
         register: registry_tokens_response
 
 
@@ -109,6 +110,45 @@ EXAMPLES = '''
         debug:
             var: registry_tokens_response.result
 '''
+
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
+
 
 def get_method_from_filter(filter):
     '''
@@ -238,16 +278,20 @@ def main():
             msg='ionoscloud_container_registry is required for this module, run `pip install ionoscloud_container_registry`')
 
 
-    registry_id = module.params.get('registry_id')
-
-    container_registry_api_client = ionoscloud_container_registry.ApiClient(get_sdk_config(module, ionoscloud_container_registry))
-    container_registry_api_client.user_agent = CONTAINER_REGISTRY_USER_AGENT
+    client = ionoscloud_container_registry.ApiClient(get_sdk_config(module, ionoscloud_container_registry))
+    client.user_agent = CONTAINER_REGISTRY_USER_AGENT
 
     check_required_arguments(module, OBJECT_NAME)
+
     try:
-        tokens = ionoscloud_container_registry.TokensApi(container_registry_api_client).registries_tokens_get(registry_id=registry_id)
+        registry_id = get_resource_id(
+            module, 
+            ionoscloud_container_registry.RegistriesApi(client).registries_get(),
+            module.params.get('registry'),
+        )
+        tokens = ionoscloud_container_registry.TokensApi(client).registries_tokens_get(registry_id)
         results = list(map(lambda x: x.to_dict(), apply_filters(module, tokens.items)))
-        module.exit_json(result=results)
+        module.exit_json(**{RETURNED_KEY:results})
     except Exception as e:
         module.fail_json(
             msg='failed to retrieve {object_name}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
