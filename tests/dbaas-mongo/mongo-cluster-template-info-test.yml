@@ -12,6 +12,6 @@
     #     content: "{{mongo_cluster_templates_response}}"
     #     dest: ../../docs/returned_object_examples/mongo_cluster_template_info.json
 
-    # - name: Show Postgres Cluster Templates
-    #   debug:
-    #     var: mongo_cluster_templates_response.mongo_cluster_templates
+    - name: Show Postgres Cluster Templates
+      debug:
+        var: mongo_cluster_templates_response.mongo_cluster_templates
