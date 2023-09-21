@@ -107,16 +107,6 @@ This module allows you to create or remove a LAN.
   <td>The name of the  resource.</td>
   </tr>
   <tr>
-  <td>pcc<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">False</td>
-  <td>The unique identifier of the private Cross-Connect the LAN is connected to, if any.</td>
-  </tr>
-  <tr>
-  <td>ip_failover<br/><mark style="color:blue;">list</mark></td>
-  <td align="center">False</td>
-  <td>IP failover configurations for lan</td>
-  </tr>
-  <tr>
   <td>public<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
   <td>This LAN faces the public Internet.<br />Default: False</td>

@@ -429,7 +429,6 @@ def _create_object(module, client, existing_object=None):
         port_range_start=port_range_start, port_range_end=port_range_end,
     ))
 
-
     try:
         current_nic = nic_api.datacenters_servers_nics_find_by_id(
             datacenter_id=datacenter_id, server_id=server_id, nic_id=nic_id,

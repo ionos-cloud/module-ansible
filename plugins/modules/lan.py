@@ -59,9 +59,14 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'str',
     },
+    'pcc': {
+        'description': ['The unique identifier of the private Cross-Connect the LAN is connected to, if any.'],
+        'available': ['update'],
+        'type': 'str',
+    },
     'ip_failover': {
         'description': ['IP failover configurations for lan'],
-        'available': ['present', 'update'],
+        'available': ['update'],
         'type': 'list',
         'elements': 'dict',
     },
@@ -301,7 +306,6 @@ def _get_object_identifier(module):
 def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
     public = module.params.get('public')
-    ip_failover = module.params.get('ip_failover')
     ipv6_cidr = module.params.get('ipv6_cidr')
 
     pcc_id = get_resource_id(
@@ -324,13 +328,10 @@ def _create_object(module, client, existing_object=None):
     datacenter_list = datacenters_api.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
 
-    lan = Lan(
-        properties=LanProperties(
-            name=name, ip_failover=ip_failover,
-            pcc=pcc_id, public=public,
-            ipv6_cidr_block=ipv6_cidr,
-        )
-    )
+    lan = Lan(properties=LanProperties(
+        name=name, pcc=pcc_id, public=public,
+        ipv6_cidr_block=ipv6_cidr,
+    ))
 
     try:
         lan_response, _, headers = lans_api.datacenters_lans_post_with_http_info(datacenter_id, lan=lan)
