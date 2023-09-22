@@ -1,5 +1,12 @@
 # Changelog
 
+## 7.0.0-beta.1
+### Features
+* Reworked all modules to be declarative, for more details https://github.com/ionos-cloud/module-ansible/blob/master/docs/usage/declarative_changes.md
+* changed info modules to have the same format
+* added ipv6 support
+* updated docs, added return examples and updated option descriptions
+
 ## 6.5.3
 ### Features
 * Added support for [vCPU Servers](api/compute-engine/vcpu_server.md)
