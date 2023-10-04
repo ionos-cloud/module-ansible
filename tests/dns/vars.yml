@@ -1,0 +1,5 @@
+zone_name: example.com
+zone_description: test_description
+zone_description_updated: zone_description_updated
+zone_enabled: true
+zone_enabled_updated: false
