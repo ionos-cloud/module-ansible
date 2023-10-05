@@ -4,3 +4,6 @@
 
 - name: Run Zone Test
   import_playbook: zone-test.yml
+
+- name: Run Record Test
+  import_playbook: record-test.yml

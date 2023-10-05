@@ -4,9 +4,9 @@ import yaml
 
 HAS_SDK = True
 try:
-    import ionoscloud
-    from ionoscloud import __version__ as sdk_version
-    from ionoscloud import ApiClient
+    import ionoscloud_dns
+    from ionoscloud_dns import __version__ as sdk_version
+    from ionoscloud_dns import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -19,13 +19,18 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
-DOC_DIRECTORY = 'compute-engine'
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-dns/%s' % (__version__, sdk_version)
+DOC_DIRECTORY = 'dns'
 STATES = ['info']
-OBJECT_NAME = 'Datacenters'
-RETURNED_KEY = 'datacenters'
+OBJECT_NAME = 'DNS Records'
+RETURNED_KEY = 'records'
 
 OPTIONS = {
+    'zone': {
+        'description': ['The ID or name of an existing Zone.'],
+        'available': STATES,
+        'type': 'str',
+    },
     'filters': {
         'description': [
             'Filter that can be used to list only objects which have a certain set of propeties. Filters '
@@ -91,10 +96,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: datacenter_info
-short_description: List Ionos Cloud Datacenters.
+module: dns_zone_info
+short_description: List Ionos Cloud DNS Zones.
 description:
-     - This is a simple module that supports listing Datacenter.
+     - This is a simple module that supports listing DNS Zones.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -108,9 +113,14 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: Get all Datacenter
-      datacenter_info:
-      register: datacenter_list_response
+    - name: Get all DNS Records
+      dns_record_info:
+      register: dns_record_list_response
+
+    - name: Get all DNS Records in a Zone
+      dns_record_info:
+        zone: example.com
+      register: dns_record_list_response
 '''
 
 uuid_match = re.compile(
@@ -212,9 +222,17 @@ def apply_filters(module, item_list):
 
 
 def get_objects(module, client):
-    datacenters = ionoscloud.DataCentersApi(client).datacenters_get(depth=module.params.get('depth'))
+    zone_id = get_resource_id(
+        module, ionoscloud_dns.ZonesApi(client).zones_get(),
+        module.params.get('zone'),
+        identity_paths=[['id'], ['properties', 'zone_name']],
+    )
+    if zone_id:
+        dns_records = ionoscloud_dns.RecordsApi(client).zones_records_get(zone_id=zone_id)
+    else:
+        dns_records = ionoscloud_dns.RecordsApi(client).records_get()
     try:
-        results = list(map(lambda x: x.to_dict(), apply_filters(module, datacenters.items)))
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, dns_records.items)))
         return {
             'changed': False,
             RETURNED_KEY: results
@@ -301,10 +319,10 @@ def main():
     module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
     if not HAS_SDK:
-        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+        module.fail_json(msg='ionoscloud_dns is required for this module, run `pip install ionoscloud_dns`')
 
     state = module.params.get('state')
-    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+    with ApiClient(get_sdk_config(module, ionoscloud_dns)) as api_client:
         api_client.user_agent = USER_AGENT
         check_required_arguments(module, OBJECT_NAME)
 

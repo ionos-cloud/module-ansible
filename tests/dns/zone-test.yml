@@ -14,13 +14,23 @@
       enabled: "{{zone_enabled}}"
     register: zone_response
 
-  # - name: List Zones
-  #   zone_info:
-  #   register: zones_response
+  - name: Print output to file
+    ansible.builtin.copy:
+      content: "{{zone_response}}"
+      dest: ../../docs/returned_object_examples/dns_zone.json
 
-  # - name: Show Zones
-  #   debug:
-  #     var: zones_response.result
+  - name: List Zones
+    dns_zone_info:
+    register: zones_response
+
+  - name: Print output to file
+    ansible.builtin.copy:
+      content: "{{zones_response}}"
+      dest: ../../docs/returned_object_examples/dns_zone_info.json
+
+  - name: Show Zones
+    debug:
+      var: zones_response.zones
 
   - name: Update Zone
     dns_zone:

@@ -1,0 +1,25 @@
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "record": {
+        "id": "c76bf816-c11a-5dfc-8ef3-badfbee48451",
+        "type": "record",
+        "href": "/zones/b4021310-5e39-50bb-95f6-448b21bf0142/records/c76bf816-c11a-5dfc-8ef3-badfbee48451",
+        "metadata": {
+            "last_modified_date": "2023-10-05T14:38:56+00:00",
+            "created_date": "2023-10-05T14:38:56+00:00",
+            "state": "AVAILABLE",
+            "fqdn": "<FQDN>",
+            "zone_id": "b4021310-5e39-50bb-95f6-448b21bf0142"
+        },
+        "properties": {
+            "name": "<RECORD_NAME>",
+            "type": "CNAME",
+            "content": "<CONTENT>",
+            "ttl": 3600,
+            "priority": 0,
+            "enabled": true
+        }
+    }
+}

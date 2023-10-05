@@ -26,31 +26,58 @@ DNS_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-dns/%s'% (
 )
 DOC_DIRECTORY = 'dns'
 STATES = ['present', 'absent', 'update']
-OBJECT_NAME = 'Zone'
-RETURNED_KEY = 'zone'
+OBJECT_NAME = 'Record'
+RETURNED_KEY = 'record'
 REPO_URL = "https://github.com/ionos-cloud/module-ansible"
 
 OPTIONS = {
-    'enabled': {
-        'description': ['Users can activate and deactivate zones.'],
-        'available': ['present', 'update'],
-        'type': 'bool',
-    },
-    'description': {
-        'description': ['The hosted zone is used for...'],
-        'available': ['present', 'update'],
-        'type': 'str',
-    },
     'name': {
-        'description': ['The zone name'],
+        'description': ['The Record name.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
-    'zone': {
-        'description': ['The ID or name of an existing Zone.'],
+    'type': {
+        'description': ['Holds supported DNS resource record types. In the DNS context a record is a DNS resource record.'],
+        'options': [
+            'A', 'AAAA', 'CNAME', 'ALIAS', 'MX', 'NS', 'SRV', 'TXT', 'CAA', 'SSHFP', 'TLSA', 'SMIMEA',
+            'DS', 'HTTPS', 'SVCB', 'OPENPGPKEY', 'CERT', 'URI', 'RP', 'LOC'
+        ],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'content': {
+        'description': ['The conted of the Record.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'ttl': {
+        'description': ['Time to live for the record, recommended 3600.'],
+        'available': ['present', 'update'],
+        'type': 'int',
+    },
+    'priority': {
+        'description': ['Priority value is between 0 and 65535. Priority is mandatory for MX, SRV and URI record types and ignored for all other types.'],
+        'available': ['present', 'update'],
+        'type': 'int',
+    },
+    'enabled': {
+        'description': ['When true - the record is visible for lookup.'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
+    'record': {
+        'description': ['The ID or name of an existing Record.'],
         'available': ['update', 'absent'],
         'required': ['update', 'absent'],
+        'type': 'str',
+    },
+    'zone': {
+        'description': ['The ID or name of an existing Zone.'],
+        'available': STATES,
+        'required': STATES,
         'type': 'str',
     },
     'allow_replace': {
@@ -117,6 +144,12 @@ OPTIONS = {
     },
 }
 
+
+IMMUTABLE_OPTIONS = [
+    { "name": "name", "note": "" },
+]
+
+
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES)
     del val['available']
@@ -127,9 +160,9 @@ def transform_for_documentation(val):
 DOCUMENTATION = '''
 ---
 module: zone
-short_description: Allows operations with Ionos Cloud DNS Zones.
+short_description: Allows operations with Ionos Cloud DNS Records.
 description:
-     - This is a module that supports creating, updating or destroying DNS Zones
+     - This is a module that supports creating, updating or destroying DNS Records
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -144,24 +177,34 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-    'present': '''- name: Create Zone
-    dns_zone:
-      name: example.com
-      description: zone_description
+    'present': '''- name: Create record
+    dns_record:
+      zone: example.com
+      name: record_name
+      type: MX
+      content: record_content
+      ttl: 3600
+      priority: 10
       enabled: true
-    register: zone_response
+    register: record_response
   ''',
-    'update': '''- name: Update zone
-    dns_zone:
+    'update': '''- name: Update record
+    dns_record:
       zone: example.com
-      description: zone_description_update
-      enabled: false
+      record: record_name2
+      name: record_name2
+      type: MX
+      content: record_content
+      ttl: 1800
+      priority: 9
+      enabled: true
       state: update
-    register: updated_zone_response
+    register: updated_record_response
   ''',
-    'absent': '''- name: Delete zone
-    dns_zone:
+    'absent': '''- name: Delete record
+    dns_record:
       zone: example.com
+      record: record_name2
       wait: true
       state: absent
   ''',
@@ -210,22 +253,36 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
 
 
 def _should_replace_object(module, existing_object):
-    return False
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+    )
 
 
 def _should_update_object(module, existing_object):
     return (
-        module.params.get('description') is not None
-        and existing_object.properties.description != module.params.get('description')
+        module.params.get('type') is not None
+        and existing_object.properties.type != module.params.get('type')
+        or module.params.get('content') is not None
+        and existing_object.properties.content != module.params.get('content')
+        or module.params.get('ttl') is not None
+        and existing_object.properties.ttl != module.params.get('ttl')
+        or module.params.get('priority') is not None
+        and module.params.get('type', existing_object.properties.type) in ['MX', 'SRV', 'URI']
+        and existing_object.properties.priority != module.params.get('priority')
         or module.params.get('enabled') is not None
         and existing_object.properties.enabled != module.params.get('enabled')
-        or module.params.get('name') is not None
-        and existing_object.properties.zone_name != module.params.get('name')
     )
 
 
 def _get_object_list(module, client):
-    return ionoscloud_dns.ZonesApi(client).zones_get()
+    zone_id = get_resource_id(
+        module, ionoscloud_dns.ZonesApi(client).zones_get(),
+        module.params.get('zone'),
+        identity_paths=[['id'], ['properties', 'zone_name']],
+    )
+
+    return ionoscloud_dns.RecordsApi(client).zones_records_get(zone_id)
 
 
 def _get_object_name(module):
@@ -233,62 +290,94 @@ def _get_object_name(module):
 
 
 def _get_object_identifier(module):
-    return module.params.get('zone')
+    return module.params.get('record')
 
 
 def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
-    description = module.params.get('description')
+    record_type = module.params.get('type')
+    content = module.params.get('content')
+    ttl = module.params.get('ttl')
+    priority = module.params.get('priority')
     enabled = module.params.get('enabled')
+
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
-        description = existing_object.properties.description if description is None else description
+        record_type = existing_object.properties.type if record_type is None else record_type
+        content = existing_object.properties.content if content is None else content
+        ttl = existing_object.properties.ttl if ttl is None else ttl
+        priority = existing_object.properties.priority if priority is None else priority
         enabled = existing_object.properties.enabled if enabled is None else enabled
 
-    zones_api = ionoscloud_dns.ZonesApi(client)
-    zone = ionoscloud_dns.ZoneEnsure(
-        properties=ionoscloud_dns.Zone(
-            zone_name=name,
-            description=description,
-            enabled=enabled,
+    zone_id = get_resource_id(
+        module, ionoscloud_dns.ZonesApi(client).zones_get(),
+        module.params.get('zone'),
+        identity_paths=[['id'], ['properties', 'zone_name']],
+    )
+    record = ionoscloud_dns.RecordEnsure(
+        properties=ionoscloud_dns.Record(
+            name=name, type=record_type,content=content,
+            ttl=ttl, priority=priority, enabled=enabled,
         ),
     )
 
     try:
-        zone = zones_api.zones_put(str(uuid.uuid5(uuid.uuid5(uuid.NAMESPACE_URL, REPO_URL), str(uuid.uuid4()))), zone)
+        record = ionoscloud_dns.RecordsApi(client).zones_records_put(
+            zone_id, str(uuid.uuid5(uuid.uuid5(uuid.NAMESPACE_URL, REPO_URL), str(uuid.uuid4()))), record,
+        )
     except ionoscloud_dns.ApiException as e:
-        module.fail_json(msg="failed to create the new DNS Zone: %s" % to_native(e))
-    return zone
+        module.fail_json(msg="failed to create the new DNS Record: %s" % to_native(e))
+    return record
 
 
 def _update_object(module, client, existing_object):
     name = module.params.get('name')
-    description = module.params.get('description')
+    record_type = module.params.get('type')
+    content = module.params.get('content')
+    ttl = module.params.get('ttl')
+    priority = module.params.get('priority')
     enabled = module.params.get('enabled')
-    if existing_object is not None:
-        name = existing_object.properties.zone_name if name is None else name
 
-    zone = ionoscloud_dns.ZoneEnsure(properties=ionoscloud_dns.Zone(
-        zone_name=name,
-        description=description,
-        enabled=enabled,
-    ))
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        record_type = existing_object.properties.type if record_type is None else record_type
+        content = existing_object.properties.content if content is None else content
+        ttl = existing_object.properties.ttl if ttl is None else ttl
+        priority = existing_object.properties.priority if priority is None else priority
+        enabled = existing_object.properties.enabled if enabled is None else enabled
+
+    zone_id = get_resource_id(
+        module, ionoscloud_dns.ZonesApi(client).zones_get(),
+        module.params.get('zone'),
+        identity_paths=[['id'], ['properties', 'zone_name']],
+    )
+    record = ionoscloud_dns.RecordEnsure(
+        properties=ionoscloud_dns.Record(
+            name=name, type=record_type,content=content,
+            ttl=ttl, priority=priority, enabled=enabled,
+        ),
+    )
 
     try:
-        zone = ionoscloud_dns.ZonesApi(client).zones_put(zone_id=existing_object.id, zone_ensure=zone)
+        record = ionoscloud_dns.RecordsApi(client).zones_records_put(
+            zone_id=zone_id, record_id=existing_object.id, record_ensure=record,
+        )
 
-        return zone
+        return record
     except ionoscloud_dns.ApiException as e:
-        module.fail_json(msg="failed to update the DNS Zone: %s" % to_native(e))
+        module.fail_json(msg="failed to update the DNS Record: %s" % to_native(e))
 
 
 def _remove_object(module, client, existing_object):
-    zones_api = ionoscloud_dns.ZonesApi(client)
-
+    zone_id = get_resource_id(
+        module, ionoscloud_dns.ZonesApi(client).zones_get(),
+        module.params.get('zone'),
+        identity_paths=[['id'], ['properties', 'zone_name']],
+    )
     try:
-        zones_api.zones_delete(existing_object.id)
+        ionoscloud_dns.RecordsApi(client).zones_records_delete(zone_id, existing_object.id)
     except ionoscloud_dns.ApiException as e:
-        module.fail_json(msg="failed to remove the DNS Zone: %s" % to_native(e))
+        module.fail_json(msg="failed to remove the DNS Record: %s" % to_native(e))
 
 
 def update_replace_object(module, client, existing_object):
@@ -326,9 +415,7 @@ def update_replace_object(module, client, existing_object):
 def create_object(module, client):
     existing_object = get_resource(
         module, _get_object_list(module, client), _get_object_name(module),
-        identity_paths=[['id'], ['properties', 'zone_name']],
     )
-
     if existing_object:
         return update_replace_object(module, client, existing_object)
 
@@ -346,16 +433,13 @@ def update_object(module, client):
 
     existing_object = get_resource(
         module, object_list, _get_object_identifier(module),
-        identity_paths=[['id'], ['properties', 'zone_name']],
     )
 
     if existing_object is None:
         module.exit_json(changed=False)
         return
 
-    existing_object_id_by_new_name = get_resource_id(
-        module, object_list, object_name, identity_paths=[['id'], ['properties', 'zone_name']],
-    )
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
     if (
         existing_object.id is not None
@@ -374,7 +458,7 @@ def update_object(module, client):
 def remove_object(module, client):
     existing_object = get_resource(
         module, _get_object_list(module, client),
-        _get_object_identifier(module), identity_paths=[['id'], ['properties', 'zone_name']],
+        _get_object_identifier(module),
     )
 
     if existing_object is None:

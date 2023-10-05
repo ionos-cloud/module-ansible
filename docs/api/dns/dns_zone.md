@@ -1,34 +1,29 @@
-# registry
+# dns_zone
 
-This is a module that supports creating, updating or destroying Registries
+This is a module that supports creating, updating or destroying DNS Zones
 
 ## Example Syntax
 
 
 ```yaml
-- name: Create Registry
-    registry:
-      name: test_registry
-      location: de/fra
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: registry_response
+- name: Create Zone
+    dns_zone:
+      name: example.com
+      description: zone_description
+      enabled: true
+    register: zone_response
   
-- name: Update Registry
-    registry:
-      registry: test_registry
-      name: test_registry_update
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: updated_registry_response
+- name: Update zone
+    dns_zone:
+      zone: example.com
+      description: zone_description_update
+      enabled: false
+      state: update
+    register: updated_zone_response
   
-- name: Delete Registry
-    registry:
-      registry: test_registry
+- name: Delete zone
+    dns_zone:
+      zone: example.com
       wait: true
       state: absent
   
@@ -43,34 +38,26 @@ This is a module that supports creating, updating or destroying Registries
     "changed": true,
     "failed": false,
     "action": "create",
-    "registry": {
-        "href": "",
-        "id": "9bc72c7b-14d3-493e-a700-f9bc06b25614",
+    "zone": {
+        "id": "36d63502-7110-57f3-8794-a24fe8959d18",
+        "type": "zone",
+        "href": "/zones/36d63502-7110-57f3-8794-a24fe8959d18",
         "metadata": {
-            "created_by": "<USER_EMAIL>",
-            "created_by_user_id": "<USER_ID>",
-            "created_date": "2023-05-29T13:51:25+00:00",
-            "last_modified_by": null,
-            "last_modified_by_user_id": null,
-            "last_modified_date": null,
-            "state": "New"
+            "last_modified_date": "2023-10-05T14:38:51+00:00",
+            "created_date": "2023-10-05T14:38:51+00:00",
+            "state": "AVAILABLE",
+            "nameservers": [
+                "<NAMESERVER1>",
+                "<NAMESERVER2>",
+                "<NAMESERVER3>",
+                "<NAMESERVER4>"
+            ]
         },
         "properties": {
-            "garbage_collection_schedule": {
-                "days": [
-                    "Wednesday"
-                ],
-                "time": "04:17:00+00:00"
-            },
-            "hostname": "",
-            "location": "de/fra",
-            "name": "ansibletest123",
-            "storage_usage": {
-                "bytes": 0,
-                "updated_at": null
-            }
-        },
-        "type": "registry"
+            "zone_name": "<ZONE_NAME>",
+            "description": "test_description",
+            "enabled": true
+        }
     }
 }
 
@@ -78,23 +65,16 @@ This is a module that supports creating, updating or destroying Registries
 
 &nbsp;
 
- **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
-## Parameters that can trigger a resource replacement:
-  * name 
-  * location 
 &nbsp;
 
 # state: **present**
 ```yaml
-  - name: Create Registry
-    registry:
-      name: test_registry
-      location: de/fra
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: registry_response
+  - name: Create Zone
+    dns_zone:
+      name: example.com
+      description: zone_description
+      enabled: true
+    register: zone_response
   
 ```
 ### Available parameters for state **present**:
@@ -110,19 +90,19 @@ This is a module that supports creating, updating or destroying Registries
   </thead>
   <tbody>
   <tr>
-  <td>garbage_collection_schedule<br/><mark style="color:blue;">dict</mark></td>
+  <td>enabled<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Dict containing &quot;time&quot; (the time of the day when to perform the garbage_collection) and &quot;days&quot; (the days when to perform the garbage_collection).</td>
+  <td>Users can activate and deactivate zones.</td>
   </tr>
   <tr>
-  <td>location<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>The location of your registry</td>
+  <td>description<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The hosted zone is used for...</td>
   </tr>
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The name of your registry.</td>
+  <td>The zone name</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
@@ -172,9 +152,9 @@ This is a module that supports creating, updating or destroying Registries
 &nbsp;
 # state: **absent**
 ```yaml
-  - name: Delete Registry
-    registry:
-      registry: test_registry
+  - name: Delete zone
+    dns_zone:
+      zone: example.com
       wait: true
       state: absent
   
@@ -192,9 +172,9 @@ This is a module that supports creating, updating or destroying Registries
   </thead>
   <tbody>
   <tr>
-  <td>registry<br/><mark style="color:blue;">str</mark></td>
+  <td>zone<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The ID or name of an existing Registry.</td>
+  <td>The ID or name of an existing Zone.</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -239,15 +219,13 @@ This is a module that supports creating, updating or destroying Registries
 &nbsp;
 # state: **update**
 ```yaml
-  - name: Update Registry
-    registry:
-      registry: test_registry
-      name: test_registry_update
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: updated_registry_response
+  - name: Update zone
+    dns_zone:
+      zone: example.com
+      description: zone_description_update
+      enabled: false
+      state: update
+    register: updated_zone_response
   
 ```
 ### Available parameters for state **update**:
@@ -263,24 +241,24 @@ This is a module that supports creating, updating or destroying Registries
   </thead>
   <tbody>
   <tr>
-  <td>garbage_collection_schedule<br/><mark style="color:blue;">dict</mark></td>
+  <td>enabled<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Dict containing &quot;time&quot; (the time of the day when to perform the garbage_collection) and &quot;days&quot; (the days when to perform the garbage_collection).</td>
+  <td>Users can activate and deactivate zones.</td>
   </tr>
   <tr>
-  <td>location<br/><mark style="color:blue;">str</mark></td>
+  <td>description<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The location of your registry</td>
+  <td>The hosted zone is used for...</td>
   </tr>
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The name of your registry.</td>
+  <td>The zone name</td>
   </tr>
   <tr>
-  <td>registry<br/><mark style="color:blue;">str</mark></td>
+  <td>zone<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The ID or name of an existing Registry.</td>
+  <td>The ID or name of an existing Zone.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
