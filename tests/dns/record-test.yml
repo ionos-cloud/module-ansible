@@ -25,10 +25,10 @@
       enabled: "{{record_enabled}}"
     register: record_response
 
-  - name: Print output to file
-    ansible.builtin.copy:
-      content: "{{record_response}}"
-      dest: ../../docs/returned_object_examples/dns_record.json
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{record_response}}"
+  #     dest: ../../docs/returned_object_examples/dns_record.json
 
   - name: List all Records in zone
     dns_record_info:
@@ -39,10 +39,10 @@
     debug:
       var: records_response.records
 
-  - name: Print output to file
-    ansible.builtin.copy:
-      content: "{{records_response}}"
-      dest: ../../docs/returned_object_examples/dns_record_info.json
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{records_response}}"
+  #     dest: ../../docs/returned_object_examples/dns_record_info.json
 
   - name: List all Records
     dns_record_info:

@@ -25,32 +25,32 @@ DNS_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-dns/%s'% (
     __version__, ionoscloud_dns.__version__,
 )
 DOC_DIRECTORY = 'dns'
-STATES = ['present', 'absent', 'update']
-OBJECT_NAME = 'Zone'
-RETURNED_KEY = 'zone'
+STATES = ['present', 'absent', 'update', 'transfer']
+OBJECT_NAME = 'Secondary Zone'
+RETURNED_KEY = 'secondary_zone'
 REPO_URL = "https://github.com/ionos-cloud/module-ansible"
 
 OPTIONS = {
-    'enabled': {
-        'description': ['Users can activate and deactivate zones.'],
-        'available': ['present', 'update'],
-        'type': 'bool',
-    },
-    'description': {
-        'description': ['The hosted zone is used for...'],
-        'available': ['present', 'update'],
-        'type': 'str',
-    },
     'name': {
         'description': ['The zone name'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
-    'zone': {
-        'description': ['The ID or name of an existing Zone.'],
-        'available': ['update', 'absent'],
-        'required': ['update', 'absent'],
+    'description': {
+        'description': ['The hosted zone is used for...'],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'primary_ips': {
+        'description': ['Indicates IP addresses of primary nameservers for a secondary zone. Accepts IPv4 and IPv6 addresses'],
+        'available': ['present', 'update'],
+        'type': 'list',
+    },
+    'secondary_zone': {
+        'description': ['The ID or name of an existing Secondary Zone.'],
+        'available': ['update', 'absent', 'transfer'],
+        'required': ['update', 'absent', 'transfer'],
         'type': 'str',
     },
     'allow_replace': {
@@ -127,9 +127,9 @@ def transform_for_documentation(val):
 DOCUMENTATION = '''
 ---
 module: zone
-short_description: Allows operations with Ionos Cloud DNS Zones.
+short_description: Allows operations with Ionos Cloud DNS Secondary Zones.
 description:
-     - This is a module that supports creating, updating or destroying DNS Zones
+     - This is a module that supports creating, updating or destroying DNS Secondary Zones
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -144,24 +144,34 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-    'present': '''- name: Create Zone
+    'present': '''- name: Create Secondary Zone
     dns_zone:
       name: example.com
       description: zone_description
-      enabled: true
+      primary_ips:
+        - <IP1>
+        - <IP2>
     register: zone_response
   ''',
-    'update': '''- name: Update zone
+    'update': '''- name: Update Secondary zone
     dns_zone:
-      zone: example.com
-      description: zone_description_update
-      enabled: false
+      secondary_zone: example.com
+      description: zone_description_updated
+      primary_ips:
+        - <IP3>
+        - <IP4>
       state: update
     register: updated_zone_response
   ''',
-    'absent': '''- name: Delete zone
+    'transfer': '''- name: Delete Secondary zone
     dns_zone:
-      zone: example.com
+      secondary_zone: example.com
+      wait: true
+      state: transfer
+  ''',
+    'absent': '''- name: Delete Secondary zone
+    dns_zone:
+      secondary_zone: example.com
       wait: true
       state: absent
   ''',
@@ -217,15 +227,15 @@ def _should_update_object(module, existing_object):
     return (
         module.params.get('description') is not None
         and existing_object.properties.description != module.params.get('description')
-        or module.params.get('enabled') is not None
-        and existing_object.properties.enabled != module.params.get('enabled')
+        or module.params.get('primary_ips') is not None
+        and sorted(existing_object.properties.primary_ips) != sorted(module.params.get('primary_ips'))
         or module.params.get('name') is not None
         and existing_object.properties.zone_name != module.params.get('name')
     )
 
 
 def _get_object_list(module, client):
-    return ionoscloud_dns.ZonesApi(client).zones_get()
+    return ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_get()
 
 
 def _get_object_name(module):
@@ -233,64 +243,68 @@ def _get_object_name(module):
 
 
 def _get_object_identifier(module):
-    return module.params.get('zone')
+    return module.params.get('secondary_zone')
 
 
 def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
     description = module.params.get('description')
-    enabled = module.params.get('enabled')
+    primary_ips = module.params.get('primary_ips')
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
         description = existing_object.properties.description if description is None else description
-        enabled = existing_object.properties.enabled if enabled is None else enabled
+        primary_ips = existing_object.properties.primary_ips if primary_ips is None else primary_ips
 
-    zones_api = ionoscloud_dns.ZonesApi(client)
-    zone = ionoscloud_dns.ZoneEnsure(
-        properties=ionoscloud_dns.Zone(
+    secondary_zones_api = ionoscloud_dns.SecondaryZonesApi(client)
+    secondary_zone = ionoscloud_dns.SecondaryZoneEnsure(
+        properties=ionoscloud_dns.SecondaryZone(
             zone_name=name,
             description=description,
-            enabled=enabled,
+            primary_ips=primary_ips,
         ),
     )
 
     try:
-        zone = zones_api.zones_put(str(uuid.uuid5(uuid.uuid5(uuid.NAMESPACE_URL, REPO_URL), str(uuid.uuid4()))), zone)
+        secondary_zone = secondary_zones_api.secondaryzones_put(
+            str(uuid.uuid5(uuid.uuid5(uuid.NAMESPACE_URL, REPO_URL), str(uuid.uuid4()))),
+            secondary_zone,
+        )
     except ionoscloud_dns.ApiException as e:
-        module.fail_json(msg="failed to create the new DNS Zone: %s" % to_native(e))
-    return zone
+        module.fail_json(msg="failed to create the new DNS Secondary Zone: %s" % to_native(e))
+    return secondary_zone
 
 
 def _update_object(module, client, existing_object):
     name = module.params.get('name')
     description = module.params.get('description')
-    enabled = module.params.get('enabled')
+    primary_ips = module.params.get('primary_ips')
     if existing_object is not None:
         name = existing_object.properties.zone_name if name is None else name
         description = existing_object.properties.description if description is None else description
-        enabled = existing_object.properties.enabled if enabled is None else enabled
+        primary_ips = existing_object.properties.primary_ips if primary_ips is None else primary_ips
 
-    zone = ionoscloud_dns.ZoneEnsure(properties=ionoscloud_dns.Zone(
-        zone_name=name,
-        description=description,
-        enabled=enabled,
-    ))
+    secondary_zones_api = ionoscloud_dns.SecondaryZonesApi(client)
+    secondary_zone = ionoscloud_dns.SecondaryZoneEnsure(
+        properties=ionoscloud_dns.SecondaryZone(
+            zone_name=name,
+            description=description,
+            primary_ips=primary_ips,
+        ),
+    )
 
     try:
-        zone = ionoscloud_dns.ZonesApi(client).zones_put(zone_id=existing_object.id, zone_ensure=zone)
+        zone = secondary_zones_api.secondaryzones_put(existing_object.id, secondary_zone)
 
         return zone
     except ionoscloud_dns.ApiException as e:
-        module.fail_json(msg="failed to update the DNS Zone: %s" % to_native(e))
+        module.fail_json(msg="failed to update the DNS Secondary Zone: %s" % to_native(e))
 
 
 def _remove_object(module, client, existing_object):
-    zones_api = ionoscloud_dns.ZonesApi(client)
-
     try:
-        zones_api.zones_delete(existing_object.id)
+        ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_delete(existing_object.id)
     except ionoscloud_dns.ApiException as e:
-        module.fail_json(msg="failed to remove the DNS Zone: %s" % to_native(e))
+        module.fail_json(msg="failed to remove the DNS Secondary Zone: %s" % to_native(e))
 
 
 def update_replace_object(module, client, existing_object):
@@ -391,6 +405,29 @@ def remove_object(module, client):
         'id': existing_object.id,
     }
 
+def transfer_object(module, client):
+    existing_object = get_resource(
+        module, _get_object_list(module, client),
+        _get_object_identifier(module), identity_paths=[['id'], ['properties', 'zone_name']],
+    )
+
+    with open('debug.txt', 'a') as f:
+        f.write(str([
+            ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_axfr_get(existing_object.id)
+        ]))
+
+    ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_axfr_put(existing_object.id)
+
+    with open('debug.txt', 'a') as f:
+        f.write(str([
+            ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_axfr_get(existing_object.id)
+        ]))
+    return {
+        'action': 'transfer',
+        'changed': True,
+        'id': existing_object.id,
+    }
+
 
 def get_module_arguments():
     arguments = {}
@@ -481,6 +518,8 @@ def main():
             module.exit_json(**remove_object(module, client))
         elif state == 'update':
             module.exit_json(**update_object(module, client))
+        elif state == 'transfer':
+            module.exit_json(**transfer_object(module, client))
     except Exception as e:
         module.fail_json(
             msg='failed to set {object_name} state {state}: {error}'.format(

@@ -22,18 +22,14 @@ ANSIBLE_METADATA = {
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-dns/%s' % (__version__, sdk_version)
 DOC_DIRECTORY = 'dns'
 STATES = ['info']
-OBJECT_NAME = 'DNS Records'
-RETURNED_KEY = 'records'
+OBJECT_NAME = 'DNS Keys'
+RETURNED_KEY = 'dns_keys'
 
 OPTIONS = {
     'zone': {
         'description': ['The ID or name of an existing Zone. Will be prioritized if both this and secondary_zone are set.'],
         'available': STATES,
-        'type': 'str',
-    },
-    'secondary_zone': {
-        'description': ['The ID or name of an existing Secondary Zone.'],
-        'available': STATES,
+        'required': STATES,
         'type': 'str',
     },
     'filters': {
@@ -101,10 +97,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: dns_record_info
-short_description: List Ionos Cloud DNS Records.
+module: dns_key_info
+short_description: List Ionos Cloud DNS Keys.
 description:
-     - This is a simple module that supports listing DNS Records.
+     - This is a simple module that supports listing DNS Keys.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -118,19 +114,10 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: Get all DNS Records
-      dns_record_info:
-      register: dns_record_list_response
-
-    - name: Get all DNS Records in a Zone
-      dns_record_info:
+    - name: Get all DNS Keys in a Zone
+      dns_key_info:
         zone: example.com
-      register: dns_record_list_response
-
-    - name: Get all DNS Records in a Secondary Zone
-      dns_record_info:
-        secondary_zone: example.com
-      register: dns_record_list_response
+      register: dns_key_list_response
 '''
 
 uuid_match = re.compile(
@@ -237,17 +224,10 @@ def get_objects(module, client):
         module.params.get('zone'),
         identity_paths=[['id'], ['properties', 'zone_name']],
     )
-    secondary_zone_id = get_resource_id(
-        module, ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_get(),
-        module.params.get('secondary_zone'),
-        identity_paths=[['id'], ['properties', 'zone_name']],
-    )
+
     if zone_id:
-        dns_records = ionoscloud_dns.RecordsApi(client).zones_records_get(zone_id=zone_id)
-    elif secondary_zone_id:
-        dns_records = ionoscloud_dns.RecordsApi(client).secondaryzones_records_get(secondary_zone_id)
-    else:
-        dns_records = ionoscloud_dns.RecordsApi(client).records_get()
+        dns_records = ionoscloud_dns.DNSSECApi(client).zones_keys_get(zone_id=zone_id)
+        
     try:
         results = list(map(lambda x: x.to_dict(), apply_filters(module, dns_records.items)))
         return {

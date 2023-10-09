@@ -123,6 +123,8 @@ jobs:
             keywords: "registry"
           - namespace: dataplatform
             keywords: "data_platform, dataplatform"
+          - namespace: dns
+            keywords: "dns, dns_zone, dns_record"
 
     env:
       python-version: 3.8.15
@@ -151,6 +153,7 @@ jobs:
           python3 -m pip install pydantic
           python3 -m pip install ionoscloud
           python3 -m pip install ionoscloud-cert-manager
+          python3 -m pip install ionoscloud-dns
           python3 -m pip install ionoscloud-dbaas-postgres
           python3 -m pip install ionoscloud-dbaas-mongo
           python3 -m pip install ionoscloud-container-registry
