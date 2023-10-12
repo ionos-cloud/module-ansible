@@ -163,7 +163,7 @@ This module allows you to create, update or remove a NIC.
   <tr>
   <td>dhcpv6<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>[The IPv6 feature is in beta phase and not ready for production usage.] Indicates if the NIC will reserve an IPv6 using DHCP. It can be set to 'true' or 'false' only if this NIC is connected to an IPv6-enabled LAN.</td>
+  <td>Indicates if the NIC will receive an IPv6 using DHCP. It can be set to 'true' or 'false' only if this NIC is connected to an IPv6 enabled LAN.</td>
   </tr>
   <tr>
   <td>firewall_active<br/><mark style="color:blue;">bool</mark></td>
@@ -178,7 +178,7 @@ This module allows you to create, update or remove a NIC.
   <tr>
   <td>ipv6_ips<br/><mark style="color:blue;">list</mark></td>
   <td align="center">False</td>
-  <td>[The IPv6 feature is in beta phase and not ready for production usage.] The IPv6 IP addresses if this NIC is connected to an IPv6-enabled LAN. The maximum number of IPv6 IP addresses per NIC is 50. If you leave this 'null' when adding a NIC, when changing the NIC's IPv6 CIDR block, or when moving the NIC to a different IPv6-enabled LAN, we will automatically assign the new IPv6 CIDR block's first IP address to this NIC. If you leave this 'null' while not changing the CIDR block, the IPv6 IP addresses won't be changed either. You can also provide your own self choosen IPv6 addresses, which then must be inside the IPv6 CIDR block of this NIC.</td>
+  <td>If this NIC is connected to an IPv6 enabled LAN then this property contains the IPv6 IP addresses of the NIC. The maximum number of IPv6 IP addresses per NIC is 50, if you need more, contact support. If you leave this property 'null' when adding a NIC, when changing the NIC's IPv6 CIDR block, when changing the LAN's IPv6 CIDR block or when moving the NIC to a different IPv6 enabled LAN, then we will automatically assign the same number of IPv6 addresses which you had before from the NICs new CIDR block. If you leave this property 'null' while not changing the CIDR block, the IPv6 IP addresses won't be changed either. You can also provide your own self choosen IPv6 addresses, which then must be inside the IPv6 CIDR block of this NIC.</td>
   </tr>
   <tr>
   <td>ipv6_cidr<br/><mark style="color:blue;">str</mark></td>
@@ -380,7 +380,7 @@ This module allows you to create, update or remove a NIC.
   <tr>
   <td>dhcpv6<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>[The IPv6 feature is in beta phase and not ready for production usage.] Indicates if the NIC will reserve an IPv6 using DHCP. It can be set to 'true' or 'false' only if this NIC is connected to an IPv6-enabled LAN.</td>
+  <td>Indicates if the NIC will receive an IPv6 using DHCP. It can be set to 'true' or 'false' only if this NIC is connected to an IPv6 enabled LAN.</td>
   </tr>
   <tr>
   <td>firewall_active<br/><mark style="color:blue;">bool</mark></td>
@@ -395,7 +395,7 @@ This module allows you to create, update or remove a NIC.
   <tr>
   <td>ipv6_ips<br/><mark style="color:blue;">list</mark></td>
   <td align="center">False</td>
-  <td>[The IPv6 feature is in beta phase and not ready for production usage.] The IPv6 IP addresses if this NIC is connected to an IPv6-enabled LAN. The maximum number of IPv6 IP addresses per NIC is 50. If you leave this 'null' when adding a NIC, when changing the NIC's IPv6 CIDR block, or when moving the NIC to a different IPv6-enabled LAN, we will automatically assign the new IPv6 CIDR block's first IP address to this NIC. If you leave this 'null' while not changing the CIDR block, the IPv6 IP addresses won't be changed either. You can also provide your own self choosen IPv6 addresses, which then must be inside the IPv6 CIDR block of this NIC.</td>
+  <td>If this NIC is connected to an IPv6 enabled LAN then this property contains the IPv6 IP addresses of the NIC. The maximum number of IPv6 IP addresses per NIC is 50, if you need more, contact support. If you leave this property 'null' when adding a NIC, when changing the NIC's IPv6 CIDR block, when changing the LAN's IPv6 CIDR block or when moving the NIC to a different IPv6 enabled LAN, then we will automatically assign the same number of IPv6 addresses which you had before from the NICs new CIDR block. If you leave this property 'null' while not changing the CIDR block, the IPv6 IP addresses won't be changed either. You can also provide your own self choosen IPv6 addresses, which then must be inside the IPv6 CIDR block of this NIC.</td>
   </tr>
   <tr>
   <td>ipv6_cidr<br/><mark style="color:blue;">str</mark></td>
