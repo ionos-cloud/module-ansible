@@ -123,6 +123,8 @@ jobs:
             keywords: "registry"
           - namespace: dataplatform
             keywords: "data_platform, dataplatform"
+          - namespace: logging
+            keywords: "pipeline"
 
     env:
       python-version: 3.8.15
@@ -155,6 +157,7 @@ jobs:
           python3 -m pip install ionoscloud-dbaas-mongo
           python3 -m pip install ionoscloud-container-registry
           python3 -m pip install ionoscloud-dataplatform
+          python3 -m pip install ionoscloud-logging
 
       - name: Install Ansible
         run: |
