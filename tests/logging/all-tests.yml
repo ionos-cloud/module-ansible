@@ -1,0 +1,6 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+- name: Run Pipeline Test
+  import_playbook: pipeline-test.yml

@@ -1,0 +1,40 @@
+pipeline_name: ansiblepipelinetest123
+pipeline_logs: [
+  {
+    source: kubernetes,
+    tag: tag,
+    protocol: http,
+    destinations: [
+      type: loki,
+      retention_in_days: 7,
+    ]
+  }
+]
+
+pipeline_name_updated: ansiblepipelinetest123UPDATED
+pipeline_logs_updated: [
+  {
+    source: docker,
+    tag: different_tag,
+    protocol: tcp,
+    labels: [
+      new_label
+    ],
+    destinations: [
+      type: loki,
+      retention_in_days: 14,
+    ]
+  },
+  {
+    source: kubernetes,
+    tag: updated_tag,
+    protocol: http,
+    labels: [
+      label
+    ],
+    destinations: [
+      type: loki,
+      retention_in_days: 14,
+    ]
+  }
+]

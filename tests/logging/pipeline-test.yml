@@ -1,0 +1,54 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+
+  - name: Create Pipeline
+    pipeline:
+      name: "{{pipeline_name}}"
+      logs: "{{pipeline_logs}}"
+    register: pipeline_response
+
+  - name: List Pipelines
+    pipeline_info:
+    register: pipelines_response
+
+  - name: Show Pipelines
+    debug:
+      var: pipelines_response.result
+
+  - name: Update pipeline
+    pipeline:
+      pipeline: "{{ pipeline_response.pipeline.properties.name }}"
+      name: "{{pipeline_name_updated}}"
+      logs: "{{pipeline_logs_updated}}"
+    register: updated_pipeline_response
+
+  - name: Update pipeline no change
+    pipeline:
+      pipeline: "{{ pipeline_response.pipeline.properties.name }}"
+      name: "{{pipeline_name_updated}}"
+      allow_replace: False
+      state: update
+    register: updated_pipeline_response
+
+  - name: Asserting that changed == false when no update is made
+    assert:
+      that:
+        - updated_pipeline_response.changed == false
+      msg: "Changed should be false"
+
+  - name: Renew Pipeline key
+    pipeline:
+      pipeline: "{{ pipeline_response.pipeline.properties.name }}"
+      state: renew
+
+  - name: Delete pipeline
+    pipeline:
+      pipeline: "{{ pipeline_response.pipeline.properties.name }}"
+      wait: true
+      state: absent
