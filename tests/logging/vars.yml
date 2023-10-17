@@ -5,8 +5,10 @@ pipeline_logs: [
     tag: tag,
     protocol: http,
     destinations: [
-      type: loki,
-      retention_in_days: 7,
+      {
+        type: loki,
+        retention_in_days: 7,
+      },
     ]
   }
 ]
@@ -15,26 +17,30 @@ pipeline_name_updated: ansiblepipelinetest123UPDATED
 pipeline_logs_updated: [
   {
     source: docker,
-    tag: different_tag,
+    tag: differenttag,
     protocol: tcp,
     labels: [
       new_label
     ],
     destinations: [
-      type: loki,
-      retention_in_days: 14,
+      {
+        type: loki,
+        retention_in_days: 14,
+      },
     ]
   },
   {
     source: kubernetes,
-    tag: updated_tag,
+    tag: updatedtag,
     protocol: http,
     labels: [
       label
     ],
     destinations: [
-      type: loki,
-      retention_in_days: 14,
+      {
+        type: loki,
+        retention_in_days: 14,
+      },
     ]
   }
 ]

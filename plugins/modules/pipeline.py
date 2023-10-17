@@ -275,12 +275,21 @@ def _create_object(module, client, existing_object=None):
 
     try:
         pipeline = pipelines_api.pipelines_post(pipeline)
+
+        if module.params.get('wait'):
+            client.wait_for(
+                fn_request=lambda: pipelines_api.pipelines_find_by_id(pipeline.id).metadata.status,
+                fn_check=lambda r: r == 'AVAILABLE',
+                scaleup=10000,
+                timeout=int(module.params.get('wait_timeout')),
+            )
     except ionoscloud_logging.ApiException as e:
         module.fail_json(msg="failed to create the new Pipeline: %s" % to_native(e))
     return pipeline
 
 
 def _update_object(module, client, existing_object):
+    wait_timeout = int(module.params.get('wait_timeout'))
     name = module.params.get('name')
     logs = get_logs_object(module.params.get('logs'), ionoscloud_logging.PatchRequestPipeline)
     if existing_object is not None:
@@ -296,8 +305,22 @@ def _update_object(module, client, existing_object):
 
     pipeline = ionoscloud_logging.PatchRequest(properties=pipeline_properties)
 
+
     try:
+        client.wait_for(
+            fn_request=lambda: pipelines_api.pipelines_find_by_id(existing_object.id).metadata.status,
+            fn_check=lambda r: r == 'AVAILABLE',
+            scaleup=10000,
+            timeout=wait_timeout,
+        )
         pipeline = pipelines_api.pipelines_patch(existing_object.id, pipeline)
+        if module.params.get('wait'):
+            client.wait_for(
+                fn_request=lambda: pipelines_api.pipelines_find_by_id(pipeline.id).metadata.status,
+                fn_check=lambda r: r == 'AVAILABLE',
+                scaleup=10000,
+                timeout=wait_timeout,
+            )
         return pipeline
     except ionoscloud_logging.ApiException as e:
         module.fail_json(msg="failed to update the Pipeline: %s" % to_native(e))
@@ -406,8 +429,16 @@ def renew_object(module, client):
         module.exit_json(changed=False)
         return
 
+    pipelines_api = ionoscloud_logging.PipelinesApi(client)
+
     try:
-        ionoscloud_logging.PipelinesApi(client).pipeline_key(existing_object.id)
+        client.wait_for(
+            fn_request=lambda: pipelines_api.pipelines_find_by_id(existing_object.id).metadata.status,
+            fn_check=lambda r: r == 'AVAILABLE',
+            scaleup=10000,
+            timeout=int(module.params.get('wait_timeout')),
+        )
+        pipelines_api.pipeline_key(existing_object.id)
     except ionoscloud_logging.ApiException as e:
         module.fail_json(msg="failed to renew the Pipeline Key: %s" % to_native(e))
 
@@ -507,6 +538,8 @@ def main():
             module.exit_json(**remove_object(module, client))
         elif state == 'update':
             module.exit_json(**update_object(module, client))
+        elif state == 'renew':
+            module.exit_json(**renew_object(module, client))
     except Exception as e:
         module.fail_json(
             msg='failed to set {object_name} state {state}: {error}'.format(
