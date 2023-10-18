@@ -22,10 +22,10 @@
     debug:
       var: pipelines_response.pipelines
 
-  - name: Print output to file
-    ansible.builtin.copy:
-      content: "{{pipelines_response}}"
-      dest: ../../docs/returned_object_examples/pipeline_info.json
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{pipelines_response}}"
+  #     dest: ../../docs/returned_object_examples/pipeline_info.json
 
   - name: Update pipeline
     pipeline:
@@ -35,10 +35,10 @@
       state: update
     register: updated_pipeline_response
 
-  - name: Print output to file
-    ansible.builtin.copy:
-      content: "{{updated_pipeline_response}}"
-      dest: ../../docs/returned_object_examples/pipeline.json
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{updated_pipeline_response}}"
+  #     dest: ../../docs/returned_object_examples/pipeline.json
 
   - name: Update pipeline no change
     pipeline:

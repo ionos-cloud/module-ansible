@@ -42,6 +42,71 @@ This is a module that supports creating, updating or destroying Pipelines
   
 ```
 
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": true,
+    "failed": false,
+    "action": "update",
+    "pipeline": {
+        "id": "f30a1c8f-334d-4238-b259-b0a761a87352",
+        "type": "Pipeline",
+        "metadata": {
+            "created_date": "2023-10-17T15:19:14+00:00",
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_by_user_uuid": "<USER_UUID>",
+            "last_modified_date": "2023-10-17T15:21:02+00:00",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_by_user_uuid": "<USER_UUID>",
+            "status": "AVAILABLE"
+        },
+        "properties": {
+            "name": "ansiblepipelinetest123UPDATED",
+            "logs": [
+                {
+                    "public": false,
+                    "source": "docker",
+                    "tag": "differenttag",
+                    "protocol": "tcp",
+                    "labels": [
+                        "new_label"
+                    ],
+                    "destinations": [
+                        {
+                            "type": "loki",
+                            "retention_in_days": 14
+                        }
+                    ]
+                },
+                {
+                    "public": false,
+                    "source": "kubernetes",
+                    "tag": "updatedtag",
+                    "protocol": "http",
+                    "labels": [
+                        "label"
+                    ],
+                    "destinations": [
+                        {
+                            "type": "loki",
+                            "retention_in_days": 14
+                        }
+                    ]
+                }
+            ],
+            "tcp_address": "",
+            "http_address": "<HTTP_ADDRESS>",
+            "grafana_address": "<GRAFANA_ADDRESS>"
+        }
+    }
+}
+
+```
 
 &nbsp;
 
