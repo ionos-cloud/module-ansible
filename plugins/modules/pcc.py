@@ -30,7 +30,7 @@ RETURNED_KEY = 'pcc'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the  resource.'],
+        'description': ['The name of the Cross Connect.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -42,7 +42,7 @@ OPTIONS = {
         'type': 'str',
     },
     'description': {
-        'description': ['Human-readable description.'],
+        'description': ['Human-readable description of the Cross Connect.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -128,9 +128,9 @@ def transform_for_documentation(val):
 DOCUMENTATION = '''
 ---
 module: pcc
-short_description: Create or destroy a Ionos Cloud Private Cross Connect
+short_description: Create or destroy a Ionos Cloud Cross Connect
 description:
-     - This is a simple module that supports creating or removing Private Cross Connects.
+     - This is a simple module that supports creating or removing Cross Connects.
        This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:

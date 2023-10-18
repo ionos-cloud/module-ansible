@@ -71,7 +71,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'create_pcc': {
-        'description': ['Create pcc privilege.'],
+        'description': ['User privilege to create a cross connect.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },

@@ -1,6 +1,6 @@
 # pcc
 
-This is a simple module that supports creating or removing Private Cross Connects. This module has a dependency on ionoscloud &gt;= 6.0.2
+This is a simple module that supports creating or removing Cross Connects. This module has a dependency on ionoscloud &gt;= 6.0.2
 
 ## Example Syntax
 
@@ -90,12 +90,12 @@ This is a simple module that supports creating or removing Private Cross Connect
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The name of the  resource.</td>
+  <td>The name of the Cross Connect.</td>
   </tr>
   <tr>
   <td>description<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>Human-readable description.</td>
+  <td>Human-readable description of the Cross Connect.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
@@ -246,7 +246,7 @@ This is a simple module that supports creating or removing Private Cross Connect
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The name of the  resource.</td>
+  <td>The name of the Cross Connect.</td>
   </tr>
   <tr>
   <td>pcc<br/><mark style="color:blue;">str</mark></td>
@@ -256,7 +256,7 @@ This is a simple module that supports creating or removing Private Cross Connect
   <tr>
   <td>description<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>Human-readable description.</td>
+  <td>Human-readable description of the Cross Connect.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
