@@ -7,3 +7,6 @@
 
 - name: Run Record Test
   import_playbook: record-test.yml
+
+- name: Run Secondary Zone Test
+  import_playbook: secondary-zone-test.yml

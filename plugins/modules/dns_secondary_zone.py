@@ -410,18 +410,15 @@ def transfer_object(module, client):
         module, _get_object_list(module, client),
         _get_object_identifier(module), identity_paths=[['id'], ['properties', 'zone_name']],
     )
-
-    with open('debug.txt', 'a') as f:
-        f.write(str([
-            ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_axfr_get(existing_object.id)
-        ]))
-
     ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_axfr_put(existing_object.id)
 
-    with open('debug.txt', 'a') as f:
-        f.write(str([
-            ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_axfr_get(existing_object.id)
-        ]))
+    if module.params.get('wait'):
+        client.wait_for(
+            fn_request=lambda: ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_axfr_get(existing_object.id).items,
+            fn_check=lambda r: all([ip.status == 'Done' for ip in r]),
+            scaleup=10000,
+            timeout=int(module.params.get('wait_timeout')),
+        )
     return {
         'action': 'transfer',
         'changed': True,

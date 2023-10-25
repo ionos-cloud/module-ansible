@@ -4,15 +4,7 @@ zone_description_updated: zone_description_updated
 zone_enabled: true
 zone_enabled_updated: false
 
-secondary_zone_primary_ips: [
-  '127.0.0.1',
-  '127.0.0.4',
-]
 
-secondary_zone_primary_ips_updated: [
-  '127.0.0.1',
-  '127.0.0.7',
-]
 
 record_name: sdk-team-test-record
 record_name_updated: sdk-team-test-record-updated
@@ -26,3 +18,8 @@ record_priority: 35535
 record_priority_updated: 16
 record_enabled: true
 record_enabled_updated: false
+
+ipblock_name: testDNS
+ipblock_name2: testDNS2
+ipblock_location: de/fra
+ipblock_size: 2

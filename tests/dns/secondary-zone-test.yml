@@ -6,27 +6,42 @@
     - ./vars.yml
 
   tasks:
+  - name: Create ipblock
+    ipblock:
+      name:  "{{ ipblock_name }}"
+      location: "{{ ipblock_location }}"
+      size: "{{ ipblock_size }}"
+      state: present
+    register: ipblock_response
+
+  - name: Create ipblock 2
+    ipblock:
+      name:  "{{ ipblock_name2 }}"
+      location: "{{ ipblock_location }}"
+      size: "{{ ipblock_size }}"
+      state: present
+    register: ipblock2_response
 
   - name: Create Secondary Zone
     dns_secondary_zone:
       name: "{{zone_name}}"
       description: "{{zone_description}}"
-      primary_ips: "{{secondary_zone_primary_ips}}"
+      primary_ips: "{{ipblock_response.ipblock.properties.ips}}"
     register: zone_response
 
-  - name: Print output to file
-    ansible.builtin.copy:
-      content: "{{zone_response}}"
-      dest: ../../docs/returned_object_examples/dns_secondary_zone.json
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{zone_response}}"
+  #     dest: ../../docs/returned_object_examples/dns_secondary_zone.json
 
   - name: List Zones
     dns_secondary_zone_info:
     register: zones_response
 
-  - name: Print output to file
-    ansible.builtin.copy:
-      content: "{{zones_response}}"
-      dest: ../../docs/returned_object_examples/dns_secondary_zone_info.json
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{zones_response}}"
+  #     dest: ../../docs/returned_object_examples/dns_secondary_zone_info.json
 
   - name: Show Zones
     debug:
@@ -34,18 +49,18 @@
 
   - name: Update Zone
     dns_secondary_zone:
-      zone: "{{ zone_response.zone.properties.zone_name }}"
+      secondary_zone: "{{ zone_response.secondary_zone.properties.zone_name }}"
       description: "{{zone_description_updated}}"
-      primary_ips: "{{secondary_zone_primary_ips_updated}}"
+      primary_ips: "{{ipblock2_response.ipblock.properties.ips}}"
       allow_replace: False
       state: update
     register: updated_zone_response
 
   - name: Update Zone no change
     dns_secondary_zone:
-      zone: "{{ zone_response.zone.properties.zone_name }}"
+      secondary_zone: "{{ zone_response.secondary_zone.properties.zone_name }}"
       description: "{{zone_description_updated}}"
-      primary_ips: "{{secondary_zone_primary_ips_updated}}"
+      primary_ips: "{{ipblock2_response.ipblock.properties.ips}}"
       allow_replace: False
       state: update
     register: updated_zone_response
@@ -56,8 +71,26 @@
         - updated_zone_response.changed == false
       msg: "Changed should be false"
 
+  - name: Transfer Zone
+    dns_secondary_zone:
+      secondary_zone: "{{ zone_response.secondary_zone.properties.zone_name }}"
+      wait: true
+      state: transfer
+
   - name: Delete Zone
     dns_secondary_zone:
-      zone: "{{ zone_response.zone.properties.zone_name }}"
+      secondary_zone: "{{ zone_response.secondary_zone.properties.zone_name }}"
+      wait: true
+      state: absent
+
+  - name: Delete IpBlock 1
+    ipblock:
+      ipblock: "{{ipblock_response.ipblock.id}}"
+      wait: true
+      state: absent
+
+  - name: Delete IpBlock 2
+    ipblock:
+      ipblock: "{{ipblock2_response.ipblock.id}}"
       wait: true
       state: absent
