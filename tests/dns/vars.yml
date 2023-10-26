@@ -1,10 +1,8 @@
-zone_name: example.com
+zone_name: test.example.test.ansible.com
 zone_description: test_description
 zone_description_updated: zone_description_updated
-zone_enabled: true
-zone_enabled_updated: false
-
-
+zone_enabled: false
+zone_enabled_updated: true
 
 record_name: sdk-team-test-record
 record_name_updated: sdk-team-test-record-updated

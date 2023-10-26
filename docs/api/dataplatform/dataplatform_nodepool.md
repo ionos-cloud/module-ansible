@@ -143,7 +143,7 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The name of your node pool. Must be 63 characters or less and must begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between.</td>
+  <td>The name of your node pool. Must be 63 characters or less and must begin and end with an alphanumeric character (`[a-z0-9A-Z]`) with dashes (`-`), underscores (`_`), dots (`.`), and alphanumerics between.</td>
   </tr>
   <tr>
   <td>cluster<br/><mark style="color:blue;">str</mark></td>
@@ -188,17 +188,17 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
   <tr>
   <td>maintenance_window<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>
-  <td>Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format</td>
+  <td>Starting time of a weekly 4-hour-long window, during which maintenance might occur in the `HH:MM:SS` format.</td>
   </tr>
   <tr>
   <td>labels<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>
-  <td>Key-value pairs attached to the node pool resource as [Kubernetes labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)</td>
+  <td>Key-value pairs attached to the node pool resource as [Kubernetes labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/).</td>
   </tr>
   <tr>
   <td>annotations<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>
-  <td>Key-value pairs attached to node pool resource as [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/)</td>
+  <td>Key-value pairs attached to node pool resource as [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/).</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
@@ -349,7 +349,7 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The name of your node pool. Must be 63 characters or less and must begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between.</td>
+  <td>The name of your node pool. Must be 63 characters or less and must begin and end with an alphanumeric character (`[a-z0-9A-Z]`) with dashes (`-`), underscores (`_`), dots (`.`), and alphanumerics between.</td>
   </tr>
   <tr>
   <td>cluster<br/><mark style="color:blue;">str</mark></td>
@@ -369,17 +369,17 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
   <tr>
   <td>maintenance_window<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>
-  <td>Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format</td>
+  <td>Starting time of a weekly 4-hour-long window, during which maintenance might occur in the `HH:MM:SS` format.</td>
   </tr>
   <tr>
   <td>labels<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>
-  <td>Key-value pairs attached to the node pool resource as [Kubernetes labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)</td>
+  <td>Key-value pairs attached to the node pool resource as [Kubernetes labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/).</td>
   </tr>
   <tr>
   <td>annotations<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>
-  <td>Key-value pairs attached to node pool resource as [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/)</td>
+  <td>Key-value pairs attached to node pool resource as [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/).</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>

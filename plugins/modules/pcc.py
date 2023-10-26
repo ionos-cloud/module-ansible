@@ -30,7 +30,7 @@ RETURNED_KEY = 'pcc'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the  resource.'],
+        'description': ['The name of the Cross Connect.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -42,7 +42,7 @@ OPTIONS = {
         'type': 'str',
     },
     'description': {
-        'description': ['Human-readable description.'],
+        'description': ['Human-readable description of the Cross Connect.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',

@@ -1,25 +1,15 @@
-# dns_record_info
+# dns_secondary_zone_info
 
-This is a simple module that supports listing DNS Records.
+This is a simple module that supports listing DNS Secondary Zones.
 
 ## Example Syntax
 
 
 ```yaml
 
-    - name: Get all DNS Records
-      dns_record_info:
-      register: dns_record_list_response
-
-    - name: Get all DNS Records in a Zone
-      dns_record_info:
-        zone: example.com
-      register: dns_record_list_response
-
-    - name: Get all DNS Records in a Secondary Zone
-      dns_record_info:
-        secondary_zone: example.com
-      register: dns_record_list_response
+    - name: Get all DNS Secondary Zones
+      dns_zone_info:
+      register: dns_zone_list_response
 
 ```
 
@@ -30,25 +20,29 @@ This is a simple module that supports listing DNS Records.
 ```json
 {
     "changed": false,
-    "records": [
+    "zones": [
         {
-            "id": "c76bf816-c11a-5dfc-8ef3-badfbee48451",
-            "type": "record",
-            "href": "/zones/b4021310-5e39-50bb-95f6-448b21bf0142/records/c76bf816-c11a-5dfc-8ef3-badfbee48451",
+            "id": "23da7378-a656-5d3a-9807-d283500753b6",
+            "type": "secondaryzone",
+            "href": "/secondaryzones/23da7378-a656-5d3a-9807-d283500753b6",
             "metadata": {
-                "last_modified_date": "2023-10-05T14:38:56+00:00",
-                "created_date": "2023-10-05T14:38:56+00:00",
+                "last_modified_date": "2023-10-24T13:12:37+00:00",
+                "created_date": "2023-10-24T13:12:07+00:00",
                 "state": "AVAILABLE",
-                "fqdn": "<FQDN>",
-                "zone_id": "b4021310-5e39-50bb-95f6-448b21bf0142"
+                "nameservers": [
+                    "<NAMESERVER1>",
+                    "<NAMESERVER2>",
+                    "<NAMESERVER3>",
+                    "<NAMESERVER4>"
+                ]
             },
             "properties": {
-                "name": "<RECORD_NAME>",
-                "type": "CNAME",
-                "content": "<CONTENT>",
-                "ttl": 3600,
-                "priority": 0,
-                "enabled": true
+                "zone_name": "<ZONE_NAME>",
+                "description": "test_description",
+                "primary_ips": [
+                    "<IP1>",
+                    "<IP2>"
+                ]
             }
         }
     ],
@@ -72,16 +66,6 @@ This is a simple module that supports listing DNS Records.
     </tr>
   </thead>
   <tbody>
-  <tr>
-  <td>zone<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">False</td>
-  <td>The ID or name of an existing Zone. Will be prioritized if both this and secondary_zone are set.</td>
-  </tr>
-  <tr>
-  <td>secondary_zone<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">False</td>
-  <td>The ID or name of an existing Secondary Zone.</td>
-  </tr>
   <tr>
   <td>filters<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>

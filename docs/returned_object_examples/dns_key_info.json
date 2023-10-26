@@ -1,0 +1,29 @@
+{
+    "changed": false,
+    "dns_keys": {
+        "id": "ec04ab39-2a8f-5d37-b3a9-22f0e202cb1f",
+        "type": "dnsseckeys",
+        "href": "/zones/ec04ab39-2a8f-5d37-b3a9-22f0e202cb1f/keys",
+        "metadata": {
+            "zone_id": "ec04ab39-2a8f-5d37-b3a9-22f0e202cb1f",
+            "items": [
+                {
+                    "key_tag": 56066,
+                    "sign_algorithm_mnemonic": null,
+                    "sign_algorithm_number": null,
+                    "digest_algorithm_mnemonic": "SHA-256",
+                    "digest_algorithm_number": null,
+                    "digest": "<digest>",
+                    "key_data": {
+                        "flags": 257,
+                        "protocol": null,
+                        "alg": null,
+                        "pub_key": "<pub_key>"
+                    },
+                    "composed_key_data": "<composed_key_data>"
+                }
+            ]
+        }
+    },
+    "failed": false
+}

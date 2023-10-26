@@ -109,7 +109,7 @@ This module allows you to create or remove a LAN.
   <tr>
   <td>public<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>This LAN faces the public Internet.<br />Default: False</td>
+  <td>Indicates if the LAN is connected to the internet or not.<br />Default: False</td>
   </tr>
   <tr>
   <td>ipv6_cidr<br/><mark style="color:blue;">str</mark></td>
@@ -299,7 +299,7 @@ This module allows you to create or remove a LAN.
   <tr>
   <td>public<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>This LAN faces the public Internet.<br />Default: False</td>
+  <td>Indicates if the LAN is connected to the internet or not.<br />Default: False</td>
   </tr>
   <tr>
   <td>ipv6_cidr<br/><mark style="color:blue;">str</mark></td>

@@ -126,7 +126,7 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: zone
+module: dns_secondary_zone
 short_description: Allows operations with Ionos Cloud DNS Secondary Zones.
 description:
      - This is a module that supports creating, updating or destroying DNS Secondary Zones
@@ -411,11 +411,11 @@ def transfer_object(module, client):
         _get_object_identifier(module), identity_paths=[['id'], ['properties', 'zone_name']],
     )
     ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_axfr_put(existing_object.id)
-
+    
     if module.params.get('wait'):
         client.wait_for(
             fn_request=lambda: ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_axfr_get(existing_object.id).items,
-            fn_check=lambda r: all([ip.status == 'Done' for ip in r]),
+            fn_check=lambda r: all([ip.status == 'Ok' for ip in r]),
             scaleup=10000,
             timeout=int(module.params.get('wait_timeout')),
         )

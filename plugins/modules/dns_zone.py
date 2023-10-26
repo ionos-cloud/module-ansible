@@ -126,7 +126,7 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: zone
+module: dns_zone
 short_description: Allows operations with Ionos Cloud DNS Zones.
 description:
      - This is a module that supports creating, updating or destroying DNS Zones

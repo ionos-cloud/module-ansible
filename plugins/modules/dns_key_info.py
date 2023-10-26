@@ -163,61 +163,6 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def get_method_from_filter(filter):
-    '''
-    Returns the method which check a filter for one object. Such a method would work in the following way:
-    for filter = ('properties.name', 'server_name') the resulting method would be
-    def method(item):
-        return item.properties.name == 'server_name'
-
-    Parameters:
-            filter (touple): Key, value pair representing the filter.
-
-    Returns:
-            the wanted method
-    '''
-    key, value = filter
-    def method(item):
-        current = item
-        for key_part in key.split('.'):
-            current = getattr(current, key_part)
-        return current == value
-    return method
-
-
-def get_method_to_apply_filters_to_item(filter_list):
-    '''
-    Returns the method which applies a list of filtering methods obtained using get_method_from_filter to 
-    one object and returns true if all the filters return true
-    Parameters:
-            filter_list (list): List of filtering methods
-    Returns:
-            the wanted method
-    '''
-    def f(item):
-        return all([f(item) for f in filter_list])
-    return f
-
-
-def apply_filters(module, item_list):
-    '''
-    Creates a list of filtering methods from the filters module parameter, filters item_list to keep only the
-    items for which every filter matches using get_method_to_apply_filters_to_item to make that check and returns
-    those items
-    Parameters:
-            module: The current Ansible module
-            item_list (list): List of items to be filtered
-    Returns:
-            List of items which match the filters
-    '''
-    filters = module.params.get('filters')
-    if not filters:
-        return item_list    
-    filter_methods = list(map(get_method_from_filter, filters.items()))
-
-    return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
-
-
 def get_objects(module, client):
     zone_id = get_resource_id(
         module, ionoscloud_dns.ZonesApi(client).zones_get(),
@@ -225,14 +170,10 @@ def get_objects(module, client):
         identity_paths=[['id'], ['properties', 'zone_name']],
     )
 
-    if zone_id:
-        dns_records = ionoscloud_dns.DNSSECApi(client).zones_keys_get(zone_id=zone_id)
-        
     try:
-        results = list(map(lambda x: x.to_dict(), apply_filters(module, dns_records.items)))
         return {
             'changed': False,
-            RETURNED_KEY: results
+            RETURNED_KEY: ionoscloud_dns.DNSSECApi(client).zones_keys_get(zone_id=zone_id).to_dict()
         }
 
     except Exception as e:

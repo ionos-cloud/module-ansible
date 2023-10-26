@@ -166,6 +166,10 @@ modules_to_generate = [
     'dns_zone_info',
     'dns_record',
     'dns_record_info',
+    'dns_secondary_zone',
+    'dns_secondary_zone_info',
+    'dns_key',
+    'dns_key_info',
 ]
 
 for module_name in modules_to_generate:

@@ -74,7 +74,7 @@
   - name: Transfer Zone
     dns_secondary_zone:
       secondary_zone: "{{ zone_response.secondary_zone.properties.zone_name }}"
-      wait: true
+      wait: false
       state: transfer
 
   - name: Delete Zone

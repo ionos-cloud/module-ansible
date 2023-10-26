@@ -1,25 +1,16 @@
-# dns_record_info
+# dns_key_info
 
-This is a simple module that supports listing DNS Records.
+This is a simple module that supports listing DNS Keys.
 
 ## Example Syntax
 
 
 ```yaml
 
-    - name: Get all DNS Records
-      dns_record_info:
-      register: dns_record_list_response
-
-    - name: Get all DNS Records in a Zone
-      dns_record_info:
+    - name: Get all DNS Keys in a Zone
+      dns_key_info:
         zone: example.com
-      register: dns_record_list_response
-
-    - name: Get all DNS Records in a Secondary Zone
-      dns_record_info:
-        secondary_zone: example.com
-      register: dns_record_list_response
+      register: dns_key_list_response
 
 ```
 
@@ -30,28 +21,31 @@ This is a simple module that supports listing DNS Records.
 ```json
 {
     "changed": false,
-    "records": [
-        {
-            "id": "c76bf816-c11a-5dfc-8ef3-badfbee48451",
-            "type": "record",
-            "href": "/zones/b4021310-5e39-50bb-95f6-448b21bf0142/records/c76bf816-c11a-5dfc-8ef3-badfbee48451",
-            "metadata": {
-                "last_modified_date": "2023-10-05T14:38:56+00:00",
-                "created_date": "2023-10-05T14:38:56+00:00",
-                "state": "AVAILABLE",
-                "fqdn": "<FQDN>",
-                "zone_id": "b4021310-5e39-50bb-95f6-448b21bf0142"
-            },
-            "properties": {
-                "name": "<RECORD_NAME>",
-                "type": "CNAME",
-                "content": "<CONTENT>",
-                "ttl": 3600,
-                "priority": 0,
-                "enabled": true
-            }
+    "dns_keys": {
+        "id": "ec04ab39-2a8f-5d37-b3a9-22f0e202cb1f",
+        "type": "dnsseckeys",
+        "href": "/zones/ec04ab39-2a8f-5d37-b3a9-22f0e202cb1f/keys",
+        "metadata": {
+            "zone_id": "ec04ab39-2a8f-5d37-b3a9-22f0e202cb1f",
+            "items": [
+                {
+                    "key_tag": 56066,
+                    "sign_algorithm_mnemonic": null,
+                    "sign_algorithm_number": null,
+                    "digest_algorithm_mnemonic": "SHA-256",
+                    "digest_algorithm_number": null,
+                    "digest": "<digest>",
+                    "key_data": {
+                        "flags": 257,
+                        "protocol": null,
+                        "alg": null,
+                        "pub_key": "<pub_key>"
+                    },
+                    "composed_key_data": "<composed_key_data>"
+                }
+            ]
         }
-    ],
+    },
     "failed": false
 }
 
@@ -74,13 +68,8 @@ This is a simple module that supports listing DNS Records.
   <tbody>
   <tr>
   <td>zone<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">False</td>
+  <td align="center">True</td>
   <td>The ID or name of an existing Zone. Will be prioritized if both this and secondary_zone are set.</td>
-  </tr>
-  <tr>
-  <td>secondary_zone<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">False</td>
-  <td>The ID or name of an existing Secondary Zone.</td>
   </tr>
   <tr>
   <td>filters<br/><mark style="color:blue;">dict</mark></td>
