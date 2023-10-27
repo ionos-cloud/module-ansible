@@ -22,7 +22,7 @@ ANSIBLE_METADATA = {
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 DOC_DIRECTORY = 'applicationloadbalancer'
 STATES = ['info']
-OBJECT_NAME = 'Application Loadbalancers'
+OBJECT_NAME = 'Application Load Balancers'
 RETURNED_KEY = 'application_load_balancers'
 
 OPTIONS = {
