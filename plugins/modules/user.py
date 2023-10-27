@@ -38,19 +38,19 @@ RETURNED_KEY = 'user'
 
 OPTIONS = {
     'firstname': {
-        'description': ["The user's first name."],
+        'description': ['The first name of the user.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'lastname': {
-        'description': ["The user's last name."],
+        'description': ['The last name of the user.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'email': {
-        'description': ["The user's email"],
+        'description': ['The email address of the user.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -69,21 +69,17 @@ OPTIONS = {
         'no_log': True,
     },
     'administrator': {
-        'description': ['Boolean value indicating if the user has administrative rights.'],
+        'description': ['Indicates if the user has admin rights.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'force_sec_auth': {
-        'description': [
-            'Boolean value indicating if secure (two-factor) authentication should be forced for the user.'],
+        'description': ['Indicates if secure authentication should be forced on the user.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'groups': {
-        'description': [
-            'A list of group IDs or names where the user (non-administrator) is to be added.'
-            'Set to empty list ([]) to remove the user from all groups.',
-        ],
+        'description': ['A list of group IDs or names where the user (non-administrator) is to be added. Set to empty list ([]) to remove the user from all groups.'],
         'available': ['present', 'update'],
         'type': 'list',
     },
@@ -92,10 +88,10 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'bool',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -194,8 +190,8 @@ EXAMPLE_PER_STATE = {
     user:
       firstname: John
       lastname: Doe
-      email: john.doe@example.com
-      user_password: secretpassword123
+      email: <email>
+      user_password: <password>
       administrator: true
       state: present
   ''',
@@ -204,7 +200,7 @@ EXAMPLE_PER_STATE = {
     user:
       firstname: John II
       lastname: Doe
-      email: john.doe@example.com
+      email: <email>
       administrator: false
       force_sec_auth: false
       groups:
@@ -215,7 +211,7 @@ EXAMPLE_PER_STATE = {
     'absent': '''# Remove a user
   - name: Remove user
     user:
-      user: john.doe@example.com
+      user: <email>
       state: absent
   ''',
 }
@@ -256,10 +252,38 @@ def get_resource(module, resource_list, identity, identity_paths=None):
     else:
         return None
 
+def get_users(client):
+    all_users = ionoscloud.Users(items=[])
+    offset = 0
+    limit = 100
+
+    users = client.um_users_get(depth=2, limit=limit, offset=offset)
+    all_users.items += users.items
+    while(users.links.next is not None):
+        offset += limit
+        users = client.um_users_get(depth=2, limit=limit, offset=offset)
+        all_users.items += users.items
+
+    return all_users
 
 def get_resource_id(module, resource_list, identity, identity_paths=None):
     resource = get_resource(module, resource_list, identity, identity_paths)
     return resource.id if resource is not None else None
+
+
+def get_users(client):
+    all_users = ionoscloud.Users(items=[])
+    offset = 0
+    limit = 100
+
+    users = client.um_users_get(depth=2, limit=limit, offset=offset)
+    all_users.items += users.items
+    while(users.links.next is not None):
+        offset += limit
+        users = client.um_users_get(depth=2, limit=limit, offset=offset)
+        all_users.items += users.items
+
+    return all_users
 
 
 def _get_request_id(headers):
@@ -293,7 +317,7 @@ def _should_update_object(module, existing_object):
 
 
 def _get_object_list(module, client):
-    return ionoscloud.UserManagementApi(client).um_users_get(depth=1)
+    return get_users(ionoscloud.UserManagementApi(client))
 
 
 def _get_object_name(module):
@@ -476,8 +500,8 @@ def _remove_object(module, client, existing_object):
 def update_replace_object(module, client, existing_object):
     if _should_replace_object(module, existing_object):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -533,6 +557,7 @@ def update_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(
         module, object_list, object_name,
@@ -561,6 +586,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

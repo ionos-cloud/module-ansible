@@ -39,7 +39,7 @@ RETURNED_KEY = 'group'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the group.'],
+        'description': ['The name of the resource.'],
         'available': STATES,
         'required': ['present'],
         'type': 'str',
@@ -56,55 +56,52 @@ OPTIONS = {
         'type': 'bool',
     },
     'create_snapshot': {
-        'description': ['Boolean value indicating if the group is allowed to create snapshots.'],
+        'description': ['Create snapshot privilege.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'reserve_ip': {
-        'description': ['Boolean value indicating if the group is allowed to reserve IP addresses.'],
+        'description': ['Reserve IP block privilege.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'access_activity_log': {
-        'description': ['Boolean value indicating if the group is allowed to access the activity log.'],
+        'description': ['Activity log access privilege.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'create_pcc': {
-        'description': ['Boolean value indicating if the group is allowed to create PCCs.'],
+        'description': ['Create pcc privilege.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     's3_privilege': {
-        'description': ['Boolean value indicating if the group has S3 privilege.'],
+        'description': ['S3 privilege.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'create_backup_unit': {
-        'description': ['Boolean value indicating if the group is allowed to create backup units.'],
+        'description': ['Create backup unit privilege.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'create_internet_access': {
-        'description': ['Boolean value indicating if the group is allowed to create internet access.'],
+        'description': ['Create internet access privilege.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'create_k8s_cluster': {
-        'description': ['Boolean value indicating if the group is allowed to create k8s clusters.'],
+        'description': ['Create Kubernetes cluster privilege.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'create_flow_log': {
-        'description': ['Boolean value indicating if the group is allowed to create flowlogs.'],
+        'description': ['Create Flow Logs privilege.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'access_and_manage_monitoring': {
-        'description': [
-            'Privilege for a group to access and manage monitoring related functionality (access metrics, '
-            'CRUD on alarms, alarm-actions etc) using Monotoring-as-a-Service (MaaS).',
-        ],
+        'description': ['Privilege for a group to access and manage monitoring related functionality (access metrics, CRUD on alarms, alarm-actions etc) using Monotoring-as-a-Service (MaaS).'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
@@ -125,10 +122,10 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'list',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -287,6 +284,21 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
+def get_users(client):
+    all_users = ionoscloud.Users(items=[])
+    offset = 0
+    limit = 100
+
+    users = client.um_users_get(depth=2, limit=limit, offset=offset)
+    all_users.items += users.items
+    while(users.links.next is not None):
+        offset += limit
+        users = client.um_users_get(depth=2, limit=limit, offset=offset)
+        all_users.items += users.items
+
+    return all_users
+
+
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -412,7 +424,7 @@ def _create_object(module, client, existing_object=None):
             for u in um_api.um_groups_users_get(existing_object.id, depth=1).items:
                 old_group_user_ids.append(u.id)
 
-            all_users = um_api.um_users_get(depth=2)
+            all_users = get_users(um_api)
             new_group_user_ids = []
 
             for u in module.params.get('users'):
@@ -513,7 +525,7 @@ def _update_object(module, client, existing_object):
             for u in um_api.um_groups_users_get(existing_object.id, depth=1).items:
                 old_group_user_ids.append(u.id)
 
-            all_users = um_api.um_users_get(depth=2)
+            all_users = get_users(um_api)
             new_group_user_ids = []
 
             for u in module.params.get('users'):
@@ -565,8 +577,8 @@ def _remove_object(module, client, existing_object):
 def update_replace_object(module, client, existing_object):
     if _should_replace_object(module, existing_object):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -616,6 +628,7 @@ def update_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
@@ -638,6 +651,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

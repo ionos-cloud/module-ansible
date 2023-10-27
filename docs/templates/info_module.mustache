@@ -8,11 +8,40 @@
 ```yaml
 {{{ example }}}
 ```
+
+{{#return_example}}
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{{{ return_example }}}
+```
+{{/return_example}}
+{{^return_example}}
+{{/return_example}}
+
+&nbsp;
+
+&nbsp;
 ### Available parameters:
 &nbsp;
 
-| Name | Required | Type | Default | Description |
-| :--- | :---: | :--- | :--- | :--- |
-{{#states_parameters}}
-| {{name}} | {{required}} | {{type}} | {{default}} | {{description}} |
-{{/states_parameters}}
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="22.8vw">Name</th>
+      <th width="10.8vw" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{#states_parameters}}
+  <tr>
+  <td>{{name}}<br/><mark style="color:blue;">{{type}}</mark></td>
+  <td align="center">{{required}}</td>
+  <td>{{description}}{{#hasDefault}}<br />Default: {{default}}{{/hasDefault}}{{#hasChoices}}<br />Options: {{choices}}{{/hasChoices}}</td>
+  </tr>
+  {{/states_parameters}}
+  </tbody>
+</table>

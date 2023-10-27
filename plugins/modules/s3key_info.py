@@ -23,6 +23,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'user-management'
 STATES = ['info']
 OBJECT_NAME = 'S3 Keys'
+RETURNED_KEY = 's3keys'
 
 OPTIONS = {
     'user': {
@@ -113,7 +114,7 @@ author:
 EXAMPLES = '''
     - name: List S3Keys for user
       s3key_info:
-        user_id: "{{ user_id }}"
+        user: <user_id/email>
         register: s3key_info_response
 
     - name: Show S3Keys
@@ -216,10 +217,25 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
+def get_users(client):
+    all_users = ionoscloud.Users(items=[])
+    offset = 0
+    limit = 100
+
+    users = client.um_users_get(depth=2, limit=limit, offset=offset)
+    all_users.items += users.items
+    while(users.links.next is not None):
+        offset += limit
+        users = client.um_users_get(depth=2, limit=limit, offset=offset)
+        all_users.items += users.items
+
+    return all_users
+
+
 def get_s3keys(module, client):
     user_id = get_resource_id(
         module,
-        ionoscloud.UserManagementApi(client).um_users_get(depth=1), 
+        get_users(ionoscloud.UserManagementApi(client)), 
         module.params.get('user'),
         [['id'], ['properties', 'email']],
     )
@@ -230,9 +246,8 @@ def get_s3keys(module, client):
         s3_keys = user_s3keys_server.um_users_s3keys_get(user_id, depth=depth)
         results = list(map(lambda x: x.to_dict(), apply_filters(module, s3_keys.items)))
         return {
-            'action': 'info',
             'changed': False,
-            's3keys': results
+            RETURNED_KEY: results
         }
 
     except Exception as e:

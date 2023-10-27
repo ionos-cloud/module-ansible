@@ -40,6 +40,21 @@
         wait: true
       register: nlb_response
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nlb_response}}"
+    #     dest: ../../docs/returned_object_examples/network_load_balancer.json
+
+    - name: List Network Load Balancers
+      network_load_balancer_info:
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+      register: nlb_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nlb_list_response}}"
+    #     dest: ../../docs/returned_object_examples/network_load_balancer_info.json
+
     - name: Debug - Show Network Load Balancer
       debug:
          msg: "{{ nlb_response }}"
@@ -64,6 +79,22 @@
         network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
         wait: true
       register: nlb_forwarding_rule_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nlb_forwarding_rule_response}}"
+    #     dest: ../../docs/returned_object_examples/network_load_balancer_rule.json
+
+    - name: List Network Load Balancer Forwarding rules
+      network_load_balancer_forwardingrule_info:
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+      register: nlb_forwardingrule_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nlb_forwardingrule_list_response}}"
+    #     dest: ../../docs/returned_object_examples/network_load_balancer_forwardingrule_info.json
 
     - name: Debug - Show Network Load Balancer Forwarding Rule
       debug:

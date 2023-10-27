@@ -29,7 +29,7 @@ RETURNED_KEY = 'backupunit'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the virtual Backup Unit.'],
+        'description': ['The name of the  resource (alphanumeric characters only).'],
         'required': ['present'],
         'available': ['present'],
         'type': 'str',
@@ -41,21 +41,21 @@ OPTIONS = {
         'type': 'str',
     },
     'backupunit_password': {
-        'description': ['The password of the Backup Unit.'],
+        'description': ['The password associated with that resource.'],
         'available': ['present'],
         'no_log': True,
         'type': 'str',
     },
     'backupunit_email': {
-        'description': ['The email of the Backup Unit.'],
+        'description': ['The email associated with the backup unit. Bear in mind that this email does not be the same email as of the user.'],
         'required': ['present'],
         'available': ['present'],
         'type': 'str',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -116,6 +116,15 @@ OPTIONS = {
     },
 }
 
+IMMUTABLE_OPTIONS = [
+    { "name": "name", "note": "" },
+    { "name": "backupunit_email", "note": "" },
+    {
+        "name": "backupunit_password",
+        "note": "Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!",
+    },
+]
+
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES) 
     del val['available']
@@ -143,22 +152,22 @@ EXAMPLE_PER_STATE = {
   'present' : '''# Create a Backup Unit
   - name: Create Backup Unit
     backupunit:
-      backupunit_email: "{{ email }}"
-      backupunit_password: "{{ password }}"
-      name: "{{ name }}"
+      backupunit_email: <email>
+      backupunit_password: <password>
+      name: BackupUnitName
   ''',
   'update' : '''# Update a Backup Unit
   - name: Update a Backup Unit
     backupunit:
-      backupunit: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
-      backupunit_email: "{{ updated_email }}"
-      backupunit_password:  "{{ updated_password }}"
+      backupunit: BackupUnitName
+      backupunit_email: <newEmail>
+      backupunit_password: <newPassword>
       state: update
   ''',
   'absent' : '''# Destroy a Backup Unit.
   - name: Remove Backup Unit
     backupunit:
-      backupunit: "2fac5a84-5cc4-4f85-a855-2c0786a4cdec"
+      backupunit: BackupUnitName
       state: absent
   ''',
 }
@@ -219,15 +228,13 @@ def _should_replace_object(module, existing_object):
     return (
         module.params.get('name') is not None
         and existing_object.properties.name != module.params.get('name')
-    )
-
-def _should_update_object(module, existing_object):
-    return (
-        module.params.get('backupunit_password') is not None
-        and existing_object.properties.password != module.params.get('backupunit_password')
+        or module.params.get('backupunit_password') is not None
         or module.params.get('backupunit_email') is not None
         and existing_object.properties.email != module.params.get('backupunit_email')
     )
+
+def _should_update_object(module, existing_object):
+    return False
 
 
 def _get_object_list(module, client):
@@ -269,26 +276,7 @@ def _create_object(module, client, existing_object=None):
 
 
 def _update_object(module, client, existing_object):
-    password = module.params.get('backupunit_password')
-    email = module.params.get('backupunit_email')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-
-    backupunits_api = ionoscloud.BackupUnitsApi(client)
-
-    backupunit_properties = BackupUnitProperties(password=password, email=email)
-
-    try:
-        backupunit_response, _, headers = backupunits_api.backupunits_patch_with_http_info(
-            existing_object.id, backupunit_properties,
-        )
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-        return backupunit_response
-    except ApiException as e:
-        module.fail_json(msg="failed to update the backupunit: %s" % to_native(e))
+    pass
 
 
 def _remove_object(module, client, existing_object):
@@ -309,8 +297,8 @@ def _remove_object(module, client, existing_object):
 def update_replace_object(module, client, existing_object):
     if _should_replace_object(module, existing_object):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -328,6 +316,70 @@ def update_replace_object(module, client, existing_object):
             'action': 'update',
             RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
         }
+
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
+
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
+
+
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
+
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
+
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
+
+    _remove_object(module, client, existing_object)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.id,
+    }
 
     # No action
     return {

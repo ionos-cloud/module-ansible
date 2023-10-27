@@ -58,10 +58,10 @@ OPTIONS = {
         'required': ['present'],
         'type': 'list',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -152,17 +152,30 @@ author:
 EXAMPLE_PER_STATE = {
     'present': '''- name: Create Cluster User
     mongo_cluster_user:
-      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: MongoClusterName
       mongo_username: testuser
-      mongo_password: password123
+      mongo_password: <password>
       user_roles:
         - role: read
           database: test
     register: mongo_user_response
   ''',
+    'update': '''- name: Update User
+    mongo_cluster_user:
+      mongo_cluster: MongoClusterName
+      mongo_username: testuser
+      mongo_password: <newPassword>
+      user_roles:
+        - role: read
+          database: test
+        - role: readWrite
+          database: test
+      state: update
+    register: mongo_user_response
+  ''',
     'absent': '''- name: Delete Cluster User
     mongo_cluster_user:
-      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: MongoClusterName
       mongo_username: testuser
     register: mongo_user_response
   ''',
@@ -338,8 +351,8 @@ def _remove_object(module, client, existing_object):
 def update_replace_object(module, client, existing_object):
     if _should_replace_object(module, existing_object):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -394,6 +407,7 @@ def update_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     return update_replace_object(module, client, existing_object)
 
@@ -406,6 +420,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

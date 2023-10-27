@@ -12,7 +12,7 @@ HAS_SDK = True
 try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
-    from ionoscloud.models import Lan, LanPost, LanProperties, LanPropertiesPost
+    from ionoscloud.models import Lan, LanProperties
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
@@ -49,24 +49,54 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name of the LAN.'],
+        'description': ['The name of the  resource.'],
         'required': ['present'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'pcc': {
-        'description': ['The ID or name of the PCC.'],
+        'description': ['The unique identifier of the private Cross-Connect the LAN is connected to, if any.'],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'pcc': {
+        'description': ['The unique identifier of the private Cross-Connect the LAN is connected to, if any.'],
         'available': ['update'],
         'type': 'str',
     },
     'ip_failover': {
-        'description': ['The IP failover group.'],
+        'description': ['IP failover configurations for lan'],
         'available': ['update'],
         'type': 'list',
         'elements': 'dict',
     },
     'public': {
-        'description': ['If true, the LAN will have public Internet access.'],
+        'description': ['This LAN faces the public Internet.'],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
+    },
+    'ipv6_cidr': {
+        'description': [
+            "[The IPv6 feature is in beta phase and not ready for production usage.] For a GET request, "
+            "this value is either 'null' or contains the LAN's /64 IPv6 CIDR block if this LAN is "
+            "IPv6-enabled. For POST/PUT/PATCH requests, 'AUTO' will result in enabling this LAN for "
+            "IPv6 and automatically assign a /64 IPv6 CIDR block to this LAN. If you choose the IPv6 "
+            "CIDR block on your own, then you must provide a /64 block, which is inside the IPv6 CIDR "
+            "block of the virtual datacenter and unique inside all LANs from this virtual datacenter. "
+            "If you enable IPv6 on a LAN with NICs, those NICs will get an /80 IPv6 CIDR block and one "
+            "IPv6 address assigned to each automatically, unless you specify them explicitly on the NICs. "
+            "A virtual data center is limited to a maximum of 256 IPv6-enabled LANs.",
+        ],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'allow_replace': {
+        'description': [
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
+            'value to an immutable property. An error will be thrown instead',
+        ],
         'available': ['present', 'update'],
         'default': False,
         'type': 'bool',
@@ -259,6 +289,8 @@ def _should_update_object(module, existing_object, client):
         and existing_object.properties.name != module.params.get('name')
         or module.params.get('public') is not None
         and existing_object.properties.public != module.params.get('public')
+        or module.params.get('ipv6_cidr') is not None
+        and existing_object.properties.ipv6_cidr_block != module.params.get('ipv6_cidr')
         or module.params.get('ip_failover') is not None
         and existing_object.properties.ip_failover != list(map(lambda el: {'ip': el.ip, 'nic_uuid': el.nic_uuid}, module.params.get('ip_failover')))
         or pcc_id is not None
@@ -284,9 +316,18 @@ def _get_object_identifier(module):
 def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
     public = module.params.get('public')
+    ipv6_cidr = module.params.get('ipv6_cidr')
+
+    pcc_id = get_resource_id(
+        module, 
+        ionoscloud.PrivateCrossConnectsApi(client).pccs_get(depth=1),
+        module.params.get('pcc'),
+    )
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
         public = existing_object.properties.public if public is None else public
+        ipv6_cidr = existing_object.properties.ipv6_cidr_block if ipv6_cidr is None else ipv6_cidr
+        pcc_id = existing_object.properties.pcc if pcc_id is None else pcc_id
 
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
@@ -297,7 +338,10 @@ def _create_object(module, client, existing_object=None):
     datacenter_list = datacenters_api.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
 
-    lan = LanPost(properties=LanPropertiesPost(name=name, public=public))
+    lan = Lan(properties=LanProperties(
+        name=name, pcc=pcc_id, public=public,
+        ipv6_cidr_block=ipv6_cidr,
+    ))
 
     try:
         lan_response, _, headers = lans_api.datacenters_lans_post_with_http_info(datacenter_id, lan=lan)
@@ -313,6 +357,8 @@ def _update_object(module, client, existing_object):
     name = module.params.get('name')
     public = module.params.get('public')
     ip_failover = module.params.get('ip_failover')
+    ipv6_cidr = module.params.get('ipv6_cidr')
+
     pcc_id = get_resource_id(
         module, 
         ionoscloud.PrivateCrossConnectsApi(client).pccs_get(depth=1),
@@ -329,7 +375,11 @@ def _update_object(module, client, existing_object):
         for elem in ip_failover:
             elem['nicUuid'] = elem.pop('nic_uuid')
 
-    lan_properties = LanProperties(name=name, ip_failover=ip_failover, pcc=pcc_id, public=public)
+    lan_properties = LanProperties(
+        name=name, ip_failover=ip_failover,
+        pcc=pcc_id, public=public,
+        ipv6_cidr_block=ipv6_cidr,
+    )
 
     try:
         lan_response, _, headers = lans_api.datacenters_lans_patch_with_http_info(
@@ -363,8 +413,8 @@ def _remove_object(module, client, existing_object):
 def update_replace_object(module, client, existing_object):
     if _should_replace_object(module, existing_object):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -414,6 +464,7 @@ def update_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
@@ -436,6 +487,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

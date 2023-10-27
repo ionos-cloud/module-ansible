@@ -31,6 +31,21 @@
         wait: true
       register: nat_gateway_response
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nat_gateway_response}}"
+    #     dest: ../../docs/returned_object_examples/nat_gateway.json
+
+    - name: List NAT Gateways
+      nat_gateway_info:
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+      register: nat_gateway_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nat_gateway_list_response}}"
+    #     dest: ../../docs/returned_object_examples/nat_gateway_info.json
+
     - name: Debug - Show NAT Gateway
       debug:
          msg: "{{ nat_gateway_response }}"
@@ -50,6 +65,22 @@
         public_ip: "{{ ipblock_response.ipblock.properties.ips[0] }}"
         wait: true
       register: nat_gateway_rule_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nat_gateway_rule_response}}"
+    #     dest: ../../docs/returned_object_examples/nat_gateway_rule.json
+
+    - name: List NAT Gateway Rules
+      nat_gateway_rule_info:
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+      register: nat_gateway_rule_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nat_gateway_rule_list_response}}"
+    #     dest: ../../docs/returned_object_examples/nat_gateway_rule_info.json
 
     - name: Debug - Show NAT Gateway Rule
       debug:

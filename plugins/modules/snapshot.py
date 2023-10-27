@@ -34,8 +34,8 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update', 'restore']
 OBJECT_NAME = 'Snapshot'
+RETURNED_KEY = 'snapshot'
 
-LICENCE_TYPES = ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016']
 OPTIONS = {
     'datacenter': {
         'description': ['The datacenter in which the volumes reside.'],
@@ -50,7 +50,7 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name of the snapshot.'],
+        'description': ['The name of the  resource.'],
         'available': ['create'],
         'required': ['create'],
         'type': 'str',
@@ -62,13 +62,13 @@ OPTIONS = {
         'type': 'str',
     },
     'description': {
-        'description': ['The description of the snapshot.'],
+        'description': ['Human-readable description.'],
         'available': ['present'],
         'type': 'str',
     },
     'licence_type': {
-        'description': ['The license type used'],
-        'choices': ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016'],
+        'description': ['OS type of this snapshot'],
+        'choices': ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'RHEL', 'LINUX', 'OTHER'],
         'available': ['update'],
         'type': 'str',
     },
@@ -83,7 +83,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'ram_hot_plug': {
-        'description': ['Hot-plug capable RAM (no reboot required)'],
+        'description': ['Hot-plug capable RAM (no reboot required).'],
         'available': ['update'],
         'type': 'bool',
     },
@@ -98,7 +98,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'nic_hot_unplug': {
-        'description': ['Hot-unplug capable NIC (no reboot required)'],
+        'description': ['Hot-unplug capable NIC (no reboot required).'],
         'available': ['update'],
         'type': 'bool',
     },
@@ -108,7 +108,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'disc_scsi_hot_unplug': {
-        'description': ['Hot-unplug capable SCSI drive (no reboot required). Not supported with Windows VMs.'],
+        'description': ['Is capable of SCSI drive hot unplug (no reboot required). This works only for non-Windows virtual Machines.'],
         'available': ['update'],
         'type': 'bool',
     },
@@ -203,7 +203,7 @@ options:
     default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 6.0.2"
+    - "ionoscloud >= 6.1.6"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
@@ -335,7 +335,7 @@ def create_snapshot(module, client):
             'changed': False,
             'failed': False,
             'action': 'create',
-            'snapshot': snapshot.to_dict()
+            RETURNED_KEY: snapshot.to_dict()
         }
 
     try:
@@ -352,7 +352,7 @@ def create_snapshot(module, client):
             'changed': True,
             'failed': False,
             'action': 'create',
-            'snapshot': snapshot_response.to_dict()
+            RETURNED_KEY: snapshot_response.to_dict()
         }
 
     except Exception as e:
@@ -405,7 +405,7 @@ def restore_snapshot(module, client):
             'changed': True,
             'failed': False,
             'action': 'restore',
-            'snapshot': snapshot_response
+            RETURNED_KEY: snapshot_response
         }
 
     except Exception as e:
@@ -493,7 +493,7 @@ def update_snapshot(module, client):
             'changed': True,
             'failed': False,
             'action': 'update',
-            'snapshot': snapshot_response.to_dict()
+            RETURNED_KEY: snapshot_response.to_dict()
         }
 
     except Exception as e:

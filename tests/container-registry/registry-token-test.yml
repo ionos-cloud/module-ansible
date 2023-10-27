@@ -17,6 +17,20 @@
         time: 04:17:00+00:00
     register: registry_response
 
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{registry_response}}"
+  #     dest: ../../docs/returned_object_examples/registry.json
+
+  - name: List Registries
+    registry_info:
+    register: registries_response
+
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{registries_response}}"
+  #     dest: ../../docs/returned_object_examples/registry_info.json
+
   - name: Create Registry Token
     registry_token:
       registry: "{{ registry_response.registry.id }}"
@@ -30,6 +44,11 @@
       status: enabled
     register: registry_token_response
 
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{registry_token_response}}"
+  #     dest: ../../docs/returned_object_examples/registry_token.json
+
   - name: Show Registry Token
     debug:
       var: registry_token_response
@@ -38,6 +57,11 @@
     registry_token_info:
       registry: "{{ registry_response.registry.id }}"
     register: registry_tokens_response
+
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{registry_tokens_response}}"
+  #     dest: ../../docs/returned_object_examples/registry_token_info.json
 
   - name: Show Registry Tokens
     debug:
@@ -55,8 +79,31 @@
         name: nume
         type: repo1
       status: disabled
+      allow_replace: False
       state: update
     register: registry_token_response
+
+  - name: Update Registry Token 2
+    registry_token:
+      registry: "{{ registry_response.registry.id }}"
+      registry_token: "{{ registry_token_response.registry_token.properties.name }}"
+      scopes:
+      - actions:
+        - pull
+        - push
+        - delete
+        name: nume
+        type: repo1
+      status: disabled
+      allow_replace: False
+      state: update
+    register: registry_token_response2
+
+  - name: Asserting that changed == false when no update is made
+    assert:
+      that:
+        - registry_token_response2.changed == false
+      msg: "Changed should be false"
 
   - name: Delete Registry Token
     registry_token:

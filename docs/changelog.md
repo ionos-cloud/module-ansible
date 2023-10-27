@@ -1,5 +1,49 @@
 # Changelog
 
+## 7.0.0-beta.1
+### Features
+* Reworked all modules to be declarative, for more details https://github.com/ionos-cloud/module-ansible/blob/master/docs/usage/declarative_changes.md
+* changed info modules to have the same format
+* added ipv6 support
+* updated docs, added return examples and updated option descriptions
+
+## 6.5.3
+### Features
+* Added support for [vCPU Servers](api/compute-engine/vcpu_server.md)
+
+## 6.5.2
+### Fixes
+* Fixed error when exceeding maximum users per page
+
+## 6.5.1
+### Features
+* New licenceType supported for `snapshot` and `volume` modules: `RHEL`
+* Extend dynamic inventory to support regex-based grouping
+
+## 6.5.0
+
+### Features
+* Implement filters for Container Registry info modules
+* New Product: **DataPlatform**. Modules added:
+  * dataplatform_cluster
+  * dataplatform_cluster_config
+  * dataplatform_cluster_info
+  * dataplatform_nodepool
+  * dataplatform_nodepool_info
+
+⚠️ **Note:** Data Platform is currently in the Early Access (EA) phase.
+We recommend keeping usage and testing to non-production critical applications.
+Please contact your sales representative or support for more information.
+
+
+### Fixes:
+* Removed sensitive data from repository
+* Fix #138 lan_ids param is now a list of dicts
+
+
+**Full Changelog**: https://github.com/ionos-cloud/module-ansible/compare/v6.4.3...v6.5.0
+
+
 ## 6.4.3
 
 ### Bug fixes:

@@ -38,7 +38,7 @@ RETURNED_KEY = 'flowlog'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the flowlog.'],
+        'description': ['The resource name.'],
         'available': STATES,
         'required': ['present'],
         'type': 'str',
@@ -56,7 +56,7 @@ OPTIONS = {
         'type': 'str',
     },
     'bucket': {
-        'description': ['S3 bucket name of an existing IONOS Cloud S3 bucket.'],
+        'description': ['The S3 bucket name of an existing IONOS Cloud S3 bucket.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -79,10 +79,10 @@ OPTIONS = {
         'required': ['update', 'absent'],
         'type': 'str',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -176,22 +176,22 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Network Load Balancer Flowlog
     network_load_balancer_flowlog:
-      name: "{{ name }}"
+      name: FlowlogName
       action: "ACCEPTED"
       direction: "INGRESS"
       bucket: "sdktest"
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
       wait: true
     register: nlb_flowlog_response
   ''',
   'update' : '''
   - name: Update Network Load Balancer Flowlog
     network_load_balancer_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
+      flowlog: FlowlogName
+      name: FlowlogName
       action: "ALL"
       direction: "INGRESS"
       bucket: "sdktest"
@@ -202,9 +202,9 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete Network Load Balancer Flowlog
     network_load_balancer_flowlog:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
-      flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
+      datacenter: DatacenterName
+      network_load_balancer: NLBName
+      flowlog: FlowlogName
       state: absent
   ''',
 }
@@ -414,8 +414,8 @@ def _remove_object(module, client, existing_object):
 def update_replace_object(module, client, existing_object):
     if _should_replace_object(module, existing_object):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -465,6 +465,7 @@ def update_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
@@ -487,6 +488,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

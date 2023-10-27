@@ -90,6 +90,7 @@ module: dataplatform_cluster_config
 short_description: Get DataPlatform Cluster configs
 description:
      - This is a simple module that supports getting config of DataPlatform clusters
+     - ⚠️ **Note:** Data Platform is currently in the Early Access (EA) phase. We recommend keeping usage and testing to non-production critical applications. Please contact your sales representative or support for more information.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''

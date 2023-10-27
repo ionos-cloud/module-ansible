@@ -46,48 +46,48 @@ OPTIONS = {
         'required': ['update', 'absent'],
         'type': 'str',
     },
-    'nodepool_name': {
-        'description': ['The name of the K8s Nodepool.'],
+    'name': {
+        'description': ['A Kubernetes node pool name. Valid Kubernetes node pool name must be 63 characters or less and must be empty or begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
     },
     'k8s_version': {
-        'description': ['The Kubernetes version the nodepool is running.'],
+        'description': ['The Kubernetes version running in the node pool. Note that this imposes restrictions on which Kubernetes versions can run in the node pools of a cluster. Also, not all Kubernetes versions are suitable upgrade targets for all earlier versions.'],
         'available': ['update', 'present'],
         'type': 'str',
     },
     'datacenter': {
-        'description': ['A valid ID or name of the data center, to which the user has access.'],
+        'description': ['The unique identifier of the VDC where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
     },
     'lans': {
-        'description': ['Array of additional LANs attached to worker nodes.'],
+        'description': ['The array of existing private LANs to attach to worker nodes.'],
         'available': ['update', 'present'],
         'type': 'list',
         'elements': 'dict',
     },
     'node_count': {
-        'description': ['The number of nodes that make up the node pool.'],
+        'description': ['The number of worker nodes of the node pool.'],
         'available': ['update', 'present'],
         'type': 'int',
     },
     'cpu_family': {
-        'description': ['A valid CPU family name.'],
+        'description': ['The CPU type for the nodes.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
     },
     'cores_count': {
-        'description': ['The number of cores for the node.'],
+        'description': ['The total number of cores for the nodes.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'int',
     },
     'ram_size': {
-        'description': ['The RAM size for the node. Must be set in multiples of 1024 MB, with minimum size is of 2048 MB.'],
+        'description': ['The RAM size for the nodes. Must be specified in multiples of 1024 MB, with a minimum size of 2048 MB.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'int',
@@ -95,36 +95,34 @@ OPTIONS = {
     'availability_zone': {
         'description': ['The availability zone in which the target VM should be provisioned.'],
         'available': ['update', 'present'],
-        'required': ['present'],
+        'choices': ['AUTO', 'ZONE_1', 'ZONE_2'],
         'type': 'str',
     },
     'storage_type': {
-        'description': ['The type of hardware for the volume.'],
+        'description': ['The storage type for the nodes.'],
         'available': ['update', 'present'],
         'required': ['present'],
+        'choices': ['HDD', 'SSD'],
         'type': 'str',
     },
     'storage_size': {
-        'description': ['The size of the volume in GB. The size should be greater than 10GB.'],
+        'description': ['The allocated volume size in GB. The allocated volume size in GB. To achieve good performance, we recommend a size greater than 100GB for SSD.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'int',
     },
     'maintenance_window': {
-        'description': [
-            "The maintenance window is used for updating the software on the nodepool's nodes and for "
-            "upgrading the nodepool's K8s version. If no value is given, one is chosen dynamically, so there is no fixed default.",
-        ],
+        'description': ['The maintenance window is used to update the software on the node pool nodes and update the K8s version of the node pool. If no value is specified, a value is selected dynamically, so there is no fixed default value.'],
         'available': ['present', 'update'],
         'type': 'dict',
     },
     'labels': {
-        'description': ['Map of labels attached to node pool.'],
+        'description': ['The labels attached to the node pool.'],
         'available': ['present', 'update'],
         'type': 'dict',
     },
     'annotations': {
-        'description': ['Map of annotations attached to node pool.'],
+        'description': ['The annotations attached to the node pool.'],
         'available': ['present','update'],
         'type': 'dict',
     },
@@ -134,19 +132,15 @@ OPTIONS = {
         'type': 'dict',
     },
     'public_ips': {
-        'description': [
-            'Optional array of reserved public IP addresses to be used by the nodes. IPs must be from same location as the data center '
-            'used for the node pool. The array must contain one more IP than maximum number possible number of nodes (nodeCount+1 for '
-            'fixed number of nodes or maxNodeCount+1 when auto scaling is used). The extra IP is used when the nodes are rebuilt.',
-        ],
+        'description': ['Optional array of reserved public IP addresses to be used by the nodes. The IPs must be from the exact location of the node pool\'s data center. If autoscaling is used, the array must contain one more IP than the maximum possible number of nodes (nodeCount+1 for a fixed number of nodes or maxNodeCount+1). The extra IP is used when the nodes are rebuilt.'],
         'available': ['present', 'update'],
         'type': 'list',
         'elements': 'str',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -213,6 +207,17 @@ OPTIONS = {
     },
 }
 
+IMMUTABLE_OPTIONS = [
+    { "name": "datacenter", "note": "" },
+    { "name": "name", "note": "" },
+    { "name": "cpu_family", "note": "" },
+    { "name": "cores_count", "note": "" },
+    { "name": "ram_size", "note": "" },
+    { "name": "availability_zone", "note": "" },
+    { "name": "storage_type", "note": "" },
+    { "name": "storage_size", "note": "" },
+]
+
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES) 
     del val['available']
@@ -240,7 +245,6 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create k8s cluster nodepool
     k8s_nodepools:
-      cluster_name: "{{ name }}"
       k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       datacenter: "4d495548-e330-434d-83a9-251bfa645875"
       node_count: 1
@@ -254,7 +258,6 @@ EXAMPLE_PER_STATE = {
   'update' : '''
   - name: Update k8s cluster nodepool
     k8s_nodepools:
-      cluster_name: "{{ name }}"
       k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
       k8s_nodepool: "6e9efcc6-649a-4514-bee5-6165b614c89e"
       node_count: 1
@@ -342,8 +345,8 @@ def _should_replace_object(module, existing_object, client):
         module.params.get('datacenter'),
     )
     return (
-        module.params.get('nodepool_name') is not None
-        and existing_object.properties.name != module.params.get('nodepool_name')
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
         or module.params.get('cpu_family') is not None
         and existing_object.properties.cpu_family != module.params.get('cpu_family')
         or module.params.get('cores_count') is not None
@@ -427,7 +430,7 @@ def _get_object_list(module, client):
 
 
 def _get_object_name(module):
-    return module.params.get('nodepool_name')
+    return module.params.get('name')
 
 
 def _get_object_identifier(module):
@@ -446,7 +449,7 @@ def _create_object(module, client, existing_object=None):
         module.params.get('datacenter'),
     )
     k8s_version = module.params.get('k8s_version')
-    nodepool_name = module.params.get('nodepool_name')
+    name = module.params.get('name')
     lans = _get_lans(module.params.get('lans'))
     node_count = module.params.get('node_count')
     cpu_family = module.params.get('cpu_family')
@@ -473,7 +476,7 @@ def _create_object(module, client, existing_object=None):
         auto_scaling['maxNodeCount'] = auto_scaling.pop('max_node_count')
 
     if existing_object is not None:
-        nodepool_name = existing_object.properties.name if nodepool_name is None else nodepool_name
+        name = existing_object.properties.name if name is None else name
         k8s_version = existing_object.properties.k8s_version if k8s_version is None else k8s_version
         lans = existing_object.properties.lans if lans is None else lans
         datacenter_id = existing_object.properties.datacenter_id if datacenter_id is None else datacenter_id
@@ -491,7 +494,7 @@ def _create_object(module, client, existing_object=None):
         public_ips = existing_object.properties.public_ips if public_ips is None else public_ips
 
     k8s_nodepool_properties = KubernetesNodePoolProperties(
-        name=nodepool_name,
+        name=name,
         datacenter_id=datacenter_id,
         node_count=node_count,
         cpu_family=cpu_family,
@@ -628,8 +631,8 @@ def _remove_object(module, client, existing_object):
 def update_replace_object(module, client, existing_object):
     if _should_replace_object(module, existing_object, client):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -679,6 +682,7 @@ def update_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
@@ -701,6 +705,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

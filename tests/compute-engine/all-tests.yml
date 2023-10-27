@@ -2,25 +2,8 @@
   connection: local
   gather_facts: false
 
-- name: Run Datacenter Test
-  import_playbook: datacenter-test.yml
-
-- name: Run Attach Volume Test
-  import_playbook: attach-volume-test.yml
-
-- name: Run Cube Server Test
-  import_playbook: cube-server-test.yml
-
-- name: Run Firewall Test
-  import_playbook: firewall-test.yml
-
-# Skipped because we can't automatically upload an image using Cloud API
-# and the test needs an image to be uploaded
-#- name: Run Image Test
-#  import_playbook: image-test.yml
-
-- name: Run IP Block Test
-  import_playbook: ipblock-test.yml
+- name: Run IPV6 Test
+  import_playbook: ipv6-test.yml
 
 - name: Run Lan Test
   import_playbook: lan-test.yml
@@ -40,8 +23,31 @@
 - name: Run Snapshot Test
   import_playbook: snapshot-test.yml
 
+- name: Run Volume Test
+  import_playbook: volume-test.yml
+
+- name: Run Datacenter Test
+  import_playbook: datacenter-test.yml
+
+- name: Run VCPU Server Test
+  import_playbook: vcpu-server-test.yml
+
+- name: Run Attach Volume Test
+  import_playbook: attach-volume-test.yml
+
+- name: Run Cube Server Test
+  import_playbook: cube-server-test.yml
+
 - name: Run Template Test
   import_playbook: template-test.yml
 
-- name: Run Volume Test
-  import_playbook: volume-test.yml
+#- name: Run Firewall Test
+#  import_playbook: firewall-test.yml
+
+# Skipped because we can't automatically upload an image using Cloud API
+# and the test needs an image to be uploaded
+#- name: Run Image Test
+#  import_playbook: image-test.yml
+
+- name: Run IP Block Test
+  import_playbook: ipblock-test.yml

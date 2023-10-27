@@ -45,47 +45,32 @@ OPTIONS = {
         'type': 'str',
     },
     'k8s_version': {
-        'description': [
-            'The Kubernetes version the cluster is running. This imposes restrictions on what '
-            "Kubernetes versions can be run in a cluster's nodepools. Additionally, not all "
-            'Kubernetes versions are viable upgrade targets for all prior versions.',
-        ],
+        'description': ['The Kubernetes version that the cluster is running. This limits which Kubernetes versions can run in a cluster\'s node pools. Also, not all Kubernetes versions are suitable upgrade targets for all earlier versions.'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'maintenance_window': {
-        'description': [
-            "The maintenance window is used for updating the cluster's control plane and for "
-            "upgrading the cluster's K8s version. If no value is given, one is chosen dynamically, "
-            'so there is no fixed default.',
-        ],
+        'description': ['The maintenance window is used to update the control plane and the K8s version of the cluster. If no value is specified, it is chosen dynamically, so there is no fixed default value.'],
         'available': ['present', 'update'],
         'required': ['update'],
         'type': 'dict',
     },
     'api_subnet_allow_list': {
-        'description': [
-            'Access to the K8s API server is restricted to these CIDRs. Traffic, internal to the cluster, '
-            'is not affected by this restriction. If no allowlist is specified, access is not restricted. '
-            'If an IP without subnet mask is provided, the default value is used: 32 for IPv4 and 128 for IPv6.',
-        ],
+        'description': ['Access to the K8s API server is restricted to these CIDRs. Intra-cluster traffic is not affected by this restriction. If no AllowList is specified, access is not limited. If an IP is specified without a subnet mask, the default value is 32 for IPv4 and 128 for IPv6.'],
         'available': ['present', 'update'],
         'type': 'list',
         'elements': 'str',
     },
     's3_buckets_param': {
-        'description': [
-            'List of S3 bucket configured for K8s usage. For now it contains only an S3 bucket '
-            'used to store K8s API audit logs.',
-        ],
+        'description': ['List of S3 buckets configured for K8s usage. At the moment, it contains only one S3 bucket that is used to store K8s API audit logs.'],
         'available': ['present', 'update'],
         'type': 'list',
         'elements': 'str',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -179,12 +164,12 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create k8s cluster
     k8s_cluster:
-      name: "{{ cluster_name }}"
+      name: ClusterName
   ''',
   'update' : '''
   - name: Update k8s cluster
     k8s_cluster:
-      k8s_cluster_id: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
+      k8s_cluster: ClusterName
       maintenance_window:
         day_of_the_week: 'Tuesday'
         time: '13:03:00'
@@ -194,7 +179,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete k8s cluster
     k8s_cluster:
-      k8s_cluster_id: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
+      k8s_cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
       state: absent
   ''',
 }
@@ -246,8 +231,8 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
 def update_replace_object(module, client, existing_object):
     if _should_replace_object(module, existing_object):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -443,6 +428,7 @@ def update_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
@@ -465,6 +451,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

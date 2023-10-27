@@ -27,9 +27,64 @@
          assign_public_ip: true
          remove_boot_volume: true
          template_uuid: "15c6dd2f-02d2-4987-b439-9a58dd59ecc3"
+         availability_zone: AUTO
          wait: true
          wait_timeout: "{{ wait_timeout }}"
          state: present
+      register: server_cube
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{server_cube}}"
+    #     dest: ../../docs/returned_object_examples/cube_server.json
+
+    - name: Provision a server no change
+      cube_server:
+         datacenter: "{{ datacenter }}"
+         name: "{{ name }} 01"
+         disk_type: DAS
+         location: "de/txl"
+         image: 01abcc20-a6b9-11ed-9e9f-e60bb43016ef
+         count: 1
+         assign_public_ip: true
+         remove_boot_volume: true
+         template_uuid: "15c6dd2f-02d2-4987-b439-9a58dd59ecc3"
+         availability_zone: AUTO
+         wait: true
+         wait_timeout: "{{ wait_timeout }}"
+         allow_replace: False
+         state: present
+      register: server_cube2
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - server_cube2.changed == false
+        msg: "Changed should be false"
+
+    - name: Provision a server no change 2
+      cube_server:
+         datacenter: "{{ datacenter }}"
+         instance_ids:
+          - "{{ name }} 01"
+         name: "{{ name }} 01"
+         disk_type: DAS
+         location: "de/txl"
+         count: 1
+         image: 01abcc20-a6b9-11ed-9e9f-e60bb43016ef
+         assign_public_ip: true
+         remove_boot_volume: true
+         wait: true
+         wait_timeout: "{{ wait_timeout }}"
+         allow_replace: False
+         state: present
+      register: server_cube2
+
+    - name: Asserting that changed == false when no update is made 2
+      assert:
+        that:
+          - server_cube2.changed == false
+        msg: "Changed should be false"
 
     - name: Update server
       cube_server:

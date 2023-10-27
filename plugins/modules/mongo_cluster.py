@@ -31,8 +31,8 @@ RETURNED_KEY = 'mongo_cluster'
 OPTIONS = {
     'mongo_cluster': {
         'description': ['The ID or name of an existing Mongo Cluster.'],
-        'available': ['update', 'absent'],
-        'required': ['update', 'absent'],
+        'available': ['update', 'absent', 'restore'],
+        'required': ['update', 'absent', 'restore'],
         'type': 'str',
     },
     'backup_id': {
@@ -42,57 +42,51 @@ OPTIONS = {
         'type': 'str',
     },
     'maintenance_window': {
-        'description': [
-            'Dict containing "time" (the time of the day when to perform the maintenance) '
-            'and "day_of_the_week" (the Day Of the week when to perform the maintenance).',
-        ],
+        'description': ['A weekly window of 4 hours during which maintenance work can be performed.'],
         'available': ['update', 'present'],
         'type': 'dict',
     },
     'mongo_db_version': {
-        'description': ['The MongoDB version of your cluster'],
+        'description': ['The MongoDB version of your cluster.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'instances': {
-        'description': ['The total number of instances in the cluster (one master and n-1 standbys).'],
+        'description': ['The total number of instances in the cluster (one primary and n-1 secondaries).'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'int',
     },
     'connections': {
-        'description': ['Array of VDCs to connect to your cluster.'],
+        'description': ['Array of datacenters to connect to your cluster.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'list',
         'elements': 'dict',
     },
     'template_id': {
-        'description': ['The unique template ID'],
+        'description': ['The unique ID of the template, which specifies the number of cores, storage size, and memory. You cannot downgrade to a smaller template or minor edition (e.g. from business to playground). To get a list of all templates to confirm the changes use the /templates endpoint.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
     },
     'location': {
-        'description': [
-            'The physical location where the cluster will be created. This will be where all of your instances live. '
-            'Property cannot be modified after datacenter creation (disallowed in update requests)'
-        ],
+        'description': ['The physical location where the cluster will be created. This is the location where all your instances will be located. This property is immutable.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'display_name': {
-        'description': ['The friendly name of your cluster.'],
+        'description': ['The name of your cluster.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -153,6 +147,11 @@ OPTIONS = {
     },
 }
 
+IMMUTABLE_OPTIONS = [
+    { "name": "location", "note": "" },
+    { "name": "mongo_db_version", "note": "" },
+]
+
 
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES)
@@ -192,15 +191,30 @@ EXAMPLE_PER_STATE = {
             - 192.168.1.116/24
             - 192.168.1.117/24
             - 192.168.1.118/24
-          datacenter: "{{ datacenter }} - DBaaS Mongo"
+          datacenter: "Datacenter - DBaaS Mongo"
           lan: "test_lan"
       display_name: backuptest-04
       wait: true
     register: cluster_response
   ''',
+    'update': '''- name: Update Cluster
+    mongo_cluster:
+      mongo_cluster: backuptest-04
+      display_name: backuptest-05
+      state: update
+      allow_replace: True
+      wait: true
+    register: cluster_response
+  ''',
+    'restore': '''- name: Restore Mongo Cluster
+    mongo_cluster:
+      mongo_cluster: backuptest-05
+      backup_id: 9ab6545c-b138-4a86-b6ca-0d872a2b0953
+      state: restore
+  ''',
     'absent': '''- name: Delete Mongo Cluster
     mongo_cluster:
-      mongo_cluster_id: "{{ cluster_response.mongo_cluster.id }}"
+      mongo_cluster: backuptest-05
       state: absent
   ''',
 }
@@ -461,8 +475,8 @@ def _remove_object(module, dbaas_client, existing_object):
 def update_replace_object(module, dbaas_client, cloudapi_client, existing_object):
     if _should_replace_object(module, existing_object, cloudapi_client):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, dbaas_client, cloudapi_client, existing_object).to_dict()
         _remove_object(module, dbaas_client, existing_object)
@@ -518,6 +532,7 @@ def update_object(module, dbaas_mongodb_api_client, cloudapi_api_client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(
         module, object_list, object_name,
@@ -547,6 +562,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

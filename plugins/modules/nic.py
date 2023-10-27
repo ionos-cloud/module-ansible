@@ -40,7 +40,7 @@ RETURNED_KEY = 'nic'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the NIC.'],
+        'description': ['The name of the  resource.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -64,34 +64,57 @@ OPTIONS = {
         'type': 'str',
     },
     'lan': {
-        'description': [
-            "The LAN to place the NIC on. You can pass a LAN that doesn't exist and it will be created. Required on create."],
+        'description': ['The LAN ID the NIC will be on. If the LAN ID does not exist, it will be implicitly created.'],
         'required': ['present'],
         'available': ['update'],
         'type': 'str',
     },
     'dhcp': {
-        'description': ['Boolean value indicating if the NIC is using DHCP or not.'],
+        'description': ['Indicates if the NIC will reserve an IP using DHCP.'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+        'version_added': '2.4',
+    },
+    'dhcpv6': {
+        'description': ["Indicates if the NIC will receive an IPv6 using DHCP. It can be set to \'true\' or \'false\' only if this NIC is connected to an IPv6 enabled LAN."],
         'available': ['present', 'update'],
         'type': 'bool',
         'version_added': '2.4',
     },
     'firewall_active': {
-        'description': ['Boolean value indicating if the firewall is active.'],
+        'description': ['Activate or deactivate the firewall. By default, an active firewall without any defined rules will block all incoming network traffic except for the firewall rules that explicitly allows certain protocols, IP addresses and ports.'],
         'available': ['present', 'update'],
         'type': 'bool',
         'version_added': '2.4',
     },
     'ips': {
-        'description': ['A list of IPs to be assigned to the NIC.'],
+        'description': ['Collection of IP addresses, assigned to the NIC. Explicitly assigned public IPs need to come from reserved IP blocks. Passing value null or empty array will assign an IP address automatically.'],
         'available': ['present', 'update'],
         'type': 'list',
         'version_added': '2.4',
     },
-    'do_not_replace': {
+    'ipv6_ips': {
+        'description': ["If this NIC is connected to an IPv6 enabled LAN then this property contains the IPv6 IP addresses of the NIC. The maximum number of IPv6 IP addresses per NIC is 50, if you need more, contact support. If you leave this property \'null\' when adding a NIC, when changing the NIC\'s IPv6 CIDR block, when changing the LAN\'s IPv6 CIDR block or when moving the NIC to a different IPv6 enabled LAN, then we will automatically assign the same number of IPv6 addresses which you had before from the NICs new CIDR block. If you leave this property \'null\' while not changing the CIDR block, the IPv6 IP addresses won\'t be changed either. You can also provide your own self choosen IPv6 addresses, which then must be inside the IPv6 CIDR block of this NIC."],
+        'available': ['present', 'update'],
+        'type': 'list',
+        'version_added': '2.4',
+    },
+    'ipv6_cidr': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            "[The IPv6 feature is in beta phase and not ready for production usage.] The /80 IPv6 CIDR "
+            "block if this NIC is connected to an IPv6-enabled LAN. If you leave this 'null' when "
+            "adding a NIC to an IPv6-enabled LAN, an IPv6 block will be automatically assigned to the "
+            "NIC, but you can also specify an /80 IPv6 CIDR block for the NIC on your own, which then "
+            "must be inside the IPv6 CIDR block of the LAN. An IPv6-enabled LAN is limited to a maximum "
+            "of 65,536 NICs.",
+        ],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'allow_replace': {
+        'description': [
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -186,18 +209,26 @@ author:
 
 EXAMPLE_PER_STATE = {
     'present': '''# Create a NIC
-  - nic:
-      datacenter: Tardis One
-      server: node002
-      lan: 2
-      wait_timeout: 500
-      state: present
+    - name: Create NIC
+      nic:
+       name: NicName
+       datacenter: DatacenterName
+       server: ServerName
+       lan: 2
+       dhcp: true
+       firewall_active: true
+       ips:
+         - 10.0.0.1
+       wait: true
+       wait_timeout: 600
+       state: present
+      register: ionos_cloud_nic
   ''',
     'update': '''# Update a NIC
   - nic:
-      datacenter: Tardis One
-      server: node002
-      name: 7341c2454f
+      datacenter: DatacenterName
+      server: ServerName
+      nic: NicName
       lan: 1
       ips:
         - 158.222.103.23
@@ -207,9 +238,9 @@ EXAMPLE_PER_STATE = {
   ''',
     'absent': '''# Remove a NIC
   - nic:
-      datacenter: Tardis One
-      server: node002
-      name: 7341c2454f
+      datacenter: DatacenterName
+      server: ServerName
+      nic: NicName
       wait_timeout: 500
       state: absent
   ''',
@@ -277,8 +308,14 @@ def _should_update_object(module, existing_object):
     return (
         module.params.get('ips') is not None
         and sorted(existing_object.properties.ips) != sorted(module.params.get('ips'))
+        or module.params.get('ipv6_cidr') is not None
+        and existing_object.properties.ipv6_cidr_block != module.params.get('ipv6_cidr')
+        or module.params.get('ipv6_ips') is not None
+        and sorted(existing_object.properties.ipv6_ips) != sorted(module.params.get('ipv6_ips'))
         or module.params.get('dhcp') is not None
         and existing_object.properties.dhcp != module.params.get('dhcp')
+        or module.params.get('dhcpv6') is not None
+        and existing_object.properties.dhcpv6 != module.params.get('dhcpv6')
         or module.params.get('lan') is not None
         and int(existing_object.properties.lan) != int(module.params.get('lan'))
         or module.params.get('firewall_active') is not None
@@ -318,14 +355,20 @@ def _get_object_identifier(module):
 def _create_object(module, client, existing_object=None):
     lan = module.params.get('lan')
     dhcp = module.params.get('dhcp')
+    dhcpv6 = module.params.get('dhcpv6')
     firewall_active = module.params.get('firewall_active')
     ips = module.params.get('ips')
+    ipv6_ips = module.params.get('ipv6_ips')
+    ipv6_cidr = module.params.get('ipv6_cidr')
     name = module.params.get('name')
     if existing_object is not None:
         lan = existing_object.properties.lan if lan is None else lan
         dhcp = existing_object.properties.dhcp if dhcp is None else dhcp
+        dhcpv6 = existing_object.properties.dhcpv6 if dhcpv6 is None else dhcpv6
         firewall_active = existing_object.properties.firewall_active if firewall_active is None else firewall_active
         ips = existing_object.properties.ips if ips is None else ips
+        ipv6_ips = existing_object.properties.ipv6_ips if ipv6_ips is None else ipv6_ips
+        ipv6_cidr = existing_object.properties.ipv6_cidr_block if ipv6_cidr is None else ipv6_cidr
         name = existing_object.properties.name if name is None else name
 
     wait = module.params.get('wait')
@@ -345,6 +388,7 @@ def _create_object(module, client, existing_object=None):
 
     nic = Nic(properties=NicProperties(
         name=name, ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active,
+        dhcpv6=dhcpv6, ipv6_ips=ipv6_ips, ipv6_cidr_block=ipv6_cidr,
     ))
 
     try:
@@ -369,6 +413,10 @@ def _update_object(module, client, existing_object):
     firewall_active = module.params.get('firewall_active')
     ips = module.params.get('ips')
     name = module.params.get('name')
+    dhcpv6 = module.params.get('dhcpv6')
+    ipv6_ips = module.params.get('ipv6_ips')
+    ipv6_cidr = module.params.get('ipv6_cidr')
+
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
@@ -390,8 +438,13 @@ def _update_object(module, client, existing_object):
         firewall_active = existing_object.properties.firewall_active
     if dhcp is None:
         dhcp = existing_object.properties.dhcp
+    if dhcpv6 is None:
+        dhcpv6 = existing_object.properties.dhcpv6
 
-    nic_properties = NicProperties(ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active, name=name)
+    nic_properties = NicProperties(
+        ips=ips, dhcp=dhcp, lan=lan, firewall_active=firewall_active, name=name,
+        dhcpv6=dhcpv6, ipv6_ips=ipv6_ips, ipv6_cidr_block=ipv6_cidr,
+    )
 
     try:
         nic_response, _, headers = nics_api.datacenters_servers_nics_patch_with_http_info(
@@ -439,8 +492,8 @@ def _remove_object(module, client, existing_object):
 def update_replace_object(module, client, existing_object):
     if _should_replace_object(module, existing_object):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -490,6 +543,7 @@ def update_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
@@ -512,6 +566,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

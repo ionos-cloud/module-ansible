@@ -41,19 +41,19 @@ RETURNED_KEY = 'target_group'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the Target Group.'],
+        'description': ['The target group name.'],
         'available': STATES,
         'required': ['present'],
         'type': 'str',
     },
     'algorithm': {
-        'description': ['Balancing algorithm.'],
+        'description': ['The balancing algorithm. A balancing algorithm consists of predefined rules with the logic that a load balancer uses to distribute network traffic between servers.  - **Round Robin**: Targets are served alternately according to their weighting.  - **Least Connection**: The target with the least active connection is served.  - **Random**: The targets are served based on a consistent pseudorandom algorithm.  - **Source IP**: It is ensured that the same client IP address reaches the same target.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'protocol': {
-        'description': ['Balancing protocol.'],
+        'description': ['The forwarding protocol. Only the value \'HTTP\' is allowed.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -69,7 +69,7 @@ OPTIONS = {
         'type': 'dict',
     },
     'targets': {
-        'description': ['An array of items in the collection.'],
+        'description': ['Array of items in the collection.'],
         'available': ['present', 'update'],
         'type': 'list',
         'elements': 'dict',
@@ -80,10 +80,10 @@ OPTIONS = {
         'required': ['update', 'absent'],
         'type': 'str',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -176,7 +176,7 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Target Group
     target_group:
-      name: "{{ name }}"
+      name: "AnsibleAutoTestCompute"
       algorithm: "ROUND_ROBIN"
       protocol: "HTTP"
       targets:
@@ -202,10 +202,10 @@ EXAMPLE_PER_STATE = {
   'update' : '''
   - name: Update Target Group
     target_group:
-      name: "{{ name }} - UPDATED"
+      name: "AnsibleAutoTestCompute - UPDATED"
       algorithm: "ROUND_ROBIN"
       protocol: "HTTP"
-      target_group_id: "{{ target_group_response.target_group.id }}"
+      target_group: "AnsibleAutoTestCompute"
       wait: true
       state: update
     register: target_group_response_update
@@ -213,7 +213,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Remove Target Group
     target_group:
-      target_group_id: "{{ target_group_response.target_group.id }}"
+      target_group: "AnsibleAutoTestCompute - UPDATED"
       wait: true
       wait_timeout: 2000
       state: absent
@@ -349,13 +349,13 @@ def _should_update_object(module, existing_object):
         and existing_object.properties.algorithm != module.params.get('algorithm')
         or module.params.get('protocol') is not None
         and existing_object.properties.protocol != module.params.get('protocol')
-        or module.params.get('health_check') is not None
+        or new_health_check is not None
         and (
             existing_object.properties.health_check.check_timeout != new_health_check.check_timeout
             or existing_object.properties.health_check.check_interval != new_health_check.check_interval
             or existing_object.properties.health_check.retries != new_health_check.retries
         )
-        or module.params.get('http_health_check') is not None
+        or new_http_health_check is not None
         and (
             existing_object.properties.http_health_check.path != new_http_health_check.path
             or existing_object.properties.http_health_check.method != new_http_health_check.method
@@ -488,8 +488,8 @@ def _remove_object(module, client, existing_object):
 def update_replace_object(module, client, existing_object):
     if _should_replace_object(module, existing_object):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -539,6 +539,7 @@ def update_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
@@ -561,6 +562,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

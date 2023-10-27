@@ -3,10 +3,15 @@
   gather_facts: false
 
   tasks:
-    - name: List Postgres Cluster Templates
-      postgres_backup_info:
+    - name: List Mongo Cluster Templates
+      mongo_cluster_template_info:
       register: mongo_cluster_templates_response
 
-    # - name: Show Postgres Cluster Templates
-    #   debug:
-    #     var: mongo_cluster_templates_response.result
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{mongo_cluster_templates_response}}"
+    #     dest: ../../docs/returned_object_examples/mongo_cluster_template_info.json
+
+    - name: Show Postgres Cluster Templates
+      debug:
+        var: mongo_cluster_templates_response.mongo_cluster_templates

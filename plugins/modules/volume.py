@@ -54,59 +54,55 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name of the volumes. Names are enumerated if count > 1.'],
+        'description': ['The name of the  resource.'],
         'required': ['present'],
         'available': STATES,
         'type': 'str',
     },
     'size': {
-        'description': ['The size of the volume.'],
+        'description': ['The size of the volume in GB.'],
         'available': ['update', 'present'],
-        'default': 10,
         'type': 'int',
     },
     'bus': {
-        'description': ['The bus type.'],
-        'choices': ['VIRTIO', 'IDE'],
+        'description': ['The bus type for this volume; default is VIRTIO.'],
+        'choices': ['VIRTIO', 'IDE', 'UNKNOWN'],
         'default': 'VIRTIO',
         'available': ['present', 'update'],
         'type': 'str',
     },
     'image': {
-        'description': ['The image alias or ID for the volume. This can also be a snapshot image ID.'],
+        'description': ['Image or snapshot ID to be used as template for this volume.'],
         'available': ['present'],
         'type': 'str',
     },
     'image_password': {
-        'description': ['Password set for the administrative user.'],
+        'description': ['Initial password to be set for installed OS. Works with public images only. Not modifiable, forbidden in update requests. Password rules allows all characters from a-z, A-Z, 0-9.'],
         'available': ['present'],
         'type': 'str',
         'no_log': True,
         'version_added': '2.2',
     },
     'ssh_keys': {
-        'description': ['Public SSH keys allowing access to the virtual machine.'],
+        'description': ['Public SSH keys are set on the image as authorized keys for appropriate SSH login to the instance using the corresponding private key. This field may only be set in creation requests. When reading, it always returns null. SSH keys are only supported if a public Linux image is used for the volume creation.'],
         'available': ['present'],
         'type': 'list',
-        'default': [],
         'version_added': '2.2',
     },
     'disk_type': {
         'description': ['The disk type of the volume.'],
         'choices': ['HDD', 'SSD', 'SSD Premium', 'SSD Standard'],
-        'default': 'HDD',
         'available': ['present'],
         'type': 'str',
     },
     'licence_type': {
-        'description': ['The licence type for the volume. This is used when the image is non-standard.'],
-        'choices': ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016'],
-        'default': 'UNKNOWN',
+        'description': ['OS type for this volume.'],
+        'choices': ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'RHEL', 'LINUX', 'OTHER'],
         'available': ['present'],
         'type': 'str',
     },
     'availability_zone': {
-        'description': ['The storage availability zone assigned to the volume.'],
+        'description': ['The availability zone in which the volume should be provisioned. The storage volume will be provisioned on as few physical storage devices as possible, but this cannot be guaranteed upfront. This is uavailable for DAS (Direct Attached Storage), and subject to availability for SSD.'],
         'choices': ['AUTO', 'ZONE_1', 'ZONE_2', 'ZONE_3'],
         'available': ['present', 'update'],
         'type': 'str',
@@ -125,20 +121,12 @@ OPTIONS = {
         'type': 'list',
     },
     'backupunit': {
-        'description': [
-            "The ID or name of the backup unit that the user has access to. The property is immutable and is only "
-            "allowed to be set on creation of a new a volume. It is mandatory to provide either 'public image' or 'imageAlias' "
-            "in conjunction with this property.",
-        ],
+        'description': ['The ID of the backup unit that the user has access to. The property is immutable and is only allowed to be set on creation of a new a volume. It is mandatory to provide either \'public image\' or \'imageAlias\' in conjunction with this property.'],
         'available': ['present'],
         'type': 'str',
     },
     'user_data': {
-        'description': [
-            "The cloud-init configuration for the volume as base64 encoded string. The property is immutable "
-            "and is only allowed to be set on creation of a new a volume. It is mandatory to provide either 'public image' "
-            "or 'imageAlias' that has cloud-init compatibility in conjunction with this property.",
-        ],
+        'description': ['The cloud-init configuration for the volume as base64 encoded string. The property is immutable and is only allowed to be set on creation of a new a volume. It is mandatory to provide either \'public image\' or \'imageAlias\' that has cloud-init compatibility in conjunction with this property.'],
         'available': ['present'],
         'type': 'str',
     },
@@ -148,7 +136,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'ram_hot_plug': {
-        'description': ['Hot-plug capable RAM (no reboot required)'],
+        'description': ['Hot-plug capable RAM (no reboot required).'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
@@ -158,7 +146,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'nic_hot_unplug': {
-        'description': ['Hot-unplug capable NIC (no reboot required)'],
+        'description': ['Hot-unplug capable NIC (no reboot required).'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
@@ -172,10 +160,10 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'bool',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -242,6 +230,34 @@ OPTIONS = {
     },
 }
 
+IMMUTABLE_OPTIONS = [
+    { "name": "size", "note": "" },
+    { "name": "disk_type", "note": "" },
+    { "name": "availability_zone", "note": "" },
+    { "name": "licence_type", "note": "" },
+    {
+        "name": "user_data",
+        "note": "Might trigger replace just by being set as this parameter is retrieved from the API as the image ID, so when using an alias it will always cause a resource replacement!",
+    },
+    {
+        "name": "image",
+        "note": "Might trigger replace just by being set as this parameter is retrieved from the API as the image ID, so when using an alias it will always cause a resource replacement!",
+    },
+    {
+        "name": "image_password",
+        "note": "Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!",
+    },
+    {
+        "name": "ssh_keys",
+        "note": "Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!",
+    },
+    {
+        "name": "backupunit",
+        "note": "Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!",
+    },
+]
+
+
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES) 
     del val['available']
@@ -259,38 +275,61 @@ options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 6.0.2"
+    - "ionoscloud >= 6.1.6"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
 
 EXAMPLE_PER_STATE = {
   'present' : '''# Create Multiple Volumes
-  - volume:
-    datacenter: Tardis One
-    name: vol%02d
-    count: 5
-    wait_timeout: 500
-    state: present
+    - name: Create volumes
+      volume:
+        datacenter: "AnsibleDatacenter"
+        name: "AnsibleAutoTestCompute %02d"
+        disk_type: SSD Premium
+        image: "centos:7"
+        image_password: "<password>"
+        count: 2
+        size: 20
+        availability_zone: AUTO
+        cpu_hot_plug: false
+        ram_hot_plug: true
+        nic_hot_plug: true
+        nic_hot_unplug: true
+        disc_virtio_hot_plug: true
+        disc_virtio_hot_unplug: true
+        wait_timeout: 600
+        wait: true
+        state: present
+      register: volume_create_response
   ''',
   'update' : '''# Update Volumes - only one ID if renaming
-  - volume:
-    name: 'new_vol_name'
-    datacenter: Tardis One
-    instance_ids: 'vol01'
-    size: 50
-    bus: IDE
-    wait_timeout: 500
-    state: update
+    - name: Update volume
+      volume:
+        datacenter: "AnsibleDatacenter"
+        instance_ids:
+          - "AnsibleAutoTestCompute 01"
+        name: "AnsibleAutoTestCompute modified"
+        size: 25
+        cpu_hot_plug: false
+        ram_hot_plug: true
+        nic_hot_plug: true
+        nic_hot_unplug: true
+        disc_virtio_hot_plug: true
+        disc_virtio_hot_unplug: true
+        wait_timeout: 600
+        wait: true
+        state: update
   ''',
   'absent' : '''# Remove Volumes
-  - volume:
-    datacenter: Tardis One
-    instance_ids:
-      - 'vol01'
-      - 'vol02'
-    wait_timeout: 500
-    state: absent
+  - name: Delete volumes
+      volume:
+        datacenter: "{{ datacenter }}"
+        instance_ids:
+          - "AnsibleAutoTestCompute modified"
+          - "AnsibleAutoTestCompute 02"
+        wait_timeout: 600
+        state: absent
   ''',
 }
 
@@ -363,12 +402,15 @@ def _should_replace_object(module, existing_object, client):
         or module.params.get('availability_zone') is not None
         and existing_object.properties.availability_zone != module.params.get('availability_zone')
         and 'AUTO' != module.params.get('availability_zone')
+        or module.params.get('image') is not None
+        and existing_object.properties.image != module.params.get('image')
         or module.params.get('licence_type') is not None
         and existing_object.properties.licence_type != module.params.get('licence_type')
         or backupunit_id is not None
         and existing_object.properties.backupunit_id != backupunit_id
         or module.params.get('user_data') is not None
-        and existing_object.properties.user_data != module.params.get('user_data')
+        or module.params.get('image_password') is not None
+        or module.params.get('ssh_keys') is not None
     )
 
 
@@ -379,13 +421,25 @@ def _should_update_object(module, existing_object, new_object_name):
         or module.params.get('size') is not None
         and int(existing_object.properties.size) != int(module.params.get('size'))
         and int(existing_object.properties.size) < int(module.params.get('size'))
+        or module.params.get('cpu_hot_plug') is not None
+        and existing_object.properties.cpu_hot_plug != module.params.get('cpu_hot_plug')
+        or module.params.get('ram_hot_plug') is not None
+        and existing_object.properties.ram_hot_plug != module.params.get('ram_hot_plug')
+        or module.params.get('nic_hot_plug') is not None
+        and existing_object.properties.nic_hot_plug != module.params.get('nic_hot_plug')
+        or module.params.get('nic_hot_unplug') is not None
+        and existing_object.properties.nic_hot_unplug != module.params.get('nic_hot_unplug')
+        or module.params.get('disc_virtio_hot_plug') is not None
+        and existing_object.properties.disc_virtio_hot_plug != module.params.get('disc_virtio_hot_plug')
+        or module.params.get('disc_virtio_hot_unplug') is not None
+        and existing_object.properties.disc_virtio_hot_unplug != module.params.get('disc_virtio_hot_unplug')
     )
 
 
 def update_replace_object(module, client, existing_object, new_object_name):
     if _should_replace_object(module, existing_object, client):
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
     
         new_object = _create_object(module, client, new_object_name, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -436,14 +490,13 @@ def _create_object(module, client, name, existing_object=None):
     user_data = module.params.get('user_data')
 
     if existing_object is not None:
-        size = existing_object.properties.size if size is None else size
+        size = int(existing_object.properties.size) if size is None else size
         bus = existing_object.properties.bus if bus is None else bus
         image = existing_object.properties.image if image is None else image
         image_password = existing_object.properties.image_password if image_password is None else image_password
         ssh_keys = existing_object.properties.ssh_keys if ssh_keys is None else ssh_keys
-        disk_type = existing_object.properties.disk_type if disk_type is None else disk_type
+        disk_type = existing_object.properties.type if disk_type is None else disk_type
         availability_zone = existing_object.properties.availability_zone if availability_zone is None else availability_zone
-        licence_type = existing_object.properties.licence_type if licence_type is None else licence_type
         cpu_hot_plug = existing_object.properties.cpu_hot_plug if cpu_hot_plug is None else cpu_hot_plug
         ram_hot_plug = existing_object.properties.ram_hot_plug if ram_hot_plug is None else ram_hot_plug
         nic_hot_plug = existing_object.properties.nic_hot_plug if nic_hot_plug is None else nic_hot_plug
@@ -691,10 +744,8 @@ def update_volume(module, client):
         if existing_volume_by_name is not None:
             module.fail_json(msg='A volume with the name %s already exists.' % name)
 
-        volume = get_resource(module, volume_list, instance)
         if volume is not None:
-
-            update_replace_result = update_replace_object(module, client, volume, name)
+            update_replace_result = update_replace_object(module, client, instance, name)
             update_response = update_replace_result[RETURNED_KEY]
             if update_replace_result['changed']:
                 changed = True

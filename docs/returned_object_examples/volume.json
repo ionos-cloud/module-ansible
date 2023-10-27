@@ -1,0 +1,49 @@
+{
+    "changed": true,
+    "failed": false,
+    "volumes": [
+        {
+            "href": "https://api.ionos.com/cloudapi/v6/datacenters/ea545f2e-4c15-4be7-8fb8-867fb6e9d330/volumes/9be90788-1b11-4d1b-bfb3-857f0c7bd5a3",
+            "id": "9be90788-1b11-4d1b-bfb3-857f0c7bd5a3",
+            "metadata": {
+                "created_by": "<USER_EMAIL>",
+                "created_by_user_id": "<USER_ID>",
+                "created_date": "2023-05-29T09:43:18+00:00",
+                "etag": "1e8b91b7c574e42452b1628408959166",
+                "last_modified_by": "<USER_EMAIL>",
+                "last_modified_by_user_id": "<USER_ID>",
+                "last_modified_date": "2023-05-29T09:43:18+00:00",
+                "state": "BUSY"
+            },
+            "properties": {
+                "availability_zone": null,
+                "backupunit_id": null,
+                "boot_order": "AUTO",
+                "boot_server": null,
+                "bus": "VIRTIO",
+                "cpu_hot_plug": false,
+                "device_number": null,
+                "disc_virtio_hot_plug": false,
+                "disc_virtio_hot_unplug": false,
+                "image": null,
+                "image_alias": null,
+                "image_password": null,
+                "licence_type": "OTHER",
+                "name": "AnsibleAutoTestCompute-data",
+                "nic_hot_plug": false,
+                "nic_hot_unplug": false,
+                "pci_slot": null,
+                "ram_hot_plug": false,
+                "size": 20.0,
+                "ssh_keys": [],
+                "type": "HDD",
+                "user_data": null
+            },
+            "type": "volume"
+        }
+    ],
+    "action": "create",
+    "instance_ids": [
+        "9be90788-1b11-4d1b-bfb3-857f0c7bd5a3"
+    ]
+}

@@ -46,6 +46,22 @@
         wait: true
       register: nat_gateway_flowlog_response
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nat_gateway_flowlog_response}}"
+    #     dest: ../../docs/returned_object_examples/nat_gateway_flowlog.json
+
+    - name: List NAT Gateway Flowlogs
+      nat_gateway_flowlog_info:
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+      register: nat_gateway_flowlog_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nat_gateway_flowlog_list_response}}"
+    #     dest: ../../docs/returned_object_examples/nat_gateway_flowlog_info.json
+
     - name: Debug - Show NAT Gateway Flowlog
       debug:
          msg: "{{ nat_gateway_flowlog_response }}"

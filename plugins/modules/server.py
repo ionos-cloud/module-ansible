@@ -17,8 +17,8 @@ try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import (Volume, VolumeProperties, Server, ServerProperties, Datacenter,
-                                   DatacenterProperties, Nic, NicProperties, LanPropertiesPost,
-                                   LanPost, ServerEntities, Nics, Volumes)
+                                   DatacenterProperties, Nic, NicProperties, LanProperties,
+                                   Lan, ServerEntities, Nics, Volumes)
     from ionoscloud.rest import ApiException
     from ionoscloud import ApiClient
 except ImportError:
@@ -42,16 +42,9 @@ STATES = ['running', 'stopped', 'absent', 'present', 'update']
 OBJECT_NAME = 'Server'
 RETURNED_KEY = 'server'
 
-AVAILABILITY_ZONES = [
-    'AUTO',
-    'ZONE_1',
-    'ZONE_2',
-    'ZONE_3',
-]
-
 OPTIONS = {
     'name': {
-        'description': ['The name of the virtual machine.'],
+        'description': ['The name of the  resource.'],
         'required': ['present'],
         'available': ['present', 'update', 'absent'],
         'type': 'str',
@@ -91,7 +84,7 @@ OPTIONS = {
     'volume_availability_zone': {
         'description': ['The storage availability zone assigned to the volume.'],
         'available': ['present'],
-        'choices': AVAILABILITY_ZONES,
+        'choices': ['AUTO', 'ZONE_1', 'ZONE_2', 'ZONE_3'],
         'type': 'str',
         'version_added': '2.3',
     },
@@ -102,19 +95,19 @@ OPTIONS = {
         'type': 'str',
     },
     'cores': {
-        'description': ['The number of CPU cores to allocate to the virtual machine.'],
+        'description': ['The total number of cores for the enterprise server.'],
         'available': ['present', 'update'],
         'default': 2,
         'type': 'int',
     },
     'ram': {
-        'description': ['The amount of memory to allocate to the virtual machine.'],
+        'description': ['The memory size for the enterprise server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB.'],
         'available': ['present', 'update'],
         'default': 2048,
         'type': 'int',
     },
     'cpu_family': {
-        'description': ['The amount of memory to allocate to the virtual machine.'],
+        'description': ['CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers.'],
         'available': ['present'],
         'choices': ['AMD_OPTERON', 'INTEL_XEON', 'INTEL_SKYLAKE'],
         'default': 'AMD_OPTERON',
@@ -122,9 +115,9 @@ OPTIONS = {
         'version_added': '2.2',
     },
     'availability_zone': {
-        'description': ['The availability zone assigned to the server.'],
+        'description': ['The availability zone in which the server should be provisioned.'],
         'available': ['present'],
-        'choices': AVAILABILITY_ZONES,
+        'choices': ['AUTO', 'ZONE_1', 'ZONE_2'],
         'default': 'AUTO',
         'type': 'str',
         'version_added': '2.3',
@@ -204,10 +197,10 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'str',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -460,8 +453,8 @@ def _should_update_object(module, existing_object, new_object_name):
 
 def update_replace_object(module, client, existing_object, new_object_name):
     if _should_replace_object(module, existing_object):
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
     
         new_object = _create_object(module, client, new_object_name, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -530,8 +523,8 @@ def _create_object(module, client, name, existing_object=None):
         public_ip_lan_id = public_lan.id if public_lan is not None else None
 
         if public_ip_lan_id is None:
-            lan_properties = LanPropertiesPost(name='public', public=True)
-            lan_post = LanPost(properties=lan_properties)
+            lan_properties = LanProperties(name='public', public=True)
+            lan_post = Lan(properties=lan_properties)
 
             response = lans_api.datacenters_lans_post_with_http_info(datacenter_id=datacenter_id, lan=lan_post)
             (lan_response, _, headers) = response

@@ -58,19 +58,19 @@ OPTIONS = {
         'type': 'str',
     },
     'protocol': {
-        'description': ['Balancing protocol.'],
+        'description': ['The balancing protocol.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'listener_ip': {
-        'description': ['Listening (inbound) IP.'],
+        'description': ['The listening (inbound) IP.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'listener_port': {
-        'description': ['Listening (inbound) port number; valid range is 1 to 65535.'],
+        'description': ['The listening (inbound) port number; the valid range is 1 to 65535.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -81,17 +81,13 @@ OPTIONS = {
         'type': 'int',
     },
     'http_rules': {
-        'description': [
-          'An array of items in the collection. The original order of rules is perserved during processing, except for '
-          'Forward-type rules are processed after the rules with other action defined. The relative order of Forward-type '
-          'rules is also preserved during the processing.',
-        ],
+        'description': ['An array of items in the collection. The original order of rules is preserved during processing, except that rules of the \'FORWARD\' type are processed after the rules with other defined actions. The relative order of the \'FORWARD\' type rules is also preserved during the processing.'],
         'available': ['present', 'update'],
         'type': 'list',
         'elements': 'dict',
     },
     'server_certificates': {
-        'description': ['An array of items in the collection.'],
+        'description': ['Array of items in the collection.'],
         'available': ['present', 'update'],
         'type': 'list',
     },
@@ -123,10 +119,10 @@ OPTIONS = {
         'required': ['update', 'absent'],
         'type': 'str',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -219,9 +215,9 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      name: "{{ name }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      name: RuleName
       protocol: "HTTP"
       listener_ip: "10.12.118.224"
       listener_port: "8081"
@@ -242,10 +238,10 @@ EXAMPLE_PER_STATE = {
   'update' : '''
   - name: Update Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      forwarding_rule: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
-      name: "{{ name }} - UPDATED"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      forwarding_rule: RuleName
+      name: "RuleName - UPDATED"
       protocol: "HTTP"
       wait: true
       state: update
@@ -254,9 +250,9 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Delete Application Load Balancer Forwarding Rule
     application_load_balancer_forwardingrule:
-      datacenter: "{{ datacenter_response.datacenter.id }}"
-      application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-      forwarding_rule: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
+      datacenter: DatacenterName
+      application_load_balancer: AppLoadBalancerName
+      forwarding_rule: "RuleName - UPDATED"
       state: absent
   ''',
 }
@@ -573,8 +569,8 @@ def _remove_object(module, client, existing_object):
 def update_replace_object(module, client, certificate_manager_api_client, existing_object):
     if _should_replace_object(module, existing_object):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, client, certificate_manager_api_client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -624,6 +620,7 @@ def update_object(module, client, certificate_manager_api_client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
@@ -646,6 +643,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

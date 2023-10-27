@@ -72,6 +72,16 @@
         state: present
       register: server_create_result_idempotency
 
+    - name: List Servers
+      server_info:
+        datacenter: "{{ datacenter }}"
+      register: server_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{server_list_response}}"
+    #     dest: ../../docs/returned_object_examples/server_info.json
+
     - name: Debug - show result of server create
       debug:
         msg: "{{ server_create_result }}"
@@ -132,7 +142,7 @@
         wait_timeout: "{{ wait_timeout }}"
         state: running
 
-    - name: Get all servers for given datacenter
+    - name: Get all servers for a given datacenter
       server_info:
         datacenter: "{{ datacenter }}"
       register: server_list_response

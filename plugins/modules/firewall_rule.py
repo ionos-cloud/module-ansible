@@ -65,64 +65,69 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name or UUID of the firewall rule.'],
+        'description': ['The name of the  resource.'],
         'required': ['present'],
         'available': ['update', 'present'],
         'type': 'str',
     },
     'protocol': {
-        'description': ['The protocol for the firewall rule.'],
+        'description': ['The protocol for the rule. Property cannot be modified after it is created (disallowed in update requests).'],
         'required': ['present'],
         'available': ['present', 'update'],
-        'choices': ['TCP', 'UDP', 'ICMP', 'ANY'],
+        'choices': ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'ANY'],
         'type': 'str',
     },
     'source_mac': {
-        'description': ['Only traffic originating from the respective MAC address is allowed. No value allows all source MAC addresses.'],
+        'description': ['Only traffic originating from the respective MAC address is allowed. Valid format: aa:bb:cc:dd:ee:ff. Value null allows traffic from any MAC address.'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'source_ip': {
-        'description': ['Only traffic originating from the respective IPv4 address is allowed. No value allows all source IPs.'],
+        'description': ['Only traffic originating from the respective IP address (or CIDR block) is allowed. Value null allows traffic from any IP address (according to the selected ipVersion).'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'target_ip': {
-        'description': [
-            'In case the target NIC has multiple IP addresses, only traffic directed to the respective IP address of the NIC is allowed.'
-            'No value allows all target IPs.',
-        ],
+        'description': ['If the target NIC has multiple IP addresses, only the traffic directed to the respective IP address (or CIDR block) of the NIC is allowed. Value null allows traffic to any target IP address (according to the selected ipVersion).'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'port_range_start': {
-        'description': [
-            'Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave value empty to allow all ports.',
-        ],
+        'description': ['Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd value null to allow all ports.'],
         'available': ['present', 'update'],
         'type': 'int',
     },
     'port_range_end': {
-        'description': [
-            'Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave value empty to allow all ports.',
-        ],
+        'description': ['Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd null to allow all ports.'],
         'available': ['present', 'update'],
         'type': 'int',
     },
     'icmp_type': {
-        'description': ['Defines the allowed type (from 0 to 254) if the protocol ICMP is chosen. No value allows all types.'],
+        'description': ['Defines the allowed type (from 0 to 254) if the protocol ICMP or ICMPv6 is chosen. Value null allows all types.'],
         'available': ['present', 'update'],
         'type': 'int',
     },
     'icmp_code': {
-        'description': ['Defines the allowed code (from 0 to 254) if protocol ICMP is chosen. No value allows all codes.'],
+        'description': ['Defines the allowed code (from 0 to 254) if protocol ICMP or ICMPv6 is chosen. Value null allows all codes.'],
         'available': ['present', 'update'],
         'type': 'int',
     },
-    'do_not_replace': {
+    'ip_version': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'The IP version for this rule. If sourceIp or targetIp are specified, you can omit this '
+            'value - the IP version will then be deduced from the IP address(es) used; if you specify '
+            'it anyway, it must match the specified IP address(es). If neither sourceIp nor targetIp '
+            'are specified, this rule allows traffic only for the specified IP version. If neither '
+            'sourceIp, targetIp nor ipVersion are specified, this rule will only allow IPv4 traffic.',
+        ],
+        'available': ['present', 'update'],
+        'choices': ['IPv4', 'IPv6'],
+        'type': 'str',
+    },
+    'allow_replace': {
+        'description': [
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -338,6 +343,8 @@ def _should_update_object(module, existing_object):
         and existing_object.properties.icmp_type != module.params.get('icmp_type')
         or module.params.get('icmp_code') is not None
         and existing_object.properties.icmp_code != module.params.get('icmp_code')
+        or module.params.get('ip_version') is not None
+        and existing_object.properties.ip_version != module.params.get('ip_version')
     )
 
 
@@ -385,6 +392,7 @@ def _create_object(module, client, existing_object=None):
     port_range_end = module.params.get('port_range_end')
     icmp_type = module.params.get('icmp_type')
     icmp_code = module.params.get('icmp_code')
+    ip_version = module.params.get('ip_version')
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
         protocol = existing_object.properties.protocol if protocol is None else protocol
@@ -395,6 +403,7 @@ def _create_object(module, client, existing_object=None):
         port_range_end = existing_object.properties.port_range_end if port_range_end is None else port_range_end
         icmp_type = existing_object.properties.icmp_type if icmp_type is None else icmp_type
         icmp_code = existing_object.properties.icmp_code if icmp_code is None else icmp_code
+        ip_version = existing_object.properties.ip_version if ip_version is None else ip_version
 
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
@@ -415,12 +424,10 @@ def _create_object(module, client, existing_object=None):
 
     firewall_rule = FirewallRule(properties=FirewallruleProperties(
         name=name, protocol=protocol, source_mac=source_mac,
-        source_ip=source_ip,
+        source_ip=source_ip, ip_version=ip_version,
         target_ip=target_ip, icmp_code=icmp_code, icmp_type=icmp_type,
-        port_range_start=port_range_start,
-        port_range_end=port_range_end,
+        port_range_start=port_range_start, port_range_end=port_range_end,
     ))
-
 
     try:
         current_nic = nic_api.datacenters_servers_nics_find_by_id(
@@ -457,6 +464,7 @@ def _update_object(module, client, existing_object):
     port_range_end = module.params.get('port_range_end')
     icmp_type = module.params.get('icmp_type')
     icmp_code = module.params.get('icmp_code')
+    ip_version = module.params.get('ip_version')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
@@ -479,6 +487,7 @@ def _update_object(module, client, existing_object):
         source_mac=source_mac,
         source_ip=source_ip,
         target_ip=target_ip,
+        ip_version=ip_version,
     )
 
     if port_range_start or port_range_end:
@@ -542,8 +551,8 @@ def _remove_object(module, client, existing_object):
 def update_replace_object(module, client, existing_object):
     if _should_replace_object(module, existing_object):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -593,6 +602,7 @@ def update_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
@@ -615,6 +625,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

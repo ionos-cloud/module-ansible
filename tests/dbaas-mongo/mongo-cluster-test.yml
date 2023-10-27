@@ -51,6 +51,48 @@
       wait_timeout: 7200
     register: cluster_response
 
+  - name: Create Cluster again
+    mongo_cluster:
+      mongo_db_version: 5.0
+      instances: 3
+      location: de/fra
+      template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
+      connections:
+        - cidr_list: 
+            - 192.168.1.116/24
+            - 192.168.1.117/24
+            - 192.168.1.118/24
+          datacenter: "{{ datacenter }} - DBaaS Mongo"
+          lan: "test_lan"
+      display_name: "{{ display_name }}"
+      wait: true
+      wait_timeout: 7200
+    register: cluster_response_no_change
+
+  - name: Asserting that changed == false when no update is made
+    assert:
+      that:
+        - cluster_response_no_change.changed == false
+      msg: "Changed should be false"
+
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{cluster_response}}"
+  #     dest: ../../docs/returned_object_examples/mongo_cluster.json
+
+  - name: List Mongo Clusters
+    mongo_cluster_info:
+    register: mongo_clusters_response
+
+  - name: Show Mongo Clusters
+    debug:
+      var: mongo_clusters_response.result
+
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{mongo_clusters_response}}"
+  #     dest: ../../docs/returned_object_examples/mongo_cluster_info.json
+
   - name: Replace Cluster
     mongo_cluster:
       mongo_db_version: 5.0
@@ -63,6 +105,7 @@
           datacenter: "{{ datacenter }} - DBaaS Mongo 2"
           lan: "test_lan2"
       display_name: "{{ display_name }}"
+      allow_replace: true
       wait: true
       wait_timeout: 7200
     register: cluster_response
@@ -72,9 +115,23 @@
       mongo_cluster: "{{ display_name }}"
       display_name: "{{ display_name_updated }}"
       state: update
-      do_not_replace: true
+      allow_replace: false
       wait: true
     register: cluster_response
+
+  - name: Update Cluster no change
+    mongo_cluster:
+      mongo_cluster: "{{ display_name_updated }}"
+      state: update
+      allow_replace: false
+      wait: true
+    register: cluster_response_no_change
+
+  - name: Asserting that changed == false when no update is made
+    assert:
+      that:
+        - cluster_response_no_change.changed == false
+      msg: "Changed should be false"
 
   - name: Create Cluster User
     mongo_cluster_user:
@@ -85,6 +142,21 @@
         - role: read
           database: test
     register: mongo_user_response
+
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{mongo_user_response}}"
+  #     dest: ../../docs/returned_object_examples/mongo_cluster_user.json
+
+  - name: List Mongo Cluster Users
+    mongo_cluster_user_info:
+      mongo_cluster: "{{ cluster_response.mongo_cluster.id }}"
+    register: mongo_cluster_users_response
+
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{mongo_cluster_users_response}}"
+  #     dest: ../../docs/returned_object_examples/mongo_cluster_user_info.json
 
   - name: Update User
     mongo_cluster_user:

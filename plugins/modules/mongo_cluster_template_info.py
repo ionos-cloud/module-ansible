@@ -21,6 +21,7 @@ DBAAS_MONGO_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-dbaas-mongo/%
 DOC_DIRECTORY = 'dbaas-mongo'
 STATES = ['info']
 OBJECT_NAME = 'Mongo Cluster Templates'
+RETURNED_KEY = 'mongo_cluster_templates'
 
 OPTIONS = {
     'api_url': {
@@ -177,7 +178,7 @@ def main():
         results = []
         for template in ionoscloud_dbaas_mongo.TemplatesApi(dbaas_mongo_api_client).templates_get().items:
             results.append(template.to_dict())
-        module.exit_json(result=results)
+        module.exit_json(**{RETURNED_KEY:results})
     except Exception as e:
         module.fail_json(
             msg='failed to retrieve {object_name}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))

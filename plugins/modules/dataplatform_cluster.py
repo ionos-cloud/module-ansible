@@ -31,11 +31,7 @@ RETURNED_KEY = 'dataplatform_cluster'
 
 OPTIONS = {
     'name': {
-        'description': [
-            'The name of your cluster. Must be 63 characters or less and must be empty or '
-            'begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), '
-            'underscores (_), dots (.), and alphanumerics between.',
-        ],
+        'description': ['The name of your cluster. Must be 63 characters or less and must begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -47,30 +43,27 @@ OPTIONS = {
         'type': 'str',
     },
     'dataplatform_version': {
-        'description': ['The version of the DataPlatform.'],
+        'description': ['The version of the data platform.'],
         'available': ['present', 'update'],
         'required': ['update'],
         'type': 'str',
     },
     'datacenter': {
-        'description': ['The name or UUID of the virtual data center (VDC) the cluster is provisioned.'],
+        'description': ['The UUID of the virtual data center (VDC) the cluster is provisioned.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
     },
     'maintenance_window': {
-        'description': [
-            'Starting time of a weekly 4 hour-long window, during which '
-            'maintenance might occur in hh:mm:ss format',
-        ],
+        'description': ['Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format'],
         'available': ['present', 'update'],
         'required': ['update'],
         'type': 'dict',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -131,6 +124,10 @@ OPTIONS = {
     },
 }
 
+IMMUTABLE_OPTIONS = [
+    { "name": "datacenter", "note": "" },
+]
+
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES) 
     del val['available']
@@ -144,6 +141,7 @@ short_description: Create or destroy a Data Platform Cluster.
 description:
      - This is a simple module that supports creating or removing Data Platform Clusters.
        This module has a dependency on ionoscloud >= 6.0.2
+     - ⚠️ **Note:** Data Platform is currently in the Early Access (EA) phase. We recommend keeping usage and testing to non-production critical applications. Please contact your sales representative or support for more information.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
@@ -158,7 +156,7 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Data Platform cluster
     dataplatform_cluster:
-      name: "{{ cluster_name }}"
+      name: ClusterName
   ''',
   'update' : '''
   - name: Update Data Platform cluster
@@ -225,6 +223,37 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
 def update_replace_object(module, dataplatform_client, cloudapi_client, existing_object):
     if _should_replace_object(module, existing_object, cloudapi_client):
 
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, dataplatform_client, cloudapi_client, existing_object).to_dict()
+        _remove_object(module, dataplatform_client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, dataplatform_client, existing_object).to_dict()
+        }
+
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+def update_replace_object(module, dataplatform_client, cloudapi_client, existing_object):
+    if _should_replace_object(module, existing_object, cloudapi_client):
+
         if module.params.get('do_not_replace'):
             module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
 
@@ -253,6 +282,36 @@ def update_replace_object(module, dataplatform_client, cloudapi_client, existing
         RETURNED_KEY: existing_object.to_dict()
     }
 
+
+def _should_replace_object(module, existing_object, cloudapi_client):
+    datacenter_id = get_resource_id(
+        module,
+        ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+
+    return (
+        datacenter_id is not None
+        and existing_object.properties.datacenter_id != datacenter_id
+    )
+
+
+def _should_update_object(module, existing_object):
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+        or module.params.get('dataplatform_version') is not None
+        and existing_object.properties.data_platform_version != module.params.get('dataplatform_version')
+        or module.params.get('maintenance_window') is not None
+        and (
+            existing_object.properties.maintenance_window.day_of_the_week != module.params.get('maintenance_window').get('day_of_the_week')
+            or existing_object.properties.maintenance_window.time != module.params.get('maintenance_window').get('time')
+        )
+    )
+
+
+def _get_object_list(module, client):
+    return ionoscloud_dataplatform.DataPlatformClusterApi(client).get_clusters()
 
 def _should_replace_object(module, existing_object, cloudapi_client):
     datacenter_id = get_resource_id(
@@ -423,6 +482,7 @@ def update_object(module, dataplatform_client, cloudapi_client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
@@ -445,6 +505,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

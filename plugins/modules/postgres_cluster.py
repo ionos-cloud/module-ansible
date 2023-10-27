@@ -30,15 +30,12 @@ RETURNED_KEY = 'postgres_cluster'
 
 OPTIONS = {
     'maintenance_window': {
-        'description': [
-            'Dict containing "time" (the time of the day when to perform the maintenance) '
-            'and "day_of_the_week" (the Day Of the week when to perform the maintenance).',
-        ],
+        'description': ['A weekly 4 hour-long window, during which maintenance might occur.'],
         'available': ['present', 'update'],
         'type': 'dict',
     },
     'postgres_version': {
-        'description': ['The PostgreSQL version of your cluster'],
+        'description': ['The PostgreSQL version of your cluster.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -56,36 +53,33 @@ OPTIONS = {
         'type': 'int',
     },
     'ram': {
-        'description': ['The amount of memory per instance(should be a multiple of 1024).'],
+        'description': ['The amount of memory per instance in megabytes. Has to be a multiple of 1024.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'int',
     },
     'storage_size': {
-        'description': ['The amount of storage per instance.'],
+        'description': ['The amount of storage per instance in megabytes.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'int',
     },
     'storage_type': {
-        'description': ['The storage type used in your cluster. Value "SSD" is deprecated. Use the equivalent "SSD Premium" instead.'],
+        'description': ['The storage type used in your cluster. (Value "SSD" is deprecated. Use the equivalent "SSD Premium" instead)'],
         'available': ['present'],
         'choices': ['HDD', 'SSD', 'SSD Standard', 'SSD Premium'],
         'required': ['present'],
         'type': 'str',
     },
     'connections': {
-        'description': ['Array of VDCs to connect to your cluster.'],
+        'description': ['Array of datacenters to connect to your cluster.'],
         'available': ['present'],
         'required': ['present'],
         'type': 'list',
         'elements': 'dict',
     },
     'location': {
-        'description': [
-            'The physical location where the cluster will be created. This will be where all of your instances live. '
-            'Property cannot be modified after datacenter creation (disallowed in update requests)'
-        ],
+        'description': ['The physical location where the cluster will be created. This will be where all of your instances live. Property cannot be modified after datacenter creation.'],
         'available': ['present'],
         'required': ['present'],
         'type': 'str',
@@ -97,17 +91,14 @@ OPTIONS = {
         'type': 'str',
     },
     'db_username': {
-        'description': [
-            'The username for the initial postgres user. Some system usernames are restricted (e.g. "postgres", '
-            '"admin", "standby")'
-        ],
+        'description': ['The username for the initial PostgreSQL user. Some system usernames are restricted (e.g. "postgres", "admin", "standby").'],
         'available': ['present'],
         'required': ['present'],
         'type': 'str',
         'no_log': True,
     },
     'db_password': {
-        'description': ['The username for the initial postgres user.'],
+        'description': ['The password for the initial postgres user.'],
         'available': ['present'],
         'required': ['present'],
         'type': 'str',
@@ -120,7 +111,7 @@ OPTIONS = {
         'type': 'str',
     },
     'backup_location': {
-        'description': ['The S3 location where the backups will be stored. One of ["de", "eu-south-2", "eu-central-2"]'],
+        'description': ['The S3 location where the backups will be stored.'],
         'available': ['present'],
         'type': 'str',
     },
@@ -141,10 +132,10 @@ OPTIONS = {
         'required': ['update', 'absent', 'restore'],
         'type': 'str',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -211,6 +202,14 @@ OPTIONS = {
     },
 }
 
+IMMUTABLE_OPTIONS = [
+    { "name": "connections", "note": "" },
+    { "name": "backup_location", "note": "" },
+    { "name": "location", "note": "" },
+    { "name": "synchronization_mode", "note": "" },
+    { "name": "storage_type", "note": "" },
+]
+
 
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES)
@@ -250,8 +249,8 @@ EXAMPLE_PER_STATE = {
       location: de/fra
       connections:
         - cidr: 192.168.1.106/24
-          datacenter: "{{ datacenter_response.datacenter.id }}"
-          lan: "{{ lan_response1.lan.id }}"
+          datacenter: DatacenterName
+          lan: LanName
       display_name: backuptest-04
       synchronization_mode: ASYNCHRONOUS
       db_username: test
@@ -261,7 +260,7 @@ EXAMPLE_PER_STATE = {
   ''',
     'update': '''- name: Update Postgres Cluster
     postgres_cluster:
-      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_cluster: backuptest-04
       postgres_version: 12
       instances: 2
       cores: 2
@@ -273,7 +272,7 @@ EXAMPLE_PER_STATE = {
   ''',
     'absent': '''- name: Delete Postgres Cluster
     postgres_cluster:
-      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_cluster: backuptest-04
       state: absent
   ''',
 }
@@ -522,8 +521,8 @@ def _remove_object(module, dbaas_client, existing_object):
 def update_replace_object(module, dbaas_client, cloudapi_client, existing_object):
     if _should_replace_object(module, existing_object, cloudapi_client):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, dbaas_client, cloudapi_client, existing_object).to_dict()
         _remove_object(module, dbaas_client, existing_object)
@@ -579,6 +578,7 @@ def update_object(module, dbaas_postgres_api_client, cloudapi_api_client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(
         module, object_list, object_name,
@@ -608,6 +608,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

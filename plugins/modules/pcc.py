@@ -30,7 +30,7 @@ RETURNED_KEY = 'pcc'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the PCC.'],
+        'description': ['The name of the  resource.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -42,15 +42,15 @@ OPTIONS = {
         'type': 'str',
     },
     'description': {
-        'description': ['The description of the PCC.'],
+        'description': ['Human-readable description.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
-    'do_not_replace': {
+    'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
         'available': ['present', 'update'],
@@ -148,21 +148,21 @@ EXAMPLE_PER_STATE = {
     'present': '''
   - name: Create pcc
     pcc:
-      name: "{{ name }}"
-      description: "{{ description }}"
+      name: PCCName
+      description: "Description for my PCC"
   ''',
     'update': '''
   - name: Update pcc
     pcc:
-      pcc: "49e73efd-e1ea-11ea-aaf5-5254001a8838"
-      name: "{{ new_name }}"
-      description: "{{ new_description }}"
+      pcc: PCCName
+      name: NewPCCName
+      description: "New description for my PCC"
       state: update
   ''',
     'absent': '''
   - name: Remove pcc
     pcc:
-      pcc: "2851af0b-e1ea-11ea-aaf5-5254001a8838"
+      pcc: NewPCCName
       state: absent
   ''',
 }
@@ -310,8 +310,8 @@ def _remove_object(module, client, existing_object):
 def update_replace_object(module, client, existing_object):
     if _should_replace_object(module, existing_object):
 
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
 
         new_object = _create_object(module, client, existing_object).to_dict()
         _remove_object(module, client, existing_object)
@@ -361,6 +361,7 @@ def update_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
@@ -383,6 +384,7 @@ def remove_object(module, client):
 
     if existing_object is None:
         module.exit_json(changed=False)
+        return
 
     _remove_object(module, client, existing_object)
 

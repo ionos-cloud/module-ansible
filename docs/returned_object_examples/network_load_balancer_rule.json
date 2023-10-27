@@ -1,0 +1,41 @@
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "forwarding_rule": {
+        "href": "https://api.ionos.com/cloudapi/v6/datacenters/89d7e3e1-a688-4ebd-ab01-8beac27e1f8a/networkloadbalancers/c8fb9d9b-a8ef-4358-a275-c23717aebb51/forwardingrules/6dec4e0c-dd8d-4348-acd1-2d0bf16d00e2",
+        "id": "6dec4e0c-dd8d-4348-acd1-2d0bf16d00e2",
+        "metadata": {
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "created_date": "2023-05-31T13:08:44+00:00",
+            "etag": "fb2a7f7680346fe0677dc3d76d652be6",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-31T13:08:44+00:00",
+            "state": "BUSY"
+        },
+        "properties": {
+            "algorithm": "ROUND_ROBIN",
+            "health_check": {
+                "client_timeout": 50,
+                "connect_timeout": 5000,
+                "retries": 1,
+                "target_timeout": 5000
+            },
+            "listener_ip": "<IP>",
+            "listener_port": 8081,
+            "name": "AnsibleAutoTestNLB",
+            "protocol": "TCP",
+            "targets": [
+                {
+                    "health_check": null,
+                    "ip": "<IP>",
+                    "port": 8080,
+                    "weight": 123
+                }
+            ]
+        },
+        "type": "forwarding-rule"
+    }
+}
