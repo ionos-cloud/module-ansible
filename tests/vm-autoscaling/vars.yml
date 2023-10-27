@@ -1,0 +1,118 @@
+datacenter_name: "AnsibleVMAutoscaling"
+datacenter_location: us/las
+
+name: AnsibleVMAutoscalingGroup
+max_replica_count: 5
+min_replica_count: 1
+metric: INSTANCE_CPU_UTILIZATION_AVERAGE
+range: PT24H
+unit: PER_HOUR
+scale_in_threshold: 33
+scale_out_threshold: 77
+scale_in_action: {
+  'amount': 1,
+  'amount_type': 'ABSOLUTE',
+  'cooldown_period': 'PT5M',
+  'termination_policy': 'RANDOM',
+  'delete_volumes': true
+}
+scale_out_action: {
+  'amount': 1,
+  'amount_type': 'ABSOLUTE',
+  'cooldown_period': 'PT5M'
+}
+availability_zone: AUTO
+cores: 2
+cpu_family: INTEL_XEON
+ram: 1024
+nics: [
+  {
+    'lan': 1,
+    'name': 'SDK_TEST_NIC1',
+    'dhcp': true,
+  },
+  {
+    'lan': 1,
+    'name': 'SDK_TEST_NIC2',
+    'dhcp': false
+  }
+]
+volumes: [
+  {
+    'image': '58e45812-38b1-11ed-be62-eec5f4d7ee1e',
+    'image_password': 'test12345',
+    'name': 'SDK_TEST_VOLUME',
+    'size': 50,
+    'type': 'HDD',
+    'bus': 'IDE',
+    'boot_order': 'AUTO'
+  }
+]
+volumes_no_change: [
+  {
+    'image': '58e45812-38b1-11ed-be62-eec5f4d7ee1e',
+    'name': 'SDK_TEST_VOLUME',
+    'size': 50,
+    'type': 'HDD',
+    'bus': 'IDE',
+    'boot_order': 'AUTO'
+  }
+]
+
+
+
+datacenter_name_update: "AnsibleVMAutoscalingUpdate"
+datacenter_location_update: de/fra
+
+name_update: AnsibleVMAutoscalingGroupUPDATED
+max_replica_count_update: 1
+min_replica_count_update: 0
+metric_update: INSTANCE_NETWORK_IN_BYTES
+scale_in_threshold_update: 30
+scale_out_threshold_update: 86
+unit_update: PER_MINUTE
+scale_in_action_update: {
+  'amount': 50,
+  'amount_type': 'PERCENTAGE',
+  'cooldown_period': 'PT10M',
+  'termination_policy': 'RANDOM',
+  'delete_volumes': false
+}
+scale_out_action_update: {
+  'amount': 2,
+  'amount_type': 'ABSOLUTE',
+  'cooldown_period': 'PT15M'
+}
+range_update: PT12H
+availability_zone_update: AUTO
+cores_update: 1
+cpu_family_update: INTEL_SKYLAKE
+ram_update: 2048
+
+volumes_update: [
+  {
+    'image': 'af47a0ef-38b0-11ed-be62-eec5f4d7ee1e',
+    'image_password': 'test12345',
+    'name': 'SDK_TEST_VOLUME_UPDATE',
+    'size': 75,
+    'type': 'SSD',
+    'bus': 'IDE',
+    'boot_order': 'AUTO'
+  }
+]
+
+nics_update: [
+  {
+    'lan': 1,
+    'name': 'SDK_TEST_NIC1',
+    'dhcp': true,
+    'firewall_active': true,
+    'firewall_rules': [
+      {
+        'name': 'test2',
+        'protocol': 'TCP',
+        'port_range_end': 12
+      }
+    ]
+  },
+]
