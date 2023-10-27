@@ -381,68 +381,6 @@ def remove_object(module, client):
         'id': existing_object.id,
     }
 
-    # No action
-    return {
-        'changed': False,
-        'failed': False,
-        'action': 'create',
-        RETURNED_KEY: existing_object.to_dict()
-    }
-
-
-def create_object(module, client):
-    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
-
-    if existing_object:
-        return update_replace_object(module, client, existing_object)
-
-    return {
-        'changed': True,
-        'failed': False,
-        'action': 'create',
-        RETURNED_KEY: _create_object(module, client).to_dict()
-    }
-
-
-def update_object(module, client):
-    object_name = _get_object_name(module)
-    object_list = _get_object_list(module, client)
-
-    existing_object = get_resource(module, object_list, _get_object_identifier(module))
-
-    if existing_object is None:
-        module.exit_json(changed=False)
-
-    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
-
-    if (
-        existing_object.id is not None
-        and existing_object_id_by_new_name is not None
-        and existing_object_id_by_new_name != existing_object.id
-    ):
-        module.fail_json(
-            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
-                OBJECT_NAME, object_name,
-            ),
-        )
-
-    return update_replace_object(module, client, existing_object)
-
-
-def remove_object(module, client):
-    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
-
-    if existing_object is None:
-        module.exit_json(changed=False)
-
-    _remove_object(module, client, existing_object)
-
-    return {
-        'action': 'delete',
-        'changed': True,
-        'id': existing_object.id,
-    }
-
 
 def get_module_arguments():
     arguments = {}

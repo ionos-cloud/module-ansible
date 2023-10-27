@@ -251,67 +251,6 @@ def update_replace_object(module, dataplatform_client, cloudapi_client, existing
         RETURNED_KEY: existing_object.to_dict()
     }
 
-def update_replace_object(module, dataplatform_client, cloudapi_client, existing_object):
-    if _should_replace_object(module, existing_object, cloudapi_client):
-
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
-
-        new_object = _create_object(module, dataplatform_client, cloudapi_client, existing_object).to_dict()
-        _remove_object(module, dataplatform_client, existing_object)
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            RETURNED_KEY: new_object,
-        }
-    if _should_update_object(module, existing_object):
-        # Update
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'update',
-            RETURNED_KEY: _update_object(module, dataplatform_client, existing_object).to_dict()
-        }
-
-    # No action
-    return {
-        'changed': False,
-        'failed': False,
-        'action': 'create',
-        RETURNED_KEY: existing_object.to_dict()
-    }
-
-
-def _should_replace_object(module, existing_object, cloudapi_client):
-    datacenter_id = get_resource_id(
-        module,
-        ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1),
-        module.params.get('datacenter'),
-    )
-
-    return (
-        datacenter_id is not None
-        and existing_object.properties.datacenter_id != datacenter_id
-    )
-
-
-def _should_update_object(module, existing_object):
-    return (
-        module.params.get('name') is not None
-        and existing_object.properties.name != module.params.get('name')
-        or module.params.get('dataplatform_version') is not None
-        and existing_object.properties.data_platform_version != module.params.get('dataplatform_version')
-        or module.params.get('maintenance_window') is not None
-        and (
-            existing_object.properties.maintenance_window.day_of_the_week != module.params.get('maintenance_window').get('day_of_the_week')
-            or existing_object.properties.maintenance_window.time != module.params.get('maintenance_window').get('time')
-        )
-    )
-
-
-def _get_object_list(module, client):
-    return ionoscloud_dataplatform.DataPlatformClusterApi(client).get_clusters()
 
 def _should_replace_object(module, existing_object, cloudapi_client):
     datacenter_id = get_resource_id(
