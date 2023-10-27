@@ -16,95 +16,117 @@
 
 ## API
 * Application Load Balancer
-  * [Flowlogs](api/applicationloadbalancer/application_load_balancer_flowlog_info.md)
-  * [Flowlog](api/applicationloadbalancer/application_load_balancer_flowlog.md)
-  * [Application Loadbalancer forwarding rules](api/applicationloadbalancer/application_load_balancer_forwardingrule_info.md)
-  * [Application Loadbalancer forwarding rule](api/applicationloadbalancer/application_load_balancer_forwardingrule.md)
-  * [Application Loadbalancers](api/applicationloadbalancer/application_load_balancer_info.md)
-  * [Application Loadbalancer](api/applicationloadbalancer/application_load_balancer.md)
-  * [Target Groups](api/applicationloadbalancer/target_group_info.md)
-  * [Target Group](api/applicationloadbalancer/target_group.md)
+  * Regular modules
+    * [Flowlog](api/applicationloadbalancer/application_load_balancer_flowlog.md)
+    * [Application Load Balancer Forwarding Rule](api/applicationloadbalancer/application_load_balancer_forwardingrule.md)
+    * [Application Load Balancer](api/applicationloadbalancer/application_load_balancer.md)
+    * [Target Group](api/applicationloadbalancer/target_group.md)
+  * Info modules
+    * [Flowlogs](api/applicationloadbalancer/application_load_balancer_flowlog_info.md)
+    * [Application Load Balancer Forwarding Rules](api/applicationloadbalancer/application_load_balancer_forwardingrule_info.md)
+    * [Application Load Balancers](api/applicationloadbalancer/application_load_balancer_info.md)
+    * [Target Groups](api/applicationloadbalancer/target_group_info.md)
 * Compute Engine
-  * test1
+  * Regular modules
     * [CUBE Server](api/compute-engine/cube_server.md)
-  * test2
-    * [CUBE templates](api/compute-engine/cube_template_info.md)
-    * [Datacenters](api/compute-engine/datacenter_info.md)
     * [Datacenter](api/compute-engine/datacenter.md)
-    * [Firewall Rules](api/compute-engine/firewall_rule_info.md)
     * [Firewall Rule](api/compute-engine/firewall_rule.md)
-    * [Images](api/compute-engine/image_info.md)
     * [Image](api/compute-engine/image.md)
-    * [IpBlocks](api/compute-engine/ipblock_info.md)
     * [IP Block](api/compute-engine/ipblock.md)
-    * [Lans](api/compute-engine/lan_info.md)
     * [LAN](api/compute-engine/lan.md)
-    * [Flowlogs](api/compute-engine/nic_flowlog_info.md)
-    * [Flowflog](api/compute-engine/nic_flowlog.md)
-    * [NICs](api/compute-engine/nic_info.md)
+    * [Flowlog](api/compute-engine/nic_flowlog.md)
     * [NIC](api/compute-engine/nic.md)
-    * [PCCs](api/compute-engine/pcc_info.md)
     * [PCC](api/compute-engine/pcc.md)
-    * [Servers](api/compute-engine/server_info.md)
     * [Server](api/compute-engine/server.md)
-    * [Snapshots](api/compute-engine/snapshot_info.md)
     * [Snapshot](api/compute-engine/snapshot.md)
-    * [Volumes](api/compute-engine/volume_info.md)
     * [Volume](api/compute-engine/volume.md)
     * [VCPU Server](api/compute-engine/vcpu_server.md)
+  * Info modules
+    * [CUBE templates](api/compute-engine/cube_template_info.md)
+    * [Datacenters](api/compute-engine/datacenter_info.md)
+    * [Firewall Rules](api/compute-engine/firewall_rule_info.md)
+    * [Images](api/compute-engine/image_info.md)
+    * [IpBlocks](api/compute-engine/ipblock_info.md)
+    * [Lans](api/compute-engine/lan_info.md)
+    * [Flowlogs](api/compute-engine/nic_flowlog_info.md)
+    * [NICs](api/compute-engine/nic_info.md)
+    * [PCCs](api/compute-engine/pcc_info.md)
+    * [Servers](api/compute-engine/server_info.md)
+    * [Snapshots](api/compute-engine/snapshot_info.md)
+    * [Volumes](api/compute-engine/volume_info.md)
 * Container Registry
-  * [Registry](api/container-registry/registry.md)
-  * [Registries](api/container-registry/registry_info.md)
-  * [Registry Token](api/container-registry/registry_token.md)
-  * [Registry Tokens](api/container-registry/registry_token_info.md)
+  * Regular modules
+    * [Registry](api/container-registry/registry.md)
+    * [Registry Token](api/container-registry/registry_token.md)
+  * Info modules
+    * [Registries](api/container-registry/registry_info.md)
+    * [Registry Tokens](api/container-registry/registry_token_info.md)
 * DBaaS Postgres
-  * [Postgres Cluster](api/dbaas-postgres/postgres_cluster.md)
-  * [Postgres Cluster Backups](api/dbaas-postgres/postgres_backup_info.md)
-  * [Postgres Clusters](api/dbaas-postgres/postgres_cluster_info.md)
+  * Regular modules
+    * [Postgres Cluster](api/dbaas-postgres/postgres_cluster.md)
+  * Info modules
+    * [Postgres Cluster Backups](api/dbaas-postgres/postgres_backup_info.md)
+    * [Postgres Clusters](api/dbaas-postgres/postgres_cluster_info.md)
 * DBaaS Mongo
-  * [Mongo Cluster Users](api/dbaas-mongo/mongo_cluster_info.md)
-  * [Mongo Cluster Templates](api/dbaas-mongo/mongo_cluster_template_info.md)
-  * [Mongo Cluster](api/dbaas-mongo/mongo_cluster.md)
-  * [Mongo Cluster User](api/dbaas-mongo/mongo_cluster_user.md)
-  * [Mongo Clusters](api/dbaas-mongo/mongo_cluster_user_info.md)
+  * Regular modules
+    * [Mongo Cluster](api/dbaas-mongo/mongo_cluster.md)
+    * [Mongo Cluster User](api/dbaas-mongo/mongo_cluster_user.md)
+  * Info modules
+    * [Mongo Cluster Users](api/dbaas-mongo/mongo_cluster_info.md)
+    * [Mongo Cluster Templates](api/dbaas-mongo/mongo_cluster_template_info.md)
+    * [Mongo Clusters](api/dbaas-mongo/mongo_cluster_user_info.md)
 * Managed Backup
-  * [Backupunits](api/managed-backup/backupunit_info.md)
-  * [Backup Unit](api/managed-backup/backupunit.md)
+  * Regular modules
+    * [Backup Unit](api/managed-backup/backupunit.md)
+  * Info modules
+    * [Backupunits](api/managed-backup/backupunit_info.md)
 * Managed Kubernetes
-  * [K8s Clusters](api/managed-kubernetes/k8s_cluster_info.md)
-  * [K8s Cluster](api/managed-kubernetes/k8s_cluster.md)
-  * [K8s config](api/managed-kubernetes/k8s_config.md)
-  * [K8s Nodepools](api/managed-kubernetes/k8s_nodepool_info.md)
-  * [K8s Nodepool](api/managed-kubernetes/k8s_nodepool.md)
+  * Regular modules
+    * [K8s Cluster](api/managed-kubernetes/k8s_cluster.md)
+    * [K8s config](api/managed-kubernetes/k8s_config.md)
+    * [K8s Nodepool](api/managed-kubernetes/k8s_nodepool.md)
+  * Info modules
+    * [K8s Clusters](api/managed-kubernetes/k8s_cluster_info.md)
+    * [K8s Nodepools](api/managed-kubernetes/k8s_nodepool_info.md)
 * NAT Gateway
-  * [Flowlogs](api/natgateway/nat_gateway_flowlog_info.md)
-  * [Flowlog](api/natgateway/nat_gateway_flowlog.md)
-  * [NAT Gateway rules](api/natgateway/nat_gateway_rule_info.md)
-  * [NAT Gateway rule](api/natgateway/nat_gateway_rule.md)
-  * [NAT Gateways](api/natgateway/nat_gateway_info.md)
-  * [NAT Gateway](api/natgateway/nat_gateway.md)
+  * Regular modules
+    * [Flowlog](api/natgateway/nat_gateway_flowlog.md)
+    * [NAT Gateway rule](api/natgateway/nat_gateway_rule.md)
+    * [NAT Gateway](api/natgateway/nat_gateway.md)
+  * Info modules
+    * [Flowlogs](api/natgateway/nat_gateway_flowlog_info.md)
+    * [NAT Gateway rules](api/natgateway/nat_gateway_rule_info.md)
+    * [NAT Gateways](api/natgateway/nat_gateway_info.md)
 * Network Load Balancer
-  * [Network Loadbalancers Flowlogs](api/networkloadbalancer/network_load_balancer_flowlog_info.md)
-  * [Flowlog](api/networkloadbalancer/network_load_balancer_flowlog.md)
-  * [Network Loadbalancer forwarding rules](api/networkloadbalancer/network_load_balancer_rule_info.md)
-  * [Network Loadbalancer forwarding rule](api/networkloadbalancer/network_load_balancer_rule.md)
-  * [Network Loadbalancers](api/networkloadbalancer/network_load_balancer_info.md)
-  * [Network Loadbalancer](api/networkloadbalancer/network_load_balancer.md)
+  * Regular modules
+    * [Flowlog](api/networkloadbalancer/network_load_balancer_flowlog.md)
+    * [Network Loadbalancer forwarding rule](api/networkloadbalancer/network_load_balancer_rule.md)
+    * [Network Loadbalancer](api/networkloadbalancer/network_load_balancer.md)
+  * Info modules
+    * [Network Loadbalancers Flowlogs](api/networkloadbalancer/network_load_balancer_flowlog_info.md)
+    * [Network Loadbalancer forwarding rules](api/networkloadbalancer/network_load_balancer_rule_info.md)
+    * [Network Loadbalancers](api/networkloadbalancer/network_load_balancer_info.md)
 * User Management
-  * [Groups](api/user-management/group_info.md)
-  * [Group](api/user-management/group.md)
-  * [S3 Keys](api/user-management/s3key_info.md)
-  * [S3 Key](api/user-management/s3key.md)
-  * [Shares](api/user-management/share_info.md)
-  * [Share](api/user-management/share.md)
-  * [Users](api/user-management/user_info.md)
-  * [User](api/user-management/user.md)
+  * Regular modules
+    * [Group](api/user-management/group.md)
+    * [S3 Key](api/user-management/s3key.md)
+    * [Share](api/user-management/share.md)
+    * [User](api/user-management/user.md)
+  * Info modules
+    * [Groups](api/user-management/group_info.md)
+    * [S3 Keys](api/user-management/s3key_info.md)
+    * [Shares](api/user-management/share_info.md)
+    * [Users](api/user-management/user_info.md)
 * Data Platform
-  * [Data Platform Cluster](api/dataplatform/dataplatform_cluster.md)
-  * [DataPlatform Cluster Config](api/dataplatform/dataplatform_cluster_config.md)
-  * [DataPlatform Clusters](api/dataplatform/dataplatform_cluster_info.md)
-  * [Data Platform Nodepool](api/dataplatform/dataplatform_nodepool.md)
-  * [DataPlatform Nodepools](api/dataplatform/dataplatform_nodepool_info.md)
+  * Regular modules
+    * [Data Platform Cluster](api/dataplatform/dataplatform_cluster.md)
+    * [DataPlatform Cluster Config](api/dataplatform/dataplatform_cluster_config.md)
+    * [Data Platform Nodepool](api/dataplatform/dataplatform_nodepool.md)
+  * Info modules
+    * [DataPlatform Clusters](api/dataplatform/dataplatform_cluster_info.md)
+    * [DataPlatform Nodepools](api/dataplatform/dataplatform_nodepool_info.md)
 * Certificate Manager
-  * [Certificate](api/certificate/certificate.md)
-  * [Certificates](api/certificate/certificate_info.md)
+  * Regular modules
+    * [Certificate](api/certificate/certificate.md)
+  * Info modules
+    * [Certificates](api/certificate/certificate_info.md)

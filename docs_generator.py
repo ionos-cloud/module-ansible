@@ -185,13 +185,23 @@ for module_name in modules_to_generate:
     }
 
     directory_name = DIRECTORY_TO_NAME.get(docs_dir, docs_dir.replace('-', ' ').title())
-
-    if generated.get(directory_name):
-        generated[directory_name]['modules'].append(generated_module)
+    if file_name.endswith('_info.md'):
+        if generated.get(directory_name):
+            generated[directory_name]['info_modules'].append(generated_module)
+        else:
+            generated[directory_name] = {
+                'directory_name': directory_name,
+                'info_modules': [generated_module],
+                'modules': [],
+        }
     else:
-        generated[directory_name] = {
-            'directory_name': directory_name,
-            'modules': [generated_module],
+        if generated.get(directory_name):
+            generated[directory_name]['modules'].append(generated_module)
+        else:
+            generated[directory_name] = {
+                'directory_name': directory_name,
+                'info_modules': [],
+                'modules': [generated_module],
         }
 
 with open(os.path.join('docs', 'summary.md'), 'w') as target_file:
