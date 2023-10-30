@@ -39,7 +39,7 @@ nics: [
 ]
 volumes: [
   {
-    'image': '58e45812-38b1-11ed-be62-eec5f4d7ee1e',
+    'image': 'b6d8c6f2-febc-11ed-86e8-2e7f0689c849',
     'image_password': 'test12345',
     'name': 'SDK_TEST_VOLUME',
     'size': 50,
@@ -50,7 +50,7 @@ volumes: [
 ]
 volumes_no_change: [
   {
-    'image': '58e45812-38b1-11ed-be62-eec5f4d7ee1e',
+    'image': 'b6d8c6f2-febc-11ed-86e8-2e7f0689c849',
     'name': 'SDK_TEST_VOLUME',
     'size': 50,
     'type': 'HDD',
@@ -91,7 +91,7 @@ ram_update: 2048
 
 volumes_update: [
   {
-    'image': 'af47a0ef-38b0-11ed-be62-eec5f4d7ee1e',
+    'image': 'e84aed99-feba-11ed-86e8-2e7f0689c849',
     'image_password': 'test12345',
     'name': 'SDK_TEST_VOLUME_UPDATE',
     'size': 75,
