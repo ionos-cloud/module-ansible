@@ -55,6 +55,26 @@ OPTIONS = {
         'required': ['update'],
         'type': 'dict',
     },
+    'public': {
+        'description': ['The indicator whether the cluster is public or private. Note that the status FALSE is still in the beta phase.'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
+    'location': {
+        'description': ['This attribute is mandatory if the cluster is private. The location must be enabled for your contract, or you must have a data center at that location. This property is not adjustable.'],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'nat_gateway_ip': {
+        'description': ['The nat gateway IP of the cluster if the cluster is private. This property is immutable. Must be a reserved IP in the same location as the cluster\'s location. This attribute is mandatory if the cluster is private.'],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
+    'node_subnet': {
+        'description': ['The node subnet of the cluster, if the cluster is private. This property is optional and immutable. Must be a valid CIDR notation for an IPv4 network prefix of 16 bits length.'],
+        'available': ['present', 'update'],
+        'type': 'str',
+    },
     'api_subnet_allow_list': {
         'description': ['Access to the K8s API server is restricted to these CIDRs. Intra-cluster traffic is not affected by this restriction. If no AllowList is specified, access is not limited. If an IP is specified without a subnet mask, the default value is 32 for IPv4 and 128 for IPv6.'],
         'available': ['present', 'update'],
@@ -136,6 +156,13 @@ OPTIONS = {
         'type': 'str',
     },
 }
+
+IMMUTABLE_OPTIONS = [
+    { "name": "public", "note": "" },
+    { "name": "location", "note": "" },
+    { "name": "nat_gateway_ip", "note": "" },
+    { "name": "node_subnet", "note": "" },
+]
 
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES) 
@@ -260,9 +287,17 @@ def update_replace_object(module, client, existing_object):
     }
 
 
-def _should_replace_object(*args, **kwargs):
-    return False
-
+def _should_replace_object(module, existing_object):
+    return (
+        module.params.get('public') is not None
+        and existing_object.properties.public != module.params.get('public')
+        or module.params.get('location') is not None
+        and existing_object.properties.location != module.params.get('location')
+        or module.params.get('nat_gateway_ip') is not None
+        and existing_object.properties.nat_gateway_ip != module.params.get('nat_gateway_ip')
+        or module.params.get('node_subnet') is not None
+        and existing_object.properties.node_subnet != module.params.get('node_subnet')
+    )
 
 def _should_update_object(module, existing_object):
     return (
@@ -296,6 +331,10 @@ def _get_object_identifier(module):
 def _create_object(module, client, existing_object=None):
     cluster_name = module.params.get('cluster_name')
     k8s_version = module.params.get('k8s_version')
+    public = module.params.get('public')
+    location = module.params.get('location')
+    nat_gateway_ip = module.params.get('nat_gateway_ip')
+    node_subnet = module.params.get('node_subnet')
     maintenance = module.params.get('maintenance_window')
     api_subnet_allow_list = module.params.get('api_subnet_allow_list')
     s3_buckets = list(map(lambda bucket_name: S3Bucket(name=bucket_name), module.params.get('s3_buckets_param'))) if module.params.get('s3_buckets_param') else None
@@ -308,6 +347,10 @@ def _create_object(module, client, existing_object=None):
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
         k8s_version = existing_object.properties.k8s_version if k8s_version is None else k8s_version
+        public = existing_object.properties.public if public is None else public
+        location = existing_object.properties.location if location is None else location
+        nat_gateway_ip = existing_object.properties.nat_gateway_ip if nat_gateway_ip is None else nat_gateway_ip
+        node_subnet = existing_object.properties.node_subnet if node_subnet is None else node_subnet
         api_subnet_allow_list = existing_object.properties.api_subnet_allow_list if api_subnet_allow_list is None else api_subnet_allow_list
         s3_buckets = existing_object.properties.s3_buckets if s3_buckets is None else s3_buckets
         maintenance = existing_object.properties.maintenance_window if maintenance is None else maintenance
@@ -323,6 +366,10 @@ def _create_object(module, client, existing_object=None):
         maintenance_window=maintenance_window,
         api_subnet_allow_list=api_subnet_allow_list,
         s3_buckets=s3_buckets,
+        public=public,
+        location=location,
+        nat_gateway_ip=nat_gateway_ip,
+        node_subnet=node_subnet,
     )
     k8s_cluster = KubernetesCluster(properties=k8s_cluster_properties)
 
@@ -342,7 +389,6 @@ def _create_object(module, client, existing_object=None):
 
 
 def _update_object(module, client, existing_object):
-
     cluster_name = module.params.get('cluster_name')
     k8s_version = module.params.get('k8s_version')
     maintenance = module.params.get('maintenance_window')

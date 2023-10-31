@@ -28,34 +28,10 @@
           day_of_the_week: "Wednesday"
           time: "12:02:00"
         public: False
+        location: "{{ location }}"
+        nat_gateway_ip: "{{ ipblock_response.ipblock.properties.ips[0] }}"
+        wait: true
       register: cluster_response
-
-    - name: Create k8s cluster nodepool
-      k8s_nodepool:
-        nodepool_name: "ansible-nodepool-{{100|random}}"
-        k8s_cluster: "{{ cluster_response.cluster.id }}"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        node_count: 2
-        cpu_family: "INTEL_SKYLAKE"
-        cores_count: "1"
-        ram_size: "2048"
-        availability_zone: "AUTO"
-        storage_type: "HDD"
-        storage_size: "100"
-        gateway_ip: "{{ ipblock_response.ipblock.properties.ips[0] }}"
-        wait: true
-      register: nodepool_response
-
-    - name: Debug - Show nodepool
-      debug:
-        msg: "{{ nodepool_response.nodepool }}"
-
-    - name: Delete k8s cluster nodepool
-      k8s_nodepool:
-        k8s_cluster: "{{ cluster_response.cluster.id }}"
-        nodepool_id: "{{ nodepool_response.nodepool.id }}"
-        wait: true
-        state: absent
 
     - name: Delete k8s cluster
       k8s_cluster:

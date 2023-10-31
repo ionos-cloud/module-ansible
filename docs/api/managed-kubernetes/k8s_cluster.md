@@ -72,6 +72,12 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 
 &nbsp;
 
+ **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
+## Parameters that can trigger a resource replacement:
+  * public 
+  * location 
+  * nat_gateway_ip 
+  * node_subnet 
 &nbsp;
 
 # state: **present**
@@ -108,6 +114,26 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   <td>maintenance_window<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>
   <td>The maintenance window is used to update the control plane and the K8s version of the cluster. If no value is specified, it is chosen dynamically, so there is no fixed default value.</td>
+  </tr>
+  <tr>
+  <td>public<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>The indicator whether the cluster is public or private. Note that the status FALSE is still in the beta phase.</td>
+  </tr>
+  <tr>
+  <td>location<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>This attribute is mandatory if the cluster is private. The location must be enabled for your contract, or you must have a data center at that location. This property is not adjustable.</td>
+  </tr>
+  <tr>
+  <td>nat_gateway_ip<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The nat gateway IP of the cluster if the cluster is private. This property is immutable. Must be a reserved IP in the same location as the cluster's location. This attribute is mandatory if the cluster is private.</td>
+  </tr>
+  <tr>
+  <td>node_subnet<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The node subnet of the cluster, if the cluster is private. This property is optional and immutable. Must be a valid CIDR notation for an IPv4 network prefix of 16 bits length.</td>
   </tr>
   <tr>
   <td>api_subnet_allow_list<br/><mark style="color:blue;">list</mark></td>
@@ -286,6 +312,26 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   <td>maintenance_window<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">True</td>
   <td>The maintenance window is used to update the control plane and the K8s version of the cluster. If no value is specified, it is chosen dynamically, so there is no fixed default value.</td>
+  </tr>
+  <tr>
+  <td>public<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>The indicator whether the cluster is public or private. Note that the status FALSE is still in the beta phase.</td>
+  </tr>
+  <tr>
+  <td>location<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>This attribute is mandatory if the cluster is private. The location must be enabled for your contract, or you must have a data center at that location. This property is not adjustable.</td>
+  </tr>
+  <tr>
+  <td>nat_gateway_ip<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The nat gateway IP of the cluster if the cluster is private. This property is immutable. Must be a reserved IP in the same location as the cluster's location. This attribute is mandatory if the cluster is private.</td>
+  </tr>
+  <tr>
+  <td>node_subnet<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The node subnet of the cluster, if the cluster is private. This property is optional and immutable. Must be a valid CIDR notation for an IPv4 network prefix of 16 bits length.</td>
   </tr>
   <tr>
   <td>api_subnet_allow_list<br/><mark style="color:blue;">list</mark></td>
