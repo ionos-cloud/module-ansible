@@ -41,6 +41,16 @@
         volumes: "{{ volumes }}"
       register: vm_autoscaling_group_response
 
+    # - name: Sleep for 300 seconds and continue with play
+    #   ansible.builtin.wait_for:
+    #     timeout: 300
+    #   delegate_to: localhost
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{vm_autoscaling_group_response}}"
+    #     dest: ../../docs/returned_object_examples/vm_autoscaling_group.json
+
     - name: List VM Autoscaling Group Actions
       vm_autoscaling_action_info:
         vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
@@ -50,10 +60,20 @@
       debug:
         var: vm_autoscaling_actions_response.result
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{vm_autoscaling_actions_response}}"
+    #     dest: ../../docs/returned_object_examples/vm_autoscaling_action_info.json
+
     - name: List VM Autoscaling Group Servers
       vm_autoscaling_server_info:
         vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
       register: vm_autoscaling_servers_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{vm_autoscaling_servers_response}}"
+    #     dest: ../../docs/returned_object_examples/vm_autoscaling_server_info.json
 
     - name: Show VM Autoscaling Group Servers
       debug:
@@ -62,6 +82,11 @@
     - name: List VM Autoscaling Groups
       vm_autoscaling_group_info:
       register: vm_autoscaling_groups_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{vm_autoscaling_groups_response}}"
+    #     dest: ../../docs/returned_object_examples/vm_autoscaling_group_info.json
 
     - name: Show VM Autoscaling Groups
       debug:
