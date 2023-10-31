@@ -69,10 +69,10 @@
       state: present
     register: key_response
 
-  - name: Print output to file
-    ansible.builtin.copy:
-      content: "{{key_response}}"
-      dest: ../../docs/returned_object_examples/dns_key.json
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{key_response}}"
+  #     dest: ../../docs/returned_object_examples/dns_key.json
 
   - name: Get Zone key
     dns_key_info:
