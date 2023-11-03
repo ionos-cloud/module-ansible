@@ -25,6 +25,28 @@
     debug:
       var: registries_response.result
 
+  - name: List Repositories
+    registry_repository_info:
+    register: repositories_response
+
+  - name: Show Repositories
+    debug:
+      var: repositories_response.result
+
+  - name: Ensure Repository does not exist
+    registry_repository:
+      registry: "{{ registry_response.registry.properties.name }}"
+      repository: repo-name
+      state: absent
+
+  - name: List artifacts
+    registry_artifact_info:
+    register: artifacts_response
+
+  - name: Show artifacts
+    debug:
+      var: artifacts_response.result
+
   - name: Update Registry
     registry:
       registry: "{{ registry_response.registry.properties.name }}"
