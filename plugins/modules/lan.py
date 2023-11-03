@@ -59,11 +59,6 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'str',
     },
-    'pcc': {
-        'description': ['The unique identifier of the private Cross-Connect the LAN is connected to, if any.'],
-        'available': ['update'],
-        'type': 'str',
-    },
     'ip_failover': {
         'description': ['IP failover configurations for lan'],
         'available': ['update'],

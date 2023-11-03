@@ -60,6 +60,19 @@ The following parameters, when changed or set, trigger resource replacement:
 | registry              | name, location                                                                                     | -                |
 | volume                | image, size, disk_type, availability_zone, licence_type, user_data                                 | backupunit, image_password, ssh_keys                |
 
+> **_NOTE:_** The following parameters used to have default values which have been removed to avoid triggering a replacement without a value being set by the user (the former default value is in parentheses) :
+- cube_server:
+    - availability_zone ('AUTO')
+- datacenter:
+    - location ('us/las')
+- ipblock:
+    - size (1)
+- volume: 
+    - size (10)
+    - ssh_keys ([])
+    - disk_type ('HDD')
+    - licence_type ('UNKNOWN')
+
 ## List of Parameter Changes
 
 The update involves changes in parameter names, removal of parameters, and addition of new parameters for various modules. Here is the detailed list:

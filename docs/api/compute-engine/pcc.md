@@ -1,6 +1,6 @@
 # pcc
 
-This is a simple module that supports creating or removing Private Cross Connects. This module has a dependency on ionoscloud &gt;= 6.0.2
+This is a simple module that supports creating or removing Cross Connects. This module has a dependency on ionoscloud &gt;= 6.0.2
 
 ## Example Syntax
 
