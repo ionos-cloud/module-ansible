@@ -1,0 +1,113 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+
+  - name: Create Zone
+    dns_zone:
+      name: "{{zone_name}}"
+      description: "{{zone_description}}"
+      enabled: "{{zone_enabled}}"
+    register: zone_response
+
+  - name: Create Record
+    dns_record:
+      zone: "{{zone_name}}"
+      name: "{{record_name}}"
+      type: "{{record_type}}"
+      content: "{{record_content}}"
+      ttl: "{{record_ttl}}"
+      priority: "{{record_priority}}"
+      enabled: "{{record_enabled}}"
+    register: record_response
+
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{record_response}}"
+  #     dest: ../../docs/returned_object_examples/dns_record.json
+
+  - name: List all Records in zone
+    dns_record_info:
+      zone: "{{zone_name}}"
+    register: records_response
+
+  - name: Show records
+    debug:
+      var: records_response.records
+
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{records_response}}"
+  #     dest: ../../docs/returned_object_examples/dns_record_info.json
+
+  - name: List all Records
+    dns_record_info:
+    register: records_response
+
+  - name: Show records
+    debug:
+      var: records_response.records
+
+  - name: Update record
+    dns_record:
+      zone: "{{zone_name}}"
+      record: "{{record_name}}"
+      type: "{{record_type_updated}}"
+      content: "{{record_content_updated}}"
+      ttl: "{{record_ttl_updated}}"
+      priority: "{{record_priority_updated}}"
+      enabled: "{{record_enabled_updated}}"
+      allow_replace: False
+      state: update
+    register: updated_record_response
+
+  - name: Update record no change
+    dns_record:
+      zone: "{{zone_name}}"
+      record: "{{record_name}}"
+      name: "{{record_name}}"
+      type: "{{record_type_updated}}"
+      content: "{{record_content_updated}}"
+      ttl: "{{record_ttl_updated}}"
+      priority: "{{record_priority_updated}}"
+      enabled: "{{record_enabled_updated}}"
+      allow_replace: False
+      state: update
+    register: updated_record_response
+
+  - name: Asserting that changed == false when no update is made
+    assert:
+      that:
+        - updated_record_response.changed == false
+      msg: "Changed should be false"
+
+  - name: Replace record
+    dns_record:
+      zone: "{{zone_name}}"
+      record: "{{record_name}}"
+      name: "{{record_name_updated}}"
+      type: "{{record_type_updated}}"
+      content: "{{record_content_updated}}"
+      ttl: "{{record_ttl_updated}}"
+      priority: "{{record_priority_updated}}"
+      enabled: "{{record_enabled_updated}}"
+      allow_replace: true
+      state: update
+    register: updated_record_response
+
+  - name: Delete Record
+    dns_record:
+      zone: "{{zone_name}}"
+      record: "{{ updated_record_response.record.properties.name }}"
+      wait: true
+      state: absent
+
+  - name: Delete Zone
+    dns_zone:
+      zone: "{{ zone_response.zone.properties.zone_name }}"
+      wait: true
+      state: absent

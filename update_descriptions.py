@@ -33,6 +33,10 @@ CERTIFICATE_MANAGER_SWAGGER = {
     'url': 'https://ionos-cloud.github.io/rest-api/docs/public-certificatemanager-v1.ga.json',
     'filename': 'certificatemanager_swagger.json',
 }
+DNS_SWAGGER = {
+    'url': 'https://ionos-cloud.github.io/rest-api/docs/public-dns-v1.ga.yml',
+    'filename': 'dns_swagger.json',
+}
 
 OPTIONS_TO_IGNORE = [
     'allow_replace',
@@ -212,6 +216,7 @@ modules_to_generate = [
     ],
     ['dataplatform_nodepool', DATAPLATFORM_SWAGGER, '/clusters/{clusterId}/nodepools', 'post', {}],
     # ['certificate', CERTIFICATE_MANAGER_SWAGGER, '/certificatemanager/certificates', 'post', {}],
+    # ['dns_zone', DNS_SWAGGER, '/zones', 'post', {}],
 ]
 
 for module in modules_to_generate:

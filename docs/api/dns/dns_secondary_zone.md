@@ -1,34 +1,39 @@
-# registry
+# dns_secondary_zone
 
-This is a module that supports creating, updating or destroying Registries
+This is a module that supports creating, updating or destroying DNS Secondary Zones
 
 ## Example Syntax
 
 
 ```yaml
-- name: Create Registry
-    registry:
-      name: test_registry
-      location: de/fra
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: registry_response
+- name: Create Secondary Zone
+    dns_zone:
+      name: example.com
+      description: zone_description
+      primary_ips:
+        - <IP1>
+        - <IP2>
+    register: zone_response
   
-- name: Update Registry
-    registry:
-      registry: test_registry
-      name: test_registry_update
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: updated_registry_response
+- name: Update Secondary zone
+    dns_zone:
+      secondary_zone: example.com
+      description: zone_description_updated
+      primary_ips:
+        - <IP3>
+        - <IP4>
+      state: update
+    register: updated_zone_response
   
-- name: Delete Registry
-    registry:
-      registry: test_registry
+- name: Delete Secondary zone
+    dns_zone:
+      secondary_zone: example.com
+      wait: true
+      state: transfer
+  
+- name: Delete Secondary zone
+    dns_zone:
+      secondary_zone: example.com
       wait: true
       state: absent
   
@@ -40,37 +45,32 @@ This is a module that supports creating, updating or destroying Registries
 ## Returned object
 ```json
 {
-    "changed": true,
+    "changed": false,
     "failed": false,
     "action": "create",
-    "registry": {
-        "href": "",
-        "id": "9bc72c7b-14d3-493e-a700-f9bc06b25614",
+    "secondary_zone": {
+        "id": "bb1a4664-0f79-57e2-85ff-36c22b164884",
+        "type": "secondaryzone",
+        "href": "/secondaryzones/bb1a4664-0f79-57e2-85ff-36c22b164884",
         "metadata": {
-            "created_by": "<USER_EMAIL>",
-            "created_by_user_id": "<USER_ID>",
-            "created_date": "2023-05-29T13:51:25+00:00",
-            "last_modified_by": null,
-            "last_modified_by_user_id": null,
-            "last_modified_date": null,
-            "state": "New"
+            "last_modified_date": "2023-10-25T14:26:17+00:00",
+            "created_date": "2023-10-25T14:26:17+00:00",
+            "state": "AVAILABLE",
+            "nameservers": [
+                "<NAMESERVER1>",
+                "<NAMESERVER2>",
+                "<NAMESERVER3>",
+                "<NAMESERVER4>"
+            ]
         },
         "properties": {
-            "garbage_collection_schedule": {
-                "days": [
-                    "Wednesday"
-                ],
-                "time": "04:17:00+00:00"
-            },
-            "hostname": "",
-            "location": "de/fra",
-            "name": "ansibletest123",
-            "storage_usage": {
-                "bytes": 0,
-                "updated_at": null
-            }
-        },
-        "type": "registry"
+            "zone_name": "<ZONE_NAME>",
+            "description": "test_description",
+            "primary_ips": [
+                "<IP1>",
+                "<IP2>"
+            ]
+        }
     }
 }
 
@@ -78,23 +78,18 @@ This is a module that supports creating, updating or destroying Registries
 
 &nbsp;
 
- **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
-## Parameters that can trigger a resource replacement:
-  * name 
-  * location 
 &nbsp;
 
 # state: **present**
 ```yaml
-  - name: Create Registry
-    registry:
-      name: test_registry
-      location: de/fra
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: registry_response
+  - name: Create Secondary Zone
+    dns_zone:
+      name: example.com
+      description: zone_description
+      primary_ips:
+        - <IP1>
+        - <IP2>
+    register: zone_response
   
 ```
 ### Available parameters for state **present**:
@@ -110,19 +105,19 @@ This is a module that supports creating, updating or destroying Registries
   </thead>
   <tbody>
   <tr>
-  <td>garbage_collection_schedule<br/><mark style="color:blue;">dict</mark></td>
-  <td align="center">False</td>
-  <td>Dict containing &quot;time&quot; (the time of the day when to perform the garbage_collection) and &quot;days&quot; (the days when to perform the garbage_collection).</td>
-  </tr>
-  <tr>
-  <td>location<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>The location of your registry</td>
-  </tr>
-  <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The name of your registry.</td>
+  <td>The zone name</td>
+  </tr>
+  <tr>
+  <td>description<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The hosted zone is used for...</td>
+  </tr>
+  <tr>
+  <td>primary_ips<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>Indicates IP addresses of primary nameservers for a secondary zone. Accepts IPv4 and IPv6 addresses</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
@@ -162,7 +157,7 @@ This is a module that supports creating, updating or destroying Registries
   <tr>
   <td>state<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update']</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'transfer']</td>
   </tr>
   </tbody>
 </table>
@@ -172,9 +167,9 @@ This is a module that supports creating, updating or destroying Registries
 &nbsp;
 # state: **absent**
 ```yaml
-  - name: Delete Registry
-    registry:
-      registry: test_registry
+  - name: Delete Secondary zone
+    dns_zone:
+      secondary_zone: example.com
       wait: true
       state: absent
   
@@ -192,9 +187,9 @@ This is a module that supports creating, updating or destroying Registries
   </thead>
   <tbody>
   <tr>
-  <td>registry<br/><mark style="color:blue;">str</mark></td>
+  <td>secondary_zone<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The ID or name of an existing Registry.</td>
+  <td>The ID or name of an existing Secondary Zone.</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -229,7 +224,7 @@ This is a module that supports creating, updating or destroying Registries
   <tr>
   <td>state<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update']</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'transfer']</td>
   </tr>
   </tbody>
 </table>
@@ -239,15 +234,15 @@ This is a module that supports creating, updating or destroying Registries
 &nbsp;
 # state: **update**
 ```yaml
-  - name: Update Registry
-    registry:
-      registry: test_registry
-      name: test_registry_update
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: updated_registry_response
+  - name: Update Secondary zone
+    dns_zone:
+      secondary_zone: example.com
+      description: zone_description_updated
+      primary_ips:
+        - <IP3>
+        - <IP4>
+      state: update
+    register: updated_zone_response
   
 ```
 ### Available parameters for state **update**:
@@ -263,24 +258,24 @@ This is a module that supports creating, updating or destroying Registries
   </thead>
   <tbody>
   <tr>
-  <td>garbage_collection_schedule<br/><mark style="color:blue;">dict</mark></td>
-  <td align="center">False</td>
-  <td>Dict containing &quot;time&quot; (the time of the day when to perform the garbage_collection) and &quot;days&quot; (the days when to perform the garbage_collection).</td>
-  </tr>
-  <tr>
-  <td>location<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">False</td>
-  <td>The location of your registry</td>
-  </tr>
-  <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The name of your registry.</td>
+  <td>The zone name</td>
   </tr>
   <tr>
-  <td>registry<br/><mark style="color:blue;">str</mark></td>
+  <td>description<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The hosted zone is used for...</td>
+  </tr>
+  <tr>
+  <td>primary_ips<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>Indicates IP addresses of primary nameservers for a secondary zone. Accepts IPv4 and IPv6 addresses</td>
+  </tr>
+  <tr>
+  <td>secondary_zone<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The ID or name of an existing Registry.</td>
+  <td>The ID or name of an existing Secondary Zone.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
@@ -320,7 +315,74 @@ This is a module that supports creating, updating or destroying Registries
   <tr>
   <td>state<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update']</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'transfer']</td>
+  </tr>
+  </tbody>
+</table>
+
+&nbsp;
+
+&nbsp;
+# state: **transfer**
+```yaml
+  - name: Delete Secondary zone
+    dns_zone:
+      secondary_zone: example.com
+      wait: true
+      state: transfer
+  
+```
+### Available parameters for state **transfer**:
+&nbsp;
+
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>secondary_zone<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of an existing Secondary Zone.</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>wait<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>Wait for the resource to be created before returning.<br />Default: True<br />Options: [True, False]</td>
+  </tr>
+  <tr>
+  <td>wait_timeout<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>How long before wait gives up, in seconds.<br />Default: 600</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present', 'absent', 'update', 'transfer']</td>
   </tr>
   </tbody>
 </table>

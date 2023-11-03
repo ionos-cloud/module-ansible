@@ -1,34 +1,39 @@
-# registry
+# dns_record
 
-This is a module that supports creating, updating or destroying Registries
+This is a module that supports creating, updating or destroying DNS Records
 
 ## Example Syntax
 
 
 ```yaml
-- name: Create Registry
-    registry:
-      name: test_registry
-      location: de/fra
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: registry_response
+- name: Create record
+    dns_record:
+      zone: example.com
+      name: record_name
+      type: MX
+      content: record_content
+      ttl: 3600
+      priority: 10
+      enabled: true
+    register: record_response
   
-- name: Update Registry
-    registry:
-      registry: test_registry
-      name: test_registry_update
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: updated_registry_response
+- name: Update record
+    dns_record:
+      zone: example.com
+      record: record_name2
+      name: record_name2
+      type: MX
+      content: record_content
+      ttl: 1800
+      priority: 9
+      enabled: true
+      state: update
+    register: updated_record_response
   
-- name: Delete Registry
-    registry:
-      registry: test_registry
+- name: Delete record
+    dns_record:
+      zone: example.com
+      record: record_name2
       wait: true
       state: absent
   
@@ -43,34 +48,25 @@ This is a module that supports creating, updating or destroying Registries
     "changed": true,
     "failed": false,
     "action": "create",
-    "registry": {
-        "href": "",
-        "id": "9bc72c7b-14d3-493e-a700-f9bc06b25614",
+    "record": {
+        "id": "c76bf816-c11a-5dfc-8ef3-badfbee48451",
+        "type": "record",
+        "href": "/zones/b4021310-5e39-50bb-95f6-448b21bf0142/records/c76bf816-c11a-5dfc-8ef3-badfbee48451",
         "metadata": {
-            "created_by": "<USER_EMAIL>",
-            "created_by_user_id": "<USER_ID>",
-            "created_date": "2023-05-29T13:51:25+00:00",
-            "last_modified_by": null,
-            "last_modified_by_user_id": null,
-            "last_modified_date": null,
-            "state": "New"
+            "last_modified_date": "2023-10-05T14:38:56+00:00",
+            "created_date": "2023-10-05T14:38:56+00:00",
+            "state": "AVAILABLE",
+            "fqdn": "<FQDN>",
+            "zone_id": "b4021310-5e39-50bb-95f6-448b21bf0142"
         },
         "properties": {
-            "garbage_collection_schedule": {
-                "days": [
-                    "Wednesday"
-                ],
-                "time": "04:17:00+00:00"
-            },
-            "hostname": "",
-            "location": "de/fra",
-            "name": "ansibletest123",
-            "storage_usage": {
-                "bytes": 0,
-                "updated_at": null
-            }
-        },
-        "type": "registry"
+            "name": "<RECORD_NAME>",
+            "type": "CNAME",
+            "content": "<CONTENT>",
+            "ttl": 3600,
+            "priority": 0,
+            "enabled": true
+        }
     }
 }
 
@@ -81,20 +77,20 @@ This is a module that supports creating, updating or destroying Registries
  **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
 ## Parameters that can trigger a resource replacement:
   * name 
-  * location 
 &nbsp;
 
 # state: **present**
 ```yaml
-  - name: Create Registry
-    registry:
-      name: test_registry
-      location: de/fra
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: registry_response
+  - name: Create record
+    dns_record:
+      zone: example.com
+      name: record_name
+      type: MX
+      content: record_content
+      ttl: 3600
+      priority: 10
+      enabled: true
+    register: record_response
   
 ```
 ### Available parameters for state **present**:
@@ -110,19 +106,39 @@ This is a module that supports creating, updating or destroying Registries
   </thead>
   <tbody>
   <tr>
-  <td>garbage_collection_schedule<br/><mark style="color:blue;">dict</mark></td>
-  <td align="center">False</td>
-  <td>Dict containing &quot;time&quot; (the time of the day when to perform the garbage_collection) and &quot;days&quot; (the days when to perform the garbage_collection).</td>
-  </tr>
-  <tr>
-  <td>location<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>The location of your registry</td>
-  </tr>
-  <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The name of your registry.</td>
+  <td>The Record name.</td>
+  </tr>
+  <tr>
+  <td>type<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>Holds supported DNS resource record types. In the DNS context a record is a DNS resource record.</td>
+  </tr>
+  <tr>
+  <td>content<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The conted of the Record.</td>
+  </tr>
+  <tr>
+  <td>ttl<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>Time to live for the record, recommended 3600.</td>
+  </tr>
+  <tr>
+  <td>priority<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>Priority value is between 0 and 65535. Priority is mandatory for MX, SRV and URI record types and ignored for all other types.</td>
+  </tr>
+  <tr>
+  <td>enabled<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>When true - the record is visible for lookup.</td>
+  </tr>
+  <tr>
+  <td>zone<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of an existing Zone.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
@@ -172,9 +188,10 @@ This is a module that supports creating, updating or destroying Registries
 &nbsp;
 # state: **absent**
 ```yaml
-  - name: Delete Registry
-    registry:
-      registry: test_registry
+  - name: Delete record
+    dns_record:
+      zone: example.com
+      record: record_name2
       wait: true
       state: absent
   
@@ -192,9 +209,14 @@ This is a module that supports creating, updating or destroying Registries
   </thead>
   <tbody>
   <tr>
-  <td>registry<br/><mark style="color:blue;">str</mark></td>
+  <td>record<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The ID or name of an existing Registry.</td>
+  <td>The ID or name of an existing Record.</td>
+  </tr>
+  <tr>
+  <td>zone<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of an existing Zone.</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -239,15 +261,18 @@ This is a module that supports creating, updating or destroying Registries
 &nbsp;
 # state: **update**
 ```yaml
-  - name: Update Registry
-    registry:
-      registry: test_registry
-      name: test_registry_update
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: updated_registry_response
+  - name: Update record
+    dns_record:
+      zone: example.com
+      record: record_name2
+      name: record_name2
+      type: MX
+      content: record_content
+      ttl: 1800
+      priority: 9
+      enabled: true
+      state: update
+    register: updated_record_response
   
 ```
 ### Available parameters for state **update**:
@@ -263,24 +288,44 @@ This is a module that supports creating, updating or destroying Registries
   </thead>
   <tbody>
   <tr>
-  <td>garbage_collection_schedule<br/><mark style="color:blue;">dict</mark></td>
-  <td align="center">False</td>
-  <td>Dict containing &quot;time&quot; (the time of the day when to perform the garbage_collection) and &quot;days&quot; (the days when to perform the garbage_collection).</td>
-  </tr>
-  <tr>
-  <td>location<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">False</td>
-  <td>The location of your registry</td>
-  </tr>
-  <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The name of your registry.</td>
+  <td>The Record name.</td>
   </tr>
   <tr>
-  <td>registry<br/><mark style="color:blue;">str</mark></td>
+  <td>type<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Holds supported DNS resource record types. In the DNS context a record is a DNS resource record.</td>
+  </tr>
+  <tr>
+  <td>content<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The conted of the Record.</td>
+  </tr>
+  <tr>
+  <td>ttl<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>Time to live for the record, recommended 3600.</td>
+  </tr>
+  <tr>
+  <td>priority<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>Priority value is between 0 and 65535. Priority is mandatory for MX, SRV and URI record types and ignored for all other types.</td>
+  </tr>
+  <tr>
+  <td>enabled<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>When true - the record is visible for lookup.</td>
+  </tr>
+  <tr>
+  <td>record<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The ID or name of an existing Registry.</td>
+  <td>The ID or name of an existing Record.</td>
+  </tr>
+  <tr>
+  <td>zone<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of an existing Zone.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
