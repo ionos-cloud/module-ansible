@@ -22,7 +22,7 @@ ANSIBLE_METADATA = {
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 DOC_DIRECTORY = 'applicationloadbalancer'
 STATES = ['info']
-OBJECT_NAME = 'Application Loadbalancer forwarding rules'
+OBJECT_NAME = 'Application Load Balancer Forwarding Rules'
 RETURNED_KEY = 'forwarding_rules'
 
 OPTIONS = {
