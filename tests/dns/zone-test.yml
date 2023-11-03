@@ -56,44 +56,6 @@
         - updated_zone_response.changed == false
       msg: "Changed should be false"
 
-  - name: Create Zone key
-    dns_key:
-      zone: "{{ zone_response.zone.properties.zone_name }}"
-      validity: 100
-      algorithm: RSASHA256
-      ksk_bits: 4096
-      zsk_bits: 2048
-      nsec_mode: NSEC
-      nsec3_iterations: 2
-      nsec3_salt_bits: 64
-      state: present
-    register: key_response
-
-  # - name: Print output to file
-  #   ansible.builtin.copy:
-  #     content: "{{key_response}}"
-  #     dest: ../../docs/returned_object_examples/dns_key.json
-
-  - name: Get Zone key
-    dns_key_info:
-      zone: "{{ zone_response.zone.properties.zone_name }}"
-    register: zone_keys_response
-
-  - name: Show Zone keys
-    debug:
-      var: zone_keys_response
-
-  # - name: Print output to file
-  #   ansible.builtin.copy:
-  #     content: "{{zone_keys_response}}"
-  #     dest: ../../docs/returned_object_examples/dns_key_info.json
-
-  - name: Delete Zone key
-    dns_key:
-      zone: "{{ zone_response.zone.properties.zone_name }}"
-      state: absent
-    register: key_response
-
   - name: Delete Zone
     dns_zone:
       zone: "{{ zone_response.zone.properties.zone_name }}"
