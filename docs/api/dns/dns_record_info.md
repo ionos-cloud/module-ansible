@@ -1,15 +1,25 @@
-# pcc_info
+# dns_record_info
 
-This is a simple module that supports listing Cross Connects.
+This is a simple module that supports listing DNS Records.
 
 ## Example Syntax
 
 
 ```yaml
 
-    - name: Get all PCCs
-      pcc_info:
-      register: pcc_list_response
+    - name: Get all DNS Records
+      dns_record_info:
+      register: dns_record_list_response
+
+    - name: Get all DNS Records in a Zone
+      dns_record_info:
+        zone: example.com
+      register: dns_record_list_response
+
+    - name: Get all DNS Records in a Secondary Zone
+      dns_record_info:
+        secondary_zone: example.com
+      register: dns_record_list_response
 
 ```
 
@@ -20,43 +30,26 @@ This is a simple module that supports listing Cross Connects.
 ```json
 {
     "changed": false,
-    "pccs": [
+    "records": [
         {
-            "href": "https://api.ionos.com/cloudapi/v6/pccs/d1052016-7097-40df-95d5-cda7671ae046",
-            "id": "d1052016-7097-40df-95d5-cda7671ae046",
+            "id": "c76bf816-c11a-5dfc-8ef3-badfbee48451",
+            "type": "record",
+            "href": "/zones/b4021310-5e39-50bb-95f6-448b21bf0142/records/c76bf816-c11a-5dfc-8ef3-badfbee48451",
             "metadata": {
-                "created_by": "<USER_EMAIL>",
-                "created_by_user_id": null,
-                "created_date": "2023-08-03T11:46:33+00:00",
-                "etag": "6119e91e1ad7a920bcc5c021fee61683",
-                "last_modified_by": "<USER_EMAIL>",
-                "last_modified_by_user_id": null,
-                "last_modified_date": "2023-08-03T11:46:33+00:00",
-                "state": "AVAILABLE"
+                "last_modified_date": "2023-10-05T14:38:56+00:00",
+                "created_date": "2023-10-05T14:38:56+00:00",
+                "state": "AVAILABLE",
+                "fqdn": "<FQDN>",
+                "zone_id": "b4021310-5e39-50bb-95f6-448b21bf0142"
             },
             "properties": {
-                "connectable_datacenters": [
-                    {
-                        "id": "1a48f14a-9964-49f8-8b4a-254c59a6857c",
-                        "location": "de/txl",
-                        "name": "AnsibleAutoTestCompute"
-                    },
-                    {
-                        "id": "328e0a22-a3de-4885-9aa3-ac4b8ca96d26",
-                        "location": "de/fra",
-                        "name": "AnsibleVMAutoscaling"
-                    },
-                    {
-                        "id": "64d0766b-0fd0-458e-9bc9-33c885f2d513",
-                        "location": "de/fra",
-                        "name": "SDK AUTO-TEST"
-                    }
-                ],
-                "description": "Ansible Compute test description",
-                "name": "AnsibleAutoTestCompute",
-                "peers": []
-            },
-            "type": "pcc"
+                "name": "<RECORD_NAME>",
+                "type": "CNAME",
+                "content": "<CONTENT>",
+                "ttl": 3600,
+                "priority": 0,
+                "enabled": true
+            }
         }
     ],
     "failed": false
@@ -79,6 +72,16 @@ This is a simple module that supports listing Cross Connects.
     </tr>
   </thead>
   <tbody>
+  <tr>
+  <td>zone<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The ID or name of an existing Zone. Will be prioritized if both this and secondary_zone are set.</td>
+  </tr>
+  <tr>
+  <td>secondary_zone<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The ID or name of an existing Secondary Zone.</td>
+  </tr>
   <tr>
   <td>filters<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>

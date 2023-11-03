@@ -18,7 +18,8 @@ This is a module that supports creating, updating or destroying Registries
   
 - name: Update Registry
     registry:
-      name: test_registry
+      registry: test_registry
+      name: test_registry_update
       garbage_collection_schedule:
         days: 
             - Wednesday
@@ -27,7 +28,7 @@ This is a module that supports creating, updating or destroying Registries
   
 - name: Delete Registry
     registry:
-      name: test_registry
+      registry: test_registry
       wait: true
       state: absent
   
@@ -173,7 +174,7 @@ This is a module that supports creating, updating or destroying Registries
 ```yaml
   - name: Delete Registry
     registry:
-      name: test_registry
+      registry: test_registry
       wait: true
       state: absent
   
@@ -240,7 +241,8 @@ This is a module that supports creating, updating or destroying Registries
 ```yaml
   - name: Update Registry
     registry:
-      name: test_registry
+      registry: test_registry
+      name: test_registry_update
       garbage_collection_schedule:
         days: 
             - Wednesday

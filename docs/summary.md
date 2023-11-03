@@ -130,3 +130,12 @@
     * [Certificate](api/certificate/certificate.md)
   * Info Modules
     * [Certificates](api/certificate/certificate_info.md)
+* Dns
+  * Modules
+    * [Zone](api/dns/dns_zone.md)
+    * [Record](api/dns/dns_record.md)
+    * [Secondary Zone](api/dns/dns_secondary_zone.md)
+  * Info Modules
+    * [DNS Zones](api/dns/dns_zone_info.md)
+    * [DNS Records](api/dns/dns_record_info.md)
+    * [DNS Secondary Zones](api/dns/dns_secondary_zone_info.md)

@@ -31,7 +31,7 @@ RETURNED_KEY = 'dataplatform_nodepool'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of your node pool. Must be 63 characters or less and must begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between.'],
+        'description': ['The name of your node pool. Must be 63 characters or less and must begin and end with an alphanumeric character (`[a-z0-9A-Z]`) with dashes (`-`), underscores (`_`), dots (`.`), and alphanumerics between.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
@@ -91,17 +91,17 @@ OPTIONS = {
         'type': 'int',
     },
     'maintenance_window': {
-        'description': ['Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format'],
+        'description': ['Starting time of a weekly 4-hour-long window, during which maintenance might occur in the `HH:MM:SS` format.'],
         'available': ['present', 'update'],
         'type': 'dict',
     },
     'labels': {
-        'description': ['Key-value pairs attached to the node pool resource as [Kubernetes labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)'],
+        'description': ['Key-value pairs attached to the node pool resource as [Kubernetes labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/).'],
         'available': ['present', 'update'],
         'type': 'dict',
     },
     'annotations': {
-        'description': ['Key-value pairs attached to node pool resource as [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/)'],
+        'description': ['Key-value pairs attached to node pool resource as [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/).'],
         'available': ['present','update'],
         'type': 'dict',
     },

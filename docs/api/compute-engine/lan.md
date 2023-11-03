@@ -107,9 +107,14 @@ This module allows you to create or remove a LAN.
   <td>The name of the  resource.</td>
   </tr>
   <tr>
+  <td>pcc<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The unique identifier of the Cross Connect the LAN is connected to, if any. It needs to be ensured that IP addresses of the NICs of all LANs connected to a given Cross Connect is not duplicated and belongs to the same subnet range.</td>
+  </tr>
+  <tr>
   <td>public<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>This LAN faces the public Internet.<br />Default: False</td>
+  <td>Indicates if the LAN is connected to the internet or not.<br />Default: False</td>
   </tr>
   <tr>
   <td>ipv6_cidr<br/><mark style="color:blue;">str</mark></td>
@@ -289,7 +294,7 @@ This module allows you to create or remove a LAN.
   <tr>
   <td>pcc<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The unique identifier of the private Cross-Connect the LAN is connected to, if any.</td>
+  <td>The unique identifier of the Cross Connect the LAN is connected to, if any. It needs to be ensured that IP addresses of the NICs of all LANs connected to a given Cross Connect is not duplicated and belongs to the same subnet range.</td>
   </tr>
   <tr>
   <td>ip_failover<br/><mark style="color:blue;">list</mark></td>
@@ -299,7 +304,7 @@ This module allows you to create or remove a LAN.
   <tr>
   <td>public<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>This LAN faces the public Internet.<br />Default: False</td>
+  <td>Indicates if the LAN is connected to the internet or not.<br />Default: False</td>
   </tr>
   <tr>
   <td>ipv6_cidr<br/><mark style="color:blue;">str</mark></td>
