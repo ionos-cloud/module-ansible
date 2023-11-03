@@ -55,13 +55,8 @@ OPTIONS = {
         'type': 'str',
     },
     'pcc': {
-        'description': ['The unique identifier of the private Cross-Connect the LAN is connected to, if any.'],
+        'description': ['The unique identifier of the Cross Connect the LAN is connected to, if any. It needs to be ensured that IP addresses of the NICs of all LANs connected to a given Cross Connect is not duplicated and belongs to the same subnet range.'],
         'available': ['present', 'update'],
-        'type': 'str',
-    },
-    'pcc': {
-        'description': ['The unique identifier of the private Cross-Connect the LAN is connected to, if any.'],
-        'available': ['update'],
         'type': 'str',
     },
     'ip_failover': {
@@ -71,7 +66,7 @@ OPTIONS = {
         'elements': 'dict',
     },
     'public': {
-        'description': ['This LAN faces the public Internet.'],
+        'description': ['Indicates if the LAN is connected to the internet or not.'],
         'available': ['present', 'update'],
         'default': False,
         'type': 'bool',

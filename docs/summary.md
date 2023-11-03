@@ -33,7 +33,7 @@
     * [Lan](api/compute-engine/lan.md)
     * [Nic](api/compute-engine/nic.md)
     * [Nic Flowlog](api/compute-engine/nic_flowlog.md)
-    * [Private cross connect](api/compute-engine/pcc.md)
+    * [Cross connect](api/compute-engine/pcc.md)
     * [Server](api/compute-engine/server.md)
     * [Cube Server](api/compute-engine/cube_server.md)
     * [Snapshot](api/compute-engine/snapshot.md)

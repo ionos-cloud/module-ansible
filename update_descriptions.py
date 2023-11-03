@@ -26,7 +26,7 @@ MONGODB_SWAGGER = {
     'filename': 'mongodb_swagger.yml',
 }
 DATAPLATFORM_SWAGGER = {
-    'url': 'https://ionos-cloud.github.io/rest-api/docs/public-dataplatform-v1.ea.yml',
+    'url': 'https://ionos-cloud.github.io/rest-api/docs/public-dataplatform-v1.ga.yml',
     'filename': 'dataplatform_swagger.yml',
 }
 CERTIFICATE_MANAGER_SWAGGER = {

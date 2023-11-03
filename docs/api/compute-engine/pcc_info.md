@@ -1,6 +1,6 @@
 # pcc_info
 
-This is a simple module that supports listing PCCs.
+This is a simple module that supports listing Cross Connects.
 
 ## Example Syntax
 

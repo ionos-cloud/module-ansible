@@ -92,9 +92,9 @@ def transform_for_documentation(val):
 DOCUMENTATION = '''
 ---
 module: nic_info
-short_description: List Ionos Cloud Private Cross Connects.
+short_description: List Ionos Cloud Cross Connects.
 description:
-     - This is a simple module that supports listing PCCs.
+     - This is a simple module that supports listing Cross Connects.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
