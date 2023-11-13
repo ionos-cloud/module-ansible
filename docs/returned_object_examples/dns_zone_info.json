@@ -1,0 +1,27 @@
+{
+    "changed": false,
+    "zones": [
+        {
+            "id": "36d63502-7110-57f3-8794-a24fe8959d18",
+            "type": "zone",
+            "href": "/zones/36d63502-7110-57f3-8794-a24fe8959d18",
+            "metadata": {
+                "last_modified_date": "2023-10-05T14:38:51+00:00",
+                "created_date": "2023-10-05T14:38:51+00:00",
+                "state": "AVAILABLE",
+                "nameservers": [
+                    "<NAMESERVER1>",
+                    "<NAMESERVER2>",
+                    "<NAMESERVER3>",
+                    "<NAMESERVER4>"
+                ]
+            },
+            "properties": {
+                "zone_name": "<ZONE_NAME>",
+                "description": "test_description",
+                "enabled": true
+            }
+        }
+    ],
+    "failed": false
+}

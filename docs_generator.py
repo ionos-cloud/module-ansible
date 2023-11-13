@@ -9,6 +9,16 @@ from pathlib import Path
 EXAMPLES_DIR = os.path.join('docs', 'returned_object_examples')
 TEMPLATES_DIR = os.path.join('docs', 'templates')
 
+DIRECTORY_TO_NAME = {
+    'applicationloadbalancer': 'Application Load Balancer',
+    'certificate': 'Certificate Manager',
+    'dbaas-postgres': 'DBaaS Postgres',
+    'dbaas-mongo': 'DBaaS Mongo',
+    'natgateway': 'NAT Gateway',
+    'networkloadbalancer': 'Network Load Balancer',
+    'dataplatform': 'Data Platform',
+}
+
 
 def generate_doc_file(module, module_name, states_parameters, template_file):
     with open(os.path.join(TEMPLATES_DIR, template_file), 'r') as template_file:
@@ -80,7 +90,7 @@ def generate_module_docs(module_name):
                 'example': module.EXAMPLE_PER_STATE.get(state),
             })
         target_filename = generate_doc_file(module, module_name, parameters_per_state, 'module.mustache')
-    return module.DOC_DIRECTORY, target_filename
+    return module.DOC_DIRECTORY, target_filename, module.OBJECT_NAME
 
 modules_to_generate = [
     'application_load_balancer_flowlog_info',
@@ -164,8 +174,49 @@ modules_to_generate = [
     'certificate_info',
     'pipeline',
     'pipeline_info',
+    'dns_zone',
+    'dns_zone_info',
+    'dns_record',
+    'dns_record_info',
+    'dns_secondary_zone',
+    'dns_secondary_zone_info',
 ]
 
-for module_name in modules_to_generate:
-    generate_module_docs(module_name)
+generated = {}
 
+for module_name in modules_to_generate:
+    docs_dir, file_name, object_name = generate_module_docs(module_name)
+
+    generated_module = {
+        'filename': file_name[5:],
+        'object_name': object_name,
+    }
+
+    directory_name = DIRECTORY_TO_NAME.get(docs_dir, docs_dir.replace('-', ' ').title())
+    if file_name.endswith('_info.md'):
+        if generated.get(directory_name):
+            generated[directory_name]['info_modules'].append(generated_module)
+        else:
+            generated[directory_name] = {
+                'directory_name': directory_name,
+                'info_modules': [generated_module],
+                'modules': [],
+        }
+    else:
+        if generated.get(directory_name):
+            generated[directory_name]['modules'].append(generated_module)
+        else:
+            generated[directory_name] = {
+                'directory_name': directory_name,
+                'info_modules': [],
+                'modules': [generated_module],
+        }
+
+with open(os.path.join('docs', 'summary.md'), 'w') as target_file:
+    with open(os.path.join(TEMPLATES_DIR, 'summary.mustache'), 'r') as template_file:
+        target_file.write(chevron.render(
+            template_file,
+            {
+                'generated': list(generated.values()),
+            },
+        ))

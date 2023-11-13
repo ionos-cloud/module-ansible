@@ -31,7 +31,7 @@ RETURNED_KEY = 'dataplatform_cluster'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of your cluster. Must be 63 characters or less and must begin and end with an alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots (.), and alphanumerics between.'],
+        'description': ['The name of your cluster. Must be 63 characters or less and must begin and end with an alphanumeric character (`[a-z0-9A-Z]`) with dashes (`-`), underscores (`_`), dots (`.`), and alphanumerics between.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -55,7 +55,7 @@ OPTIONS = {
         'type': 'str',
     },
     'maintenance_window': {
-        'description': ['Starting time of a weekly 4 hour-long window, during which maintenance might occur in hh:mm:ss format'],
+        'description': ['Starting time of a weekly 4-hour-long window, during which maintenance might occur in the `HH:MM:SS` format.'],
         'available': ['present', 'update'],
         'required': ['update'],
         'type': 'dict',

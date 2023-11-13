@@ -26,7 +26,7 @@ MONGODB_SWAGGER = {
     'filename': 'mongodb_swagger.yml',
 }
 DATAPLATFORM_SWAGGER = {
-    'url': 'https://ionos-cloud.github.io/rest-api/docs/public-dataplatform-v1.ea.yml',
+    'url': 'https://ionos-cloud.github.io/rest-api/docs/public-dataplatform-v1.ga.yml',
     'filename': 'dataplatform_swagger.yml',
 }
 CERTIFICATE_MANAGER_SWAGGER = {
@@ -36,6 +36,10 @@ CERTIFICATE_MANAGER_SWAGGER = {
 LOGGING_SWAGGER = {
     'url': 'https://ionos-cloud.github.io/rest-api/docs/public-logging-v1.ea.yml',
     'filename': 'logging_swagger.json',
+}
+DNS_SWAGGER = {
+    'url': 'https://ionos-cloud.github.io/rest-api/docs/public-dns-v1.ga.yml',
+    'filename': 'dns_swagger.json',
 }
 
 OPTIONS_TO_IGNORE = [
@@ -217,6 +221,7 @@ modules_to_generate = [
     ['dataplatform_nodepool', DATAPLATFORM_SWAGGER, '/clusters/{clusterId}/nodepools', 'post', {}],
     # ['certificate', CERTIFICATE_MANAGER_SWAGGER, '/certificatemanager/certificates', 'post', {}],
     ['pipeline', LOGGING_SWAGGER, '/pipelines', 'post', {}],
+    # ['dns_zone', DNS_SWAGGER, '/zones', 'post', {}],
 ]
 
 for module in modules_to_generate:

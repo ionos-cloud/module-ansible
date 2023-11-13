@@ -1,5 +1,12 @@
 # Changelog
 
+## 7.0.0
+### Features
+* Added DNS modules: dns_zone, dns_record, dns_secondary_zone and corresponding info modules
+* changed info modules to have the same format
+* generating summary to include all modules, and split in them in subcategories
+* Changed Private Cross Connect references in docs to Cross Connect
+
 ## 7.0.0-beta.1
 ### Features
 * Reworked all modules to be declarative, for more details https://github.com/ionos-cloud/module-ansible/blob/master/docs/usage/declarative_changes.md

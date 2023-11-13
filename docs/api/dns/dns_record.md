@@ -1,32 +1,40 @@
-# dataplatform_cluster
+# dns_record
 
-This is a simple module that supports creating or removing Data Platform Clusters. This module has a dependency on ionoscloud &gt;= 6.0.2
-
-⚠️ **Note:** Data Platform is currently in the Early Access (EA) phase. We recommend keeping usage and testing to non-production critical applications. Please contact your sales representative or support for more information.
+This is a module that supports creating, updating or destroying DNS Records
 
 ## Example Syntax
 
 
 ```yaml
-
-  - name: Create Data Platform cluster
-    dataplatform_cluster:
-      name: ClusterName
+- name: Create record
+    dns_record:
+      zone: example.com
+      name: record_name
+      type: MX
+      content: record_content
+      ttl: 3600
+      priority: 10
+      enabled: true
+    register: record_response
   
-
-  - name: Update Data Platform cluster
-    dataplatform_cluster:
-      cluster: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
-      maintenance_window:
-        day_of_the_week: 'Tuesday'
-        time: '13:03:00'
-      dataplatform_version: 1.17.8
+- name: Update record
+    dns_record:
+      zone: example.com
+      record: record_name2
+      name: record_name2
+      type: MX
+      content: record_content
+      ttl: 1800
+      priority: 9
+      enabled: true
       state: update
+    register: updated_record_response
   
-
-  - name: Delete Data Platform cluster
-    dataplatform_cluster:
-      cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
+- name: Delete record
+    dns_record:
+      zone: example.com
+      record: record_name2
+      wait: true
       state: absent
   
 ```
@@ -40,32 +48,24 @@ This is a simple module that supports creating or removing Data Platform Cluster
     "changed": true,
     "failed": false,
     "action": "create",
-    "dataplatform_cluster": {
-        "id": "fe6a5792-7473-4067-ba83-6d135582e623",
-        "type": "cluster",
-        "href": "https://api.ionos.com/dataplatform/clusters/fe6a5792-7473-4067-ba83-6d135582e623",
+    "record": {
+        "id": "c76bf816-c11a-5dfc-8ef3-badfbee48451",
+        "type": "record",
+        "href": "/zones/b4021310-5e39-50bb-95f6-448b21bf0142/records/c76bf816-c11a-5dfc-8ef3-badfbee48451",
         "metadata": {
-            "e_tag": null,
-            "created_date": "2023-05-29T13:55:51+00:00",
-            "created_by": "<USER_EMAIL>",
-            "created_by_user_id": "<USER_ID>",
-            "created_in_contract_number": "31909592",
-            "last_modified_date": "2023-05-29T13:55:51+00:00",
-            "last_modified_by": "<USER_EMAIL>",
-            "last_modified_by_user_id": "<USER_ID>",
-            "current_data_platform_version": "22.11",
-            "current_data_platform_revision": 1,
-            "available_upgrade_versions": [],
-            "state": "DEPLOYING"
+            "last_modified_date": "2023-10-05T14:38:56+00:00",
+            "created_date": "2023-10-05T14:38:56+00:00",
+            "state": "AVAILABLE",
+            "fqdn": "<FQDN>",
+            "zone_id": "b4021310-5e39-50bb-95f6-448b21bf0142"
         },
         "properties": {
-            "name": "AnsibleAutoTestDataPlatform3",
-            "data_platform_version": "22.11",
-            "datacenter_id": "f68205d8-8334-43b0-9f64-b06babcf5bd6",
-            "maintenance_window": {
-                "time": "12:02:00",
-                "day_of_the_week": "Wednesday"
-            }
+            "name": "<RECORD_NAME>",
+            "type": "CNAME",
+            "content": "<CONTENT>",
+            "ttl": 3600,
+            "priority": 0,
+            "enabled": true
         }
     }
 }
@@ -76,15 +76,21 @@ This is a simple module that supports creating or removing Data Platform Cluster
 
  **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
 ## Parameters that can trigger a resource replacement:
-  * datacenter 
+  * name 
 &nbsp;
 
 # state: **present**
 ```yaml
-  
-  - name: Create Data Platform cluster
-    dataplatform_cluster:
-      name: ClusterName
+  - name: Create record
+    dns_record:
+      zone: example.com
+      name: record_name
+      type: MX
+      content: record_content
+      ttl: 3600
+      priority: 10
+      enabled: true
+    register: record_response
   
 ```
 ### Available parameters for state **present**:
@@ -102,22 +108,37 @@ This is a simple module that supports creating or removing Data Platform Cluster
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The name of your cluster. Must be 63 characters or less and must begin and end with an alphanumeric character (`[a-z0-9A-Z]`) with dashes (`-`), underscores (`_`), dots (`.`), and alphanumerics between.</td>
+  <td>The Record name.</td>
   </tr>
   <tr>
-  <td>dataplatform_version<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">False</td>
-  <td>The version of the data platform.</td>
-  </tr>
-  <tr>
-  <td>datacenter<br/><mark style="color:blue;">str</mark></td>
+  <td>type<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The UUID of the virtual data center (VDC) the cluster is provisioned.</td>
+  <td>Holds supported DNS resource record types. In the DNS context a record is a DNS resource record.</td>
   </tr>
   <tr>
-  <td>maintenance_window<br/><mark style="color:blue;">dict</mark></td>
+  <td>content<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The conted of the Record.</td>
+  </tr>
+  <tr>
+  <td>ttl<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>Starting time of a weekly 4-hour-long window, during which maintenance might occur in the `HH:MM:SS` format.</td>
+  <td>Time to live for the record, recommended 3600.</td>
+  </tr>
+  <tr>
+  <td>priority<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>Priority value is between 0 and 65535. Priority is mandatory for MX, SRV and URI record types and ignored for all other types.</td>
+  </tr>
+  <tr>
+  <td>enabled<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>When true - the record is visible for lookup.</td>
+  </tr>
+  <tr>
+  <td>zone<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of an existing Zone.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
@@ -167,10 +188,11 @@ This is a simple module that supports creating or removing Data Platform Cluster
 &nbsp;
 # state: **absent**
 ```yaml
-  
-  - name: Delete Data Platform cluster
-    dataplatform_cluster:
-      cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
+  - name: Delete record
+    dns_record:
+      zone: example.com
+      record: record_name2
+      wait: true
       state: absent
   
 ```
@@ -187,9 +209,14 @@ This is a simple module that supports creating or removing Data Platform Cluster
   </thead>
   <tbody>
   <tr>
-  <td>cluster<br/><mark style="color:blue;">str</mark></td>
+  <td>record<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The ID or name of the Data Platform cluster.</td>
+  <td>The ID or name of an existing Record.</td>
+  </tr>
+  <tr>
+  <td>zone<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of an existing Zone.</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -234,15 +261,18 @@ This is a simple module that supports creating or removing Data Platform Cluster
 &nbsp;
 # state: **update**
 ```yaml
-  
-  - name: Update Data Platform cluster
-    dataplatform_cluster:
-      cluster: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
-      maintenance_window:
-        day_of_the_week: 'Tuesday'
-        time: '13:03:00'
-      dataplatform_version: 1.17.8
+  - name: Update record
+    dns_record:
+      zone: example.com
+      record: record_name2
+      name: record_name2
+      type: MX
+      content: record_content
+      ttl: 1800
+      priority: 9
+      enabled: true
       state: update
+    register: updated_record_response
   
 ```
 ### Available parameters for state **update**:
@@ -260,27 +290,42 @@ This is a simple module that supports creating or removing Data Platform Cluster
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The name of your cluster. Must be 63 characters or less and must begin and end with an alphanumeric character (`[a-z0-9A-Z]`) with dashes (`-`), underscores (`_`), dots (`.`), and alphanumerics between.</td>
+  <td>The Record name.</td>
   </tr>
   <tr>
-  <td>cluster<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>The ID or name of the Data Platform cluster.</td>
-  </tr>
-  <tr>
-  <td>dataplatform_version<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>The version of the data platform.</td>
-  </tr>
-  <tr>
-  <td>datacenter<br/><mark style="color:blue;">str</mark></td>
+  <td>type<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The UUID of the virtual data center (VDC) the cluster is provisioned.</td>
+  <td>Holds supported DNS resource record types. In the DNS context a record is a DNS resource record.</td>
   </tr>
   <tr>
-  <td>maintenance_window<br/><mark style="color:blue;">dict</mark></td>
+  <td>content<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The conted of the Record.</td>
+  </tr>
+  <tr>
+  <td>ttl<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>Time to live for the record, recommended 3600.</td>
+  </tr>
+  <tr>
+  <td>priority<br/><mark style="color:blue;">int</mark></td>
+  <td align="center">False</td>
+  <td>Priority value is between 0 and 65535. Priority is mandatory for MX, SRV and URI record types and ignored for all other types.</td>
+  </tr>
+  <tr>
+  <td>enabled<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>When true - the record is visible for lookup.</td>
+  </tr>
+  <tr>
+  <td>record<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>Starting time of a weekly 4-hour-long window, during which maintenance might occur in the `HH:MM:SS` format.</td>
+  <td>The ID or name of an existing Record.</td>
+  </tr>
+  <tr>
+  <td>zone<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The ID or name of an existing Zone.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>

@@ -181,12 +181,12 @@ This module allows you to create, update or remove a firewall rule.
   <tr>
   <td>port_range_start<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd value null to allow all ports.</td>
+  <td>Defines the start range of the allowed port (from 1 to 65535) if protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd value null to allow all ports.</td>
   </tr>
   <tr>
   <td>port_range_end<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd null to allow all ports.</td>
+  <td>Defines the end range of the allowed port (from 1 to 65535) if the protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd null to allow all ports.</td>
   </tr>
   <tr>
   <td>icmp_type<br/><mark style="color:blue;">int</mark></td>
@@ -418,12 +418,12 @@ This module allows you to create, update or remove a firewall rule.
   <tr>
   <td>port_range_start<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd value null to allow all ports.</td>
+  <td>Defines the start range of the allowed port (from 1 to 65535) if protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd value null to allow all ports.</td>
   </tr>
   <tr>
   <td>port_range_end<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd null to allow all ports.</td>
+  <td>Defines the end range of the allowed port (from 1 to 65535) if the protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd null to allow all ports.</td>
   </tr>
   <tr>
   <td>icmp_type<br/><mark style="color:blue;">int</mark></td>

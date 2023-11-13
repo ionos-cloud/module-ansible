@@ -126,12 +126,15 @@ jobs:
             keywords: "data_platform, dataplatform"
           - namespace: logging
             keywords: "pipeline"
+          - namespace: dns
+            keywords: "dns, dns_zone, dns_record"
 
     env:
       python-version: 3.8.15
       ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
       IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
       IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
+      IONOS_TOKEN: ${{ secrets.IONOS_TOKEN_V6 }}
 
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -154,6 +157,7 @@ jobs:
           python3 -m pip install pydantic
           python3 -m pip install ionoscloud
           python3 -m pip install ionoscloud-cert-manager
+          python3 -m pip install ionoscloud-dns
           python3 -m pip install ionoscloud-dbaas-postgres
           python3 -m pip install ionoscloud-dbaas-mongo
           python3 -m pip install ionoscloud-container-registry

@@ -33,7 +33,7 @@ ANSIBLE_METADATA = {
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update']
-OBJECT_NAME = 'Flowflog'
+OBJECT_NAME = 'Flowlog'
 RETURNED_KEY = 'flowlog'
 
 OPTIONS = {
