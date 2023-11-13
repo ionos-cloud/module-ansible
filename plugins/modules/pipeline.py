@@ -259,26 +259,26 @@ def get_logs_object(logs, object_type):
 
 def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
-    logs = get_logs_object(module.params.get('logs'), ionoscloud_logging.CreateRequestPipeline)
+    logs = get_logs_object(module.params.get('logs'), ionoscloud_logging.PipelineCreatePropertiesLogs)
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
         logs = existing_object.properties.logs if logs is None else logs
 
     pipelines_api = ionoscloud_logging.PipelinesApi(client)
 
-    pipeline_properties = ionoscloud_logging.CreateRequestProperties(
+    pipeline_properties = ionoscloud_logging.PipelineCreateProperties(
         name=name,
         logs=logs,
     )
 
-    pipeline = ionoscloud_logging.CreateRequest(properties=pipeline_properties)
+    pipeline = ionoscloud_logging.PipelineCreate(properties=pipeline_properties)
 
     try:
         pipeline = pipelines_api.pipelines_post(pipeline)
 
         if module.params.get('wait'):
             client.wait_for(
-                fn_request=lambda: pipelines_api.pipelines_find_by_id(pipeline.id).metadata.status,
+                fn_request=lambda: pipelines_api.pipelines_find_by_id(pipeline.id).metadata.state,
                 fn_check=lambda r: r == 'AVAILABLE',
                 scaleup=10000,
                 timeout=int(module.params.get('wait_timeout')),
@@ -291,24 +291,24 @@ def _create_object(module, client, existing_object=None):
 def _update_object(module, client, existing_object):
     wait_timeout = int(module.params.get('wait_timeout'))
     name = module.params.get('name')
-    logs = get_logs_object(module.params.get('logs'), ionoscloud_logging.PatchRequestPipeline)
+    logs = get_logs_object(module.params.get('logs'), ionoscloud_logging.PipelineCreatePropertiesLogs)
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
         logs = existing_object.properties.logs if logs is None else logs
 
     pipelines_api = ionoscloud_logging.PipelinesApi(client)
 
-    pipeline_properties = ionoscloud_logging.PatchRequestProperties(
+    pipeline_properties = ionoscloud_logging.PipelinePatchProperties(
         name=name,
         logs=logs,
     )
 
-    pipeline = ionoscloud_logging.PatchRequest(properties=pipeline_properties)
+    pipeline = ionoscloud_logging.PipelinePatch(properties=pipeline_properties)
 
 
     try:
         client.wait_for(
-            fn_request=lambda: pipelines_api.pipelines_find_by_id(existing_object.id).metadata.status,
+            fn_request=lambda: pipelines_api.pipelines_find_by_id(existing_object.id).metadata.state,
             fn_check=lambda r: r == 'AVAILABLE',
             scaleup=10000,
             timeout=wait_timeout,
@@ -316,7 +316,7 @@ def _update_object(module, client, existing_object):
         pipeline = pipelines_api.pipelines_patch(existing_object.id, pipeline)
         if module.params.get('wait'):
             client.wait_for(
-                fn_request=lambda: pipelines_api.pipelines_find_by_id(pipeline.id).metadata.status,
+                fn_request=lambda: pipelines_api.pipelines_find_by_id(pipeline.id).metadata.state,
                 fn_check=lambda r: r == 'AVAILABLE',
                 scaleup=10000,
                 timeout=wait_timeout,
@@ -433,12 +433,12 @@ def renew_object(module, client):
 
     try:
         client.wait_for(
-            fn_request=lambda: pipelines_api.pipelines_find_by_id(existing_object.id).metadata.status,
+            fn_request=lambda: pipelines_api.pipelines_find_by_id(existing_object.id).metadata.state,
             fn_check=lambda r: r == 'AVAILABLE',
             scaleup=10000,
             timeout=int(module.params.get('wait_timeout')),
         )
-        pipelines_api.pipeline_key(existing_object.id)
+        pipelines_api.pipelines_key_post(existing_object.id)
     except ionoscloud_logging.ApiException as e:
         module.fail_json(msg="failed to renew the Pipeline Key: %s" % to_native(e))
 

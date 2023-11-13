@@ -1,4 +1,4 @@
-pipeline_name: ansiblepipelinetest123
+pipeline_name: ansiblepipelinetest
 pipeline_logs: [
   {
     source: kubernetes,
@@ -13,14 +13,14 @@ pipeline_logs: [
   }
 ]
 
-pipeline_name_updated: ansiblepipelinetest123UPDATED
+pipeline_name_updated: ansiblepipeNEW
 pipeline_logs_updated: [
   {
     source: docker,
     tag: differenttag,
     protocol: tcp,
     labels: [
-      new_label
+      '1',
     ],
     destinations: [
       {
@@ -34,7 +34,7 @@ pipeline_logs_updated: [
     tag: updatedtag,
     protocol: http,
     labels: [
-      label
+      '2',
     ],
     destinations: [
       {
