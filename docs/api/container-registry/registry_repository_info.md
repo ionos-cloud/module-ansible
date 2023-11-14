@@ -19,6 +19,50 @@ This is a simple module that supports listing existing Repositories
 
 ```
 
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "href": "<base_url>/registries/0d6fd999-9bf9-462c-a148-951198ebca8f/repositories",
+    "id": "repositories",
+    "items": [
+        {
+            "href": "<base_url>/registries/0d6fd999-9bf9-462c-a148-951198ebca8f/repositories/image-test",
+            "id": "image-test",
+            "metadata": {
+                "artifact_count": 1,
+                "created_by": null,
+                "created_by_user_id": null,
+                "created_date": null,
+                "last_modified_by": null,
+                "last_modified_by_user_id": null,
+                "last_modified_date": null,
+                "last_pulled_at": null,
+                "last_pushed_at": "<datetime>",
+                "last_severity": "critical",
+                "pull_count": 0,
+                "push_count": 1,
+                "resource_urn": null
+            },
+            "properties": {
+                "name": "image-test"
+            },
+            "type": "repository"
+        }
+    ],
+    "limit": 100,
+    "links": {
+        "next": null,
+        "prev": null,
+        "var_self": "<base_url>/registries/0d6fd999-9bf9-462c-a148-951198ebca8f/repositories?limit=100&offset=100&orderBy=-lastPush"
+    },
+    "offset": 0,
+    "type": "collection"
+}
+
+```
 
 &nbsp;
 

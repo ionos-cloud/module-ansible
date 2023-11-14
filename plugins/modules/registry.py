@@ -293,7 +293,9 @@ def _create_object(module, client, existing_object=None):
         name=name,
         location=location,
         garbage_collection_schedule=gc_schedule,
-        vulnerability_scanning=vulnerability_scanning,
+        features=ionoscloud_container_registry.RegistryFeatures(
+            vulnerability_scanning=vulnerability_scanning,
+        ),
     )
 
     registry = ionoscloud_container_registry.PostRegistryInput(properties=registry_properties)
@@ -323,7 +325,9 @@ def _update_object(module, client, existing_object):
 
     registry_properties = ionoscloud_container_registry.PatchRegistryInput(
         garbage_collection_schedule=gc_schedule,
-        vulnerability_scanning=vulnerability_scanning,
+        features=ionoscloud_container_registry.RegistryFeatures(
+            vulnerability_scanning=vulnerability_scanning,
+        ),
     )
 
     try:

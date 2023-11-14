@@ -40,7 +40,7 @@
         - pull
         - push
         name: nume
-        type: repo
+        type: repository
       status: enabled
     register: registry_token_response
 
