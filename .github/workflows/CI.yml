@@ -125,6 +125,8 @@ jobs:
             keywords: "data_platform, dataplatform"
           - namespace: dns
             keywords: "dns, dns_zone, dns_record"
+          - namespace: vm-autoscaling
+            keywords: "autoscaling"
 
     env:
       python-version: 3.8.15
