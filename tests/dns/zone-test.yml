@@ -1,0 +1,63 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+
+  - name: Create Zone
+    dns_zone:
+      name: "{{zone_name}}"
+      description: "{{zone_description}}"
+      enabled: "{{zone_enabled}}"
+    register: zone_response
+
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{zone_response}}"
+  #     dest: ../../docs/returned_object_examples/dns_zone.json
+
+  - name: List Zones
+    dns_zone_info:
+    register: zones_response
+
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{zones_response}}"
+  #     dest: ../../docs/returned_object_examples/dns_zone_info.json
+
+  - name: Show Zones
+    debug:
+      var: zones_response.zones
+
+  - name: Update Zone
+    dns_zone:
+      zone: "{{ zone_response.zone.properties.zone_name }}"
+      description: "{{zone_description_updated}}"
+      enabled: "{{zone_enabled_updated}}"
+      allow_replace: False
+      state: update
+    register: updated_zone_response
+
+  - name: Update Zone no change
+    dns_zone:
+      zone: "{{ zone_response.zone.properties.zone_name }}"
+      description: "{{zone_description_updated}}"
+      enabled: "{{zone_enabled_updated}}"
+      allow_replace: False
+      state: update
+    register: updated_zone_response
+
+  - name: Asserting that changed == false when no update is made
+    assert:
+      that:
+        - updated_zone_response.changed == false
+      msg: "Changed should be false"
+
+  - name: Delete Zone
+    dns_zone:
+      zone: "{{ zone_response.zone.properties.zone_name }}"
+      wait: true
+      state: absent

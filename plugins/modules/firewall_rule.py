@@ -93,12 +93,12 @@ OPTIONS = {
         'type': 'str',
     },
     'port_range_start': {
-        'description': ['Defines the start range of the allowed port (from 1 to 65534) if protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd value null to allow all ports.'],
+        'description': ['Defines the start range of the allowed port (from 1 to 65535) if protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd value null to allow all ports.'],
         'available': ['present', 'update'],
         'type': 'int',
     },
     'port_range_end': {
-        'description': ['Defines the end range of the allowed port (from 1 to 65534) if the protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd null to allow all ports.'],
+        'description': ['Defines the end range of the allowed port (from 1 to 65535) if the protocol TCP or UDP is chosen. Leave portRangeStart and portRangeEnd null to allow all ports.'],
         'available': ['present', 'update'],
         'type': 'int',
     },

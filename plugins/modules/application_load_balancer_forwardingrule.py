@@ -42,7 +42,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 CERTIFICATE_MANAGER_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, certificate_manager_sdk_version)
 DOC_DIRECTORY = 'applicationloadbalancer'
 STATES = ['present', 'absent', 'update']
-OBJECT_NAME = 'Application Loadbalancer forwarding rule'
+OBJECT_NAME = 'Application Load Balancer Forwarding Rule'
 RETURNED_KEY = 'forwarding_rule'
 
 OPTIONS = {

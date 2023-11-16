@@ -7,10 +7,11 @@ from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 import re
+import uuid
 
 HAS_SDK = True
 try:
-    import ionoscloud_container_registry
+    import ionoscloud_dns
 except ImportError:
     HAS_SDK = False
 
@@ -20,39 +21,63 @@ ANSIBLE_METADATA = {
     'supported_by': 'community',
 }
 
-CONTAINER_REGISTRY_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-container-registry/%s'% (
-    __version__, ionoscloud_container_registry.__version__,
+DNS_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-dns/%s'% (
+    __version__, ionoscloud_dns.__version__,
 )
-DOC_DIRECTORY = 'container-registry'
+DOC_DIRECTORY = 'dns'
 STATES = ['present', 'absent', 'update']
-OBJECT_NAME = 'Registry'
-RETURNED_KEY = 'registry'
+OBJECT_NAME = 'Record'
+RETURNED_KEY = 'record'
+REPO_URL = "https://github.com/ionos-cloud/module-ansible"
 
 OPTIONS = {
-    'garbage_collection_schedule': {
-        'description': [
-            'Dict containing "time" (the time of the day when to perform the garbage_collection) '
-            'and "days" (the days when to perform the garbage_collection).',
+    'name': {
+        'description': ['The Record name.'],
+        'available': ['present', 'update'],
+        'required': ['present'],
+        'type': 'str',
+    },
+    'type': {
+        'description': ['Holds supported DNS resource record types. In the DNS context a record is a DNS resource record.'],
+        'options': [
+            'A', 'AAAA', 'CNAME', 'ALIAS', 'MX', 'NS', 'SRV', 'TXT', 'CAA', 'SSHFP', 'TLSA', 'SMIMEA',
+            'DS', 'HTTPS', 'SVCB', 'OPENPGPKEY', 'CERT', 'URI', 'RP', 'LOC'
         ],
         'available': ['present', 'update'],
-        'type': 'dict',
+        'required': ['present'],
+        'type': 'str',
     },
-    'location': {
-        'description': ['The location of your registry'],
+    'content': {
+        'description': ['The conted of the Record.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
-    'name': {
-        'description': ['The name of your registry.'],
+    'ttl': {
+        'description': ['Time to live for the record, recommended 3600.'],
         'available': ['present', 'update'],
-        'required': ['present'],
-        'type': 'str',
+        'type': 'int',
     },
-    'registry': {
-        'description': ['The ID or name of an existing Registry.'],
+    'priority': {
+        'description': ['Priority value is between 0 and 65535. Priority is mandatory for MX, SRV and URI record types and ignored for all other types.'],
+        'available': ['present', 'update'],
+        'type': 'int',
+    },
+    'enabled': {
+        'description': ['When true - the record is visible for lookup.'],
+        'available': ['present', 'update'],
+        'type': 'bool',
+    },
+    'record': {
+        'description': ['The ID or name of an existing Record.'],
         'available': ['update', 'absent'],
         'required': ['update', 'absent'],
+        'type': 'str',
+    },
+    'zone': {
+        'description': ['The ID or name of an existing Zone.'],
+        'available': STATES,
+        'required': STATES,
         'type': 'str',
     },
     'allow_replace': {
@@ -119,10 +144,11 @@ OPTIONS = {
     },
 }
 
+
 IMMUTABLE_OPTIONS = [
     { "name": "name", "note": "" },
-    { "name": "location", "note": "" },
 ]
+
 
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES)
@@ -133,10 +159,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: registry
-short_description: Allows operations with Ionos Cloud Registries.
+module: dns_record
+short_description: Allows operations with Ionos Cloud DNS Records.
 description:
-     - This is a module that supports creating, updating or destroying Registries
+     - This is a module that supports creating, updating or destroying DNS Records
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -145,35 +171,40 @@ options:
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
-    - "ionoscloud-container-registry >= 1.0.0"
+    - "ionoscloud-dns >= 1.0.0"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
 
 EXAMPLE_PER_STATE = {
-    'present': '''- name: Create Registry
-    registry:
-      name: test_registry
-      location: de/fra
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: registry_response
+    'present': '''- name: Create record
+    dns_record:
+      zone: example.com
+      name: record_name
+      type: MX
+      content: record_content
+      ttl: 3600
+      priority: 10
+      enabled: true
+    register: record_response
   ''',
-    'update': '''- name: Update Registry
-    registry:
-      registry: test_registry
-      name: test_registry_update
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: updated_registry_response
+    'update': '''- name: Update record
+    dns_record:
+      zone: example.com
+      record: record_name2
+      name: record_name2
+      type: MX
+      content: record_content
+      ttl: 1800
+      priority: 9
+      enabled: true
+      state: update
+    register: updated_record_response
   ''',
-    'absent': '''- name: Delete Registry
-    registry:
-      registry: test_registry
+    'absent': '''- name: Delete record
+    dns_record:
+      zone: example.com
+      record: record_name2
       wait: true
       state: absent
   ''',
@@ -223,28 +254,35 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
 
 def _should_replace_object(module, existing_object):
     return (
-        module.params.get('location') is not None
-        and existing_object.properties.location != module.params.get('location')
-        or module.params.get('name') is not None
+        module.params.get('name') is not None
         and existing_object.properties.name != module.params.get('name')
     )
 
 
 def _should_update_object(module, existing_object):
-    gc_schedule = module.params.get('garbage_collection_schedule')
     return (
-        gc_schedule is not None
-        and (
-            gc_schedule.get('days') is not None
-            and sorted(existing_object.properties.garbage_collection_schedule.days) != sorted(gc_schedule.get('days'))
-            or gc_schedule.get('time') is not None
-            and existing_object.properties.garbage_collection_schedule.time != gc_schedule.get('time')
-        )
+        module.params.get('type') is not None
+        and existing_object.properties.type != module.params.get('type')
+        or module.params.get('content') is not None
+        and existing_object.properties.content != module.params.get('content')
+        or module.params.get('ttl') is not None
+        and existing_object.properties.ttl != module.params.get('ttl')
+        or module.params.get('priority') is not None
+        and module.params.get('type', existing_object.properties.type) in ['MX', 'SRV', 'URI']
+        and existing_object.properties.priority != module.params.get('priority')
+        or module.params.get('enabled') is not None
+        and existing_object.properties.enabled != module.params.get('enabled')
     )
 
 
 def _get_object_list(module, client):
-    return ionoscloud_container_registry.RegistriesApi(client).registries_get()
+    zone_id = get_resource_id(
+        module, ionoscloud_dns.ZonesApi(client).zones_get(),
+        module.params.get('zone'),
+        identity_paths=[['id'], ['properties', 'zone_name']],
+    )
+
+    return ionoscloud_dns.RecordsApi(client).zones_records_get(zone_id)
 
 
 def _get_object_name(module):
@@ -252,84 +290,94 @@ def _get_object_name(module):
 
 
 def _get_object_identifier(module):
-    return module.params.get('registry')
+    return module.params.get('record')
 
 
 def _create_object(module, client, existing_object=None):
-    gc_schedule = module.params.get('garbage_collection_schedule')
-    if gc_schedule:
-        gc_schedule = ionoscloud_container_registry.WeeklySchedule(
-            days=gc_schedule.get('days'),
-            time=gc_schedule.get('time'),
-        )
     name = module.params.get('name')
-    location = module.params.get('location')
+    record_type = module.params.get('type')
+    content = module.params.get('content')
+    ttl = module.params.get('ttl')
+    priority = module.params.get('priority')
+    enabled = module.params.get('enabled')
+
     if existing_object is not None:
         name = existing_object.properties.name if name is None else name
-        location = existing_object.properties.location if location is None else location
-        gc_schedule = existing_object.properties.garbage_collection_schedule if gc_schedule is None else gc_schedule
+        record_type = existing_object.properties.type if record_type is None else record_type
+        content = existing_object.properties.content if content is None else content
+        ttl = existing_object.properties.ttl if ttl is None else ttl
+        priority = existing_object.properties.priority if priority is None else priority
+        enabled = existing_object.properties.enabled if enabled is None else enabled
 
-    registries_api = ionoscloud_container_registry.RegistriesApi(client)
-
-    registry_properties = ionoscloud_container_registry.PostRegistryProperties(
-        name=name,
-        location=location,
-        garbage_collection_schedule=gc_schedule,
+    zone_id = get_resource_id(
+        module, ionoscloud_dns.ZonesApi(client).zones_get(),
+        module.params.get('zone'),
+        identity_paths=[['id'], ['properties', 'zone_name']],
+    )
+    record = ionoscloud_dns.RecordEnsure(
+        properties=ionoscloud_dns.Record(
+            name=name, type=record_type,content=content,
+            ttl=ttl, priority=priority, enabled=enabled,
+        ),
     )
 
-    registry = ionoscloud_container_registry.PostRegistryInput(properties=registry_properties)
-
     try:
-        registry = registries_api.registries_post(registry)
-    except ionoscloud_container_registry.ApiException as e:
-        module.fail_json(msg="failed to create the new Registry: %s" % to_native(e))
-    return registry
+        record = ionoscloud_dns.RecordsApi(client).zones_records_put(
+            zone_id, str(uuid.uuid5(uuid.uuid5(uuid.NAMESPACE_URL, REPO_URL), str(uuid.uuid4()))), record,
+        )
+    except ionoscloud_dns.ApiException as e:
+        module.fail_json(msg="failed to create the new DNS Record: %s" % to_native(e))
+    return record
 
 
 def _update_object(module, client, existing_object):
-    gc_schedule = module.params.get('garbage_collection_schedule')
-    if gc_schedule:
-        gc_schedule = ionoscloud_container_registry.WeeklySchedule(
-            days=gc_schedule.get('days'),
-            time=gc_schedule.get('time'),
-        )
+    name = module.params.get('name')
+    record_type = module.params.get('type')
+    content = module.params.get('content')
+    ttl = module.params.get('ttl')
+    priority = module.params.get('priority')
+    enabled = module.params.get('enabled')
 
-    registries_api = ionoscloud_container_registry.RegistriesApi(client)
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        record_type = existing_object.properties.type if record_type is None else record_type
+        content = existing_object.properties.content if content is None else content
+        ttl = existing_object.properties.ttl if ttl is None else ttl
+        priority = existing_object.properties.priority if priority is None else priority
+        enabled = existing_object.properties.enabled if enabled is None else enabled
 
-    registry_properties = ionoscloud_container_registry.PatchRegistryInput(
-        garbage_collection_schedule=gc_schedule,
+    zone_id = get_resource_id(
+        module, ionoscloud_dns.ZonesApi(client).zones_get(),
+        module.params.get('zone'),
+        identity_paths=[['id'], ['properties', 'zone_name']],
+    )
+    record = ionoscloud_dns.RecordEnsure(
+        properties=ionoscloud_dns.Record(
+            name=name, type=record_type,content=content,
+            ttl=ttl, priority=priority, enabled=enabled,
+        ),
     )
 
     try:
-        registry = registries_api.registries_patch(
-            registry_id=existing_object.id,
-            patch_registry_input=registry_properties,
+        record = ionoscloud_dns.RecordsApi(client).zones_records_put(
+            zone_id=zone_id, record_id=existing_object.id, record_ensure=record,
         )
 
-        return registry
-    except ionoscloud_container_registry.ApiException as e:
-        module.fail_json(msg="failed to update the Registry: %s" % to_native(e))
+        return record
+    except ionoscloud_dns.ApiException as e:
+        module.fail_json(msg="failed to update the DNS Record: %s" % to_native(e))
 
 
 def _remove_object(module, client, existing_object):
-    registries_api = ionoscloud_container_registry.RegistriesApi(client)
-    names_api = ionoscloud_container_registry.NamesApi(client)
-
+    zone_id = get_resource_id(
+        module, ionoscloud_dns.ZonesApi(client).zones_get(),
+        module.params.get('zone'),
+        identity_paths=[['id'], ['properties', 'zone_name']],
+    )
     try:
-        registries_api.registries_delete(existing_object.id)
-
-        if module.params.get('wait'):
-            try:
-                client.wait_for(
-                    fn_request=lambda: names_api.names_check_usage(existing_object.properties.name),
-                    fn_check=lambda _: False,
-                    scaleup=10000,
-                )
-            except ionoscloud_container_registry.ApiException as e:
-                if e.status != 404:
-                    raise e
-    except ionoscloud_container_registry.ApiException as e:
-        module.fail_json(msg="failed to remove the Registry: %s" % to_native(e))
+        ionoscloud_dns.RecordsApi(client).zones_records_delete(zone_id, existing_object.id)
+    except ionoscloud_dns.ApiException as e:
+        module.fail_json(msg="failed to remove the DNS Record: %s" % to_native(e))
 
 
 def update_replace_object(module, client, existing_object):
@@ -365,8 +413,9 @@ def update_replace_object(module, client, existing_object):
 
 
 def create_object(module, client):
-    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
-
+    existing_object = get_resource(
+        module, _get_object_list(module, client), _get_object_name(module),
+    )
     if existing_object:
         return update_replace_object(module, client, existing_object)
 
@@ -382,7 +431,9 @@ def update_object(module, client):
     object_name = _get_object_name(module)
     object_list = _get_object_list(module, client)
 
-    existing_object = get_resource(module, object_list, _get_object_identifier(module))
+    existing_object = get_resource(
+        module, object_list, _get_object_identifier(module),
+    )
 
     if existing_object is None:
         module.exit_json(changed=False)
@@ -405,7 +456,10 @@ def update_object(module, client):
 
 
 def remove_object(module, client):
-    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+    existing_object = get_resource(
+        module, _get_object_list(module, client),
+        _get_object_identifier(module),
+    )
 
     if existing_object is None:
         module.exit_json(changed=False)
@@ -491,12 +545,12 @@ def main():
     module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
     if not HAS_SDK:
-        module.fail_json(msg='ionoscloud_container_registry is required for this module, '
-                             'run `pip install ionoscloud_container_registry`')
+        module.fail_json(msg='ionoscloud_dns is required for this module, '
+                             'run `pip install ionoscloud_dns`')
 
 
-    client = ionoscloud_container_registry.ApiClient(get_sdk_config(module, ionoscloud_container_registry))
-    client.user_agent = CONTAINER_REGISTRY_USER_AGENT
+    client = ionoscloud_dns.ApiClient(get_sdk_config(module, ionoscloud_dns))
+    client.user_agent = DNS_USER_AGENT
 
     state = module.params.get('state')
 

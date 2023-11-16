@@ -128,7 +128,7 @@ This module allows you to create, update or remove a group.
   <tr>
   <td>create_pcc<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Create pcc privilege.</td>
+  <td>User privilege to create a cross connect.</td>
   </tr>
   <tr>
   <td>s3_privilege<br/><mark style="color:blue;">bool</mark></td>
@@ -360,7 +360,7 @@ This module allows you to create, update or remove a group.
   <tr>
   <td>create_pcc<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Create pcc privilege.</td>
+  <td>User privilege to create a cross connect.</td>
   </tr>
   <tr>
   <td>s3_privilege<br/><mark style="color:blue;">bool</mark></td>

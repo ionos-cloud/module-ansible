@@ -4,9 +4,9 @@ import yaml
 
 HAS_SDK = True
 try:
-    import ionoscloud
-    from ionoscloud import __version__ as sdk_version
-    from ionoscloud import ApiClient
+    import ionoscloud_dns
+    from ionoscloud_dns import __version__ as sdk_version
+    from ionoscloud_dns import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -19,11 +19,11 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
-DOC_DIRECTORY = 'compute-engine'
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-dns/%s' % (__version__, sdk_version)
+DOC_DIRECTORY = 'dns'
 STATES = ['info']
-OBJECT_NAME = 'Datacenters'
-RETURNED_KEY = 'datacenters'
+OBJECT_NAME = 'DNS Secondary Zones'
+RETURNED_KEY = 'zones'
 
 OPTIONS = {
     'filters': {
@@ -91,10 +91,10 @@ def transform_for_documentation(val):
 
 DOCUMENTATION = '''
 ---
-module: datacenter_info
-short_description: List Ionos Cloud Datacenters.
+module: dns_secondary_zone_info
+short_description: List Ionos Cloud DNS Secondary Zones.
 description:
-     - This is a simple module that supports listing Datacenter.
+     - This is a simple module that supports listing DNS Secondary Zones.
 version_added: "2.0"
 options:
 ''' + '  ' + yaml.dump(
@@ -108,9 +108,9 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: Get all Datacenter
-      datacenter_info:
-      register: datacenter_list_response
+    - name: Get all DNS Secondary Zones
+      dns_zone_info:
+      register: dns_zone_list_response
 '''
 
 uuid_match = re.compile(
@@ -212,9 +212,9 @@ def apply_filters(module, item_list):
 
 
 def get_objects(module, client):
-    datacenters = ionoscloud.DataCentersApi(client).datacenters_get(depth=module.params.get('depth'))
+    dns_zones = ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_get()
     try:
-        results = list(map(lambda x: x.to_dict(), apply_filters(module, datacenters.items)))
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, dns_zones.items)))
         return {
             'changed': False,
             RETURNED_KEY: results
@@ -301,10 +301,10 @@ def main():
     module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
 
     if not HAS_SDK:
-        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+        module.fail_json(msg='ionoscloud_dns is required for this module, run `pip install ionoscloud_dns`')
 
     state = module.params.get('state')
-    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
+    with ApiClient(get_sdk_config(module, ionoscloud_dns)) as api_client:
         api_client.user_agent = USER_AGENT
         check_required_arguments(module, OBJECT_NAME)
 
