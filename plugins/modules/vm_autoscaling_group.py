@@ -470,12 +470,11 @@ def get_volume_object(volume_dict):
 
 
 def _should_replace_object(module, existing_object, vm_autoscaling_client, cloudapi_client):
-    datacenter_id = None
     if module.params.get('datacenter'):
         datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
         datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
         if datacenter_id is None:
-            module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))
+            module.fail_json('Datacenter {} not found.'.format(module.params.get('datacenter')))
         
 
     return (
