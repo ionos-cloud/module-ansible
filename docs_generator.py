@@ -172,12 +172,16 @@ modules_to_generate = [
     'dataplatform_nodepool_info',
     'certificate',
     'certificate_info',
+    'vm_autoscaling_group',
+    'vm_autoscaling_group_info',
+    'vm_autoscaling_action_info',
+    'vm_autoscaling_server_info',
     'dns_zone',
     'dns_zone_info',
     'dns_record',
     'dns_record_info',
     'dns_secondary_zone',
-    'dns_secondary_zone_info'
+    'dns_secondary_zone_info',
 ]
 
 generated = {}

@@ -1,0 +1,21 @@
+{
+    "result": [
+        {
+            "id": "4293fe77-1fc5-42e9-aff4-2ed8341c1b0e",
+            "type": "autoscaling-action",
+            "href": "https://api.ionos.com/autoscaling/groups/cd7407bc-54ff-4dcb-bf0e-6c2f7fa45c66/actions/4293fe77-1fc5-42e9-aff4-2ed8341c1b0e",
+            "metadata": {
+                "created_date": "2023-10-30T13:53:50.864025+00:00",
+                "etag": "gwd8DcnJt7zZJhhm+3Q3yDZ2u/kRCsheLOxHXYOTVbc=",
+                "last_modified_date": "2023-10-30T13:54:57.443808+00:00",
+                "state": "AVAILABLE"
+            },
+            "properties": {
+                "action_status": "SUCCESSFUL",
+                "action_type": "SCALE_OUT"
+            }
+        }
+    ],
+    "failed": false,
+    "changed": false
+}
