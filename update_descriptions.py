@@ -34,7 +34,7 @@ CERTIFICATE_MANAGER_SWAGGER = {
     'filename': 'certificatemanager_swagger.json',
 }
 LOGGING_SWAGGER = {
-    'url': 'https://ionos-cloud.github.io/rest-api/docs/public-logging-v1.ea.yml',
+    'url': 'https://ionos-cloud.github.io/rest-api/docs/public-logging-v1.ga.yml',
     'filename': 'logging_swagger.json',
 }
 DNS_SWAGGER = {
