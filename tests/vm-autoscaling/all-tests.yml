@@ -1,0 +1,6 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+- name: Run VM Autoscaling group Test
+  import_playbook: vm-autoscaling-group-test.yml

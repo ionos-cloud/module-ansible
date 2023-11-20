@@ -135,6 +135,13 @@
     * [Pipeline](api/logging/pipeline.md)
   * Info Modules
     * [Pipelines](api/logging/pipeline_info.md)
+* Vm Autoscaling
+  * Modules
+    * [VM Autoscaling Group](api/vm-autoscaling/vm_autoscaling_group.md)
+  * Info Modules
+    * [VM Autoscaling Groups](api/vm-autoscaling/vm_autoscaling_group_info.md)
+    * [VM Autoscaling Group Actions](api/vm-autoscaling/vm_autoscaling_action_info.md)
+    * [VM Autoscaling Group Servers](api/vm-autoscaling/vm_autoscaling_server_info.md)
 * Dns
   * Modules
     * [Zone](api/dns/dns_zone.md)
