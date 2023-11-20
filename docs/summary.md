@@ -130,6 +130,11 @@
     * [Certificate](api/certificate/certificate.md)
   * Info Modules
     * [Certificates](api/certificate/certificate_info.md)
+* Logging
+  * Modules
+    * [Pipeline](api/logging/pipeline.md)
+  * Info Modules
+    * [Pipelines](api/logging/pipeline_info.md)
 * Vm Autoscaling
   * Modules
     * [VM Autoscaling Group](api/vm-autoscaling/vm_autoscaling_group.md)

@@ -172,6 +172,8 @@ modules_to_generate = [
     'dataplatform_nodepool_info',
     'certificate',
     'certificate_info',
+    'pipeline',
+    'pipeline_info',
     'vm_autoscaling_group',
     'vm_autoscaling_group_info',
     'vm_autoscaling_action_info',
