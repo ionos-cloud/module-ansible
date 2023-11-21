@@ -156,6 +156,11 @@ This module allows you to create, update or remove a NIC.
   <td>The server name or UUID.</td>
   </tr>
   <tr>
+  <td>lan<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The LAN ID the NIC will be on. If the LAN ID does not exist, it will be implicitly created.</td>
+  </tr>
+  <tr>
   <td>dhcp<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
   <td>Indicates if the NIC will reserve an IP using DHCP.</td>

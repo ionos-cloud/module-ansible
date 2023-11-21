@@ -66,7 +66,7 @@ OPTIONS = {
     'lan': {
         'description': ['The LAN ID the NIC will be on. If the LAN ID does not exist, it will be implicitly created.'],
         'required': ['present'],
-        'available': ['update'],
+        'available': ['present', 'update'],
         'type': 'str',
     },
     'dhcp': {
