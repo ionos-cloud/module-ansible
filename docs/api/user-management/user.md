@@ -19,9 +19,10 @@ This module allows you to create, update or remove a user.
 # Update a user
   - name: Update user
     user:
+      user: <email>
       firstname: John II
       lastname: Doe
-      email: <email>
+      email: <new_email>
       administrator: false
       force_sec_auth: false
       groups:
@@ -268,9 +269,10 @@ This module allows you to create, update or remove a user.
   # Update a user
   - name: Update user
     user:
+      user: <email>
       firstname: John II
       lastname: Doe
-      email: <email>
+      email: <new_email>
       administrator: false
       force_sec_auth: false
       groups:

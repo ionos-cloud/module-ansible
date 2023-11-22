@@ -18,7 +18,7 @@ This module allows you to create or remove a LAN.
 - name: Update LAN
   lan:
     datacenter: Virtual Datacenter
-    name: nameoflan
+    lan: nameoflan
     public: true
     ip_failover:
           208.94.38.167: 1de3e6ae-da16-4dc7-845c-092e8a19fded
@@ -29,7 +29,7 @@ This module allows you to create or remove a LAN.
 - name: Remove LAN
   lan:
     datacenter: Virtual Datacenter
-    name: nameoflan
+    lan: nameoflan
     state: absent
   
 ```
@@ -178,7 +178,7 @@ This module allows you to create or remove a LAN.
 - name: Remove LAN
   lan:
     datacenter: Virtual Datacenter
-    name: nameoflan
+    lan: nameoflan
     state: absent
   
 ```
@@ -256,7 +256,7 @@ This module allows you to create or remove a LAN.
 - name: Update LAN
   lan:
     datacenter: Virtual Datacenter
-    name: nameoflan
+    lan: nameoflan
     public: true
     ip_failover:
           208.94.38.167: 1de3e6ae-da16-4dc7-845c-092e8a19fded

@@ -198,9 +198,10 @@ EXAMPLE_PER_STATE = {
     'update': '''# Update a user
   - name: Update user
     user:
+      user: <email>
       firstname: John II
       lastname: Doe
-      email: <email>
+      email: <new_email>
       administrator: false
       force_sec_auth: false
       groups:
