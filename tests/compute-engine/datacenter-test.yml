@@ -27,6 +27,10 @@
           - datacenter_response.datacenter.properties.location == location
         success_msg: "Datacenter created successfully"
 
+    - name: List Datacenters
+      ionoscloudsdk.ionoscloud.datacenter_info:
+      register: datacenter_list_response
+
     - name: Update datacenter 1
       ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"

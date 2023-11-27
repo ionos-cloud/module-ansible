@@ -22,8 +22,11 @@ from ansible import __version__
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.shared import CommonIonosModule
-
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
+    get_module_arguments, get_sdk_config, check_required_arguments,
+)
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
 __metaclass__ = type
 
@@ -38,7 +41,7 @@ STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Datacenter'
 RETURNED_KEY = 'datacenter'
 
-OPTIONS = {
+OPTIONS = { **get_default_options(STATES), **{
     'name': {
         'description': ['The name of the  resource.'],
         'required': ['present'],
@@ -131,7 +134,7 @@ OPTIONS = {
         'available': STATES,
         'type': 'str',
     },
-}
+}}
 
 IMMUTABLE_OPTIONS = [
     { "name": "location", "note": "" },
@@ -191,10 +194,7 @@ EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 class DatacenterModule(CommonIonosModule):
     def __init__(self) -> None:
         super().__init__()
-        self.options = OPTIONS
-        self.states = STATES
-        self.module = AnsibleModule(argument_spec=self.get_module_arguments())
-        self.sdk = ionoscloud
+        self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES))
         self.returned_key = RETURNED_KEY
         self.object_name = OBJECT_NAME
 
@@ -302,9 +302,9 @@ def main():
     if not HAS_SDK:
         module_model.module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
     state = module_model.module.params.get('state')
-    with ApiClient(module_model.get_sdk_config()) as api_client:
+    with ApiClient(get_sdk_config(module_model.module, ionoscloud)) as api_client:
         api_client.user_agent = USER_AGENT
-        module_model.check_required_arguments(state)
+        check_required_arguments(module_model.module, state, OPTIONS)
 
         try:
             if state == 'absent':
