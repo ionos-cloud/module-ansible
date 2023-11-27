@@ -7,7 +7,7 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: "{{ location }}"
@@ -28,7 +28,7 @@
         success_msg: "Datacenter created successfully"
 
     - name: Update datacenter 1
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }} CHANGED"
         location: "{{ location }}"
@@ -45,7 +45,7 @@
         success_msg: "Datacenter updated successfully"
 
     - name: Update datacenter no change 1
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }} CHANGED"
         location: "{{ location }}"
@@ -62,7 +62,7 @@
           - datacenter_response_no_change1.changed == false
 
     - name: Update datacenter no change 1
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter }}"
         name: "{{ datacenter }}"
         description: "{{ description }} CHANGED"
@@ -80,7 +80,7 @@
           - datacenter_response_no_change2.changed == false
 
     - name: Replace datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         location: "{{ new_location }}"
         allow_replace: True
@@ -96,7 +96,7 @@
         success_msg: "Datacenter replaced successfully"
 
     - name: Update datacenter 2
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ replaced_datacenter1.datacenter.properties.name }}"
         name: "{{ datacenter }} RENAMED"
         description: "{{ description }} - RENAMED"
@@ -113,7 +113,7 @@
         success_msg: "Datacenter replaced successfully"
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ updated_datacenter.datacenter.id }}"
         name: "{{ datacenter }}"
         state: absent
@@ -121,7 +121,7 @@
       register: deleted_datacenter
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ updated_datacenter.datacenter.id }}"
         name: "{{ datacenter }}"
         state: absent

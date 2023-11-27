@@ -22,7 +22,8 @@ from ansible import __version__
 from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 
-from ansible.module_utils.shared import get_resource, get_resource_id, CommonIonosModule
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.shared import CommonIonosModule
+
 
 __metaclass__ = type
 
