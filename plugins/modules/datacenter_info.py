@@ -33,7 +33,7 @@ STATES = ['info']
 OBJECT_NAME = 'Datacenters'
 RETURNED_KEY = 'datacenters'
 
-OPTIONS = {**get_default_options(STATES), **get_info_default_options(STATES)}
+OPTIONS = {**get_info_default_options(STATES)}
 
 
 def transform_for_documentation(val):

@@ -41,7 +41,7 @@ STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Datacenter'
 RETURNED_KEY = 'datacenter'
 
-OPTIONS = { **get_default_options(STATES), **{
+OPTIONS = { **{
     'name': {
         'description': ['The name of the  resource.'],
         'required': ['present'],
@@ -134,7 +134,7 @@ OPTIONS = { **get_default_options(STATES), **{
         'available': STATES,
         'type': 'str',
     },
-}}
+}, **get_default_options(STATES) }
 
 IMMUTABLE_OPTIONS = [
     { "name": "location", "note": "" },

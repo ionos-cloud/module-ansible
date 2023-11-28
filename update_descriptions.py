@@ -125,7 +125,17 @@ def get_info_from_swagger(endpoint_info_dict, option):
 
 
 def update_descriptions(module_name, swagger, resource_endpoint, verb, aliases):
+    # Fixing module info imports
+    with open(os.path.join(MODULES_DIR, module_name) + '.py', 'r') as module_file_read:
+        initial_module = module_file_read.read()
+    with open(os.path.join(MODULES_DIR, module_name) + '.py', 'w') as plugin_file_write:
+        plugin_file_write.write(initial_module.replace('ansible_collections.ionoscloudsdk.ionoscloud.plugins', '.'))
+
     module = importlib.import_module('plugins.modules.' + module_name)
+
+    # Revert module changess
+    with open(os.path.join(MODULES_DIR, module_name) + '.py', 'w') as plugin_file_write:
+        plugin_file_write.write(initial_module)
 
     check_download_swagger(swagger)
     endpoint_info = json.loads(extract_endpoint_info(swagger['filename'], resource_endpoint, verb))
