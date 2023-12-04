@@ -6,16 +6,15 @@ HAS_SDK = True
 try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
-    from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
 
 from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, get_sdk_config, check_required_arguments, apply_filters,
+    get_module_arguments, get_sdk_config, check_required_arguments, apply_filters, default_main_info,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import (
     get_default_options, get_info_default_options,
@@ -68,38 +67,18 @@ EXAMPLES = '''
 '''
 
 def get_objects(module, client):
-    datacenters = ionoscloud.DataCentersApi(client).datacenters_get(depth=module.params.get('depth'))
-    try:
-        results = list(map(lambda x: x.to_dict(), apply_filters(module, datacenters.items)))
-        return {
-            'changed': False,
-            RETURNED_KEY: results
-        }
-
-    except Exception as e:
-        module.fail_json(msg='failed to list the {object_name}: {error}'.format(
-            object_name=OBJECT_NAME, error=to_native(e),
-        ))
-
-
-def main():
-    module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES), supports_check_mode=True)
-
-    if not HAS_SDK:
-        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
-
-    state = module.params.get('state')
-    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
-        api_client.user_agent = USER_AGENT
-        check_required_arguments(module, OBJECT_NAME, OPTIONS)
-
-        try:
-            module.exit_json(**get_objects(module, api_client))
-        except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(
-                object_name=OBJECT_NAME, error=to_native(e), state=state,
-            ))
+    return ionoscloud.DataCentersApi(client).datacenters_get(depth=module.params.get('depth'))
 
 
 if __name__ == '__main__':
-    main()
+    default_main_info(
+        ionoscloud,
+        'ionoscloud',
+        USER_AGENT,
+        HAS_SDK,
+        OPTIONS,
+        STATES,
+        OBJECT_NAME,
+        RETURNED_KEY,
+        get_objects,
+    )

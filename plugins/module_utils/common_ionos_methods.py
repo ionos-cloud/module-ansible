@@ -1,4 +1,5 @@
-from ansible.module_utils.basic import env_fallback
+from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils._text import to_native
 
 
 #######################################################
@@ -176,3 +177,34 @@ def apply_filters(module, item_list):
     filter_methods = list(map(get_method_from_filter, filters.items()))
 
     return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
+
+
+def default_main_info(ionos_module, ionos_module_name, user_agent, has_sdk, options, states, object_name, returned_key, get_objects):
+    module = AnsibleModule(argument_spec=get_module_arguments(options, states), supports_check_mode=True)
+
+    if not has_sdk:
+        module.fail_json(
+            msg='{module_name} is required for this module, run `pip install {module_name}}`'.format(ionos_module_name))
+
+    state = module.params.get('state')
+    with ionos_module.ApiClient(get_sdk_config(module, ionos_module)) as api_client:
+        api_client.user_agent = user_agent
+        check_required_arguments(module, object_name, options)
+
+        try:
+            try:
+                results = list(map(lambda x: x.to_dict(), apply_filters(module, get_objects().items)))
+                return module.exit_json({
+                    'changed': False,
+                    returned_key: results
+                })
+
+            except Exception as e:
+                module.fail_json(msg='failed to list the {object_name}: {error}'.format(
+                    object_name=object_name, error=to_native(e),
+                ))
+            
+        except Exception as e:
+            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(
+                object_name=object_name, error=to_native(e), state=state,
+            ))

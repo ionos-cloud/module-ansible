@@ -31,6 +31,10 @@
       ionoscloudsdk.ionoscloud.datacenter_info:
       register: datacenter_list_response
 
+    - name: Debug - Show Template
+      debug:
+        msg: "{{ datacenter_list_response }}"
+
     - name: Update datacenter 1
       ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
