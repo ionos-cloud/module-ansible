@@ -1,5 +1,20 @@
+
+import copy
+import yaml
+
+
 def get_default_options(states):
     return {
+        'allow_replace': {
+            'description': [
+                'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+                'another way. This may be used to prevent resources from being deleted from specifying a different '
+                'value to an immutable property. An error will be thrown instead',
+            ],
+            'available': ['present', 'update'],
+            'default': False,
+            'type': 'bool',
+        },
         'api_url': {
             'description': ['The Ionos API base URL.'],
             'version_added': '2.4',
@@ -116,3 +131,14 @@ def get_info_default_options(states):
             'type': 'str',
         },
     }
+
+
+def transform_for_documentation(val, states):
+    val['required'] = len(val.get('required', [])) == len(states) 
+    del val['available']
+    del val['type']
+    return val
+
+
+def transform_options_for_ducumentation(options, states):
+    return yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v, states) for k, v in copy.deepcopy(options).items()})), default_flow_style=False).replace('\n', '\n  ')

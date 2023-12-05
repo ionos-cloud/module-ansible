@@ -10,8 +10,6 @@ except ImportError:
     HAS_SDK = False
 
 from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
     get_module_arguments, get_sdk_config, check_required_arguments, apply_filters, default_main_info,
@@ -72,13 +70,6 @@ def get_objects(module, client):
 
 if __name__ == '__main__':
     default_main_info(
-        ionoscloud,
-        'ionoscloud',
-        USER_AGENT,
-        HAS_SDK,
-        OPTIONS,
-        STATES,
-        OBJECT_NAME,
-        RETURNED_KEY,
-        get_objects,
+        ionoscloud, 'ionoscloud', USER_AGENT, HAS_SDK, OPTIONS,
+        STATES, OBJECT_NAME, RETURNED_KEY, get_objects,
     )

@@ -3,9 +3,6 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
-import copy
-from tabnanny import check
-import yaml
 
 HAS_SDK = True
 
@@ -14,7 +11,6 @@ try:
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import Datacenter, DatacenterProperties
     from ionoscloud.rest import ApiException
-    from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -23,10 +19,10 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, get_sdk_config, check_required_arguments,
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import (
+    get_default_options, transform_options_for_ducumentation,
 )
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
 __metaclass__ = type
 
@@ -66,96 +62,22 @@ OPTIONS = { **{
         'required': ['update', 'absent'],
         'type': 'str',
     },
-    'allow_replace': {
-        'description': [
-            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different '
-            'value to an immutable property. An error will be thrown instead',
-        ],
-        'available': ['present', 'update'],
-        'default': False,
-        'type': 'bool',
-    },
-    'api_url': {
-        'description': ['The Ionos API base URL.'],
-        'version_added': '2.4',
-        'env_fallback': 'IONOS_API_URL',
-        'available': STATES,
-        'type': 'str',
-    },
-    'certificate_fingerprint': {
-        'description': ['The Ionos API certificate fingerprint.'],
-        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
-        'available': STATES,
-        'type': 'str',
-    },
-    'username': {
-        # Required if no token, checked manually
-        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
-        'aliases': ['subscription_user'],
-        'env_fallback': 'IONOS_USERNAME',
-        'available': STATES,
-        'type': 'str',
-    },
-    'password': {
-        # Required if no token, checked manually
-        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
-        'aliases': ['subscription_password'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_PASSWORD',
-        'type': 'str',
-    },
-    'token': {
-        # If provided, then username and password no longer required
-        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_TOKEN',
-        'type': 'str',
-    },
-    'wait': {
-        'description': ['Wait for the resource to be created before returning.'],
-        'default': True,
-        'available': STATES,
-        'choices': [True, False],
-        'type': 'bool',
-    },
-    'wait_timeout': {
-        'description': ['How long before wait gives up, in seconds.'],
-        'default': 600,
-        'available': STATES,
-        'type': 'int',
-    },
-    'state': {
-        'description': ['Indicate desired state of the resource.'],
-        'default': 'present',
-        'choices': STATES,
-        'available': STATES,
-        'type': 'str',
-    },
 }, **get_default_options(STATES) }
 
 IMMUTABLE_OPTIONS = [
     { "name": "location", "note": "" },
 ]
 
-def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
-    del val['available']
-    del val['type']
-    return val
-
 DOCUMENTATION = '''
 ---
 module: datacenter
 short_description: Create or destroy a Ionos Cloud Virtual Datacenter.
 description:
-     - This is a simple module that supports creating or removing datacenters. A datacenter is required before you can create servers.
-       This module has a dependency on ionoscloud >= 6.0.2
+    - This is a simple module that supports creating or removing datacenters. A datacenter is required before you can create servers.
+        This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+''' + '  ' + transform_options_for_ducumentation(OPTIONS, STATES) + '''
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -197,6 +119,8 @@ class DatacenterModule(CommonIonosModule):
         self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES))
         self.returned_key = RETURNED_KEY
         self.object_name = OBJECT_NAME
+        self.sdk = ionoscloud
+        self.user_agent = USER_AGENT
 
 
     def _should_replace_object(self, existing_object):
@@ -296,26 +220,8 @@ class DatacenterModule(CommonIonosModule):
             self.module.fail_json(msg="failed to remove the datacenter: %s" % to_native(e))
 
 
-def main():
-    module_model = DatacenterModule()
-
-    if not HAS_SDK:
-        module_model.module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
-    state = module_model.module.params.get('state')
-    with ApiClient(get_sdk_config(module_model.module, ionoscloud)) as api_client:
-        api_client.user_agent = USER_AGENT
-        check_required_arguments(module_model.module, state, OPTIONS)
-
-        try:
-            if state == 'absent':
-                module_model.module.exit_json(**module_model.remove_object(api_client))
-            elif state == 'present':
-                module_model.module.exit_json(**module_model.create_object(api_client))
-            elif state == 'update':
-                module_model.module.exit_json(**module_model.update_object(api_client))
-        except Exception as e:
-            module_model.module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
-
-
 if __name__ == '__main__':
-    main()
+    ionos_module = DatacenterModule()
+    if not HAS_SDK:
+        ionos_module.module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+    ionos_module.main()

@@ -1,7 +1,10 @@
 import re
 
+from ansible.module_utils._text import to_native
 
 from .common_ionos_methods import get_resource, get_resource_id
+from .common_ionos_methods import get_sdk_config, check_required_arguments
+
 
 class CommonIonosModule():
     def __init__(self):
@@ -60,7 +63,7 @@ class CommonIonosModule():
         }
 
 
-    def create_object(self, client):
+    def present_object(self, client):
         existing_object = get_resource(self.module, self._get_object_list(client), self._get_object_name())
 
         if existing_object:
@@ -100,7 +103,7 @@ class CommonIonosModule():
         return self.update_replace_object(client, existing_object)
 
 
-    def remove_object(self, client):
+    def absent_object(self, client):
         existing_object = get_resource(self.module, self._get_object_list(client), self._get_object_identifier())
 
         if existing_object is None:
@@ -124,3 +127,14 @@ class CommonIonosModule():
             raise Exception("Failed to extract request ID from response "
                             "header 'location': '{location}'".format(location=headers['location']))
 
+
+    def main(self):
+        state = self.module.params.get('state')
+        with self.sdk.ApiClient(get_sdk_config(self.module, self.sdk)) as api_client:
+            api_client.user_agent = self.user_agent
+            check_required_arguments(self.module, state, self.options)
+
+            try:
+                self.module.exit_json(**getattr(self, state + '_object')(api_client))
+            except Exception as e:
+                self.module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=self.object_name, error=to_native(e), state=state))

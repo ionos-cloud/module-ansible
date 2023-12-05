@@ -33,7 +33,6 @@ def generate_doc_file(module, module_name, states_parameters, template_file):
         except Exception:
             return_example = None
             print('!!! No return example found for {}\n'.format(module_name))
-        
         try:
             immutable_options = module.IMMUTABLE_OPTIONS
         except AttributeError:
@@ -114,7 +113,7 @@ modules_to_generate = [
     # 'target_group',
     # 'cube_server',
     # 'cube_template_info',
-    'datacenter_info',
+    # 'datacenter_info',
     'datacenter',
     # 'firewall_rule_info',
     # 'firewall_rule',
