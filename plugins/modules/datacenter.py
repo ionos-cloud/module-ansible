@@ -69,7 +69,6 @@ IMMUTABLE_OPTIONS = [
 ]
 
 DOCUMENTATION = '''
----
 module: datacenter
 short_description: Create or destroy a Ionos Cloud Virtual Datacenter.
 description:
