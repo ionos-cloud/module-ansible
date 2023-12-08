@@ -72,11 +72,99 @@ DOCUMENTATION = '''
 module: datacenter
 short_description: Create or destroy a Ionos Cloud Virtual Datacenter.
 description:
-    - This is a simple module that supports creating or removing datacenters. A datacenter is required before you can create servers.
-        This module has a dependency on ionoscloud >= 6.0.2
+- This is a simple module that supports creating or removing datacenters. A datacenter is required before you can create servers.
+    This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:
-''' + '  ' + transform_options_for_ducumentation(OPTIONS, STATES) + '''
+    allow_replace:
+        default: false
+        description:
+        - Boolean indincating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    datacenter:
+        description:
+        - The ID or name of the virtual datacenter.
+        required: false
+    description:
+        description:
+        - A description for the datacenter, such as staging, production.
+        required: false
+    location:
+        choices:
+        - us/las
+        - us/ewr
+        - de/fra
+        - de/fkb
+        - de/txl
+        - gb/lhr
+        - es/vit
+        - fr/par
+        description:
+        - The physical location where the datacenter will be created. This will be where
+            all of your servers live. Property cannot be modified after datacenter creation
+            (disallowed in update requests).
+        required: false
+    name:
+        description:
+        - The name of the  resource.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -109,7 +197,28 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+EXAMPLES = '''# Create a Datacenter
+  - name: Create datacenter
+    datacenter:
+      name: "Example DC"
+      description: "description"
+      location: de/fra
+    register: datacenter_response
+  
+# Update a datacenter description
+  - name: Update datacenter
+    datacenter:
+      datacenter: "Example DC"
+      description: "description - RENAMED"
+      state: update
+    register: updated_datacenter
+  
+# Destroy a Datacenter. This will remove all servers, volumes, and other objects in the datacenter.
+  - name: Remove datacenter
+    datacenter:
+      datacenter: "Example DC"
+      state: absent
+'''
 
 
 class DatacenterModule(CommonIonosModule):

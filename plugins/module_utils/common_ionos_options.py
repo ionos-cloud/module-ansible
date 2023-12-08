@@ -6,11 +6,7 @@ import yaml
 def get_default_options(states):
     return {
         'allow_replace': {
-            'description': [
-                'Boolean indincating if the resource should be recreated when the state cannot be reached in '
-                'another way. This may be used to prevent resources from being deleted from specifying a different '
-                'value to an immutable property. An error will be thrown instead',
-            ],
+            'description': ['Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead'],
             'available': ['present', 'update'],
             'default': False,
             'type': 'bool',
@@ -78,11 +74,7 @@ def get_default_options(states):
 def get_info_default_options(states):
     return {
         'filters': {
-            'description': [
-                'Filter that can be used to list only objects which have a certain set of propeties. Filters '
-                'should be a dict with a key containing keys and value pair in the following format:'
-                "'properties.name': 'server_name'"
-            ],
+            'description': ["Filter that can be used to list only objects which have a certain set of propeties. Filters should be a dict with a key containing keys and value pair in the following format: 'properties.name': 'server_name'"],
             'available': states,
             'type': 'dict',
         },
@@ -134,11 +126,14 @@ def get_info_default_options(states):
 
 
 def transform_for_documentation(val, states):
-    val['required'] = len(val.get('required', [])) == len(states) 
-    del val['available']
-    del val['type']
+    if type(val.get('required', [])) == list:
+        val['required'] = len(val.get('required', [])) == len(states)
+    if 'available' in val:
+        del val['available']
+    if 'type' in val:
+        del val['type']
     return val
 
 
 def transform_options_for_ducumentation(options, states):
-    return yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v, states) for k, v in copy.deepcopy(options).items()})), default_flow_style=False).replace('\n', '\n  ')
+    return yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v, states) for k, v in copy.deepcopy(options).items()})), default_flow_style=False, indent=4).replace('\n', '\n    ')[:-5]
