@@ -45,9 +45,9 @@ def update_descriptions(module_name):
 
 modules_to_generate = [
     # 'application_load_balancer_flowlog_info',
-    # 'application_load_balancer_flowlog',
+    'application_load_balancer_flowlog',
     # 'application_load_balancer_forwardingrule_info',
-    # 'application_load_balancer_forwardingrule',
+    'application_load_balancer_forwardingrule',
     # 'application_load_balancer_info',
     # 'application_load_balancer',
     # 'target_group_info',

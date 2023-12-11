@@ -2,8 +2,9 @@ import re
 
 from ansible.module_utils._text import to_native
 
-from .common_ionos_methods import get_resource, get_resource_id
-from .common_ionos_methods import get_sdk_config, check_required_arguments
+from .common_ionos_methods import (
+    get_resource, get_resource_id, get_sdk_config, check_required_arguments,
+)
 
 
 class CommonIonosModule():
@@ -119,13 +120,6 @@ class CommonIonosModule():
         }
 
 
-    def _get_request_id(self, headers):
-        match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
-        if match:
-            return match.group(1)
-        else:
-            raise Exception("Failed to extract request ID from response "
-                            "header 'location': '{location}'".format(location=headers['location']))
 
 
     def main(self):

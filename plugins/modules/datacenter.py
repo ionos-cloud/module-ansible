@@ -20,9 +20,7 @@ from ansible.module_utils.basic import AnsibleModule
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import (
-    get_default_options, transform_options_for_ducumentation,
-)
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
 __metaclass__ = type
 
