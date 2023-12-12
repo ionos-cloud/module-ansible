@@ -19,7 +19,7 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments, _get_request_id
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
 __metaclass__ = type
@@ -225,18 +225,19 @@ class DatacenterModule(CommonIonosModule):
         self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES))
         self.returned_key = RETURNED_KEY
         self.object_name = OBJECT_NAME
-        self.sdk = ionoscloud
+        self.sdks = [ionoscloud]
         self.user_agent = USER_AGENT
+        self.options = OPTIONS
 
 
-    def _should_replace_object(self, existing_object):
+    def _should_replace_object(self, existing_object, clients):
         return (
             self.module.params.get('location') is not None
             and existing_object.properties.location != self.module.params.get('location')
         )
 
 
-    def _should_update_object(self, existing_object):
+    def _should_update_object(self, existing_object, clients):
         return (
             self.module.params.get('name') is not None
             and existing_object.properties.name != self.module.params.get('name')
@@ -245,8 +246,8 @@ class DatacenterModule(CommonIonosModule):
         )
 
 
-    def _get_object_list(self, client):
-        return ionoscloud.DataCentersApi(client).datacenters_get(depth=1)
+    def _get_object_list(self, clients):
+        return ionoscloud.DataCentersApi(clients[0]).datacenters_get(depth=1)
 
 
     def _get_object_name(self):
@@ -257,7 +258,8 @@ class DatacenterModule(CommonIonosModule):
         return self.module.params.get('datacenter')
 
 
-    def _create_object(self, client, existing_object=None):
+    def _create_object(self, existing_object, clients):
+        client = clients[0]
         name = self.module.params.get('name')
         location = self.module.params.get('location')
         description = self.module.params.get('description')
@@ -277,7 +279,7 @@ class DatacenterModule(CommonIonosModule):
         try:
             datacenter_response, _, headers = datacenters_api.datacenters_post_with_http_info(datacenter=datacenter)
             if wait:
-                request_id = self._get_request_id(headers['Location'])
+                request_id = _get_request_id(headers['Location'])
                 client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
                 datacenter_response = datacenters_api.datacenters_find_by_id(datacenter_response.id)
         except ApiException as e:
@@ -285,7 +287,8 @@ class DatacenterModule(CommonIonosModule):
         return datacenter_response
 
 
-    def _update_object(self, client, existing_object):
+    def _update_object(self, existing_object, clients):
+        client = clients[0]
         name = self.module.params.get('name')
         description = self.module.params.get('description')
         wait = self.module.params.get('wait')
@@ -301,7 +304,7 @@ class DatacenterModule(CommonIonosModule):
                 datacenter=datacenter_properties,
             )
             if wait:
-                request_id = self._get_request_id(headers['Location'])
+                request_id = _get_request_id(headers['Location'])
                 client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
             return datacenter_response
@@ -309,7 +312,8 @@ class DatacenterModule(CommonIonosModule):
             self.module.fail_json(msg="failed to update the datacenter: %s" % to_native(e))
 
 
-    def _remove_object(self, client, existing_object):
+    def _remove_object(self, existing_object, clients):
+        client = clients[0]
         wait = self.module.params.get('wait')
         wait_timeout = self.module.params.get('wait_timeout')
 
@@ -320,7 +324,7 @@ class DatacenterModule(CommonIonosModule):
                 datacenter_id=existing_object.id,
             )
             if wait:
-                request_id = self._get_request_id(headers['Location'])
+                request_id = _get_request_id(headers['Location'])
                 client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
         except ApiException as e:
             self.module.fail_json(msg="failed to remove the datacenter: %s" % to_native(e))

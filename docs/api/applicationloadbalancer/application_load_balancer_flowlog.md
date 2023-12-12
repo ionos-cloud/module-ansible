@@ -39,7 +39,7 @@ This is a simple module that supports creating or removing Application Loadbalan
       application_load_balancer: AppLoadBalancerName
       flowlog:FlowlogName
       state: absent
-  
+
 ```
 
 &nbsp;

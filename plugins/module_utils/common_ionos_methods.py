@@ -203,8 +203,8 @@ def default_main_info(ionos_module, ionos_module_name, user_agent, has_sdk, opti
 
         try:
             try:
-                results = list(map(lambda x: x.to_dict(), apply_filters(module, get_objects().items)))
-                return module.exit_json({
+                results = list(map(lambda x: x.to_dict(), apply_filters(module, get_objects(module, api_client).items)))
+                return module.exit_json(**{
                     'changed': False,
                     returned_key: results
                 })

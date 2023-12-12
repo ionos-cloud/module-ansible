@@ -1,6 +1,6 @@
 # application_load_balancer_forwardingrule
 
-This is a simple module that supports creating or removing Application Loadbalancer Flowlog rules.
+This is a simple module that supports creating or removing Application Loadbalancer Forwarding rules.
 
 ## Example Syntax
 
@@ -48,7 +48,7 @@ This is a simple module that supports creating or removing Application Loadbalan
       application_load_balancer: AppLoadBalancerName
       forwarding_rule: "RuleName - UPDATED"
       state: absent
-  
+
 ```
 
 &nbsp;

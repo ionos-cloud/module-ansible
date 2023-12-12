@@ -28,31 +28,28 @@ class CommonIonosModule():
     def _get_object_identifier(self):
         pass
 
-    def _create_object(self, client, existing_object=None):
-        pass
-
-    def update_replace_object(self, client, existing_object):
+    def update_replace_object(self, existing_object, clients):
         module = self.module
-        if self._should_replace_object(existing_object):
+        if self._should_replace_object(existing_object, clients):
 
             if not module.params.get('allow_replace'):
-                module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
+                module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(self.object_name))
 
-            new_object = self._create_object(client, existing_object).to_dict()
-            self._remove_object(client, existing_object)
+            new_object = self._create_object(existing_object, clients).to_dict()
+            self._remove_object(existing_object, clients)
             return {
                 'changed': True,
                 'failed': False,
                 'action': 'create',
                 self.returned_key: new_object,
             }
-        if self._should_update_object(existing_object):
+        if self._should_update_object(existing_object, clients):
             # Update
             return {
                 'changed': True,
                 'failed': False,
                 'action': 'update',
-                self.returned_key: self._update_object(client, existing_object).to_dict()
+                self.returned_key: self._update_object(existing_object, clients).to_dict()
             }
 
         # No action
@@ -64,23 +61,23 @@ class CommonIonosModule():
         }
 
 
-    def present_object(self, client):
-        existing_object = get_resource(self.module, self._get_object_list(client), self._get_object_name())
+    def present_object(self, clients):
+        existing_object = get_resource(self.module, self._get_object_list(clients), self._get_object_name())
 
         if existing_object:
-            return self.update_replace_object(client, existing_object)
+            return self.update_replace_object(existing_object, clients)
 
         return {
             'changed': True,
             'failed': False,
             'action': 'create',
-            self.returned_key: self._create_object(client).to_dict()
+            self.returned_key: self._create_object(None, clients).to_dict()
         }
 
 
-    def update_object(self, client):
+    def update_object(self, clients):
         object_name = self._get_object_name()
-        object_list = self._get_object_list(client)
+        object_list = self._get_object_list(clients)
 
         existing_object = get_resource(self.module, object_list, self._get_object_identifier())
 
@@ -101,17 +98,17 @@ class CommonIonosModule():
                 ),
             )
 
-        return self.update_replace_object(client, existing_object)
+        return self.update_replace_object(existing_object, clients)
 
 
-    def absent_object(self, client):
-        existing_object = get_resource(self.module, self._get_object_list(client), self._get_object_identifier())
+    def absent_object(self, clients):
+        existing_object = get_resource(self.module, self._get_object_list(clients), self._get_object_identifier())
 
         if existing_object is None:
             self.module.exit_json(changed=False)
             return
 
-        self._remove_object(client, existing_object)
+        self._remove_object(existing_object, clients)
 
         return {
             'action': 'delete',
@@ -120,15 +117,14 @@ class CommonIonosModule():
         }
 
 
-
-
     def main(self):
         state = self.module.params.get('state')
-        with self.sdk.ApiClient(get_sdk_config(self.module, self.sdk)) as api_client:
-            api_client.user_agent = self.user_agent
-            check_required_arguments(self.module, state, self.options)
+        clients = [sdk.ApiClient(get_sdk_config(self.module, sdk)) for sdk in self.sdks]
+        for client in clients:
+            client.user_agent = self.user_agent
+        check_required_arguments(self.module, state, self.options)
 
-            try:
-                self.module.exit_json(**getattr(self, state + '_object')(api_client))
-            except Exception as e:
-                self.module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=self.object_name, error=to_native(e), state=state))
+        try:
+            self.module.exit_json(**getattr(self, state + '_object')(clients))
+        except Exception as e:
+            self.module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=self.object_name, error=to_native(e), state=state))

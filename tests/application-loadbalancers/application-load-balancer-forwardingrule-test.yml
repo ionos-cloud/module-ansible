@@ -8,7 +8,7 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: "{{ location }}"
@@ -16,21 +16,21 @@
       register: datacenter_response
 
     - name: Create Listener LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         name: "listener_lan"
         public: false
       register: listener_lan
 
     - name: Create Target LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         name: "target_lan"
         public: false
       register: target_lan
 
     - name: Create Application Load Balancer
-      application_load_balancer:
+      ionoscloudsdk.ionoscloud.application_load_balancer:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         ips:
@@ -46,7 +46,7 @@
     #     dest: ../../docs/returned_object_examples/application_load_balancer.json
 
     - name: List Application Load Balancers
-      application_load_balancer_info:
+      ionoscloudsdk.ionoscloud.application_load_balancer_info:
         datacenter: "{{ datacenter_response.datacenter.id }}"
       register: alb_list_response
 
@@ -60,7 +60,7 @@
          msg: "{{ alb_response }}"
 
     - name: Create Application Load Balancer Forwarding Rule
-      application_load_balancer_forwardingrule:
+      ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
         name: "{{ name }}"
@@ -86,7 +86,7 @@
     #     dest: ../../docs/returned_object_examples/application_load_balancer_forwardingrule.json
 
     - name: List Application Load Balancer Forwarding rules
-      application_load_balancer_forwardingrule_info:
+      ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule_info:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       register: alb_forwardingrule_list_response
@@ -101,7 +101,7 @@
          msg: "{{ alb_forwarding_rule_response }}"
 
     - name: Update Application Load Balancer Forwarding Rule
-      application_load_balancer_forwardingrule:
+      ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
         forwarding_rule: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
@@ -116,14 +116,14 @@
          msg: "{{ alb_forwarding_rule_update_response }}"
 
     - name: Delete Application Load Balancer Forwarding Rule
-      application_load_balancer_forwardingrule:
+      ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
         forwarding_rule: "{{ alb_forwarding_rule_response.forwarding_rule.id }}"
         state: absent
 
     - name: Remove Application Load Balancer
-      application_load_balancer:
+      ionoscloudsdk.ionoscloud.application_load_balancer:
        application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
        datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
@@ -131,19 +131,19 @@
        state: absent
 
     - name: Remove Listener LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         lan: "listener_lan"
         state: absent
 
     - name: Remove Target LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         lan: "target_lan"
         state: absent
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter }}"
         wait: true
         state: absent

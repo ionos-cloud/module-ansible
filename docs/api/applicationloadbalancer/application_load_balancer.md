@@ -37,7 +37,7 @@ This is a simple module that supports creating or removing Application Loadbalan
       datacenter: DatacenterName
       wait: true
       state: absent
-  
+
 ```
 
 &nbsp;

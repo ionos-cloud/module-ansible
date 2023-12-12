@@ -8,7 +8,6 @@ from plugins.module_utils.common_ionos_options import transform_options_for_ducu
 MODULES_DIR = os.path.join('plugins', 'modules')
 
 
-
 def update_descriptions(module_name):
     # Fixing module info imports
     with open(os.path.join(MODULES_DIR, module_name) + '.py', 'r') as module_file_read:
@@ -25,7 +24,10 @@ def update_descriptions(module_name):
     # print(transform_options_for_ducumentation(module.OPTIONS, module.STATES))
 
     existing_examples = module.EXAMPLES
-    new_examples = '\n'.join(module.EXAMPLE_PER_STATE.values()).strip(' ')
+    try:
+        new_examples = '\n'.join(module.EXAMPLE_PER_STATE.values()).strip(' ')
+    except AttributeError:
+        new_examples = existing_examples
 
     existing_doc = yaml.safe_load(module.DOCUMENTATION)['options']
     if type(existing_doc) == dict:
@@ -44,12 +46,12 @@ def update_descriptions(module_name):
     
 
 modules_to_generate = [
-    # 'application_load_balancer_flowlog_info',
+    'application_load_balancer_flowlog_info',
     'application_load_balancer_flowlog',
-    # 'application_load_balancer_forwardingrule_info',
+    'application_load_balancer_forwardingrule_info',
     'application_load_balancer_forwardingrule',
-    # 'application_load_balancer_info',
-    # 'application_load_balancer',
+    'application_load_balancer_info',
+    'application_load_balancer',
     # 'target_group_info',
     # 'target_group',
     # 'cube_server',

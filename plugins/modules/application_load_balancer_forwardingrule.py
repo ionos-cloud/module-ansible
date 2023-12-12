@@ -3,8 +3,6 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
-from asyncore import read
-from xxlimited import new
 
 __metaclass__ = type
 
@@ -433,15 +431,16 @@ class ForwardingRuleModule(CommonIonosModule):
         self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES))
         self.returned_key = RETURNED_KEY
         self.object_name = OBJECT_NAME
-        self.sdk = ionoscloud
+        self.sdks = [ionoscloud, ionoscloud_cert_manager]
         self.user_agent = USER_AGENT
+        self.options = OPTIONS
 
 
-    def _should_replace_object(self, existing_object):
+    def _should_replace_object(self, existing_object, clients):
         return False
 
 
-    def _should_update_object(self, existing_object):
+    def _should_update_object(self, existing_object, clients):
         return (
             self.module.params.get('name') is not None
             and existing_object.properties.name != self.module.params.get('name')
@@ -460,7 +459,8 @@ class ForwardingRuleModule(CommonIonosModule):
         )
 
 
-    def _get_object_list(self, client):
+    def _get_object_list(self, clients):
+        client = clients[0]
         datacenter_id = get_resource_id(
             self.module, 
             ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
@@ -487,7 +487,9 @@ class ForwardingRuleModule(CommonIonosModule):
         return self.module.params.get('forwarding_rule')
 
 
-    def _create_object(self, client, certificate_manager_client, existing_object=None):
+    def _create_object(self, existing_object, clients):
+        client = clients[0]
+        certificate_manager_client = clients[1]
         name = self.module.params.get('name')
         protocol = self.module.params.get('protocol')
         listener_ip = self.module.params.get('listener_ip')
@@ -541,7 +543,10 @@ class ForwardingRuleModule(CommonIonosModule):
             self.module.fail_json(msg="failed to create the new Application Loadbalancer Rule: %s" % to_native(e))
         return response
 
-    def _update_object(self, client, certificate_manager_client, existing_object):
+    def _update_object(self, existing_object, clients):
+        client = clients[0]
+        certificate_manager_client = clients[1]
+
         name = self.module.params.get('name')
         protocol = self.module.params.get('protocol')
         listener_ip = self.module.params.get('listener_ip')
@@ -587,7 +592,8 @@ class ForwardingRuleModule(CommonIonosModule):
         except ApiException as e:
             self.module.fail_json(msg="failed to update the Application Loadbalancer Rule: %s" % to_native(e))
 
-    def _remove_object(self, client, existing_object):
+    def _remove_object(self, existing_object, clients):
+        client = clients[0]
         datacenter_id = get_resource_id(
             self.module, 
             ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
@@ -612,94 +618,6 @@ class ForwardingRuleModule(CommonIonosModule):
                 client.wait_for_completion(request_id=request_id, timeout=self.module.params.get('wait_timeout'))
         except ApiException as e:
             self.module.fail_json(msg="failed to remove the Application Loadbalancer Rule: %s" % to_native(e))
-
-    def update_replace_object(self, client, certificate_manager_api_client, existing_object):
-        module = self.module
-        if self._should_replace_object(existing_object):
-
-            if not module.params.get('allow_replace'):
-                module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
-
-            new_object = self._create_object(client, certificate_manager_api_client, existing_object).to_dict()
-            self._remove_object(client, existing_object)
-            return {
-                'changed': True,
-                'failed': False,
-                'action': 'create',
-                self.returned_key: new_object,
-            }
-        if self._should_update_object(existing_object):
-            # Update
-            return {
-                'changed': True,
-                'failed': False,
-                'action': 'update',
-                self.returned_key: self._update_object(client, certificate_manager_api_client, existing_object).to_dict()
-            }
-
-        # No action
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            self.returned_key: existing_object.to_dict()
-        }
-
-
-    def present_object(self, client, certificate_manager_api_client):
-        existing_object = get_resource(self.module, self._get_object_list(client), self._get_object_name())
-
-        if existing_object:
-            return self.update_replace_object(client, certificate_manager_api_client, existing_object)
-
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            self.returned_key: self._create_object(client, certificate_manager_api_client).to_dict()
-        }
-
-
-    def update_object(self, client, certificate_manager_api_client):
-        object_name = self._get_object_name()
-        object_list = self._get_object_list(client)
-
-        existing_object = get_resource(self.module, object_list, self._get_object_identifier())
-
-        if existing_object is None:
-            self.module.exit_json(changed=False)
-            return
-
-        existing_object_id_by_new_name = get_resource_id(self.module, object_list, object_name)
-
-        if (
-            existing_object.id is not None
-            and existing_object_id_by_new_name is not None
-            and existing_object_id_by_new_name != existing_object.id
-        ):
-            self.module.fail_json(
-                msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
-                    self.object_name, object_name,
-                ),
-            )
-
-        return self.update_replace_object(client, certificate_manager_api_client, existing_object)
-
-
-    def absent_object(self, client):
-        existing_object = get_resource(self.module, self._get_object_list(client), self._get_object_identifier())
-
-        if existing_object is None:
-            self.module.exit_json(changed=False)
-            return
-
-        self._remove_object(client, existing_object)
-
-        return {
-            'action': 'delete',
-            'changed': True,
-            'id': existing_object.id,
-        }
 
 
 if __name__ == '__main__':

@@ -13,12 +13,11 @@ try:
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import FlowLog, FlowLogProperties
     from ionoscloud.rest import ApiException
-    from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
 
 from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 
 
@@ -270,15 +269,16 @@ class FlowlogModule(CommonIonosModule):
         self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES))
         self.returned_key = RETURNED_KEY
         self.object_name = OBJECT_NAME
-        self.sdk = ionoscloud
+        self.sdks = [ionoscloud]
         self.user_agent = USER_AGENT
+        self.options = OPTIONS
 
 
-    def _should_replace_object(self, existing_object):
+    def _should_replace_object(self, existing_object, clients):
         return False
 
 
-    def _should_update_object(self, existing_object):
+    def _should_update_object(self, existing_object, clients):
         return (
             self.module.params.get('name') is not None
             and existing_object.properties.name != self.module.params.get('name')
@@ -291,7 +291,8 @@ class FlowlogModule(CommonIonosModule):
         )
 
 
-    def _get_object_list(self, client):
+    def _get_object_list(self, clients):
+        client = clients[0]
         datacenter_id = self.get_resource_id(
             self.module, 
             ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
@@ -318,7 +319,8 @@ class FlowlogModule(CommonIonosModule):
         return self.module.params.get('flowlog')
 
 
-    def _create_object(self, client, existing_object=None):
+    def _create_object(self, existing_object, clients):
+        client = clients[0]
         name = self.module.params.get('name')
         action = self.module.params.get('action')
         direction = self.module.params.get('direction')
@@ -358,7 +360,8 @@ class FlowlogModule(CommonIonosModule):
             self.module.fail_json(msg="failed to create the new Appication Loadbalancer Flowlog: %s" % to_native(e))
         return response
 
-    def _update_object(self, client, existing_object):
+    def _update_object(self, existing_object, clients):
+        client = clients[0]
         name = self.module.params.get('name')
         action = self.module.params.get('action')
         direction = self.module.params.get('direction')
@@ -394,7 +397,8 @@ class FlowlogModule(CommonIonosModule):
             self.module.fail_json(msg="failed to update the Aplication Loadbalancer Flowlog: %s" % to_native(e))
 
 
-    def _remove_object(self, client, existing_object):
+    def _remove_object(self, existing_object, clients):
+        client = clients[0]
         datacenter_id = get_resource_id(
             self.module, 
             ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
