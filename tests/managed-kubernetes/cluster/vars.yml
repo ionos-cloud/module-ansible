@@ -1,5 +1,6 @@
 name: "AnsibleAutoTestK8sCluster"
 datacenter: "AnsibleAutoTestK8sCluster"
+nat: "AnsibleAutoTestNATCluster"
 description: Ansible test description
 server: "AnsibleAutoTestK8sCluster"
 nic: "AnsibleAutoTestK8sCluster"

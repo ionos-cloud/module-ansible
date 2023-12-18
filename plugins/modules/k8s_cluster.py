@@ -70,7 +70,7 @@ OPTIONS = {
     'public': {
         'description': ['The indicator if the cluster is public or private.'],
         'available': ['present'],
-        'type': 'str'
+        'type': 'bool'
     },
     'location': {
         'description': 'The location of the cluster if the cluster is private. This property is immutable. The '

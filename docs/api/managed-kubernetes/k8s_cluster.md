@@ -120,7 +120,7 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   <td>List of S3 buckets configured for K8s usage. At the moment, it contains only one S3 bucket that is used to store K8s API audit logs.</td>
   </tr>
   <tr>
-  <td>public<br/><mark style="color:blue;">str</mark></td>
+  <td>public<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
   <td>The indicator if the cluster is public or private.</td>
   </tr>

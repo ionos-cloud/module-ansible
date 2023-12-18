@@ -21,6 +21,14 @@
         state: present
       register: ipblock_response
 
+    - name: Create NAT Gateway
+      nat_gateway:
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        name: "{{ nat }}"
+        public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
+        wait: true
+      register: nat_gateway_response
+
     - name: Create k8s cluster
       k8s_cluster:
         cluster_name: "ansible-cluster-{{100|random}}"
@@ -28,39 +36,23 @@
           day_of_the_week: "Wednesday"
           time: "12:02:00"
         public: False
+        location: "{{ location }}"
+        node_subnet: 192.168.0.0/16
+        nat_gateway_ip: "{{ ipblock_response.ipblock.properties.ips[0] }}"
       register: cluster_response
-
-    - name: Create k8s cluster nodepool
-      k8s_nodepool:
-        nodepool_name: "ansible-nodepool-{{100|random}}"
-        k8s_cluster: "{{ cluster_response.cluster.id }}"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        node_count: 2
-        cpu_family: "INTEL_SKYLAKE"
-        cores_count: "1"
-        ram_size: "2048"
-        availability_zone: "AUTO"
-        storage_type: "HDD"
-        storage_size: "100"
-        gateway_ip: "{{ ipblock_response.ipblock.properties.ips[0] }}"
-        wait: true
-      register: nodepool_response
-
-    - name: Debug - Show nodepool
-      debug:
-        msg: "{{ nodepool_response.nodepool }}"
-
-    - name: Delete k8s cluster nodepool
-      k8s_nodepool:
-        k8s_cluster: "{{ cluster_response.cluster.id }}"
-        nodepool_id: "{{ nodepool_response.nodepool.id }}"
-        wait: true
-        state: absent
 
     - name: Delete k8s cluster
       k8s_cluster:
         k8s_cluster: "{{ cluster_response.cluster.id }}"
         state: absent
+
+    - name: Remove NAT Gateway
+      nat_gateway:
+       nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+       datacenter: "{{ datacenter_response.datacenter.id }}"
+       wait: true
+       wait_timeout: 2000
+       state: absent
 
     - name: Remove datacenter
       datacenter:
