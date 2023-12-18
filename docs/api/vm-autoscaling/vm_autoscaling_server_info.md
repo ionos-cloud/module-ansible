@@ -1,0 +1,105 @@
+# vm_autoscaling_server_info
+
+This is a simple module that supports listing existing VM Autoscaling Group Servers
+
+## Example Syntax
+
+
+```yaml
+
+    - name: List VM Autoscaling Group Servers
+        vm_autoscaling_server_info:
+            vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
+        register: vm_autoscaling_servers_response
+
+    - name: Show VM Autoscaling Group Servers
+        debug:
+            var: vm_autoscaling_servers_response.result
+
+```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "result": [
+        {
+            "id": "07242d1d-1c78-4c65-abec-f9756eaac72b",
+            "type": "autoscaling-server",
+            "href": "https://api.ionos.com/autoscaling/groups/cd7407bc-54ff-4dcb-bf0e-6c2f7fa45c66/servers/07242d1d-1c78-4c65-abec-f9756eaac72b",
+            "metadata": {
+                "created_date": "2023-10-30T13:54:57.443498+00:00",
+                "etag": "TCCzL0H9EwXvd99rsaiPBTZrsrSqp+v5cF/XKuFA5io=",
+                "last_modified_date": "2023-10-30T13:54:57.443498+00:00",
+                "state": "AVAILABLE"
+            },
+            "properties": {
+                "datacenter_server": {
+                    "id": "a32150c5-24a8-4f5f-af87-79513821e1d1",
+                    "type": "server",
+                    "href": "https://api.public.production.k8s.fra2.profitbricks.net/cloudapi/v6/datacenters/8b8b9122-b8ef-4966-a36a-2e9cf8609121/servers/a32150c5-24a8-4f5f-af87-79513821e1d1"
+                },
+                "name": "v6bJXW3"
+            }
+        }
+    ],
+    "failed": false,
+    "changed": false
+}
+
+```
+
+&nbsp;
+
+&nbsp;
+### Available parameters:
+&nbsp;
+
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="22.8vw">Name</th>
+      <th width="10.8vw" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>vm_autoscaling_group<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The ID or name of an existing VM Autoscaling Group.</td>
+  </tr>
+  <tr>
+  <td>filters<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>Filter that can be used to list only objects which have a certain set of propeties. Filters should be a dict with a key containing keys and value pair in the following format:'properties.name': 'server_name'</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  </tbody>
+</table>

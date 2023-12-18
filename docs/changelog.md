@@ -1,5 +1,10 @@
 # Changelog
 
+## 7.1.0
+### Features
+* Added Logging modules: pipeline and pipeline_info
+* Added VM Autoscaling modules: vm_autoscaling_group, vm_autoscaling_action_info, vm_autoscaling_group_info and vm_autoscaling_server_info
+
 ## 7.0.0
 ### Features
 * Added DNS modules: dns_zone, dns_record, dns_secondary_zone and corresponding info modules

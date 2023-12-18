@@ -64,6 +64,7 @@ jobs:
     env:
       IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
       IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
+      IONOS_TOKEN: ${{ secrets.IONOS_PASSWORD_V6 }}
       IONOSCTL_VERSION: 6.1.7
     steps:
       - name: Checking out module-ansible
@@ -123,8 +124,12 @@ jobs:
             keywords: "registry"
           - namespace: dataplatform
             keywords: "data_platform, dataplatform"
+          - namespace: logging
+            keywords: "pipeline"
           - namespace: dns
             keywords: "dns, dns_zone, dns_record"
+          - namespace: vm-autoscaling
+            keywords: "autoscaling"
 
     env:
       python-version: 3.8.15
@@ -159,6 +164,8 @@ jobs:
           python3 -m pip install ionoscloud-dbaas-mongo
           python3 -m pip install ionoscloud-container-registry
           python3 -m pip install ionoscloud-dataplatform
+          python3 -m pip install ionoscloud-logging
+          python3 -m pip install ionoscloud-vm-autoscaling
 
       - name: Install Ansible
         run: |
