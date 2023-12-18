@@ -28,6 +28,7 @@
 
   - name: List Repositories
     registry_repository_info:
+      registry: "{{ registry_response.registry.properties.name }}"
     register: repositories_response
 
   - name: Show Repositories
@@ -42,6 +43,7 @@
 
   - name: List artifacts
     registry_artifact_info:
+      registry: "{{ registry_response.registry.properties.name }}"
     register: artifacts_response
 
   - name: Show artifacts
