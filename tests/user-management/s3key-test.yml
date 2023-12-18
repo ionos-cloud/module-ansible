@@ -23,8 +23,23 @@
 
     - name: Create an s3key
       s3key:
-        user_id: "{{ user_response.user.id }}"
+        user: "{{ user_response.user.properties.email }}"
       register: result
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{result}}"
+    #     dest: ../../docs/returned_object_examples/s3key.json
+
+    - name: List s3keys
+      s3key_info:
+        user: "{{ user_response.user.properties.email }}"
+      register: s3key_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{s3key_list_response}}"
+    #     dest: ../../docs/returned_object_examples/s3key_info.json
 
     - name: Debug - Show S3key
       debug:
@@ -32,20 +47,25 @@
 
     - name: Update an s3key
       s3key:
-        user_id: "{{ user_response.user.id }}"
+        user: "{{ user_response.user.id }}"
         key_id: "{{ result.s3key.id }}"
         active: False
         state: update
 
     - name: Create an s3key with idempotency
       s3key:
-        user_id: "{{ user_response.user.id }}"
+        user: "{{ user_response.user.id }}"
         idempotency: True
 
     - name: List S3Keys
       s3key_info:
-        user_id: "{{ user_response.user.id }}"
+        user: "{{ user_response.user.id }}"
       register: s3keys_info_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{s3keys_info_response}}"
+    #     dest: ../../docs/returned_object_examples/s3key_info.json
 
     - name: Debug - Show response of s3keys_info
       debug:
@@ -59,17 +79,17 @@
 
     - name: Remove an s3key
       s3key:
-        user_id: "{{ user_response.user.id }}"
+        user: "{{ user_response.user.id }}"
         key_id: "{{ result.s3key.id }}"
         state: absent
 
     - name: Remove an s3key - non existent
       s3key:
-        user_id: "{{ user_response.user.id }}"
+        user: "{{ user_response.user.id }}"
         key_id: "not-existent-key"
         state: absent
     
     - name: Delete user
       user:
-        email: "{{ random_user }}"
+        user: "{{ random_user }}"
         state: absent

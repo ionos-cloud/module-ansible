@@ -64,6 +64,7 @@ jobs:
     env:
       IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
       IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
+      IONOS_TOKEN: ${{ secrets.IONOS_PASSWORD_V6 }}
       IONOSCTL_VERSION: 6.1.7
     steps:
       - name: Checking out module-ansible
@@ -107,20 +108,35 @@ jobs:
             keywords: "datacenter, server, firewall, volume, image, cube, lan, nic, pcc, snapshot, ipblock"
           - namespace: dbaas-postgres
             keywords: "postgres"
+          - namespace: dbaas-mongo
+            keywords: "mongo"
           - namespace: managed-kubernetes/cluster
             keywords: "k8s"
           - namespace: managed-kubernetes/nodepool
-            keywords: "nodepool"
+            keywords: "k8s-cluster-nodepool, k8s_nodepool"
           - namespace: natgateway
             keywords: "nat"
           - namespace: networkloadbalancer
             keywords: "network_load_balancer, network"
+          - namespace: certificate-manager
+            keywords: "certificate"
+          - namespace: container-registry
+            keywords: "registry"
+          - namespace: dataplatform
+            keywords: "data_platform, dataplatform"
+          - namespace: logging
+            keywords: "pipeline"
+          - namespace: dns
+            keywords: "dns, dns_zone, dns_record"
+          - namespace: vm-autoscaling
+            keywords: "autoscaling"
 
     env:
-      python-version: 3.8.0
+      python-version: 3.8.15
       ANSIBLE_LIBRARY: /home/runner/work/module-ansible/module-ansible/plugins/modules
       IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
       IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
+      IONOS_TOKEN: ${{ secrets.IONOS_TOKEN_V6 }}
 
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -140,8 +156,16 @@ jobs:
       - name: Setup pip, virtualenv, ionoscloud
         run: |
           python3 -m pip install --upgrade pip
+          python3 -m pip install pydantic
           python3 -m pip install ionoscloud
+          python3 -m pip install ionoscloud-cert-manager
+          python3 -m pip install ionoscloud-dns
           python3 -m pip install ionoscloud-dbaas-postgres
+          python3 -m pip install ionoscloud-dbaas-mongo
+          python3 -m pip install ionoscloud-container-registry
+          python3 -m pip install ionoscloud-dataplatform
+          python3 -m pip install ionoscloud-logging
+          python3 -m pip install ionoscloud-vm-autoscaling
 
       - name: Install Ansible
         run: |
@@ -160,7 +184,7 @@ jobs:
         run: |
           if [[ $(bash .github/scripts/check_keywords.sh  "${{ matrix.keywords }}" ${{ steps.files.outputs.all }}) == true ]]; then
             echo "Changed files in ${{ matrix.namespace }}."
-            ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ matrix.namespace }}/all-tests.yml
+            ansible-playbook /home/runner/work/module-ansible/module-ansible/tests/${{ matrix.namespace }}/all-tests.yml -vvv
           else
             echo "no changed ${{ matrix.namespace }} files!"
           fi

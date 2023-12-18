@@ -26,8 +26,8 @@ STATES = ['present']
 OBJECT_NAME = 'K8s config'
 
 OPTIONS = {
-    'k8s_cluster_id': {
-        'description': ['The ID of the K8s cluster.'],
+    'k8s_cluster': {
+        'description': ['The ID or name of the K8s cluster.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -42,6 +42,12 @@ OPTIONS = {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
         'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
         'available': STATES,
         'type': 'str',
     },
@@ -101,9 +107,9 @@ def transform_for_documentation(val):
 DOCUMENTATION = '''
 ---
 module: k8s_config
-short_description: Get K8s cluster configs
+short_description: Get K8s cluster config
 description:
-     - This is a simple module that supports getting config of K8s clusters
+     - This is a simple module that supports getting the config of K8s clusters
        This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:
@@ -119,7 +125,7 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Get k8s config
   k8s_config:
-    k8s_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+    k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
     config_file: 'config.yaml'
   ''',
 }
@@ -127,8 +133,51 @@ EXAMPLE_PER_STATE = {
 EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
 
 
+def _get_matched_resources(resource_list, identity, identity_paths=None):
+    """
+    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
+    are found an error is printed and None is returned.
+    """
+
+    if identity_paths is None:
+      identity_paths = [['id'], ['properties', 'name']]
+
+    def check_identity_method(resource):
+      resource_identity = []
+
+      for identity_path in identity_paths:
+        current = resource
+        for el in identity_path:
+          current = getattr(current, el)
+        resource_identity.append(current)
+
+      return identity in resource_identity
+
+    return list(filter(check_identity_method, resource_list.items))
+
+
+def get_resource(module, resource_list, identity, identity_paths=None):
+    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+
+    if len(matched_resources) == 1:
+        return matched_resources[0]
+    elif len(matched_resources) > 1:
+        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
+    else:
+        return None
+
+
+def get_resource_id(module, resource_list, identity, identity_paths=None):
+    resource = get_resource(module, resource_list, identity, identity_paths)
+    return resource.id if resource is not None else None
+
+
 def get_config(module, client):
-    k8s_cluster_id = module.params.get('k8s_cluster_id')
+    k8s_cluster_id = get_resource_id(
+        module, 
+        ionoscloud.KubernetesApi(client).k8s_get(depth=1),
+        module.params.get('k8s_cluster'),
+    )
     config_file = module.params.get('config_file')
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
 
@@ -171,6 +220,7 @@ def get_sdk_config(module, sdk):
     password = module.params.get('password')
     token = module.params.get('token')
     api_url = module.params.get('api_url')
+    certificate_fingerprint = module.params.get('certificate_fingerprint')
 
     if token is not None:
         # use the token instead of username & password
@@ -187,6 +237,9 @@ def get_sdk_config(module, sdk):
     if api_url is not None:
         conf['host'] = api_url
         conf['server_index'] = None
+
+    if certificate_fingerprint is not None:
+        conf['fingerprint'] = certificate_fingerprint
 
     return sdk.Configuration(**conf)
 

@@ -34,8 +34,8 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update', 'restore']
 OBJECT_NAME = 'Snapshot'
+RETURNED_KEY = 'snapshot'
 
-LICENCE_TYPES = ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016']
 OPTIONS = {
     'datacenter': {
         'description': ['The datacenter in which the volumes reside.'],
@@ -50,19 +50,25 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name of the snapshot.'],
-        'available': STATES,
+        'description': ['The name of the  resource.'],
+        'available': ['create'],
+        'required': ['create'],
+        'type': 'str',
+    },
+    'snapshot': {
+        'description': ['The ID or name of an existing snapshot.'],
+        'available': ['restore', 'update', 'absent'],
         'required': ['restore', 'update', 'absent'],
         'type': 'str',
     },
     'description': {
-        'description': ['The description of the snapshot.'],
+        'description': ['Human-readable description.'],
         'available': ['present'],
         'type': 'str',
     },
     'licence_type': {
-        'description': ['The license type used'],
-        'choices': ['LINUX', 'WINDOWS', 'UNKNOWN', 'OTHER', 'WINDOWS2016'],
+        'description': ['OS type of this snapshot'],
+        'choices': ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'RHEL', 'LINUX', 'OTHER'],
         'available': ['update'],
         'type': 'str',
     },
@@ -77,7 +83,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'ram_hot_plug': {
-        'description': ['Hot-plug capable RAM (no reboot required)'],
+        'description': ['Hot-plug capable RAM (no reboot required).'],
         'available': ['update'],
         'type': 'bool',
     },
@@ -92,7 +98,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'nic_hot_unplug': {
-        'description': ['Hot-unplug capable NIC (no reboot required)'],
+        'description': ['Hot-unplug capable NIC (no reboot required).'],
         'available': ['update'],
         'type': 'bool',
     },
@@ -102,7 +108,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'disc_scsi_hot_unplug': {
-        'description': ['Hot-unplug capable SCSI drive (no reboot required). Not supported with Windows VMs.'],
+        'description': ['Is capable of SCSI drive hot unplug (no reboot required). This works only for non-Windows virtual Machines.'],
         'available': ['update'],
         'type': 'bool',
     },
@@ -120,6 +126,12 @@ OPTIONS = {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
         'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
         'available': STATES,
         'type': 'str',
     },
@@ -191,7 +203,7 @@ options:
     default_flow_style=False).replace('\n', '\n  ') + '''
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 6.0.2"
+    - "ionoscloud >= 6.1.6"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 '''
@@ -302,7 +314,7 @@ def create_snapshot(module, client):
     snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for volume
@@ -310,7 +322,7 @@ def create_snapshot(module, client):
     volume_id = get_resource_id(module, volume_list, volume)
 
     # Locate snapshot by name/UUID
-    snapshot_list = snapshot_server.snapshots_get(depth=2)
+    snapshot_list = snapshot_server.snapshots_get(depth=1)
     snapshot = get_resource(module, snapshot_list, name)
 
     should_change = snapshot is None
@@ -323,7 +335,7 @@ def create_snapshot(module, client):
             'changed': False,
             'failed': False,
             'action': 'create',
-            'snapshot': snapshot.to_dict()
+            RETURNED_KEY: snapshot.to_dict()
         }
 
     try:
@@ -340,7 +352,7 @@ def create_snapshot(module, client):
             'changed': True,
             'failed': False,
             'action': 'create',
-            'snapshot': snapshot_response.to_dict()
+            RETURNED_KEY: snapshot_response.to_dict()
         }
 
     except Exception as e:
@@ -359,7 +371,7 @@ def restore_snapshot(module, client):
     """
     datacenter = module.params.get('datacenter')
     volume = module.params.get('volume')
-    name = module.params.get('name')
+    snapshot = module.params.get('snapshot')
     wait = module.params.get('wait')
 
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
@@ -367,7 +379,7 @@ def restore_snapshot(module, client):
     snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
 
     # Locate UUID for virtual datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
 
     # Locate UUID for volume
@@ -375,17 +387,16 @@ def restore_snapshot(module, client):
     volume_id = get_resource_id(module, volume_list, volume)
 
     # Locate UUID for snapshot
-    snapshot_list = snapshot_server.snapshots_get(depth=2)
-    snapshot_id = get_resource_id(module, snapshot_list, name)
+    snapshot_list = snapshot_server.snapshots_get(depth=1)
+    snapshot_id = get_resource_id(module, snapshot_list, snapshot)
 
     if module.check_mode:
         module.exit_json(changed=True)
 
     try:
-        response = volume_server.datacenters_volumes_restore_snapshot_post_with_http_info(datacenter_id=datacenter_id,
-                                                                                          volume_id=volume_id,
-                                                                                          snapshot_id=snapshot_id)
-        (snapshot_response, _, headers) = response
+        snapshot_response, _, headers = volume_server.datacenters_volumes_restore_snapshot_post_with_http_info(
+            datacenter_id=datacenter_id, volume_id=volume_id, snapshot_id=snapshot_id,
+        )
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id)
@@ -394,7 +405,7 @@ def restore_snapshot(module, client):
             'changed': True,
             'failed': False,
             'action': 'restore',
-            'snapshot': snapshot_response
+            RETURNED_KEY: snapshot_response
         }
 
     except Exception as e:
@@ -413,12 +424,12 @@ def update_snapshot(module, client):
     """
     snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
 
-    name = module.params.get('name')
+    snapshot = module.params.get('snapshot')
 
     # Locate snapshot by name
-    snapshot_list = snapshot_server.snapshots_get(depth=2)
+    snapshot_list = snapshot_server.snapshots_get(depth=1)
 
-    snapshot = get_resource(module, snapshot_list, name)
+    snapshot = get_resource(module, snapshot_list, snapshot)
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -482,7 +493,7 @@ def update_snapshot(module, client):
             'changed': True,
             'failed': False,
             'action': 'update',
-            'snapshot': snapshot_response.to_dict()
+            RETURNED_KEY: snapshot_response.to_dict()
         }
 
     except Exception as e:
@@ -501,11 +512,11 @@ def delete_snapshot(module, client):
     """
 
     snapshot_server = ionoscloud.SnapshotsApi(api_client=client)
-    name = module.params.get('name')
+    snapshot = module.params.get('snapshot')
 
     # Locate snapshot UUID
-    snapshot_list = snapshot_server.snapshots_get(depth=2)
-    snapshot_id = get_resource_id(module, snapshot_list, name)
+    snapshot_list = snapshot_server.snapshots_get(depth=1)
+    snapshot_id = get_resource_id(module, snapshot_list, snapshot)
 
     if not snapshot_id:
         module.exit_json(changed=False)
@@ -549,6 +560,7 @@ def get_sdk_config(module, sdk):
     password = module.params.get('password')
     token = module.params.get('token')
     api_url = module.params.get('api_url')
+    certificate_fingerprint = module.params.get('certificate_fingerprint')
 
     if token is not None:
         # use the token instead of username & password
@@ -566,14 +578,17 @@ def get_sdk_config(module, sdk):
         conf['host'] = api_url
         conf['server_index'] = None
 
+    if certificate_fingerprint is not None:
+        conf['fingerprint'] = certificate_fingerprint
+
     return sdk.Configuration(**conf)
 
 
 def check_required_arguments(module, state, object_name):
     # manually checking if token or username & password provided
     if (
-            not module.params.get("token")
-            and not (module.params.get("username") and module.params.get("password"))
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name} state {state}'.format(

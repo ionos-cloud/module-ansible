@@ -36,23 +36,24 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'applicationloadbalancer'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Target Group'
+RETURNED_KEY = 'target_group'
 
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the Target Group.'],
+        'description': ['The target group name.'],
         'available': STATES,
         'required': ['present'],
         'type': 'str',
     },
     'algorithm': {
-        'description': ['Balancing algorithm.'],
+        'description': ['The balancing algorithm. A balancing algorithm consists of predefined rules with the logic that a load balancer uses to distribute network traffic between servers.  - **Round Robin**: Targets are served alternately according to their weighting.  - **Least Connection**: The target with the least active connection is served.  - **Random**: The targets are served based on a consistent pseudorandom algorithm.  - **Source IP**: It is ensured that the same client IP address reaches the same target.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
     'protocol': {
-        'description': ['Balancing protocol.'],
+        'description': ['The forwarding protocol. Only the value \'HTTP\' is allowed.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -68,20 +69,37 @@ OPTIONS = {
         'type': 'dict',
     },
     'targets': {
-        'description': ['An array of items in the collection.'],
+        'description': ['Array of items in the collection.'],
         'available': ['present', 'update'],
         'type': 'list',
         'elements': 'dict',
     },
-    'target_group_id': {
-        'description': ['The ID of the Target Group.'],
+    'target_group': {
+        'description': ['The ID or name of the Target Group.'],
         'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
         'type': 'str',
+    },
+    'allow_replace': {
+        'description': [
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
         'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
         'available': STATES,
         'type': 'str',
     },
@@ -158,7 +176,7 @@ EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create Target Group
     target_group:
-      name: "{{ name }}"
+      name: "AnsibleAutoTestCompute"
       algorithm: "ROUND_ROBIN"
       protocol: "HTTP"
       targets:
@@ -184,10 +202,10 @@ EXAMPLE_PER_STATE = {
   'update' : '''
   - name: Update Target Group
     target_group:
-      name: "{{ name }} - UPDATED"
+      name: "AnsibleAutoTestCompute - UPDATED"
       algorithm: "ROUND_ROBIN"
       protocol: "HTTP"
-      target_group_id: "{{ target_group_response.target_group.id }}"
+      target_group: "AnsibleAutoTestCompute"
       wait: true
       state: update
     register: target_group_response_update
@@ -195,7 +213,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''
   - name: Remove Target Group
     target_group:
-      target_group_id: "{{ target_group_response.target_group.id }}"
+      target_group: "AnsibleAutoTestCompute - UPDATED"
       wait: true
       wait_timeout: 2000
       state: absent
@@ -246,19 +264,6 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def _update_target_group(module, client, target_group_server, target_group_id, target_group_properties):
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-    response = target_group_server.targetgroups_patch_with_http_info(target_group_id, target_group_properties)
-    (target_group_response, _, headers) = response
-
-    if wait:
-        request_id = _get_request_id(headers['Location'])
-        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-    return target_group_response
-
-
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -269,32 +274,32 @@ def _get_request_id(headers):
 
 def get_target(target):
     target_object = TargetGroupTarget()
-    if target['ip']:
+    if target.get('ip'):
         target_object.ip = target['ip']
-    if target['port']:
+    if target.get('port'):
         target_object.port = target['port']
-    if target['weight']:
+    if target.get('weight'):
         target_object.weight = target['weight']
-    if target['health_check_enabled']:
+    if target.get('health_check_enabled'):
         target_object.health_check_enabled = target['health_check_enabled']
-    if target['maintenance_enabled']:
+    if target.get('maintenance_enabled'):
         target_object.maintenance_enabled = target['maintenance_enabled']
     return target_object
 
 
 def get_http_health_check(http_health_check):
     http_health_check_object = TargetGroupHttpHealthCheck()
-    if http_health_check['path']:
+    if http_health_check.get('path'):
         http_health_check_object.path = http_health_check['path']
-    if http_health_check['method']:
+    if http_health_check.get('method'):
         http_health_check_object.method = http_health_check['method']
-    if http_health_check['match_type']:
+    if http_health_check.get('match_type'):
         http_health_check_object.match_type = http_health_check['match_type']
-    if http_health_check['response']:
+    if http_health_check.get('response'):
         http_health_check_object.response = http_health_check['response']
-    if http_health_check['regex']:
+    if http_health_check.get('regex'):
         http_health_check_object.regex = http_health_check['regex']
-    if http_health_check['negate']:
+    if http_health_check.get('negate'):
         http_health_check_object.negate = http_health_check['negate']
     http_health_check = http_health_check_object
     return http_health_check
@@ -302,191 +307,269 @@ def get_http_health_check(http_health_check):
 
 def get_health_check(health_check):
     health_check_object = TargetGroupHealthCheck()
-    if health_check['check_timeout']:
+    if health_check.get('check_timeout'):
         health_check_object.check_timeout = health_check['check_timeout']
-    if health_check['check_interval']:
+    if health_check.get('check_interval'):
         health_check_object.check_interval = health_check['check_interval']
-    if health_check['retries']:
+    if health_check.get('retries'):
         health_check_object.retries = health_check['retries']
     return health_check_object
 
 
-def create_target_group(module, client):
-    """
-    Creates a Target Group
+def _should_replace_object(module, existing_object):
+    return False
 
-    This will create a new Target Group in the specified Datacenter.
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
+def _should_update_object(module, existing_object):
+    health_check = module.params.get('health_check')
+    http_health_check = module.params.get('http_health_check')
+    new_health_check = get_health_check(health_check) if health_check else None
+    new_http_health_check = get_http_health_check(http_health_check) if http_health_check else None
 
-    Returns:
-        The Target Group ID if a new Target Group was created.
-    """
+    def sort_func(el):
+        return el['ip'], el['port']
+
+    if module.params.get('targets'):
+        existing_targets = sorted(map(
+            lambda x: {
+                'ip': x.ip,
+                'port': x.port,
+                'weight': x.weight,
+                'health_check_enabled': x.health_check_enabled,
+                'maintenance_enabled': x.maintenance_enabled,
+            },
+            existing_object.properties.targets
+        ), key=sort_func)
+        new_targets = sorted(module.params.get('targets'), key=sort_func)
+
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+        or module.params.get('algorithm') is not None
+        and existing_object.properties.algorithm != module.params.get('algorithm')
+        or module.params.get('protocol') is not None
+        and existing_object.properties.protocol != module.params.get('protocol')
+        or new_health_check is not None
+        and (
+            existing_object.properties.health_check.check_timeout != new_health_check.check_timeout
+            or existing_object.properties.health_check.check_interval != new_health_check.check_interval
+            or existing_object.properties.health_check.retries != new_health_check.retries
+        )
+        or new_http_health_check is not None
+        and (
+            existing_object.properties.http_health_check.path != new_http_health_check.path
+            or existing_object.properties.http_health_check.method != new_http_health_check.method
+            or existing_object.properties.http_health_check.match_type != new_http_health_check.match_type
+            or existing_object.properties.http_health_check.response != new_http_health_check.response
+            or existing_object.properties.http_health_check.regex != new_http_health_check.regex
+            or existing_object.properties.http_health_check.negate != new_http_health_check.negate
+        )
+        or module.params.get('targets') is not None
+        and new_targets != existing_targets
+    )
+
+
+def _get_object_list(module, client):
+    return ionoscloud.TargetGroupsApi(client).targetgroups_get(depth=1)
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('target_group')
+
+
+def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
     algorithm = module.params.get('algorithm')
     protocol = module.params.get('protocol')
     targets = module.params.get('targets')
     health_check = module.params.get('health_check')
     http_health_check = module.params.get('http_health_check')
+
+    if health_check:
+        health_check = get_health_check(health_check)
+
+    if http_health_check:
+        http_health_check = get_http_health_check(http_health_check)
+
+    if targets:
+        targets = list(map(lambda x: get_target(x), targets))
+
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        algorithm = existing_object.properties.algorithm if algorithm is None else algorithm
+        protocol = existing_object.properties.protocol if protocol is None else protocol
+        targets = existing_object.properties.targets if targets is None else targets
+        health_check = existing_object.properties.health_check if health_check is None else health_check
+        http_health_check = existing_object.properties.http_health_check if http_health_check is None else http_health_check
 
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
-    target_group_server = ionoscloud.TargetGroupsApi(client)
-    target_groups = target_group_server.targetgroups_get(depth=5)
-    target_group_response = None
-
-    if health_check:
-        health_check = get_health_check(health_check)
-
-    if http_health_check:
-        http_health_check = get_http_health_check(http_health_check)
-
-    target_list = []
-    if targets and len(targets) > 0:
-        for t in targets:
-            target = get_target(t)
-            target_list.append(target)
-
-    existing_target_group = get_resource(module, target_groups, name)
-
-    if existing_target_group:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'target_group': existing_target_group.to_dict()
-        }
-
-    target_group_properties = TargetGroupProperties(
+    target_groups_api = ionoscloud.TargetGroupsApi(client)
+    
+    target_group = TargetGroup(properties=TargetGroupProperties(
         name=name, algorithm=algorithm, protocol=protocol,
-        targets=target_list, health_check=health_check,
+        targets=targets, health_check=health_check,
         http_health_check=http_health_check,
-    )
-    target_group = TargetGroup(properties=target_group_properties)
+    ))
 
     try:
-        response = target_group_server.targetgroups_post_with_http_info(target_group)
-        (target_group_response, _, headers) = response
-
+        response, _, headers = target_groups_api.targetgroups_post_with_http_info(target_group)
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
     except ApiException as e:
         module.fail_json(msg="failed to create the new Target Group: %s" % to_native(e))
-
-    return {
-        'changed': True,
-        'failed': False,
-        'action': 'create',
-        'target_group': target_group_response.to_dict()
-    }
+    return response
 
 
-def update_target_group(module, client):
-    """
-    Updates a Target Group.
-
-    This will update a Target Group.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        True if the Target Group was updated, false otherwise
-    """
+def _update_object(module, client, existing_object):
     name = module.params.get('name')
     algorithm = module.params.get('algorithm')
     protocol = module.params.get('protocol')
-    target_group_id = module.params.get('target_group_id')
     targets = module.params.get('targets')
     health_check = module.params.get('health_check')
     http_health_check = module.params.get('http_health_check')
 
-    target_group_server = ionoscloud.TargetGroupsApi(client)
-    target_group_response = None
-
     if health_check:
         health_check = get_health_check(health_check)
 
     if http_health_check:
         http_health_check = get_http_health_check(http_health_check)
 
-    target_list = []
-    if targets and len(targets) > 0:
-        for t in targets:
-            target = get_target(t)
-            target_list.append(target)
 
-    target_groups = target_group_server.targetgroups_get(depth=2)
-    existing_target_group_id_by_name = get_resource_id(module, target_groups, name)
+    if targets:
+        targets = list(map(lambda x: get_target(x), targets))
 
-    if target_group_id is not None and existing_target_group_id_by_name is not None and existing_target_group_id_by_name != target_group_id:
-            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
 
-    target_group_id = target_group_id if target_group_id else existing_target_group_id_by_name
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
 
+    target_groups_api = ionoscloud.TargetGroupsApi(client)
+    
     target_group_properties = TargetGroupProperties(
         name=name, algorithm=algorithm, protocol=protocol,
         targets=targets, health_check=health_check,
         http_health_check=http_health_check,
     )
 
-    if target_group_id:
-        target_group_response = _update_target_group(
-            module, client, target_group_server,
-            target_group_id,
-            target_group_properties,
+    try:
+        response, _, headers = target_groups_api.targetgroups_patch_with_http_info(
+            existing_object.id, target_group_properties,
         )
-    else:
-        module.fail_json(msg="failed to update the Target Group: The resource does not exist")
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-    return {
-        'changed': True,
-        'action': 'update',
-        'failed': False,
-        'target_group': target_group_response.to_dict()
-    }
+        return response
+    except ApiException as e:
+        module.fail_json(msg="failed to update the Target Group: %s" % to_native(e))
 
 
-def remove_target_group(module, client):
-    """
-    Removes a Target Group.
-
-    This will remove a Target Group.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        True if the Target Group was deleted, false otherwise
-    """
-    name = module.params.get('name')
-    target_group_id = module.params.get('target_group_id')
-
+def _remove_object(module, client, existing_object):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    target_group_server = ionoscloud.TargetGroupsApi(client)
-
-    target_groups = target_group_server.targetgroups_get(depth=2)
-    existing_target_group_id_by_name = get_resource_id(module, target_groups, name)
-
-    target_group_id = target_group_id if target_group_id else existing_target_group_id_by_name
+    target_groups_api = ionoscloud.TargetGroupsApi(client)
 
     try:
-        _, _, headers = target_group_server.target_groups_delete_with_http_info(target_group_id)
+        _, _, headers = target_groups_api.target_groups_delete_with_http_info(existing_object.id)
         if wait:
-            client.wait_for_completion(request_id=_get_request_id(headers['Location']), timeout=wait_timeout)
-    except Exception as e:
-        module.fail_json(msg="failed to delete the Target Group: %s" % to_native(e))
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to remove the Target Group: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
+        }
+
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
+
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
+
+
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
+
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
+
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
+
+    _remove_object(module, client, existing_object)
 
     return {
         'action': 'delete',
         'changed': True,
-        'id': target_group_id
+        'id': existing_object.id,
     }
 
 
@@ -515,6 +598,7 @@ def get_sdk_config(module, sdk):
     password = module.params.get('password')
     token = module.params.get('token')
     api_url = module.params.get('api_url')
+    certificate_fingerprint = module.params.get('certificate_fingerprint')
 
     if token is not None:
         # use the token instead of username & password
@@ -531,6 +615,9 @@ def get_sdk_config(module, sdk):
     if api_url is not None:
         conf['host'] = api_url
         conf['server_index'] = None
+
+    if certificate_fingerprint is not None:
+        conf['fingerprint'] = certificate_fingerprint
 
     return sdk.Configuration(**conf)
 
@@ -569,17 +656,13 @@ def main():
     with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
         api_client.user_agent = USER_AGENT
         check_required_arguments(module, state, OBJECT_NAME)
-
-        if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('target_group_id'):
-            module.fail_json(msg='either name or target_group_id parameter is required for {object_name} state absent'.format(object_name=OBJECT_NAME))
-
         try:
             if state == 'absent':
-                module.exit_json(**remove_target_group(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'present':
-                module.exit_json(**create_target_group(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_target_group(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 

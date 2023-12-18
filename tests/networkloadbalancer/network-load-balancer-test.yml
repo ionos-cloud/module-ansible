@@ -31,7 +31,7 @@
 
     - name: Create Network Load Balancer
       network_load_balancer:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         ips:
           - "10.12.118.224"
@@ -46,8 +46,8 @@
 
     - name: Update Network Load Balancer
       network_load_balancer:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
         name: "{{ name }} - UPDATE"
         listener_lan: "{{ listener_lan.lan.id }}"
         target_lan: "{{ target_lan.lan.id }}"
@@ -61,39 +61,39 @@
 
     - name: Remove Network Load Balancer
       network_load_balancer:
-       network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+       datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: false
        state: absent
 
     - name: Remove Network Load Balancer
       network_load_balancer:
-       network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+       datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
        state: absent
 
     - name: Remove Network Load Balancer
       network_load_balancer:
-       network_load_balancer_id: "invalid-id"
-       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       network_load_balancer: "invalid-id"
+       datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
        state: absent
 
     - name: Remove Listener LAN
       lan:
         datacenter: "{{ datacenter }}"
-        name: "listener_lan"
+        lan: "listener_lan"
         state: absent
 
     - name: Remove Target LAN
       lan:
         datacenter: "{{ datacenter }}"
-        name: "target_lan"
+        lan: "target_lan"
         state: absent
 
     - name: Remove datacenter
       datacenter:
-        name: "{{ datacenter }}"
+        datacenter: "{{ datacenter }}"
         wait: true
         state: absent

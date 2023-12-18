@@ -34,36 +34,53 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Datacenter'
+RETURNED_KEY = 'datacenter'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the virtual datacenter.'],
+        'description': ['The name of the  resource.'],
         'required': ['present'],
-        'available': STATES,
-        'type': 'str',
-    },
-    'id': {
-        'description': ['The ID of the virtual datacenter.'],
-        'available': ['update', 'absent'],
+        'available': ['present', 'update'],
         'type': 'str',
     },
     'description': {
-        'description': ['The description of the virtual datacenter.'],
+        'description': ['A description for the datacenter, such as staging, production.'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'location': {
-        'description': ['The datacenter location.'],
+        'description': ['The physical location where the datacenter will be created. This will be where all of your servers live. Property cannot be modified after datacenter creation (disallowed in update requests).'],
         'required': ['present'],
-        'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
-        'default': 'us/las',
-        'available': ['present'],
+        'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr', 'es/vit', 'fr/par'],
+        'available': ['present', 'update'],
         'type': 'str',
+    },
+    'datacenter': {
+        'description': ['The ID or name of the virtual datacenter.'],
+        'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
+        'type': 'str',
+    },
+    'allow_replace': {
+        'description': [
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
         'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
         'available': STATES,
         'type': 'str',
     },
@@ -114,6 +131,10 @@ OPTIONS = {
     },
 }
 
+IMMUTABLE_OPTIONS = [
+    { "name": "location", "note": "" },
+]
+
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES) 
     del val['available']
@@ -125,7 +146,7 @@ DOCUMENTATION = '''
 module: datacenter
 short_description: Create or destroy a Ionos Cloud Virtual Datacenter.
 description:
-     - This is a simple module that supports creating or removing vDCs. A vDC is required before you can create servers.
+     - This is a simple module that supports creating or removing datacenters. A datacenter is required before you can create servers.
        This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:
@@ -149,8 +170,7 @@ EXAMPLE_PER_STATE = {
   'update' : '''# Update a datacenter description
   - name: Update datacenter
     datacenter:
-      id: "{{ datacenter_response.datacenter.id }}"
-      name: "Example DC"
+      datacenter: "Example DC"
       description: "description - RENAMED"
       state: update
     register: updated_datacenter
@@ -158,8 +178,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''# Destroy a Datacenter. This will remove all servers, volumes, and other objects in the datacenter.
   - name: Remove datacenter
     datacenter:
-      id: "{{ datacenter_response.datacenter.id }}"
-      name: "Example DC"
+      datacenter: "Example DC"
       state: absent
   ''',
 }
@@ -215,171 +234,188 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def _update_datacenter(module, datacenter_server, client, id, datacenter, wait):
-    if module.check_mode:
-        module.exit_json(changed=True)
-    try:
-        response = datacenter_server.datacenters_put_with_http_info(datacenter_id=id, datacenter=datacenter)
-        (datacenter_response, _, headers) = response
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id)
-
-        return {
-            'changed': True,
-            'failed': False,
-            'datacenter': datacenter_response.to_dict()
-        }
-    except ApiException as e:
-        module.fail_json(msg="failed to update the datacenter: %s" % to_native(e))
-    return {
-        'changed': False,
-        'failed': True,
-    }
+def _should_replace_object(module, existing_object):
+    return (
+        module.params.get('location') is not None
+        and existing_object.properties.location != module.params.get('location')
+    )
 
 
-def create_datacenter(module, client):
-    """
-    Creates a Datacenter
+def _should_update_object(module, existing_object):
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+        or module.params.get('description') is not None
+        and existing_object.properties.description != module.params.get('description')
+    )
 
-    This will create a new Datacenter in the specified location.
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
+def _get_object_list(module, client):
+    return ionoscloud.DataCentersApi(client).datacenters_get(depth=1)
 
-    Returns:
-        The datacenter ID if a new datacenter was created.
-    """
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('datacenter')
+
+
+def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
     location = module.params.get('location')
     description = module.params.get('description')
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        location = existing_object.properties.location if location is None else location
+        description = existing_object.properties.description if description is None else description
+
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
 
-    datacenter_server = ionoscloud.DataCentersApi(client)
-
-    existing_dc = get_resource(module, datacenter_server.datacenters_get(depth=3), name)
-
-    if existing_dc:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'datacenter': existing_dc.to_dict()
-        }
+    datacenters_api = ionoscloud.DataCentersApi(client)
 
     datacenter_properties = DatacenterProperties(name=name, description=description, location=location)
     datacenter = Datacenter(properties=datacenter_properties)
 
     try:
-        response = datacenter_server.datacenters_post_with_http_info(datacenter=datacenter)
-        (datacenter_response, _, headers) = response
+        datacenter_response, _, headers = datacenters_api.datacenters_post_with_http_info(datacenter=datacenter)
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            datacenter_response = datacenters_api.datacenters_find_by_id(datacenter_response.id)
+    except ApiException as e:
+        module.fail_json(msg="failed to create the new datacenter: %s" % to_native(e))
+    return datacenter_response
 
+
+def _update_object(module, client, existing_object):
+    name = module.params.get('name')
+    description = module.params.get('description')
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    datacenters_api = ionoscloud.DataCentersApi(client)
+
+    datacenter_properties=DatacenterProperties(name=name, description=description)
+
+    try:
+        datacenter_response, _, headers = datacenters_api.datacenters_patch_with_http_info(
+            datacenter_id=existing_object.id,
+            datacenter=datacenter_properties,
+        )
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-        results = {
+        return datacenter_response
+    except ApiException as e:
+        module.fail_json(msg="failed to update the datacenter: %s" % to_native(e))
+
+
+def _remove_object(module, client, existing_object):
+    wait = module.params.get('wait')
+    wait_timeout = module.params.get('wait_timeout')
+
+    datacenters_api = ionoscloud.DataCentersApi(client)
+
+    try:
+        _, _, headers = datacenters_api.datacenters_delete_with_http_info(
+            datacenter_id=existing_object.id,
+        )
+        if wait:
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to remove the datacenter: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
+        return {
             'changed': True,
             'failed': False,
             'action': 'create',
-            'datacenter': datacenter_response.to_dict()
+            RETURNED_KEY: new_object,
         }
-
-        return results
-
-    except ApiException as e:
-        module.fail_json(msg="failed to create the new datacenter: %s" % to_native(e))
-
-
-def update_datacenter(module, client):
-    """
-    Updates a Datacenter.
-
-    This will update a datacenter.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        True if a new datacenter was updated, false otherwise
-    """
-    name = module.params.get('name')
-    description = module.params.get('description')
-    datacenter_id = module.params.get('id')
-    wait = module.params.get('wait')
-    datacenter_server = ionoscloud.DataCentersApi(client)
-
-    if description is None:
+    if _should_update_object(module, existing_object):
+        # Update
         return {
+            'changed': True,
+            'failed': False,
             'action': 'update',
-            'changed': False
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
         }
 
-    changed = False
-    response = None
-
-    existing_dc_id_by_name = get_resource_id(module, datacenter_server.datacenters_get(depth=2), name)
-
-    if datacenter_id is not None and existing_dc_id_by_name is not None and existing_dc_id_by_name != datacenter_id:
-            module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, name))
-
-    datacenter_id = existing_dc_id_by_name if datacenter_id is None else datacenter_id
-
-    datacenter = Datacenter(properties={'name': name, 'description': description})
-    response = _update_datacenter(module, datacenter_server, client, datacenter_id, datacenter, wait)
-    changed = response['changed']
-
-    if not changed:
-        module.fail_json(msg="failed to update the datacenter: The resource does not exist")
-
+    # No action
     return {
-        'changed': changed,
-        'action': 'update',
-        'failed': response['failed'],
-        'datacenter': response['datacenter']
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
     }
 
 
-def remove_datacenter(module, client):
-    """
-    Removes a Datacenter.
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
 
-    This will remove a datacenter.
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
 
-    Returns:
-        True if the datacenter was deleted, false otherwise
-    """
-    name = module.params.get('name')
-    datacenter_id = module.params.get('id')
-    wait = module.params.get('wait')
-    datacenter_server = ionoscloud.DataCentersApi(client)
 
-    datacenters_list = datacenter_server.datacenters_get(depth=2)
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
 
-    datacenter_id = get_resource_id(module, datacenters_list, datacenter_id if datacenter_id is not None else name)
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
 
-    if datacenter_id is None:
+    if existing_object is None:
         module.exit_json(changed=False)
+        return
 
-    if module.check_mode:
-        module.exit_json(changed=True)
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
-    try:
-        _, _, headers = datacenter_server.datacenters_delete_with_http_info(datacenter_id=datacenter_id)
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id)
-    except Exception as e:
-        module.fail_json(msg="failed to remove the datacenter: %s" % to_native(e))
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
+
+    _remove_object(module, client, existing_object)
 
     return {
         'action': 'delete',
         'changed': True,
-        'id': datacenter_id,
+        'id': existing_object.id,
     }
 
 
@@ -408,6 +444,7 @@ def get_sdk_config(module, sdk):
     password = module.params.get('password')
     token = module.params.get('token')
     api_url = module.params.get('api_url')
+    certificate_fingerprint = module.params.get('certificate_fingerprint')
 
     if token is not None:
         # use the token instead of username & password
@@ -424,6 +461,9 @@ def get_sdk_config(module, sdk):
     if api_url is not None:
         conf['host'] = api_url
         conf['server_index'] = None
+
+    if certificate_fingerprint is not None:
+        conf['fingerprint'] = certificate_fingerprint
 
     return sdk.Configuration(**conf)
 
@@ -453,7 +493,7 @@ def check_required_arguments(module, state, object_name):
 
 
 def main():
-    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+    module = AnsibleModule(argument_spec=get_module_arguments())
 
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
@@ -463,17 +503,13 @@ def main():
         api_client.user_agent = USER_AGENT
         check_required_arguments(module, state, OBJECT_NAME)
 
-        if state in ['absent', 'update'] and not module.params.get('name') and not module.params.get('id'):
-            module.fail_json(msg='either name or id parameter is required for {object_name} state present'.format(object_name=OBJECT_NAME))
         try:
             if state == 'absent':
-                module.exit_json(**remove_datacenter(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'present':
-                if module.check_mode:
-                    module.exit_json(changed=True)
-                module.exit_json(**create_datacenter(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_datacenter(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 

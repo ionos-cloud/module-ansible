@@ -9,7 +9,7 @@
     - name: Create datacenter
       datacenter:
         name: "{{ datacenter }}"
-        location: "gb/lhr"
+        location: "de/txl"
         wait: True
       register: datacenter_response
 
@@ -59,15 +59,31 @@
         action: "ACCEPTED"
         direction: "INGRESS"
         bucket: "sdktest"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        server_id: "{{ server_response.machines[0].id }}"
-        nic_id: "{{ nic_response.nic.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        server: "{{ server_response.machines[0].id }}"
+        nic: "{{ nic_response.nic.id }}"
       register: flowlog_response
 
     - name: Debug - Show Created Flowlog
       debug:
         msg: "{{ flowlog_response }}"
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{flowlog_response}}"
+    #     dest: ../../docs/returned_object_examples/nic_flowlog.json
+
+    - name: List NIC Flowlogs
+      nic_flowlog_info:
+          datacenter: "{{ datacenter }}"
+          server: "{{ server }}"
+          nic: "{{ nic }}"
+      register: nic_flowlog_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nic_flowlog_list_response}}"
+    #     dest: ../../docs/returned_object_examples/nic_flowlog_info.json
 
     - name: Update a nic flowlog
       nic_flowlog:
@@ -75,24 +91,23 @@
         action: "ALL"
         direction: "INGRESS"
         bucket: "sdktest"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        server_id: "{{ server_response.machines[0].id }}"
-        nic_id: "{{ nic_response.nic.id }}"
-        flowlog_id: "{{ flowlog_response.flowlog.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        server: "{{ server_response.machines[0].id }}"
+        nic: "{{ nic_response.nic.id }}"
+        flowlog: "{{ flowlog_response.flowlog.id }}"
+        state: update
       register: flowlog_update_response
-
 
     - name: Debug - Show Updated Flowlog
       debug:
         msg: "{{ flowlog_update_response }}"
 
-
     - name: Delete a nic flowlog
       nic_flowlog:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        server_id: "{{ server_response.machines[0].id }}"
-        nic_id: "{{ nic_response.nic.id }}"
-        flowlog_id: "{{ flowlog_response.flowlog.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        server: "{{ server_response.machines[0].id }}"
+        nic: "{{ nic_response.nic.id }}"
+        flowlog: "{{ flowlog_response.flowlog.id }}"
         name: "{{ name }}"
         state: absent
         wait: true
@@ -100,10 +115,10 @@
 
     - name: Delete a nic flowlog
       nic_flowlog:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        server_id: "{{ server_response.machines[0].id }}"
-        nic_id: "{{ nic_response.nic.id }}"
-        flowlog_id: "invalid-id"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        server: "{{ server_response.machines[0].id }}"
+        nic: "{{ nic_response.nic.id }}"
+        flowlog: "invalid-id"
         name: "{{ name }}"
         state: absent
         wait: true
@@ -115,7 +130,7 @@
 
     - name: Remove NIC
       nic:
-        name: "{{ nic_response.nic.id }}"
+        nic: "{{ nic_response.nic.id }}"
         datacenter: "{{ datacenter }}"
         server: "{{ server_response.machines[0].id }}"
         wait: true
@@ -131,9 +146,8 @@
          wait_timeout: "{{ wait_timeout }}"
          state: absent
 
-
     - name: Remove datacenter
       datacenter:
-        name: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         state: absent
         wait: true

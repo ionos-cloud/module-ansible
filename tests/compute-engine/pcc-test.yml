@@ -12,23 +12,37 @@
         description: "{{ description }}"
       register: result
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{result}}"
+    #     dest: ../../docs/returned_object_examples/pcc.json
+
+    - name: List PCCs
+      pcc_info:
+      register: pcc_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{pcc_list_response}}"
+    #     dest: ../../docs/returned_object_examples/pcc_info.json
+
     - name: Debug - Show PCC
       debug:
         msg: "{{ result }}"
 
     - name: Update pcc
       pcc:
-        pcc_id: "{{ result.pcc.id }}"
+        pcc:  "{{ name }}"
         name: "RENAMED {{ name }}"
         description: "{{ description }} - RENAME"
         state: update
 
     - name: Remove pcc
       pcc:
-        pcc_id: "{{ result.pcc.id }}"
+        pcc: "{{ result.pcc.id }}"
         state: absent
 
     - name: Remove non-existent pcc
       pcc:
-        pcc_id: "non-existent-pcc"
+        pcc: "non-existent-pcc"
         state: absent

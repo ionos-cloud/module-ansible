@@ -92,6 +92,56 @@
       wait: true
     register: cluster_response
 
+  - name: Create Cluster no change
+    postgres_cluster:
+      postgres_version: 12
+      instances: 1
+      cores: 1
+      ram: 2048
+      storage_size: 20480
+      storage_type: SSD Premium
+      location: de/fra
+      backup_location: eu-central-2
+      connections:
+        - cidr: 192.168.1.106/24
+          datacenter: "{{ datacenter }} - DBaaS"
+          lan: "test_lan1"
+      display_name: backuptest-04
+      synchronization_mode: ASYNCHRONOUS
+      db_username: clusteruser
+      db_password: 7357cluster
+      wait: true
+    register: cluster_response_no_change
+
+  - name: Asserting that changed == false when no update is made
+    assert:
+      that:
+        - cluster_response_no_change.changed == false
+      msg: "Changed should be false"
+
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{cluster_response}}"
+  #     dest: ../../docs/returned_object_examples/postgres_cluster.json
+
+  - name: List Postgres Clusters
+    postgres_cluster_info:
+    register: postgres_clusters_response
+
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{postgres_clusters_response}}"
+  #     dest: ../../docs/returned_object_examples/postgres_cluster_info.json
+
+  - name: List Postgres Cluster Backups
+    postgres_backup_info:
+    register: postgres_backup_response
+
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{postgres_backup_response}}"
+  #     dest: ../../docs/returned_object_examples/postgres_backup_info.json
+
   - name: Update Cluster
     postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.properties.display_name }}"
@@ -102,6 +152,19 @@
       state: update
       wait: true
     register: updated_cluster_response
+
+  - name: Update Cluster No change
+    postgres_cluster:
+      postgres_cluster: "{{ cluster_response.postgres_cluster.properties.display_name }}"
+      state: update
+      wait: true
+    register: updated_cluster_response_no_change
+
+  - name: Asserting that changed == false when no update is made
+    assert:
+      that:
+        - updated_cluster_response_no_change.changed == false
+      msg: "Changed should be false"
 
   - name: List Postgres Cluster Backups
     postgres_backup_info:
@@ -122,7 +185,7 @@
 
   - name: Remove NIC 1
     nic:
-      name: "test_nic1"
+      nic: "test_nic1"
       datacenter: "{{ datacenter }} - DBaaS"
       server: "{{ server_response.machines[0].id }}"
       wait: true
@@ -131,7 +194,7 @@
 
   - name: Remove NIC 2
     nic:
-      name: "test_nic2"
+      nic: "test_nic2"
       datacenter: "{{ datacenter }} - DBaaS"
       server: "{{ server_response.machines[0].id }}"
       wait: true
@@ -151,20 +214,19 @@
   - name: Remove LAN 1
     lan:
       datacenter: "{{ datacenter }} - DBaaS"
-      name: "test_lan1"
+      lan: "test_lan1"
       state: absent
       wait: true
 
   - name: Remove LAN 2
     lan:
       datacenter: "{{ datacenter }} - DBaaS"
-      name: "test_lan2"
+      lan: "test_lan2"
       state: absent
       wait: true
 
   - name: Remove datacenter
     datacenter:
-      id: "{{ datacenter_response.datacenter.id }}"
-      name: "{{ datacenter }} - DBaaS"
+      datacenter: "{{ datacenter_response.datacenter.id }}"
       state: absent
       wait: true

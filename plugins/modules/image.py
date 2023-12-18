@@ -26,6 +26,7 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['absent', 'update']
 OBJECT_NAME = 'Image'
+RETURNED_KEY = 'image'
 
 
 OPTIONS = {
@@ -36,12 +37,12 @@ OPTIONS = {
         'type': 'str',
     },
     'name': {
-        'description': ['The name of the image.'],
+        'description': ['The resource name.'],
         'available': STATES,
         'type': 'str',
     },
     'description': {
-        'description': ['The description of the image.'],
+        'description': ['Human-readable description.'],
         'available': ['update'],
         'type': 'str',
     },
@@ -56,7 +57,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'ram_hot_plug': {
-        'description': ['Hot-plug capable RAM (no reboot required)'],
+        'description': ['Hot-plug capable RAM (no reboot required).'],
         'available': ['update'],
         'type': 'bool',
     },
@@ -71,7 +72,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'nic_hot_unplug': {
-        'description': ['Hot-unplug capable NIC (no reboot required)'],
+        'description': ['Hot-unplug capable NIC (no reboot required).'],
         'available': ['update'],
         'type': 'bool',
     },
@@ -96,7 +97,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'licence_type': {
-        'description': ['OS type for this image.'],
+        'description': ['The OS type of this image.'],
         'available': ['update'],
         'required': ['update'],
         'type': 'str',
@@ -110,6 +111,12 @@ OPTIONS = {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
         'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
         'available': STATES,
         'type': 'str',
     },
@@ -185,29 +192,29 @@ author:
 EXAMPLE_PER_STATE = {
   'update' : '''# Update an image
   - name: Update image
-      image:
-        image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
-        name: "CentOS-8.3.2011-x86_64-boot-renamed.iso"
-        description: "An image used for testing the Ansible Module"
-        cpu_hot_plug: true
-        cpu_hot_unplug: false
-        ram_hot_plug: true
-        ram_hot_unplug: true
-        nic_hot_plug: true
-        nic_hot_unplug: true
-        disc_virtio_hot_plug: true
-        disc_virtio_hot_unplug: true
-        disc_scsi_hot_plug: true
-        disc_scsi_hot_unplug: false
-        licence_type: "LINUX"
-        cloud_init: V1
-        state: update
+    image:
+      image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
+      name: "CentOS-8.3.2011-x86_64-boot-renamed.iso"
+      description: "An image used for testing the Ansible Module"
+      cpu_hot_plug: true
+      cpu_hot_unplug: false
+      ram_hot_plug: true
+      ram_hot_unplug: true
+      nic_hot_plug: true
+      nic_hot_unplug: true
+      disc_virtio_hot_plug: true
+      disc_virtio_hot_unplug: true
+      disc_scsi_hot_plug: true
+      disc_scsi_hot_unplug: false
+      licence_type: "LINUX"
+      cloud_init: V1
+      state: update
   ''',
   'absent' : '''# Destroy an image
   - name: Delete image
-      image:
-        image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
-        state: absent
+    image:
+      image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
+      state: absent
   ''',
 }
 
@@ -353,7 +360,7 @@ def update_image(module, client):
         'changed': changed,
         'failed': False,
         'action': 'update',
-        'image': image_response.to_dict()
+        RETURNED_KEY: image_response.to_dict()
     }
 
 
@@ -382,6 +389,7 @@ def get_sdk_config(module, sdk):
     password = module.params.get('password')
     token = module.params.get('token')
     api_url = module.params.get('api_url')
+    certificate_fingerprint = module.params.get('certificate_fingerprint')
 
     if token is not None:
         # use the token instead of username & password
@@ -398,6 +406,9 @@ def get_sdk_config(module, sdk):
     if api_url is not None:
         conf['host'] = api_url
         conf['server_index'] = None
+
+    if certificate_fingerprint is not None:
+        conf['fingerprint'] = certificate_fingerprint
 
     return sdk.Configuration(**conf)
 

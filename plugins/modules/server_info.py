@@ -23,10 +23,11 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['info']
 OBJECT_NAME = 'Servers'
+RETURNED_KEY = 'servers'
 
 OPTIONS = {
     'datacenter': {
-        'description': ['The ID of the datacenter.'],
+        'description': ['The ID or name of the datacenter.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -36,10 +37,31 @@ OPTIONS = {
         'available': STATES,
         'type': 'bool',
     },
+    'filters': {
+        'description': [
+            'Filter that can be used to list only objects which have a certain set of propeties. Filters '
+            'should be a dict with a key containing keys and value pair in the following format:'
+            "'properties.name': 'server_name'"
+        ],
+        'available': STATES,
+        'type': 'dict',
+    },
+    'depth': {
+        'description': ['The depth used when retrieving the items.'],
+        'available': STATES,
+        'type': 'int',
+        'default': 1,
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
         'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
         'available': STATES,
         'type': 'str',
     },
@@ -97,14 +119,14 @@ author:
 '''
 
 EXAMPLES = '''
-    - name: Get all servers for given datacenter
+    - name: Get all servers for a given datacenter
       server_info:
-        datacenter: "{{ datacenter }}"
+        datacenter: AnsibleDatacenter
       register: server_list_response
 
     - name: Get only the servers that need to be upgraded
       server_info:
-        datacenter: "{{ datacenter }}"
+        datacenter: AnsibleDatacenter
         upgrade_needed: true
       register: servers_list_upgrade_response
 
@@ -160,28 +182,89 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def get_servers(module, client):
+def get_method_from_filter(filter):
+    '''
+    Returns the method which check a filter for one object. Such a method would work in the following way:
+    for filter = ('properties.name', 'server_name') the resulting method would be
+    def method(item):
+        return item.properties.name == 'server_name'
+
+    Parameters:
+            filter (touple): Key, value pair representing the filter.
+
+    Returns:
+            the wanted method
+    '''
+    key, value = filter
+    def method(item):
+        current = item
+        for key_part in key.split('.'):
+            current = getattr(current, key_part)
+        return current == value
+    return method
+
+
+def get_method_to_apply_filters_to_item(filter_list):
+    '''
+    Returns the method which applies a list of filtering methods obtained using get_method_from_filter to 
+    one object and returns true if all the filters return true
+    Parameters:
+            filter_list (list): List of filtering methods
+    Returns:
+            the wanted method
+    '''
+    def f(item):
+        return all([f(item) for f in filter_list])
+    return f
+
+
+def apply_filters(module, item_list):
+    '''
+    Creates a list of filtering methods from the filters module parameter, filters item_list to keep only the
+    items for which every filter matches using get_method_to_apply_filters_to_item to make that check and returns
+    those items
+    Parameters:
+            module: The current Ansible module
+            item_list (list): List of items to be filtered
+    Returns:
+            List of items which match the filters
+    '''
+    filters = module.params.get('filters')
+    if not filters:
+        return item_list    
+    filter_methods = list(map(get_method_from_filter, filters.items()))
+
+    return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
+
+
+def get_objects(module, client):
     datacenter = module.params.get('datacenter')
     servers_api = ionoscloud.ServersApi(client)
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
     upgrade_needed = module.params.get('upgrade_needed')
+    depth = module.params.get('depth')
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = datacenter_server.datacenters_get(depth=1)
     datacenter = get_resource_id(module, datacenter_list, datacenter)
 
     try:
-        results = []
-        for server in servers_api.datacenters_servers_get(datacenter, upgrade_needed=upgrade_needed).items:
-            results.append(server.to_dict())
+        server_items = servers_api.datacenters_servers_get(
+            datacenter,
+            upgrade_needed=upgrade_needed,
+            depth=depth,
+        )
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, server_items.items)))
         return {
-            'action': 'info',
             'changed': False,
-            'servers': results
+            RETURNED_KEY: results
         }
 
     except Exception as e:
-        module.fail_json(msg="failed to list the servers: %s" % to_native(e))
+        module.fail_json(msg='failed to list the {object_name}: {error}'.format(
+            object_name=OBJECT_NAME, error=to_native(e),
+        ))
+
 
 
 def get_module_arguments():
@@ -207,8 +290,9 @@ def get_module_arguments():
 def get_sdk_config(module, sdk):
     username = module.params.get('username')
     password = module.params.get('password')
-    api_url = module.params.get('api_url')
     token = module.params.get('token')
+    api_url = module.params.get('api_url')
+    certificate_fingerprint = module.params.get('certificate_fingerprint')
 
     if token is not None:
         # use the token instead of username & password
@@ -226,14 +310,17 @@ def get_sdk_config(module, sdk):
         conf['host'] = api_url
         conf['server_index'] = None
 
+    if certificate_fingerprint is not None:
+        conf['fingerprint'] = certificate_fingerprint
+
     return sdk.Configuration(**conf)
 
 
 def check_required_arguments(module, object_name):
     # manually checking if token or username & password provided
     if (
-            not module.params.get("token")
-            and not (module.params.get("username") and module.params.get("password"))
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name}'.format(
@@ -263,7 +350,7 @@ def main():
         check_required_arguments(module, OBJECT_NAME)
 
         try:
-            module.exit_json(**get_servers(module, api_client))
+            module.exit_json(**get_objects(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
                                                                                              error=to_native(e),

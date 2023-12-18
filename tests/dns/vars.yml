@@ -1,0 +1,23 @@
+zone_name: test.example.test.ansible.com
+zone_description: test_description
+zone_description_updated: zone_description_updated
+zone_enabled: false
+zone_enabled_updated: true
+
+record_name: sdk-team-test-record
+record_name_updated: sdk-team-test-record-updated
+record_type: CNAME
+record_type_updated: CNAME
+record_content: 1.2.3.4
+record_content_updated: 2.2.3.4
+record_ttl: 3600
+record_ttl_updated: 1800
+record_priority: 35535
+record_priority_updated: 16
+record_enabled: true
+record_enabled_updated: false
+
+ipblock_name: testDNS
+ipblock_name2: testDNS2
+ipblock_location: de/fra
+ipblock_size: 2

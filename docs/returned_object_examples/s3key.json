@@ -1,0 +1,18 @@
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "s3key": {
+        "href": "https://api.ionos.com/cloudapi/v6/um/users/<USER_ID>/s3keys/<ID>",
+        "id": "<ID>",
+        "metadata": {
+            "created_date": "2023-05-31T13:49:52",
+            "etag": "26c5aad97d5bb95cc0c1ed99addde9fe"
+        },
+        "properties": {
+            "active": true,
+            "secret_key": "<SECRET_KEY>"
+        },
+        "type": "s3key"
+    }
+}

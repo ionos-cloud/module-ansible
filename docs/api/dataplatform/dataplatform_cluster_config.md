@@ -1,0 +1,97 @@
+# dataplatform_cluster_config
+
+This is a simple module that supports getting config of DataPlatform clusters
+
+⚠️ **Note:** Data Platform is currently in the Early Access (EA) phase. We recommend keeping usage and testing to non-production critical applications. Please contact your sales representative or support for more information.
+
+## Example Syntax
+
+
+```yaml
+
+  - name: Get DataPlatform config
+  dataplatform_cluster_config:
+    dataplatform_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+    config_file: 'config.yaml'
+  
+```
+
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "failed": false,
+    "changed": true,
+    "config": "<CONFIG_FILE_CONTENT>"
+}
+
+```
+
+&nbsp;
+
+&nbsp;
+
+# state: **present**
+```yaml
+  
+  - name: Get DataPlatform config
+  dataplatform_cluster_config:
+    dataplatform_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
+    config_file: 'config.yaml'
+  
+```
+### Available parameters for state **present**:
+&nbsp;
+
+<table data-full-width="true">
+  <thead>
+    <tr>
+      <th width="70">Name</th>
+      <th width="40" align="center">Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>cluster<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The name or the ID of the Data Platform cluster.</td>
+  </tr>
+  <tr>
+  <td>config_file<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The name of the file in which to save the config.</td>
+  </tr>
+  <tr>
+  <td>api_url<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>username<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
+  </tr>
+  <tr>
+  <td>password<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos password. Overrides the IONOS_PASSWORD environment variable.</td>
+  </tr>
+  <tr>
+  <td>token<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos token. Overrides the IONOS_TOKEN environment variable.</td>
+  </tr>
+  <tr>
+  <td>state<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>Indicate desired state of the resource.<br />Default: present<br />Options: ['present']</td>
+  </tr>
+  </tbody>
+</table>
+
+&nbsp;
+
+&nbsp;

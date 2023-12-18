@@ -21,23 +21,21 @@ ANSIBLE_METADATA = {
 }
 
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, ionoscloud.__version__)
-DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (
+DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-postgres/%s' % (
     __version__, ionoscloud_dbaas_postgres.__version__)
 DOC_DIRECTORY = 'dbaas-postgres'
 STATES = ['present', 'absent', 'update', 'restore']
 OBJECT_NAME = 'Postgres Cluster'
+RETURNED_KEY = 'postgres_cluster'
 
 OPTIONS = {
     'maintenance_window': {
-        'description': [
-            'Dict containing "time" (the time of the day when to perform the maintenance) '
-            'and "day_of_the_week" (the Day Of the week when to perform the maintenance).',
-        ],
+        'description': ['A weekly 4 hour-long window, during which maintenance might occur.'],
         'available': ['present', 'update'],
         'type': 'dict',
     },
     'postgres_version': {
-        'description': ['The PostgreSQL version of your cluster'],
+        'description': ['The PostgreSQL version of your cluster.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -55,36 +53,33 @@ OPTIONS = {
         'type': 'int',
     },
     'ram': {
-        'description': ['The amount of memory per instance(should be a multiple of 1024).'],
+        'description': ['The amount of memory per instance in megabytes. Has to be a multiple of 1024.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'int',
     },
     'storage_size': {
-        'description': ['The amount of storage per instance.'],
+        'description': ['The amount of storage per instance in megabytes.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'int',
     },
     'storage_type': {
-        'description': ['The storage type used in your cluster. Value "SSD" is deprecated. Use the equivalent "SSD Premium" instead.'],
+        'description': ['The storage type used in your cluster. (Value "SSD" is deprecated. Use the equivalent "SSD Premium" instead)'],
         'available': ['present'],
         'choices': ['HDD', 'SSD', 'SSD Standard', 'SSD Premium'],
         'required': ['present'],
         'type': 'str',
     },
     'connections': {
-        'description': ['Array of VDCs to connect to your cluster.'],
+        'description': ['Array of datacenters to connect to your cluster.'],
         'available': ['present'],
         'required': ['present'],
         'type': 'list',
         'elements': 'dict',
     },
     'location': {
-        'description': [
-            'The physical location where the cluster will be created. This will be where all of your instances live. '
-            'Property cannot be modified after datacenter creation (disallowed in update requests)'
-        ],
+        'description': ['The physical location where the cluster will be created. This will be where all of your instances live. Property cannot be modified after datacenter creation.'],
         'available': ['present'],
         'required': ['present'],
         'type': 'str',
@@ -96,17 +91,14 @@ OPTIONS = {
         'type': 'str',
     },
     'db_username': {
-        'description': [
-            'The username for the initial postgres user. Some system usernames are restricted (e.g. "postgres", '
-            '"admin", "standby")'
-        ],
+        'description': ['The username for the initial PostgreSQL user. Some system usernames are restricted (e.g. "postgres", "admin", "standby").'],
         'available': ['present'],
         'required': ['present'],
         'type': 'str',
         'no_log': True,
     },
     'db_password': {
-        'description': ['The username for the initial postgres user.'],
+        'description': ['The password for the initial postgres user.'],
         'available': ['present'],
         'required': ['present'],
         'type': 'str',
@@ -119,7 +111,7 @@ OPTIONS = {
         'type': 'str',
     },
     'backup_location': {
-        'description': ['The S3 location where the backups will be stored. One of ["de", "eu-south-2", "eu-central-2"]'],
+        'description': ['The S3 location where the backups will be stored.'],
         'available': ['present'],
         'type': 'str',
     },
@@ -140,10 +132,26 @@ OPTIONS = {
         'required': ['update', 'absent', 'restore'],
         'type': 'str',
     },
+    'allow_replace': {
+        'description': [
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
         'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
         'available': STATES,
         'type': 'str',
     },
@@ -194,6 +202,14 @@ OPTIONS = {
     },
 }
 
+IMMUTABLE_OPTIONS = [
+    { "name": "connections", "note": "" },
+    { "name": "backup_location", "note": "" },
+    { "name": "location", "note": "" },
+    { "name": "synchronization_mode", "note": "" },
+    { "name": "storage_type", "note": "" },
+]
+
 
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES)
@@ -233,8 +249,8 @@ EXAMPLE_PER_STATE = {
       location: de/fra
       connections:
         - cidr: 192.168.1.106/24
-          datacenter: "{{ datacenter_response.datacenter.id }}"
-          lan: "{{ lan_response1.lan.id }}"
+          datacenter: DatacenterName
+          lan: LanName
       display_name: backuptest-04
       synchronization_mode: ASYNCHRONOUS
       db_username: test
@@ -244,7 +260,7 @@ EXAMPLE_PER_STATE = {
   ''',
     'update': '''- name: Update Postgres Cluster
     postgres_cluster:
-      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_cluster: backuptest-04
       postgres_version: 12
       instances: 2
       cores: 2
@@ -256,7 +272,7 @@ EXAMPLE_PER_STATE = {
   ''',
     'absent': '''- name: Delete Postgres Cluster
     postgres_cluster:
-      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      postgres_cluster: backuptest-04
       state: absent
   ''',
 }
@@ -303,37 +319,83 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def create_postgres_cluster(module, dbaas_client, cloudapi_client):
+def _should_replace_object(module, existing_object, cloudapi_client):
+    datacenter_id = lan_id = cidr = None
+    if module.params.get('connections'):
+        connection = module.params.get('connections')[0]
+        datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
+        datacenter_id = get_resource_id(module, datacenter_list, connection['datacenter'])
+
+        if datacenter_id is None:
+            module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))
+        
+        lan_id = get_resource_id(
+            module,
+            ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1),
+            connection['lan'],
+        )
+        if lan_id is None:
+            module.fail_json('LAN {} not found.'.format(connection['lan']))
+        cidr = connection['cidr']
+
+    return (
+        module.params.get('backup_location') is not None
+        and existing_object.properties.backup_location != module.params.get('backup_location')
+        or module.params.get('location') is not None
+        and existing_object.properties.location != module.params.get('location')
+        or module.params.get('synchronization_mode') is not None
+        and existing_object.properties.synchronization_mode != module.params.get('synchronization_mode')
+        or module.params.get('storage_type') is not None
+        and existing_object.properties.storage_type != module.params.get('storage_type')
+        or module.params.get('connections') is not None
+        and (
+            existing_object.properties.connections[0].datacenter_id != datacenter_id
+            or existing_object.properties.connections[0].lan_id != lan_id
+            or existing_object.properties.connections[0].cidr != cidr
+        )
+    )
+
+
+def _should_update_object(module, existing_object):
+    return (
+        module.params.get('display_name') is not None
+        and existing_object.properties.display_name != module.params.get('display_name')
+                or module.params.get('maintenance_window') is not None
+        and (
+            existing_object.properties.maintenance_window.day_of_the_week != module.params.get('maintenance_window').get('day_of_the_week')
+            or existing_object.properties.maintenance_window.time != module.params.get('maintenance_window').get('time')
+        ) or module.params.get('postgres_version') is not None
+        and existing_object.properties.postgres_version != module.params.get('postgres_version')
+        or module.params.get('instances') is not None
+        and existing_object.properties.instances != module.params.get('instances')
+        or module.params.get('cores') is not None
+        and existing_object.properties.cores != module.params.get('cores')
+        or module.params.get('ram') is not None
+        and existing_object.properties.ram != module.params.get('ram')
+    )
+
+
+def _get_object_list(module, client):
+    return ionoscloud_dbaas_postgres.ClustersApi(client).clusters_get()
+
+
+def _get_object_name(module):
+    return module.params.get('display_name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('postgres_cluster')
+
+
+def _create_object(module, dbaas_client, cloudapi_client, existing_object=None):
     maintenance_window = module.params.get('maintenance_window')
     if maintenance_window:
         maintenance_window = dict(module.params.get('maintenance_window'))
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
-    display_name = module.params.get('display_name')
-
-    postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
-
-    postgres_clusters = postgres_cluster_server.clusters_get()
-
-    existing_postgres_cluster_by_name = get_resource(module, postgres_clusters, display_name, [['properties', 'display_name']])
-
-    if (
-        existing_postgres_cluster_by_name is not None
-        and existing_postgres_cluster_by_name.metadata.state != 'AVAILABLE'
-        and module.params.get('wait')
-    ):
-        dbaas_client.wait_for(
-            fn_request=lambda: postgres_cluster_server.clusters_find_by_id(existing_postgres_cluster_by_name.id),
-            fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
-            scaleup=10000,
-        )
-
-    if existing_postgres_cluster_by_name is not None:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'postgres_cluster': existing_postgres_cluster_by_name.to_dict(),
-        }
+    backup_location=module.params.get('backup_location')
+    if existing_object is not None:
+        backup_location = existing_object.properties.backup_location if backup_location is None else backup_location
+        maintenance_window = existing_object.properties.maintenance_window if maintenance_window is None else maintenance_window
 
     connection = module.params.get('connections')[0]
 
@@ -351,6 +413,8 @@ def create_postgres_cluster(module, dbaas_client, cloudapi_client):
         ionoscloud_dbaas_postgres.Connection(datacenter_id=datacenter_id, lan_id=lan_id, cidr=connection['cidr']),
     ]
 
+    clusters_api = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
+
     postgres_cluster_properties = ionoscloud_dbaas_postgres.CreateClusterProperties(
         postgres_version=module.params.get('postgres_version'),
         instances=module.params.get('instances'),
@@ -360,8 +424,8 @@ def create_postgres_cluster(module, dbaas_client, cloudapi_client):
         storage_type=module.params.get('storage_type'),
         connections=connections,
         location=module.params.get('location'),
-        backup_location=module.params.get('backup_location'),
-        display_name=display_name,
+        backup_location=backup_location,
+        display_name=module.params.get('display_name'),
         maintenance_window=maintenance_window,
         credentials=ionoscloud_dbaas_postgres.DBUser(
             username=module.params.get('db_username'),
@@ -377,94 +441,32 @@ def create_postgres_cluster(module, dbaas_client, cloudapi_client):
     postgres_cluster = ionoscloud_dbaas_postgres.CreateClusterRequest(properties=postgres_cluster_properties)
 
     try:
-        postgres_cluster = postgres_cluster_server.clusters_post(postgres_cluster)
+        postgres_cluster = clusters_api.clusters_post(postgres_cluster)
         if module.params.get('wait'):
             dbaas_client.wait_for(
-                fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster.id),
+                fn_request=lambda: clusters_api.clusters_find_by_id(postgres_cluster.id),
                 fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
                 scaleup=10000,
             )
-
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            'postgres_cluster': postgres_cluster.to_dict(),
-        }
     except Exception as e:
-        module.fail_json(msg="failed to create the Postgres cluster: %s" % to_native(e))
-        return {
-            'changed': False,
-            'failed': True,
-            'action': 'create',
-        }
+        module.fail_json(msg="failed to create the new Postgres Cluster: %s" % to_native(e))
+    return postgres_cluster
 
 
-def delete_postgres_cluster(module, dbaas_client):
-    postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
-
-    postgres_cluster = get_resource(
-        module,
-        postgres_cluster_server.clusters_get(),
-        module.params.get('postgres_cluster'),
-        [['id'], ['properties', 'display_name']],
+def _update_object(module, dbaas_client, existing_object):
+    clusters_api = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
+    dbaas_client.wait_for(
+        fn_request=lambda: clusters_api.clusters_find_by_id(existing_object.id),
+        fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
+        scaleup=10000,
     )
 
-    if postgres_cluster is None:
-        module.exit_json(changed=False)
-
-    try:
-        if postgres_cluster.metadata.state != 'DESTROYING':
-            postgres_cluster_server.clusters_delete(postgres_cluster.id)
-
-        if module.params.get('wait'):
-            try:
-                dbaas_client.wait_for(
-                    fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster.id),
-                    fn_check=lambda _: False,
-                    scaleup=10000,
-                )
-            except ionoscloud_dbaas_postgres.ApiException as e:
-                if e.status != 404:
-                    raise e
-
-        return {
-            'action': 'delete',
-            'changed': True,
-            'id': postgres_cluster.id,
-        }
-    except Exception as e:
-        module.fail_json(msg="failed to delete the Postgres cluster: %s" % to_native(e))
-        return {
-            'action': 'delete',
-            'changed': False,
-            'id': postgres_cluster.id,
-        }
-
-
-def update_postgres_cluster(module, dbaas_client):
     maintenance_window = module.params.get('maintenance_window')
     if maintenance_window:
         maintenance_window = dict(module.params.get('maintenance_window'))
         maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
 
     display_name=module.params.get('display_name')
-
-    postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
-    postgres_clusters = postgres_cluster_server.clusters_get()
-
-    postgres_cluster_id = get_resource_id(
-        module, postgres_clusters, module.params.get('postgres_cluster'), [['id'], ['properties', 'display_name']],
-    )
-
-    existing_pg_cluster_id_by_name = get_resource_id(module, postgres_clusters, display_name, [['properties', 'display_name']])
-
-    if (
-        postgres_cluster_id is not None and 
-        existing_pg_cluster_id_by_name is not None and
-        existing_pg_cluster_id_by_name != postgres_cluster_id
-    ):
-        module.fail_json(msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(OBJECT_NAME, display_name))
 
     postgres_cluster_properties = ionoscloud_dbaas_postgres.PatchClusterProperties(
         postgres_version=module.params.get('postgres_version'),
@@ -478,35 +480,146 @@ def update_postgres_cluster(module, dbaas_client):
     postgres_cluster = ionoscloud_dbaas_postgres.PatchClusterRequest(properties=postgres_cluster_properties)
 
     try:
-        postgres_cluster = postgres_cluster_server.clusters_patch(
-            cluster_id=postgres_cluster_id,
+        postgres_cluster = clusters_api.clusters_patch(
+            cluster_id=existing_object.id,
             patch_cluster_request=postgres_cluster,
         )
 
         if module.params.get('wait'):
             dbaas_client.wait_for(
-                fn_request=lambda: postgres_cluster_server.clusters_find_by_id(postgres_cluster_id),
+                fn_request=lambda: clusters_api.clusters_find_by_id(postgres_cluster.id),
                 fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
                 scaleup=10000,
             )
 
+    except Exception as e:
+        module.fail_json(msg="failed to update the Postgres Cluster: %s" % to_native(e))
+    return postgres_cluster
+
+
+def _remove_object(module, dbaas_client, existing_object):
+    clusters_api = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
+
+    try:
+        if existing_object.metadata.state != 'DESTROYING':
+            clusters_api.clusters_delete(existing_object.id)
+
+        if module.params.get('wait'):
+            try:
+                dbaas_client.wait_for(
+                    fn_request=lambda: clusters_api.clusters_find_by_id(existing_object.id),
+                    fn_check=lambda _: False,
+                    scaleup=10000,
+                )
+            except ionoscloud_dbaas_postgres.ApiException as e:
+                if e.status != 404:
+                    raise e
+    except Exception as e:
+        module.fail_json(msg="failed to delete the Postgres cluster: %s" % to_native(e))
+
+
+def update_replace_object(module, dbaas_client, cloudapi_client, existing_object):
+    if _should_replace_object(module, existing_object, cloudapi_client):
+
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, dbaas_client, cloudapi_client, existing_object).to_dict()
+        _remove_object(module, dbaas_client, existing_object)
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'create',
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object):
+        # Update
         return {
             'changed': True,
             'failed': False,
             'action': 'update',
-            'postgres_cluster': postgres_cluster.to_dict(),
+            RETURNED_KEY: _update_object(module, dbaas_client, existing_object).to_dict()
         }
 
-    except Exception as e:
-        module.fail_json(msg="failed to update the Postgres Cluster: %s" % to_native(e))
-        return {
-            'changed': False,
-            'failed': True,
-            'action': 'update',
-        }
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
 
 
-def restore_postgres_cluster(module, dbaas_client):
+def create_object(module, dbaas_client, cloudapi_client):
+    existing_object = get_resource(
+        module, _get_object_list(module, dbaas_client), _get_object_name(module),
+        [['id'], ['properties', 'display_name']],
+    )
+
+    if existing_object:
+        return update_replace_object(module, dbaas_client, cloudapi_client, existing_object)
+
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, dbaas_client, cloudapi_client).to_dict()
+    }
+
+
+def update_object(module, dbaas_postgres_api_client, cloudapi_api_client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, dbaas_postgres_api_client)
+
+    existing_object = get_resource(
+        module, object_list, _get_object_identifier(module),
+        [['id'], ['properties', 'display_name']],
+    )
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
+
+    existing_object_id_by_new_name = get_resource_id(
+        module, object_list, object_name,
+        [['id'], ['properties', 'display_name']],
+    )
+
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
+        module.fail_json(
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, dbaas_postgres_api_client, cloudapi_api_client, existing_object)
+
+
+def remove_object(module, client):
+
+    existing_object = get_resource(
+        module, _get_object_list(module, client), _get_object_identifier(module),
+        [['id'], ['properties', 'display_name']],
+    )
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
+
+    _remove_object(module, client, existing_object)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.id,
+    }
+
+
+def restore_object(module, dbaas_client):
     postgres_cluster_server = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
 
     postgres_cluster_id = get_resource_id(
@@ -570,6 +683,7 @@ def get_sdk_config(module, sdk):
     password = module.params.get('password')
     token = module.params.get('token')
     api_url = module.params.get('api_url')
+    certificate_fingerprint = module.params.get('certificate_fingerprint')
 
     if token is not None:
         # use the token instead of username & password
@@ -587,14 +701,17 @@ def get_sdk_config(module, sdk):
         conf['host'] = api_url
         conf['server_index'] = None
 
+    if certificate_fingerprint is not None:
+        conf['fingerprint'] = certificate_fingerprint
+
     return sdk.Configuration(**conf)
 
 
 def check_required_arguments(module, state, object_name):
     # manually checking if token or username & password provided
     if (
-            not module.params.get("token")
-            and not (module.params.get("username") and module.params.get("password"))
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name} state {state}'.format(
@@ -632,14 +749,13 @@ def main():
 
     try:
         if state == 'present':
-            module.exit_json(**create_postgres_cluster(module, dbaas_client=dbaas_postgres_api_client,
-                                                       cloudapi_client=cloudapi_api_client))
+            module.exit_json(**create_object(module, dbaas_postgres_api_client, cloudapi_api_client))
         elif state == 'absent':
-            module.exit_json(**delete_postgres_cluster(module, dbaas_postgres_api_client))
+            module.exit_json(**remove_object(module, dbaas_postgres_api_client))
         elif state == 'update':
-            module.exit_json(**update_postgres_cluster(module, dbaas_postgres_api_client))
+            module.exit_json(**update_object(module, dbaas_postgres_api_client, cloudapi_api_client))
         elif state == 'restore':
-            module.exit_json(**restore_postgres_cluster(module, dbaas_postgres_api_client))
+            module.exit_json(**restore_object(module, dbaas_postgres_api_client))
     except Exception as e:
         module.fail_json(
             msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e),

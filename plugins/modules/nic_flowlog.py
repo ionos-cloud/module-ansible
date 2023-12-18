@@ -33,34 +33,36 @@ ANSIBLE_METADATA = {
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_version)
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent', 'update']
-OBJECT_NAME = 'Flowflog'
+OBJECT_NAME = 'Flowlog'
+RETURNED_KEY = 'flowlog'
 
 OPTIONS = {
     'name': {
-        'description': ['The name of the Flowlog.'],
-        'available': STATES,
+        'description': ['The resource name.'],
+        'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
     },
-    'flowlog_id': {
-        'description': ['The ID of the Flowlog.'],
+    'flowlog': {
+        'description': ['The ID or name of an existing Flowlog.'],
         'available': ['update', 'absent'],
+        'required': ['update', 'absent'],
         'type': 'str',
     },
-    'datacenter_id': {
-        'description': ['The ID of the virtual datacenter.'],
+    'datacenter': {
+        'description': ['The ID or name of the virtual datacenter.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
     },
-    'server_id': {
-        'description': ['The ID of the Server.'],
+    'server': {
+        'description': ['The ID or name of the Server.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
     },
-    'nic_id': {
-        'description': ['The ID of the NIC.'],
+    'nic': {
+        'description': ['The ID or name of the NIC.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
@@ -78,15 +80,31 @@ OPTIONS = {
         'type': 'str',
     },
     'bucket': {
-        'description': ['S3 bucket name of an existing IONOS Cloud S3 bucket.'],
+        'description': ['The S3 bucket name of an existing IONOS Cloud S3 bucket.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
+    },
+    'allow_replace': {
+        'description': [
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
         'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
         'available': STATES,
         'type': 'str',
     },
@@ -167,34 +185,34 @@ author:
 EXAMPLE_PER_STATE = {
     'present': '''- name: Create a nic flowlog
   nic_flowlog:
-    name: "{{ name }}"
+    name: FlowlogName
     action: "ACCEPTED"
     direction: "INGRESS"
     bucket: "sdktest"
-    datacenter_id: "{{ datacenter_response.datacenter.id }}"
-    server_id: "{{ server_response.machines[0].id }}"
-    nic_id: "{{ nic_response.nic.id }}"
+    datacenter: DatacenterName
+    server: ServerName
+    nic: NicName
   register: flowlog_response
   ''',
     'update': '''- name: Update a nic flowlog
   nic_flowlog:
-    name: "{{ name }}"
+    name: "FlowlogName"
     action: "ALL"
     direction: "INGRESS"
     bucket: "sdktest"
-    datacenter_id: "{{ datacenter_response.datacenter.id }}"
-    server_id: "{{ server_response.machines[0].id }}"
-    nic_id: "{{ nic_response.nic.id }}"
-    flowlog_id: "{{ flowlog_response.flowlog.id }}"
+    datacenter: DatacenterName
+    server: ServerName
+    nic: NicName
+    flowlog: FlowlogName
   register: flowlog_update_response
   ''',
     'absent': '''- name: Delete a nic flowlog
   nic_flowlog:
-    datacenter_id: "{{ datacenter_response.datacenter.id }}"
-    server_id: "{{ server_response.machines[0].id }}"
-    nic_id: "{{ nic_response.nic.id }}"
-    flowlog_id: "{{ flowlog_response.flowlog.id }}"
-    name: "{{ name }}"
+    datacenter: DatacenterName
+    server: ServerName
+    nic: NicName
+    flowlog: FlowlogName
+    name: "FlowlogName"
     state: absent
     wait: true
   register: flowlog_delete_response
@@ -246,22 +264,6 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
     return resource.id if resource is not None else None
 
 
-def _update_flowlog(module, client, nic_flowlog_server, datacenter_id, server_id, nic_id, flowlog_id,
-                    flowlog_properties):
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-    response = nic_flowlog_server.datacenters_servers_nics_flowlogs_patch_with_http_info(datacenter_id, server_id,
-                                                                                         nic_id, flowlog_id,
-                                                                                         flowlog_properties)
-    (flowlog_response, _, headers) = response
-
-    if wait:
-        request_id = _get_request_id(headers['Location'])
-        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-    return flowlog_response
-
-
 def _get_request_id(headers):
     match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
     if match:
@@ -270,176 +272,258 @@ def _get_request_id(headers):
         raise Exception("Failed to extract request ID from response "
                         "header 'location': '{location}'".format(location=headers['location']))
 
+def _should_replace_object(module, existing_object):
+    return False
 
-def create_flowlog(module, client):
-    """
-    Creates a Flowlog
 
-    This will create a new Flowlog in the specified location.
+def _should_update_object(module, existing_object):
+    return (
+        module.params.get('name') is not None
+        and existing_object.properties.name != module.params.get('name')
+        or module.params.get('action') is not None
+        and existing_object.properties.action != module.params.get('action')
+        or module.params.get('direction') is not None
+        and existing_object.properties.direction != module.params.get('direction')
+        or module.params.get('bucket') is not None
+        and existing_object.properties.bucket != module.params.get('bucket')
+    )
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
 
-    Returns:
-        The flowlog ID if a new flowlog was created.
-    """
+def _get_object_list(module, client):
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    server_id = get_resource_id(
+        module, 
+        ionoscloud.ServersApi(client).datacenters_servers_get(datacenter_id, depth=1),
+        module.params.get('server'),
+    )
+    nic_id = get_resource_id(
+        module, 
+        ionoscloud.NetworkInterfacesApi(client).datacenters_servers_nics_get(
+            datacenter_id, server_id, depth=1,
+        ),
+        module.params.get('nic'),
+    )
+
+    return ionoscloud.FlowLogsApi(client).datacenters_servers_nics_flowlogs_get(
+        datacenter_id=datacenter_id, server_id=server_id, nic_id=nic_id, depth=1
+    )
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('flowlog')
+
+
+def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
     action = module.params.get('action')
     direction = module.params.get('direction')
     bucket = module.params.get('bucket')
-    datacenter_id = module.params.get('datacenter_id')
-    server_id = module.params.get('server_id')
-    nic_id = module.params.get('nic_id')
+    if existing_object is not None:
+        action = existing_object.properties.action if action is None else action
+        direction = existing_object.properties.direction if direction is None else direction
+        bucket = existing_object.properties.bucket if bucket is None else bucket
+        name = existing_object.properties.name if name is None else name
 
-    wait = module.params.get('wait')
-    wait_timeout = int(module.params.get('wait_timeout'))
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    server_id = get_resource_id(
+        module, 
+        ionoscloud.ServersApi(client).datacenters_servers_get(datacenter_id, depth=1),
+        module.params.get('server'),
+    )
+    nic_id = get_resource_id(
+        module, 
+        ionoscloud.NetworkInterfacesApi(client).datacenters_servers_nics_get(
+            datacenter_id, server_id, depth=1,
+        ),
+        module.params.get('nic'),
+    )
 
-    nic_flowlog_server = ionoscloud.FlowLogsApi(client)
-    flowlogs = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id,
-                                                                        server_id=server_id, nic_id=nic_id, depth=1)
+    nic_flowlogs_api = ionoscloud.FlowLogsApi(client)
 
-    existing_nic_flowlog = get_resource(module, flowlogs, name)
-    if existing_nic_flowlog is not None:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'flowlog': existing_nic_flowlog.to_dict()
-        }
-
-    flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
-    flowlog = FlowLog(properties=flowlog_properties)
+    flowlog = FlowLog(properties=FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket))
 
     try:
-        response = nic_flowlog_server.datacenters_servers_nics_flowlogs_post_with_http_info(datacenter_id, server_id,
-                                                                                            nic_id, flowlog)
-        (flowlog_response, _, headers) = response
+        response, _, headers = nic_flowlogs_api.datacenters_servers_nics_flowlogs_post_with_http_info(
+            datacenter_id, server_id, nic_id, flowlog,
+        )
 
-        if wait:
+        if module.params.get('wait'):
             request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
+    except ApiException as e:
+        module.fail_json(msg="failed to create the new Flowlog: %s" % to_native(e))
+    return response
 
+
+def _update_object(module, client, existing_object):
+    name = module.params.get('name')
+    action = module.params.get('action')
+    direction = module.params.get('direction')
+    bucket = module.params.get('bucket')
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    server_id = get_resource_id(
+        module, 
+        ionoscloud.ServersApi(client).datacenters_servers_get(datacenter_id, depth=1),
+        module.params.get('server'),
+    )
+    nic_id = get_resource_id(
+        module, 
+        ionoscloud.NetworkInterfacesApi(client).datacenters_servers_nics_get(
+            datacenter_id, server_id, depth=1,
+        ),
+        module.params.get('nic'),
+    )
+
+    nic_flowlogs_api = ionoscloud.FlowLogsApi(api_client=client)
+
+    flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
+
+    try:
+        response, _, headers = nic_flowlogs_api.datacenters_servers_nics_flowlogs_patch_with_http_info(
+            datacenter_id, server_id, nic_id, existing_object.id, flowlog_properties,
+        )
+        if module.params.get('wait'):
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
+
+        return response
+    except ApiException as e:
+        module.fail_json(msg="failed to update the Flowlog: %s" % to_native(e))
+
+
+def _remove_object(module, client, existing_object):
+    datacenter_id = get_resource_id(
+        module, 
+        ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+        module.params.get('datacenter'),
+    )
+    server_id = get_resource_id(
+        module, 
+        ionoscloud.ServersApi(client).datacenters_servers_get(datacenter_id, depth=1),
+        module.params.get('server'),
+    )
+    nic_id = get_resource_id(
+        module, 
+        ionoscloud.NetworkInterfacesApi(client).datacenters_servers_nics_get(
+            datacenter_id, server_id, depth=1,
+        ),
+        module.params.get('nic'),
+    )
+
+    nic_flowlogs_api = ionoscloud.FlowLogsApi(api_client=client)
+
+    try:
+        _, _, headers = nic_flowlogs_api.datacenters_servers_nics_flowlogs_delete_with_http_info(
+            datacenter_id, server_id, nic_id, existing_object.id,
+        )
+        if module.params.get('wait'):
+            request_id = _get_request_id(headers['Location'])
+            client.wait_for_completion(request_id=request_id, timeout=module.params.get('wait_timeout'))
+    except ApiException as e:
+        module.fail_json(msg="failed to remove the Flowlog: %s" % to_native(e))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
         return {
             'changed': True,
             'failed': False,
             'action': 'create',
-            'flowlog': flowlog_response.to_dict()
+            RETURNED_KEY: new_object,
+        }
+    if _should_update_object(module, existing_object):
+        # Update
+        return {
+            'changed': True,
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
         }
 
-    except ApiException as e:
-        module.fail_json(msg="failed to create the new flowlog: %s" % to_native(e))
-
-
-def update_flowlog(module, client):
-    """
-    Updates a Flowlog.
-
-    This will update a flowlog.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        True if the flowlog was updated, false otherwise
-    """
-    name = module.params.get('name')
-    action = module.params.get('action')
-    direction = module.params.get('direction')
-    bucket = module.params.get('bucket')
-    datacenter_id = module.params.get('datacenter_id')
-    server_id = module.params.get('server_id')
-    nic_id = module.params.get('nic_id')
-    flowlog_id = module.params.get('flowlog_id')
-
-    nic_flowlog_server = ionoscloud.FlowLogsApi(client)
-    flowlogs = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id,
-                                                                        server_id=server_id, nic_id=nic_id, depth=1)
-
-    existing_nic_flowlog = get_resource(module, flowlogs, name)
-    if existing_nic_flowlog is not None:
-        module.fail_json(msg="failed to update the flowlog: flowlog with name \'%s\' already exists" % name)
-
-    changed = False
-    flowlog_response = None
-
-    if flowlog_id:
-        flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
-        flowlog_response = _update_flowlog(module, client, nic_flowlog_server, datacenter_id, server_id, nic_id,
-                                           flowlog_id, flowlog_properties)
-        changed = True
-
-    else:
-        flowlogs = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id, nic_id=nic_id,
-                                                                            server_id=server_id, depth=1)
-        for f in flowlogs:
-            if name == f.properties.name:
-                flowlog_properties = FlowLogProperties(name=name, action=action, direction=direction, bucket=bucket)
-                flowlog_response = _update_flowlog(module, client, nic_flowlog_server, datacenter_id, server_id, nic_id,
-                                                   f.id, flowlog_properties)
-                changed = True
-
-    if not changed:
-        module.fail_json(msg="failed to update the flowlog: The resource does not exist")
-
+    # No action
     return {
-        'changed': changed,
-        'action': 'update',
+        'changed': False,
         'failed': False,
-        'flowlog': flowlog_response.to_dict()
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
     }
 
 
-def remove_flowlog(module, client):
-    """
-    Removes a Flowlog.
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
 
-    This will remove a flowlog.
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
 
-    Returns:
-        True if the flowlog was deleted, false otherwise
-    """
-    name = module.params.get('name')
-    datacenter_id = module.params.get('datacenter_id')
-    server_id = module.params.get('server_id')
-    nic_id = module.params.get('nic_id')
-    flowlog_id = module.params.get('flowlog_id')
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
 
-    nic_flowlog_server = ionoscloud.FlowLogsApi(client)
-    changed = False
+def update_object(module, client):
+    object_name = _get_object_name(module)
+    object_list = _get_object_list(module, client)
 
-    try:
-        nic_flowlog_list = nic_flowlog_server.datacenters_servers_nics_flowlogs_get(datacenter_id=datacenter_id,
-                                                                                    nic_id=nic_id, server_id=server_id,
-                                                                                    depth=1)
+    existing_object = get_resource(module, object_list, _get_object_identifier(module))
 
-        nic_flowlog_id = get_resource_id(module, nic_flowlog_list, flowlog_id if flowlog_id is not None else name)
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
 
-        if not nic_flowlog_id:
-            module.exit_json(changed=False)
+    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
 
-        response = nic_flowlog_server.datacenters_servers_nics_flowlogs_delete_with_http_info(datacenter_id, server_id,
-                                                                                              nic_id, nic_flowlog_id)
-        (flowlog_id_response, _, headers) = response
-
-        if wait:
-            request_id = _get_request_id(headers['Location'])
-            client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-        changed = True
-
-    except Exception as e:
+    if (
+        existing_object.id is not None
+        and existing_object_id_by_new_name is not None
+        and existing_object_id_by_new_name != existing_object.id
+    ):
         module.fail_json(
-            msg="failed to delete the flowlog: %s" % to_native(e))
+            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
+                OBJECT_NAME, object_name,
+            ),
+        )
+
+    return update_replace_object(module, client, existing_object)
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
+
+    _remove_object(module, client, existing_object)
 
     return {
         'action': 'delete',
-        'changed': changed,
-        'id': flowlog_id
+        'changed': True,
+        'id': existing_object.id,
     }
 
 
@@ -468,6 +552,7 @@ def get_sdk_config(module, sdk):
     password = module.params.get('password')
     token = module.params.get('token')
     api_url = module.params.get('api_url')
+    certificate_fingerprint = module.params.get('certificate_fingerprint')
 
     if token is not None:
         # use the token instead of username & password
@@ -485,14 +570,17 @@ def get_sdk_config(module, sdk):
         conf['host'] = api_url
         conf['server_index'] = None
 
+    if certificate_fingerprint is not None:
+        conf['fingerprint'] = certificate_fingerprint
+
     return sdk.Configuration(**conf)
 
 
 def check_required_arguments(module, state, object_name):
     # manually checking if token or username & password provided
     if (
-            not module.params.get("token")
-            and not (module.params.get("username") and module.params.get("password"))
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name} state {state}'.format(
@@ -525,11 +613,11 @@ def main():
 
         try:
             if state == 'absent':
-                module.exit_json(**remove_flowlog(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             if state == 'present':
-                module.exit_json(**create_flowlog(module, api_client))
+                module.exit_json(**create_object(module, api_client))
             elif state == 'update':
-                module.exit_json(**update_flowlog(module, api_client))
+                module.exit_json(**update_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
                                                                                              error=to_native(e),

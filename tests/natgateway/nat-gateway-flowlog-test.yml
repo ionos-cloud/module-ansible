@@ -25,7 +25,7 @@
 
     - name: Create NAT Gateway
       nat_gateway:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         public_ips: "{{ ipblock_response.ipblock.properties.ips }}"
         wait: true
@@ -41,10 +41,26 @@
         action: "ACCEPTED"
         direction: "INGRESS"
         bucket: "sdktest"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
         wait: true
       register: nat_gateway_flowlog_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nat_gateway_flowlog_response}}"
+    #     dest: ../../docs/returned_object_examples/nat_gateway_flowlog.json
+
+    - name: List NAT Gateway Flowlogs
+      nat_gateway_flowlog_info:
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+      register: nat_gateway_flowlog_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nat_gateway_flowlog_list_response}}"
+    #     dest: ../../docs/returned_object_examples/nat_gateway_flowlog_info.json
 
     - name: Debug - Show NAT Gateway Flowlog
       debug:
@@ -52,9 +68,9 @@
 
     - name: Update NAT Gateway Flowlog
       nat_gateway_flowlog:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-        flowlog_id: "{{ nat_gateway_flowlog_response.flowlog.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+        flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
         name: "{{ name }}"
         action: "ALL"
         direction: "INGRESS"
@@ -69,33 +85,33 @@
 
     - name: Delete NAT Gateway Flowlog
       nat_gateway_flowlog:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-        flowlog_id: "{{ nat_gateway_flowlog_response.flowlog.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+        flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
         state: absent
 
     - name: Delete NAT Gateway Flowlog
       nat_gateway_flowlog:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-        flowlog_id: "invalid-id"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+        flowlog: "invalid-id"
         state: absent
 
     - name: Remove NAT Gateway
       nat_gateway:
-       nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+       datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
        wait_timeout: 2000
        state: absent
 
     - name: Remove datacenter
       datacenter:
-        name: "{{ datacenter }}"
+        datacenter: "{{ datacenter }}"
         wait: true
         state: absent
 
     - name: Remove ipblock
       ipblock:
-        name: "{{ name }}"
+        ipblock: "{{ name }}"
         state: absent

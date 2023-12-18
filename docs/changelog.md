@@ -1,5 +1,101 @@
 # Changelog
 
+## 7.1.0
+### Features
+* Added Logging modules: pipeline and pipeline_info
+* Added VM Autoscaling modules: vm_autoscaling_group, vm_autoscaling_action_info, vm_autoscaling_group_info and vm_autoscaling_server_info
+
+## 7.0.0
+### Features
+* Added DNS modules: dns_zone, dns_record, dns_secondary_zone and corresponding info modules
+* changed info modules to have the same format
+* generating summary to include all modules, and split in them in subcategories
+* Changed Private Cross Connect references in docs to Cross Connect
+
+## 7.0.0-beta.1
+### Features
+* Reworked all modules to be declarative, for more details https://github.com/ionos-cloud/module-ansible/blob/master/docs/usage/declarative_changes.md
+* changed info modules to have the same format
+* added ipv6 support
+* updated docs, added return examples and updated option descriptions
+
+## 6.5.3
+### Features
+* Added support for [vCPU Servers](api/compute-engine/vcpu_server.md)
+
+## 6.5.2
+### Fixes
+* Fixed error when exceeding maximum users per page
+
+## 6.5.1
+### Features
+* New licenceType supported for `snapshot` and `volume` modules: `RHEL`
+* Extend dynamic inventory to support regex-based grouping
+
+## 6.5.0
+
+### Features
+* Implement filters for Container Registry info modules
+* New Product: **DataPlatform**. Modules added:
+  * dataplatform_cluster
+  * dataplatform_cluster_config
+  * dataplatform_cluster_info
+  * dataplatform_nodepool
+  * dataplatform_nodepool_info
+
+⚠️ **Note:** Data Platform is currently in the Early Access (EA) phase.
+We recommend keeping usage and testing to non-production critical applications.
+Please contact your sales representative or support for more information.
+
+
+### Fixes:
+* Removed sensitive data from repository
+* Fix #138 lan_ids param is now a list of dicts
+
+
+**Full Changelog**: https://github.com/ionos-cloud/module-ansible/compare/v6.4.3...v6.5.0
+
+
+## 6.4.3
+
+### Bug fixes:
+* `k8s_version` is no longer a required parameter for cluster update
+
+
+## 6.4.2
+
+### Bug fixes:
+* remove cpu_family parameter from cube_server module
+* Cube Server documentation is now available on docs.ionos.com
+
+
+## 6.4.1
+
+### Features:
+* added new modules for Container Registry (registry, registry_token, registry_info and registry_token_info)
+
+## 6.4.0
+
+### Features:
+* added new modules for DBaaS Mongo (mongo_cluster_info, mongo_cluster_template_info, mongo_cluster_user_info, mongo_cluster_user and mongo_cluster)
+* added new modules for Certificate Manager (certificate, certificate_info) and integration with the application_load_balancer_forwardingrule module using the new `new_server_certificates` parameter
+* added a new module for working with CUBE servers, cube_server and depracationd notices when using the server module with CUBE servers
+* added certificate pinning option to all modules using the certificate_fingerprint parameter
+
+### Bug fixes:
+* fixed documentation for k8s_nodepool should node_count as string instead of int
+
+## 6.3.2
+
+### Features:
+* added new `manage_dbaas` parameter to `group` module
+* added new `depth` and `filters` parameters to info modules: `server_info`, `volume_info`, `postgres_backup_info`, `postgres_cluster_info`, `s3key_info`
+
+### Bug fixes:
+* fixed inventory cache
+* name no longer required for k8s_cluster update
+* fix module indentation for nic and image
+
 ## 6.3.1
 
 ### Bug fixes

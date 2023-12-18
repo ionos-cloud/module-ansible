@@ -31,7 +31,7 @@
 
     - name: Create Network Load Balancer
       network_load_balancer:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         ips:
           - "10.12.118.224"
@@ -50,10 +50,26 @@
         action: "ACCEPTED"
         direction: "INGRESS"
         bucket: "sdktest"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
         wait: true
       register: nlb_flowlog_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nlb_flowlog_response}}"
+    #     dest: ../../docs/returned_object_examples/network_load_balancer_flowlog.json
+
+    - name: List Network Load Balancer Flowlogs
+      network_load_balancer_flowlog_info:
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+      register: nlb_flowlog_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nlb_flowlog_list_response}}"
+    #     dest: ../../docs/returned_object_examples/network_load_balancer_flowlog_info.json
 
     - name: Debug - Show Network Load Balancer Flowlog
       debug:
@@ -61,9 +77,9 @@
 
     - name: Update Network Load Balancer Flowlog
       network_load_balancer_flowlog:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-        flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+        flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
         name: "{{ name }}"
         action: "ALL"
         direction: "INGRESS"
@@ -78,22 +94,22 @@
 
     - name: Delete Network Load Balancer Flowlog
       network_load_balancer_flowlog:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-        flowlog_id: "{{ nlb_flowlog_response.flowlog.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+        flowlog: "{{ nlb_flowlog_response.flowlog.id }}"
         state: absent
 
     - name: Delete Network Load Balancer Flowlog
       network_load_balancer_flowlog:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-        flowlog_id: "invalid-id"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+        flowlog: "invalid-id"
         state: absent
 
     - name: Remove Network Load Balancer
       network_load_balancer:
-       network_load_balancer_id: "{{ nlb_response.network_load_balancer.id }}"
-       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
+       datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
        wait_timeout: 2000
        state: absent
@@ -101,19 +117,19 @@
     - name: Remove Listener LAN
       lan:
         datacenter: "{{ datacenter }}"
-        name: "listener_lan"
+        lan: "listener_lan"
         state: absent
         wait: true
 
     - name: Remove Target LAN
       lan:
         datacenter: "{{ datacenter }}"
-        name: "target_lan"
+        lan: "target_lan"
         state: absent
         wait: true
 
     - name: Remove datacenter
       datacenter:
-        name: "{{ datacenter }}"
+        datacenter: "{{ datacenter }}"
         wait: true
         state: absent

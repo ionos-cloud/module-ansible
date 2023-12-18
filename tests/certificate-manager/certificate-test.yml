@@ -1,0 +1,81 @@
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+    - name: Ensure private key is present
+      community.crypto.openssl_privatekey:
+        path: "{{ certificate_key_path }}"
+        size: 2048
+        mode: 0600
+        type: RSA
+        
+    # - name: Ensure self-signed cert is present
+    #   community.crypto.x509_certificate:
+    #     path: "{{ certificate_path }}"
+    #     privatekey_path: "{{ certificate_key_path }}"
+    #     provider: selfsigned
+    #     mode: 0644
+
+    - name: Create Certificate
+      certificate:
+        certificate_name: "{{ certificate_name }}"
+        certificate_file: "{{ certificate_path }}"
+        private_key_file: "{{ certificate_key_path }}"
+      register: certificate
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{certificate}}"
+    #     dest: ../../docs/returned_object_examples/certificate.json
+
+    - name: List Certificates
+      certificate_info:
+      register: certificates_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{certificates_response}}"
+    #     dest: ../../docs/returned_object_examples/certificate_info.json
+
+    - name: Create Certificate no change
+      certificate:
+        state: update
+        certificate: "{{ certificate.certificate.id }}"
+        certificate_name: "{{ certificate_name }}"
+        certificate_file: "{{ certificate_path }}"
+        allow_replace: False
+      register: certificatenochange
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - certificatenochange.changed == false
+        msg: "Changed should be false"
+
+    - name: Update Certificate
+      certificate:
+        certificate: "{{ certificate.certificate.id }}"
+        certificate_name: "{{ certificate_updated_name }}"
+        allow_replace: False
+        state: update
+      register: updated_certificate
+
+    - name: Delete Certificate
+      certificate:
+        certificate: "{{ certificate.certificate.id }}"
+        state: absent
+
+    # - name: Delete local certificate
+    #   file:
+    #     state: absent
+    #     path: "{{ certificate_path }}"
+
+    - name: Delete local key
+      file:
+        state: absent
+        path: "{{ certificate_key_path }}"

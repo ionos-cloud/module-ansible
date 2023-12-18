@@ -34,32 +34,52 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_
 DOC_DIRECTORY = 'compute-engine'
 STATES = ['present', 'absent']
 OBJECT_NAME = 'IP Block'
+RETURNED_KEY = 'ipblock'
 
 OPTIONS = {
+    'ipblock': {
+        'description': ['The name or ID of an existing IPBlock.'],
+        'required': ['absent'],
+        'available': ['absent'],
+        'type': 'str',
+    },
     'name': {
-        'description': ['The name or ID of the IPBlock.'],
-        'required': STATES,
+        'description': ['The name of the  resource.'],
         'available': STATES,
         'type': 'str',
     },
     'location': {
-        'description': ['The IP Block location.'],
+        'description': ['Location of that IP block. Property cannot be modified after it is created (disallowed in update requests).'],
         'required': ['present'],
         'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
-        'default': 'us/las',
         'available': ['present'],
         'type': 'str',
     },
     'size': {
-        'description': ['The number of IP addresses to allocate in the IPBlock.'],
+        'description': ['The size of the IP block.'],
         'available': ['present'],
-        'default': 1,
         'type': 'int',
+    },
+    'allow_replace': {
+        'description': [
+            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different '
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': False,
+        'type': 'bool',
     },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
         'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
         'available': STATES,
         'type': 'str',
     },
@@ -109,6 +129,11 @@ OPTIONS = {
         'type': 'str',
     },
 }
+
+IMMUTABLE_OPTIONS = [
+    { "name": "size", "note": "" },
+    { "name": "location", "note": "" },
+]
 
 def transform_for_documentation(val):
     val['required'] = len(val.get('required', [])) == len(STATES) 
@@ -200,91 +225,132 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def reserve_ipblock(module, client):
-    """
-    Creates an IPBlock.
+def _should_replace_object(module, existing_object):
+    return (
+        module.params.get('size') is not None
+        and existing_object.properties.size != module.params.get('size')
+        or module.params.get('location') is not None
+        and existing_object.properties.location != module.params.get('location')
+    )
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
 
-    Returns:
-        The IPBlock instance
-    """
+def _should_update_object(*args, **kwargs):
+    return False
+
+
+def _get_object_list(module, client):
+    return ionoscloud.IPBlocksApi(client).ipblocks_get(depth=1)
+
+
+def _get_object_name(module):
+    return module.params.get('name')
+
+
+def _get_object_identifier(module):
+    return module.params.get('ipblock')
+
+
+def _create_object(module, client, existing_object=None):
     name = module.params.get('name')
     location = module.params.get('location')
     size = module.params.get('size')
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    ipblock_server = ionoscloud.IPBlocksApi(client)
+    if existing_object is not None:
+        name = existing_object.properties.name if name is None else name
+        location = existing_object.properties.location if location is None else location
+        size = existing_object.properties.size if size is None else size
 
-    existing_ipblock = get_resource(module, ipblock_server.ipblocks_get(depth=2), name)
+    ipblock_properties = IpBlockProperties(location=location, size=size, name=name)
+    ipblock = IpBlock(properties=ipblock_properties)
 
-    if existing_ipblock:
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'ipblock': existing_ipblock.to_dict()
-        }
-
-    if module.check_mode:
-        module.exit_json(changed=False)
+    ipblocks_api = ionoscloud.IPBlocksApi(client)
 
     try:
-        ipblock_properties = IpBlockProperties(location=location, size=size, name=name)
-        ipblock = IpBlock(properties=ipblock_properties)
-
-        ipblock_response, _, headers = ipblock_server.ipblocks_post_with_http_info(ipblock)
+        ipblock_response, _, headers = ipblocks_api.ipblocks_post_with_http_info(ipblock)
 
         if wait:
             request_id = _get_request_id(headers['Location'])
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+    except ApiException as e:
+        module.fail_json(msg="failed to create the new {}: {}".format(OBJECT_NAME, to_native(e)))
+    return ipblock_response
 
+
+def _update_object(*args, **kwargs):
+    pass
+
+
+def _remove_object(module, client, existing_object):
+    ipblocks_api = ionoscloud.IPBlocksApi(client)
+
+    try:
+        ipblocks_api.ipblocks_delete(existing_object.id)
+    except Exception as e:
+        module.fail_json(msg="failed to delete the {}: {}".format(OBJECT_NAME, to_native(e)))
+
+
+def update_replace_object(module, client, existing_object):
+    if _should_replace_object(module, existing_object):
+
+        if not module.params.get('allow_replace'):
+            module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
+
+        new_object = _create_object(module, client, existing_object).to_dict()
+        _remove_object(module, client, existing_object)
         return {
             'changed': True,
             'failed': False,
             'action': 'create',
-            'ipblock': ipblock_response.to_dict()
+            RETURNED_KEY: new_object,
         }
-
-
-    except Exception as e:
-        module.fail_json(msg="failed to create the IPBlock: %s" % to_native(e))
-
-
-def delete_ipblock(module, client):
-    """
-    Removes an IPBlock
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        True if the IPBlock was removed, false otherwise
-    """
-    name = module.params.get('name')
-    ipblock_server = ionoscloud.IPBlocksApi(client)
-
-    # Locate UUID for the IPBlock
-    ipblock_id = get_resource_id(module, ipblock_server.ipblocks_get(depth=2), name)
-
-    if not ipblock_id:
-        module.exit_json(changed=False)
-
-    if module.check_mode:
-        module.exit_json(changed=True)
-
-    try:
-        ipblock_server.ipblocks_delete(ipblock_id)
+    if _should_update_object(module, existing_object):
+        # Update
         return {
-            'action': 'delete',
             'changed': True,
-            'id': ipblock_id
+            'failed': False,
+            'action': 'update',
+            RETURNED_KEY: _update_object(module, client, existing_object).to_dict()
         }
 
-    except Exception as e:
-        module.fail_json(msg="failed to remove the IPBlock: %s" % to_native(e))
+    # No action
+    return {
+        'changed': False,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: existing_object.to_dict()
+    }
+
+
+def create_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_name(module))
+
+    if existing_object:
+        return update_replace_object(module, client, existing_object)
+
+    return {
+        'changed': True,
+        'failed': False,
+        'action': 'create',
+        RETURNED_KEY: _create_object(module, client).to_dict()
+    }
+
+
+def remove_object(module, client):
+    existing_object = get_resource(module, _get_object_list(module, client), _get_object_identifier(module))
+
+    if existing_object is None:
+        module.exit_json(changed=False)
+        return
+
+    _remove_object(module, client, existing_object)
+
+    return {
+        'action': 'delete',
+        'changed': True,
+        'id': existing_object.id,
+    }
 
 
 def get_module_arguments():
@@ -312,6 +378,7 @@ def get_sdk_config(module, sdk):
     password = module.params.get('password')
     token = module.params.get('token')
     api_url = module.params.get('api_url')
+    certificate_fingerprint = module.params.get('certificate_fingerprint')
 
     if token is not None:
         # use the token instead of username & password
@@ -328,6 +395,9 @@ def get_sdk_config(module, sdk):
     if api_url is not None:
         conf['host'] = api_url
         conf['server_index'] = None
+
+    if certificate_fingerprint is not None:
+        conf['fingerprint'] = certificate_fingerprint
 
     return sdk.Configuration(**conf)
 
@@ -356,7 +426,7 @@ def check_required_arguments(module, state, object_name):
             )
 
 def main():
-    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+    module = AnsibleModule(argument_spec=get_module_arguments())
 
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
@@ -368,9 +438,9 @@ def main():
 
         try:
             if state == 'absent':
-                module.exit_json(**delete_ipblock(module, api_client))
+                module.exit_json(**remove_object(module, api_client))
             elif state == 'present':
-                module.exit_json(**reserve_ipblock(module, api_client))
+                module.exit_json(**create_object(module, api_client))
         except Exception as e:
             module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e), state=state))
 

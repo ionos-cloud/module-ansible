@@ -1,0 +1,279 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+  - ./vars.yml
+
+  tasks:
+    - name: Create datacenter
+      datacenter:
+        name: "{{ datacenter }}"
+        location: de/fra
+      register: datacenter_response
+
+    - name: Create Data Platform cluster
+      dataplatform_cluster:
+        name: "{{ name }}"
+        dataplatform_version: "23.7"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+          time: "12:02:00"
+        state: present
+        wait: true
+        wait_timeout: 7200
+      register: cluster_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{cluster_response}}"
+    #     dest: ../../docs/returned_object_examples/dataplatform_cluster.json
+
+    - name: Patch Data Platform cluster no change
+      dataplatform_cluster:
+        name: "{{ name }}"
+        dataplatform_version: "23.7"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        wait: true
+        wait_timeout: 7200
+      register: cluster_response_nochange
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - cluster_response_nochange.changed == false
+        msg: "Changed should be false"
+
+    - name: Patch Data Platform cluster no change
+      dataplatform_cluster:
+        name: "{{ name }}"
+        dataplatform_version: "23.7"
+        datacenter: "{{ datacenter_response.datacenter.properties.name }}"
+        allow_replace: False
+        wait: true
+        wait_timeout: 7200
+      register: cluster_response_nochange
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - cluster_response_nochange.changed == false
+        msg: "Changed should be false"
+
+    - name: Patch Data Platform cluster no change
+      dataplatform_cluster:
+        cluster: "{{ name }}"
+        dataplatform_version: "23.7"
+        allow_replace: False
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+          time: "12:02:00"
+        state: update
+        wait: true
+        wait_timeout: 7200
+      register: cluster_response_nochange
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - cluster_response_nochange.changed == false
+        msg: "Changed should be false"
+
+    - name: Patch Data Platform cluster
+      dataplatform_cluster:
+        name: "{{ name }}"
+        dataplatform_version: "23.7"
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+          time: "12:02:00"
+        state: update
+        wait: true
+        wait_timeout: 7200
+
+    - name: Get all Data Platform clusters
+      dataplatform_cluster_info:
+      register: cluster_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{cluster_list_response}}"
+    #     dest: ../../docs/returned_object_examples/dataplatform_cluster_info.json
+
+    - name: Get kubeconfig by ID
+      dataplatform_cluster_config:
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
+        config_file: 'config.yaml'
+
+    - name: Get kubeconfig by name
+      dataplatform_cluster_config:
+        cluster: "{{ cluster_response.dataplatform_cluster.properties.name }}"
+        config_file: 'config.yaml'
+
+    - name: Create DataPlatform cluster nodepool
+      dataplatform_nodepool:
+        name: "my-nodepool"
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
+        node_count: 2
+        cpu_family: "INTEL_SKYLAKE"
+        cores_count: 1
+        ram_size: 2048
+        availability_zone: "AUTO"
+        storage_type: "HDD"
+        storage_size: "100"
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+          time: "12:02:00"
+        labels:
+          foo: bar
+          color: red
+          size: "10"
+        annotations:
+          ann1: value1
+          ann2: value2
+        wait: true
+        wait_timeout: 7200
+      register: result
+
+    - name: Create DataPlatform cluster nodepool no change
+      dataplatform_nodepool:
+        name: "my-nodepool"
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
+        node_count: 2
+        cpu_family: "INTEL_SKYLAKE"
+        cores_count: 1
+        ram_size: 2048
+        availability_zone: "AUTO"
+        storage_type: "HDD"
+        storage_size: "100"
+        labels:
+          foo: bar
+          color: red
+          size: "10"
+        annotations:
+          ann1: value1
+          ann2: value2
+        wait: true
+        wait_timeout: 7200
+      register: result_no_change
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - result_no_change.changed == false
+        msg: "Changed should be false"
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{result}}"
+    #     dest: ../../docs/returned_object_examples/dataplatform_nodepool.json
+
+    - name: Update DataPlatform cluster nodepool no change
+      dataplatform_nodepool:
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
+        nodepool: "{{ result.dataplatform_nodepool.properties.name }}"
+        name: "my-nodepool"
+        node_count: 2
+        cpu_family: "INTEL_SKYLAKE"
+        cores_count: 1
+        ram_size: 2048
+        availability_zone: "AUTO"
+        storage_type: "HDD"
+        storage_size: "100"
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+          time: "12:02:00"
+        labels:
+          foo: bar
+          color: red
+          size: "10"
+        annotations:
+          ann1: value1
+          ann2: value2
+        allow_replace: False
+        wait: true
+        wait_timeout: 7200
+        state: update
+      register: result_no_change
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - result_no_change.changed == false
+        msg: "Changed should be false"
+
+    - name: Update DataPlatform cluster nodepool no change 2
+      dataplatform_nodepool:
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
+        nodepool: "{{ result.dataplatform_nodepool.properties.name }}"
+        node_count: 2
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+          time: "12:02:00"
+        labels:
+          foo: bar
+          color: red
+          size: "10"
+        annotations:
+          ann1: value1
+          ann2: value2
+        allow_replace: False
+        wait: true
+        wait_timeout: 7200
+        state: update
+      register: result_no_change
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - result_no_change.changed == false
+        msg: "Changed should be false"
+
+    - name: Update DataPlatform cluster nodepool
+      dataplatform_nodepool:
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
+        nodepool: "{{ result.dataplatform_nodepool.properties.name }}"
+        node_count: 2
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+          time: "12:02:00"
+        labels:
+          color: blue
+          size: "11"
+        annotations:
+          ann1: updatedvalue1
+          ann2: updatedvalue2
+        wait: true
+        wait_timeout: 7200
+        state: update
+
+    - name: Get all DataPlaform nodepools from a specific cluster
+      dataplatform_nodepool_info:
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
+      register: nodepool_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nodepool_list_response}}"
+    #     dest: ../../docs/returned_object_examples/dataplatform_nodepool_info.json
+
+    - name: Delete DataPlatform cluster nodepool
+      dataplatform_nodepool:
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
+        nodepool: "{{ result.dataplatform_nodepool.id }}"
+        wait: true
+        state: absent
+
+    - name: Delete Data Platform cluster
+      dataplatform_cluster:
+        cluster: "{{ cluster_response.dataplatform_cluster.id }}"
+        state: absent
+        wait: true
+        wait_timeout: 2000
+
+    - name: Remove datacenter
+      datacenter:
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        state: absent
+        wait: true

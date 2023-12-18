@@ -25,11 +25,26 @@
 
     - name: Create NAT Gateway
       nat_gateway:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         public_ips: "{{ ipblock_response.ipblock.properties.ips }}"
         wait: true
       register: nat_gateway_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nat_gateway_response}}"
+    #     dest: ../../docs/returned_object_examples/nat_gateway.json
+
+    - name: List NAT Gateways
+      nat_gateway_info:
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+      register: nat_gateway_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nat_gateway_list_response}}"
+    #     dest: ../../docs/returned_object_examples/nat_gateway_info.json
 
     - name: Debug - Show NAT Gateway
       debug:
@@ -37,8 +52,8 @@
 
     - name: Create NAT Gateway Rule
       nat_gateway_rule:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
         name: "{{ name }}"
         type: "SNAT"
         protocol: "TCP"
@@ -51,15 +66,31 @@
         wait: true
       register: nat_gateway_rule_response
 
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nat_gateway_rule_response}}"
+    #     dest: ../../docs/returned_object_examples/nat_gateway_rule.json
+
+    - name: List NAT Gateway Rules
+      nat_gateway_rule_info:
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+      register: nat_gateway_rule_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{nat_gateway_rule_list_response}}"
+    #     dest: ../../docs/returned_object_examples/nat_gateway_rule_info.json
+
     - name: Debug - Show NAT Gateway Rule
       debug:
          msg: "{{ nat_gateway_rule_response }}"
 
     - name: Update NAT Gateway Rule
       nat_gateway_rule:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-        nat_gateway_rule_id: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+        nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
         public_ip: "{{ ipblock_response.ipblock.properties.ips[1] }}"
         name: "{{ name }} - UPDATED"
         type: "SNAT"
@@ -75,33 +106,33 @@
 
     - name: Delete NAT Gateway Rule
       nat_gateway_rule:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-        nat_gateway_rule_id: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+        nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
         state: absent
 
     - name: Delete NAT Gateway Rule
       nat_gateway_rule:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-        nat_gateway_rule_id: "invalid-id"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+        nat_gateway_rule: "invalid-id"
         state: absent
 
     - name: Remove NAT Gateway
       nat_gateway:
-       nat_gateway_id: "{{ nat_gateway_response.nat_gateway.id }}"
-       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+       datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
        wait_timeout: 2000
        state: absent
 
     - name: Remove datacenter
       datacenter:
-        name: "{{ datacenter }}"
+        datacenter: "{{ datacenter }}"
         wait: true
         state: absent
 
     - name: Remove ipblock
       ipblock:
-        name: "{{ name }}"
+        ipblock: "{{ name }}"
         state: absent

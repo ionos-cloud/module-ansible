@@ -26,7 +26,7 @@
 
     - name: Add user to first group
       user:
-        email: "{{ random_user }}"
+        user: "{{ random_user }}"
         groups:
           - "{{ name }} 1"
         state: update
@@ -39,7 +39,7 @@
       user:
         firstname: John
         lastname: Doe
-        email: "{{ random_user }}"
+        user: "{{ random_user }}"
         administrator: false
         force_sec_auth: false
         groups:
@@ -60,21 +60,21 @@
 
     - name: Remove user from groups
       user:
-        email: "{{ random_user }}"
+        user: "{{ random_user }}"
         groups: []
         state: update
 
     - name: Delete user
       user:
-        email: "{{ random_user }}"
+        user: "{{ random_user }}"
         state: absent
 
     - name: Delete user
       user:
-        email: "non-existent-user"
+        user: "non-existent-user"
         state: absent
 
     - name: Delete group
       group:
-        name: "{{ name }}"
+        group: "{{ name }}"
         state: absent

@@ -31,7 +31,7 @@
 
     - name: Create Application Load Balancer
       application_load_balancer:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         ips:
           - "10.12.118.224"
@@ -50,10 +50,26 @@
         action: "ACCEPTED"
         direction: "INGRESS"
         bucket: "sdktest"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
         wait: true
       register: alb_flowlog_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{alb_flowlog_response}}"
+    #     dest: ../../docs/returned_object_examples/application_load_balancer_flowlog.json
+
+    - name: List Application Load Balancer Flowlogs
+      application_load_balancer_flowlog_info:
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
+      register: alb_flowlog_list_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{alb_flowlog_list_response}}"
+    #     dest: ../../docs/returned_object_examples/application_load_balancer_flowlog_info.json
 
     - name: Debug - Show Application Load Balancer Flowlog
       debug:
@@ -61,9 +77,9 @@
 
     - name: Update Application Load Balancer Flowlog
       application_load_balancer_flowlog:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
-        flowlog_id: "{{ alb_flowlog_response.flowlog.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
+        flowlog: "{{ alb_flowlog_response.flowlog.id }}"
         name: "{{ name }}"
         action: "ALL"
         direction: "INGRESS"
@@ -78,15 +94,15 @@
 
     - name: Delete Application Load Balancer Flowlog
       application_load_balancer_flowlog:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
-        flowlog_id: "{{ alb_flowlog_response.flowlog.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
+        flowlog: "{{ alb_flowlog_response.flowlog.id }}"
         state: absent
 
     - name: Remove Application Load Balancer
       application_load_balancer:
-       application_load_balancer_id: "{{ alb_response.application_load_balancer.id }}"
-       datacenter_id: "{{ datacenter_response.datacenter.id }}"
+       application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
+       datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
        wait_timeout: 2000
        state: absent
@@ -94,19 +110,19 @@
     - name: Remove Listener LAN
       lan:
         datacenter: "{{ datacenter }}"
-        name: "listener_lan"
+        lan: "listener_lan"
         state: absent
         wait: true
 
     - name: Remove Target LAN
       lan:
         datacenter: "{{ datacenter }}"
-        name: "target_lan"
+        lan: "target_lan"
         state: absent
         wait: true
 
     - name: Remove datacenter
       datacenter:
-        name: "{{ datacenter }}"
+        datacenter: "{{ datacenter }}"
         wait: true
         state: absent

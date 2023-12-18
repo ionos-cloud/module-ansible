@@ -1,0 +1,17 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: List Mongo Cluster Templates
+      mongo_cluster_template_info:
+      register: mongo_cluster_templates_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{mongo_cluster_templates_response}}"
+    #     dest: ../../docs/returned_object_examples/mongo_cluster_template_info.json
+
+    - name: Show Postgres Cluster Templates
+      debug:
+        var: mongo_cluster_templates_response.mongo_cluster_templates

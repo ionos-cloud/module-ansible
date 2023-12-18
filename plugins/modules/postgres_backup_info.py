@@ -17,11 +17,12 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (
-__version__, ionoscloud_dbaas_postgres.__version__)
+DBAAS_POSTGRES_USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-postgres/%s' % (
+    __version__, ionoscloud_dbaas_postgres.__version__)
 DOC_DIRECTORY = 'dbaas-postgres'
 STATES = ['info']
 OBJECT_NAME = 'Postgres Cluster Backups'
+RETURNED_KEY = 'postgres_backups'
 
 OPTIONS = {
     'postgres_cluster': {
@@ -29,10 +30,25 @@ OPTIONS = {
         'available': STATES,
         'type': 'str',
     },
+    'filters': {
+        'description': [
+            'Filter that can be used to list only objects which have a certain set of propeties. Filters '
+            'should be a dict with a key containing keys and value pair in the following format:'
+            "'properties.name': 'server_name'"
+        ],
+        'available': STATES,
+        'type': 'dict',
+    },
     'api_url': {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
         'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
         'available': STATES,
         'type': 'str',
     },
@@ -92,13 +108,68 @@ author:
 EXAMPLES = '''
     - name: List Postgres Cluster Backups
         postgres_cluster_info:
-            postgres_cluster: {{ postgres_cluster.id }}
+            postgres_cluster: backuptest-04
         register: postgres_clusters_response
 
     - name: Show Postgres Cluster Backups
         debug:
             var: postgres_clusters_response.result
 '''
+
+
+def get_method_from_filter(filter):
+    '''
+    Returns the method which check a filter for one object. Such a method would work in the following way:
+    for filter = ('properties.name', 'server_name') the resulting method would be
+    def method(item):
+        return item.properties.name == 'server_name'
+
+    Parameters:
+            filter (touple): Key, value pair representing the filter.
+
+    Returns:
+            the wanted method
+    '''
+    key, value = filter
+    def method(item):
+        current = item
+        for key_part in key.split('.'):
+            current = getattr(current, key_part)
+        return current == value
+    return method
+
+
+def get_method_to_apply_filters_to_item(filter_list):
+    '''
+    Returns the method which applies a list of filtering methods obtained using get_method_from_filter to 
+    one object and returns true if all the filters return true
+    Parameters:
+            filter_list (list): List of filtering methods
+    Returns:
+            the wanted method
+    '''
+    def f(item):
+        return all([f(item) for f in filter_list])
+    return f
+
+
+def apply_filters(module, item_list):
+    '''
+    Creates a list of filtering methods from the filters module parameter, filters item_list to keep only the
+    items for which every filter matches using get_method_to_apply_filters_to_item to make that check and returns
+    those items
+    Parameters:
+            module: The current Ansible module
+            item_list (list): List of items to be filtered
+    Returns:
+            List of items which match the filters
+    '''
+    filters = module.params.get('filters')
+    if not filters:
+        return item_list    
+    filter_methods = list(map(get_method_from_filter, filters.items()))
+
+    return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
 
 
 def _get_matched_resources(resource_list, identity, identity_paths=None):
@@ -165,6 +236,7 @@ def get_sdk_config(module, sdk):
     password = module.params.get('password')
     token = module.params.get('token')
     api_url = module.params.get('api_url')
+    certificate_fingerprint = module.params.get('certificate_fingerprint')
 
     if token is not None:
         # use the token instead of username & password
@@ -182,14 +254,17 @@ def get_sdk_config(module, sdk):
         conf['host'] = api_url
         conf['server_index'] = None
 
+    if certificate_fingerprint is not None:
+        conf['fingerprint'] = certificate_fingerprint
+
     return sdk.Configuration(**conf)
 
 
 def check_required_arguments(module, object_name):
     # manually checking if token or username & password provided
     if (
-            not module.params.get("token")
-            and not (module.params.get("username") and module.params.get("password"))
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name}'.format(
@@ -218,6 +293,8 @@ def main():
 
     check_required_arguments(module, OBJECT_NAME)
 
+    backups_api = ionoscloud_dbaas_postgres.BackupsApi(dbaas_postgres_api_client)
+
     try:
         results = []
         backups = []
@@ -232,15 +309,13 @@ def main():
                 [['id'], ['properties', 'display_name']],
             )
 
-            backups = ionoscloud_dbaas_postgres.BackupsApi(dbaas_postgres_api_client).cluster_backups_get(
-                postgres_cluster_id).items
+            backups = backups_api.cluster_backups_get(postgres_cluster_id)
         else:
-            backups = ionoscloud_dbaas_postgres.BackupsApi(dbaas_postgres_api_client).clusters_backups_get().items
+            backups = backups_api.clusters_backups_get()
 
-        for cluster in backups:
-            results.append(cluster.to_dict())
+        results = list(map(lambda x: x.to_dict(), apply_filters(module, backups.items)))
 
-        module.exit_json(result=results)
+        module.exit_json(**{RETURNED_KEY:results})
     except Exception as e:
         module.fail_json(
             msg='failed to retrieve {object_name}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))

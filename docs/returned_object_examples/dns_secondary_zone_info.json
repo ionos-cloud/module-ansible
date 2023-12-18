@@ -1,0 +1,30 @@
+{
+    "changed": false,
+    "zones": [
+        {
+            "id": "23da7378-a656-5d3a-9807-d283500753b6",
+            "type": "secondaryzone",
+            "href": "/secondaryzones/23da7378-a656-5d3a-9807-d283500753b6",
+            "metadata": {
+                "last_modified_date": "2023-10-24T13:12:37+00:00",
+                "created_date": "2023-10-24T13:12:07+00:00",
+                "state": "AVAILABLE",
+                "nameservers": [
+                    "<NAMESERVER1>",
+                    "<NAMESERVER2>",
+                    "<NAMESERVER3>",
+                    "<NAMESERVER4>"
+                ]
+            },
+            "properties": {
+                "zone_name": "<ZONE_NAME>",
+                "description": "test_description",
+                "primary_ips": [
+                    "<IP1>",
+                    "<IP2>"
+                ]
+            }
+        }
+    ],
+    "failed": false
+}

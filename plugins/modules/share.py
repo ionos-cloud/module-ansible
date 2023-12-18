@@ -36,15 +36,16 @@ USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, sdk_v
 DOC_DIRECTORY = 'user-management'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Share'
+RETURNED_KEY = 'share'
 
 OPTIONS = {
     'edit_privilege': {
-        'description': ['Boolean value indicating that the group has permission to edit privileges on the resource.'],
+        'description': ['edit privilege on a resource'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'share_privilege': {
-        'description': ['Boolean value indicating that the group has permission to share the resource.'],
+        'description': ['share privilege on a resource'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
@@ -64,6 +65,12 @@ OPTIONS = {
         'description': ['The Ionos API base URL.'],
         'version_added': '2.4',
         'env_fallback': 'IONOS_API_URL',
+        'available': STATES,
+        'type': 'str',
+    },
+    'certificate_fingerprint': {
+        'description': ['The Ionos API certificate fingerprint.'],
+        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
         'available': STATES,
         'type': 'str',
     },
@@ -259,6 +266,22 @@ def create_shares(module, client):
     share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=1).items
     for share in share_list:
         if share.id in resource_ids:
+            if (
+                edit_privilege and share.properties.edit_privilege != edit_privilege
+                or share_privilege and share.properties.share_privilege != share_privilege
+            ):
+                share = GroupShare(properties=GroupShareProperties(
+                    edit_privilege=edit_privilege if edit_privilege is not None else share.properties.edit_privilege,
+                    share_privilege=share_privilege if share_privilege is not None else share.properties.share_privilege,
+                ))
+
+                _, _, headers = user_management_server.um_groups_shares_put_with_http_info(
+                    group_id=group_id, resource_id=uuid, resource=share,
+                )
+                if wait:
+                    request_id = _get_request_id(headers['Location'])
+                    client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
             resource_ids.remove(share.id)
 
     should_change = True
@@ -270,6 +293,7 @@ def create_shares(module, client):
         module.exit_json(changed=should_change)
 
     if not should_change:
+        share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=1).items
         return {
             'changed': False,
             'failed': False,
@@ -279,12 +303,13 @@ def create_shares(module, client):
 
     try:
         for uuid in resource_ids:
-            share_properties = GroupShareProperties(edit_privilege=edit_privilege or False,
-                                                    share_privilege=share_privilege or False)
+            share_properties = GroupShareProperties(
+                edit_privilege=edit_privilege or False, share_privilege=share_privilege or False,
+            )
             share = GroupShare(properties=share_properties)
-            response = user_management_server.um_groups_shares_post_with_http_info(group_id=group_id, resource_id=uuid,
-                                                                                   resource=share)
-            (share_response, _, headers) = response
+            _, _, headers = user_management_server.um_groups_shares_post_with_http_info(
+                group_id=group_id, resource_id=uuid, resource=share,
+            )
 
             if wait:
                 request_id = _get_request_id(headers['Location'])
@@ -341,18 +366,15 @@ def update_shares(module, client):
         for uuid in resource_ids:
             if uuid in existing.keys():
                 share = existing[uuid]
-                if edit_privilege is None:
-                    edit_privilege = share.properties.edit_privilege
-                if share_privilege is None:
-                    share_privilege = share.properties.share_privilege
 
-                share_properties = GroupShareProperties(edit_privilege=edit_privilege or False,
-                                                        share_privilege=share_privilege or False)
-                share = GroupShare(properties=share_properties)
+                share = GroupShare(properties=GroupShareProperties(
+                    edit_privilege=edit_privilege if edit_privilege is not None else share.properties.edit_privilege,
+                    share_privilege=share_privilege if share_privilege is not None else share.properties.share_privilege,
+                ))
 
-                response = user_management_server.um_groups_shares_put_with_http_info(group_id=group_id,
-                                                                                      resource_id=uuid, resource=share)
-                (share_response, _, headers) = response
+                _, _, headers = user_management_server.um_groups_shares_put_with_http_info(
+                    group_id=group_id, resource_id=uuid, resource=share,
+                )
                 if wait:
                     request_id = _get_request_id(headers['Location'])
                     client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
@@ -382,7 +404,7 @@ def delete_shares(module, client):
     user_management_server = ionoscloud.UserManagementApi(api_client=client)
 
     # Locate UUID for the group
-    group_list = user_management_server.um_groups_get(depth=2)
+    group_list = user_management_server.um_groups_get(depth=1)
     group_id = get_resource_id(module, group_list, group)
 
     if module.check_mode:
@@ -432,6 +454,7 @@ def get_sdk_config(module, sdk):
     password = module.params.get('password')
     token = module.params.get('token')
     api_url = module.params.get('api_url')
+    certificate_fingerprint = module.params.get('certificate_fingerprint')
 
     if token is not None:
         # use the token instead of username & password
@@ -449,14 +472,17 @@ def get_sdk_config(module, sdk):
         conf['host'] = api_url
         conf['server_index'] = None
 
+    if certificate_fingerprint is not None:
+        conf['fingerprint'] = certificate_fingerprint
+
     return sdk.Configuration(**conf)
 
 
 def check_required_arguments(module, state, object_name):
     # manually checking if token or username & password provided
     if (
-            not module.params.get("token")
-            and not (module.params.get("username") and module.params.get("password"))
+        not module.params.get("token")
+        and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
             msg='Token or username & password are required for {object_name} state {state}'.format(
