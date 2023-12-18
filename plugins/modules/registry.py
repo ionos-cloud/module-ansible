@@ -46,7 +46,8 @@ OPTIONS = {
     'vulnerability_scanning': {
         'description': ['Vulnerability scanning for images.  __Note__: this is a paid add-on'],
         'available': ['present', 'update'],
-        'type': 'dict',
+        'type': 'bool',
+        'default': True,
     },
     'name': {
         'description': ['The name of your registry.'],
@@ -237,8 +238,6 @@ def _should_replace_object(module, existing_object):
 
 def _should_update_object(module, existing_object):
     gc_schedule = module.params.get('garbage_collection_schedule')
-    vulnerability_scanning = module.params.get('vulnerability_scanning')
-    existing_vulnerability_scanning = existing_object.properties.features.vulnerability_scanning
     return (
         gc_schedule is not None
         and (
@@ -246,12 +245,9 @@ def _should_update_object(module, existing_object):
             and sorted(existing_object.properties.garbage_collection_schedule.days) != sorted(gc_schedule.get('days'))
             or gc_schedule.get('time') is not None
             and existing_object.properties.garbage_collection_schedule.time != gc_schedule.get('time')
-        ) or vulnerability_scanning is not None and (
-            vulnerability_scanning.get('enabled')
-            and vulnerability_scanning.get('enabled') != existing_vulnerability_scanning.properties
-            or vulnerability_scanning.get('properties')
-            and vulnerability_scanning.get('properties') != existing_vulnerability_scanning.properties
         )
+        or module.params.get('vulnerability_scanning') is not None
+        and existing_object.properties.vulnerability_scanning.enabled != module.params.get('vulnerability_scanning')
     )
 
 
@@ -274,12 +270,6 @@ def _create_object(module, client, existing_object=None):
             days=gc_schedule.get('days'),
             time=gc_schedule.get('time'),
         )
-    vulnerability_scanning = module.params.get('vulnerability_scanning')
-    if vulnerability_scanning:
-        vulnerability_scanning = ionoscloud_container_registry.FeatureVulnerabilityScanning(
-            enabled=vulnerability_scanning.get('enabled'),
-            properties=vulnerability_scanning.get('properties'),
-        )
     name = module.params.get('name')
     location = module.params.get('location')
     if existing_object is not None:
@@ -294,7 +284,9 @@ def _create_object(module, client, existing_object=None):
         location=location,
         garbage_collection_schedule=gc_schedule,
         features=ionoscloud_container_registry.RegistryFeatures(
-            vulnerability_scanning=vulnerability_scanning,
+            vulnerability_scanning=ionoscloud_container_registry.FeatureVulnerabilityScanning(
+                enabled=module.params.get('vulnerability_scanning'),
+            ),
         ),
     )
 
@@ -314,19 +306,15 @@ def _update_object(module, client, existing_object):
             days=gc_schedule.get('days'),
             time=gc_schedule.get('time'),
         )
-    vulnerability_scanning = module.params.get('vulnerability_scanning')
-    if vulnerability_scanning:
-        vulnerability_scanning = ionoscloud_container_registry.FeatureVulnerabilityScanning(
-            enabled=vulnerability_scanning.get('enabled'),
-            properties=vulnerability_scanning.get('properties'),
-        )
 
     registries_api = ionoscloud_container_registry.RegistriesApi(client)
 
     registry_properties = ionoscloud_container_registry.PatchRegistryInput(
         garbage_collection_schedule=gc_schedule,
         features=ionoscloud_container_registry.RegistryFeatures(
-            vulnerability_scanning=vulnerability_scanning,
+            vulnerability_scanning=ionoscloud_container_registry.FeatureVulnerabilityScanning(
+                enabled=module.params.get('vulnerability_scanning'),
+            ),
         ),
     )
 

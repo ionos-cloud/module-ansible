@@ -15,8 +15,7 @@
         days: 
             - Wednesday
         time: 04:17:00+00:00
-      vulnerability_scanning:
-        enabled: true
+      vulnerability_scanning: true
     register: registry_response
 
   - name: List Registries
@@ -57,8 +56,7 @@
             - Wednesday
             - Sunday
         time: 06:17:00+00:00
-      vulnerability_scanning:
-        enabled: false
+      vulnerability_scanning: false
       allow_replace: False
       state: update
     register: updated_registry_response
@@ -70,8 +68,7 @@
         days: 
             - Wednesday
             - Sunday
-      vulnerability_scanning:
-        enabled: false
+      vulnerability_scanning: false
       allow_replace: False
       state: update
     register: updated_registry_response
