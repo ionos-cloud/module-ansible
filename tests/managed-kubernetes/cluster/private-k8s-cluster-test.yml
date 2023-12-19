@@ -21,15 +21,6 @@
         state: present
       register: ipblock_response
 
-    - name: Create NAT Gateway
-      nat_gateway:
-        datacenter: "{{ datacenter_response.datacenter.id }}"
-        name: "{{ nat }}"
-        public_ips: "{{ ipblock_response.ipblock.properties.ips }}"
-        wait: true
-        wait_timeout: 1200
-      register: nat_gateway_response
-
     - name: Create k8s cluster
       k8s_cluster:
         cluster_name: "ansible-cluster-{{100|random}}"
@@ -46,14 +37,6 @@
       k8s_cluster:
         k8s_cluster: "{{ cluster_response.cluster.id }}"
         state: absent
-
-    - name: Remove NAT Gateway
-      nat_gateway:
-       nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
-       datacenter: "{{ datacenter_response.datacenter.id }}"
-       wait: true
-       wait_timeout: 2000
-       state: absent
 
     - name: Remove datacenter
       datacenter:
