@@ -18,6 +18,7 @@
       features:
         vulnerability_scanning:
           enabled: true
+      wait: true
     register: registry_response
 
   - name: List Registries

@@ -264,6 +264,8 @@ def _get_object_identifier(module):
 
 
 def _create_object(module, client, existing_object=None):
+    wait = module.params.get('wait')
+    wait_timeout = int(module.params.get('wait_timeout'))
     gc_schedule = module.params.get('garbage_collection_schedule')
     vulnerability_scanning = module.params.get('features', {}).get('vulnerability_scanning')
     if gc_schedule:
@@ -297,12 +299,22 @@ def _create_object(module, client, existing_object=None):
 
     try:
         registry = registries_api.registries_post(registry)
+
+        if wait:
+            client.wait_for(
+                fn_request=lambda: registries_api.registries_find_by_id(registry.id).metadata.state,
+                fn_check=lambda r: r == 'Running',
+                scaleup=10000,
+                timeout=wait_timeout,
+            )
     except ionoscloud_container_registry.ApiException as e:
         module.fail_json(msg="failed to create the new Registry: %s" % to_native(e))
     return registry
 
 
 def _update_object(module, client, existing_object):
+    wait = module.params.get('wait')
+    wait_timeout = int(module.params.get('wait_timeout'))
     gc_schedule = module.params.get('garbage_collection_schedule')
     vulnerability_scanning = module.params.get('features', {}).get('vulnerability_scanning')
     if gc_schedule:
@@ -329,6 +341,14 @@ def _update_object(module, client, existing_object):
             registry_id=existing_object.id,
             patch_registry_input=registry_properties,
         )
+
+        if wait:
+            client.wait_for(
+                fn_request=lambda: registries_api.registries_find_by_id(registry.id).metadata.state,
+                fn_check=lambda r: r == 'Running',
+                scaleup=10000,
+                timeout=wait_timeout,
+            )
 
         return registry
     except ionoscloud_container_registry.ApiException as e:
