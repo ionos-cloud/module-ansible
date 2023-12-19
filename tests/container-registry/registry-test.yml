@@ -18,8 +18,6 @@
       features:
         vulnerability_scanning:
           enabled: true
-      feature_config:
-
     register: registry_response
 
   - name: List Registries
