@@ -120,9 +120,9 @@ This is a module that supports creating, updating or destroying Registries
   <td>The location of your registry</td>
   </tr>
   <tr>
-  <td>vulnerability_scanning<br/><mark style="color:blue;">dict</mark></td>
+  <td>features<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>
-  <td>Vulnerability scanning for images.  __Note__: this is a paid add-on</td>
+  <td>Optional registry features.  __Note__: These are all enabled by deafult, some may incur additional charges - see individual feature descriptions for details. Vulnerability scanning for images.  __Note__: this is a paid add-on</td>
   </tr>
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
@@ -278,9 +278,9 @@ This is a module that supports creating, updating or destroying Registries
   <td>The location of your registry</td>
   </tr>
   <tr>
-  <td>vulnerability_scanning<br/><mark style="color:blue;">dict</mark></td>
+  <td>features<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>
-  <td>Vulnerability scanning for images.  __Note__: this is a paid add-on</td>
+  <td>Optional registry features.  __Note__: These are all enabled by deafult, some may incur additional charges - see individual feature descriptions for details. Vulnerability scanning for images.  __Note__: this is a paid add-on</td>
   </tr>
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>

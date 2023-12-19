@@ -15,7 +15,11 @@
         days: 
             - Wednesday
         time: 04:17:00+00:00
-      vulnerability_scanning: true
+      features:
+        vulnerability_scanning:
+          enabled: true
+      feature_config:
+
     register: registry_response
 
   - name: List Registries
@@ -55,10 +59,12 @@
       registry: "{{ registry_response.registry.properties.name }}"
       garbage_collection_schedule:
         days: 
-            - Wednesday
-            - Sunday
+          - Wednesday
+          - Sunday
         time: 06:17:00+00:00
-      vulnerability_scanning: false
+      features:
+        vulnerability_scanning:
+          enabled: false
       allow_replace: False
       state: update
     register: updated_registry_response
@@ -68,9 +74,11 @@
       registry: "{{ registry_response.registry.properties.name }}"
       garbage_collection_schedule:
         days: 
-            - Wednesday
-            - Sunday
-      vulnerability_scanning: false
+          - Wednesday
+          - Sunday
+      features:
+        vulnerability_scanning:
+          enabled: false
       allow_replace: False
       state: update
     register: updated_registry_response
