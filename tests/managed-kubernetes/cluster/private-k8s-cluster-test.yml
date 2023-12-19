@@ -27,6 +27,7 @@
         name: "{{ nat }}"
         public_ips: "{{ ipblock_response.ipblock.properties.ips }}"
         wait: true
+        wait_timeout: 1200
       register: nat_gateway_response
 
     - name: Create k8s cluster
