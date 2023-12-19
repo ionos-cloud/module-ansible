@@ -25,7 +25,7 @@
       nat_gateway:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ nat }}"
-        public_ips: "{{ ipblock_response_create.ipblock.properties.ips }}"
+        public_ips: "{{ ipblock_response.ipblock.properties.ips }}"
         wait: true
       register: nat_gateway_response
 
