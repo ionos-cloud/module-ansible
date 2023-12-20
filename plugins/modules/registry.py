@@ -276,7 +276,7 @@ def _create_object(module, client, existing_object=None):
     if vulnerability_scanning:
         vulnerability_scanning_feature = ionoscloud_container_registry.FeatureVulnerabilityScanning(
             enabled=vulnerability_scanning.get('enabled'),
-        ),
+        )
     name = module.params.get('name')
     location = module.params.get('location')
     if existing_object is not None:
@@ -325,7 +325,7 @@ def _update_object(module, client, existing_object):
     if vulnerability_scanning:
         vulnerability_scanning_feature = ionoscloud_container_registry.FeatureVulnerabilityScanning(
             enabled=vulnerability_scanning.get('enabled'),
-        ),
+        )
 
     registries_api = ionoscloud_container_registry.RegistriesApi(client)
 
