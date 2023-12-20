@@ -8,7 +8,7 @@
   tasks:
 
   - name: Create Registry
-    ionoscloudsdk.ionoscloud.registry:
+    registry:
       name: "{{registry_name}}"
       location: de/fra
       garbage_collection_schedule:
@@ -22,7 +22,7 @@
     register: registry_response
 
   - name: List Registries
-    ionoscloudsdk.ionoscloud.registry_info:
+    registry_info:
     register: registries_response
 
   - name: Show Registries
@@ -30,7 +30,7 @@
       var: registries_response.result
 
   - name: List Repositories
-    ionoscloudsdk.ionoscloud.registry_repository_info:
+    registry_repository_info:
       registry: "{{ registry_response.registry.properties.name }}"
     register: repositories_response
 
@@ -39,13 +39,13 @@
       var: repositories_response.result
 
   - name: Ensure Repository does not exist
-    ionoscloudsdk.ionoscloud.registry_repository:
+    registry_repository:
       registry: "{{ registry_response.registry.properties.name }}"
       repository: repo-name
       state: absent
 
   - name: List artifacts
-    ionoscloudsdk.ionoscloud.registry_artifact_info:
+    registry_artifact_info:
       registry: "{{ registry_response.registry.properties.name }}"
     register: artifacts_response
 
@@ -54,7 +54,7 @@
       var: artifacts_response.result
 
   - name: Update Registry
-    ionoscloudsdk.ionoscloud.registry:
+    registry:
       registry: "{{ registry_response.registry.properties.name }}"
       garbage_collection_schedule:
         days: 
@@ -69,7 +69,7 @@
     register: updated_registry_response
 
   - name: Update Registry no change
-    ionoscloudsdk.ionoscloud.registry:
+    registry:
       registry: "{{ registry_response.registry.properties.name }}"
       garbage_collection_schedule:
         days: 
@@ -89,7 +89,7 @@
       msg: "Changed should be false"
 
   - name: Delete Registry
-    ionoscloudsdk.ionoscloud.registry:
+    registry:
       registry: "{{ registry_response.registry.properties.name }}"
       wait: true
       state: absent
