@@ -42,7 +42,6 @@ OPTIONS = {
     'repository': {
         'description': ['The name of an existing Repository.'],
         'available': STATES,
-        'required': STATES,
         'type': 'str',
     },
     'api_url': {
@@ -296,10 +295,15 @@ def main():
             ionoscloud_container_registry.RegistriesApi(client).registries_get(),
             module.params.get('registry'),
         )
-        artifacts = ionoscloud_container_registry.ArtifactsApi(client).registries_artifacts_get(
-            registry_id,
-            module.params.get('repository'),
-        )
+        if module.params.get('repository'):
+            artifacts = ionoscloud_container_registry.ArtifactsApi(client).registries_repositories_artifacts_get(
+                registry_id,
+                module.params.get('repository'),
+            )
+        else:
+            artifacts = ionoscloud_container_registry.ArtifactsApi(client).registries_artifacts_get(
+                registry_id,
+            )
         results = list(map(lambda x: x.to_dict(), apply_filters(module, artifacts.items)))
         module.exit_json(**{RETURNED_KEY:results})
     except Exception as e:

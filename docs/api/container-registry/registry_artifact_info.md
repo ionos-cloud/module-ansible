@@ -100,7 +100,7 @@ This is a simple module that supports listing existing Artifacts
   </tr>
   <tr>
   <td>repository<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
+  <td align="center">False</td>
   <td>The name of an existing Repository.</td>
   </tr>
   <tr>
