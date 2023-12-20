@@ -158,17 +158,20 @@ author:
 EXAMPLE_PER_STATE = {
     'present': '''- name: Create Registry
     registry:
-      name: test_registry
+      name: testregistry
       location: de/fra
       garbage_collection_schedule:
         days: 
             - Wednesday
         time: 04:17:00+00:00
+      features:
+        vulnerability_scanning:
+          enabled: false
     register: registry_response
   ''',
     'update': '''- name: Update Registry
     registry:
-      registry: test_registry
+      registry: testregistry
       name: test_registry_update
       garbage_collection_schedule:
         days: 
@@ -178,7 +181,7 @@ EXAMPLE_PER_STATE = {
   ''',
     'absent': '''- name: Delete Registry
     registry:
-      registry: test_registry
+      registry: testregistry
       wait: true
       state: absent
   ''',

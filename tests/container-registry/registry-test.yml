@@ -21,6 +21,11 @@
       wait: true
     register: registry_response
 
+  - name: Sleep for 600 seconds and continue with play
+    ansible.builtin.wait_for:
+      timeout: 600
+    delegate_to: localhost
+
   - name: List Registries
     registry_info:
     register: registries_response
