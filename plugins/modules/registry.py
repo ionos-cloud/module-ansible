@@ -44,7 +44,7 @@ OPTIONS = {
         'type': 'str',
     },
     'features': {
-        'description': ["Optional registry features. Format: 'vulnerability_scanning' key having a dict for value containing the 'enabled' key with a boolean value Note: These are all enabled by default, some may incur additional charges - see individual feature descriptions for details. Vulnerability scanning for images.  Note: this is a paid add-on"],
+        'description': ["Optional registry features. Format: 'vulnerability_scanning' key having a dict for value containing the 'enabled' key with a boolean value\n Note: Vulnerability scanning for images is enabled by default. This is a paid add-on, please make sure you specify if you do not want it enabled"],
         'available': ['present', 'update'],
         'type': 'dict',
     },
@@ -62,7 +62,7 @@ OPTIONS = {
     },
     'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'Boolean indicating if the resource should be recreated when the state cannot be reached in '
             'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
@@ -317,6 +317,7 @@ def _create_object(module, client, existing_object=None):
                 scaleup=10000,
                 timeout=wait_timeout,
             )
+        registry = registries_api.registries_find_by_id(registry.id)
     except ionoscloud_container_registry.ApiException as e:
         module.fail_json(msg="failed to create the new Registry: %s" % to_native(e))
     return registry
@@ -360,6 +361,7 @@ def _update_object(module, client, existing_object):
                 scaleup=10000,
                 timeout=wait_timeout,
             )
+        registry = registries_api.registries_find_by_id(existing_object.id)
 
         return registry
     except ionoscloud_container_registry.ApiException as e:
