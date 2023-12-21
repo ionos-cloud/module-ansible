@@ -58,9 +58,13 @@
   * Modules
     * [Registry](api/container-registry/registry.md)
     * [Registry Token](api/container-registry/registry_token.md)
+    * [Repository](api/container-registry/registry_repository.md)
   * Info Modules
     * [Registries](api/container-registry/registry_info.md)
     * [Registry Tokens](api/container-registry/registry_token_info.md)
+    * [Artifacts](api/container-registry/registry_artifact_info.md)
+    * [Repositories](api/container-registry/registry_repository_info.md)
+    * [Vulnerabilities](api/container-registry/registry_vulnerability_info.md)
 * DBaaS Postgres
   * Modules
     * [Postgres Cluster](api/dbaas-postgres/postgres_cluster.md)
