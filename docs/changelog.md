@@ -6,7 +6,7 @@
   * new modules: registry_artifact_info, registry_repository, registry_repository_info, registry_vulnerability_info
   * new argument for registry: features
 * Added Private Kubernetes feature
-  * new argument for k8s_cluster: public, location, nat_gateway_ip and node_subnet
+  * new arguments for k8s_cluster: public, location, nat_gateway_ip and node_subnet
 ### Fixes
 * Fixed argument lan not available in state present for module nic
 * Fixed some wrong examples
