@@ -8,17 +8,20 @@ This is a module that supports creating, updating or destroying Registries
 ```yaml
 - name: Create Registry
     registry:
-      name: test_registry
+      name: testregistry
       location: de/fra
       garbage_collection_schedule:
         days: 
             - Wednesday
         time: 04:17:00+00:00
+      features:
+        vulnerability_scanning:
+          enabled: false
     register: registry_response
   
 - name: Update Registry
     registry:
-      registry: test_registry
+      registry: testregistry
       name: test_registry_update
       garbage_collection_schedule:
         days: 
@@ -28,7 +31,7 @@ This is a module that supports creating, updating or destroying Registries
   
 - name: Delete Registry
     registry:
-      registry: test_registry
+      registry: testregistry
       wait: true
       state: absent
   
@@ -82,18 +85,22 @@ This is a module that supports creating, updating or destroying Registries
 ## Parameters that can trigger a resource replacement:
   * name 
   * location 
+  * features (changing features.vulnerability_scanning.enabled from true to false will trigger a resource replacement)
 &nbsp;
 
 # state: **present**
 ```yaml
   - name: Create Registry
     registry:
-      name: test_registry
+      name: testregistry
       location: de/fra
       garbage_collection_schedule:
         days: 
             - Wednesday
         time: 04:17:00+00:00
+      features:
+        vulnerability_scanning:
+          enabled: false
     register: registry_response
   
 ```
@@ -122,7 +129,7 @@ This is a module that supports creating, updating or destroying Registries
   <tr>
   <td>features<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>
-  <td>Optional registry features.  __Note__: These are all enabled by deafult, some may incur additional charges - see individual feature descriptions for details. Vulnerability scanning for images.  __Note__: this is a paid add-on</td>
+  <td>Optional registry features. Format: 'vulnerability_scanning' key having a dict for value containing the 'enabled' key with a boolean value Note: These are all enabled by default, some may incur additional charges - see individual feature descriptions for details. Vulnerability scanning for images.  Note: this is a paid add-on</td>
   </tr>
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
@@ -179,7 +186,7 @@ This is a module that supports creating, updating or destroying Registries
 ```yaml
   - name: Delete Registry
     registry:
-      registry: test_registry
+      registry: testregistry
       wait: true
       state: absent
   
@@ -246,7 +253,7 @@ This is a module that supports creating, updating or destroying Registries
 ```yaml
   - name: Update Registry
     registry:
-      registry: test_registry
+      registry: testregistry
       name: test_registry_update
       garbage_collection_schedule:
         days: 
@@ -280,7 +287,7 @@ This is a module that supports creating, updating or destroying Registries
   <tr>
   <td>features<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>
-  <td>Optional registry features.  __Note__: These are all enabled by deafult, some may incur additional charges - see individual feature descriptions for details. Vulnerability scanning for images.  __Note__: this is a paid add-on</td>
+  <td>Optional registry features. Format: 'vulnerability_scanning' key having a dict for value containing the 'enabled' key with a boolean value Note: These are all enabled by default, some may incur additional charges - see individual feature descriptions for details. Vulnerability scanning for images.  Note: this is a paid add-on</td>
   </tr>
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>

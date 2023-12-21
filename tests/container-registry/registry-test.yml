@@ -17,14 +17,9 @@
         time: 04:17:00+00:00
       features:
         vulnerability_scanning:
-          enabled: true
+          enabled: false
       wait: true
     register: registry_response
-
-  - name: Sleep for 600 seconds and continue with play
-    ansible.builtin.wait_for:
-      timeout: 600
-    delegate_to: localhost
 
   - name: List Registries
     registry_info:
@@ -32,7 +27,7 @@
 
   - name: Show Registries
     debug:
-      var: registries_response.result
+      var: registries_response
 
   - name: List Repositories
     registry_repository_info:
@@ -41,7 +36,7 @@
 
   - name: Show Repositories
     debug:
-      var: repositories_response.result
+      var: repositories_response
 
   - name: Ensure Repository does not exist
     registry_repository:
@@ -56,7 +51,7 @@
 
   - name: Show artifacts
     debug:
-      var: artifacts_response.result
+      var: artifacts_response
 
   - name: Update Registry
     registry:
@@ -68,7 +63,7 @@
         time: 06:17:00+00:00
       features:
         vulnerability_scanning:
-          enabled: false
+          enabled: true
       allow_replace: False
       state: update
     register: updated_registry_response
@@ -82,7 +77,7 @@
           - Sunday
       features:
         vulnerability_scanning:
-          enabled: false
+          enabled: true
       allow_replace: False
       state: update
     register: updated_registry_response
@@ -93,8 +88,28 @@
         - updated_registry_response.changed == false
       msg: "Changed should be false"
 
-  - name: Delete Registry
+  - name: Replace Registry
     registry:
       registry: "{{ registry_response.registry.properties.name }}"
+      name: "{{ registry_response.registry.properties.name }}2"
+      garbage_collection_schedule:
+        days: 
+          - Wednesday
+          - Sunday
+        time: 06:17:00+00:00
+      features:
+        vulnerability_scanning:
+          enabled: false
+      allow_replace: true
+      state: update
+    register: updated_registry_response
+
+  - name: Show Registry
+    debug:
+      var: updated_registry_response
+
+  - name: Delete Registry
+    registry:
+      registry: "{{ updated_registry_response.registry.properties.name }}"
       wait: true
       state: absent

@@ -44,7 +44,7 @@ OPTIONS = {
         'type': 'str',
     },
     'features': {
-        'description': ['Optional registry features.  __Note__: These are all enabled by deafult, some may incur additional charges - see individual feature descriptions for details. Vulnerability scanning for images.  __Note__: this is a paid add-on'],
+        'description': ["Optional registry features. Format: 'vulnerability_scanning' key having a dict for value containing the 'enabled' key with a boolean value Note: These are all enabled by default, some may incur additional charges - see individual feature descriptions for details. Vulnerability scanning for images.  Note: this is a paid add-on"],
         'available': ['present', 'update'],
         'type': 'dict',
     },
@@ -127,6 +127,7 @@ OPTIONS = {
 IMMUTABLE_OPTIONS = [
     { "name": "name", "note": "" },
     { "name": "location", "note": "" },
+    { "name": "features", "note": "changing features.vulnerability_scanning.enabled from true to false will trigger a resource replacement" },
 ]
 
 def transform_for_documentation(val):
@@ -230,11 +231,15 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
 
 
 def _should_replace_object(module, existing_object):
+    vulnerability_scanning = module.params.get('features', {}).get('vulnerability_scanning', {})
     return (
         module.params.get('location') is not None
         and existing_object.properties.location != module.params.get('location')
         or module.params.get('name') is not None
         and existing_object.properties.name != module.params.get('name')
+        or vulnerability_scanning.get('enabled') is not None
+        and existing_object.properties.features.vulnerability_scanning.enabled == True
+        and vulnerability_scanning.get('enabled') == False
     )
 
 
@@ -250,7 +255,8 @@ def _should_update_object(module, existing_object):
             and existing_object.properties.garbage_collection_schedule.time != gc_schedule.get('time')
         )
         or vulnerability_scanning.get('enabled') is not None
-        and existing_object.properties.features.vulnerability_scanning.enabled != vulnerability_scanning.get('enabled')
+        and existing_object.properties.features.vulnerability_scanning.enabled == False
+        and vulnerability_scanning.get('enabled') == True
     )
 
 
