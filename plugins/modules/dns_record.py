@@ -82,7 +82,7 @@ OPTIONS = {
     },
     'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'Boolean indicating if the resource should be recreated when the state cannot be reached in '
             'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
