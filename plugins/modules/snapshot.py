@@ -221,7 +221,7 @@ EXAMPLE_PER_STATE = {
     'update': '''# Update a snapshot
   - name: Update snapshot
     snapshot:
-      name: "boot volume image"
+      snapshot: "boot volume image"
       description: Ansible test snapshot - RENAME
       state: update
   ''',
@@ -230,13 +230,13 @@ EXAMPLE_PER_STATE = {
     snapshot:
       datacenter: production DC
       volume: slave
-      name: boot volume image
+      snapshot: boot volume image
       state: restore
   ''',
     'absent': '''# Remove a snapshot
   - name: Remove snapshot
     snapshot:
-      name: master-Snapshot-11/30/2017
+      snapshot: master-Snapshot-11/30/2017
       state: absent
   ''',
 }

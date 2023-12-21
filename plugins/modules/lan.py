@@ -72,17 +72,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'ipv6_cidr': {
-        'description': [
-            "[The IPv6 feature is in beta phase and not ready for production usage.] For a GET request, "
-            "this value is either 'null' or contains the LAN's /64 IPv6 CIDR block if this LAN is "
-            "IPv6-enabled. For POST/PUT/PATCH requests, 'AUTO' will result in enabling this LAN for "
-            "IPv6 and automatically assign a /64 IPv6 CIDR block to this LAN. If you choose the IPv6 "
-            "CIDR block on your own, then you must provide a /64 block, which is inside the IPv6 CIDR "
-            "block of the virtual datacenter and unique inside all LANs from this virtual datacenter. "
-            "If you enable IPv6 on a LAN with NICs, those NICs will get an /80 IPv6 CIDR block and one "
-            "IPv6 address assigned to each automatically, unless you specify them explicitly on the NICs. "
-            "A virtual data center is limited to a maximum of 256 IPv6-enabled LANs.",
-        ],
+        'description': ["For a GET request, this value is either \'null\' or contains the LAN\'s /64 IPv6 CIDR block if this LAN is IPv6 enabled. For POST/PUT/PATCH requests, \'AUTO\' will result in enabling this LAN for IPv6 and automatically assign a /64 IPv6 CIDR block to this LAN and /80 IPv6 CIDR blocks to the NICs and one /128 IPv6 address to each connected NIC. If you choose the IPv6 CIDR block for the LAN on your own, then you must provide a /64 block, which is inside the IPv6 CIDR block of the virtual datacenter and unique inside all LANs from this virtual datacenter. If you enable IPv6 on a LAN with NICs, those NICs will get a /80 IPv6 CIDR block and one IPv6 address assigned to each automatically, unless you specify them explicitly on the LAN and on the NICs. A virtual data center is limited to a maximum of 256 IPv6-enabled LANs."],
         'available': ['present', 'update'],
         'type': 'str',
     },
@@ -191,7 +181,7 @@ EXAMPLE_PER_STATE = {
 - name: Update LAN
   lan:
     datacenter: Virtual Datacenter
-    name: nameoflan
+    lan: nameoflan
     public: true
     ip_failover:
           208.94.38.167: 1de3e6ae-da16-4dc7-845c-092e8a19fded
@@ -202,7 +192,7 @@ EXAMPLE_PER_STATE = {
 - name: Remove LAN
   lan:
     datacenter: Virtual Datacenter
-    name: nameoflan
+    lan: nameoflan
     state: absent
   ''',
 }

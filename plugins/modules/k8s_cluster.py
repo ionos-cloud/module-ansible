@@ -67,6 +67,28 @@ OPTIONS = {
         'type': 'list',
         'elements': 'str',
     },
+    'public': {
+        'description': ['The indicator if the cluster is public or private.'],
+        'available': ['present'],
+        'type': 'bool'
+    },
+    'location': {
+        'description': 'The location of the cluster if the cluster is private. This property is immutable. The '
+                       'location must be enabled for your contract or you must have a Datacenter within that '
+                       'location. This attribute is mandatory if the cluster is private.',
+        'available': ['present'],
+        'type': 'str'
+    },
+    'nat_gateway_ip': {
+        'description': 'The nat gateway IP of the cluster if the cluster is private.',
+        'available': ['present'],
+        'type': 'str'
+    },
+    'node_subnet': {
+        'description': 'The node subnet of the cluster if the cluster is private.',
+        'available': ['present'],
+        'type': 'str'
+    },
     'allow_replace': {
         'description': [
             'Boolean indincating if the resource should be recreated when the state cannot be reached in '
@@ -297,6 +319,11 @@ def _create_object(module, client, existing_object=None):
     cluster_name = module.params.get('cluster_name')
     k8s_version = module.params.get('k8s_version')
     maintenance = module.params.get('maintenance_window')
+    public = module.params.get('public')
+    location = module.params.get('location')
+    nat_gateway_ip = module.params.get('nat_gateway_ip')
+    node_subnet = module.params.get('node_subnet')
+    wait = module.params.get('wait')
     api_subnet_allow_list = module.params.get('api_subnet_allow_list')
     s3_buckets = list(map(lambda bucket_name: S3Bucket(name=bucket_name), module.params.get('s3_buckets_param'))) if module.params.get('s3_buckets_param') else None
 
@@ -316,17 +343,21 @@ def _create_object(module, client, existing_object=None):
     wait_timeout = int(module.params.get('wait_timeout'))
 
     k8s_api = ionoscloud.KubernetesApi(api_client=client)
-    
-    k8s_cluster_properties = KubernetesClusterProperties(
-        name=cluster_name,
-        k8s_version=k8s_version,
-        maintenance_window=maintenance_window,
-        api_subnet_allow_list=api_subnet_allow_list,
-        s3_buckets=s3_buckets,
-    )
-    k8s_cluster = KubernetesCluster(properties=k8s_cluster_properties)
 
     try:
+        k8s_cluster_properties = KubernetesClusterProperties(
+            name=cluster_name,
+            k8s_version=k8s_version,
+            maintenance_window=maintenance_window,
+            api_subnet_allow_list=api_subnet_allow_list,
+            s3_buckets=s3_buckets,
+            public=public,
+            nat_gateway_ip=nat_gateway_ip,
+            node_subnet=node_subnet,
+            location=location
+        )
+        k8s_cluster = KubernetesCluster(properties=k8s_cluster_properties)
+
         k8s_response = k8s_api.k8s_post(kubernetes_cluster=k8s_cluster)
 
         if wait:
