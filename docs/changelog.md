@@ -1,5 +1,18 @@
 # Changelog
 
+## 7.2.0
+### Features
+* Added Container Registry Vulnerability Scanning feature
+  * new modules: registry_artifact_info, registry_repository, registry_repository_info, registry_vulnerability_info
+  * new argument for registry: features
+* Added Private Kubernetes feature
+  * new argument for k8s_cluster: public, location, nat_gateway_ip and node_subnet
+### Fixes
+* Fixed argument lan not available in state present for module nic
+* Fixed some wrong examples
+### Known Issues
+* When a registry is to be replaced while retaining the same name it would cause an error because the API does not allow two resources with the same name. Please change the name as well if you want to replace a registry for now
+
 ## 7.1.0
 ### Features
 * Added Logging modules: pipeline and pipeline_info
