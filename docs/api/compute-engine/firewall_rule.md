@@ -37,7 +37,7 @@ This module allows you to create, update or remove a firewall rule.
       datacenter: Virtual Datacenter
       server: node001
       nic: 7341c2454f
-      name: Allow Ping
+      firewall_rule: Allow Ping
       source_ip: 162.254.27.217
       source_mac: 01:23:45:67:89:00
       state: update
@@ -48,7 +48,7 @@ This module allows you to create, update or remove a firewall rule.
     datacenter: Virtual Datacenter
     server: node001
     nic: aa6c261b9c
-    name: Allow Ping
+    firewall_rule: Allow Ping
     state: absent
   
 ```
@@ -262,7 +262,7 @@ This module allows you to create, update or remove a firewall rule.
     datacenter: Virtual Datacenter
     server: node001
     nic: aa6c261b9c
-    name: Allow Ping
+    firewall_rule: Allow Ping
     state: absent
   
 ```
@@ -352,7 +352,7 @@ This module allows you to create, update or remove a firewall rule.
       datacenter: Virtual Datacenter
       server: node001
       nic: 7341c2454f
-      name: Allow Ping
+      firewall_rule: Allow Ping
       source_ip: 162.254.27.217
       source_mac: 01:23:45:67:89:00
       state: update

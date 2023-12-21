@@ -169,7 +169,7 @@ EXAMPLE_PER_STATE = {
   'absent' : '''# Remove an IPBlock
 - name: Remove IPBlock
   ipblock:
-    name: staging
+    ipblock: staging
     state: absent
   ''',
 }

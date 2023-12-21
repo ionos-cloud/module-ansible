@@ -156,6 +156,11 @@ This module allows you to create, update or remove a NIC.
   <td>The server name or UUID.</td>
   </tr>
   <tr>
+  <td>lan<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The LAN ID the NIC will be on. If the LAN ID does not exist, it will be implicitly created.</td>
+  </tr>
+  <tr>
   <td>dhcp<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
   <td>Indicates if the NIC will reserve an IP using DHCP.</td>
@@ -183,7 +188,7 @@ This module allows you to create, update or remove a NIC.
   <tr>
   <td>ipv6_cidr<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>[The IPv6 feature is in beta phase and not ready for production usage.] The /80 IPv6 CIDR block if this NIC is connected to an IPv6-enabled LAN. If you leave this 'null' when adding a NIC to an IPv6-enabled LAN, an IPv6 block will be automatically assigned to the NIC, but you can also specify an /80 IPv6 CIDR block for the NIC on your own, which then must be inside the IPv6 CIDR block of the LAN. An IPv6-enabled LAN is limited to a maximum of 65,536 NICs.</td>
+  <td>If this NIC is connected to an IPv6 enabled LAN then this property contains the /80 IPv6 CIDR block of the NIC. If you leave this property 'null' when adding a NIC to an IPv6-enabled LAN, then an IPv6 CIDR block will automatically be assigned to the NIC, but you can also specify an /80 IPv6 CIDR block for the NIC on your own, which must be inside the /64 IPv6 CIDR block of the LAN and unique. This value can only be set, if the LAN already has an IPv6 CIDR block assigned. An IPv6-enabled LAN is limited to a maximum of 65,536 NICs.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
@@ -400,7 +405,7 @@ This module allows you to create, update or remove a NIC.
   <tr>
   <td>ipv6_cidr<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>[The IPv6 feature is in beta phase and not ready for production usage.] The /80 IPv6 CIDR block if this NIC is connected to an IPv6-enabled LAN. If you leave this 'null' when adding a NIC to an IPv6-enabled LAN, an IPv6 block will be automatically assigned to the NIC, but you can also specify an /80 IPv6 CIDR block for the NIC on your own, which then must be inside the IPv6 CIDR block of the LAN. An IPv6-enabled LAN is limited to a maximum of 65,536 NICs.</td>
+  <td>If this NIC is connected to an IPv6 enabled LAN then this property contains the /80 IPv6 CIDR block of the NIC. If you leave this property 'null' when adding a NIC to an IPv6-enabled LAN, then an IPv6 CIDR block will automatically be assigned to the NIC, but you can also specify an /80 IPv6 CIDR block for the NIC on your own, which must be inside the /64 IPv6 CIDR block of the LAN and unique. This value can only be set, if the LAN already has an IPv6 CIDR block assigned. An IPv6-enabled LAN is limited to a maximum of 65,536 NICs.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>

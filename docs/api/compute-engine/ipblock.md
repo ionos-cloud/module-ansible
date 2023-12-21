@@ -17,7 +17,7 @@ This module allows you to create or remove an IPBlock.
 # Remove an IPBlock
 - name: Remove IPBlock
   ipblock:
-    name: staging
+    ipblock: staging
     state: absent
   
 ```
@@ -162,7 +162,7 @@ This module allows you to create or remove an IPBlock.
   # Remove an IPBlock
 - name: Remove IPBlock
   ipblock:
-    name: staging
+    ipblock: staging
     state: absent
   
 ```
