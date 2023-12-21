@@ -231,21 +231,21 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
 
 
 def _should_replace_object(module, existing_object):
-    vulnerability_scanning = module.params.get('features', {}).get('vulnerability_scanning', {})
+    features = module.params.get('features')
     return (
         module.params.get('location') is not None
         and existing_object.properties.location != module.params.get('location')
         or module.params.get('name') is not None
         and existing_object.properties.name != module.params.get('name')
-        or vulnerability_scanning.get('enabled') is not None
+        or features is not None
         and existing_object.properties.features.vulnerability_scanning.enabled == True
-        and vulnerability_scanning.get('enabled') == False
+        and features.get('vulnerability_scanning', {}).get('enabled') == False
     )
 
 
 def _should_update_object(module, existing_object):
     gc_schedule = module.params.get('garbage_collection_schedule')
-    vulnerability_scanning = module.params.get('features', {}).get('vulnerability_scanning', {})
+    features = module.params.get('features')
     return (
         gc_schedule is not None
         and (
@@ -254,9 +254,9 @@ def _should_update_object(module, existing_object):
             or gc_schedule.get('time') is not None
             and existing_object.properties.garbage_collection_schedule.time != gc_schedule.get('time')
         )
-        or vulnerability_scanning.get('enabled') is not None
+        or features.get('enabled') is not None
         and existing_object.properties.features.vulnerability_scanning.enabled == False
-        and vulnerability_scanning.get('enabled') == True
+        and features.get('vulnerability_scanning', {}).get('enabled') == True
     )
 
 
@@ -276,15 +276,16 @@ def _create_object(module, client, existing_object=None):
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
     gc_schedule = module.params.get('garbage_collection_schedule')
-    vulnerability_scanning = module.params.get('features', {}).get('vulnerability_scanning')
+    features = module.params.get('features')
+    vulnerability_scanning_feature = None
     if gc_schedule:
         gc_schedule = ionoscloud_container_registry.WeeklySchedule(
             days=gc_schedule.get('days'),
             time=gc_schedule.get('time'),
         )
-    if vulnerability_scanning:
+    if features:
         vulnerability_scanning_feature = ionoscloud_container_registry.FeatureVulnerabilityScanning(
-            enabled=vulnerability_scanning.get('enabled'),
+            enabled=features.get('vulnerability_scanning').get('enabled'),
         )
     name = module.params.get('name')
     location = module.params.get('location')
@@ -325,15 +326,16 @@ def _update_object(module, client, existing_object):
     wait = module.params.get('wait')
     wait_timeout = int(module.params.get('wait_timeout'))
     gc_schedule = module.params.get('garbage_collection_schedule')
-    vulnerability_scanning = module.params.get('features', {}).get('vulnerability_scanning')
+    features = module.params.get('features')
+    vulnerability_scanning_feature = None
     if gc_schedule:
         gc_schedule = ionoscloud_container_registry.WeeklySchedule(
             days=gc_schedule.get('days'),
             time=gc_schedule.get('time'),
         )
-    if vulnerability_scanning:
+    if features:
         vulnerability_scanning_feature = ionoscloud_container_registry.FeatureVulnerabilityScanning(
-            enabled=vulnerability_scanning.get('enabled'),
+            enabled=features.get('vulnerability_scanning').get('enabled'),
         )
 
     registries_api = ionoscloud_container_registry.RegistriesApi(client)
