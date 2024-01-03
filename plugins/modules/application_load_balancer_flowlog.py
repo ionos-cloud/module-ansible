@@ -222,7 +222,7 @@ EXAMPLE_PER_STATE = {
     application_load_balancer_flowlog:
       datacenter: DatacenterName
       application_load_balancer: AppLoadBalancerName
-      flowlog:FlowlogName
+      flowlog: FlowlogName
       state: absent
   ''',
 }

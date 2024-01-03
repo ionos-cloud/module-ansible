@@ -43,6 +43,11 @@ OPTIONS = {
         'required': ['present'],
         'type': 'str',
     },
+    'features': {
+        'description': ["Optional registry features. Format: 'vulnerability_scanning' key having a dict for value containing the 'enabled' key with a boolean value\n Note: Vulnerability scanning for images is enabled by default. This is a paid add-on, please make sure you specify if you do not want it enabled"],
+        'available': ['present', 'update'],
+        'type': 'dict',
+    },
     'name': {
         'description': ['The name of your registry.'],
         'available': ['present', 'update'],
@@ -57,7 +62,7 @@ OPTIONS = {
     },
     'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'Boolean indicating if the resource should be recreated when the state cannot be reached in '
             'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
@@ -122,6 +127,7 @@ OPTIONS = {
 IMMUTABLE_OPTIONS = [
     { "name": "name", "note": "" },
     { "name": "location", "note": "" },
+    { "name": "features", "note": "changing features.vulnerability_scanning.enabled from true to false will trigger a resource replacement" },
 ]
 
 def transform_for_documentation(val):
@@ -153,17 +159,20 @@ author:
 EXAMPLE_PER_STATE = {
     'present': '''- name: Create Registry
     registry:
-      name: test_registry
+      name: testregistry
       location: de/fra
       garbage_collection_schedule:
         days: 
             - Wednesday
         time: 04:17:00+00:00
+      features:
+        vulnerability_scanning:
+          enabled: false
     register: registry_response
   ''',
     'update': '''- name: Update Registry
     registry:
-      registry: test_registry
+      registry: testregistry
       name: test_registry_update
       garbage_collection_schedule:
         days: 
@@ -173,7 +182,7 @@ EXAMPLE_PER_STATE = {
   ''',
     'absent': '''- name: Delete Registry
     registry:
-      registry: test_registry
+      registry: testregistry
       wait: true
       state: absent
   ''',
@@ -222,16 +231,21 @@ def get_resource_id(module, resource_list, identity, identity_paths=None):
 
 
 def _should_replace_object(module, existing_object):
+    features = module.params.get('features')
     return (
         module.params.get('location') is not None
         and existing_object.properties.location != module.params.get('location')
         or module.params.get('name') is not None
         and existing_object.properties.name != module.params.get('name')
+        or features is not None
+        and existing_object.properties.features.vulnerability_scanning.enabled == True
+        and features.get('vulnerability_scanning', {}).get('enabled') == False
     )
 
 
 def _should_update_object(module, existing_object):
     gc_schedule = module.params.get('garbage_collection_schedule')
+    features = module.params.get('features')
     return (
         gc_schedule is not None
         and (
@@ -240,6 +254,9 @@ def _should_update_object(module, existing_object):
             or gc_schedule.get('time') is not None
             and existing_object.properties.garbage_collection_schedule.time != gc_schedule.get('time')
         )
+        or features.get('enabled') is not None
+        and existing_object.properties.features.vulnerability_scanning.enabled == False
+        and features.get('vulnerability_scanning', {}).get('enabled') == True
     )
 
 
@@ -256,11 +273,19 @@ def _get_object_identifier(module):
 
 
 def _create_object(module, client, existing_object=None):
+    wait = module.params.get('wait')
+    wait_timeout = int(module.params.get('wait_timeout'))
     gc_schedule = module.params.get('garbage_collection_schedule')
+    features = module.params.get('features')
+    vulnerability_scanning_feature = None
     if gc_schedule:
         gc_schedule = ionoscloud_container_registry.WeeklySchedule(
             days=gc_schedule.get('days'),
             time=gc_schedule.get('time'),
+        )
+    if features:
+        vulnerability_scanning_feature = ionoscloud_container_registry.FeatureVulnerabilityScanning(
+            enabled=features.get('vulnerability_scanning').get('enabled'),
         )
     name = module.params.get('name')
     location = module.params.get('location')
@@ -275,29 +300,52 @@ def _create_object(module, client, existing_object=None):
         name=name,
         location=location,
         garbage_collection_schedule=gc_schedule,
+        features=ionoscloud_container_registry.RegistryFeatures(
+            vulnerability_scanning=vulnerability_scanning_feature,
+        ),
     )
 
     registry = ionoscloud_container_registry.PostRegistryInput(properties=registry_properties)
 
     try:
         registry = registries_api.registries_post(registry)
+
+        if wait:
+            client.wait_for(
+                fn_request=lambda: registries_api.registries_find_by_id(registry.id).metadata.state,
+                fn_check=lambda r: r == 'Running',
+                scaleup=10000,
+                timeout=wait_timeout,
+            )
+        registry = registries_api.registries_find_by_id(registry.id)
     except ionoscloud_container_registry.ApiException as e:
         module.fail_json(msg="failed to create the new Registry: %s" % to_native(e))
     return registry
 
 
 def _update_object(module, client, existing_object):
+    wait = module.params.get('wait')
+    wait_timeout = int(module.params.get('wait_timeout'))
     gc_schedule = module.params.get('garbage_collection_schedule')
+    features = module.params.get('features')
+    vulnerability_scanning_feature = None
     if gc_schedule:
         gc_schedule = ionoscloud_container_registry.WeeklySchedule(
             days=gc_schedule.get('days'),
             time=gc_schedule.get('time'),
+        )
+    if features:
+        vulnerability_scanning_feature = ionoscloud_container_registry.FeatureVulnerabilityScanning(
+            enabled=features.get('vulnerability_scanning').get('enabled'),
         )
 
     registries_api = ionoscloud_container_registry.RegistriesApi(client)
 
     registry_properties = ionoscloud_container_registry.PatchRegistryInput(
         garbage_collection_schedule=gc_schedule,
+        features=ionoscloud_container_registry.RegistryFeatures(
+            vulnerability_scanning=vulnerability_scanning_feature,
+        ),
     )
 
     try:
@@ -305,6 +353,15 @@ def _update_object(module, client, existing_object):
             registry_id=existing_object.id,
             patch_registry_input=registry_properties,
         )
+
+        if wait:
+            client.wait_for(
+                fn_request=lambda: registries_api.registries_find_by_id(registry.id).metadata.state,
+                fn_check=lambda r: r == 'Running',
+                scaleup=10000,
+                timeout=wait_timeout,
+            )
+        registry = registries_api.registries_find_by_id(existing_object.id)
 
         return registry
     except ionoscloud_container_registry.ApiException as e:

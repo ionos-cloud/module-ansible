@@ -18,7 +18,7 @@ This module allows you to create or remove a snapshot.
 # Update a snapshot
   - name: Update snapshot
     snapshot:
-      name: "boot volume image"
+      snapshot: "boot volume image"
       description: Ansible test snapshot - RENAME
       state: update
   
@@ -27,13 +27,13 @@ This module allows you to create or remove a snapshot.
     snapshot:
       datacenter: production DC
       volume: slave
-      name: boot volume image
+      snapshot: boot volume image
       state: restore
   
 # Remove a snapshot
   - name: Remove snapshot
     snapshot:
-      name: master-Snapshot-11/30/2017
+      snapshot: master-Snapshot-11/30/2017
       state: absent
   
 ```
@@ -178,7 +178,7 @@ This module allows you to create or remove a snapshot.
   # Remove a snapshot
   - name: Remove snapshot
     snapshot:
-      name: master-Snapshot-11/30/2017
+      snapshot: master-Snapshot-11/30/2017
       state: absent
   
 ```
@@ -250,7 +250,7 @@ This module allows you to create or remove a snapshot.
   # Update a snapshot
   - name: Update snapshot
     snapshot:
-      name: "boot volume image"
+      snapshot: "boot volume image"
       description: Ansible test snapshot - RENAME
       state: update
   
@@ -380,7 +380,7 @@ This module allows you to create or remove a snapshot.
     snapshot:
       datacenter: production DC
       volume: slave
-      name: boot volume image
+      snapshot: boot volume image
       state: restore
   
 ```

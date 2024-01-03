@@ -8,45 +8,81 @@ This is a module that supports creating, updating or destroying VM Autoscaling G
 ```yaml
 - name: Create VM Autoscaling Group
       vm_autoscaling_group:
-        datacenter: "{{ datacenter_name }}"
-        name: "{{ name }}"
-        max_replica_count: "{{ max_replica_count }}"
-        min_replica_count: "{{ min_replica_count }}"
-        metric: "{{ metric }}"
-        range: "{{ range }}"
-        unit: "{{ unit }}"
-        scale_in_threshold: "{{ scale_in_threshold }}"
-        scale_out_threshold: "{{ scale_out_threshold }}"
-        scale_in_action: "{{ scale_in_action }}"
-        scale_out_action: "{{ scale_out_action }}"
-        availability_zone: "{{ availability_zone }}"
-        cores: "{{ cores }}"
-        cpu_family: "{{ cpu_family }}"
-        ram: "{{ ram }}"
-        nics: "{{ nics }}"
-        volumes: "{{ volumes }}"
+        datacenter: DatacenterName
+        name: TestName
+        max_replica_count: 2
+        min_replica_count: 1
+        metric: "INSTANCE_CPU_UTILIZATION_AVERAGE"
+        range: "PT24H"
+        unit: "PER_HOUR"
+        scale_in_threshold: 33
+        scale_out_threshold: 77
+        scale_in_action:
+            amount: 1
+            amount_type: 'ABSOLUTE'
+            cooldown_period: 'PT5M'
+            termination_policy: 'RANDOM'
+            delete_volumes: true
+        scale_out_action:
+            amount: 1
+            amount_type: 'ABSOLUTE'
+            cooldown_period: 'PT5M'
+        availability_zone: "AUTO"
+        cores: 2
+        cpu_family: INTEL_XEON
+        ram: 1024
+        nics: 
+            - lan: 1
+              name: 'SDK_TEST_NIC1'
+              dhcp: true
+        volumes:
+            - image: <image_id>
+              image_password: <password>
+              name: 'SDK_TEST_VOLUME'
+              size: 50
+              type: 'HDD'
+              bus: 'IDE'
+              boot_order: 'AUTO'
       register: vm_autoscaling_group_response
   
 - name: Update VM Ausocaling Group
       vm_autoscaling_group:
         vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
-        datacenter: "{{ datacenter_name_update }}"
-        name: "{{ name_update }}"
-        max_replica_count: "{{ max_replica_count_update }}"
-        min_replica_count: "{{ min_replica_count_update }}"
-        metric: "{{ metric_update }}"
-        range: "{{ range_update }}"
-        unit: "{{ unit_update }}"
-        scale_in_threshold: "{{ scale_in_threshold_update }}"
-        scale_out_threshold: "{{ scale_out_threshold_update }}"
-        scale_in_action: "{{ scale_in_action_update }}"
-        scale_out_action: "{{ scale_out_action_update }}"
-        availability_zone: "{{ availability_zone_update }}"
-        cores: "{{ cores_update }}"
-        cpu_family: "{{ cpu_family_update }}"
-        ram: "{{ ram_update }}"
-        nics: "{{ nics_update }}"
-        volumes: "{{ volumes_update }}"
+        datacenter: DatacenterName2
+        name: TestName2
+        max_replica_count: 1
+        min_replica_count: 0
+        metric: "INSTANCE_NETWORK_IN_BYTES"
+        range: "PT12H"
+        unit: "PER_MINUTE"
+        scale_in_threshold: 33
+        scale_out_threshold: 86
+        scale_in_action:
+            amount: 50
+            amount_type: 'PERCENTAGE'
+            cooldown_period: 'PT10M'
+            termination_policy: 'RANDOM'
+            delete_volumes: false
+        scale_out_action:
+            amount: 2
+            amount_type: 'ABSOLUTE'
+            cooldown_period: 'PT15M'
+        availability_zone: "AUTO"
+        cores: 1
+        cpu_family: "INTEL_SKYLAKE"
+        ram: 2048
+        nics: 
+            - lan: 2
+              name: 'SDK_TEST_NIC2'
+              dhcp: false
+        volumes:
+            - image: <image_id>
+              image_password: <password>
+              name: 'SDK_TEST_VOLUME'
+              size: 100
+              type: 'SSD'
+              bus: 'IDE'
+              boot_order: 'AUTO'
         state: update
       register: vm_autoscaling_group_response
   
@@ -186,23 +222,41 @@ This is a module that supports creating, updating or destroying VM Autoscaling G
 ```yaml
   - name: Create VM Autoscaling Group
       vm_autoscaling_group:
-        datacenter: "{{ datacenter_name }}"
-        name: "{{ name }}"
-        max_replica_count: "{{ max_replica_count }}"
-        min_replica_count: "{{ min_replica_count }}"
-        metric: "{{ metric }}"
-        range: "{{ range }}"
-        unit: "{{ unit }}"
-        scale_in_threshold: "{{ scale_in_threshold }}"
-        scale_out_threshold: "{{ scale_out_threshold }}"
-        scale_in_action: "{{ scale_in_action }}"
-        scale_out_action: "{{ scale_out_action }}"
-        availability_zone: "{{ availability_zone }}"
-        cores: "{{ cores }}"
-        cpu_family: "{{ cpu_family }}"
-        ram: "{{ ram }}"
-        nics: "{{ nics }}"
-        volumes: "{{ volumes }}"
+        datacenter: DatacenterName
+        name: TestName
+        max_replica_count: 2
+        min_replica_count: 1
+        metric: "INSTANCE_CPU_UTILIZATION_AVERAGE"
+        range: "PT24H"
+        unit: "PER_HOUR"
+        scale_in_threshold: 33
+        scale_out_threshold: 77
+        scale_in_action:
+            amount: 1
+            amount_type: 'ABSOLUTE'
+            cooldown_period: 'PT5M'
+            termination_policy: 'RANDOM'
+            delete_volumes: true
+        scale_out_action:
+            amount: 1
+            amount_type: 'ABSOLUTE'
+            cooldown_period: 'PT5M'
+        availability_zone: "AUTO"
+        cores: 2
+        cpu_family: INTEL_XEON
+        ram: 1024
+        nics: 
+            - lan: 1
+              name: 'SDK_TEST_NIC1'
+              dhcp: true
+        volumes:
+            - image: <image_id>
+              image_password: <password>
+              name: 'SDK_TEST_VOLUME'
+              size: 50
+              type: 'HDD'
+              bus: 'IDE'
+              boot_order: 'AUTO'
       register: vm_autoscaling_group_response
   
 ```
@@ -306,7 +360,7 @@ This is a module that supports creating, updating or destroying VM Autoscaling G
   <tr>
   <td>do_not_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead<br />Default: False</td>
+  <td>Boolean indicating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -431,23 +485,41 @@ This is a module that supports creating, updating or destroying VM Autoscaling G
   - name: Update VM Ausocaling Group
       vm_autoscaling_group:
         vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
-        datacenter: "{{ datacenter_name_update }}"
-        name: "{{ name_update }}"
-        max_replica_count: "{{ max_replica_count_update }}"
-        min_replica_count: "{{ min_replica_count_update }}"
-        metric: "{{ metric_update }}"
-        range: "{{ range_update }}"
-        unit: "{{ unit_update }}"
-        scale_in_threshold: "{{ scale_in_threshold_update }}"
-        scale_out_threshold: "{{ scale_out_threshold_update }}"
-        scale_in_action: "{{ scale_in_action_update }}"
-        scale_out_action: "{{ scale_out_action_update }}"
-        availability_zone: "{{ availability_zone_update }}"
-        cores: "{{ cores_update }}"
-        cpu_family: "{{ cpu_family_update }}"
-        ram: "{{ ram_update }}"
-        nics: "{{ nics_update }}"
-        volumes: "{{ volumes_update }}"
+        datacenter: DatacenterName2
+        name: TestName2
+        max_replica_count: 1
+        min_replica_count: 0
+        metric: "INSTANCE_NETWORK_IN_BYTES"
+        range: "PT12H"
+        unit: "PER_MINUTE"
+        scale_in_threshold: 33
+        scale_out_threshold: 86
+        scale_in_action:
+            amount: 50
+            amount_type: 'PERCENTAGE'
+            cooldown_period: 'PT10M'
+            termination_policy: 'RANDOM'
+            delete_volumes: false
+        scale_out_action:
+            amount: 2
+            amount_type: 'ABSOLUTE'
+            cooldown_period: 'PT15M'
+        availability_zone: "AUTO"
+        cores: 1
+        cpu_family: "INTEL_SKYLAKE"
+        ram: 2048
+        nics: 
+            - lan: 2
+              name: 'SDK_TEST_NIC2'
+              dhcp: false
+        volumes:
+            - image: <image_id>
+              image_password: <password>
+              name: 'SDK_TEST_VOLUME'
+              size: 100
+              type: 'SSD'
+              bus: 'IDE'
+              boot_order: 'AUTO'
         state: update
       register: vm_autoscaling_group_response
   
@@ -557,7 +629,7 @@ This is a module that supports creating, updating or destroying VM Autoscaling G
   <tr>
   <td>do_not_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean indincating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead<br />Default: False</td>
+  <td>Boolean indicating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>

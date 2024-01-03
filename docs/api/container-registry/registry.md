@@ -8,17 +8,20 @@ This is a module that supports creating, updating or destroying Registries
 ```yaml
 - name: Create Registry
     registry:
-      name: test_registry
+      name: testregistry
       location: de/fra
       garbage_collection_schedule:
         days: 
             - Wednesday
         time: 04:17:00+00:00
+      features:
+        vulnerability_scanning:
+          enabled: false
     register: registry_response
   
 - name: Update Registry
     registry:
-      registry: test_registry
+      registry: testregistry
       name: test_registry_update
       garbage_collection_schedule:
         days: 
@@ -28,7 +31,7 @@ This is a module that supports creating, updating or destroying Registries
   
 - name: Delete Registry
     registry:
-      registry: test_registry
+      registry: testregistry
       wait: true
       state: absent
   
@@ -82,18 +85,22 @@ This is a module that supports creating, updating or destroying Registries
 ## Parameters that can trigger a resource replacement:
   * name 
   * location 
+  * features (changing features.vulnerability_scanning.enabled from true to false will trigger a resource replacement)
 &nbsp;
 
 # state: **present**
 ```yaml
   - name: Create Registry
     registry:
-      name: test_registry
+      name: testregistry
       location: de/fra
       garbage_collection_schedule:
         days: 
             - Wednesday
         time: 04:17:00+00:00
+      features:
+        vulnerability_scanning:
+          enabled: false
     register: registry_response
   
 ```
@@ -120,6 +127,12 @@ This is a module that supports creating, updating or destroying Registries
   <td>The location of your registry</td>
   </tr>
   <tr>
+  <td>features<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>Optional registry features. Format: 'vulnerability_scanning' key having a dict for value containing the 'enabled' key with a boolean value
+ Note: Vulnerability scanning for images is enabled by default. This is a paid add-on, please make sure you specify if you do not want it enabled</td>
+  </tr>
+  <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
   <td>The name of your registry.</td>
@@ -127,7 +140,7 @@ This is a module that supports creating, updating or destroying Registries
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -174,7 +187,7 @@ This is a module that supports creating, updating or destroying Registries
 ```yaml
   - name: Delete Registry
     registry:
-      registry: test_registry
+      registry: testregistry
       wait: true
       state: absent
   
@@ -241,7 +254,7 @@ This is a module that supports creating, updating or destroying Registries
 ```yaml
   - name: Update Registry
     registry:
-      registry: test_registry
+      registry: testregistry
       name: test_registry_update
       garbage_collection_schedule:
         days: 
@@ -273,6 +286,12 @@ This is a module that supports creating, updating or destroying Registries
   <td>The location of your registry</td>
   </tr>
   <tr>
+  <td>features<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>Optional registry features. Format: 'vulnerability_scanning' key having a dict for value containing the 'enabled' key with a boolean value
+ Note: Vulnerability scanning for images is enabled by default. This is a paid add-on, please make sure you specify if you do not want it enabled</td>
+  </tr>
+  <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The name of your registry.</td>
@@ -285,7 +304,7 @@ This is a module that supports creating, updating or destroying Registries
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>

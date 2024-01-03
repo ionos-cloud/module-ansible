@@ -19,9 +19,10 @@ This module allows you to create, update or remove a user.
 # Update a user
   - name: Update user
     user:
+      user: <email>
       firstname: John II
       lastname: Doe
-      email: <email>
+      email: <new_email>
       administrator: false
       force_sec_auth: false
       groups:
@@ -143,7 +144,7 @@ This module allows you to create, update or remove a user.
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -268,9 +269,10 @@ This module allows you to create, update or remove a user.
   # Update a user
   - name: Update user
     user:
+      user: <email>
       firstname: John II
       lastname: Doe
-      email: <email>
+      email: <new_email>
       administrator: false
       force_sec_auth: false
       groups:
@@ -339,7 +341,7 @@ This module allows you to create, update or remove a user.
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>

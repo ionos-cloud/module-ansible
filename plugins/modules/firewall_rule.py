@@ -126,7 +126,7 @@ OPTIONS = {
     },
     'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'Boolean indicating if the resource should be recreated when the state cannot be reached in '
             'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],
@@ -250,7 +250,7 @@ EXAMPLE_PER_STATE = {
       datacenter: Virtual Datacenter
       server: node001
       nic: 7341c2454f
-      name: Allow Ping
+      firewall_rule: Allow Ping
       source_ip: 162.254.27.217
       source_mac: 01:23:45:67:89:00
       state: update
@@ -261,7 +261,7 @@ EXAMPLE_PER_STATE = {
     datacenter: Virtual Datacenter
     server: node001
     nic: aa6c261b9c
-    name: Allow Ping
+    firewall_rule: Allow Ping
     state: absent
   ''',
 }

@@ -1,0 +1,45 @@
+{
+    "href": "<base_url>/registries/0d6fd999-9bf9-462c-a148-951198ebca8f/artifacts",
+    "id": "artifacts",
+    "items": [
+        {
+            "href": "<base_url>/registries/0d6fd999-9bf9-462c-a148-951198ebca8f/repositories/image-test/artifacts/<digest>",
+            "id": "<digest>",
+            "metadata": {
+                "created_by": null,
+                "created_by_user_id": null,
+                "created_date": null,
+                "last_modified_by": null,
+                "last_modified_by_user_id": null,
+                "last_modified_date": null,
+                "last_pulled_at": null,
+                "last_pushed_at": "<datetime>",
+                "last_scanned_at": "<datetime>",
+                "pull_count": 0,
+                "push_count": 1,
+                "resource_urn": null,
+                "vuln_fixable_count": 45,
+                "vuln_max_severity": "critical",
+                "vuln_total_count": 57,
+                "vuln_total_score": 389.39993
+            },
+            "properties": {
+                "digest": "<digest>",
+                "media_type": "application/vnd.docker.distribution.manifest.v2+json",
+                "repository_name": "image-test",
+                "tags": [
+                    "latest"
+                ]
+            },
+            "type": "artifact"
+        }
+    ],
+    "limit": 100,
+    "links": {
+        "next": null,
+        "prev": null,
+        "var_self": "<base_url>/registries/0d6fd999-9bf9-462c-a148-951198ebca8f/artifacts?limit=100&offset=100&orderBy=-pullCount"
+    },
+    "offset": 0,
+    "type": "collection"
+}

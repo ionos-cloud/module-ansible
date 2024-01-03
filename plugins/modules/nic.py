@@ -66,7 +66,7 @@ OPTIONS = {
     'lan': {
         'description': ['The LAN ID the NIC will be on. If the LAN ID does not exist, it will be implicitly created.'],
         'required': ['present'],
-        'available': ['update'],
+        'available': ['present', 'update'],
         'type': 'str',
     },
     'dhcp': {
@@ -100,20 +100,13 @@ OPTIONS = {
         'version_added': '2.4',
     },
     'ipv6_cidr': {
-        'description': [
-            "[The IPv6 feature is in beta phase and not ready for production usage.] The /80 IPv6 CIDR "
-            "block if this NIC is connected to an IPv6-enabled LAN. If you leave this 'null' when "
-            "adding a NIC to an IPv6-enabled LAN, an IPv6 block will be automatically assigned to the "
-            "NIC, but you can also specify an /80 IPv6 CIDR block for the NIC on your own, which then "
-            "must be inside the IPv6 CIDR block of the LAN. An IPv6-enabled LAN is limited to a maximum "
-            "of 65,536 NICs.",
-        ],
+        'description': ["If this NIC is connected to an IPv6 enabled LAN then this property contains the /80 IPv6 CIDR block of the NIC. If you leave this property \'null\' when adding a NIC to an IPv6-enabled LAN, then an IPv6 CIDR block will automatically be assigned to the NIC, but you can also specify an /80 IPv6 CIDR block for the NIC on your own, which must be inside the /64 IPv6 CIDR block of the LAN and unique. This value can only be set, if the LAN already has an IPv6 CIDR block assigned. An IPv6-enabled LAN is limited to a maximum of 65,536 NICs."],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'allow_replace': {
         'description': [
-            'Boolean indincating if the resource should be recreated when the state cannot be reached in '
+            'Boolean indicating if the resource should be recreated when the state cannot be reached in '
             'another way. This may be used to prevent resources from being deleted from specifying a different '
             'value to an immutable property. An error will be thrown instead',
         ],

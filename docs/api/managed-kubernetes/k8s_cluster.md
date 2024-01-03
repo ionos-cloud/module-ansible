@@ -120,9 +120,29 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   <td>List of S3 buckets configured for K8s usage. At the moment, it contains only one S3 bucket that is used to store K8s API audit logs.</td>
   </tr>
   <tr>
+  <td>public<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>The indicator if the cluster is public or private.</td>
+  </tr>
+  <tr>
+  <td>location<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The location of the cluster if the cluster is private. This property is immutable. The location must be enabled for your contract or you must have a Datacenter within that location. This attribute is mandatory if the cluster is private.</td>
+  </tr>
+  <tr>
+  <td>nat_gateway_ip<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The nat gateway IP of the cluster if the cluster is private.</td>
+  </tr>
+  <tr>
+  <td>node_subnet<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The node subnet of the cluster if the cluster is private.</td>
+  </tr>
+  <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -300,7 +320,7 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
+  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
