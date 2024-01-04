@@ -1,6 +1,3 @@
-import copy
-import yaml
-
 HAS_SDK = True
 try:
     import ionoscloud
@@ -11,7 +8,7 @@ except ImportError:
 from ansible import __version__
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options_with_depth
 
 
 ANSIBLE_METADATA = {
@@ -25,39 +22,74 @@ STATES = ['info']
 OBJECT_NAME = 'Datacenters'
 RETURNED_KEY = 'datacenters'
 
-OPTIONS = {**get_info_default_options(STATES)}
+OPTIONS = {
+    **get_info_default_options_with_depth(STATES),
+}
 
 
-def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES)
-    del val['available']
-    del val['type']
-    return val
 
-
-DOCUMENTATION = '''
----
+DOCUMENTATION = """
 module: datacenter_info
 short_description: List Ionos Cloud Datacenters.
 description:
      - This is a simple module that supports listing Datacenter.
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(
-    yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})),
-    default_flow_style=False).replace('\n', '\n  ') + '''
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    depth:
+        default: 1
+        description:
+        - The depth used when retrieving the items.
+        required: false
+    filters:
+        description:
+        - 'Filter that can be used to list only objects which have a certain set of propeties.
+            Filters should be a dict with a key containing keys and value pair in the
+            following format: ''properties.name'': ''server_name'''
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
     - name: Get all Datacenter
       datacenter_info:
       register: datacenter_list_response
-'''
+"""
 
 def get_objects(module, client):
     return ionoscloud.DataCentersApi(client).datacenters_get(depth=module.params.get('depth'))

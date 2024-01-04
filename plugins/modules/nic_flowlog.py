@@ -172,9 +172,7 @@ description:
        This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(
-    yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})),
-    default_flow_style=False).replace('\n', '\n  ') + '''
+    jiopwerrgopihwgowejg
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"

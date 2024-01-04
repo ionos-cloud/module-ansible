@@ -32,59 +32,7 @@ OPTIONS = {
         'required': STATES,
         'type': 'str',
     },
-    'filters': {
-        'description': [
-            'Filter that can be used to list only objects which have a certain set of propeties. Filters '
-            'should be a dict with a key containing keys and value pair in the following format:'
-            "'properties.name': 'server_name'"
-        ],
-        'available': STATES,
-        'type': 'dict',
-    },
-    'depth': {
-        'description': ['The depth used when retrieving the items.'],
-        'available': STATES,
-        'type': 'int',
-        'default': 1,
-    },
-    'api_url': {
-        'description': ['The Ionos API base URL.'],
-        'version_added': '2.4',
-        'env_fallback': 'IONOS_API_URL',
-        'available': STATES,
-        'type': 'str',
-    },
-    'certificate_fingerprint': {
-        'description': ['The Ionos API certificate fingerprint.'],
-        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
-        'available': STATES,
-        'type': 'str',
-    },
-    'username': {
-        # Required if no token, checked manually
-        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
-        'aliases': ['subscription_user'],
-        'env_fallback': 'IONOS_USERNAME',
-        'available': STATES,
-        'type': 'str',
-    },
-    'password': {
-        # Required if no token, checked manually
-        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
-        'aliases': ['subscription_password'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_PASSWORD',
-        'type': 'str',
-    },
-    'token': {
-        # If provided, then username and password no longer required
-        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_TOKEN',
-        'type': 'str',
-    },
+    **get_info_default_options_with_depth(STATES),
 }
 
 

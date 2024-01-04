@@ -8,7 +8,7 @@ except ImportError:
 from ansible import __version__
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_resource_id
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options_with_depth
 
 
 ANSIBLE_METADATA = {
@@ -23,14 +23,15 @@ OBJECT_NAME = 'Application Load Balancers'
 RETURNED_KEY = 'application_load_balancers'
 
 
-OPTIONS = { **{
+OPTIONS = {
     'datacenter': {
         'description': ['The ID or name of the datacenter.'],
         'available': STATES,
         'required': STATES,
         'type': 'str',
     },
-}, **get_info_default_options(STATES) }
+    **get_info_default_options_with_depth(STATES),
+}
 
 
 DOCUMENTATION = """

@@ -144,9 +144,7 @@ description:
       Ionos Cloud Certificate Manager.
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(
-    yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})),
-    default_flow_style=False).replace('\n', '\n  ') + '''
+    jiopwerrgopihwgowejg
 requirements:
     - "python >= 2.6"
     - "ionoscloud_cert_manager >= 1.0.0"

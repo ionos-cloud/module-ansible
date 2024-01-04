@@ -6,7 +6,7 @@ import yaml
 def get_default_options(states):
     return {
         'allow_replace': {
-            'description': ['Boolean indincating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead'],
+            'description': ['Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead'],
             'available': ['present', 'update'],
             'default': False,
             'type': 'bool',
@@ -71,18 +71,25 @@ def get_default_options(states):
         },
     }
 
+
+def get_info_default_options_with_depth(states):
+    return {
+        'depth': {
+            'description': ['The depth used when retrieving the items.'],
+            'available': states,
+            'type': 'int',
+            'default': 1,
+        },
+        **get_info_default_options(states),
+    }
+
+
 def get_info_default_options(states):
     return {
         'filters': {
             'description': ["Filter that can be used to list only objects which have a certain set of propeties. Filters should be a dict with a key containing keys and value pair in the following format: 'properties.name': 'server_name'"],
             'available': states,
             'type': 'dict',
-        },
-        'depth': {
-            'description': ['The depth used when retrieving the items.'],
-            'available': states,
-            'type': 'int',
-            'default': 1,
         },
         'api_url': {
             'description': ['The Ionos API base URL.'],

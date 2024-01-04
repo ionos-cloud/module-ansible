@@ -100,7 +100,7 @@ options:
     allow_replace:
         default: false
         description:
-        - Boolean indincating if the resource should be recreated when the state cannot
+        - Boolean indicating if the resource should be recreated when the state cannot
             be reached in another way. This may be used to prevent resources from being
             deleted from specifying a different value to an immutable property. An error
             will be thrown instead
@@ -258,7 +258,7 @@ EXAMPLES = """
     application_load_balancer_flowlog:
       datacenter: DatacenterName
       application_load_balancer: AppLoadBalancerName
-      flowlog:FlowlogName
+      flowlog: FlowlogName
       state: absent
 """
 

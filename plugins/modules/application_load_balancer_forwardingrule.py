@@ -27,7 +27,7 @@ from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, get_resource, get_resource_id, _get_request_id,
+    get_module_arguments, get_resource_id, _get_request_id,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
@@ -137,7 +137,7 @@ options:
     allow_replace:
         default: false
         description:
-        - Boolean indincating if the resource should be recreated when the state cannot
+        - Boolean indicating if the resource should be recreated when the state cannot
             be reached in another way. This may be used to prevent resources from being
             deleted from specifying a different value to an immutable property. An error
             will be thrown instead
