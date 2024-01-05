@@ -7,7 +7,7 @@ except ImportError:
 
 from ansible import __version__
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_resource_id
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_resource_id, get_users
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options_with_depth
 
 
@@ -39,7 +39,53 @@ description:
      - This is a simple module that supports listing group.
 version_added: "2.0"
 options:
-    qw;oeifghwo[gjwpgjpowefpokj]
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    depth:
+        default: 1
+        description:
+        - The depth used when retrieving the items.
+        required: false
+    filters:
+        description:
+        - 'Filter that can be used to list only objects which have a certain set of propeties.
+            Filters should be a dict with a key containing keys and value pair in the
+            following format: ''properties.name'': ''server_name'''
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    user:
+        description:
+        - The ID or name of the user.
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -57,28 +103,13 @@ EXAMPLES = """
       register: group_list_response
 """
 
-def get_users(client):
-    all_users = ionoscloud.Users(items=[])
-    offset = 0
-    limit = 100
-
-    users = client.um_users_get(depth=2, limit=limit, offset=offset)
-    all_users.items += users.items
-    while(users.links.next is not None):
-        offset += limit
-        users = client.um_users_get(depth=2, limit=limit, offset=offset)
-        all_users.items += users.items
-
-    return all_users
-
-
 def get_objects(module, client):
     um_api = ionoscloud.UserManagementApi(api_client=client)
     user = module.params.get('user')
 
     if user:
         # Locate UUID for User
-        user_list = get_users(client)
+        user_list = get_users(client, ionoscloud.Users(items=[]))
         user_id = get_resource_id(module, user_list, user)
         groups = um_api.um_users_groups_get(user_id, depth=module.params.get('depth'))
 
