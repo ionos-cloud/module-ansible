@@ -72,6 +72,18 @@ def get_default_options(states):
     }
 
 
+def get_default_options_with_replace(states):
+    return {
+        'allow_replace': {
+            'description': ['Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead'],
+            'available': ['present', 'update'],
+            'default': False,
+            'type': 'bool',
+        },
+        **get_default_options(states),
+    }
+
+
 def get_info_default_options_with_depth(states):
     return {
         'depth': {

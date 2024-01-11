@@ -270,7 +270,7 @@ description:
        When the virtual machine is created it can optionally wait for it to be 'running' before returning.
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+    ilowuerhfgwoqrghbqwoguh
 requirements:
     - "python >= 2.6"
     - "ionos-cloud >= 5.2.0"
@@ -343,7 +343,9 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+EXAMPLES = """
+    ilowuerhfgwoqrghbqwoguh
+"""
 
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 

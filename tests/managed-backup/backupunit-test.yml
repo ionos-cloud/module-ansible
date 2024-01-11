@@ -7,7 +7,7 @@
 
   tasks:
     - name: Create backupunit
-      backupunit:
+      ionoscloudsdk.ionoscloud.backupunit:
         backupunit_email: "{{ email }}"
         backupunit_password: "{{ password }}"
         name: "My {{ name }}"
@@ -23,7 +23,7 @@
         msg: "{{ create_result }}"
 
     - name: List backupunits
-      backupunit_info:
+      ionoscloudsdk.ionoscloud.backupunit_info:
       register: backupunit_list_response
 
     # - name: Print output to file
@@ -32,7 +32,7 @@
     #     dest: ../../docs/returned_object_examples/backupunit_info.json
 
     - name: Recreate backupunit
-      backupunit:
+      ionoscloudsdk.ionoscloud.backupunit:
         backupunit: "My {{ name }}"
         backupunit_email: "{{ updated_email }}"
         backupunit_password: "{{ updated_password }}"
@@ -46,7 +46,7 @@
     #     msg: "{{ recreate_result }}"
 
     - name: Update a backupunit no change
-      backupunit:
+      ionoscloudsdk.ionoscloud.backupunit:
         backupunit: "My {{ name }} UPDATED"
         backupunit_email: "{{ updated_email }}"
         name: "My {{ name }} UPDATED"
@@ -61,7 +61,7 @@
         msg: "Changed should be false"
 
     - name: Update a backupunit no change 2
-      backupunit:
+      ionoscloudsdk.ionoscloud.backupunit:
         backupunit: "My {{ name }} UPDATED"
         allow_replace: False
         state: update
@@ -78,7 +78,7 @@
         msg: "{{ update_result }}"
 
     - name: Remove backupunit
-      backupunit:
+      ionoscloudsdk.ionoscloud.backupunit:
         backupunit: "My {{ name }} UPDATED"
         state: absent
         wait: true
@@ -89,7 +89,7 @@
         msg: "{{ delete_result }}"
 
     - name: Remove backupunit
-      backupunit:
+      ionoscloudsdk.ionoscloud.backupunit:
         backupunit: "My {{ name }} UPDATED"
         state: absent
         wait: true

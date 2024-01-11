@@ -20,7 +20,7 @@ from ansible.module_utils.basic import AnsibleModule
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments, _get_request_id
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options_with_replace
 
 __metaclass__ = type
 
@@ -35,7 +35,7 @@ STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Datacenter'
 RETURNED_KEY = 'datacenter'
 
-OPTIONS = { **{
+OPTIONS = {
     'name': {
         'description': ['The name of the  resource.'],
         'required': ['present'],
@@ -60,7 +60,8 @@ OPTIONS = { **{
         'required': ['update', 'absent'],
         'type': 'str',
     },
-}, **get_default_options(STATES) }
+    **get_default_options_with_replace(STATES),
+}
 
 IMMUTABLE_OPTIONS = [
     { "name": "location", "note": "" },

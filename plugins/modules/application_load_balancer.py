@@ -44,7 +44,7 @@ STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Application Load Balancer'
 RETURNED_KEY = 'application_load_balancer'
 
-OPTIONS = { **{
+OPTIONS = {
     'name': {
         'description': ['The Application Load Balancer name.'],
         'available': STATES,
@@ -85,7 +85,8 @@ OPTIONS = { **{
         'required': ['update', 'absent'],
         'type': 'str',
     },
-}, **get_default_options(STATES) }
+    **get_default_options(STATES),
+}
 
 
 DOCUMENTATION = '''

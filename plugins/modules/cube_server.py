@@ -4,12 +4,10 @@
 
 from __future__ import absolute_import, division, print_function
 
-import copy
 import re
 import traceback
-import yaml
 
-from uuid import (uuid4, UUID)
+from uuid import uuid4
 
 HAS_SDK = True
 
@@ -25,9 +23,16 @@ except ImportError:
     HAS_SDK = False
 
 from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.six.moves import xrange
 from ansible.module_utils._text import to_native
+
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
+    get_module_arguments, _get_request_id, check_required_arguments,
+    get_sdk_config, get_resource_id, get_resource,
+)
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
+
 
 __metaclass__ = type
 
@@ -168,80 +173,13 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'str',
     },
-    'allow_replace': {
-        'description': [
-            'Boolean indicating if the resource should be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different '
-            'value to an immutable property. An error will be thrown instead',
-        ],
-        'available': ['present', 'update'],
-        'default': False,
-        'type': 'bool',
-    },
-    'api_url': {
-        'description': ['The Ionos API base URL.'],
-        'version_added': '2.4',
-        'env_fallback': 'IONOS_API_URL',
-        'available': STATES,
-        'type': 'str',
-    },
-    'username': {
-        # Required if no token, checked manually
-        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
-        'aliases': ['subscription_user'],
-        'env_fallback': 'IONOS_USERNAME',
-        'available': STATES,
-        'type': 'str',
-    },
-    'password': {
-        # Required if no token, checked manually
-        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
-        'aliases': ['subscription_password'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_PASSWORD',
-        'type': 'str',
-    },
-    'token': {
-        # If provided, then username and password no longer required
-        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_TOKEN',
-        'type': 'str',
-    },
-    'wait': {
-        'description': ['Wait for the resource to be created before returning.'],
-        'default': True,
-        'available': STATES,
-        'choices': [True, False],
-        'type': 'bool',
-    },
-    'wait_timeout': {
-        'description': ['How long before wait gives up, in seconds.'],
-        'default': 600,
-        'available': STATES,
-        'type': 'int',
-    },
-    'state': {
-        'description': ['Indicate desired state of the resource.'],
-        'default': 'present',
-        'choices': STATES,
-        'available': STATES,
-        'type': 'str',
-    },
+    **get_default_options(STATES),
 }
 
 IMMUTABLE_OPTIONS = [
     { "name": "template_uuid", "note": "" },
     { "name": "availability_zone", "note": "" },
 ]
-
-def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
-    del val['available']
-    del val['type']
-    return val
 
 DOCUMENTATION = '''
 ---
@@ -252,7 +190,7 @@ description:
        When the virtual machine is created it can optionally wait for it to be 'running' before returning.
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+    ilowuerhfgwoqrghbqwoguh
 requirements:
     - "python >= 2.6"
     - "ionos-cloud >= 5.2.0"
@@ -319,57 +257,11 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+EXAMPLES = """
+    ilowuerhfgwoqrghbqwoguh
+"""
 
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
-
-
-def _get_matched_resources(resource_list, identity, identity_paths=None):
-    """
-    Fetch and return a resource based on an identity supplied for it, if none or more than one matches
-    are found an error is printed and None is returned.
-    """
-
-    if identity_paths is None:
-        identity_paths = [['id'], ['properties', 'name']]
-
-    def check_identity_method(resource):
-        resource_identity = []
-
-        for identity_path in identity_paths:
-            current = resource
-            for el in identity_path:
-                current = getattr(current, el)
-            resource_identity.append(current)
-
-        return identity in resource_identity
-
-    return list(filter(check_identity_method, resource_list.items))
-
-
-def get_resource(module, resource_list, identity, identity_paths=None):
-    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
-
-    if len(matched_resources) == 1:
-        return matched_resources[0]
-    elif len(matched_resources) > 1:
-        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
-    else:
-        return None
-
-
-def get_resource_id(module, resource_list, identity, identity_paths=None):
-    resource = get_resource(module, resource_list, identity, identity_paths)
-    return resource.id if resource is not None else None
-
-
-def _get_request_id(headers):
-    match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
-    if match:
-        return match.group(1)
-    else:
-        raise Exception("Failed to extract request ID from response "
-                        "header 'location': '{location}'".format(location=headers['location']))
 
 
 def _get_lan_by_id_or_properties(networks, id=None, **kwargs):
@@ -944,77 +836,8 @@ def resume_server(module, client, state):
     }
 
 
-def get_module_arguments():
-    arguments = {}
-
-    for option_name, option in OPTIONS.items():
-      arguments[option_name] = {
-        'type': option['type'],
-      }
-      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
-        if option.get(key) is not None:
-          arguments[option_name][key] = option.get(key)
-
-      if option.get('env_fallback'):
-        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
-
-      if len(option.get('required', [])) == len(STATES):
-        arguments[option_name]['required'] = True
-
-    return arguments
-
-
-def get_sdk_config(module):
-    username = module.params.get('username')
-    password = module.params.get('password')
-    api_url = module.params.get('api_url')
-    token = module.params.get('token')
-
-    if token is not None:
-        # use the token instead of username & password
-        conf = {
-            'token': token
-        }
-    else:
-        # use the username & password
-        conf = {
-            'username': username,
-            'password': password,
-        }
-
-    if api_url is not None:
-        conf['host'] = api_url
-        conf['server_index'] = None
-
-    return ionoscloud.Configuration(**conf)
-
-
-def check_required_arguments(module, state, object_name):
-    # manually checking if token or username & password provided
-    if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
-    ):
-        module.fail_json(
-            msg='Token or username & password are required for {object_name} state {state}'.format(
-                object_name=object_name,
-                state=state,
-            ),
-        )
-
-    for option_name, option in OPTIONS.items():
-        if state in option.get('required', []) and not module.params.get(option_name):
-            module.fail_json(
-                msg='{option_name} parameter is required for {object_name} state {state}'.format(
-                    option_name=option_name,
-                    object_name=object_name,
-                    state=state,
-                ),
-            )
-
-
 def main():
-    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+    module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES), supports_check_mode=True)
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
@@ -1025,11 +848,10 @@ def main():
         module.fail_json(msg='lan should either be a string or a number')
 
     state = module.params.get('state')
-    check_required_arguments(module, state, OBJECT_NAME)
+    check_required_arguments(module, state, OBJECT_NAME, OPTIONS)
 
-    with ApiClient(get_sdk_config(module)) as api_client:
+    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
         api_client.user_agent = USER_AGENT
-
         try:
             if state == 'absent':
                 module.exit_json(**remove_server(module, api_client))

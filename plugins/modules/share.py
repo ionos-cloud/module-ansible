@@ -177,7 +177,9 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+EXAMPLES = """
+    ilowuerhfgwoqrghbqwoguh
+"""
 
 
 def _get_request_id(headers):

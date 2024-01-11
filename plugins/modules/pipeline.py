@@ -48,68 +48,7 @@ OPTIONS = {
         'required': ['update', 'absent', 'renew'],
         'type': 'str',
     },
-    'allow_replace': {
-        'description': [
-            'Boolean indicating if the resource should be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different '
-            'value to an immutable property. An error will be thrown instead',
-        ],
-        'available': ['present', 'update'],
-        'default': False,
-        'type': 'bool',
-    },
-    'api_url': {
-        'description': ['The Ionos API base URL.'],
-        'version_added': '2.4',
-        'env_fallback': 'IONOS_API_URL',
-        'available': STATES,
-        'type': 'str',
-    },
-    'username': {
-        # Required if no token, checked manually
-        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
-        'aliases': ['subscription_user'],
-        'env_fallback': 'IONOS_USERNAME',
-        'available': STATES,
-        'type': 'str',
-    },
-    'password': {
-        # Required if no token, checked manually
-        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
-        'aliases': ['subscription_password'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_PASSWORD',
-        'type': 'str',
-    },
-    'token': {
-        # If provided, then username and password no longer required
-        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_TOKEN',
-        'type': 'str',
-    },
-    'wait': {
-        'description': ['Wait for the resource to be created before returning.'],
-        'default': True,
-        'available': STATES,
-        'choices': [True, False],
-        'type': 'bool',
-    },
-    'wait_timeout': {
-        'description': ['How long before wait gives up, in seconds.'],
-        'default': 600,
-        'available': STATES,
-        'type': 'int',
-    },
-    'state': {
-        'description': ['Indicate desired state of the resource.'],
-        'default': 'present',
-        'choices': STATES,
-        'available': STATES,
-        'type': 'str',
-    },
+    **get_default_options(STATES),
 }
 
 def transform_for_documentation(val):
@@ -173,7 +112,9 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+EXAMPLES = """
+    ilowuerhfgwoqrghbqwoguh
+"""
 
 
 def _get_matched_resources(resource_list, identity, identity_paths=None):

@@ -140,7 +140,9 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+EXAMPLES = """
+    ilowuerhfgwoqrghbqwoguh
+"""
 
 
 def _get_matched_resources(resource_list, identity, identity_paths=None):

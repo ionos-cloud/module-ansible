@@ -45,7 +45,7 @@ OBJECT_NAME = 'Application Load Balancer Forwarding Rule'
 RETURNED_KEY = 'forwarding_rule'
 
 
-OPTIONS = { **{
+OPTIONS = {
     'name': {
         'description': ['The name of the Application Load Balancer forwarding rule.'],
         'available': STATES,
@@ -119,7 +119,8 @@ OPTIONS = { **{
         'required': ['update', 'absent'],
         'type': 'str',
     },
-}, **get_default_options(STATES) }
+    **get_default_options(STATES),
+}
 
 
 DOCUMENTATION = '''

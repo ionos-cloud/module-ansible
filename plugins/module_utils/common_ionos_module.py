@@ -9,7 +9,7 @@ from .common_ionos_methods import (
 
 class CommonIonosModule():
     def __init__(self):
-        pass
+        self.object_identity_paths = None
     
     def _should_replace_object(self, existing_object):
         pass
@@ -62,7 +62,10 @@ class CommonIonosModule():
 
 
     def present_object(self, clients):
-        existing_object = get_resource(self.module, self._get_object_list(clients), self._get_object_name())
+        existing_object = get_resource(
+            self.module, self._get_object_list(clients),
+            self._get_object_name(), self.object_identity_paths,
+        )
 
         if existing_object:
             return self.update_replace_object(existing_object, clients)
@@ -79,13 +82,20 @@ class CommonIonosModule():
         object_name = self._get_object_name()
         object_list = self._get_object_list(clients)
 
-        existing_object = get_resource(self.module, object_list, self._get_object_identifier())
+        existing_object = get_resource(
+            self.module, object_list,
+            self._get_object_identifier(),
+            self.object_identity_paths,
+        )
 
         if existing_object is None:
             self.module.exit_json(changed=False)
             return
 
-        existing_object_id_by_new_name = get_resource_id(self.module, object_list, object_name)
+        existing_object_id_by_new_name = get_resource_id(
+            self.module, object_list,
+            object_name, self.object_identity_paths,
+        )
 
         if (
             existing_object.id is not None
@@ -102,7 +112,11 @@ class CommonIonosModule():
 
 
     def absent_object(self, clients):
-        existing_object = get_resource(self.module, self._get_object_list(clients), self._get_object_identifier())
+        existing_object = get_resource(
+            self.module, self._get_object_list(clients),
+            self._get_object_identifier(),
+            self.object_identity_paths,
+        )
 
         if existing_object is None:
             self.module.exit_json(changed=False)
@@ -122,7 +136,7 @@ class CommonIonosModule():
         clients = [sdk.ApiClient(get_sdk_config(self.module, sdk)) for sdk in self.sdks]
         for client in clients:
             client.user_agent = self.user_agent
-        check_required_arguments(self.module, state, self.options)
+        check_required_arguments(self.module, state, self.object_name, self.options)
 
         try:
             self.module.exit_json(**getattr(self, state + '_object')(clients))

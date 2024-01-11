@@ -122,24 +122,26 @@ def get_sdk_config(module, sdk):
     return sdk.Configuration(**conf)
 
 
-def check_required_arguments(module, object_name, options):
+def check_required_arguments(module, state, object_name, options):
     # manually checking if token or username & password provided
     if (
         not module.params.get("token")
         and not (module.params.get("username") and module.params.get("password"))
     ):
         module.fail_json(
-            msg='Token or username & password are required for {object_name}'.format(
+            msg='Token or username & password are required for {object_name} state {state}'.format(
                 object_name=object_name,
+                state=state,
             ),
         )
 
     for option_name, option in options.items():
-        if 'info' in option.get('required', []) and not module.params.get(option_name):
+        if state in option.get('required', []) and not module.params.get(option_name):
             module.fail_json(
-                msg='{option_name} parameter is required for retrieving {object_name}'.format(
+                msg='{option_name} parameter is required for {object_name} state {state}'.format(
                     option_name=option_name,
                     object_name=object_name,
+                    state=state,
                 ),
             )
 
@@ -213,7 +215,7 @@ def default_main_info(ionos_module, ionos_module_name, user_agent, has_sdk, opti
     state = module.params.get('state')
     with ionos_module.ApiClient(get_sdk_config(module, ionos_module)) as api_client:
         api_client.user_agent = user_agent
-        check_required_arguments(module, object_name, options)
+        check_required_arguments(module, 'info', object_name, options)
 
         try:
             try:

@@ -39,7 +39,7 @@ STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Flowlog'
 RETURNED_KEY = 'flowlog'
 
-OPTIONS = { **{
+OPTIONS = {
     'name': {
         'description': ['The resource name.'],
         'available': STATES,
@@ -82,7 +82,8 @@ OPTIONS = { **{
         'required': ['update', 'absent'],
         'type': 'str',
     },
-}, **get_default_options(STATES) }
+    **get_default_options(STATES),
+}
 
 
 DOCUMENTATION = '''

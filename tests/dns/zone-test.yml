@@ -8,7 +8,7 @@
   tasks:
 
   - name: Create Zone
-    dns_zone:
+    ionoscloudsdk.ionoscloud.dns_zone:
       name: "{{zone_name}}"
       description: "{{zone_description}}"
       enabled: "{{zone_enabled}}"
@@ -20,7 +20,7 @@
   #     dest: ../../docs/returned_object_examples/dns_zone.json
 
   - name: List Zones
-    dns_zone_info:
+    ionoscloudsdk.ionoscloud.dns_zone_info:
     register: zones_response
 
   # - name: Print output to file
@@ -33,7 +33,7 @@
       var: zones_response.zones
 
   - name: Update Zone
-    dns_zone:
+    ionoscloudsdk.ionoscloud.dns_zone:
       zone: "{{ zone_response.zone.properties.zone_name }}"
       description: "{{zone_description_updated}}"
       enabled: "{{zone_enabled_updated}}"
@@ -42,7 +42,7 @@
     register: updated_zone_response
 
   - name: Update Zone no change
-    dns_zone:
+    ionoscloudsdk.ionoscloud.dns_zone:
       zone: "{{ zone_response.zone.properties.zone_name }}"
       description: "{{zone_description_updated}}"
       enabled: "{{zone_enabled_updated}}"
@@ -57,7 +57,7 @@
       msg: "Changed should be false"
 
   - name: Delete Zone
-    dns_zone:
+    ionoscloudsdk.ionoscloud.dns_zone:
       zone: "{{ zone_response.zone.properties.zone_name }}"
       wait: true
       state: absent
