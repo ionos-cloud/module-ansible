@@ -3,7 +3,6 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
-import re
 
 HAS_SDK = True
 
@@ -12,12 +11,11 @@ try:
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import Lan, LanProperties
     from ionoscloud.rest import ApiException
-    from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
 
 from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
@@ -280,7 +278,6 @@ class LanModule(CommonIonosModule):
                 client.wait_for_completion(request_id=request_id, timeout=self.module.params.get('wait_timeout'))
         except ApiException as e:
             self.module.fail_json(msg="failed to remove the LAN: %s" % to_native(e))
-
 
 
 if __name__ == '__main__':

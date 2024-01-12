@@ -1,5 +1,3 @@
-import re
-
 from ansible.module_utils._text import to_native
 
 from .common_ionos_methods import (
@@ -134,8 +132,8 @@ class CommonIonosModule():
     def main(self):
         state = self.module.params.get('state')
         clients = [sdk.ApiClient(get_sdk_config(self.module, sdk)) for sdk in self.sdks]
-        for client in clients:
-            client.user_agent = self.user_agent
+        for i, client in enumerate(clients):
+            client.user_agent = self.user_agents[i]
         check_required_arguments(self.module, state, self.object_name, self.options)
 
         try:
