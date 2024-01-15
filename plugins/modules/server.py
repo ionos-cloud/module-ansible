@@ -4,12 +4,10 @@
 
 from __future__ import absolute_import, division, print_function
 
-import copy
 import re
 import traceback
-import yaml
 
-from uuid import (uuid4, UUID)
+from uuid import uuid4
 
 HAS_SDK = True
 
@@ -25,9 +23,16 @@ except ImportError:
     HAS_SDK = False
 
 from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.six.moves import xrange
 from ansible.module_utils._text import to_native
+
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
+    get_module_arguments, _get_request_id, check_required_arguments,
+    get_sdk_config, get_resource_id, get_resource,
+)
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
+
 
 __metaclass__ = type
 
@@ -200,14 +205,7 @@ OPTIONS = {
     **get_default_options(STATES),
 }
 
-def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
-    del val['available']
-    del val['type']
-    return val
-
-DOCUMENTATION = '''
----
+DOCUMENTATION = """
 module: server
 short_description: Create, update, destroy, start, stop, and reboot a Ionos virtual machine.
 description:
@@ -223,7 +221,7 @@ requirements:
     - "ionos-cloud >= 5.2.0"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
-'''
+"""
 
 EXAMPLE_PER_STATE = {
   'present' : '''# Provisioning example. This will create three servers and enumerate their names.
@@ -298,54 +296,6 @@ EXAMPLES = """
 """
 
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
-
-
-def _get_matched_resources(resource_list, identity, identity_paths=None):
-    """
-    Fetch and return a resource based on an identity supplied for it, if none or more than one matches
-    are found an error is printed and None is returned.
-    """
-
-    if identity_paths is None:
-        identity_paths = [['id'], ['properties', 'name']]
-
-    def check_identity_method(resource):
-        resource_identity = []
-
-        for identity_path in identity_paths:
-            current = resource
-            for el in identity_path:
-                current = getattr(current, el)
-            resource_identity.append(current)
-
-        return identity in resource_identity
-
-    return list(filter(check_identity_method, resource_list.items))
-
-
-def get_resource(module, resource_list, identity, identity_paths=None):
-    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
-
-    if len(matched_resources) == 1:
-        return matched_resources[0]
-    elif len(matched_resources) > 1:
-        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
-    else:
-        return None
-
-
-def get_resource_id(module, resource_list, identity, identity_paths=None):
-    resource = get_resource(module, resource_list, identity, identity_paths)
-    return resource.id if resource is not None else None
-
-
-def _get_request_id(headers):
-    match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
-    if match:
-        return match.group(1)
-    else:
-        raise Exception("Failed to extract request ID from response "
-                        "header 'location': '{location}'".format(location=headers['location']))
 
 
 def _get_lan_by_id_or_properties(networks, id=None, **kwargs):
@@ -922,81 +872,8 @@ def startstop_server(module, client, state):
     }
 
 
-def get_module_arguments():
-    arguments = {}
-
-    for option_name, option in OPTIONS.items():
-      arguments[option_name] = {
-        'type': option['type'],
-      }
-      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
-        if option.get(key) is not None:
-          arguments[option_name][key] = option.get(key)
-
-      if option.get('env_fallback'):
-        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
-
-      if len(option.get('required', [])) == len(STATES):
-        arguments[option_name]['required'] = True
-
-    return arguments
-
-
-def get_sdk_config(module, sdk):
-    username = module.params.get('username')
-    password = module.params.get('password')
-    token = module.params.get('token')
-    api_url = module.params.get('api_url')
-    certificate_fingerprint = module.params.get('certificate_fingerprint')
-
-    if token is not None:
-        # use the token instead of username & password
-        conf = {
-            'token': token
-        }
-    else:
-        # use the username & password
-        conf = {
-            'username': username,
-            'password': password,
-        }
-
-    if api_url is not None:
-        conf['host'] = api_url
-        conf['server_index'] = None
-
-    if certificate_fingerprint is not None:
-        conf['fingerprint'] = certificate_fingerprint
-
-    return sdk.Configuration(**conf)
-
-
-def check_required_arguments(module, state, object_name):
-    # manually checking if token or username & password provided
-    if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
-    ):
-        module.fail_json(
-            msg='Token or username & password are required for {object_name} state {state}'.format(
-                object_name=object_name,
-                state=state,
-            ),
-        )
-
-    for option_name, option in OPTIONS.items():
-        if state in option.get('required', []) and not module.params.get(option_name):
-            module.fail_json(
-                msg='{option_name} parameter is required for {object_name} state {state}'.format(
-                    option_name=option_name,
-                    object_name=object_name,
-                    state=state,
-                ),
-            )
-
-
 def main():
-    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+    module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES), supports_check_mode=True)
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
@@ -1007,16 +884,10 @@ def main():
         module.fail_json(msg='lan should either be a string or a number')
 
     state = module.params.get('state')
-    check_required_arguments(module, state, OBJECT_NAME)
+    check_required_arguments(module, state, OBJECT_NAME, OPTIONS)
 
     with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
         api_client.user_agent = USER_AGENT
-
-        if module.params.get('type') == 'CUBE' or state in ('resume', 'suspend'):
-            module.warn(
-                'The CUBE functionality of the server module is DEPRECATED. Please use the new '
-                'cube_server module for operations with CUBE servers.',
-            )
 
         try:
             if state == 'absent':

@@ -56,15 +56,15 @@ def _get_request_id(headers):
                         "header 'location': '{location}'".format(location=headers['location']))
 
 
-def get_users(client, all_users, depth=2):
+def get_users(api, all_users, depth=2):
     offset = 0
     limit = 100
 
-    users = client.um_users_get(depth=depth, limit=limit, offset=offset)
+    users = api.um_users_get(depth=depth, limit=limit, offset=offset)
     all_users.items += users.items
     while(users.links.next is not None):
         offset += limit
-        users = client.um_users_get(depth=depth, limit=limit, offset=offset)
+        users = api.um_users_get(depth=depth, limit=limit, offset=offset)
         all_users.items += users.items
 
     return all_users

@@ -1,11 +1,6 @@
-import copy
-from operator import mod
-import yaml
-
 from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
-import re
 
 HAS_SDK = True
 try:
@@ -13,6 +8,13 @@ try:
     import ionoscloud_vm_autoscaling
 except ImportError:
     HAS_SDK = False
+
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
+    get_module_arguments, get_resource_id,
+)
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options_with_replace
+
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
@@ -196,86 +198,14 @@ OPTIONS = {
         'required': ['update', 'absent'],
         'type': 'str',
     },
-    'do_not_replace': {
-        'description': [
-            'Boolean indicating if the resource should not be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different'
-            'value to an immutable property. An error will be thrown instead',
-        ],
-        'available': ['present', 'update'],
-        'default': False,
-        'type': 'bool',
-    },
-    'api_url': {
-        'description': ['The Ionos API base URL.'],
-        'version_added': '2.4',
-        'env_fallback': 'IONOS_API_URL',
-        'available': STATES,
-        'type': 'str',
-    },
-    'certificate_fingerprint': {
-        'description': ['The Ionos API certificate fingerprint.'],
-        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
-        'available': STATES,
-        'type': 'str',
-    },
-    'username': {
-        # Required if no token, checked manually
-        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
-        'aliases': ['subscription_user'],
-        'env_fallback': 'IONOS_USERNAME',
-        'available': STATES,
-        'type': 'str',
-    },
-    'password': {
-        # Required if no token, checked manually
-        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
-        'aliases': ['subscription_password'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_PASSWORD',
-        'type': 'str',
-    },
-    'token': {
-        # If provided, then username and password no longer required
-        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_TOKEN',
-        'type': 'str',
-    },
-    'wait': {
-        'description': ['Wait for the resource to be created before returning.'],
-        'default': True,
-        'available': STATES,
-        'choices': [True, False],
-        'type': 'bool',
-    },
-    'wait_timeout': {
-        'description': ['How long before wait gives up, in seconds.'],
-        'default': 600,
-        'available': STATES,
-        'type': 'int',
-    },
-    'state': {
-        'description': ['Indicate desired state of the resource.'],
-        'default': 'present',
-        'choices': STATES,
-        'available': STATES,
-        'type': 'str',
-    },
+    **get_default_options_with_replace(STATES),
 }
 
+IMMUTABLE_OPTIONS = [
+    { "name": "datacenter", "note": "" },
+]
 
-def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES)
-    del val['available']
-    del val['type']
-    return val
-
-
-DOCUMENTATION = '''
----
+DOCUMENTATION = """
 module: vm_autoscaling_group
 short_description: Allows operations with Ionos Cloud VM Autoscaling Groups.
 description:
@@ -288,7 +218,7 @@ requirements:
     - "ionoscloud-vm-autoscaling >= 1.0.0"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
-'''
+"""
 
 EXAMPLE_PER_STATE = {
     'present': '''- name: Create VM Autoscaling Group
@@ -384,45 +314,6 @@ EXAMPLES = """
 """
 
 
-def _get_matched_resources(resource_list, identity, identity_paths=None):
-    """
-    Fetch and return a resource based on an identity supplied for it, if none or more than one matches 
-    are found an error is printed and None is returned.
-    """
-
-    if identity_paths is None:
-      identity_paths = [['id'], ['properties', 'name']]
-
-    def check_identity_method(resource):
-      resource_identity = []
-
-      for identity_path in identity_paths:
-        current = resource
-        for el in identity_path:
-          current = getattr(current, el)
-        resource_identity.append(current)
-
-      return identity in resource_identity
-
-    return list(filter(check_identity_method, resource_list.items))
-
-
-def get_resource(module, resource_list, identity, identity_paths=None):
-    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
-
-    if len(matched_resources) == 1:
-        return matched_resources[0]
-    elif len(matched_resources) > 1:
-        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
-    else:
-        return None
-
-
-def get_resource_id(module, resource_list, identity, identity_paths=None):
-    resource = get_resource(module, resource_list, identity, identity_paths)
-    return resource.id if resource is not None else None
-
-
 def get_scale_in_action_object(action_dict):
     if type(action_dict) != dict:
         return None
@@ -505,500 +396,330 @@ def get_volume_object(volume_dict):
     )
 
 
-def _should_replace_object(module, existing_object, vm_autoscaling_client, cloudapi_client):
-    if module.params.get('datacenter'):
+class RegistryModule(CommonIonosModule):
+    def __init__(self) -> None:
+        super().__init__()
+        self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES))
+        self.returned_key = RETURNED_KEY
+        self.object_name = OBJECT_NAME
+        self.sdks = [ionoscloud_vm_autoscaling, ionoscloud]
+        self.user_agents = [VM_AUTOSCALING_USER_AGENT, USER_AGENT]
+        self.options = OPTIONS
+
+
+    def _should_replace_object(self, existing_object, clients):
+        cloudapi_client = clients[1]
+        if self.module.params.get('datacenter'):
+            datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
+            datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
+            if datacenter_id is None:
+                self.module.fail_json('Datacenter {} not found.'.format(self.module.params.get('datacenter')))
+            
+
+        return (
+            self.module.params.get('datacenter') is not None
+            and existing_object.properties.datacenter.id != datacenter_id
+        )
+
+
+    def _should_update_object(self, existing_object, clients):
+        vm_autoscaling_client = clients[0]
+        cloudapi_client = clients[1]
+        datacenter_id = None
+        if self.module.params.get('datacenter'):
+            datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
+            datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
+
+        scale_in_action_should_update = scale_out_action_should_update = nics_update = volumes_update = False
+        if self.module.params.get('scale_in_action'):
+            scale_in_action = get_scale_in_action_object(self.module.params.get('scale_in_action'))
+            existing_scale_in_action = existing_object.properties.policy.scale_in_action
+
+            if (
+                scale_in_action.amount is not None 
+                and scale_in_action.amount != existing_scale_in_action.amount
+                or scale_in_action.amount_type is not None 
+                and scale_in_action.amount_type != existing_scale_in_action.amount_type
+                or scale_in_action.cooldown_period is not None 
+                and scale_in_action.cooldown_period != existing_scale_in_action.cooldown_period
+                or scale_in_action.termination_policy is not None 
+                and scale_in_action.termination_policy != existing_scale_in_action.termination_policy
+                or scale_in_action.delete_volumes is not None 
+                and scale_in_action.delete_volumes != existing_scale_in_action.delete_volumes
+            ):
+                scale_in_action_should_update = True
+
+        if self.module.params.get('scale_out_action'):
+            scale_out_action = get_scale_out_action_object(self.module.params.get('scale_out_action'))
+            existing_scale_out_action = existing_object.properties.policy.scale_out_action
+
+            if (
+                scale_out_action.amount is not None 
+                and scale_out_action.amount != existing_scale_out_action.amount
+                or scale_out_action.amount_type is not None 
+                and scale_out_action.amount_type != existing_scale_out_action.amount_type
+                or scale_out_action.cooldown_period is not None 
+                and scale_out_action.cooldown_period != existing_scale_out_action.cooldown_period
+            ):
+                scale_out_action_should_update = True
+
+        if self.module.params.get('nics'):
+            def nic_sort_func(el):
+                return el.name, el.lan
+
+            def firewall_rule_sort_func(el):
+                return el.name, el.protocol
+
+            def flow_log_sort_func(el):
+                return el.name, el.bucket
+
+            new_nics = sorted([get_nic_object(nic) for nic in self.module.params.get('nics')], key=nic_sort_func)
+            for nic in new_nics:
+                nic.firewall_rules = sorted(nic.firewall_rules, key=firewall_rule_sort_func)
+                nic.flow_logs = sorted(nic.flow_logs, key=flow_log_sort_func)
+            new_nics = vm_autoscaling_client.sanitize_for_serialization(new_nics)
+            existing_nics = sorted(existing_object.properties.replica_configuration.nics, key=nic_sort_func)
+            for nic in existing_nics:
+                nic.firewall_rules = sorted(nic.firewall_rules, key=firewall_rule_sort_func)
+                nic.flow_logs = sorted(nic.flow_logs, key=flow_log_sort_func)
+            existing_nics = vm_autoscaling_client.sanitize_for_serialization(existing_nics)
+            
+            if new_nics != existing_nics:
+                nics_update = True
+
+        if self.module.params.get('volumes'):
+            def volume_sort_func(el):
+                return el.name, el.type
+
+            new_volumes = sorted([get_volume_object(volume) for volume in self.module.params.get('volumes')], key=volume_sort_func)
+            new_volumes = vm_autoscaling_client.sanitize_for_serialization(new_volumes)
+
+            for volume in new_volumes:
+                if volume.get('image_password'):
+                    volumes_update = True
+
+            if not volumes_update:
+                existing_volumes = sorted(existing_object.properties.replica_configuration.volumes, key=volume_sort_func)
+                existing_volumes = vm_autoscaling_client.sanitize_for_serialization(existing_volumes)
+
+                if new_volumes != existing_volumes:
+                    volumes_update = True
+
+        return (
+            scale_in_action_should_update or scale_out_action_should_update or nics_update or volumes_update
+            or self.module.params.get('max_replica_count') is not None
+            and existing_object.properties.max_replica_count != self.module.params.get('max_replica_count')
+            or self.module.params.get('min_replica_count') is not None
+            and existing_object.properties.min_replica_count != self.module.params.get('min_replica_count')
+            or self.module.params.get('name') is not None
+            and existing_object.properties.name != self.module.params.get('name')
+            or self.module.params.get('metric') is not None
+            and existing_object.properties.policy.metric != self.module.params.get('metric')
+            or self.module.params.get('range') is not None
+            and existing_object.properties.policy.range != self.module.params.get('range')
+            or self.module.params.get('unit') is not None
+            and existing_object.properties.policy.unit != self.module.params.get('unit')
+            or self.module.params.get('scale_in_threshold') is not None
+            and existing_object.properties.policy.scale_in_threshold != self.module.params.get('scale_in_threshold')
+            or self.module.params.get('scale_out_threshold') is not None
+            and existing_object.properties.policy.scale_out_threshold != self.module.params.get('scale_out_threshold')
+            or self.module.params.get('availability_zone') is not None
+            and existing_object.properties.replica_configuration.availability_zone != self.module.params.get('availability_zone')
+            or self.module.params.get('cores') is not None
+            and existing_object.properties.replica_configuration.cores != int(self.module.params.get('cores'))
+            or self.module.params.get('cpu_family') is not None
+            and existing_object.properties.replica_configuration.cpu_family != self.module.params.get('cpu_family')
+            or self.module.params.get('ram') is not None
+            and existing_object.properties.replica_configuration.ram != self.module.params.get('ram')
+        )
+
+
+
+    def _get_object_list(self, clients):
+        return ionoscloud_vm_autoscaling.AutoScalingGroupsApi(clients[0]).groups_get(depth=1)
+
+
+    def _get_object_name(self):
+        return self.module.params.get('name')
+
+
+    def _get_object_identifier(self):
+        return self.module.params.get('vm_autoscaling_group')
+
+
+    def _create_object(self, existing_object, clients):
+        vm_autoscaling_client = clients[0]
+        cloudapi_client = clients[1]
         datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
-        datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
-        if datacenter_id is None:
-            module.fail_json('Datacenter {} not found.'.format(module.params.get('datacenter')))
-        
-
-    return (
-        module.params.get('datacenter') is not None
-        and existing_object.properties.datacenter.id != datacenter_id
-    )
-
-
-def _should_update_object(module, existing_object, vm_autoscaling_client, cloudapi_client):
-    datacenter_id = None
-    if module.params.get('datacenter'):
-        datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
-        datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
-
-    scale_in_action_should_update = scale_out_action_should_update = nics_update = volumes_update = False
-    if module.params.get('scale_in_action'):
-        scale_in_action = get_scale_in_action_object(module.params.get('scale_in_action'))
-        existing_scale_in_action = existing_object.properties.policy.scale_in_action
-
-        if (
-            scale_in_action.amount is not None 
-            and scale_in_action.amount != existing_scale_in_action.amount
-            or scale_in_action.amount_type is not None 
-            and scale_in_action.amount_type != existing_scale_in_action.amount_type
-            or scale_in_action.cooldown_period is not None 
-            and scale_in_action.cooldown_period != existing_scale_in_action.cooldown_period
-            or scale_in_action.termination_policy is not None 
-            and scale_in_action.termination_policy != existing_scale_in_action.termination_policy
-            or scale_in_action.delete_volumes is not None 
-            and scale_in_action.delete_volumes != existing_scale_in_action.delete_volumes
-        ):
-            scale_in_action_should_update = True
-
-    if module.params.get('scale_out_action'):
-        scale_out_action = get_scale_out_action_object(module.params.get('scale_out_action'))
-        existing_scale_out_action = existing_object.properties.policy.scale_out_action
-
-        if (
-            scale_out_action.amount is not None 
-            and scale_out_action.amount != existing_scale_out_action.amount
-            or scale_out_action.amount_type is not None 
-            and scale_out_action.amount_type != existing_scale_out_action.amount_type
-            or scale_out_action.cooldown_period is not None 
-            and scale_out_action.cooldown_period != existing_scale_out_action.cooldown_period
-        ):
-            scale_out_action_should_update = True
-
-    if module.params.get('nics'):
-        def nic_sort_func(el):
-            return el.name, el.lan
-
-        def firewall_rule_sort_func(el):
-            return el.name, el.protocol
-
-        def flow_log_sort_func(el):
-            return el.name, el.bucket
-
-        new_nics = sorted([get_nic_object(nic) for nic in module.params.get('nics')], key=nic_sort_func)
-        for nic in new_nics:
-            nic.firewall_rules = sorted(nic.firewall_rules, key=firewall_rule_sort_func)
-            nic.flow_logs = sorted(nic.flow_logs, key=flow_log_sort_func)
-        new_nics = vm_autoscaling_client.sanitize_for_serialization(new_nics)
-        existing_nics = sorted(existing_object.properties.replica_configuration.nics, key=nic_sort_func)
-        for nic in existing_nics:
-            nic.firewall_rules = sorted(nic.firewall_rules, key=firewall_rule_sort_func)
-            nic.flow_logs = sorted(nic.flow_logs, key=flow_log_sort_func)
-        existing_nics = vm_autoscaling_client.sanitize_for_serialization(existing_nics)
-        
-        if new_nics != existing_nics:
-            nics_update = True
-
-    if module.params.get('volumes'):
-        def volume_sort_func(el):
-            return el.name, el.type
-
-        new_volumes = sorted([get_volume_object(volume) for volume in module.params.get('volumes')], key=volume_sort_func)
-        new_volumes = vm_autoscaling_client.sanitize_for_serialization(new_volumes)
-
-        for volume in new_volumes:
-            if volume.get('image_password'):
-                volumes_update = True
-
-        if not volumes_update:
-            existing_volumes = sorted(existing_object.properties.replica_configuration.volumes, key=volume_sort_func)
-            existing_volumes = vm_autoscaling_client.sanitize_for_serialization(existing_volumes)
-
-            if new_volumes != existing_volumes:
-                volumes_update = True
-
-    return (
-        scale_in_action_should_update or scale_out_action_should_update or nics_update or volumes_update
-        or module.params.get('max_replica_count') is not None
-        and existing_object.properties.max_replica_count != module.params.get('max_replica_count')
-        or module.params.get('min_replica_count') is not None
-        and existing_object.properties.min_replica_count != module.params.get('min_replica_count')
-        or module.params.get('name') is not None
-        and existing_object.properties.name != module.params.get('name')
-        or module.params.get('metric') is not None
-        and existing_object.properties.policy.metric != module.params.get('metric')
-        or module.params.get('range') is not None
-        and existing_object.properties.policy.range != module.params.get('range')
-        or module.params.get('unit') is not None
-        and existing_object.properties.policy.unit != module.params.get('unit')
-        or module.params.get('scale_in_threshold') is not None
-        and existing_object.properties.policy.scale_in_threshold != module.params.get('scale_in_threshold')
-        or module.params.get('scale_out_threshold') is not None
-        and existing_object.properties.policy.scale_out_threshold != module.params.get('scale_out_threshold')
-        or module.params.get('availability_zone') is not None
-        and existing_object.properties.replica_configuration.availability_zone != module.params.get('availability_zone')
-        or module.params.get('cores') is not None
-        and existing_object.properties.replica_configuration.cores != int(module.params.get('cores'))
-        or module.params.get('cpu_family') is not None
-        and existing_object.properties.replica_configuration.cpu_family != module.params.get('cpu_family')
-        or module.params.get('ram') is not None
-        and existing_object.properties.replica_configuration.ram != module.params.get('ram')
-    )
-
-
-def _get_object_list(module, client):
-    return ionoscloud_vm_autoscaling.AutoScalingGroupsApi(client).groups_get(depth=1)
-
-
-def _get_object_name(module):
-    return module.params.get('name')
-
-
-def _get_object_identifier(module):
-    return module.params.get('vm_autoscaling_group')
-
-
-def _create_object(module, vm_autoscaling_client, cloudapi_client, existing_object=None):
-    datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
-    max_replica_count = module.params.get('max_replica_count')
-    min_replica_count = module.params.get('min_replica_count')
-    name = module.params.get('name')
-    metric = module.params.get('metric')
-    policy_range = module.params.get('range')
-    unit = module.params.get('unit')
-    scale_in_threshold = module.params.get('scale_in_threshold')
-    scale_out_threshold = module.params.get('scale_out_threshold')
-    availability_zone = module.params.get('availability_zone')
-    cores = module.params.get('cores')
-    cpu_family = module.params.get('cpu_family')
-    ram = module.params.get('ram')
-    scale_in_action = get_scale_in_action_object(module.params.get('scale_in_action'))
-    scale_out_action = get_scale_out_action_object(module.params.get('scale_out_action'))
-    nics = [get_nic_object(nic) for nic in module.params.get('nics')] if module.params.get('nics') else None
-    volumes = [get_volume_object(volume) for volume in module.params.get('volumes')] if module.params.get('volumes') else None
-
-    if existing_object is not None:
-        datacenter_id = existing_object.properties.datacenter.id if datacenter_id is None else datacenter_id
-        max_replica_count = existing_object.properties.max_replica_count if max_replica_count is None else max_replica_count
-        min_replica_count = existing_object.properties.min_replica_count if min_replica_count is None else min_replica_count
-        name = existing_object.properties.name if name is None else name
-        metric = existing_object.properties.policy.metric if metric is None else metric
-        policy_range = existing_object.properties.policy.range if policy_range is None else policy_range
-        unit = existing_object.properties.policy.unit if unit is None else unit
-        scale_in_threshold = existing_object.properties.policy.scale_in_threshold if scale_in_threshold is None else scale_in_threshold
-        scale_out_threshold = existing_object.properties.policy.scale_out_threshold if scale_out_threshold is None else scale_out_threshold
-        scale_in_action = existing_object.properties.policy.scale_in_action if scale_in_action is None else scale_in_action
-        scale_out_action = existing_object.properties.policy.scale_out_action if scale_out_action is None else scale_out_action
-        cores = existing_object.properties.replica_configuration.cores if cores is None else cores
-        ram = existing_object.properties.replica_configuration.ram if ram is None else ram
-        cpu_family = existing_object.properties.replica_configuration.cpu_family if cpu_family is None else cpu_family
-        availability_zone = existing_object.properties.replica_configuration.availability_zone if availability_zone is None else availability_zone
-        nics = existing_object.properties.replica_configuration.nics if nics is None else nics
-        volumes = existing_object.properties.replica_configuration.volumes if volumes is None else volumes
-
-    vm_autoscaling_group = ionoscloud_vm_autoscaling.Group(
-        properties=ionoscloud_vm_autoscaling.GroupProperties(
-            datacenter=ionoscloud_vm_autoscaling.GroupPropertiesDatacenter(id=datacenter_id),
-            max_replica_count=max_replica_count,
-            min_replica_count=min_replica_count,
-            name=name,
-            policy=ionoscloud_vm_autoscaling.GroupPolicy(
-                metric=metric,
-                range=policy_range,
-                unit=unit,
-                scale_in_threshold=scale_in_threshold,
-                scale_out_threshold=scale_out_threshold,
-                scale_in_action=scale_in_action,
-                scale_out_action=scale_out_action,
-            ),
-            replica_configuration=ionoscloud_vm_autoscaling.ReplicaPropertiesPost(
-                cores=cores,
-                ram=ram,
-                cpu_family=cpu_family,
-                availability_zone=availability_zone,
-                nics=nics,
-                volumes=volumes,
-            ),
-        )
-    )
-
-    groups_api = ionoscloud_vm_autoscaling.AutoScalingGroupsApi(vm_autoscaling_client)
-    try:
-        response = groups_api.groups_post(vm_autoscaling_group)
-        if module.params.get('wait'):
-            vm_autoscaling_client.wait_for(
-                fn_request=lambda: groups_api.groups_find_by_id(response.id),
-                fn_check=lambda group: group.metadata.state == 'AVAILABLE',
-                scaleup=10000,
-                timeout=module.params.get('wait_timeout'),
-            )
-    except Exception as e:
-        module.fail_json(msg="failed to create the new VM Autoscaling Group: %s" % to_native(e))
-    return response
-
-
-def _update_object(module, vm_autoscaling_client, cloudapi_client, existing_object):
-    datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
-    max_replica_count = module.params.get('max_replica_count')
-    min_replica_count = module.params.get('min_replica_count')
-    name = module.params.get('name')
-    metric = module.params.get('metric')
-    policy_range = module.params.get('range')
-    unit = module.params.get('unit')
-    scale_in_threshold = module.params.get('scale_in_threshold')
-    scale_out_threshold = module.params.get('scale_out_threshold')
-    availability_zone = module.params.get('availability_zone')
-    cores = module.params.get('cores')
-    cpu_family = module.params.get('cpu_family')
-    ram = module.params.get('ram')
-    scale_in_action = get_scale_in_action_object(module.params.get('scale_in_action'))
-    scale_out_action = get_scale_out_action_object(module.params.get('scale_out_action'))
-    nics = [get_nic_object(nic) for nic in module.params.get('nics')] if module.params.get('nics') else None
-    volumes = [get_volume_object(volume) for volume in module.params.get('volumes')] if module.params.get('volumes') else None
-
-    vm_autoscaling_group = ionoscloud_vm_autoscaling.Group(
-        properties=ionoscloud_vm_autoscaling.GroupProperties(
-            datacenter=ionoscloud_vm_autoscaling.GroupPropertiesDatacenter(
-                id=datacenter_id if datacenter_id else existing_object.properties.datacenter.id,
-            ),
-            max_replica_count=max_replica_count if max_replica_count else existing_object.properties.max_replica_count,
-            min_replica_count=min_replica_count if min_replica_count else existing_object.properties.min_replica_count,
-            name=name if name else existing_object.properties.name,
-            policy=ionoscloud_vm_autoscaling.GroupPolicy(
-                metric=metric if metric else existing_object.properties.policy.metric,
-                range=policy_range if policy_range else existing_object.properties.policy.range,
-                unit=unit if unit else existing_object.properties.policy.unit,
-                scale_in_threshold=scale_in_threshold if scale_in_threshold else existing_object.properties.policy.scale_in_threshold,
-                scale_out_threshold=scale_out_threshold if scale_out_threshold else existing_object.properties.policy.scale_out_threshold,
-                scale_in_action=scale_in_action if scale_in_action else existing_object.properties.policy.scale_in_action,
-                scale_out_action=scale_out_action if scale_out_action else existing_object.properties.policy.scale_out_action,
-            ),
-            replica_configuration=ionoscloud_vm_autoscaling.ReplicaPropertiesPost(
-                cores=cores if cores else existing_object.properties.replica_configuration.cores,
-                ram=ram if ram else existing_object.properties.replica_configuration.ram,
-                cpu_family=cpu_family if cpu_family else existing_object.properties.replica_configuration.cpu_family,
-                availability_zone=availability_zone if availability_zone else existing_object.properties.replica_configuration.availability_zone,
-                nics=nics if nics else existing_object.properties.replica_configuration.nics,
-                volumes=volumes if volumes else existing_object.properties.replica_configuration.volumes,
-            ),
-        )
-    )
-
-    groups_api = ionoscloud_vm_autoscaling.AutoScalingGroupsApi(vm_autoscaling_client)
-
-    try:
-        response = groups_api.groups_put(existing_object.id, vm_autoscaling_group)
-
-        if module.params.get('wait'):
-            vm_autoscaling_client.wait_for(
-                fn_request=lambda: groups_api.groups_find_by_id(response.id),
-                fn_check=lambda group: group.metadata.state == 'AVAILABLE',
-                scaleup=10000,
-                timeout=module.params.get('wait_timeout'),
-            )
-
-    except Exception as e:
-        module.fail_json(msg="failed to update the VM Autoscaling Group: %s" % to_native(e))
-    return response
-
-
-def _remove_object(module, vm_autoscaling_client, existing_object):
-    groups_api = ionoscloud_vm_autoscaling.AutoScalingGroupsApi(vm_autoscaling_client)
-
-    try:
-        groups_api.groups_delete(existing_object.id)
-
-        if module.params.get('wait'):
-            try:
-                vm_autoscaling_client.wait_for(
-                    fn_request=lambda: groups_api.groups_find_by_id(existing_object.id),
-                    fn_check=lambda _: False,
-                    scaleup=10000,
-                )
-            except ionoscloud_vm_autoscaling.ApiException as e:
-                if e.status != 404:
-                    raise e
-    except Exception as e:
-        module.fail_json(msg="failed to delete the VM Autoscaling Group: %s" % to_native(e))
-
-
-def update_replace_object(module, vm_autoscaling_client, cloudapi_client, existing_object):
-    if _should_replace_object(module, existing_object, vm_autoscaling_client, cloudapi_client):
-
-        if module.params.get('do_not_replace'):
-            module.fail_json(msg="{} should be replaced but do_not_replace is set to True.".format(OBJECT_NAME))
-
-        new_object = _create_object(module, vm_autoscaling_client, cloudapi_client, existing_object).to_dict()
-        _remove_object(module, vm_autoscaling_client, existing_object)
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            RETURNED_KEY: new_object,
-        }
-    if _should_update_object(module, existing_object, vm_autoscaling_client, cloudapi_client):
-        # Update
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'update',
-            RETURNED_KEY: _update_object(module, vm_autoscaling_client, cloudapi_client, existing_object).to_dict()
-        }
-
-    # No action
-    return {
-        'changed': False,
-        'failed': False,
-        'action': 'create',
-        RETURNED_KEY: existing_object.to_dict()
-    }
-
-
-def create_object(module, vm_autoscaling_client, cloudapi_client):
-    existing_object = get_resource(
-        module, _get_object_list(module, vm_autoscaling_client), _get_object_name(module),
-    )
-
-    if existing_object:
-        return update_replace_object(module, vm_autoscaling_client, cloudapi_client, existing_object)
-
-    return {
-        'changed': True,
-        'failed': False,
-        'action': 'create',
-        RETURNED_KEY: _create_object(module, vm_autoscaling_client, cloudapi_client).to_dict()
-    }
-
-
-def update_object(module, dbaas_postgres_api_client, cloudapi_api_client):
-    object_name = _get_object_name(module)
-    object_list = _get_object_list(module, dbaas_postgres_api_client)
-    existing_object = get_resource(module, object_list, _get_object_identifier(module))
-
-    if existing_object is None:
-        module.exit_json(changed=False)
-
-    existing_object_id_by_new_name = get_resource_id(module, object_list, object_name)
-
-    if (
-        existing_object.id is not None
-        and existing_object_id_by_new_name is not None
-        and existing_object_id_by_new_name != existing_object.id
-    ):
-        module.fail_json(
-            msg='failed to update the {}: Another resource with the desired name ({}) exists'.format(
-                OBJECT_NAME, object_name,
-            ),
-        )
-
-    return update_replace_object(module, dbaas_postgres_api_client, cloudapi_api_client, existing_object)
-
-
-def remove_object(module, client):
-
-    existing_object = get_resource(
-        module, _get_object_list(module, client), _get_object_identifier(module),
-    )
-
-    if existing_object is None:
-        module.exit_json(changed=False)
-
-    _remove_object(module, client, existing_object)
-
-    return {
-        'action': 'delete',
-        'changed': True,
-        'id': existing_object.id,
-    }
-
-
-def get_module_arguments():
-    arguments = {}
-
-    for option_name, option in OPTIONS.items():
-        arguments[option_name] = {
-            'type': option['type'],
-        }
-        for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
-            if option.get(key) is not None:
-                arguments[option_name][key] = option.get(key)
-
-        if option.get('env_fallback'):
-            arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
-
-        if len(option.get('required', [])) == len(STATES):
-            arguments[option_name]['required'] = True
-
-    return arguments
-
-
-def get_sdk_config(module, sdk):
-    username = module.params.get('username')
-    password = module.params.get('password')
-    token = module.params.get('token')
-    api_url = module.params.get('api_url')
-    certificate_fingerprint = module.params.get('certificate_fingerprint')
-
-    if token is not None:
-        # use the token instead of username & password
-        conf = {
-            'token': token
-        }
-    else:
-        # use the username & password
-        conf = {
-            'username': username,
-            'password': password,
-        }
-
-    if api_url is not None:
-        conf['host'] = api_url
-        conf['server_index'] = None
-
-    if certificate_fingerprint is not None:
-        conf['fingerprint'] = certificate_fingerprint
-
-    return sdk.Configuration(**conf)
-
-
-def check_required_arguments(module, state, object_name):
-    # manually checking if token or username & password provided
-    if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
-    ):
-        module.fail_json(
-            msg='Token or username & password are required for {object_name} state {state}'.format(
-                object_name=object_name,
-                state=state,
-            ),
-        )
-
-    for option_name, option in OPTIONS.items():
-        if state in option.get('required', []) and not module.params.get(option_name):
-            module.fail_json(
-                msg='{option_name} parameter is required for {object_name} state {state}'.format(
-                    option_name=option_name,
-                    object_name=object_name,
-                    state=state,
+        datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
+        max_replica_count = self.module.params.get('max_replica_count')
+        min_replica_count = self.module.params.get('min_replica_count')
+        name = self.module.params.get('name')
+        metric = self.module.params.get('metric')
+        policy_range = self.module.params.get('range')
+        unit = self.module.params.get('unit')
+        scale_in_threshold = self.module.params.get('scale_in_threshold')
+        scale_out_threshold = self.module.params.get('scale_out_threshold')
+        availability_zone = self.module.params.get('availability_zone')
+        cores = self.module.params.get('cores')
+        cpu_family = self.module.params.get('cpu_family')
+        ram = self.module.params.get('ram')
+        scale_in_action = get_scale_in_action_object(self.module.params.get('scale_in_action'))
+        scale_out_action = get_scale_out_action_object(self.module.params.get('scale_out_action'))
+        nics = [get_nic_object(nic) for nic in self.module.params.get('nics')] if self.module.params.get('nics') else None
+        volumes = [get_volume_object(volume) for volume in self.module.params.get('volumes')] if self.module.params.get('volumes') else None
+
+        if existing_object is not None:
+            datacenter_id = existing_object.properties.datacenter.id if datacenter_id is None else datacenter_id
+            max_replica_count = existing_object.properties.max_replica_count if max_replica_count is None else max_replica_count
+            min_replica_count = existing_object.properties.min_replica_count if min_replica_count is None else min_replica_count
+            name = existing_object.properties.name if name is None else name
+            metric = existing_object.properties.policy.metric if metric is None else metric
+            policy_range = existing_object.properties.policy.range if policy_range is None else policy_range
+            unit = existing_object.properties.policy.unit if unit is None else unit
+            scale_in_threshold = existing_object.properties.policy.scale_in_threshold if scale_in_threshold is None else scale_in_threshold
+            scale_out_threshold = existing_object.properties.policy.scale_out_threshold if scale_out_threshold is None else scale_out_threshold
+            scale_in_action = existing_object.properties.policy.scale_in_action if scale_in_action is None else scale_in_action
+            scale_out_action = existing_object.properties.policy.scale_out_action if scale_out_action is None else scale_out_action
+            cores = existing_object.properties.replica_configuration.cores if cores is None else cores
+            ram = existing_object.properties.replica_configuration.ram if ram is None else ram
+            cpu_family = existing_object.properties.replica_configuration.cpu_family if cpu_family is None else cpu_family
+            availability_zone = existing_object.properties.replica_configuration.availability_zone if availability_zone is None else availability_zone
+            nics = existing_object.properties.replica_configuration.nics if nics is None else nics
+            volumes = existing_object.properties.replica_configuration.volumes if volumes is None else volumes
+
+        vm_autoscaling_group = ionoscloud_vm_autoscaling.Group(
+            properties=ionoscloud_vm_autoscaling.GroupProperties(
+                datacenter=ionoscloud_vm_autoscaling.GroupPropertiesDatacenter(id=datacenter_id),
+                max_replica_count=max_replica_count,
+                min_replica_count=min_replica_count,
+                name=name,
+                policy=ionoscloud_vm_autoscaling.GroupPolicy(
+                    metric=metric,
+                    range=policy_range,
+                    unit=unit,
+                    scale_in_threshold=scale_in_threshold,
+                    scale_out_threshold=scale_out_threshold,
+                    scale_in_action=scale_in_action,
+                    scale_out_action=scale_out_action,
+                ),
+                replica_configuration=ionoscloud_vm_autoscaling.ReplicaPropertiesPost(
+                    cores=cores,
+                    ram=ram,
+                    cpu_family=cpu_family,
+                    availability_zone=availability_zone,
+                    nics=nics,
+                    volumes=volumes,
                 ),
             )
+        )
+
+        groups_api = ionoscloud_vm_autoscaling.AutoScalingGroupsApi(vm_autoscaling_client)
+        try:
+            response = groups_api.groups_post(vm_autoscaling_group)
+            if self.module.params.get('wait'):
+                vm_autoscaling_client.wait_for(
+                    fn_request=lambda: groups_api.groups_find_by_id(response.id),
+                    fn_check=lambda group: group.metadata.state == 'AVAILABLE',
+                    scaleup=10000,
+                    timeout=self.module.params.get('wait_timeout'),
+                )
+        except Exception as e:
+            self.module.fail_json(msg="failed to create the new VM Autoscaling Group: %s" % to_native(e))
+        return response
 
 
-def main():
-    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+    def _update_object(self, existing_object, clients):
+        vm_autoscaling_client = clients[0]
+        cloudapi_client = clients[1]
+        datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
+        datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
+        max_replica_count = self.module.params.get('max_replica_count')
+        min_replica_count = self.module.params.get('min_replica_count')
+        name = self.module.params.get('name')
+        metric = self.module.params.get('metric')
+        policy_range = self.module.params.get('range')
+        unit = self.module.params.get('unit')
+        scale_in_threshold = self.module.params.get('scale_in_threshold')
+        scale_out_threshold = self.module.params.get('scale_out_threshold')
+        availability_zone = self.module.params.get('availability_zone')
+        cores = self.module.params.get('cores')
+        cpu_family = self.module.params.get('cpu_family')
+        ram = self.module.params.get('ram')
+        scale_in_action = get_scale_in_action_object(self.module.params.get('scale_in_action'))
+        scale_out_action = get_scale_out_action_object(self.module.params.get('scale_out_action'))
+        nics = [get_nic_object(nic) for nic in self.module.params.get('nics')] if self.module.params.get('nics') else None
+        volumes = [get_volume_object(volume) for volume in self.module.params.get('volumes')] if self.module.params.get('volumes') else None
 
-    if not HAS_SDK:
-        module.fail_json(msg='both ionoscloud and ionoscloud_vm_autoscaling are required for this module, '
-                             'run `pip install ionoscloud ionoscloud_vm_autoscaling`')
+        vm_autoscaling_group = ionoscloud_vm_autoscaling.Group(
+            properties=ionoscloud_vm_autoscaling.GroupProperties(
+                datacenter=ionoscloud_vm_autoscaling.GroupPropertiesDatacenter(
+                    id=datacenter_id if datacenter_id else existing_object.properties.datacenter.id,
+                ),
+                max_replica_count=max_replica_count if max_replica_count else existing_object.properties.max_replica_count,
+                min_replica_count=min_replica_count if min_replica_count else existing_object.properties.min_replica_count,
+                name=name if name else existing_object.properties.name,
+                policy=ionoscloud_vm_autoscaling.GroupPolicy(
+                    metric=metric if metric else existing_object.properties.policy.metric,
+                    range=policy_range if policy_range else existing_object.properties.policy.range,
+                    unit=unit if unit else existing_object.properties.policy.unit,
+                    scale_in_threshold=scale_in_threshold if scale_in_threshold else existing_object.properties.policy.scale_in_threshold,
+                    scale_out_threshold=scale_out_threshold if scale_out_threshold else existing_object.properties.policy.scale_out_threshold,
+                    scale_in_action=scale_in_action if scale_in_action else existing_object.properties.policy.scale_in_action,
+                    scale_out_action=scale_out_action if scale_out_action else existing_object.properties.policy.scale_out_action,
+                ),
+                replica_configuration=ionoscloud_vm_autoscaling.ReplicaPropertiesPost(
+                    cores=cores if cores else existing_object.properties.replica_configuration.cores,
+                    ram=ram if ram else existing_object.properties.replica_configuration.ram,
+                    cpu_family=cpu_family if cpu_family else existing_object.properties.replica_configuration.cpu_family,
+                    availability_zone=availability_zone if availability_zone else existing_object.properties.replica_configuration.availability_zone,
+                    nics=nics if nics else existing_object.properties.replica_configuration.nics,
+                    volumes=volumes if volumes else existing_object.properties.replica_configuration.volumes,
+                ),
+            )
+        )
 
-    cloudapi_api_client = ionoscloud.ApiClient(get_sdk_config(module, ionoscloud))
-    cloudapi_api_client.user_agent = USER_AGENT
-    vm_autoscaling_api_client = ionoscloud_vm_autoscaling.ApiClient(get_sdk_config(module, ionoscloud_vm_autoscaling))
-    vm_autoscaling_api_client.user_agent = VM_AUTOSCALING_USER_AGENT
+        groups_api = ionoscloud_vm_autoscaling.AutoScalingGroupsApi(vm_autoscaling_client)
 
-    state = module.params.get('state')
+        try:
+            response = groups_api.groups_put(existing_object.id, vm_autoscaling_group)
 
-    check_required_arguments(module, state, OBJECT_NAME)
+            if self.module.params.get('wait'):
+                vm_autoscaling_client.wait_for(
+                    fn_request=lambda: groups_api.groups_find_by_id(response.id),
+                    fn_check=lambda group: group.metadata.state == 'AVAILABLE',
+                    scaleup=10000,
+                    timeout=self.module.params.get('wait_timeout'),
+                )
 
-    try:
-        if state == 'present':
-            module.exit_json(**create_object(module, vm_autoscaling_api_client, cloudapi_api_client))
-        elif state == 'absent':
-            module.exit_json(**remove_object(module, vm_autoscaling_api_client))
-        elif state == 'update':
-            module.exit_json(**update_object(module, vm_autoscaling_api_client, cloudapi_api_client))
-    except Exception as e:
-        module.fail_json(
-            msg='failed to set {object_name} state {state}: {error}'.format(
-                object_name=OBJECT_NAME, error=to_native(e), state=state,
-            ))
+        except Exception as e:
+            self.module.fail_json(msg="failed to update the VM Autoscaling Group: %s" % to_native(e))
+        return response
+
+
+    def _remove_object(self, existing_object, clients):
+        vm_autoscaling_client = clients[0]
+        groups_api = ionoscloud_vm_autoscaling.AutoScalingGroupsApi(vm_autoscaling_client)
+
+        try:
+            groups_api.groups_delete(existing_object.id)
+
+            if self.module.params.get('wait'):
+                try:
+                    vm_autoscaling_client.wait_for(
+                        fn_request=lambda: groups_api.groups_find_by_id(existing_object.id),
+                        fn_check=lambda _: False,
+                        scaleup=10000,
+                    )
+                except ionoscloud_vm_autoscaling.ApiException as e:
+                    if e.status != 404:
+                        raise e
+        except Exception as e:
+            self.module.fail_json(msg="failed to delete the VM Autoscaling Group: %s" % to_native(e))
 
 
 if __name__ == '__main__':
-    main()
+    ionos_module = RegistryModule()
+    if not HAS_SDK:
+        ionos_module.module.fail_json(msg='ionoscloud and ionoscloud_vm_autoscaling is required for this module, run `pip install ionoscloud ionoscloud_vm_autoscaling`')
+    ionos_module.main()
