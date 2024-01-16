@@ -8,7 +8,7 @@
 
   tasks:
   - name: Create datacenter
-    datacenter:
+    ionoscloudsdk.ionoscloud.datacenter:
       name: "{{ datacenter }} - {{ 100 | random}}"
       description: "{{ description }}"
       location: us/las
@@ -16,7 +16,7 @@
     register: datacenter1
 
   - name: Create datacenter
-    datacenter:
+    ionoscloudsdk.ionoscloud.datacenter:
       name: "{{ datacenter }} - {{ 100 | random}}"
       description: "{{ description }}"
       location: us/las
@@ -24,7 +24,7 @@
     register: datacenter2
 
   - name: Create group
-    group:
+    ionoscloudsdk.ionoscloud.group:
       name: "Demo"
       create_datacenter: true
       create_snapshot: true
@@ -32,7 +32,7 @@
       access_activity_log: true
 
   - name: Create share
-    share:
+    ionoscloudsdk.ionoscloud.share:
       group: Demo
       edit_privilege: True
       share_privilege: True
@@ -52,7 +52,7 @@
       msg: "{{ share }}"
 
   - name: List Shares
-    share_info:
+    ionoscloudsdk.ionoscloud.share_info:
       group: Demo
     register: share_list_response
 
@@ -63,7 +63,7 @@
 
   # Update shares
   - name: Update shares
-    share:
+    ionoscloudsdk.ionoscloud.share:
       group: Demo
       edit_privilege: False
       share_privilege: True
@@ -74,7 +74,7 @@
 
 #   Remove shares
   - name: Remove shares
-    share:
+    ionoscloudsdk.ionoscloud.share:
       group: Demo
       resource_ids:
         - "{{ datacenter1.datacenter.id }}"
@@ -82,18 +82,18 @@
       state: absent
 
   - name: Delete group
-    group:
+    ionoscloudsdk.ionoscloud.group:
       group: "Demo"
       state: absent
 
   - name: Remove datacenter
-    datacenter:
+    ionoscloudsdk.ionoscloud.datacenter:
       datacenter: "{{ datacenter1.datacenter.id }}"
       state: absent
       wait: true
 
   - name: Remove datacenter
-    datacenter:
+    ionoscloudsdk.ionoscloud.datacenter:
       datacenter: "{{ datacenter2.datacenter.id }}"
       state: absent
       wait: true

@@ -145,7 +145,7 @@ class K8SClusterModule(CommonIonosModule):
         self.returned_key = RETURNED_KEY
         self.object_name = OBJECT_NAME
         self.sdks = [ionoscloud]
-        self.user_agent = USER_AGENT
+        self.user_agents = [USER_AGENT]
         self.options = OPTIONS
 
 

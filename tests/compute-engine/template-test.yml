@@ -7,7 +7,7 @@
 
   tasks:
     - name: List templates
-      cube_template_info:
+      ionoscloudsdk.ionoscloud.cube_template_info:
       register: template_list
 
     - name: Debug - Show Templates List
@@ -20,7 +20,7 @@
     #     dest: ../../docs/returned_object_examples/cube_template_info.json
 
     - name: Get template by template id
-      cube_template_info:
+      ionoscloudsdk.ionoscloud.cube_template_info:
         template_id: "{{ template_list.cube_templates[0]['id'] }}"
       register: template_response
 

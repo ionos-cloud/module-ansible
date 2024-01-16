@@ -7,7 +7,7 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: es/vit
@@ -19,7 +19,7 @@
         msg: "{{ datacenter_response }}"
 
     - name: Create LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         name: "{{ lan }}"
         public: true
@@ -31,7 +31,7 @@
         msg: "{{ ionos_cloud_lan }}"
 
     - name: Provision server
-      server:
+      ionoscloudsdk.ionoscloud.server:
          datacenter: "{{ datacenter }}"
          name: "{{ server }}"
          cores: 1
@@ -48,7 +48,7 @@
       register: ionos_cloud
 
     - name: Create NIC
-      nic:
+      ionoscloudsdk.ionoscloud.nic:
        name: "{{ nic }}"
        datacenter: "{{ datacenter }}"
        server: "{{ server }}"
@@ -69,7 +69,7 @@
          msg: "{{ ionos_cloud_nic }}"
 
     - name: Create a firewall rule
-      firewall_rule:
+      ionoscloudsdk.ionoscloud.firewall_rule:
           datacenter: "{{ datacenter }}"
           server: "{{ server }}"
           nic: "{{ nic }}"
@@ -80,7 +80,7 @@
           state: present
 
     - name: Remove firewall rule
-      firewall_rule:
+      ionoscloudsdk.ionoscloud.firewall_rule:
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          nic: "{{ nic }}"
@@ -90,7 +90,7 @@
          state: absent
 
     - name: Remove NIC
-      nic:
+      ionoscloudsdk.ionoscloud.nic:
          nic: "{{ ionos_cloud_nic.nic.id }}"
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
@@ -99,7 +99,7 @@
          state: absent
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter }}"
         state: absent
         wait: true

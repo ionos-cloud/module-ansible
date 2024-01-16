@@ -12,7 +12,7 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         location: "{{ location }}"
 
@@ -21,13 +21,13 @@
       register: cloud_init_config
 
     - name: Create LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         name: "{{ lan }}"
         public: true
 
     - name: Provision two servers
-      server:
+      ionoscloudsdk.ionoscloud.server:
         datacenter: "{{ datacenter }}"
         name: "{{ name }} %02d"
         cores: 1
@@ -50,7 +50,7 @@
       register: server_create_result
 
     - name: Provision same two servers again (idempotency)
-      server:
+      ionoscloudsdk.ionoscloud.server:
         datacenter: "{{ datacenter }}"
         name: "{{ name }} %02d"
         cores: 1
@@ -73,7 +73,7 @@
       register: server_create_result_idempotency
 
     - name: List Servers
-      server_info:
+      ionoscloudsdk.ionoscloud.server_info:
         datacenter: "{{ datacenter }}"
       register: server_list_response
 
@@ -97,7 +97,7 @@
         msg: "Changed should be false for idempotency create"
 
     - name: Update servers
-      server:
+      ionoscloudsdk.ionoscloud.server:
         datacenter: "{{ datacenter }}"
         instance_ids:
           - "{{ name }} 01"
@@ -109,7 +109,7 @@
         state: update
 
     - name: Update server with new name
-      server:
+      ionoscloudsdk.ionoscloud.server:
         datacenter: "{{ datacenter }}"
         instance_ids: "{{ name }} 01"
         name: "{{ name }}"
@@ -125,7 +125,7 @@
         msg: "{{ server_rename_result }}"
 
     - name: Stop servers
-      server:
+      ionoscloudsdk.ionoscloud.server:
         datacenter: "{{ datacenter }}"
         instance_ids:
           - "{{ name }}"
@@ -134,7 +134,7 @@
         state: stopped
 
     - name: Start servers
-      server:
+      ionoscloudsdk.ionoscloud.server:
         datacenter: "{{ datacenter }}"
         instance_ids:
           - "{{ name }}"
@@ -143,12 +143,12 @@
         state: running
 
     - name: Get all servers for a given datacenter
-      server_info:
+      ionoscloudsdk.ionoscloud.server_info:
         datacenter: "{{ datacenter }}"
       register: server_list_response
 
     - name: Get only the servers that need to be upgraded
-      server_info:
+      ionoscloudsdk.ionoscloud.server_info:
         datacenter: "{{ datacenter }}"
         upgrade_needed: true
       register: servers_list_upgrade_response
@@ -162,7 +162,7 @@
         var: servers_list_upgrade_response
 
     - name: Start servers
-      server:
+      ionoscloudsdk.ionoscloud.server:
         datacenter: "{{ datacenter }}"
         instance_ids:
           - "{{ name }}"
@@ -171,7 +171,7 @@
         state: running
 
     - name: Remove servers
-      server:
+      ionoscloudsdk.ionoscloud.server:
         datacenter: "{{ datacenter }}"
         instance_ids:
           - "{{ name }}"
@@ -181,7 +181,7 @@
         state: absent
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter }}"
         state: absent
         wait: true

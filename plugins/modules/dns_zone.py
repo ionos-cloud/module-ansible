@@ -107,7 +107,7 @@ class DnsZoneModule(CommonIonosModule):
         self.returned_key = RETURNED_KEY
         self.object_name = OBJECT_NAME
         self.sdks = [ionoscloud_dns]
-        self.user_agent = USER_AGENT
+        self.user_agents = [USER_AGENT]
         self.options = OPTIONS
         self.object_identity_paths = [['id'], ['properties', 'zone_name']]
 

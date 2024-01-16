@@ -7,14 +7,14 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         location: "de/txl"
         wait: True
       register: datacenter_response
 
     - name: Create LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         name: "{{ lan }}"
         public: true
@@ -25,7 +25,7 @@
         msg: "{{ lan_response }}"
 
     - name: Provision server
-      server:
+      ionoscloudsdk.ionoscloud.server:
         datacenter: "{{ datacenter }}"
         name: "{{ server }}"
         cores: 1
@@ -41,7 +41,7 @@
       register: server_response
 
     - name: Create NIC
-      nic:
+      ionoscloudsdk.ionoscloud.nic:
        datacenter: "{{ datacenter }}"
        server: "{{ server }}"
        name: "{{ nic }}"
@@ -54,7 +54,7 @@
       register: nic_response
 
     - name: Create a nic flowlog
-      nic_flowlog:
+      ionoscloudsdk.ionoscloud.nic_flowlog:
         name: "{{ name }}"
         action: "ACCEPTED"
         direction: "INGRESS"
@@ -74,7 +74,7 @@
     #     dest: ../../docs/returned_object_examples/nic_flowlog.json
 
     - name: List NIC Flowlogs
-      nic_flowlog_info:
+      ionoscloudsdk.ionoscloud.nic_flowlog_info:
           datacenter: "{{ datacenter }}"
           server: "{{ server }}"
           nic: "{{ nic }}"
@@ -86,7 +86,7 @@
     #     dest: ../../docs/returned_object_examples/nic_flowlog_info.json
 
     - name: Update a nic flowlog
-      nic_flowlog:
+      ionoscloudsdk.ionoscloud.nic_flowlog:
         name: "{{ name }}"
         action: "ALL"
         direction: "INGRESS"
@@ -103,7 +103,7 @@
         msg: "{{ flowlog_update_response }}"
 
     - name: Delete a nic flowlog
-      nic_flowlog:
+      ionoscloudsdk.ionoscloud.nic_flowlog:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         server: "{{ server_response.machines[0].id }}"
         nic: "{{ nic_response.nic.id }}"
@@ -114,7 +114,7 @@
       register: flowlog_delete_response
 
     - name: Delete a nic flowlog
-      nic_flowlog:
+      ionoscloudsdk.ionoscloud.nic_flowlog:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         server: "{{ server_response.machines[0].id }}"
         nic: "{{ nic_response.nic.id }}"
@@ -129,7 +129,7 @@
         msg: "{{ flowlog_delete_response }}"
 
     - name: Remove NIC
-      nic:
+      ionoscloudsdk.ionoscloud.nic:
         nic: "{{ nic_response.nic.id }}"
         datacenter: "{{ datacenter }}"
         server: "{{ server_response.machines[0].id }}"
@@ -138,7 +138,7 @@
         state: absent
 
     - name: Remove server
-      server:
+      ionoscloudsdk.ionoscloud.server:
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} 01"
@@ -147,7 +147,7 @@
          state: absent
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         state: absent
         wait: true

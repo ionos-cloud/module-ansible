@@ -7,7 +7,7 @@
 
   tasks:
     - name: Create pcc
-      pcc:
+      ionoscloudsdk.ionoscloud.pcc:
         name: "{{ name }}"
         description: "{{ description }}"
       register: result
@@ -18,7 +18,7 @@
     #     dest: ../../docs/returned_object_examples/pcc.json
 
     - name: List PCCs
-      pcc_info:
+      ionoscloudsdk.ionoscloud.pcc_info:
       register: pcc_list_response
 
     # - name: Print output to file
@@ -31,18 +31,18 @@
         msg: "{{ result }}"
 
     - name: Update pcc
-      pcc:
+      ionoscloudsdk.ionoscloud.pcc:
         pcc:  "{{ name }}"
         name: "RENAMED {{ name }}"
         description: "{{ description }} - RENAME"
         state: update
 
     - name: Remove pcc
-      pcc:
+      ionoscloudsdk.ionoscloud.pcc:
         pcc: "{{ result.pcc.id }}"
         state: absent
 
     - name: Remove non-existent pcc
-      pcc:
+      ionoscloudsdk.ionoscloud.pcc:
         pcc: "non-existent-pcc"
         state: absent

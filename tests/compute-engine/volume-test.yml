@@ -10,12 +10,12 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         location: "{{ location }}"
 
     - name: Create volumes
-      volume:
+      ionoscloudsdk.ionoscloud.volume:
         datacenter: "{{ datacenter }}"
         name: "{{ name }} %02d"
         disk_type: SSD Premium
@@ -36,7 +36,7 @@
       register: volume_create_response
 
     - name: Create same volumes (Idempotency)
-      volume:
+      ionoscloudsdk.ionoscloud.volume:
         datacenter: "{{ datacenter }}"
         name: "{{ name }} %02d"
         disk_type: SSD Premium
@@ -65,7 +65,7 @@
         var: volume_create_response_idempotency
 
     - name: List Volumes
-      volume_info:
+      ionoscloudsdk.ionoscloud.volume_info:
         datacenter: "{{ datacenter }}"
       register: volume_list_response
 
@@ -81,7 +81,7 @@
         msg: "Changed should be false for idempotency create"
 
     - name: Update no change
-      volume:
+      ionoscloudsdk.ionoscloud.volume:
         datacenter: "{{ datacenter }}"
         instance_ids:
           - "{{ name }} 01"
@@ -108,7 +108,7 @@
         msg: "Changed should be false for"
 
     - name: Update volume
-      volume:
+      ionoscloudsdk.ionoscloud.volume:
         datacenter: "{{ datacenter }}"
         instance_ids:
           - "{{ name }} 01"
@@ -126,7 +126,7 @@
         state: update
 
     - name: Get all volumes for datacenter
-      volume_info:
+      ionoscloudsdk.ionoscloud.volume_info:
         datacenter: "{{ datacenter }}"
       register: volume_list_response
 
@@ -135,7 +135,7 @@
         var: volume_list_response
 
     - name: Delete volumes
-      volume:
+      ionoscloudsdk.ionoscloud.volume:
         datacenter: "{{ datacenter }}"
         instance_ids:
           - "{{ name }} modified"
@@ -144,7 +144,7 @@
         state: absent
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter }}"
         state: absent
         wait: true

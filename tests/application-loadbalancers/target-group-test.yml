@@ -8,7 +8,7 @@
 
   tasks:
     - name: Create Target Group
-      target_group:
+      ionoscloudsdk.ionoscloud.target_group:
         name: "{{ name }}"
         algorithm: "ROUND_ROBIN"
         protocol: "HTTP"
@@ -26,7 +26,7 @@
           path: "./"
           method: "GET"
           match_type: "STATUS_CODE"
-          response: 200
+          response: '200'
           regex: false
           negate: false
         wait: true
@@ -41,8 +41,21 @@
     #     content: "{{target_group_response}}"
     #     dest: ../../docs/returned_object_examples/target_group.json
 
+    - name: List Target Groups
+      ionoscloudsdk.ionoscloud.target_group_info:
+      register: target_groups_response
+
+    - name: Debug - Show Target Groups
+      debug:
+         msg: "{{ target_groups_response }}"
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{target_groups_response}}"
+    #     dest: ../../docs/returned_object_examples/target_groups.json
+
     - name: Update Target Group
-      target_group:
+      ionoscloudsdk.ionoscloud.target_group:
         name: "{{ name }} - UPDATED"
         algorithm: "ROUND_ROBIN"
         protocol: "HTTP"
@@ -56,7 +69,7 @@
          msg: "{{ target_group_response_update }}"
 
     - name: Remove Target Group
-      target_group:
+      ionoscloudsdk.ionoscloud.target_group:
        target_group: "{{ target_group_response.target_group.id }}"
        wait: true
        wait_timeout: 2000

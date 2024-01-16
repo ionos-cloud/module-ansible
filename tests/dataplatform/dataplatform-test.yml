@@ -7,13 +7,13 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         location: de/fra
       register: datacenter_response
 
     - name: Create Data Platform cluster
-      dataplatform_cluster:
+      ionoscloudsdk.ionoscloud.dataplatform_cluster:
         name: "{{ name }}"
         dataplatform_version: "23.7"
         datacenter: "{{ datacenter_response.datacenter.id }}"
@@ -31,7 +31,7 @@
     #     dest: ../../docs/returned_object_examples/dataplatform_cluster.json
 
     - name: Patch Data Platform cluster no change
-      dataplatform_cluster:
+      ionoscloudsdk.ionoscloud.dataplatform_cluster:
         name: "{{ name }}"
         dataplatform_version: "23.7"
         datacenter: "{{ datacenter_response.datacenter.id }}"
@@ -46,7 +46,7 @@
         msg: "Changed should be false"
 
     - name: Patch Data Platform cluster no change
-      dataplatform_cluster:
+      ionoscloudsdk.ionoscloud.dataplatform_cluster:
         name: "{{ name }}"
         dataplatform_version: "23.7"
         datacenter: "{{ datacenter_response.datacenter.properties.name }}"
@@ -62,7 +62,7 @@
         msg: "Changed should be false"
 
     - name: Patch Data Platform cluster no change
-      dataplatform_cluster:
+      ionoscloudsdk.ionoscloud.dataplatform_cluster:
         cluster: "{{ name }}"
         dataplatform_version: "23.7"
         allow_replace: False
@@ -81,7 +81,7 @@
         msg: "Changed should be false"
 
     - name: Patch Data Platform cluster
-      dataplatform_cluster:
+      ionoscloudsdk.ionoscloud.dataplatform_cluster:
         name: "{{ name }}"
         dataplatform_version: "23.7"
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
@@ -93,7 +93,7 @@
         wait_timeout: 7200
 
     - name: Get all Data Platform clusters
-      dataplatform_cluster_info:
+      ionoscloudsdk.ionoscloud.dataplatform_cluster_info:
       register: cluster_list_response
 
     # - name: Print output to file
@@ -102,17 +102,17 @@
     #     dest: ../../docs/returned_object_examples/dataplatform_cluster_info.json
 
     - name: Get kubeconfig by ID
-      dataplatform_cluster_config:
+      ionoscloudsdk.ionoscloud.dataplatform_cluster_config:
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         config_file: 'config.yaml'
 
     - name: Get kubeconfig by name
-      dataplatform_cluster_config:
+      ionoscloudsdk.ionoscloud.dataplatform_cluster_config:
         cluster: "{{ cluster_response.dataplatform_cluster.properties.name }}"
         config_file: 'config.yaml'
 
     - name: Create DataPlatform cluster nodepool
-      dataplatform_nodepool:
+      ionoscloudsdk.ionoscloud.dataplatform_nodepool:
         name: "my-nodepool"
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         node_count: 2
@@ -137,7 +137,7 @@
       register: result
 
     - name: Create DataPlatform cluster nodepool no change
-      dataplatform_nodepool:
+      ionoscloudsdk.ionoscloud.dataplatform_nodepool:
         name: "my-nodepool"
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         node_count: 2
@@ -170,7 +170,7 @@
     #     dest: ../../docs/returned_object_examples/dataplatform_nodepool.json
 
     - name: Update DataPlatform cluster nodepool no change
-      dataplatform_nodepool:
+      ionoscloudsdk.ionoscloud.dataplatform_nodepool:
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         nodepool: "{{ result.dataplatform_nodepool.properties.name }}"
         name: "my-nodepool"
@@ -204,7 +204,7 @@
         msg: "Changed should be false"
 
     - name: Update DataPlatform cluster nodepool no change 2
-      dataplatform_nodepool:
+      ionoscloudsdk.ionoscloud.dataplatform_nodepool:
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         nodepool: "{{ result.dataplatform_nodepool.properties.name }}"
         node_count: 2
@@ -231,7 +231,7 @@
         msg: "Changed should be false"
 
     - name: Update DataPlatform cluster nodepool
-      dataplatform_nodepool:
+      ionoscloudsdk.ionoscloud.dataplatform_nodepool:
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         nodepool: "{{ result.dataplatform_nodepool.properties.name }}"
         node_count: 2
@@ -249,7 +249,7 @@
         state: update
 
     - name: Get all DataPlaform nodepools from a specific cluster
-      dataplatform_nodepool_info:
+      ionoscloudsdk.ionoscloud.dataplatform_nodepool_info:
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
       register: nodepool_list_response
 
@@ -259,21 +259,21 @@
     #     dest: ../../docs/returned_object_examples/dataplatform_nodepool_info.json
 
     - name: Delete DataPlatform cluster nodepool
-      dataplatform_nodepool:
+      ionoscloudsdk.ionoscloud.dataplatform_nodepool:
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         nodepool: "{{ result.dataplatform_nodepool.id }}"
         wait: true
         state: absent
 
     - name: Delete Data Platform cluster
-      dataplatform_cluster:
+      ionoscloudsdk.ionoscloud.dataplatform_cluster:
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         state: absent
         wait: true
         wait_timeout: 2000
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         state: absent
         wait: true

@@ -8,14 +8,14 @@
   tasks:
 
   - name: Create Pipeline
-    pipeline:
+    ionoscloudsdk.ionoscloud.pipeline:
       name: "{{pipeline_name}}"
       logs: "{{pipeline_logs}}"
       wait: true
     register: pipeline_response
 
   - name: List Pipelines
-    pipeline_info:
+    ionoscloudsdk.ionoscloud.pipeline_info:
     register: pipelines_response
 
   - name: Show Pipelines
@@ -28,7 +28,7 @@
   #     dest: ../../docs/returned_object_examples/pipeline_info.json
 
   - name: Update pipeline
-    pipeline:
+    ionoscloudsdk.ionoscloud.pipeline:
       pipeline: "{{ pipeline_response.pipeline.properties.name }}"
       name: "{{pipeline_name_updated}}"
       logs: "{{pipeline_logs_updated}}"
@@ -41,7 +41,7 @@
   #     dest: ../../docs/returned_object_examples/pipeline.json
 
   - name: Update pipeline no change
-    pipeline:
+    ionoscloudsdk.ionoscloud.pipeline:
       pipeline: "{{ updated_pipeline_response.pipeline.properties.name }}"
       name: "{{pipeline_name_updated}}"
       allow_replace: False
@@ -55,12 +55,12 @@
       msg: "Changed should be false"
 
   - name: Renew Pipeline key
-    pipeline:
+    ionoscloudsdk.ionoscloud.pipeline:
       pipeline: "{{ updated_pipeline_response.pipeline.properties.name }}"
       state: renew
 
   - name: Delete pipeline
-    pipeline:
+    ionoscloudsdk.ionoscloud.pipeline:
       pipeline: "{{ updated_pipeline_response.pipeline.properties.name }}"
       wait: true
       state: absent

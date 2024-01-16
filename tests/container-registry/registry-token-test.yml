@@ -8,7 +8,7 @@
   tasks:
 
   - name: Create Registry
-    registry:
+    ionoscloudsdk.ionoscloud.registry:
       name: "{{registry_name}}"
       location: de/fra
       garbage_collection_schedule:
@@ -23,7 +23,7 @@
   #     dest: ../../docs/returned_object_examples/registry.json
 
   - name: List Registries
-    registry_info:
+    ionoscloudsdk.ionoscloud.registry_info:
     register: registries_response
 
   # - name: Print output to file
@@ -32,7 +32,7 @@
   #     dest: ../../docs/returned_object_examples/registry_info.json
 
   - name: Create Registry Token
-    registry_token:
+    ionoscloudsdk.ionoscloud.registry_token:
       registry: "{{ registry_response.registry.id }}"
       name: testRegistryToken
       scopes:
@@ -54,7 +54,7 @@
       var: registry_token_response
 
   - name: List Registry Tokens
-    registry_token_info:
+    ionoscloudsdk.ionoscloud.registry_token_info:
       registry: "{{ registry_response.registry.id }}"
     register: registry_tokens_response
 
@@ -68,7 +68,7 @@
       var: registry_tokens_response.result
 
   - name: Update Registry Token
-    registry_token:
+    ionoscloudsdk.ionoscloud.registry_token:
       registry: "{{ registry_response.registry.id }}"
       registry_token: "{{ registry_token_response.registry_token.properties.name }}"
       scopes:
@@ -84,7 +84,7 @@
     register: registry_token_response
 
   - name: Update Registry Token 2
-    registry_token:
+    ionoscloudsdk.ionoscloud.registry_token:
       registry: "{{ registry_response.registry.id }}"
       registry_token: "{{ registry_token_response.registry_token.properties.name }}"
       scopes:
@@ -106,14 +106,14 @@
       msg: "Changed should be false"
 
   - name: Delete Registry Token
-    registry_token:
+    ionoscloudsdk.ionoscloud.registry_token:
       registry: "{{ registry_response.registry.id }}"
       registry_token: "{{ registry_token_response.registry_token.properties.name }}"
       state: absent
     register: registry_token_response
 
   - name: Delete Registry
-    registry:
+    ionoscloudsdk.ionoscloud.registry:
       registry: "{{ registry_response.registry.properties.name }}"
       wait: true
       state: absent

@@ -8,7 +8,7 @@
   tasks:
 
   - name: Create Registry
-    registry:
+    ionoscloudsdk.ionoscloud.registry:
       name: "{{registry_name}}"
       location: de/fra
       garbage_collection_schedule:
@@ -22,7 +22,7 @@
     register: registry_response
 
   - name: List Registries
-    registry_info:
+    ionoscloudsdk.ionoscloud.registry_info:
     register: registries_response
 
   - name: Show Registries
@@ -30,7 +30,7 @@
       var: registries_response
 
   - name: List Repositories
-    registry_repository_info:
+    ionoscloudsdk.ionoscloud.registry_repository_info:
       registry: "{{ registry_response.registry.properties.name }}"
     register: repositories_response
 
@@ -39,13 +39,13 @@
       var: repositories_response
 
   - name: Ensure Repository does not exist
-    registry_repository:
+    ionoscloudsdk.ionoscloud.registry_repository:
       registry: "{{ registry_response.registry.properties.name }}"
       repository: repo-name
       state: absent
 
   - name: List artifacts
-    registry_artifact_info:
+    ionoscloudsdk.ionoscloud.registry_artifact_info:
       registry: "{{ registry_response.registry.properties.name }}"
     register: artifacts_response
 
@@ -54,7 +54,7 @@
       var: artifacts_response
 
   - name: Update Registry
-    registry:
+    ionoscloudsdk.ionoscloud.registry:
       registry: "{{ registry_response.registry.properties.name }}"
       garbage_collection_schedule:
         days: 
@@ -69,7 +69,7 @@
     register: updated_registry_response
 
   - name: Update Registry no change
-    registry:
+    ionoscloudsdk.ionoscloud.registry:
       registry: "{{ registry_response.registry.properties.name }}"
       garbage_collection_schedule:
         days: 
@@ -89,7 +89,7 @@
       msg: "Changed should be false"
 
   - name: Replace Registry
-    registry:
+    ionoscloudsdk.ionoscloud.registry:
       registry: "{{ registry_response.registry.properties.name }}"
       name: "{{ registry_response.registry.properties.name }}2"
       garbage_collection_schedule:
@@ -109,7 +109,7 @@
       var: updated_registry_response
 
   - name: Delete Registry
-    registry:
+    ionoscloudsdk.ionoscloud.registry:
       registry: "{{ updated_registry_response.registry.properties.name }}"
       wait: true
       state: absent

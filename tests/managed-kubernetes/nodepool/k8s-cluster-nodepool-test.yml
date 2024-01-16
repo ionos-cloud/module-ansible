@@ -7,14 +7,14 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: "{{ location }}"
       register: datacenter_response
 
     - name: Create LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         name: "{{ lan }}"
         public: false
@@ -22,7 +22,7 @@
 
 
     - name: Create ipblock for create nodepool
-      ipblock:
+      ionoscloudsdk.ionoscloud.ipblock:
         name: "{{ name }} - create"
         location: "{{ location }}"
         size: 4
@@ -30,7 +30,7 @@
       register: ipblock_response_create
 
     - name: Create ipblock for update nodepool
-      ipblock:
+      ionoscloudsdk.ionoscloud.ipblock:
         name: "{{ name }} - update"
         location: "{{ location }}"
         size: 5
@@ -38,7 +38,7 @@
       register: ipblock_response_update
 
     - name: Create k8s cluster
-      k8s_cluster:
+      ionoscloudsdk.ionoscloud.k8s_cluster:
         cluster_name: "my-cluster-{{ 100 |random}}"
         maintenance_window:
           day_of_the_week: "Wednesday"
@@ -52,7 +52,7 @@
     #     dest: ../../../docs/returned_object_examples/k8s_cluster.json
 
     - name: List Clusters
-      k8s_cluster_info:
+      ionoscloudsdk.ionoscloud.k8s_cluster_info:
       register: k8s_cluster_list_response
 
     # - name: Print output to file
@@ -61,7 +61,7 @@
     #     dest: ../../../docs/returned_object_examples/k8s_cluster_info.json
 
     - name: Create k8s cluster nodepool
-      k8s_nodepool:
+      ionoscloudsdk.ionoscloud.k8s_nodepool:
         name: "my-nodepool-{{ 100 |random}}"
         k8s_cluster:  "{{ cluster.cluster.id }}"
         datacenter: "{{ datacenter_response.datacenter.id }}"
@@ -99,7 +99,7 @@
          msg: "{{ result.nodepool }}"
 
     - name: List Nodepools
-      k8s_nodepool_info:
+      ionoscloudsdk.ionoscloud.k8s_nodepool_info:
         k8s_cluster:  "{{ cluster.cluster.id }}"
       register: k8s_nodepool_list_response
 
@@ -109,7 +109,7 @@
     #     dest: ../../../docs/returned_object_examples/k8s_nodepool_info.json
 
     - name: Update k8s cluster nodepool no change
-      k8s_nodepool:
+      ionoscloudsdk.ionoscloud.k8s_nodepool:
         k8s_cluster: "{{ cluster.cluster.id }}"
         datacenter: "{{ datacenter_response.datacenter.id }}"
         k8s_nodepool: "{{ result.nodepool.id }}"
@@ -146,7 +146,7 @@
         msg: "Changed should be false"
 
     - name: Update k8s cluster nodepool no change
-      k8s_nodepool:
+      ionoscloudsdk.ionoscloud.k8s_nodepool:
         k8s_cluster: "{{ cluster.cluster.id }}"
         k8s_nodepool: "{{ result.nodepool.id }}"
         node_count: 2
@@ -175,7 +175,7 @@
         msg: "Changed should be false"
 
     - name: Update k8s cluster nodepool
-      k8s_nodepool:
+      ionoscloudsdk.ionoscloud.k8s_nodepool:
         k8s_cluster: "{{ cluster.cluster.id }}"
         datacenter: "{{ datacenter_response.datacenter.id }}"
         k8s_nodepool: "{{ result.nodepool.id }}"
@@ -200,51 +200,51 @@
         state: update
 
     - name: Delete k8s cluster nodepool
-      k8s_nodepool:
+      ionoscloudsdk.ionoscloud.k8s_nodepool:
         k8s_cluster: "{{ cluster.cluster.id }}"
         k8s_nodepool: "{{ result.nodepool.id }}"
         wait: false
         state: absent
 
     - name: Delete k8s cluster nodepool
-      k8s_nodepool:
+      ionoscloudsdk.ionoscloud.k8s_nodepool:
         k8s_cluster: "{{ cluster.cluster.id }}"
         k8s_nodepool: "{{ result.nodepool.id }}"
         wait: true
         state: absent
 
     - name: Delete non-existent k8s cluster nodepool
-      k8s_nodepool:
+      ionoscloudsdk.ionoscloud.k8s_nodepool:
         k8s_cluster: "{{ cluster.cluster.id }}"
         k8s_nodepool: "non-existent-nodepool"
         wait: true
         state: absent
 
     - name: Delete k8s cluster
-      k8s_cluster:
+      ionoscloudsdk.ionoscloud.k8s_cluster:
         k8s_cluster: "{{ cluster.cluster.id }}"
         wait: true
         state: absent
 
     - name: Remove ipblock for create nodepool
-      ipblock:
+      ionoscloudsdk.ionoscloud.ipblock:
         ipblock: "{{ name }} - create"
         state: absent
 
     - name: Remove ipblock for update nodepool
-      ipblock:
+      ionoscloudsdk.ionoscloud.ipblock:
         ipblock: "{{ name }} - update"
         state: absent
 
     - name: Remove LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         lan: "{{ lan }}"
         state: absent
         wait: true
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter }}"
         state: absent
         wait: true

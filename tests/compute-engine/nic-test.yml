@@ -8,7 +8,7 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }}"
         wait: true
@@ -20,7 +20,7 @@
         msg: "{{ datacenter_response }}"
 
     - name: Provision server
-      server:
+      ionoscloudsdk.ionoscloud.server:
          datacenter: "{{ datacenter }}"
          name: "{{ server }}"
          cores: 1
@@ -38,13 +38,13 @@
       register: ionos_cloud
 
     - name: Create LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         name: "{{ lan }}"
         public: false
 
     - name: Create NIC
-      nic:
+      ionoscloudsdk.ionoscloud.nic:
        name: "{{ nic }}"
        datacenter: "{{ datacenter }}"
        server: "{{ server }}"
@@ -63,7 +63,7 @@
          msg: "{{ ionos_cloud_nic }}"
 
     - name: Update NIC
-      nic:
+      ionoscloudsdk.ionoscloud.nic:
        datacenter: "{{ datacenter }}"
        server: "{{ server }}"
        name: "new-nic"
@@ -79,7 +79,7 @@
           msg: "{{ updated_nic }}"
 
     - name: Remove NIC
-      nic:
+      ionoscloudsdk.ionoscloud.nic:
          nic: "{{ ionos_cloud_nic.nic.id }}"
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
@@ -88,7 +88,7 @@
          state: absent
 
     - name: Remove non-existent NIC
-      nic:
+      ionoscloudsdk.ionoscloud.nic:
          nic: "non-existent-nic"
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
@@ -97,7 +97,7 @@
          state: absent
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter }}"
         state: absent
         wait: true

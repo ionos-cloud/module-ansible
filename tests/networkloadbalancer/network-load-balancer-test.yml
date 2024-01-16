@@ -8,7 +8,7 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: "{{ location }}"
@@ -16,21 +16,21 @@
       register: datacenter_response
 
     - name: Create Listener LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         name: "listener_lan"
         public: false
       register: listener_lan
 
     - name: Create Target LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         name: "target_lan"
         public: false
       register: target_lan
 
     - name: Create Network Load Balancer
-      network_load_balancer:
+      ionoscloudsdk.ionoscloud.network_load_balancer:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         ips:
@@ -45,7 +45,7 @@
          msg: "{{ nlb_response }}"
 
     - name: Update Network Load Balancer
-      network_load_balancer:
+      ionoscloudsdk.ionoscloud.network_load_balancer:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
         name: "{{ name }} - UPDATE"
@@ -60,40 +60,40 @@
          msg: "{{ nlb_response_update }}"
 
     - name: Remove Network Load Balancer
-      network_load_balancer:
+      ionoscloudsdk.ionoscloud.network_load_balancer:
        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
        datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: false
        state: absent
 
     - name: Remove Network Load Balancer
-      network_load_balancer:
+      ionoscloudsdk.ionoscloud.network_load_balancer:
        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
        datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
        state: absent
 
     - name: Remove Network Load Balancer
-      network_load_balancer:
+      ionoscloudsdk.ionoscloud.network_load_balancer:
        network_load_balancer: "invalid-id"
        datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
        state: absent
 
     - name: Remove Listener LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         lan: "listener_lan"
         state: absent
 
     - name: Remove Target LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         lan: "target_lan"
         state: absent
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter }}"
         wait: true
         state: absent

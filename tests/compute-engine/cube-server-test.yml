@@ -11,12 +11,12 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
           name: "{{ datacenter }}"
           location: "de/txl"
 
     - name: Provision a server
-      cube_server:
+      ionoscloudsdk.ionoscloud.cube_server:
          datacenter: "{{ datacenter }}"
          name: "{{ name }} 01"
          disk_type: DAS
@@ -39,7 +39,7 @@
     #     dest: ../../docs/returned_object_examples/cube_server.json
 
     - name: Provision a server no change
-      cube_server:
+      ionoscloudsdk.ionoscloud.cube_server:
          datacenter: "{{ datacenter }}"
          name: "{{ name }} 01"
          disk_type: DAS
@@ -63,7 +63,7 @@
         msg: "Changed should be false"
 
     - name: Provision a server no change 2
-      cube_server:
+      ionoscloudsdk.ionoscloud.cube_server:
          datacenter: "{{ datacenter }}"
          instance_ids:
           - "{{ name }} 01"
@@ -87,7 +87,7 @@
         msg: "Changed should be false"
 
     - name: Update server
-      cube_server:
+      ionoscloudsdk.ionoscloud.cube_server:
          datacenter: "{{ datacenter }}"
          name: "{{ name }} - UPDATED"
          instance_ids:
@@ -97,7 +97,7 @@
          state: update
 
     - name: Suspend server
-      cube_server:
+      ionoscloudsdk.ionoscloud.cube_server:
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} - UPDATED"
@@ -113,7 +113,7 @@
          state: resume
 
     - name: Remove server
-      cube_server:
+      ionoscloudsdk.ionoscloud.cube_server:
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} - UPDATED"
@@ -122,7 +122,7 @@
          state: absent
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter }}"
         state: absent
         wait: true

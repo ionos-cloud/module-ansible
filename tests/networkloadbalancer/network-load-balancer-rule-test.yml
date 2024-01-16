@@ -8,7 +8,7 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: "{{ location }}"
@@ -16,21 +16,21 @@
       register: datacenter_response
 
     - name: Create Listener LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         name: "listener_lan"
         public: false
       register: listener_lan
 
     - name: Create Target LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         name: "target_lan"
         public: false
       register: target_lan
 
     - name: Create Network Load Balancer
-      network_load_balancer:
+      ionoscloudsdk.ionoscloud.network_load_balancer:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         ips:
@@ -46,7 +46,7 @@
     #     dest: ../../docs/returned_object_examples/network_load_balancer.json
 
     - name: List Network Load Balancers
-      network_load_balancer_info:
+      ionoscloudsdk.ionoscloud.network_load_balancer_info:
         datacenter: "{{ datacenter_response.datacenter.id }}"
       register: nlb_list_response
 
@@ -60,7 +60,7 @@
          msg: "{{ nlb_response }}"
 
     - name: Create Network Load Balancer Forwarding Rule
-      network_load_balancer_rule:
+      ionoscloudsdk.ionoscloud.network_load_balancer_rule:
         name: "{{ name }}"
         algorithm: "ROUND_ROBIN"
         protocol: "TCP"
@@ -86,7 +86,7 @@
     #     dest: ../../docs/returned_object_examples/network_load_balancer_rule.json
 
     - name: List Network Load Balancer Forwarding rules
-      network_load_balancer_forwardingrule_info:
+      ionoscloudsdk.ionoscloud.network_load_balancer_forwardingrule_info:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
       register: nlb_forwardingrule_list_response
@@ -101,7 +101,7 @@
          msg: "{{ nlb_forwarding_rule_response }}"
 
     - name: Update Network Load Balancer Forwarding Rule
-      network_load_balancer_rule:
+      ionoscloudsdk.ionoscloud.network_load_balancer_rule:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
         forwarding_rule: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
@@ -117,21 +117,21 @@
          msg: "{{ nlb_forwarding_rule_update_response }}"
 
     - name: Delete Network Load Balancer Forwarding Rule
-      network_load_balancer_rule:
+      ionoscloudsdk.ionoscloud.network_load_balancer_rule:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
         forwarding_rule: "{{ nlb_forwarding_rule_response.forwarding_rule.id }}"
         state: absent
 
     - name: Delete Network Load Balancer Forwarding Rule
-      network_load_balancer_rule:
+      ionoscloudsdk.ionoscloud.network_load_balancer_rule:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
         forwarding_rule: "invalid-id"
         state: absent
 
     - name: Remove Network Load Balancer
-      network_load_balancer:
+      ionoscloudsdk.ionoscloud.network_load_balancer:
        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
        datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
@@ -139,19 +139,19 @@
        state: absent
 
     - name: Remove Listener LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         lan: "listener_lan"
         state: absent
 
     - name: Remove Target LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         lan: "target_lan"
         state: absent
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter }}"
         wait: true
         state: absent
