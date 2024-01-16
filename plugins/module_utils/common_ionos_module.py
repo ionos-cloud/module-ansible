@@ -9,10 +9,10 @@ class CommonIonosModule():
     def __init__(self):
         self.object_identity_paths = None
     
-    def _should_replace_object(self, existing_object):
+    def _should_replace_object(self, existing_object, clients):
         pass
 
-    def _should_update_object(self, existing_object):
+    def _should_update_object(self, existing_object, clients):
         pass
 
 
