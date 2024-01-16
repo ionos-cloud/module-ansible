@@ -152,7 +152,148 @@ description:
      - This is a module that supports creating, updating, restoring or destroying Postgres Clusters
 version_added: "2.0"
 options:
-    jiopwerrgopihwgowejg
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    backup_id:
+        description:
+        - The ID of the backup to be used.
+        required: false
+    backup_location:
+        description:
+        - The S3 location where the backups will be stored.
+        required: false
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    connections:
+        description:
+        - Array of datacenters to connect to your cluster.
+        elements: dict
+        required: false
+    cores:
+        description:
+        - The number of CPU cores per instance.
+        required: false
+    db_password:
+        description:
+        - The password for the initial postgres user.
+        no_log: true
+        required: false
+    db_username:
+        description:
+        - The username for the initial PostgreSQL user. Some system usernames are restricted
+            (e.g. "postgres", "admin", "standby").
+        no_log: true
+        required: false
+    display_name:
+        description:
+        - The friendly name of your cluster.
+        required: false
+    instances:
+        description:
+        - The total number of instances in the cluster (one master and n-1 standbys).
+        required: false
+    location:
+        description:
+        - The physical location where the cluster will be created. This will be where
+            all of your instances live. Property cannot be modified after datacenter creation.
+        required: false
+    maintenance_window:
+        description:
+        - A weekly 4 hour-long window, during which maintenance might occur.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    postgres_cluster:
+        description:
+        - The ID or name of an existing Postgres Cluster.
+        required: false
+    postgres_version:
+        description:
+        - The PostgreSQL version of your cluster.
+        required: false
+    ram:
+        description:
+        - The amount of memory per instance in megabytes. Has to be a multiple of 1024.
+        required: false
+    recovery_target_time:
+        description:
+        - Recovery target time.
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        - restore
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    storage_size:
+        description:
+        - The amount of storage per instance in megabytes.
+        required: false
+    storage_type:
+        choices:
+        - HDD
+        - SSD
+        - SSD Standard
+        - SSD Premium
+        description:
+        - The storage type used in your cluster. (Value "SSD" is deprecated. Use the equivalent
+            "SSD Premium" instead)
+        required: false
+    synchronization_mode:
+        description:
+        - Represents different modes of replication.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -201,8 +342,42 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """- name: Create Postgres Cluster
+    postgres_cluster:
+      postgres_version: 12
+      instances: 1
+      cores: 1
+      ram: 2048
+      storage_size: 20480
+      storage_type: HDD
+      location: de/fra
+      connections:
+        - cidr: 192.168.1.106/24
+          datacenter: DatacenterName
+          lan: LanName
+      display_name: backuptest-04
+      synchronization_mode: ASYNCHRONOUS
+      db_username: test
+      db_password: 7357cluster
+      wait: true
+    register: cluster_response
+  
+- name: Update Postgres Cluster
+    postgres_cluster:
+      postgres_cluster: backuptest-04
+      postgres_version: 12
+      instances: 2
+      cores: 2
+      ram: 4096
+      storage_size: 30480
+      state: update
+      wait: true
+    register: updated_cluster_response
+  
+- name: Delete Postgres Cluster
+    postgres_cluster:
+      postgres_cluster: backuptest-04
+      state: absent
 """
 
 class PostgresClusterModule(CommonIonosModule):

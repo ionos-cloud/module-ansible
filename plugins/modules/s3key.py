@@ -70,7 +70,89 @@ description:
      - This is a simple module that supports creating or removing S3Keys.
 version_added: "2.0"
 options:
-    jiopwerrgopihwgowejg
+    active:
+        description:
+        - Denotes weather the S3 key is active.
+        required: false
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    idempotency:
+        choices:
+        - true
+        - false
+        default: false
+        description:
+        - Flag that dictates respecting idempotency. If an s3key already exists, returns
+            with already existing key instead of creating more.
+        required: false
+    key_id:
+        description:
+        - The ID of the S3 key.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    user:
+        description:
+        - The ID or email of the user
+        required: true
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -102,7 +184,24 @@ EXAMPLE_PER_STATE = {
 }
 
 EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+  - name: Create an s3key
+    s3key:
+      user: <user_id/email>
+  
+
+  - name: Update an s3key
+    s3key:
+      user: <user_id/email>
+      key_id: "00ca413c94eecc56857d
+      active: False
+      state: update
+  
+
+  - name: Remove an s3key
+    s3key:
+      user: <user_id/email>
+      key_id: 00ca413c94eecc56857d
+      state: absent
 """
 
 

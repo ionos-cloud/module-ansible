@@ -71,7 +71,88 @@ description:
      - This is a module that supports creating and destroying Mongo Cluster Users
 version_added: "2.0"
 options:
-    jiopwerrgopihwgowejg
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    mongo_cluster:
+        description:
+        - The UUID or name of an existing Mongo Cluster.
+        required: true
+    mongo_password:
+        description:
+        - The password of the user.
+        no_log: true
+        required: false
+    mongo_username:
+        description:
+        - The username of the user.
+        required: true
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    state:
+        choices:
+        - present
+        - update
+        - absent
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    user_roles:
+        description:
+        - 'A list of mongodb user roles. A user role is represented as a dict containing
+            2 keys:''role'': has one of the following values: ''read'', ''readWrite''
+            or ''readAnyDatabase''''database'': the name of the databse to which the role
+            applies'
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -112,8 +193,34 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """- name: Create Cluster User
+    mongo_cluster_user:
+      mongo_cluster: MongoClusterName
+      mongo_username: testuser
+      mongo_password: <password>
+      user_roles:
+        - role: read
+          database: test
+    register: mongo_user_response
+  
+- name: Update User
+    mongo_cluster_user:
+      mongo_cluster: MongoClusterName
+      mongo_username: testuser
+      mongo_password: <newPassword>
+      user_roles:
+        - role: read
+          database: test
+        - role: readWrite
+          database: test
+      state: update
+    register: mongo_user_response
+  
+- name: Delete Cluster User
+    mongo_cluster_user:
+      mongo_cluster: MongoClusterName
+      mongo_username: testuser
+    register: mongo_user_response
 """
 
 

@@ -134,7 +134,135 @@ description:
      - This module allows you to create, update or remove a group.
 version_added: "2.0"
 options:
-    ilowuerhfgwoqrghbqwoguh
+    access_activity_log:
+        description:
+        - Activity log access privilege.
+        required: false
+    access_and_manage_certificates:
+        description:
+        - Privilege for a group to access and manage certificates.
+        required: false
+    access_and_manage_monitoring:
+        description:
+        - Privilege for a group to access and manage monitoring related functionality
+            (access metrics, CRUD on alarms, alarm-actions etc) using Monotoring-as-a-Service
+            (MaaS).
+        required: false
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    create_backup_unit:
+        description:
+        - Create backup unit privilege.
+        required: false
+    create_datacenter:
+        description:
+        - Boolean value indicating if the group is allowed to create virtual data centers.
+        required: false
+    create_flow_log:
+        description:
+        - Create Flow Logs privilege.
+        required: false
+    create_internet_access:
+        description:
+        - Create internet access privilege.
+        required: false
+    create_k8s_cluster:
+        description:
+        - Create Kubernetes cluster privilege.
+        required: false
+    create_pcc:
+        description:
+        - User privilege to create a cross connect.
+        required: false
+    create_snapshot:
+        description:
+        - Create snapshot privilege.
+        required: false
+    group:
+        description:
+        - The ID or name of the group.
+        required: false
+    manage_dbaas:
+        description:
+        - Privilege for a group to manage DBaaS related functionality.
+        required: false
+    name:
+        description:
+        - The name of the resource.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    reserve_ip:
+        description:
+        - Reserve IP block privilege.
+        required: false
+    s3_privilege:
+        description:
+        - S3 privilege.
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    users:
+        description:
+        - A list of (non-administrator) user IDs or emails to associate with the group.
+            Set to empty list ([]) to remove all users from the group.
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -170,8 +298,30 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """# Create a group
+  - name: Create group
+    group:
+      name: guests
+      create_datacenter: true
+      create_snapshot: true
+      reserve_ip: false
+      access_activity_log: false
+      state: present
+  
+# Update a group
+  - name: Update group
+    group:
+      group: guests
+      create_datacenter: false
+      users:
+        - john.smith@test.com
+      state: update
+  
+# Remove a group
+  - name: Remove group
+    group:
+      group: guests
+      state: absent
 """
 
 

@@ -100,7 +100,106 @@ description:
      - This module allows you to create, update or remove a user.
 version_added: "2.0"
 options:
-    jiopwerrgopihwgowejg
+    administrator:
+        description:
+        - Indicates if the user has admin rights.
+        required: false
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    email:
+        description:
+        - The email address of the user.
+        required: false
+    firstname:
+        description:
+        - The first name of the user.
+        required: false
+    force_sec_auth:
+        description:
+        - Indicates if secure authentication should be forced on the user.
+        required: false
+    groups:
+        description:
+        - A list of group IDs or names where the user (non-administrator) is to be added.
+            Set to empty list ([]) to remove the user from all groups.
+        required: false
+    lastname:
+        description:
+        - The last name of the user.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    sec_auth_active:
+        description:
+        - Indicates if secure authentication is active for the user.
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    user:
+        description:
+        - The ID or name of the user.
+        required: false
+    user_password:
+        description:
+        - A password for the user.
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -141,8 +240,35 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """# Create a user
+  - name: Create user
+    user:
+      firstname: John
+      lastname: Doe
+      email: <email>
+      user_password: <password>
+      administrator: true
+      state: present
+  
+# Update a user
+  - name: Update user
+    user:
+      user: <email>
+      firstname: John II
+      lastname: Doe
+      email: <new_email>
+      administrator: false
+      force_sec_auth: false
+      groups:
+        - Developers
+        - Testers
+      state: update
+  
+# Remove a user
+  - name: Remove user
+    user:
+      user: <email>
+      state: absent
 """
 
 

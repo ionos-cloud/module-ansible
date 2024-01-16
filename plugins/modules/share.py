@@ -70,7 +70,84 @@ description:
      - This module allows you to add, update or remove resource shares.
 version_added: "2.0"
 options:
-    jiopwerrgopihwgowejg
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    edit_privilege:
+        description:
+        - edit privilege on a resource
+        required: false
+    group:
+        description:
+        - The name or ID of the group.
+        required: true
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    resource_ids:
+        description:
+        - A list of resource IDs to add, update or remove as shares.
+        required: true
+    share_privilege:
+        description:
+        - share privilege on a resource
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -110,8 +187,34 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """# Create shares
+  - name: Create share
+    share:
+      group: Demo
+      edit_privilege: true
+      share_privilege: true
+      resource_ids:
+        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
+        - ba7efccb-a761-11e7-90a7-525400f64d8d
+      state: present
+  
+# Update shares
+  - name: Update shares
+    share:
+      group: Demo
+      edit_privilege: false
+      resource_ids:
+        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
+      state: update
+  
+# Remove shares
+  - name: Remove shares
+    share:
+      group: Demo
+      resource_ids:
+        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
+        - ba7efccb-a761-11e7-90a7-525400f64d8d
+      state: absent
 """
 
 

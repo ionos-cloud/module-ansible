@@ -190,7 +190,199 @@ description:
        When the virtual machine is created it can optionally wait for it to be 'running' before returning.
 version_added: "2.0"
 options:
-    ilowuerhfgwoqrghbqwoguh
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    assign_public_ip:
+        choices:
+        - true
+        - false
+        default: false
+        description:
+        - This will assign the machine to the public LAN. If no LAN exists with public
+            Internet access it is created.
+        required: false
+    availability_zone:
+        choices:
+        - AUTO
+        - ZONE_1
+        - ZONE_2
+        description:
+        - The availability zone in which the server should be provisioned.
+        required: false
+        version_added: '2.3'
+    boot_cdrom:
+        description:
+        - The CDROM used for boot.
+        required: false
+    boot_volume:
+        description:
+        - The volume used for boot.
+        required: false
+    bus:
+        choices:
+        - IDE
+        - VIRTIO
+        default: VIRTIO
+        description:
+        - The bus type for the volume.
+        required: false
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    count:
+        default: 1
+        description:
+        - The number of virtual machines to create.
+        required: false
+    datacenter:
+        description:
+        - The datacenter to provision this virtual machine.
+        required: true
+    disk_type:
+        choices:
+        - HDD
+        - SSD
+        - SSD Standard
+        - SSD Premium
+        - DAS
+        default: HDD
+        description:
+        - The disk type for the volume.
+        required: false
+    image:
+        description:
+        - The image alias or ID for creating the virtual machine.
+        required: false
+    image_password:
+        description:
+        - Password set for the administrative user.
+        no_log: true
+        required: false
+        version_added: '2.2'
+    instance_ids:
+        default: []
+        description:
+        - list of instance ids. Should only contain one ID if renaming in update state
+        required: false
+    lan:
+        description:
+        - The ID or name of the LAN you wish to add the servers to (can be a string or
+            a number).
+        required: false
+    location:
+        choices:
+        - us/las
+        - us/ewr
+        - de/fra
+        - de/fkb
+        - de/txl
+        - gb/lhr
+        default: us/las
+        description:
+        - The datacenter location. Use only if you want to create the Datacenter or else
+            this value is ignored.
+        required: false
+    name:
+        description:
+        - The name of the  resource.
+        required: false
+    nat:
+        choices:
+        - true
+        - false
+        default: false
+        description:
+        - Boolean value indicating if the private IP address has outbound access to the
+            public Internet.
+        required: false
+        version_added: '2.3'
+    nic_ips:
+        description:
+        - The list of IPS for the NIC.
+        elements: str
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    remove_boot_volume:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Remove the bootVolume of the virtual machine you're destroying.
+        required: false
+    ssh_keys:
+        default: []
+        description:
+        - Public SSH keys allowing access to the virtual machine.
+        required: false
+        version_added: '2.2'
+    state:
+        choices:
+        - resume
+        - suspend
+        - absent
+        - present
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    template_uuid:
+        description:
+        - The ID of the template for creating a CUBE server; the available templates for
+            CUBE servers can be found on the templates resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    user_data:
+        description:
+        - The cloud-init configuration for the volume as base64 encoded string.
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionos-cloud >= 5.2.0"
@@ -257,8 +449,61 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """# Provisioning example. This will create three CUBE servers and enumerate their names.
+    - cube_server:
+        datacenter: Tardis One
+        name: web%02d.stackpointcloud.com
+        template_id: <template_id>
+        image: ubuntu:latest
+        location: us/las
+        count: 3
+        assign_public_ip: true
+  
+# Update CUBE Virtual machines
+    - cube_server:
+        datacenter: Tardis One
+        instance_ids:
+        - web001.stackpointcloud.com
+        - web002.stackpointcloud.com
+        availability_zone: ZONE_1
+        state: update
+  # Rename CUBE Virtual machine
+    - cube_server:
+        datacenter: Tardis One
+        instance_ids: web001.stackpointcloud.com
+        name: web101.stackpointcloud.com
+        availability_zone: ZONE_1
+        state: update
+
+# Removing CUBE Virtual machines
+    - cube_server:
+        datacenter: Tardis One
+        instance_ids:
+        - 'web001.stackpointcloud.com'
+        - 'web002.stackpointcloud.com'
+        - 'web003.stackpointcloud.com'
+        wait_timeout: 500
+        state: absent
+  
+# Starting CUBE Virtual Machines.
+    - cube_server:
+        datacenter: Tardis One
+        instance_ids:
+        - 'web001.stackpointcloud.com'
+        - 'web002.stackpointcloud.com'
+        - 'web003.stackpointcloud.com'
+        wait_timeout: 500
+        state: resume
+  
+# Suspending CUBE Virtual Machines
+    - cube_server:
+        datacenter: Tardis One
+        instance_ids:
+        - 'web001.stackpointcloud.com'
+        - 'web002.stackpointcloud.com'
+        - 'web003.stackpointcloud.com'
+        wait_timeout: 500
+        state: suspend
 """
 
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)

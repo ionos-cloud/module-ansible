@@ -89,7 +89,111 @@ description:
      - This module allows you to create or remove a LAN.
 version_added: "2.4"
 options:
-    ilowuerhfgwoqrghbqwoguh
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    datacenter:
+        description:
+        - The datacenter name or UUID in which to operate.
+        required: true
+    ip_failover:
+        description:
+        - IP failover configurations for lan
+        elements: dict
+        required: false
+    ipv6_cidr:
+        description:
+        - For a GET request, this value is either 'null' or contains the LAN's /64 IPv6
+            CIDR block if this LAN is IPv6 enabled. For POST/PUT/PATCH requests, 'AUTO'
+            will result in enabling this LAN for IPv6 and automatically assign a /64 IPv6
+            CIDR block to this LAN and /80 IPv6 CIDR blocks to the NICs and one /128 IPv6
+            address to each connected NIC. If you choose the IPv6 CIDR block for the LAN
+            on your own, then you must provide a /64 block, which is inside the IPv6 CIDR
+            block of the virtual datacenter and unique inside all LANs from this virtual
+            datacenter. If you enable IPv6 on a LAN with NICs, those NICs will get a /80
+            IPv6 CIDR block and one IPv6 address assigned to each automatically, unless
+            you specify them explicitly on the LAN and on the NICs. A virtual data center
+            is limited to a maximum of 256 IPv6-enabled LANs.
+        required: false
+    lan:
+        description:
+        - The LAN name or UUID.
+        required: false
+    name:
+        description:
+        - The name of the  resource.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    pcc:
+        description:
+        - The unique identifier of the Cross Connect the LAN is connected to, if any.
+            It needs to be ensured that IP addresses of the NICs of all LANs connected
+            to a given Cross Connect is not duplicated and belongs to the same subnet
+            range.
+        required: false
+    public:
+        default: false
+        description:
+        - Indicates if the LAN is connected to the internet or not.
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -126,8 +230,31 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """# Create a LAN
+- name: Create private LAN
+  lan:
+    datacenter: Virtual Datacenter
+    name: nameoflan
+    public: false
+    state: present
+  
+# Update a LAN
+- name: Update LAN
+  lan:
+    datacenter: Virtual Datacenter
+    lan: nameoflan
+    public: true
+    ip_failover:
+          208.94.38.167: 1de3e6ae-da16-4dc7-845c-092e8a19fded
+          208.94.38.168: 8f01cbd3-bec4-46b7-b085-78bb9ea0c77c
+    state: update
+  
+# Remove a LAN
+- name: Remove LAN
+  lan:
+    datacenter: Virtual Datacenter
+    lan: nameoflan
+    state: absent
 """
 
 

@@ -107,7 +107,116 @@ description:
        This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:
-    ilowuerhfgwoqrghbqwoguh
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    datacenter:
+        description:
+        - The ID or name of the datacenter.
+        required: true
+    name:
+        description:
+        - The name of the NAT Gateway rule.
+        required: false
+    nat_gateway:
+        description:
+        - The ID or name of the NAT Gateway.
+        required: true
+    nat_gateway_rule:
+        description:
+        - The ID or name of the NAT Gateway rule.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    protocol:
+        description:
+        - Protocol of the NAT Gateway rule. Defaults to ALL. If protocol is 'ICMP' then
+            targetPortRange start and end cannot be set.
+        required: false
+    public_ip:
+        description:
+        - Public IP address of the NAT Gateway rule. Specifies the address used for masking
+            outgoing packets source address field. Should be one of the customer reserved
+            IP address already configured on the NAT Gateway resource
+        required: false
+    source_subnet:
+        description:
+        - Source subnet of the NAT Gateway rule. For SNAT rules it specifies which packets
+            this translation rule applies to based on the packets source IP address.
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    target_port_range:
+        description:
+        - Target port range of the NAT Gateway rule. For SNAT rules it specifies which
+            packets this translation rule applies to based on destination port. If none
+            is provided, rule will match any port
+        required: false
+    target_subnet:
+        description:
+        - Target or destination subnet of the NAT Gateway rule. For SNAT rules it specifies
+            which packets this translation rule applies to based on the packets destination
+            IP address. If none is provided, rule will match any address.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    type:
+        description:
+        - Type of the NAT Gateway rule.
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -159,7 +268,44 @@ EXAMPLE_PER_STATE = {
 }
 
 EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+  - name: Create NAT Gateway Rule
+    nat_gateway_rule:
+      datacenter: Datacentername
+      nat_gateway: NATGatewayName
+      name: RuleName
+      type: "SNAT"
+      protocol: "TCP"
+      source_subnet: "10.0.1.0/24"
+      target_subnet: "10.0.1.0"
+      target_port_range:
+        start: 10000
+        end: 20000
+      public_ip: <ip>
+      wait: true
+    register: nat_gateway_rule_response
+  
+
+  - name: Update NAT Gateway Rule
+    nat_gateway_rule:
+      datacenter: Datacentername
+      nat_gateway: NATGatewayName
+      nat_gateway_rule: RuleName
+      public_ip: <newIp>
+      name: "RuleName - UPDATED"
+      type: "SNAT"
+      protocol: "TCP"
+      source_subnet: "10.0.1.0/24"
+      wait: true
+      state: update
+    register: nat_gateway_rule_update_response
+  
+
+  - name: Delete NAT Gateway Rule
+    nat_gateway_rule:
+      datacenter: Datacentername
+      nat_gateway: NATGatewayName
+      nat_gateway_rule: "RuleName - UPDATED"
+      state: absent
 """
 
 class NatFlowlogModule(CommonIonosModule):

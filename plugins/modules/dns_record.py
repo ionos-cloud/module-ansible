@@ -89,7 +89,123 @@ description:
      - This is a module that supports creating, updating or destroying DNS Records
 version_added: "2.0"
 options:
-    jiopwerrgopihwgowejg
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    content:
+        description:
+        - The conted of the Record.
+        required: false
+    enabled:
+        description:
+        - When true - the record is visible for lookup.
+        required: false
+    name:
+        description:
+        - The Record name.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    priority:
+        description:
+        - Priority value is between 0 and 65535. Priority is mandatory for MX, SRV and
+            URI record types and ignored for all other types.
+        required: false
+    record:
+        description:
+        - The ID or name of an existing Record.
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    ttl:
+        description:
+        - Time to live for the record, recommended 3600.
+        required: false
+    type:
+        description:
+        - Holds supported DNS resource record types. In the DNS context a record is a
+            DNS resource record.
+        options:
+        - A
+        - AAAA
+        - CNAME
+        - ALIAS
+        - MX
+        - NS
+        - SRV
+        - TXT
+        - CAA
+        - SSHFP
+        - TLSA
+        - SMIMEA
+        - DS
+        - HTTPS
+        - SVCB
+        - OPENPGPKEY
+        - CERT
+        - URI
+        - RP
+        - LOC
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
+    zone:
+        description:
+        - The ID or name of an existing Zone.
+        required: true
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -132,8 +248,36 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """- name: Create record
+    dns_record:
+      zone: example.com
+      name: record_name
+      type: MX
+      content: record_content
+      ttl: 3600
+      priority: 10
+      enabled: true
+    register: record_response
+  
+- name: Update record
+    dns_record:
+      zone: example.com
+      record: record_name2
+      name: record_name2
+      type: MX
+      content: record_content
+      ttl: 1800
+      priority: 9
+      enabled: true
+      state: update
+    register: updated_record_response
+  
+- name: Delete record
+    dns_record:
+      zone: example.com
+      record: record_name2
+      wait: true
+      state: absent
 """
 
 

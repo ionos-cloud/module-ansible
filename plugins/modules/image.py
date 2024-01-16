@@ -120,7 +120,129 @@ description:
      - This is a simple module that supports updating or removing Images. This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:
-    ilowuerhfgwoqrghbqwoguh
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    cloud_init:
+        description:
+        - Cloud init compatibility.
+        required: false
+    cpu_hot_plug:
+        description:
+        - Hot-plug capable CPU (no reboot required).
+        required: false
+    cpu_hot_unplug:
+        description:
+        - Hot-unplug capable CPU (no reboot required).
+        required: false
+    description:
+        description:
+        - Human-readable description.
+        required: false
+    disc_scsi_hot_plug:
+        description:
+        - Hot-plug capable SCSI drive (no reboot required).
+        required: false
+    disc_scsi_hot_unplug:
+        description:
+        - Hot-unplug capable SCSI drive (no reboot required). Not supported with Windows
+            VMs.
+        required: false
+    disc_virtio_hot_plug:
+        description:
+        - Hot-plug capable Virt-IO drive (no reboot required).
+        required: false
+    disc_virtio_hot_unplug:
+        description:
+        - Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows
+            VMs.
+        required: false
+    image_id:
+        description:
+        - The ID of the image.
+        required: true
+    licence_type:
+        description:
+        - The OS type of this image.
+        required: false
+    name:
+        description:
+        - The resource name.
+        required: false
+    nic_hot_plug:
+        description:
+        - Hot-plug capable NIC (no reboot required).
+        required: false
+    nic_hot_unplug:
+        description:
+        - Hot-unplug capable NIC (no reboot required).
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    ram_hot_plug:
+        description:
+        - Hot-plug capable RAM (no reboot required).
+        required: false
+    ram_hot_unplug:
+        description:
+        - Hot-unplug capable RAM (no reboot required).
+        required: false
+    state:
+        choices:
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -157,8 +279,31 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """# Update an image
+  - name: Update image
+    image:
+      image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
+      name: "CentOS-8.3.2011-x86_64-boot-renamed.iso"
+      description: "An image used for testing the Ansible Module"
+      cpu_hot_plug: true
+      cpu_hot_unplug: false
+      ram_hot_plug: true
+      ram_hot_unplug: true
+      nic_hot_plug: true
+      nic_hot_unplug: true
+      disc_virtio_hot_plug: true
+      disc_virtio_hot_unplug: true
+      disc_scsi_hot_plug: true
+      disc_scsi_hot_unplug: false
+      licence_type: "LINUX"
+      cloud_init: V1
+      state: update
+  
+# Destroy an image
+  - name: Delete image
+    image:
+      image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
+      state: absent
 """
 
 def delete_image(module, client):

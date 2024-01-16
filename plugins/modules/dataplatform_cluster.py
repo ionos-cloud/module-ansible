@@ -75,7 +75,91 @@ description:
      - ⚠️ **Note:** Data Platform is currently in the Early Access (EA) phase. We recommend keeping usage and testing to non-production critical applications. Please contact your sales representative or support for more information.
 version_added: "2.0"
 options:
-    ilowuerhfgwoqrghbqwoguh
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    cluster:
+        description:
+        - The ID or name of the Data Platform cluster.
+        required: false
+    datacenter:
+        description:
+        - The UUID of the virtual data center (VDC) the cluster is provisioned.
+        required: false
+    dataplatform_version:
+        description:
+        - The version of the data platform.
+        required: false
+    maintenance_window:
+        description:
+        - Starting time of a weekly 4-hour-long window, during which maintenance might
+            occur in the `HH:MM:SS` format.
+        required: false
+    name:
+        description:
+        - The name of your cluster. Must be 63 characters or less and must begin and end
+            with an alphanumeric character (`[a-z0-9A-Z]`) with dashes (`-`), underscores
+            (`_`), dots (`.`), and alphanumerics between.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud_dataplatform >= 1.0.0"
@@ -108,7 +192,25 @@ EXAMPLE_PER_STATE = {
 }
 
 EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+  - name: Create Data Platform cluster
+    dataplatform_cluster:
+      name: ClusterName
+  
+
+  - name: Update Data Platform cluster
+    dataplatform_cluster:
+      cluster: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
+      maintenance_window:
+        day_of_the_week: 'Tuesday'
+        time: '13:03:00'
+      dataplatform_version: 1.17.8
+      state: update
+  
+
+  - name: Delete Data Platform cluster
+    dataplatform_cluster:
+      cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
+      state: absent
 """
 
 

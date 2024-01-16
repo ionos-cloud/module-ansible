@@ -100,7 +100,110 @@ description:
      - This is a module that supports creating and destroying Mongo Clusters
 version_added: "2.0"
 options:
-    jiopwerrgopihwgowejg
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    backup_id:
+        description:
+        - The ID of the backup to be used.
+        required: false
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    connections:
+        description:
+        - Array of datacenters to connect to your cluster.
+        elements: dict
+        required: false
+    display_name:
+        description:
+        - The name of your cluster.
+        required: false
+    instances:
+        description:
+        - The total number of instances in the cluster (one primary and n-1 secondaries).
+        required: false
+    location:
+        description:
+        - The physical location where the cluster will be created. This is the location
+            where all your instances will be located. This property is immutable.
+        required: false
+    maintenance_window:
+        description:
+        - A weekly window of 4 hours during which maintenance work can be performed.
+        required: false
+    mongo_cluster:
+        description:
+        - The ID or name of an existing Mongo Cluster.
+        required: false
+    mongo_db_version:
+        description:
+        - The MongoDB version of your cluster.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        - restore
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    template_id:
+        description:
+        - The unique ID of the template, which specifies the number of cores, storage
+            size, and memory. You cannot downgrade to a smaller template or minor edition
+            (e.g. from business to playground). To get a list of all templates to confirm
+            the changes use the /templates endpoint.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -149,8 +252,42 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """- name: Create Cluster
+    mongo_cluster:
+      mongo_db_version: 5.0
+      instances: 3
+      location: de/fra
+      template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
+      connections:
+        - cidr_list: 
+            - 192.168.1.116/24
+            - 192.168.1.117/24
+            - 192.168.1.118/24
+          datacenter: "Datacenter - DBaaS Mongo"
+          lan: "test_lan"
+      display_name: backuptest-04
+      wait: true
+    register: cluster_response
+  
+- name: Update Cluster
+    mongo_cluster:
+      mongo_cluster: backuptest-04
+      display_name: backuptest-05
+      state: update
+      allow_replace: True
+      wait: true
+    register: cluster_response
+  
+- name: Restore Mongo Cluster
+    mongo_cluster:
+      mongo_cluster: backuptest-05
+      backup_id: 9ab6545c-b138-4a86-b6ca-0d872a2b0953
+      state: restore
+  
+- name: Delete Mongo Cluster
+    mongo_cluster:
+      mongo_cluster: backuptest-05
+      state: absent
 """
 
 

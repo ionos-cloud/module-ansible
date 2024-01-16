@@ -114,7 +114,138 @@ description:
      - This module allows you to create, update or remove a NIC.
 version_added: "2.0"
 options:
-    jiopwerrgopihwgowejg
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    datacenter:
+        description:
+        - The datacenter name or UUID in which to operate.
+        required: true
+    dhcp:
+        description:
+        - Indicates if the NIC will reserve an IP using DHCP.
+        required: false
+        version_added: '2.4'
+    dhcpv6:
+        description:
+        - Indicates if the NIC will receive an IPv6 using DHCP. It can be set to 'true'
+            or 'false' only if this NIC is connected to an IPv6 enabled LAN.
+        required: false
+        version_added: '2.4'
+    firewall_active:
+        description:
+        - Activate or deactivate the firewall. By default, an active firewall without
+            any defined rules will block all incoming network traffic except for the firewall
+            rules that explicitly allows certain protocols, IP addresses and ports.
+        required: false
+        version_added: '2.4'
+    ips:
+        description:
+        - Collection of IP addresses, assigned to the NIC. Explicitly assigned public
+            IPs need to come from reserved IP blocks. Passing value null or empty array
+            will assign an IP address automatically.
+        required: false
+        version_added: '2.4'
+    ipv6_cidr:
+        description:
+        - If this NIC is connected to an IPv6 enabled LAN then this property contains
+            the /80 IPv6 CIDR block of the NIC. If you leave this property 'null' when
+            adding a NIC to an IPv6-enabled LAN, then an IPv6 CIDR block will automatically
+            be assigned to the NIC, but you can also specify an /80 IPv6 CIDR block for
+            the NIC on your own, which must be inside the /64 IPv6 CIDR block of the LAN
+            and unique. This value can only be set, if the LAN already has an IPv6 CIDR
+            block assigned. An IPv6-enabled LAN is limited to a maximum of 65,536 NICs.
+        required: false
+    ipv6_ips:
+        description:
+        - If this NIC is connected to an IPv6 enabled LAN then this property contains
+            the IPv6 IP addresses of the NIC. The maximum number of IPv6 IP addresses
+            per NIC is 50, if you need more, contact support. If you leave this property
+            'null' when adding a NIC, when changing the NIC's IPv6 CIDR block, when changing
+            the LAN's IPv6 CIDR block or when moving the NIC to a different IPv6 enabled
+            LAN, then we will automatically assign the same number of IPv6 addresses which
+            you had before from the NICs new CIDR block. If you leave this property 'null'
+            while not changing the CIDR block, the IPv6 IP addresses won't be changed
+            either. You can also provide your own self choosen IPv6 addresses, which then
+            must be inside the IPv6 CIDR block of this NIC.
+        required: false
+        version_added: '2.4'
+    lan:
+        description:
+        - The LAN ID the NIC will be on. If the LAN ID does not exist, it will be implicitly
+            created.
+        required: false
+    name:
+        description:
+        - The name of the  resource.
+        required: false
+    nic:
+        description:
+        - The ID or name of an existing NIC.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    server:
+        description:
+        - The server name or UUID.
+        required: true
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -161,8 +292,41 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """# Create a NIC
+    - name: Create NIC
+      nic:
+       name: NicName
+       datacenter: DatacenterName
+       server: ServerName
+       lan: 2
+       dhcp: true
+       firewall_active: true
+       ips:
+         - 10.0.0.1
+       wait: true
+       wait_timeout: 600
+       state: present
+      register: ionos_cloud_nic
+  
+# Update a NIC
+  - nic:
+      datacenter: DatacenterName
+      server: ServerName
+      nic: NicName
+      lan: 1
+      ips:
+        - 158.222.103.23
+        - 158.222.103.24
+      dhcp: false
+      state: update
+  
+# Remove a NIC
+  - nic:
+      datacenter: DatacenterName
+      server: ServerName
+      nic: NicName
+      wait_timeout: 500
+      state: absent
 """
 
 

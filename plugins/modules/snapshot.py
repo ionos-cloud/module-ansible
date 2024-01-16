@@ -133,7 +133,143 @@ description:
      - This module allows you to create or remove a snapshot.
 version_added: "2.4"
 options:
-    jiopwerrgopihwgowejg
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    cpu_hot_plug:
+        description:
+        - Hot-plug capable CPU (no reboot required).
+        required: false
+    cpu_hot_unplug:
+        description:
+        - Hot-unplug capable CPU (no reboot required).
+        required: false
+    datacenter:
+        description:
+        - The datacenter in which the volumes reside.
+        required: false
+    description:
+        description:
+        - Human-readable description.
+        required: false
+    disc_scsi_hot_plug:
+        description:
+        - Hot-plug capable SCSI drive (no reboot required).
+        required: false
+    disc_scsi_hot_unplug:
+        description:
+        - Is capable of SCSI drive hot unplug (no reboot required). This works only for
+            non-Windows virtual Machines.
+        required: false
+    disc_virtio_hot_plug:
+        description:
+        - Hot-plug capable Virt-IO drive (no reboot required).
+        required: false
+    disc_virtio_hot_unplug:
+        description:
+        - Hot-unplug capable Virt-IO drive (no reboot required). Not supported with Windows
+            VMs.
+        required: false
+    licence_type:
+        choices:
+        - UNKNOWN
+        - WINDOWS
+        - WINDOWS2016
+        - WINDOWS2022
+        - RHEL
+        - LINUX
+        - OTHER
+        description:
+        - OS type of this snapshot
+        required: false
+    name:
+        description:
+        - The name of the  resource.
+        required: false
+    nic_hot_plug:
+        description:
+        - Hot-plug capable NIC (no reboot required).
+        required: false
+    nic_hot_unplug:
+        description:
+        - Hot-unplug capable NIC (no reboot required).
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    ram_hot_plug:
+        description:
+        - Hot-plug capable RAM (no reboot required).
+        required: false
+    ram_hot_unplug:
+        description:
+        - Hot-unplug capable RAM (no reboot required).
+        required: false
+    snapshot:
+        description:
+        - The ID or name of an existing snapshot.
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        - restore
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    volume:
+        description:
+        - The name or UUID of the volume.
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.1.6"
@@ -174,8 +310,35 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """# Create a snapshot
+  - name: Create snapshot
+    snapshot:
+      datacenter: production DC
+      volume: master
+      name: boot volume image
+      state: present
+
+  
+# Update a snapshot
+  - name: Update snapshot
+    snapshot:
+      snapshot: "boot volume image"
+      description: Ansible test snapshot - RENAME
+      state: update
+  
+# Restore a snapshot
+  - name: Restore snapshot
+    snapshot:
+      datacenter: production DC
+      volume: slave
+      snapshot: boot volume image
+      state: restore
+  
+# Remove a snapshot
+  - name: Remove snapshot
+    snapshot:
+      snapshot: master-Snapshot-11/30/2017
+      state: absent
 """
 
 

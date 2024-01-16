@@ -212,7 +212,180 @@ description:
      - This is a module that supports creating, updating or destroying VM Autoscaling Groups
 version_added: "2.0"
 options:
-    jiopwerrgopihwgowejg
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    availability_zone:
+        description:
+        - The zone where the VMs are created. The availability zone is always automatically
+            set to 'AUTO' for performance reasons. Even if you set another value, e.g.
+            'null', or leave it empty.
+        required: false
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    cores:
+        description:
+        - The total number of cores for the VMs.
+        required: false
+    cpu_family:
+        choices:
+        - AMD_OPTERON
+        - INTEL_SKYLAKE
+        - INTEL_XEON
+        description:
+        - The CPU family for the VMs created with this configuration. If the value is
+            'null', the VM is created with the default CPU family for the assigned site.
+        required: false
+    datacenter:
+        description:
+        - The VMs for this VM Auto Scaling Description are created in this virtual data
+            center.
+        required: false
+    max_replica_count:
+        description:
+        - The maximum value for the number of replicas for 'targetReplicaCount'. Must
+            be >= 0 and <= 200. Will be enforced for both automatic and manual changes.
+        required: false
+    metric:
+        choices:
+        - INSTANCE_CPU_UTILIZATION_AVERAGE
+        - INSTANCE_NETWORK_IN_BYTES
+        - INSTANCE_NETWORK_IN_PACKETS
+        - INSTANCE_NETWORK_OUT_BYTES
+        - INSTANCE_NETWORK_OUT_PACKETS
+        description:
+        - The metric that triggers the scaling actions. Metric values are checked at fixed
+            intervals.
+        required: false
+    min_replica_count:
+        description:
+        - The minimum value for the number of replicas for 'targetReplicaCount'. Must
+            be >= 0 and <= 200. Will be enforced for both automatic and manual changes
+        required: false
+    name:
+        description:
+        - The name of the VM Auto Scaling Group. This field must not be null or blank.
+        required: false
+    nics:
+        description:
+        - The list of NICs associated with this replica.
+        elements: dict
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    ram:
+        description:
+        - The size of the memory for the VMs in MB. The size must be in multiples of 256
+            MB, with a minimum of 256 MB; if you set 'ramHotPlug=TRUE', you must use at
+            least 1024 MB. If you set the RAM size to more than 240 GB, 'ramHotPlug=FALSE'
+            is fixed.
+        required: false
+    range:
+        description:
+        - Specifies the time range for which the samples are to be aggregated. Must be
+            >= 2 minutes.
+        required: false
+    scale_in_action:
+        description:
+        - Defines the action to be taken when the 'scaleInThreshold' is exceeded. Here,
+            scaling is always about removing VMs associated with this VM Auto Scaling
+            Group. By default, the termination policy is 'OLDEST_SERVER_FIRST' is effective.
+        required: false
+    scale_in_threshold:
+        description:
+        - The lower threshold for the value of the 'metric'. Used with the `less than`
+            (<) operator. When this value is exceeded, a scale-in action is triggered,
+            specified by the 'scaleInAction' property. The value must have a higher minimum
+            delta to the 'scaleOutThreshold', depending on the 'metric', to avoid competing
+            for actions at the same time.
+        required: false
+    scale_out_action:
+        description:
+        - Defines the action to be performed when the 'scaleOutThreshold' is exceeded.
+            Here, scaling is always about adding new VMs to this VM Auto Scaling Group.
+        required: false
+    scale_out_threshold:
+        description:
+        - The upper threshold for the value of the 'metric'. Used with the 'greater than'
+            (>) operator. A scale-out action is triggered when this value is exceeded,
+            specified by the 'scaleOutAction' property. The value must have a lower minimum
+            delta to the 'scaleInThreshold', depending on the metric, to avoid competing
+            for actions simultaneously. If 'properties.policy.unit=TOTAL', a value >=
+            40 must be chosen.
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    unit:
+        choices:
+        - PER_HOUR
+        - PER_MINUTE
+        - PER_SECOND
+        - TOTAL
+        description:
+        - The units of the applied metric. 'TOTAL' can only be combined with 'INSTANCE_CPU_UTILIZATION_AVERAGE'.
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    vm_autoscaling_group:
+        description:
+        - The ID or name of an existing VM Autoscaling Group.
+        required: false
+    volumes:
+        description:
+        - List of volumes associated with this Replica.
+        elements: dict
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud-vm-autoscaling >= 1.0.0"
@@ -309,8 +482,91 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """- name: Create VM Autoscaling Group
+      vm_autoscaling_group:
+        datacenter: DatacenterName
+        name: TestName
+        max_replica_count: 2
+        min_replica_count: 1
+        metric: "INSTANCE_CPU_UTILIZATION_AVERAGE"
+        range: "PT24H"
+        unit: "PER_HOUR"
+        scale_in_threshold: 33
+        scale_out_threshold: 77
+        scale_in_action:
+            amount: 1
+            amount_type: 'ABSOLUTE'
+            cooldown_period: 'PT5M'
+            termination_policy: 'RANDOM'
+            delete_volumes: true
+        scale_out_action:
+            amount: 1
+            amount_type: 'ABSOLUTE'
+            cooldown_period: 'PT5M'
+        availability_zone: "AUTO"
+        cores: 2
+        cpu_family: INTEL_XEON
+        ram: 1024
+        nics: 
+            - lan: 1
+              name: 'SDK_TEST_NIC1'
+              dhcp: true
+        volumes:
+            - image: <image_id>
+              image_password: <password>
+              name: 'SDK_TEST_VOLUME'
+              size: 50
+              type: 'HDD'
+              bus: 'IDE'
+              boot_order: 'AUTO'
+      register: vm_autoscaling_group_response
+  
+- name: Update VM Ausocaling Group
+      vm_autoscaling_group:
+        vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
+        datacenter: DatacenterName2
+        name: TestName2
+        max_replica_count: 1
+        min_replica_count: 0
+        metric: "INSTANCE_NETWORK_IN_BYTES"
+        range: "PT12H"
+        unit: "PER_MINUTE"
+        scale_in_threshold: 33
+        scale_out_threshold: 86
+        scale_in_action:
+            amount: 50
+            amount_type: 'PERCENTAGE'
+            cooldown_period: 'PT10M'
+            termination_policy: 'RANDOM'
+            delete_volumes: false
+        scale_out_action:
+            amount: 2
+            amount_type: 'ABSOLUTE'
+            cooldown_period: 'PT15M'
+        availability_zone: "AUTO"
+        cores: 1
+        cpu_family: "INTEL_SKYLAKE"
+        ram: 2048
+        nics: 
+            - lan: 2
+              name: 'SDK_TEST_NIC2'
+              dhcp: false
+        volumes:
+            - image: <image_id>
+              image_password: <password>
+              name: 'SDK_TEST_VOLUME'
+              size: 100
+              type: 'SSD'
+              bus: 'IDE'
+              boot_order: 'AUTO'
+        state: update
+      register: vm_autoscaling_group_response
+  
+- name: Remove VM Ausocaling Group
+      vm_autoscaling_group:
+        vm_autoscaling_group: "{{ name }}"
+        state: absent
+      register: vm_autoscaling_group_response
 """
 
 

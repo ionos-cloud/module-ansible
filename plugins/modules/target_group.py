@@ -91,7 +91,103 @@ description:
      - This is a simple module that supports creating or removing Target Groups.
 version_added: "2.0"
 options:
-    ilowuerhfgwoqrghbqwoguh
+    algorithm:
+        description:
+        - 'The balancing algorithm. A balancing algorithm consists of predefined rules
+            with the logic that a load balancer uses to distribute network traffic between
+            servers.  - **Round Robin**: Targets are served alternately according to their
+            weighting.  - **Least Connection**: The target with the least active connection
+            is served.  - **Random**: The targets are served based on a consistent pseudorandom
+            algorithm.  - **Source IP**: It is ensured that the same client IP address
+            reaches the same target.'
+        required: false
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    health_check:
+        description:
+        - Health check properties for target group.
+        required: false
+    http_health_check:
+        description:
+        - HTTP health check properties for target group.
+        required: false
+    name:
+        description:
+        - The target group name.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    protocol:
+        description:
+        - The forwarding protocol. Only the value 'HTTP' is allowed.
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    target_group:
+        description:
+        - The ID or name of the Target Group.
+        required: false
+    targets:
+        description:
+        - Array of items in the collection.
+        elements: dict
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.0"
@@ -148,7 +244,49 @@ EXAMPLE_PER_STATE = {
 }
 
 EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+  - name: Create Target Group
+    target_group:
+      name: "AnsibleAutoTestCompute"
+      algorithm: "ROUND_ROBIN"
+      protocol: "HTTP"
+      targets:
+        - ip: "22.231.2.2"
+          port: 8080
+          weight: 123
+          health_check_enabled: true
+          maintenance_enabled: false
+      health_check:
+        check_timeout: 2000
+        check_interval: 1000
+        retries: 3
+      http_health_check:
+        path: "./"
+        method: "GET"
+        match_type: "STATUS_CODE"
+        response: 200
+        regex: false
+        negate: false
+      wait: true
+    register: target_group_response
+  
+
+  - name: Update Target Group
+    target_group:
+      name: "AnsibleAutoTestCompute - UPDATED"
+      algorithm: "ROUND_ROBIN"
+      protocol: "HTTP"
+      target_group: "AnsibleAutoTestCompute"
+      wait: true
+      state: update
+    register: target_group_response_update
+  
+
+  - name: Remove Target Group
+    target_group:
+      target_group: "AnsibleAutoTestCompute - UPDATED"
+      wait: true
+      wait_timeout: 2000
+      state: absent
 """
 
 

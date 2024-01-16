@@ -79,7 +79,92 @@ description:
      - This is a module that supports creating, updating or destroying Registry Tokens
 version_added: "2.0"
 options:
-    jiopwerrgopihwgowejg
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    expiry_date:
+        description:
+        - The expiry date for the token in iso format
+        required: false
+    name:
+        description:
+        - The name of your token.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    registry:
+        description:
+        - The ID or name of an existing Registry.
+        required: true
+    registry_token:
+        description:
+        - The ID or name of an existing token.
+        required: false
+    scopes:
+        description:
+        - List of scopes for the token
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    status:
+        description:
+        - The status of the token
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -125,8 +210,39 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """- name: Create Registry Token
+    registry_token:
+        registry: RegistryName
+        name: test_registry_token
+        scopes:
+            - actions: 
+                    - pull
+                      push
+                      delete
+                name: repo1
+                type: repositry
+        status: enabled
+        expiry_date: 2022-06-24T17:04:10+03:00
+    register: registry_token_response
+  
+- name: Update Registry Token
+    registry_token:
+        registry: RegistryName
+        registry_token: test_registry_token
+        scopes:
+            - actions: 
+                    - pull
+                name: repo2
+                type: repositry
+        status: disbled
+        expiry_date: 2022-07-24T17:04:10+03:00
+    register: updated_registry_token_response
+  
+- name: Delete Registry Token
+    registry_token:
+        registry: RegistryName
+        registry_token: test_registry_token
+        state: absent
 """
 
 

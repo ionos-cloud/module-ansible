@@ -45,7 +45,7 @@ OPTIONS = {
         'type': 'str',
     },
     'features': {
-        'description': ["Optional registry features. Format: 'vulnerability_scanning' key having a dict for value containing the 'enabled' key with a boolean value\n Note: Vulnerability scanning for images is enabled by default. This is a paid add-on, please make sure you specify if you do not want it enabled"],
+        'description': ["Optional registry features. Format: 'vulnerability_scanning' key having a dict for value containing the 'enabled' key with a boolean value Note: Vulnerability scanning for images is enabled by default. This is a paid add-on, please make sure you specify if you do not want it enabled"],
         'available': ['present', 'update'],
         'type': 'dict',
     },
@@ -77,7 +77,92 @@ description:
      - This is a module that supports creating, updating or destroying Registries
 version_added: "2.0"
 options:
-    jiopwerrgopihwgowejg
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    features:
+        description:
+        - 'Optional registry features. Format: ''vulnerability_scanning'' key having a
+            dict for value containing the ''enabled'' key with a boolean value Note: Vulnerability
+            scanning for images is enabled by default. This is a paid add-on, please make
+            sure you specify if you do not want it enabled'
+        required: false
+    garbage_collection_schedule:
+        description:
+        - Dict containing "time" (the time of the day when to perform the garbage_collection)
+            and "days" (the days when to perform the garbage_collection).
+        required: false
+    location:
+        description:
+        - The location of your registry
+        required: false
+    name:
+        description:
+        - The name of your registry.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    registry:
+        description:
+        - The ID or name of an existing Registry.
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -118,8 +203,34 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """- name: Create Registry
+    registry:
+      name: testregistry
+      location: de/fra
+      garbage_collection_schedule:
+        days: 
+            - Wednesday
+        time: 04:17:00+00:00
+      features:
+        vulnerability_scanning:
+          enabled: false
+    register: registry_response
+  
+- name: Update Registry
+    registry:
+      registry: testregistry
+      name: test_registry_update
+      garbage_collection_schedule:
+        days: 
+            - Wednesday
+        time: 04:17:00+00:00
+    register: updated_registry_response
+  
+- name: Delete Registry
+    registry:
+      registry: testregistry
+      wait: true
+      state: absent
 """
 
 

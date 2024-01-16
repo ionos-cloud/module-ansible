@@ -134,7 +134,149 @@ description:
      - This module allows you to create, update or remove a firewall rule.
 version_added: "2.2"
 options:
-    ilowuerhfgwoqrghbqwoguh
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    datacenter:
+        description:
+        - The datacenter name or UUID in which to operate.
+        required: true
+    firewall_rule:
+        description:
+        - The Firewall Rule name or UUID.
+        required: false
+    icmp_code:
+        description:
+        - Defines the allowed code (from 0 to 254) if protocol ICMP or ICMPv6 is chosen.
+            Value null allows all codes.
+        required: false
+    icmp_type:
+        description:
+        - Defines the allowed type (from 0 to 254) if the protocol ICMP or ICMPv6 is chosen.
+            Value null allows all types.
+        required: false
+    ip_version:
+        choices:
+        - IPv4
+        - IPv6
+        description:
+        - The IP version for this rule. If sourceIp or targetIp are specified, you can
+            omit this value - the IP version will then be deduced from the IP address(es)
+            used; if you specify it anyway, it must match the specified IP address(es).
+            If neither sourceIp nor targetIp are specified, this rule allows traffic only
+            for the specified IP version. If neither sourceIp, targetIp nor ipVersion
+            are specified, this rule will only allow IPv4 traffic.
+        required: false
+    name:
+        description:
+        - The name of the  resource.
+        required: false
+    nic:
+        description:
+        - The NIC name or UUID.
+        required: true
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    port_range_end:
+        description:
+        - Defines the end range of the allowed port (from 1 to 65535) if the protocol
+            TCP or UDP is chosen. Leave portRangeStart and portRangeEnd null to allow
+            all ports.
+        required: false
+    port_range_start:
+        description:
+        - Defines the start range of the allowed port (from 1 to 65535) if protocol TCP
+            or UDP is chosen. Leave portRangeStart and portRangeEnd value null to allow
+            all ports.
+        required: false
+    protocol:
+        choices:
+        - TCP
+        - UDP
+        - ICMP
+        - ICMPv6
+        - ANY
+        description:
+        - The protocol for the rule. Property cannot be modified after it is created (disallowed
+            in update requests).
+        required: false
+    server:
+        description:
+        - The server name or UUID.
+        required: true
+    source_ip:
+        description:
+        - Only traffic originating from the respective IP address (or CIDR block) is allowed.
+            Value null allows traffic from any IP address (according to the selected ipVersion).
+        required: false
+    source_mac:
+        description:
+        - 'Only traffic originating from the respective MAC address is allowed. Valid
+            format: aa:bb:cc:dd:ee:ff. Value null allows traffic from any MAC address.'
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    target_ip:
+        description:
+        - If the target NIC has multiple IP addresses, only the traffic directed to the
+            respective IP address (or CIDR block) of the NIC is allowed. Value null allows
+            traffic to any target IP address (according to the selected ipVersion).
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -190,8 +332,50 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """# Create a firewall rule
+- name: Create SSH firewall rule
+  firewall_rule:
+    datacenter: Virtual Datacenter
+    server: node001
+    nic: 7341c2454f
+    name: Allow SSH
+    protocol: TCP
+    source_ip: 0.0.0.0
+    port_range_start: 22
+    port_range_end: 22
+    state: present
+
+- name: Create ping firewall rule
+  firewall_rule:
+    datacenter: Virtual Datacenter
+    server: node001
+    nic: 7341c2454f
+    name: Allow Ping
+    protocol: ICMP
+    source_ip: 0.0.0.0
+    icmp_type: 8
+    icmp_code: 0
+    state: present
+  
+# Update a firewall rule
+- name: Allow SSH access
+  firewall_rule:
+      datacenter: Virtual Datacenter
+      server: node001
+      nic: 7341c2454f
+      firewall_rule: Allow Ping
+      source_ip: 162.254.27.217
+      source_mac: 01:23:45:67:89:00
+      state: update
+  
+# Remove a firewall rule
+- name: Remove public ping firewall rule
+  firewall_rule:
+    datacenter: Virtual Datacenter
+    server: node001
+    nic: aa6c261b9c
+    firewall_rule: Allow Ping
+    state: absent
 """
 
 class FirewallRuleModule(CommonIonosModule):

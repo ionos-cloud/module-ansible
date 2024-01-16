@@ -124,7 +124,127 @@ description:
      - ⚠️ **Note:** Data Platform is currently in the Early Access (EA) phase. We recommend keeping usage and testing to non-production critical applications. Please contact your sales representative or support for more information.
 version_added: "2.0"
 options:
-    ilowuerhfgwoqrghbqwoguh
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    annotations:
+        description:
+        - Key-value pairs attached to node pool resource as [Kubernetes annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/).
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    availability_zone:
+        description:
+        - The availability zone of the virtual data center region where the node pool
+            resources should be provisioned.
+        required: false
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    cluster:
+        description:
+        - The name or ID of the Data Platform cluster.
+        required: true
+    cores_count:
+        description:
+        - The number of CPU cores per node.
+        required: false
+    cpu_family:
+        description:
+        - A valid CPU family name or `AUTO` if the platform shall choose the best fitting
+            option. Available CPU architectures can be retrieved from the data center
+            resource.
+        required: false
+    labels:
+        description:
+        - Key-value pairs attached to the node pool resource as [Kubernetes labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/).
+        required: false
+    maintenance_window:
+        description:
+        - Starting time of a weekly 4-hour-long window, during which maintenance might
+            occur in the `HH:MM:SS` format.
+        required: false
+    name:
+        description:
+        - The name of your node pool. Must be 63 characters or less and must begin and
+            end with an alphanumeric character (`[a-z0-9A-Z]`) with dashes (`-`), underscores
+            (`_`), dots (`.`), and alphanumerics between.
+        required: false
+    node_count:
+        description:
+        - The number of nodes that make up the node pool.
+        required: false
+    nodepool:
+        description:
+        - The name or ID of the Data Platform nodepool.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    ram_size:
+        description:
+        - The RAM size for one node in MB. Must be set in multiples of 1024 MB, with a
+            minimum size is of 2048 MB.
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    storage_size:
+        description:
+        - The size of the volume in GB. The size must be greater than 10 GB.
+        required: false
+    storage_type:
+        description:
+        - The type of hardware for the volume.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud_dataplatform >= 1.0.0"
@@ -168,7 +288,36 @@ EXAMPLE_PER_STATE = {
 }
 
 EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+  - name: Create Data Platform nodepool
+    dataplatform_nodepool:
+      name: NodepoolName
+      cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+      node_count: 1
+      cpu_family: "AMD_OPTERON"
+      cores_count: 1
+      ram_size: 2048
+      availability_zone: "AUTO"
+      storage_type: "SSD"
+      storage_size: 100
+  
+
+  - name: Update Data Platform nodepool
+    dataplatform_nodepool:
+      nodepool: NodepoolName
+      cluster: ClusterName
+      node_count: 1
+      cores_count: 1
+      maintenance_window:
+        day_of_the_week: 'Tuesday'
+        time: '13:03:00'
+      state: update
+  
+
+  - name: Delete Data Platform nodepool
+    dataplatform_nodepool:
+      cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
+      nodepool: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
+      state: absent
 """
 
 

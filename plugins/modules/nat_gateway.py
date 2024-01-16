@@ -80,7 +80,90 @@ description:
        This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:
-    ilowuerhfgwoqrghbqwoguh
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    datacenter:
+        description:
+        - The ID or name of the datacenter.
+        required: true
+    lans:
+        description:
+        - Collection of LANs connected to the NAT Gateway. IPs must contain a valid subnet
+            mask. If no IP is provided, the system will generate an IP with /24 subnet.
+        required: false
+    name:
+        description:
+        - Name of the NAT Gateway.
+        required: false
+    nat_gateway:
+        description:
+        - The ID or name of the NAT Gateway.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    public_ips:
+        description:
+        - Collection of public IP addresses of the NAT Gateway. Should be customer reserved
+            IP addresses in that location.
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -128,7 +211,40 @@ EXAMPLE_PER_STATE = {
 }
 
 EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+  - name: Create NAT Gateway
+    nat_gateway:
+      datacenter: DatacenterName
+      name: NATGatewayName
+      public_ips:
+        - <ip1>
+        - <ip2>
+      lans:
+        - id: 1
+          gateway_ips: "10.11.2.5/24"
+      wait: true
+    register: nat_gateway_response
+  
+
+  - name: Update NAT Gateway
+    nat_gateway:
+      datacenter: DatacenterName
+      name: "NATGatewayName - UPDATED"
+      public_ips:
+        - <ip1>
+        - <ip2>
+      nat_gateway: NATGatewayName
+      wait: true
+      state: update
+    register: nat_gateway_response_update
+  
+
+  - name: Remove NAT Gateway
+    nat_gateway:
+      nat_gateway: NATGatewayName
+      datacenter: DatacenterName
+      wait: true
+      wait_timeout: 2000
+      state: absent
 """
 
 class NatGatewayModule(CommonIonosModule):

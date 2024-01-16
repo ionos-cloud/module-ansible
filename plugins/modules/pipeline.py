@@ -59,7 +59,82 @@ description:
      - This is a module that supports creating, updating or destroying Pipelines
 version_added: "2.0"
 options:
-    jiopwerrgopihwgowejg
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    logs:
+        description:
+        - The information of the log pipelines
+        elements: dict
+        required: false
+    name:
+        description:
+        - The friendly name of your pipeline.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    pipeline:
+        description:
+        - The ID or name of an existing Pipeline.
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        - renew
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -105,8 +180,39 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """- name: Create Pipeline
+    pipeline:
+      name: test_pipeline
+      logs:
+        - source: kubernetes
+          tag: tag
+          protocol: http
+          destinations:
+            - type: loki
+            - retention_in_days: 7
+    register: pipeline_response
+  
+- name: Update Pipeline
+    pipeline:
+      pipeline: test_pipeline
+      name: test_pipeline_updated
+      logs:
+        - source: kubernetes
+          tag: new_tag
+          protocol: http
+          labels:
+            - label
+          destinations:
+            - type: loki
+            - retention_in_days: 10
+      state: update
+    register: updated_pipeline_response
+  
+- name: Delete Pipeline
+    pipeline:
+      pipeline: test_pipeline
+      wait: true
+      state: absent
 """
 
 

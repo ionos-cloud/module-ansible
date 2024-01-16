@@ -101,7 +101,118 @@ description:
        This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:
-    ilowuerhfgwoqrghbqwoguh
+    allow_replace:
+        default: false
+        description:
+        - Boolean indicating if the resource should be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a different value to an immutable property. An error
+            will be thrown instead
+        required: false
+    api_subnet_allow_list:
+        description:
+        - Access to the K8s API server is restricted to these CIDRs. Intra-cluster traffic
+            is not affected by this restriction. If no AllowList is specified, access
+            is not limited. If an IP is specified without a subnet mask, the default value
+            is 32 for IPv4 and 128 for IPv6.
+        elements: str
+        required: false
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    cluster_name:
+        description:
+        - The name of the K8s cluster.
+        required: false
+    k8s_cluster:
+        description:
+        - The ID or name of the K8s cluster.
+        required: false
+    k8s_version:
+        description:
+        - The Kubernetes version that the cluster is running. This limits which Kubernetes
+            versions can run in a cluster's node pools. Also, not all Kubernetes versions
+            are suitable upgrade targets for all earlier versions.
+        required: false
+    location:
+        description: The location of the cluster if the cluster is private. This property
+            is immutable. The location must be enabled for your contract or you must have
+            a Datacenter within that location. This attribute is mandatory if the cluster
+            is private.
+        required: false
+    maintenance_window:
+        description:
+        - The maintenance window is used to update the control plane and the K8s version
+            of the cluster. If no value is specified, it is chosen dynamically, so there
+            is no fixed default value.
+        required: false
+    nat_gateway_ip:
+        description: The nat gateway IP of the cluster if the cluster is private.
+        required: false
+    node_subnet:
+        description: The node subnet of the cluster if the cluster is private.
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    public:
+        description:
+        - The indicator if the cluster is public or private.
+        required: false
+    s3_buckets_param:
+        description:
+        - List of S3 buckets configured for K8s usage. At the moment, it contains only
+            one S3 bucket that is used to store K8s API audit logs.
+        elements: str
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -134,7 +245,25 @@ EXAMPLE_PER_STATE = {
 }
 
 EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+  - name: Create k8s cluster
+    k8s_cluster:
+      name: ClusterName
+  
+
+  - name: Update k8s cluster
+    k8s_cluster:
+      k8s_cluster: ClusterName
+      maintenance_window:
+        day_of_the_week: 'Tuesday'
+        time: '13:03:00'
+      k8s_version: 1.17.8
+      state: update
+  
+
+  - name: Delete k8s cluster
+    k8s_cluster:
+      k8s_cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
+      state: absent
 """
 
 
