@@ -30,7 +30,7 @@ def update_descriptions(module_name):
         new_examples = existing_examples
 
     existing_doc = yaml.safe_load(module.DOCUMENTATION)['options']
-    if type(existing_doc) == dict:
+    if isinstance(existing_doc, dict):
         existing_doc = transform_options_for_ducumentation(yaml.safe_load(module.DOCUMENTATION)['options'], module.STATES)
     new_doc = transform_options_for_ducumentation(module.OPTIONS, module.STATES)
 

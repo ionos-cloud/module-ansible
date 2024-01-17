@@ -139,7 +139,7 @@ def get_info_default_options(states):
 
 
 def transform_for_documentation(val, states):
-    if type(val.get('required', [])) == list:
+    if isinstance(val.get('required', []), list):
         val['required'] = len(val.get('required', [])) == len(states)
     if 'available' in val:
         del val['available']

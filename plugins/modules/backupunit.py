@@ -270,10 +270,6 @@ class BackupunitModule(CommonIonosModule):
         return datacenter_response
 
 
-    def _update_object(self, existing_object, clients):
-        pass
-
-
     def _remove_object(self, existing_object, clients):
         client = clients[0]
         wait = self.module.params.get('wait')

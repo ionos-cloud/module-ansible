@@ -8,22 +8,61 @@ from .common_ionos_methods import (
 class CommonIonosModule():
     def __init__(self):
         self.object_identity_paths = None
-    
+    """
+    """
     def _should_replace_object(self, existing_object, clients):
+        """
+        Checks if the object should be replaced based on the input and the object state.
+
+        existing_object : Ionoscloud object returned by API object
+        clients: authenticated ionoscloud clients list.
+
+        Returns:
+            bool, if the object should be replaced
+        """
         pass
 
     def _should_update_object(self, existing_object, clients):
+        """
+        Checks if the object should be updated based on the input and the object state.
+
+        existing_object : Ionoscloud object returned by API object
+        clients: authenticated ionoscloud clients list.
+
+        Returns:
+            bool, if the object should be updated
+        """
         pass
 
 
-    def _get_object_list(self, client):
+    def _get_object_list(self, clients):
+        """
+        Retrieve a list of the objects from the API
+
+        clients: authenticated ionoscloud clients list.
+
+        Returns:
+            list[object], the list of objects
+        """
         pass
 
 
     def _get_object_name(self):
+        """
+        Retrieve the name object from the user input
+
+        Returns:
+            str, the object name
+        """
         pass
 
     def _get_object_identifier(self):
+        """
+        Retrieve the object identifier from the user input
+
+        Returns:
+            str, the object identifier
+        """
         pass
 
     def update_replace_object(self, existing_object, clients):

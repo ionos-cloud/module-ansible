@@ -74,12 +74,8 @@ def get_users(api, all_users, depth=2):
 
 def get_module_arguments(options, states):
     arguments = {
-        {
-            'allow_replace': {'type': 'bool'},
-        },
-        {
-            'depth': {'type': 'int'},
-        }
+        'allow_replace': {'type': 'bool'},
+        'depth': {'type': 'int'},
     }
 
     for option_name, option in options.items():
