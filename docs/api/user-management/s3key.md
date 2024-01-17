@@ -25,7 +25,7 @@ This is a simple module that supports creating or removing S3Keys.
       user: <user_id/email>
       key_id: 00ca413c94eecc56857d
       state: absent
-  
+
 ```
 
 &nbsp;

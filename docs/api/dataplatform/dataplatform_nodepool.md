@@ -39,7 +39,7 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
       cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       nodepool: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
       state: absent
-  
+
 ```
 
 &nbsp;
@@ -211,6 +211,11 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
   <td>The Ionos API base URL.</td>
   </tr>
   <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
@@ -282,6 +287,11 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>
@@ -390,6 +400,11 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>

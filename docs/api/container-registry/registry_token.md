@@ -39,7 +39,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
         registry: RegistryName
         registry_token: test_registry_token
         state: absent
-  
+
 ```
 
 &nbsp;
@@ -161,6 +161,11 @@ This is a module that supports creating, updating or destroying Registry Tokens
   <td>The Ionos API base URL.</td>
   </tr>
   <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
@@ -231,6 +236,11 @@ This is a module that supports creating, updating or destroying Registry Tokens
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>
@@ -335,6 +345,11 @@ This is a module that supports creating, updating or destroying Registry Tokens
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>

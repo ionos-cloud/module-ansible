@@ -26,7 +26,7 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
     k8s_cluster:
       k8s_cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
       state: absent
-  
+
 ```
 
 &nbsp;
@@ -138,11 +138,6 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   <td>node_subnet<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The node subnet of the cluster if the cluster is private.</td>
-  </tr>
-  <tr>
-  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
-  <td align="center">False</td>
-  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -316,11 +311,6 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   <td>s3_buckets_param<br/><mark style="color:blue;">list</mark></td>
   <td align="center">False</td>
   <td>List of S3 buckets configured for K8s usage. At the moment, it contains only one S3 bucket that is used to store K8s API audit logs.</td>
-  </tr>
-  <tr>
-  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
-  <td align="center">False</td>
-  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>

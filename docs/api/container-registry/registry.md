@@ -34,7 +34,7 @@ This is a module that supports creating, updating or destroying Registries
       registry: testregistry
       wait: true
       state: absent
-  
+
 ```
 
 &nbsp;
@@ -129,8 +129,7 @@ This is a module that supports creating, updating or destroying Registries
   <tr>
   <td>features<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>
-  <td>Optional registry features. Format: 'vulnerability_scanning' key having a dict for value containing the 'enabled' key with a boolean value
- Note: Vulnerability scanning for images is enabled by default. This is a paid add-on, please make sure you specify if you do not want it enabled</td>
+  <td>Optional registry features. Format: 'vulnerability_scanning' key having a dict for value containing the 'enabled' key with a boolean value Note: Vulnerability scanning for images is enabled by default. This is a paid add-on, please make sure you specify if you do not want it enabled</td>
   </tr>
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
@@ -146,6 +145,11 @@ This is a module that supports creating, updating or destroying Registries
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>
@@ -213,6 +217,11 @@ This is a module that supports creating, updating or destroying Registries
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>
@@ -288,8 +297,7 @@ This is a module that supports creating, updating or destroying Registries
   <tr>
   <td>features<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>
-  <td>Optional registry features. Format: 'vulnerability_scanning' key having a dict for value containing the 'enabled' key with a boolean value
- Note: Vulnerability scanning for images is enabled by default. This is a paid add-on, please make sure you specify if you do not want it enabled</td>
+  <td>Optional registry features. Format: 'vulnerability_scanning' key having a dict for value containing the 'enabled' key with a boolean value Note: Vulnerability scanning for images is enabled by default. This is a paid add-on, please make sure you specify if you do not want it enabled</td>
   </tr>
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
@@ -310,6 +318,11 @@ This is a module that supports creating, updating or destroying Registries
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>

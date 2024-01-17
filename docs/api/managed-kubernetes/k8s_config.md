@@ -11,7 +11,7 @@ This is a simple module that supports getting the config of K8s clusters This mo
   k8s_config:
     k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
     config_file: 'config.yaml'
-  
+
 ```
 
 &nbsp;

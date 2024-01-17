@@ -26,7 +26,7 @@ This is a simple module that supports creating or removing Backup Units. This mo
     backupunit:
       backupunit: BackupUnitName
       state: absent
-  
+
 ```
 
 &nbsp;
@@ -119,6 +119,11 @@ This is a simple module that supports creating or removing Backup Units. This mo
   <td>The Ionos API base URL.</td>
   </tr>
   <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
+  </tr>
+  <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos username. Overrides the IONOS_USERNAME environment variable.</td>
@@ -184,6 +189,11 @@ This is a simple module that supports creating or removing Backup Units. This mo
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>
@@ -258,6 +268,11 @@ This is a simple module that supports creating or removing Backup Units. This mo
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>

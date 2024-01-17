@@ -67,7 +67,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
         - 'web003.stackpointcloud.com'
         wait_timeout: 500
         state: stopped
-  
+
 ```
 
 

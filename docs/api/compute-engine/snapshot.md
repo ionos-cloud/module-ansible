@@ -35,7 +35,7 @@ This module allows you to create or remove a snapshot.
     snapshot:
       snapshot: master-Snapshot-11/30/2017
       state: absent
-  
+
 ```
 
 &nbsp;

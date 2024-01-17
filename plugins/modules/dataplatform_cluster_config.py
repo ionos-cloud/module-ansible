@@ -51,14 +51,6 @@ description:
      - ⚠️ **Note:** Data Platform is currently in the Early Access (EA) phase. We recommend keeping usage and testing to non-production critical applications. Please contact your sales representative or support for more information.
 version_added: "2.0"
 options:
-    allow_replace:
-        default: false
-        description:
-        - Boolean indicating if the resource should be recreated when the state cannot
-            be reached in another way. This may be used to prevent resources from being
-            deleted from specifying a different value to an immutable property. An error
-            will be thrown instead
-        required: false
     api_url:
         description:
         - The Ionos API base URL.

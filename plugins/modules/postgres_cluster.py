@@ -9,11 +9,11 @@ try:
 except ImportError:
     HAS_SDK = False
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
+from ..module_utils.common_ionos_module import CommonIonosModule
+from ..module_utils.common_ionos_methods import (
     get_module_arguments, get_resource, get_resource_id,
 )
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options_with_replace
+from ..module_utils.common_ionos_options import get_default_options_with_replace
 
 
 ANSIBLE_METADATA = {

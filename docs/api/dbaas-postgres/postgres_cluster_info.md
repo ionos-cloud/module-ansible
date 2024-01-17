@@ -11,7 +11,6 @@ This is a simple module that supports listing existing Postgres Clusters
         postgres_cluster_info:
         register: postgres_clusters_response
 
-
     - name: Show Postgres Clusters
         debug:
             var: postgres_clusters_response.result
@@ -86,7 +85,7 @@ This is a simple module that supports listing existing Postgres Clusters
   <tr>
   <td>filters<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>
-  <td>Filter that can be used to list only objects which have a certain set of propeties. Filters should be a dict with a key containing keys and value pair in the following format:'properties.name': 'server_name'</td>
+  <td>Filter that can be used to list only objects which have a certain set of propeties. Filters should be a dict with a key containing keys and value pair in the following format: 'properties.name': 'server_name'</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>

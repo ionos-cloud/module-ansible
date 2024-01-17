@@ -80,19 +80,24 @@ This is a simple module that supports listing existing Repositories
   </thead>
   <tbody>
   <tr>
-  <td>filters<br/><mark style="color:blue;">dict</mark></td>
-  <td align="center">False</td>
-  <td>Filter that can be used to list only objects which have a certain set of propeties. Filters should be a dict with a key containing keys and value pair in the following format:'properties.name': 'server_name'</td>
-  </tr>
-  <tr>
   <td>registry<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
   <td>The ID or name of an existing Registry.</td>
   </tr>
   <tr>
+  <td>filters<br/><mark style="color:blue;">dict</mark></td>
+  <td align="center">False</td>
+  <td>Filter that can be used to list only objects which have a certain set of propeties. Filters should be a dict with a key containing keys and value pair in the following format: 'properties.name': 'server_name'</td>
+  </tr>
+  <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>

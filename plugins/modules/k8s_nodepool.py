@@ -137,6 +137,12 @@ OPTIONS = {
         'elements': 'str',
     },
     **get_default_options_with_replace(STATES),
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 3600,
+        'available': STATES,
+        'type': 'int',
+    },
 }
 
 IMMUTABLE_OPTIONS = [
@@ -313,7 +319,7 @@ options:
         - Wait for the resource to be created before returning.
         required: false
     wait_timeout:
-        default: 600
+        default: 3600
         description:
         - How long before wait gives up, in seconds.
         required: false

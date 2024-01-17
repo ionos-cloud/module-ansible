@@ -52,8 +52,7 @@ def _get_request_id(headers):
     if match:
         return match.group(1)
     else:
-        raise Exception("Failed to extract request ID from response "
-                        "header 'location': '{location}'".format(location=headers['location']))
+        return None
 
 
 def get_users(api, all_users, depth=2):
@@ -74,7 +73,14 @@ def get_users(api, all_users, depth=2):
 #########################################
 
 def get_module_arguments(options, states):
-    arguments = {}
+    arguments = {
+        {
+            'allow_replace': {'type': 'bool'},
+        },
+        {
+            'depth': {'type': 'int'},
+        }
+    }
 
     for option_name, option in options.items():
         arguments[option_name] = {
@@ -210,7 +216,8 @@ def default_main_info(ionos_module, ionos_module_name, user_agent, has_sdk, opti
 
     if not has_sdk:
         module.fail_json(
-            msg='{module_name} is required for this module, run `pip install {module_name}}`'.format(module_name=ionos_module_name))
+            msg='{module_name} is required for this module, run `pip install {module_name}`'.format(module_name=ionos_module_name),
+        )
 
     state = module.params.get('state')
     with ionos_module.ApiClient(get_sdk_config(module, ionos_module)) as api_client:

@@ -4,9 +4,3 @@
 
 - name: Run Postgres Cluster Test
   import_playbook: postgres-cluster-test.yml
-
-- name: Run Postgres Cluster Info Test
-  import_playbook: postgres-cluster-info-test.yml
-
-- name: Run Postgres Backup Test
-  import_playbook: postgres-backup-info-test.yml

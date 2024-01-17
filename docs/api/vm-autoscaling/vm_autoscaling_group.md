@@ -91,7 +91,7 @@ This is a module that supports creating, updating or destroying VM Autoscaling G
         vm_autoscaling_group: "{{ name }}"
         state: absent
       register: vm_autoscaling_group_response
-  
+
 ```
 
 &nbsp;
@@ -216,6 +216,9 @@ This is a module that supports creating, updating or destroying VM Autoscaling G
 
 &nbsp;
 
+ **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
+## Parameters that can trigger a resource replacement:
+  * datacenter 
 &nbsp;
 
 # state: **present**
@@ -358,9 +361,9 @@ This is a module that supports creating, updating or destroying VM Autoscaling G
   <td>The size of the memory for the VMs in MB. The size must be in multiples of 256 MB, with a minimum of 256 MB; if you set 'ramHotPlug=TRUE', you must use at least 1024 MB. If you set the RAM size to more than 240 GB, 'ramHotPlug=FALSE' is fixed.</td>
   </tr>
   <tr>
-  <td>do_not_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean indicating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead<br />Default: False</td>
+  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -627,9 +630,9 @@ This is a module that supports creating, updating or destroying VM Autoscaling G
   <td>The ID or name of an existing VM Autoscaling Group.</td>
   </tr>
   <tr>
-  <td>do_not_replace<br/><mark style="color:blue;">bool</mark></td>
+  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean indicating if the resource should not be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a differentvalue to an immutable property. An error will be thrown instead<br />Default: False</td>
+  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>

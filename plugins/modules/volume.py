@@ -3,7 +3,6 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
-from fcntl import F_WRLCK
 import re
 import traceback
 
@@ -190,13 +189,6 @@ IMMUTABLE_OPTIONS = [
         "note": "Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!",
     },
 ]
-
-
-def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
-    del val['available']
-    del val['type']
-    return val
 
 DOCUMENTATION = '''
 ---

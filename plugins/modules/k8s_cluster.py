@@ -90,6 +90,12 @@ OPTIONS = {
         'type': 'str'
     },
     **get_default_options(STATES),
+    'wait_timeout': {
+        'description': ['How long before wait gives up, in seconds.'],
+        'default': 3600,
+        'available': STATES,
+        'type': 'int',
+    },
 }
 
 
@@ -101,14 +107,6 @@ description:
        This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
 options:
-    allow_replace:
-        default: false
-        description:
-        - Boolean indicating if the resource should be recreated when the state cannot
-            be reached in another way. This may be used to prevent resources from being
-            deleted from specifying a different value to an immutable property. An error
-            will be thrown instead
-        required: false
     api_subnet_allow_list:
         description:
         - Access to the K8s API server is restricted to these CIDRs. Intra-cluster traffic
@@ -209,7 +207,7 @@ options:
         - Wait for the resource to be created before returning.
         required: false
     wait_timeout:
-        default: 600
+        default: 3600
         description:
         - How long before wait gives up, in seconds.
         required: false

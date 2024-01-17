@@ -53,7 +53,66 @@ description:
      - This is a module that supports creating, updating or destroying Repositories
 version_added: "2.0"
 options:
-    jiopwerrgopihwgowejg
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    registry:
+        description:
+        - The ID or name of an existing Registry.
+        required: true
+    repository:
+        description:
+        - The name of an existing repository.
+        required: true
+    state:
+        choices:
+        - absent
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
@@ -71,8 +130,11 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = """
-    ilowuerhfgwoqrghbqwoguh
+EXAMPLES = """- name: Delete Repository
+    registry_repository:
+        registry: RegistryName
+        repository: testRepository
+        state: absent
 """
 
 

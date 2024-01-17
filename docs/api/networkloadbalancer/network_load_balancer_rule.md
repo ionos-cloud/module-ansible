@@ -43,7 +43,7 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
       network_load_balancer: NLBName
       forwarding_rule: "RuleName - UPDATED"
       state: absent
-  
+
 ```
 
 &nbsp;
@@ -175,11 +175,6 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
   <td>network_load_balancer<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
   <td>The ID or name of the Network Loadbalancer.</td>
-  </tr>
-  <tr>
-  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
-  <td align="center">False</td>
-  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -393,11 +388,6 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
   <td>forwarding_rule<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
   <td>The ID or name of the Network Loadbalancer forwarding rule.</td>
-  </tr>
-  <tr>
-  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
-  <td align="center">False</td>
-  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>

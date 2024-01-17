@@ -211,14 +211,6 @@ description:
        When the virtual machine is created it can optionally wait for it to be 'running' before returning.
 version_added: "2.0"
 options:
-    allow_replace:
-        default: false
-        description:
-        - Boolean indicating if the resource should be recreated when the state cannot
-            be reached in another way. This may be used to prevent resources from being
-            deleted from specifying a different value to an immutable property. An error
-            will be thrown instead
-        required: false
     api_url:
         description:
         - The Ionos API base URL.

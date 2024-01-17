@@ -36,7 +36,7 @@ This is a module that supports creating, updating or destroying DNS Secondary Zo
       secondary_zone: example.com
       wait: true
       state: absent
-  
+
 ```
 
 &nbsp;
@@ -120,14 +120,14 @@ This is a module that supports creating, updating or destroying DNS Secondary Zo
   <td>Indicates IP addresses of primary nameservers for a secondary zone. Accepts IPv4 and IPv6 addresses</td>
   </tr>
   <tr>
-  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
-  <td align="center">False</td>
-  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
-  </tr>
-  <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>
@@ -195,6 +195,11 @@ This is a module that supports creating, updating or destroying DNS Secondary Zo
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>
@@ -278,14 +283,14 @@ This is a module that supports creating, updating or destroying DNS Secondary Zo
   <td>The ID or name of an existing Secondary Zone.</td>
   </tr>
   <tr>
-  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
-  <td align="center">False</td>
-  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
-  </tr>
-  <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>
@@ -353,6 +358,11 @@ This is a module that supports creating, updating or destroying DNS Secondary Zo
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>

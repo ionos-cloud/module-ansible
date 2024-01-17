@@ -82,6 +82,10 @@ OPTIONS = {
     **get_default_options_with_replace(STATES),
 }
 
+IMMUTABLE_OPTIONS = [
+    { "name": "name", "note": "" },
+]
+
 DOCUMENTATION = """
 module: dns_record
 short_description: Allows operations with Ionos Cloud DNS Records.

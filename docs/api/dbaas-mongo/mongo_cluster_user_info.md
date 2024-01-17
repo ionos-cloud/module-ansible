@@ -11,7 +11,6 @@ This is a simple module that supports listing existing Mongo Clusters
         mongo_cluster_info:
         register: mongo_clusters_response
 
-
     - name: Show Mongo Clusters
         debug:
             var: mongo_clusters_response.result
@@ -73,12 +72,17 @@ This is a simple module that supports listing existing Mongo Clusters
   <tr>
   <td>filters<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>
-  <td>Filter that can be used to list only objects which have a certain set of propeties. Filters should be a dict with a key containing keys and value pair in the following format:'properties.name': 'server_name'</td>
+  <td>Filter that can be used to list only objects which have a certain set of propeties. Filters should be a dict with a key containing keys and value pair in the following format: 'properties.name': 'server_name'</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>

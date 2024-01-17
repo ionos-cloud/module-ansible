@@ -31,7 +31,7 @@ This is a simple module that supports updating or removing Images. This module h
     image:
       image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
       state: absent
-  
+
 ```
 
 &nbsp;
