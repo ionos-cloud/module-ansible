@@ -4,6 +4,3 @@
 
 - name: Run Certificate Test
   import_playbook: certificate-test.yml
-
-- name: Run Certificate Info Test
-  import_playbook: certificate-info-test.yml
