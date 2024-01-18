@@ -273,6 +273,7 @@ class UserModule(CommonIonosModule):
         self.sdks = [ionoscloud]
         self.user_agents = [USER_AGENT]
         self.options = OPTIONS
+        self.object_identity_paths = [['id'], ['properties', 'email']]
 
 
     def _should_replace_object(self, existing_object, clients):
