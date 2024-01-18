@@ -15,7 +15,7 @@
     - name: Create Data Platform cluster
       ionoscloudsdk.ionoscloud.dataplatform_cluster:
         name: "{{ name }}"
-        dataplatform_version: "23.7"
+        dataplatform_version: "{{ dataplatform_version }}"
         datacenter: "{{ datacenter_response.datacenter.id }}"
         maintenance_window:
           day_of_the_week: "Wednesday"
@@ -33,7 +33,7 @@
     - name: Patch Data Platform cluster no change
       ionoscloudsdk.ionoscloud.dataplatform_cluster:
         name: "{{ name }}"
-        dataplatform_version: "23.7"
+        dataplatform_version: "{{ dataplatform_version }}"
         datacenter: "{{ datacenter_response.datacenter.id }}"
         wait: true
         wait_timeout: 7200
@@ -48,7 +48,7 @@
     - name: Patch Data Platform cluster no change
       ionoscloudsdk.ionoscloud.dataplatform_cluster:
         name: "{{ name }}"
-        dataplatform_version: "23.7"
+        dataplatform_version: "{{ dataplatform_version }}"
         datacenter: "{{ datacenter_response.datacenter.properties.name }}"
         allow_replace: False
         wait: true
@@ -64,7 +64,7 @@
     - name: Patch Data Platform cluster no change
       ionoscloudsdk.ionoscloud.dataplatform_cluster:
         cluster: "{{ name }}"
-        dataplatform_version: "23.7"
+        dataplatform_version: "{{ dataplatform_version }}"
         allow_replace: False
         maintenance_window:
           day_of_the_week: "Wednesday"
@@ -83,7 +83,7 @@
     - name: Patch Data Platform cluster
       ionoscloudsdk.ionoscloud.dataplatform_cluster:
         name: "{{ name }}"
-        dataplatform_version: "23.7"
+        dataplatform_version: "{{ dataplatform_version }}"
         cluster: "{{ cluster_response.dataplatform_cluster.id }}"
         maintenance_window:
           day_of_the_week: "Wednesday"
