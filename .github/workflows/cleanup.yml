@@ -8,7 +8,6 @@ on:
 
 jobs:
   cleanup_test_account:
-    needs: check_runs
     name: Cleanup test account
     runs-on: ubuntu-latest
     env:
