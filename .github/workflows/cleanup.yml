@@ -1,0 +1,42 @@
+# vim: ts=2: sw=2: ai: si
+# CI workflow
+
+name: Cleanup test account
+
+on:
+    workflow_dispatch:
+
+jobs:
+  cleanup_test_account:
+    needs: check_runs
+    name: Cleanup test account
+    runs-on: ubuntu-latest
+    env:
+      IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
+      IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
+      IONOS_TOKEN: ${{ secrets.IONOS_PASSWORD_V6 }}
+      IONOSCTL_VERSION: 6.1.7
+    steps:
+      - name: Checking out module-ansible
+        uses: actions/checkout@v2
+
+      - name: Setup ionosctl
+        run: |
+          curl -sL https://github.com/ionos-cloud/ionosctl/releases/download/v${{ env.IONOSCTL_VERSION }}/ionosctl-${{ env.IONOSCTL_VERSION }}-linux-amd64.tar.gz | tar -xzv > /dev/null
+          mv ionosctl /usr/local/bin
+
+#     Temporarily skipped
+      - name: Perform cleanup
+        working-directory: /home/runner/work/module-ansible/module-ansible/.github/scripts/cleanup
+        run: |
+          ./delete-all-resources.sh &> output.log || true
+          cat output.log
+
+      # Upload the output as an artifact
+      - name: Create an artifact with the output logs file
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: cleanup.log
+          path: |
+            /home/runner/work/module-ansible/module-ansible/.github/cleanup/scripts/cleanup/output.log
