@@ -65,7 +65,7 @@ jobs:
       IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
       IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
       IONOS_TOKEN: ${{ secrets.IONOS_TOKEN_V6 }}
-      IONOSCTL_VERSION: 6.1.7
+      IONOSCTL_VERSION: 6.7.4
     steps:
       - name: Checking out module-ansible
         uses: actions/checkout@v2
