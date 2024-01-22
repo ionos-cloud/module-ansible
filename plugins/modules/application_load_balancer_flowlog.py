@@ -286,7 +286,7 @@ class FlowlogModule(CommonIonosModule):
 
     def _get_object_list(self, clients):
         client = clients[0]
-        datacenter_id = self.get_resource_id(
+        datacenter_id = get_resource_id(
             self.module, 
             ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
             self.module.params.get('datacenter'),

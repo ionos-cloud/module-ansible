@@ -13,7 +13,7 @@ from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_io
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
     get_module_arguments, get_resource_id,
 )
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options_with_replace
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
 
 ANSIBLE_METADATA = {
@@ -198,7 +198,17 @@ OPTIONS = {
         'required': ['update', 'absent'],
         'type': 'str',
     },
-    **get_default_options_with_replace(STATES),
+    'do_not_replace': {
+        'description': [
+            'Boolean indicating if the resource should not be recreated when the state cannot be reached in '
+            'another way. This may be used to prevent resources from being deleted from specifying a different'
+            'value to an immutable property. An error will be thrown instead',
+        ],
+        'available': ['present', 'update'],
+        'default': True,
+        'type': 'bool',
+    },
+    **get_default_options(STATES),
 }
 
 IMMUTABLE_OPTIONS = [
@@ -680,11 +690,6 @@ class RegistryModule(CommonIonosModule):
 
     def _should_update_object(self, existing_object, clients):
         vm_autoscaling_client = clients[0]
-        cloudapi_client = clients[1]
-        datacenter_id = None
-        if self.module.params.get('datacenter'):
-            datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
-            datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
 
         scale_in_action_should_update = scale_out_action_should_update = nics_update = volumes_update = False
         if self.module.params.get('scale_in_action'):
@@ -801,6 +806,39 @@ class RegistryModule(CommonIonosModule):
 
     def _get_object_identifier(self):
         return self.module.params.get('vm_autoscaling_group')
+
+
+    def update_replace_object(self, existing_object, clients):
+        module = self.module
+        if self._should_replace_object(existing_object, clients):
+
+            if module.params.get('do_not_replace'):
+                module.fail_json(msg="{} should be replaced but do_not_replace is set to False.".format(self.object_name))
+
+            new_object = self._create_object(existing_object, clients).to_dict()
+            self._remove_object(existing_object, clients)
+            return {
+                'changed': True,
+                'failed': False,
+                'action': 'create',
+                self.returned_key: new_object,
+            }
+        if self._should_update_object(existing_object, clients):
+            # Update
+            return {
+                'changed': True,
+                'failed': False,
+                'action': 'update',
+                self.returned_key: self._update_object(existing_object, clients).to_dict()
+            }
+
+        # No action
+        return {
+            'changed': False,
+            'failed': False,
+            'action': 'create',
+            self.returned_key: existing_object.to_dict()
+        }
 
 
     def _create_object(self, existing_object, clients):

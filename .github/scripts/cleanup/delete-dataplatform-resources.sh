@@ -8,8 +8,8 @@
 delete_all_args='--all --force'
 
 function delete_dataplatform_resources() {
-  ionosctl dataplatform nodepool delete $delete_all_args -W
-  ionosctl dataplatform cluster delete $delete_all_args -W
+  ionosctl dataplatform nodepool delete $delete_all_args
+  ionosctl dataplatform cluster delete $delete_all_args
 
   echo_step_completed
 }
