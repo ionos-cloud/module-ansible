@@ -10,7 +10,7 @@ except ImportError:
     HAS_SDK = False
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments, get_resource_id
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments, get_resource
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
 
@@ -310,6 +310,27 @@ class DnsSecondaryZoneModule(CommonIonosModule):
         except ionoscloud_dns.ApiException as e:
             self.module.fail_json(msg="failed to remove the DNS Secondary Zone: %s" % to_native(e))
 
+
+    def transfer_object(self, clients):
+        client = clients[0]
+        existing_object = get_resource(
+            self.module, self._get_object_list(self.module, client),
+            self._get_object_identifier(self.module), identity_paths=[['id'], ['properties', 'zone_name']],
+        )
+        ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_axfr_put(existing_object.id)
+
+        if self.module.params.get('wait'):
+            client.wait_for(
+                fn_request=lambda: ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_axfr_get(existing_object.id).items,
+                fn_check=lambda r: all([ip.status == 'Ok' for ip in r]),
+                scaleup=10000,
+                timeout=int(self.module.params.get('wait_timeout')),
+            )
+        return {
+            'action': 'transfer',
+            'changed': True,
+            'id': existing_object.id,
+        }
 
 if __name__ == '__main__':
     ionos_module = DnsSecondaryZoneModule()
