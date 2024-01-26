@@ -314,8 +314,8 @@ class DnsSecondaryZoneModule(CommonIonosModule):
     def transfer_object(self, clients):
         client = clients[0]
         existing_object = get_resource(
-            self.module, self._get_object_list(self.module, client),
-            self._get_object_identifier(self.module), identity_paths=[['id'], ['properties', 'zone_name']],
+            self.module, self._get_object_list(clients),
+            self._get_object_identifier(), self.object_identity_paths,
         )
         ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_axfr_put(existing_object.id)
 
