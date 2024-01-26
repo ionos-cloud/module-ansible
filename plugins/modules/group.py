@@ -582,10 +582,11 @@ class GroupModule(CommonIonosModule):
 
 
     def _remove_object(self, existing_object, clients):
+        client = clients[0]
         wait = self.module.params.get('wait')
         wait_timeout = self.module.params.get('wait_timeout')
 
-        um_api = ionoscloud.UserManagementApi(clients[0])
+        um_api = ionoscloud.UserManagementApi(client)
 
         try:
             _, _, headers = um_api.um_groups_delete_with_http_info(existing_object.id)
