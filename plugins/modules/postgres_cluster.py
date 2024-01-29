@@ -389,6 +389,7 @@ class PostgresClusterModule(CommonIonosModule):
         self.sdks = [ionoscloud_dbaas_postgres, ionoscloud]
         self.user_agents = [USER_AGENT, USER_AGENT_CLOUDAPI]
         self.options = OPTIONS
+        self.object_identity_paths = [['id'], ['properties', 'display_name']]
 
 
     def _should_replace_object(self, existing_object, clients):

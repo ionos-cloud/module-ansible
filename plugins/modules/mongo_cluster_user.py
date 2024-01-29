@@ -4,7 +4,6 @@ from ansible.module_utils._text import to_native
 
 HAS_SDK = True
 try:
-    import ionoscloud
     import ionoscloud_dbaas_mongo
 except ImportError:
     HAS_SDK = False
@@ -22,7 +21,6 @@ ANSIBLE_METADATA = {
     'supported_by': 'community',
 }
 
-CLOUDAPI_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (__version__, ionoscloud.__version__)
 USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-dbaas-mongo/%s' % (
     __version__, ionoscloud_dbaas_mongo.__version__)
 DOC_DIRECTORY = 'dbaas-mongo'
@@ -222,7 +220,7 @@ class MongoUserModule(CommonIonosModule):
         self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES))
         self.returned_key = RETURNED_KEY
         self.object_name = OBJECT_NAME
-        self.sdks = [ionoscloud]
+        self.sdks = [ionoscloud_dbaas_mongo]
         self.user_agents = [USER_AGENT]
         self.options = OPTIONS
         self.object_identity_paths = [['properties', 'username']]
@@ -360,6 +358,6 @@ class MongoUserModule(CommonIonosModule):
 if __name__ == '__main__':
     ionos_module = MongoUserModule()
     if not HAS_SDK:
-        ionos_module.module.fail_json(msg='both ionoscloud and ionoscloud_dbaas_mongo are required for this module, '
-                             'run `pip install ionoscloud ionoscloud_dbaas_mongo`')
+        ionos_module.module.fail_json(msg='ionoscloud_dbaas_mongo is required for this module, '
+                             'run `pip install ionoscloud_dbaas_mongo`')
     ionos_module.main()
