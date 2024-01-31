@@ -28,6 +28,7 @@
         datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         public_ips: "{{ ipblock_response.ipblock.properties.ips }}"
+        wait_timeout: 2000
         wait: true
       register: nat_gateway_response
 

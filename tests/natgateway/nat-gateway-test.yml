@@ -47,6 +47,7 @@
           - id: "{{ lan_response.lan.id }}"
             gateway_ips:
               - "10.11.2.5/24"
+        wait_timeout: 2000
         wait: true
       register: nat_gateway_response
 
@@ -60,6 +61,7 @@
         name: "{{ name }} - UPDATED"
         public_ips: "{{ ipblock_response_update.ipblock.properties.ips }}"
         nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
+        wait_timeout: 2000
         wait: true
         state: update
       register: nat_gateway_response_update

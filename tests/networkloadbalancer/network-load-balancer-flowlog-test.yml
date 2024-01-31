@@ -38,6 +38,7 @@
         listener_lan: "{{ listener_lan.lan.id }}"
         target_lan: "{{ target_lan.lan.id }}"
         wait: true
+        wait_timeout: 2000
       register: nlb_response
       
     - name: Debug - Show Network Load Balancer

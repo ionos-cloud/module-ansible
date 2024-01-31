@@ -38,6 +38,7 @@
         listener_lan: "{{ listener_lan.lan.id }}"
         target_lan: "{{ target_lan.lan.id }}"
         wait: true
+        wait_timeout: 2000
       register: nlb_response
 
     - name: Debug - Show Network Load Balancer
@@ -52,6 +53,7 @@
         listener_lan: "{{ listener_lan.lan.id }}"
         target_lan: "{{ target_lan.lan.id }}"
         wait: true
+        wait_timeout: 2000
         state: update
       register: nlb_response_update
 
@@ -64,6 +66,7 @@
        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
        datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: false
+       wait_timeout: 2000
        state: absent
 
     - name: Remove Network Load Balancer
@@ -71,6 +74,7 @@
        network_load_balancer: "{{ nlb_response.network_load_balancer.id }}"
        datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
+       wait_timeout: 2000
        state: absent
 
     - name: Remove Network Load Balancer
@@ -78,6 +82,7 @@
        network_load_balancer: "invalid-id"
        datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
+       wait_timeout: 2000
        state: absent
 
     - name: Remove Listener LAN
