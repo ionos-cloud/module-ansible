@@ -9,25 +9,25 @@
     - ./vars.yml
 
   tasks:
-    - name: Create datacenter
-      datacenter:
-          name: "{{ datacenter }}"
-          location: "{{ location }}"
+    # - name: Create datacenter
+    #   ionoscloudsdk.ionoscloud.datacenter:
+    #       name: "{{ datacenter }}"
+    #       location: "{{ location }}"
 
-    - name: Create volume
-      volume:
-        datacenter: "{{ datacenter }}"
-        name: "{{ name }}"
-        count: 1
-        size: 20
-        disk_type: HDD
-        image: "{{ image_alias }}"
-        image_password: "{{ password }}"
-        availability_zone: ZONE_3
-        state: present
+    # - name: Create volume
+    #   ionoscloudsdk.ionoscloud.volume:
+    #     datacenter: "{{ datacenter }}"
+    #     name: "{{ name }}"
+    #     count: 1
+    #     size: 20
+    #     disk_type: HDD
+    #     image: "{{ image_alias }}"
+    #     image_password: "{{ password }}"
+    #     availability_zone: ZONE_3
+    #     state: present
 
     - name: Create snapshot
-      snapshot:
+      ionoscloudsdk.ionoscloud.snapshot:
         datacenter: "{{ datacenter }}"
         volume: "{{ name }}"
         name: "{{ name }}"
@@ -41,7 +41,7 @@
     #     dest: ../../docs/returned_object_examples/snapshot.json
 
     - name: List Snapshots
-      snapshot_info:
+      ionoscloudsdk.ionoscloud.snapshot_info:
       register: snapshot_list_response
 
     # - name: Print output to file
@@ -50,32 +50,32 @@
     #     dest: ../../docs/returned_object_examples/snapshot_info.json
 
     - name: Update snapshot
-      snapshot:
+      ionoscloudsdk.ionoscloud.snapshot:
         snapshot: "{{ name }}"
         description: Ansible test snapshot - RENAME
         state: update
 
     - name: Restore snapshot
-      snapshot:
+      ionoscloudsdk.ionoscloud.snapshot:
         datacenter: "{{ datacenter }}"
         volume: "{{ name }}"
         snapshot: "{{ name }}"
         state: restore
 
     - name: Delete snapshot
-      snapshot:
+      ionoscloudsdk.ionoscloud.snapshot:
         snapshot: "{{ name }}"
         wait_timeout: 600
         state: absent
 
     - name: Delete snapshot
-      snapshot:
+      ionoscloudsdk.ionoscloud.snapshot:
         snapshot: "{{ name }}"
         wait_timeout: 600
         state: absent
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter }}"
         state: absent
         wait: true

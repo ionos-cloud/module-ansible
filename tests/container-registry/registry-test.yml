@@ -17,7 +17,7 @@
         time: 04:17:00+00:00
       features:
         vulnerability_scanning:
-          enabled: false
+          enabled: true
       wait: true
     register: registry_response
 

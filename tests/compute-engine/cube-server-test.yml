@@ -105,7 +105,7 @@
          state: suspend
 
     - name: Resume server
-      cube_server:
+      ionoscloudsdk.ionoscloud.cube_server:
          datacenter: "{{ datacenter }}"
          instance_ids:
            - "{{ name }} - UPDATED"
