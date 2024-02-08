@@ -9,7 +9,7 @@
 
   - name: Create Registry
     ionoscloudsdk.ionoscloud.registry:
-      name: "{{registry_name}}"
+      name: "{{registry_name}}-{{100|random}}"
       location: de/fra
       garbage_collection_schedule:
         days: 
