@@ -9,22 +9,22 @@
     - ./vars.yml
 
   tasks:
-    # - name: Create datacenter
-    #   ionoscloudsdk.ionoscloud.datacenter:
-    #       name: "{{ datacenter }}"
-    #       location: "{{ location }}"
+    - name: Create datacenter
+      ionoscloudsdk.ionoscloud.datacenter:
+          name: "{{ datacenter }}"
+          location: "{{ location }}"
 
-    # - name: Create volume
-    #   ionoscloudsdk.ionoscloud.volume:
-    #     datacenter: "{{ datacenter }}"
-    #     name: "{{ name }}"
-    #     count: 1
-    #     size: 20
-    #     disk_type: HDD
-    #     image: "{{ image_alias }}"
-    #     image_password: "{{ password }}"
-    #     availability_zone: ZONE_3
-    #     state: present
+    - name: Create volume
+      ionoscloudsdk.ionoscloud.volume:
+        datacenter: "{{ datacenter }}"
+        name: "{{ name }}"
+        count: 1
+        size: 20
+        disk_type: HDD
+        image: "{{ image_alias }}"
+        image_password: "{{ password }}"
+        availability_zone: ZONE_3
+        state: present
 
     - name: Create snapshot
       ionoscloudsdk.ionoscloud.snapshot:
