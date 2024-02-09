@@ -54,6 +54,7 @@
         datacenter: "{{ datacenter_response.datacenter.id }}"
         application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
         wait: true
+        wait_timeout: 2000
       register: alb_flowlog_response
 
     # - name: Print output to file
@@ -102,11 +103,11 @@
 
     - name: Remove Application Load Balancer
       ionoscloudsdk.ionoscloud.application_load_balancer:
-       application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-       datacenter: "{{ datacenter_response.datacenter.id }}"
-       wait: true
-       wait_timeout: 2000
-       state: absent
+        application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        wait: true
+        wait_timeout: 2000
+        state: absent
 
     - name: Remove Listener LAN
       ionoscloudsdk.ionoscloud.lan:
