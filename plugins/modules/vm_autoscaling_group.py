@@ -222,14 +222,6 @@ description:
      - This is a module that supports creating, updating or destroying VM Autoscaling Groups
 version_added: "2.0"
 options:
-    allow_replace:
-        default: false
-        description:
-        - Boolean indicating if the resource should be recreated when the state cannot
-            be reached in another way. This may be used to prevent resources from being
-            deleted from specifying a different value to an immutable property. An error
-            will be thrown instead
-        required: false
     api_url:
         description:
         - The Ionos API base URL.
@@ -264,6 +256,14 @@ options:
         description:
         - The VMs for this VM Auto Scaling Description are created in this virtual data
             center.
+        required: false
+    do_not_replace:
+        default: true
+        description:
+        - Boolean indicating if the resource should not be recreated when the state cannot
+            be reached in another way. This may be used to prevent resources from being
+            deleted from specifying a differentvalue to an immutable property. An error
+            will be thrown instead
         required: false
     max_replica_count:
         description:

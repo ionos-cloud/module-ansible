@@ -85,7 +85,7 @@
 
     - name: Show Mongo Clusters
       debug:
-        var: mongo_clusters_response.result
+        var: mongo_clusters_response.mongo_clusters
 
     # - name: Print output to file
     #   ansible.builtin.copy:

@@ -10,7 +10,7 @@ except ImportError:
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, get_resource_id,
+    get_module_arguments, get_resource_id, get_resource,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
@@ -354,6 +354,41 @@ class MongoUserModule(CommonIonosModule):
         except Exception as e:
             self.module.fail_json(msg="failed to delete the Mongo Cluster User: %s" % to_native(e))
 
+
+    def update_object(self, clients):
+        object_list = self._get_object_list(clients)
+
+        existing_object = get_resource(
+            self.module, object_list,
+            self._get_object_identifier(),
+            self.object_identity_paths,
+        )
+
+        if existing_object is None:
+            self.module.exit_json(changed=False)
+            return
+
+        return self.update_replace_object(existing_object, clients)
+
+
+    def absent_object(self, clients):
+        existing_object = get_resource(
+            self.module, self._get_object_list(clients),
+            self._get_object_identifier(),
+            self.object_identity_paths,
+        )
+
+        if existing_object is None:
+            self.module.exit_json(changed=False)
+            return
+
+        self._remove_object(existing_object, clients)
+
+        return {
+            'action': 'delete',
+            'changed': True,
+            'id': existing_object.properties.username,
+        }
 
 if __name__ == '__main__':
     ionos_module = MongoUserModule()

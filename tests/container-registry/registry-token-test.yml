@@ -65,7 +65,7 @@
 
   - name: Show Registry Tokens
     debug:
-      var: registry_tokens_response.result
+      var: registry_tokens_response.registry_tokens
 
   - name: Update Registry Token
     ionoscloudsdk.ionoscloud.registry_token:
