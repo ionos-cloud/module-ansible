@@ -26,7 +26,7 @@ This is a module that supports creating, updating or destroying DNS Zones
       zone: example.com
       wait: true
       state: absent
-  
+
 ```
 
 &nbsp;
@@ -105,14 +105,14 @@ This is a module that supports creating, updating or destroying DNS Zones
   <td>The zone name</td>
   </tr>
   <tr>
-  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
-  <td align="center">False</td>
-  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
-  </tr>
-  <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>
@@ -180,6 +180,11 @@ This is a module that supports creating, updating or destroying DNS Zones
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>
@@ -261,14 +266,14 @@ This is a module that supports creating, updating or destroying DNS Zones
   <td>The ID or name of an existing Zone.</td>
   </tr>
   <tr>
-  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
-  <td align="center">False</td>
-  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
-  </tr>
-  <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>

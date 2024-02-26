@@ -8,14 +8,14 @@
   tasks:
 
   - name: Create Zone
-    dns_zone:
+    ionoscloudsdk.ionoscloud.dns_zone:
       name: "{{zone_name}}"
       description: "{{zone_description}}"
       enabled: "{{zone_enabled}}"
     register: zone_response
 
   - name: Create Record
-    dns_record:
+    ionoscloudsdk.ionoscloud.dns_record:
       zone: "{{zone_name}}"
       name: "{{record_name}}"
       type: "{{record_type}}"
@@ -31,7 +31,7 @@
   #     dest: ../../docs/returned_object_examples/dns_record.json
 
   - name: List all Records in zone
-    dns_record_info:
+    ionoscloudsdk.ionoscloud.dns_record_info:
       zone: "{{zone_name}}"
     register: records_response
 
@@ -45,7 +45,7 @@
   #     dest: ../../docs/returned_object_examples/dns_record_info.json
 
   - name: List all Records
-    dns_record_info:
+    ionoscloudsdk.ionoscloud.dns_record_info:
     register: records_response
 
   - name: Show records
@@ -53,7 +53,7 @@
       var: records_response.records
 
   - name: Update record
-    dns_record:
+    ionoscloudsdk.ionoscloud.dns_record:
       zone: "{{zone_name}}"
       record: "{{record_name}}"
       type: "{{record_type_updated}}"
@@ -66,7 +66,7 @@
     register: updated_record_response
 
   - name: Update record no change
-    dns_record:
+    ionoscloudsdk.ionoscloud.dns_record:
       zone: "{{zone_name}}"
       record: "{{record_name}}"
       name: "{{record_name}}"
@@ -86,7 +86,7 @@
       msg: "Changed should be false"
 
   - name: Replace record
-    dns_record:
+    ionoscloudsdk.ionoscloud.dns_record:
       zone: "{{zone_name}}"
       record: "{{record_name}}"
       name: "{{record_name_updated}}"
@@ -100,14 +100,14 @@
     register: updated_record_response
 
   - name: Delete Record
-    dns_record:
+    ionoscloudsdk.ionoscloud.dns_record:
       zone: "{{zone_name}}"
       record: "{{ updated_record_response.record.properties.name }}"
       wait: true
       state: absent
 
   - name: Delete Zone
-    dns_zone:
+    ionoscloudsdk.ionoscloud.dns_zone:
       zone: "{{ zone_response.zone.properties.zone_name }}"
       wait: true
       state: absent

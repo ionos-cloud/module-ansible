@@ -8,7 +8,7 @@
 
   tasks:
     - name: List Images
-      image_info:
+      ionoscloudsdk.ionoscloud.image_info:
           filters: 
             "properties.name": "debian-10.0.0-amd64-netinst.iso"
       register: image_list_response
@@ -19,7 +19,7 @@
     #     dest: ../../docs/returned_object_examples/image_info.json
 
     - name: Update image
-      image:
+      ionoscloudsdk.ionoscloud.image:
         image_id: "87fe5b95-05e4-11ee-a7cb-028794406dc9"
         name: "debian-11.7.0-amd64-netinst-renamed.iso"
         description: "An image used for testing the Ansible Module"
@@ -44,6 +44,6 @@
     #     dest: ../../docs/returned_object_examples/image.json
 
     - name: Delete image
-      image:
+      ionoscloudsdk.ionoscloud.image:
         image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
         state: absent

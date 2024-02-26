@@ -30,7 +30,7 @@ This module allows you to create, update or remove a group.
     group:
       group: guests
       state: absent
-  
+
 ```
 
 &nbsp;
@@ -174,11 +174,6 @@ This module allows you to create, update or remove a group.
   <td>users<br/><mark style="color:blue;">list</mark></td>
   <td align="center">False</td>
   <td>A list of (non-administrator) user IDs or emails to associate with the group. Set to empty list ([]) to remove all users from the group.</td>
-  </tr>
-  <tr>
-  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
-  <td align="center">False</td>
-  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -406,11 +401,6 @@ This module allows you to create, update or remove a group.
   <td>users<br/><mark style="color:blue;">list</mark></td>
   <td align="center">False</td>
   <td>A list of (non-administrator) user IDs or emails to associate with the group. Set to empty list ([]) to remove all users from the group.</td>
-  </tr>
-  <tr>
-  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
-  <td align="center">False</td>
-  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>

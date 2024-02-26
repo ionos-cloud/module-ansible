@@ -12,7 +12,7 @@
       run_once: yes
 
     - name: Create user1
-      user:
+      ionoscloudsdk.ionoscloud.user:
         firstname: John1
         lastname: Doe
         user_password: "{{ password }}"
@@ -20,7 +20,7 @@
         administrator: false
 
     - name: Create user2
-      user:
+      ionoscloudsdk.ionoscloud.user:
         firstname: John2
         lastname: Doe
         user_password: "{{ password }}"
@@ -34,7 +34,7 @@
     #     dest: ../../docs/returned_object_examples/user.json
 
     - name: List Users
-      user_info:
+      ionoscloudsdk.ionoscloud.user_info:
       register: user_list_response
 
     # - name: Print output to file
@@ -43,7 +43,7 @@
     #     dest: ../../docs/returned_object_examples/user_info.json
 
     - name: Create group
-      group:
+      ionoscloudsdk.ionoscloud.group:
         name: "{{ name }}"
         create_datacenter: True
         create_snapshot: True
@@ -66,7 +66,7 @@
     #     dest: ../../docs/returned_object_examples/group.json
 
     - name: List Groups
-      group_info:
+      ionoscloudsdk.ionoscloud.group_info:
       register: group_list_response
 
     # - name: Print output to file
@@ -75,7 +75,7 @@
     #     dest: ../../docs/returned_object_examples/group_info.json
 
     - name: Add user1 to group
-      group:
+      ionoscloudsdk.ionoscloud.group:
         group: "{{ name }}"
         users:
           - "{{ random_user1 }}"
@@ -86,7 +86,7 @@
         msg: "{{ group_response }}"
 
     - name: Update group
-      group:
+      ionoscloudsdk.ionoscloud.group:
         group: "{{ name }}"
         users:
           - "{{ random_user1 }}"
@@ -119,27 +119,27 @@
         msg: "Group-test: updating a group must keep its users"
 
     - name: Remove user from group
-      group:
+      ionoscloudsdk.ionoscloud.group:
         group: "{{ name }}"
         users: []
         state: update
 
     - name: Delete user1
-      user:
+      ionoscloudsdk.ionoscloud.user:
         user: "{{ random_user1 }}"
         state: absent
 
     - name: Delete user2
-      user:
+      ionoscloudsdk.ionoscloud.user:
         user: "{{ random_user2 }}"
         state: absent
 
     - name: Delete group
-      group:
+      ionoscloudsdk.ionoscloud.group:
         group: "{{ name }}"
         state: absent
 
     - name: Delete group
-      group:
+      ionoscloudsdk.ionoscloud.group:
         group: "{{ name }}"
         state: absent

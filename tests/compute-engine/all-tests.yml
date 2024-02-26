@@ -2,6 +2,10 @@
   connection: local
   gather_facts: false
 
+
+- name: Run Datacenter Test
+  import_playbook: datacenter-test.yml
+
 - name: Run IPV6 Test
   import_playbook: ipv6-test.yml
 
@@ -11,8 +15,8 @@
 - name: Run Nic Test
   import_playbook: nic-test.yml
 
-# - name: Run Nic Flowlog Test
-#   import_playbook: nic-flowlog-test.yml
+- name: Run Nic Flowlog Test
+  import_playbook: nic-flowlog-test.yml
 
 - name: Run PCC Test
   import_playbook: pcc-test.yml
@@ -26,9 +30,6 @@
 - name: Run Volume Test
   import_playbook: volume-test.yml
 
-- name: Run Datacenter Test
-  import_playbook: datacenter-test.yml
-
 - name: Run VCPU Server Test
   import_playbook: vcpu-server-test.yml
 
@@ -41,8 +42,8 @@
 - name: Run Template Test
   import_playbook: template-test.yml
 
-#- name: Run Firewall Test
-#  import_playbook: firewall-test.yml
+- name: Run Firewall Test
+  import_playbook: firewall-test.yml
 
 # Skipped because we can't automatically upload an image using Cloud API
 # and the test needs an image to be uploaded

@@ -11,7 +11,7 @@
       run_once: yes
 
     - name: Create user
-      user:
+      ionoscloudsdk.ionoscloud.user:
         firstname: John
         lastname: Doe
         email: "{{ random_user }}"
@@ -22,7 +22,7 @@
       register: user_response
 
     - name: Create an s3key
-      s3key:
+      ionoscloudsdk.ionoscloud.s3key:
         user: "{{ user_response.user.properties.email }}"
       register: result
 
@@ -32,7 +32,7 @@
     #     dest: ../../docs/returned_object_examples/s3key.json
 
     - name: List s3keys
-      s3key_info:
+      ionoscloudsdk.ionoscloud.s3key_info:
         user: "{{ user_response.user.properties.email }}"
       register: s3key_list_response
 
@@ -46,19 +46,19 @@
         msg: "{{ result }}"
 
     - name: Update an s3key
-      s3key:
+      ionoscloudsdk.ionoscloud.s3key:
         user: "{{ user_response.user.id }}"
         key_id: "{{ result.s3key.id }}"
         active: False
         state: update
 
     - name: Create an s3key with idempotency
-      s3key:
+      ionoscloudsdk.ionoscloud.s3key:
         user: "{{ user_response.user.id }}"
         idempotency: True
 
     - name: List S3Keys
-      s3key_info:
+      ionoscloudsdk.ionoscloud.s3key_info:
         user: "{{ user_response.user.id }}"
       register: s3keys_info_response
 
@@ -78,18 +78,18 @@
         msg: "s3key idempotency not working correctly"
 
     - name: Remove an s3key
-      s3key:
+      ionoscloudsdk.ionoscloud.s3key:
         user: "{{ user_response.user.id }}"
         key_id: "{{ result.s3key.id }}"
         state: absent
 
     - name: Remove an s3key - non existent
-      s3key:
+      ionoscloudsdk.ionoscloud.s3key:
         user: "{{ user_response.user.id }}"
         key_id: "not-existent-key"
         state: absent
     
     - name: Delete user
-      user:
+      ionoscloudsdk.ionoscloud.user:
         user: "{{ random_user }}"
         state: absent

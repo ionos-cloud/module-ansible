@@ -8,7 +8,7 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: "{{ location }}"
@@ -16,7 +16,7 @@
       register: datacenter_response
 
     - name: Create ipblock
-      ipblock:
+      ionoscloudsdk.ionoscloud.ipblock:
         name: "{{ name }}"
         location: "{{ location }}"
         size: 2
@@ -24,11 +24,12 @@
       register: ipblock_response
 
     - name: Create NAT Gateway
-      nat_gateway:
+      ionoscloudsdk.ionoscloud.nat_gateway:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         public_ips: "{{ ipblock_response.ipblock.properties.ips }}"
         wait: true
+        wait_timeout: 2000
       register: nat_gateway_response
 
     - name: Debug - Show NAT Gateway
@@ -36,7 +37,7 @@
          msg: "{{ nat_gateway_response }}"
 
     - name: Create NAT Gateway Flowlog
-      nat_gateway_flowlog:
+      ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
         name: "{{ name }}"
         action: "ACCEPTED"
         direction: "INGRESS"
@@ -52,7 +53,7 @@
     #     dest: ../../docs/returned_object_examples/nat_gateway_flowlog.json
 
     - name: List NAT Gateway Flowlogs
-      nat_gateway_flowlog_info:
+      ionoscloudsdk.ionoscloud.nat_gateway_flowlog_info:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       register: nat_gateway_flowlog_list_response
@@ -67,7 +68,7 @@
          msg: "{{ nat_gateway_flowlog_response }}"
 
     - name: Update NAT Gateway Flowlog
-      nat_gateway_flowlog:
+      ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
         flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
@@ -84,21 +85,21 @@
          msg: "{{ nat_gateway_flowlog_update_response }}"
 
     - name: Delete NAT Gateway Flowlog
-      nat_gateway_flowlog:
+      ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
         flowlog: "{{ nat_gateway_flowlog_response.flowlog.id }}"
         state: absent
 
     - name: Delete NAT Gateway Flowlog
-      nat_gateway_flowlog:
+      ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
         flowlog: "invalid-id"
         state: absent
 
     - name: Remove NAT Gateway
-      nat_gateway:
+      ionoscloudsdk.ionoscloud.nat_gateway:
        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
        datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
@@ -106,12 +107,12 @@
        state: absent
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter }}"
         wait: true
         state: absent
 
     - name: Remove ipblock
-      ipblock:
+      ionoscloudsdk.ionoscloud.ipblock:
         ipblock: "{{ name }}"
         state: absent

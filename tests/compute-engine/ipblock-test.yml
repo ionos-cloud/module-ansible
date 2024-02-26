@@ -7,7 +7,7 @@
 
   tasks:
     - name: Create ipblock
-      ipblock:
+      ionoscloudsdk.ionoscloud.ipblock:
         name:  "{{ name }}"
         location: "{{ location }}"
         size: 2
@@ -15,7 +15,7 @@
       register: response
 
     - name: Create ipblock Update
-      ipblock:
+      ionoscloudsdk.ionoscloud.ipblock:
         name:  "{{ name }}"
         location: "{{ location }}"
         size: 2
@@ -30,7 +30,7 @@
         msg: "Changed should be false"
 
     - name: Create ipblock Update
-      ipblock:
+      ionoscloudsdk.ionoscloud.ipblock:
         name:  "{{ name }}"
         location: "{{ location }}"
         allow_replace: false
@@ -49,7 +49,7 @@
     #     dest: ../../docs/returned_object_examples/ipblock.json
 
     - name: List IP Blocks
-      ipblock_info:
+      ionoscloudsdk.ionoscloud.ipblock_info:
       register: ipblock_list_response
 
     # - name: Print output to file
@@ -58,13 +58,13 @@
     #     dest: ../../docs/returned_object_examples/ipblock_info.json
 
     - name: Remove ipblock
-      ipblock:
+      ionoscloudsdk.ionoscloud.ipblock:
         ipblock: "{{ name }}"
         state: absent
       register: delete_result
 
     - name: Remove ipblock
-      ipblock:
+      ionoscloudsdk.ionoscloud.ipblock:
         ipblock: "{{ name }}"
         state: absent
       register: delete_result

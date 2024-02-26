@@ -11,7 +11,7 @@
 
   tasks:
     - name: Provision a set of instances
-      server:
+      ionoscloudsdk.ionoscloud.server:
          datacenter: "{{ datacenter }}"
          name: "{{ name }} %02d"
          cores: 1
@@ -36,7 +36,7 @@
     - debug: msg="{{ionos_cloud.machines}}"
 
     - name: Public SSH firewall rule
-      firewall_rule:
+      ionoscloudsdk.ionoscloud.firewall_rule:
          datacenter: "{{ datacenter }}"
          server: "{{ item.id }}"
          nic: "{{ item.nic.id }}"
@@ -51,7 +51,7 @@
       with_items: "{{ ionos_cloud.machines }}"
 
     - name: Create Private NIC
-      nic:
+      ionoscloudsdk.ionoscloud.nic:
          datacenter: "{{ datacenter }}"
          server: "{{ item.id }}"
          lan: 2
@@ -63,7 +63,7 @@
     - debug: msg="{{private_nic.results}}"
 
     - name: Create SSH Firewall Rule
-      firewall_rule:
+      ionoscloudsdk.ionoscloud.firewall_rule:
          datacenter: "{{ datacenter }}"
          server: "{{ item.item.id }}"
          nic: "{{ item.nic.id }}"
@@ -78,7 +78,7 @@
       with_items: "{{ private_nic.results }}"
 
     - name: Create Ping Firewall Rule
-      firewall_rule:
+      ionoscloudsdk.ionoscloud.firewall_rule:
          datacenter: "{{ datacenter }}"
          server: "{{ item.item.id }}"
          nic: "{{ item.nic.id }}"
@@ -93,7 +93,7 @@
       with_items: "{{ private_nic.results }}"
 
     - name: Create data volume
-      volume:
+      ionoscloudsdk.ionoscloud.volume:
          datacenter: "{{ datacenter }}"
          server: "{{ item.id }}"
          name: "{{ item.properties.name }}-data%02d"
@@ -115,7 +115,7 @@
       when: ionos_cloud.action == 'create'
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter }}"
         state: absent
         wait: true

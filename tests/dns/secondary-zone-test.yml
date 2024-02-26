@@ -7,7 +7,7 @@
 
   tasks:
   - name: Create ipblock
-    ipblock:
+    ionoscloudsdk.ionoscloud.ipblock:
       name:  "{{ ipblock_name }}"
       location: "{{ ipblock_location }}"
       size: "{{ ipblock_size }}"
@@ -15,7 +15,7 @@
     register: ipblock_response
 
   - name: Create ipblock 2
-    ipblock:
+    ionoscloudsdk.ionoscloud.ipblock:
       name:  "{{ ipblock_name2 }}"
       location: "{{ ipblock_location }}"
       size: "{{ ipblock_size }}"
@@ -23,7 +23,7 @@
     register: ipblock2_response
 
   - name: Create Secondary Zone
-    dns_secondary_zone:
+    ionoscloudsdk.ionoscloud.dns_secondary_zone:
       name: "{{zone_name}}"
       description: "{{zone_description}}"
       primary_ips: "{{ipblock_response.ipblock.properties.ips}}"
@@ -35,7 +35,7 @@
   #     dest: ../../docs/returned_object_examples/dns_secondary_zone.json
 
   - name: List Zones
-    dns_secondary_zone_info:
+    ionoscloudsdk.ionoscloud.dns_secondary_zone_info:
     register: zones_response
 
   # - name: Print output to file
@@ -48,7 +48,7 @@
       var: zones_response.zones
 
   - name: Update Zone
-    dns_secondary_zone:
+    ionoscloudsdk.ionoscloud.dns_secondary_zone:
       secondary_zone: "{{ zone_response.secondary_zone.properties.zone_name }}"
       description: "{{zone_description_updated}}"
       primary_ips: "{{ipblock2_response.ipblock.properties.ips}}"
@@ -57,7 +57,7 @@
     register: updated_zone_response
 
   - name: Update Zone no change
-    dns_secondary_zone:
+    ionoscloudsdk.ionoscloud.dns_secondary_zone:
       secondary_zone: "{{ zone_response.secondary_zone.properties.zone_name }}"
       description: "{{zone_description_updated}}"
       primary_ips: "{{ipblock2_response.ipblock.properties.ips}}"
@@ -72,25 +72,25 @@
       msg: "Changed should be false"
 
   - name: Transfer Zone
-    dns_secondary_zone:
+    ionoscloudsdk.ionoscloud.dns_secondary_zone:
       secondary_zone: "{{ zone_response.secondary_zone.properties.zone_name }}"
       wait: false
       state: transfer
 
   - name: Delete Zone
-    dns_secondary_zone:
+    ionoscloudsdk.ionoscloud.dns_secondary_zone:
       secondary_zone: "{{ zone_response.secondary_zone.properties.zone_name }}"
       wait: true
       state: absent
 
   - name: Delete IpBlock 1
-    ipblock:
+    ionoscloudsdk.ionoscloud.ipblock:
       ipblock: "{{ipblock_response.ipblock.id}}"
       wait: true
       state: absent
 
   - name: Delete IpBlock 2
-    ipblock:
+    ionoscloudsdk.ionoscloud.ipblock:
       ipblock: "{{ipblock2_response.ipblock.id}}"
       wait: true
       state: absent

@@ -8,6 +8,7 @@ delete_all_args='--all --force'
 
 function delete_dbaas_resources() {
   ionosctl dbaas postgres cluster delete $delete_all_args -W
+  ionosctl dbaas mongo cluster delete $delete_all_args
 
   echo_step_completed
 }

@@ -4,7 +4,7 @@
 
   tasks:
     - name: List Mongo Cluster Templates
-      mongo_cluster_template_info:
+      ionoscloudsdk.ionoscloud.mongo_cluster_template_info:
       register: mongo_cluster_templates_response
 
     # - name: Print output to file

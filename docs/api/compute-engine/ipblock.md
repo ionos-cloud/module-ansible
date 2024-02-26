@@ -19,7 +19,7 @@ This module allows you to create or remove an IPBlock.
   ipblock:
     ipblock: staging
     state: absent
-  
+
 ```
 
 &nbsp;

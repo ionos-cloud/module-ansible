@@ -41,7 +41,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
       wait: true
       wait_timeout: 2000
       state: absent
-  
+
 ```
 
 &nbsp;
@@ -149,11 +149,6 @@ This is a simple module that supports creating or removing NATGateways. This mod
   <td>datacenter<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
   <td>The ID or name of the datacenter.</td>
-  </tr>
-  <tr>
-  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
-  <td align="center">False</td>
-  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -338,11 +333,6 @@ This is a simple module that supports creating or removing NATGateways. This mod
   <td>nat_gateway<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
   <td>The ID or name of the NAT Gateway.</td>
-  </tr>
-  <tr>
-  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
-  <td align="center">False</td>
-  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>

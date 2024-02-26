@@ -8,13 +8,13 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         location: "{{ location }}"
         wait: True
 
     - name: List Datacenters
-      datacenter_info:
+      ionoscloudsdk.ionoscloud.datacenter_info:
       register: datacenter_list_response
 
     # - name: Print output to file
@@ -23,7 +23,7 @@
     #     dest: ../../docs/returned_object_examples/datacenter_info.json
 
     - name: Provision server
-      server:
+      ionoscloudsdk.ionoscloud.server:
          datacenter: "{{ datacenter }}"
          name: "{{ server }}"
          cores: 1
@@ -44,7 +44,7 @@
     #     dest: ../../docs/returned_object_examples/server.json
 
     - name: Create LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         name: "{{ lan }}"
         public: true
@@ -56,7 +56,7 @@
     #     dest: ../../docs/returned_object_examples/lan.json
           
     - name: List LANs
-      lan_info:
+      ionoscloudsdk.ionoscloud.lan_info:
          datacenter: "{{ datacenter }}"
       register: lan_list_response
 
@@ -66,7 +66,7 @@
     #     dest: ../../docs/returned_object_examples/lan_info.json
 
     - name: Create NIC
-      nic:
+      ionoscloudsdk.ionoscloud.nic:
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          name: "{{ nic }}"
@@ -84,7 +84,7 @@
     #     dest: ../../docs/returned_object_examples/nic.json
           
     - name: List NICs
-      nic_info:
+      ionoscloudsdk.ionoscloud.nic_info:
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
       register: nic_list_response
@@ -95,7 +95,7 @@
     #     dest: ../../docs/returned_object_examples/nic_info.json
 
     - name: Create a firewall rule
-      firewall_rule:
+      ionoscloudsdk.ionoscloud.firewall_rule:
           datacenter: "{{ datacenter }}"
           server: "{{ server }}"
           nic: "{{ nic }}"
@@ -113,7 +113,7 @@
     #     dest: ../../docs/returned_object_examples/firewall_rule.json
 
     - name: List Firewall Rules
-      firewall_rule_info:
+      ionoscloudsdk.ionoscloud.firewall_rule_info:
           datacenter: "{{ datacenter }}"
           server: "{{ server }}"
           nic: "{{ nic }}"
@@ -125,7 +125,7 @@
     #     dest: ../../docs/returned_object_examples/firewall_rule_info.json
 
     - name: Update firewall rule
-      firewall_rule:
+      ionoscloudsdk.ionoscloud.firewall_rule:
           datacenter: "{{ datacenter }}"
           server: "{{ server }}"
           nic: "{{ nic }}"
@@ -135,7 +135,7 @@
           state: update
 
     - name: Remove firewall rule
-      firewall_rule:
+      ionoscloudsdk.ionoscloud.firewall_rule:
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          nic: "{{ nic }}"
@@ -145,7 +145,7 @@
          state: absent
 
     - name: Remove firewall rule
-      firewall_rule:
+      ionoscloudsdk.ionoscloud.firewall_rule:
          datacenter: "{{ datacenter }}"
          server: "{{ server }}"
          nic: "{{ nic }}"
@@ -155,7 +155,7 @@
          state: absent
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         wait: true
         datacenter: "{{ datacenter }}"
         state: absent

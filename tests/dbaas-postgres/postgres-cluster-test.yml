@@ -8,13 +8,13 @@
   tasks:
 
   - name: Create datacenter
-    datacenter:
+    ionoscloudsdk.ionoscloud.datacenter:
       name: "{{ datacenter }} - DBaaS"
       location: de/fra
     register: datacenter_response
 
   - name: Provision a server
-    server:
+    ionoscloudsdk.ionoscloud.server:
       datacenter: "{{ datacenter }} - DBaaS"
       name: "{{ name }}"
       cores: 2
@@ -36,21 +36,21 @@
     register: server_response
 
   - name: Create LAN 1
-    lan:
+    ionoscloudsdk.ionoscloud.lan:
       datacenter: "{{ datacenter }} - DBaaS"
       name: "test_lan1"
       public: false
     register: lan_response1
 
   - name: Create LAN 2
-    lan:
+    ionoscloudsdk.ionoscloud.lan:
       datacenter: "{{ datacenter }} - DBaaS"
       name: "test_lan2"
       public: true
     register: lan_response2
 
   - name: Create NIC 1
-    nic:
+    ionoscloudsdk.ionoscloud.nic:
       name: "test_nic1"
       datacenter: "{{ datacenter }} - DBaaS"
       server: "{{ server_response.machines[0].id }}"
@@ -61,7 +61,7 @@
     register: nic_response1
 
   - name: Create NIC 2
-    nic:
+    ionoscloudsdk.ionoscloud.nic:
       name: "test_nic2"
       datacenter: "{{ datacenter }} - DBaaS"
       server: "{{ server_response.machines[0].id }}"
@@ -72,7 +72,7 @@
     register: nic_response2
 
   - name: Create Cluster
-    postgres_cluster:
+    ionoscloudsdk.ionoscloud.postgres_cluster:
       postgres_version: 12
       instances: 1
       cores: 1
@@ -93,7 +93,7 @@
     register: cluster_response
 
   - name: Create Cluster no change
-    postgres_cluster:
+    ionoscloudsdk.ionoscloud.postgres_cluster:
       postgres_version: 12
       instances: 1
       cores: 1
@@ -125,7 +125,7 @@
   #     dest: ../../docs/returned_object_examples/postgres_cluster.json
 
   - name: List Postgres Clusters
-    postgres_cluster_info:
+    ionoscloudsdk.ionoscloud.postgres_cluster_info:
     register: postgres_clusters_response
 
   # - name: Print output to file
@@ -134,7 +134,7 @@
   #     dest: ../../docs/returned_object_examples/postgres_cluster_info.json
 
   - name: List Postgres Cluster Backups
-    postgres_backup_info:
+    ionoscloudsdk.ionoscloud.postgres_backup_info:
     register: postgres_backup_response
 
   # - name: Print output to file
@@ -143,7 +143,7 @@
   #     dest: ../../docs/returned_object_examples/postgres_backup_info.json
 
   - name: Update Cluster
-    postgres_cluster:
+    ionoscloudsdk.ionoscloud.postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.properties.display_name }}"
       instances: 2
       cores: 2
@@ -154,7 +154,7 @@
     register: updated_cluster_response
 
   - name: Update Cluster No change
-    postgres_cluster:
+    ionoscloudsdk.ionoscloud.postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.properties.display_name }}"
       state: update
       wait: true
@@ -167,24 +167,24 @@
       msg: "Changed should be false"
 
   - name: List Postgres Cluster Backups
-    postgres_backup_info:
+    ionoscloudsdk.ionoscloud.postgres_backup_info:
       postgres_cluster: "backuptest-04"
     register: postgres_backup_response
 
   - name: Delete Cluster
-    postgres_cluster:
+    ionoscloudsdk.ionoscloud.postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
       state: absent
       wait: false
 
   - name: Delete Cluster
-    postgres_cluster:
+    ionoscloudsdk.ionoscloud.postgres_cluster:
       postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
       state: absent
       wait: true
 
   - name: Remove NIC 1
-    nic:
+    ionoscloudsdk.ionoscloud.nic:
       nic: "test_nic1"
       datacenter: "{{ datacenter }} - DBaaS"
       server: "{{ server_response.machines[0].id }}"
@@ -193,7 +193,7 @@
       state: absent
 
   - name: Remove NIC 2
-    nic:
+    ionoscloudsdk.ionoscloud.nic:
       nic: "test_nic2"
       datacenter: "{{ datacenter }} - DBaaS"
       server: "{{ server_response.machines[0].id }}"
@@ -202,7 +202,7 @@
       state: absent
 
   - name: Remove server
-    server:
+    ionoscloudsdk.ionoscloud.server:
       datacenter: "{{ datacenter }} - DBaaS"
       instance_ids:
         - "{{ server_response.machines[0].id }}"
@@ -212,21 +212,21 @@
       state: absent
 
   - name: Remove LAN 1
-    lan:
+    ionoscloudsdk.ionoscloud.lan:
       datacenter: "{{ datacenter }} - DBaaS"
       lan: "test_lan1"
       state: absent
       wait: true
 
   - name: Remove LAN 2
-    lan:
+    ionoscloudsdk.ionoscloud.lan:
       datacenter: "{{ datacenter }} - DBaaS"
       lan: "test_lan2"
       state: absent
       wait: true
 
   - name: Remove datacenter
-    datacenter:
+    ionoscloudsdk.ionoscloud.datacenter:
       datacenter: "{{ datacenter_response.datacenter.id }}"
       state: absent
       wait: true

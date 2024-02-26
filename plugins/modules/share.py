@@ -4,13 +4,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-import yaml
-
 __metaclass__ = type
-
-import re
-import copy
-import yaml
 
 HAS_SDK = True
 
@@ -18,14 +12,19 @@ try:
     import ionoscloud
     from ionoscloud import __version__ as sdk_version
     from ionoscloud.models import GroupShare, GroupShareProperties
-    from ionoscloud.rest import ApiException
-    from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
 
 from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
+
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
+    get_module_arguments, _get_request_id, get_resource_id,
+)
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
+
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
@@ -61,91 +60,92 @@ OPTIONS = {
         'required': STATES,
         'type': 'list',
     },
-    'api_url': {
-        'description': ['The Ionos API base URL.'],
-        'version_added': '2.4',
-        'env_fallback': 'IONOS_API_URL',
-        'available': STATES,
-        'type': 'str',
-    },
-    'certificate_fingerprint': {
-        'description': ['The Ionos API certificate fingerprint.'],
-        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
-        'available': STATES,
-        'type': 'str',
-    },
-    'username': {
-        # Required if no token, checked manually
-        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
-        'aliases': ['subscription_user'],
-        'env_fallback': 'IONOS_USERNAME',
-        'available': STATES,
-        'type': 'str',
-    },
-    'password': {
-        # Required if no token, checked manually
-        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
-        'aliases': ['subscription_password'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_PASSWORD',
-        'type': 'str',
-    },
-    'token': {
-        # If provided, then username and password no longer required
-        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_TOKEN',
-        'type': 'str',
-    },
-    'wait': {
-        'description': ['Wait for the resource to be created before returning.'],
-        'default': True,
-        'available': STATES,
-        'choices': [True, False],
-        'type': 'bool',
-    },
-    'wait_timeout': {
-        'description': ['How long before wait gives up, in seconds.'],
-        'default': 600,
-        'available': STATES,
-        'type': 'int',
-    },
-    'state': {
-        'description': ['Indicate desired state of the resource.'],
-        'default': 'present',
-        'choices': STATES,
-        'available': STATES,
-        'type': 'str',
-    },
+    **get_default_options(STATES),
 }
 
-
-def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES)
-    del val['available']
-    del val['type']
-    return val
-
-
-DOCUMENTATION = '''
----
+DOCUMENTATION = """
 module: share
 short_description: Add, update or remove shares.
 description:
      - This module allows you to add, update or remove resource shares.
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(
-    yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})),
-    default_flow_style=False).replace('\n', '\n  ') + '''
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    edit_privilege:
+        description:
+        - edit privilege on a resource
+        required: false
+    group:
+        description:
+        - The name or ID of the group.
+        required: true
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    resource_ids:
+        description:
+        - A list of resource IDs to add, update or remove as shares.
+        required: true
+    share_privilege:
+        description:
+        - share privilege on a resource
+        required: false
+    state:
+        choices:
+        - present
+        - absent
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
-'''
+"""
 
 EXAMPLE_PER_STATE = {
     'present': '''# Create shares
@@ -179,352 +179,242 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+EXAMPLES = """# Create shares
+  - name: Create share
+    share:
+      group: Demo
+      edit_privilege: true
+      share_privilege: true
+      resource_ids:
+        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
+        - ba7efccb-a761-11e7-90a7-525400f64d8d
+      state: present
+  
+# Update shares
+  - name: Update shares
+    share:
+      group: Demo
+      edit_privilege: false
+      resource_ids:
+        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
+      state: update
+  
+# Remove shares
+  - name: Remove shares
+    share:
+      group: Demo
+      resource_ids:
+        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
+        - ba7efccb-a761-11e7-90a7-525400f64d8d
+      state: absent
+"""
 
 
-def _get_request_id(headers):
-    match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
-    if match:
-        return match.group(1)
-    else:
-        raise Exception("Failed to extract request ID from response "
-                        "header 'location': '{location}'".format(location=headers['location']))
+class ShareModule(CommonIonosModule):
+    def __init__(self) -> None:
+        super().__init__()
+        self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES))
+        self.returned_key = RETURNED_KEY
+        self.object_name = OBJECT_NAME
+        self.sdks = [ionoscloud]
+        self.user_agents = [USER_AGENT]
+        self.options = OPTIONS
 
 
-def _get_matched_resources(resource_list, identity, identity_paths=None):
-    """
-    Fetch and return a resource based on an identity supplied for it, if none or more than one matches
-    are found an error is printed and None is returned.
-    """
+    def present_object(self, clients):
+        """
+        Create shares.
 
-    if identity_paths is None:
-        identity_paths = [['id'], ['properties', 'name']]
+        module : AnsibleModule object
+        client: authenticated ionoscloud object.
 
-    def check_identity_method(resource):
-        resource_identity = []
+        Returns:
+            The share instance
+        """
+        client = clients[0]
+        user_management_server = ionoscloud.UserManagementApi(api_client=client)
+        group = self.module.params.get('group')
 
-        for identity_path in identity_paths:
-            current = resource
-            for el in identity_path:
-                current = getattr(current, el)
-            resource_identity.append(current)
+        # Locate UUID for the group
+        group_list = user_management_server.um_groups_get(depth=2)
+        group_id = get_resource_id(self.module, group_list, group)
 
-        return identity in resource_identity
+        edit_privilege = self.module.params.get('edit_privilege')
+        share_privilege = self.module.params.get('share_privilege')
+        resource_ids = self.module.params.get('resource_ids')
 
-    return list(filter(check_identity_method, resource_list.items))
+        wait = self.module.params.get('wait')
+        wait_timeout = self.module.params.get('wait_timeout')
 
+        share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=1).items
+        for share in share_list:
+            if share.id in resource_ids:
+                if (
+                    edit_privilege and share.properties.edit_privilege != edit_privilege
+                    or share_privilege and share.properties.share_privilege != share_privilege
+                ):
+                    share = GroupShare(properties=GroupShareProperties(
+                        edit_privilege=edit_privilege if edit_privilege is not None else share.properties.edit_privilege,
+                        share_privilege=share_privilege if share_privilege is not None else share.properties.share_privilege,
+                    ))
 
-def get_resource(module, resource_list, identity, identity_paths=None):
-    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+                    _, _, headers = user_management_server.um_groups_shares_put_with_http_info(
+                        group_id=group_id, resource_id=uuid, resource=share,
+                    )
+                    if wait:
+                        request_id = _get_request_id(headers['Location'])
+                        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-    if len(matched_resources) == 1:
-        return matched_resources[0]
-    elif len(matched_resources) > 1:
-        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
-    else:
-        return None
+                resource_ids.remove(share.id)
 
+        should_change = True
 
-def get_resource_id(module, resource_list, identity, identity_paths=None):
-    resource = get_resource(module, resource_list, identity, identity_paths)
-    return resource.id if resource is not None else None
+        if not resource_ids:
+            should_change = False
 
+        if self.module.check_mode:
+            self.module.exit_json(changed=should_change)
 
-def _get_request_id(headers):
-    match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
-    if match:
-        return match.group(1)
-    else:
-        raise Exception("Failed to extract request ID from response "
-                        "header 'location': '{location}'".format(location=headers['location']))
+        if not should_change:
+            share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=1).items
+            return {
+                'changed': False,
+                'failed': False,
+                'action': 'create',
+                'shares': [s.to_dict() for s in share_list],
+            }
 
-
-def create_shares(module, client):
-    """
-    Create shares.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        The share instance
-    """
-    user_management_server = ionoscloud.UserManagementApi(api_client=client)
-    group = module.params.get('group')
-
-    # Locate UUID for the group
-    group_list = user_management_server.um_groups_get(depth=2)
-    group_id = get_resource_id(module, group_list, group)
-
-    edit_privilege = module.params.get('edit_privilege')
-    share_privilege = module.params.get('share_privilege')
-    resource_ids = module.params.get('resource_ids')
-
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-
-    share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=1).items
-    for share in share_list:
-        if share.id in resource_ids:
-            if (
-                edit_privilege and share.properties.edit_privilege != edit_privilege
-                or share_privilege and share.properties.share_privilege != share_privilege
-            ):
-                share = GroupShare(properties=GroupShareProperties(
-                    edit_privilege=edit_privilege if edit_privilege is not None else share.properties.edit_privilege,
-                    share_privilege=share_privilege if share_privilege is not None else share.properties.share_privilege,
-                ))
-
-                _, _, headers = user_management_server.um_groups_shares_put_with_http_info(
+        try:
+            for uuid in resource_ids:
+                share_properties = GroupShareProperties(
+                    edit_privilege=edit_privilege or False, share_privilege=share_privilege or False,
+                )
+                share = GroupShare(properties=share_properties)
+                _, _, headers = user_management_server.um_groups_shares_post_with_http_info(
                     group_id=group_id, resource_id=uuid, resource=share,
                 )
+
                 if wait:
                     request_id = _get_request_id(headers['Location'])
                     client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
 
-            resource_ids.remove(share.id)
-
-    should_change = True
-
-    if not resource_ids:
-        should_change = False
-
-    if module.check_mode:
-        module.exit_json(changed=should_change)
-
-    if not should_change:
-        share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=1).items
-        return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'shares': [s.to_dict() for s in share_list],
-        }
-
-    try:
-        for uuid in resource_ids:
-            share_properties = GroupShareProperties(
-                edit_privilege=edit_privilege or False, share_privilege=share_privilege or False,
-            )
-            share = GroupShare(properties=share_properties)
-            _, _, headers = user_management_server.um_groups_shares_post_with_http_info(
-                group_id=group_id, resource_id=uuid, resource=share,
-            )
-
-            if wait:
-                request_id = _get_request_id(headers['Location'])
-                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-        share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=1).items
-
-        return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            'shares': [s.to_dict() for s in share_list]
-        }
-
-    except Exception as e:
-        module.fail_json(msg="failed to create the shares: %s" % to_native(e))
-
-
-def update_shares(module, client):
-    """
-    Update shares.
-
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
-
-    Returns:
-        The share instances
-    """
-    group = module.params.get('group')
-    user_management_server = ionoscloud.UserManagementApi(api_client=client)
-
-    # Locate UUID for the group
-    group_list = user_management_server.um_groups_get(depth=2)
-    group_id = get_resource_id(module, group_list, group)
-
-    edit_privilege = module.params.get('edit_privilege')
-    share_privilege = module.params.get('share_privilege')
-    resource_ids = module.params.get('resource_ids')
-
-    wait = module.params.get('wait')
-    wait_timeout = module.params.get('wait_timeout')
-
-    if module.check_mode:
-        module.exit_json(changed=True)
-
-    try:
-        share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=1)
-        existing = dict()
-        for share in share_list.items:
-            existing[share.id] = share
-
-        responses = []
-
-        for uuid in resource_ids:
-            if uuid in existing.keys():
-                share = existing[uuid]
-
-                share = GroupShare(properties=GroupShareProperties(
-                    edit_privilege=edit_privilege if edit_privilege is not None else share.properties.edit_privilege,
-                    share_privilege=share_privilege if share_privilege is not None else share.properties.share_privilege,
-                ))
-
-                _, _, headers = user_management_server.um_groups_shares_put_with_http_info(
-                    group_id=group_id, resource_id=uuid, resource=share,
-                )
-                if wait:
-                    request_id = _get_request_id(headers['Location'])
-                    client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+            share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=1).items
 
             return {
                 'changed': True,
                 'failed': False,
-                'action': 'update',
-                'share': [s.to_dict() for s in responses]
+                'action': 'create',
+                'shares': [s.to_dict() for s in share_list]
             }
 
-    except Exception as e:
-        module.fail_json(msg="failed to update the shares: %s" % to_native(e))
+        except Exception as e:
+            self.module.fail_json(msg="failed to create the shares: %s" % to_native(e))
 
 
-def delete_shares(module, client):
-    """
-    Remove shares
+    def update_object(self, clients):
+        """
+        Update shares.
 
-    module : AnsibleModule object
-    client: authenticated ionoscloud object.
+        module : AnsibleModule object
+        client: authenticated ionoscloud object.
 
-    Returns:
-        True if the share was removed, false otherwise
-    """
-    group = module.params.get('group')
-    user_management_server = ionoscloud.UserManagementApi(api_client=client)
+        Returns:
+            The share instances
+        """
+        client = clients[0]
+        group = self.module.params.get('group')
+        user_management_server = ionoscloud.UserManagementApi(api_client=client)
 
-    # Locate UUID for the group
-    group_list = user_management_server.um_groups_get(depth=1)
-    group_id = get_resource_id(module, group_list, group)
+        # Locate UUID for the group
+        group_list = user_management_server.um_groups_get(depth=2)
+        group_id = get_resource_id(self.module, group_list, group)
 
-    if module.check_mode:
-        module.exit_json(changed=True)
+        edit_privilege = self.module.params.get('edit_privilege')
+        share_privilege = self.module.params.get('share_privilege')
+        resource_ids = self.module.params.get('resource_ids')
 
-    try:
+        wait = self.module.params.get('wait')
+        wait_timeout = self.module.params.get('wait_timeout')
 
-        for uuid in module.params.get('resource_ids'):
-            user_management_server.um_groups_shares_delete(group_id=group_id, resource_id=uuid)
-
-        return {
-            'action': 'delete',
-            'changed': True,
-            'id': group_id
-        }
-    except Exception as e:
-        module.fail_json(msg="failed to remove the shares: %s" % to_native(e))
-        return {
-            'action': 'delete',
-            'changed': False,
-            'id': group_id
-        }
-
-
-def get_module_arguments():
-    arguments = {}
-
-    for option_name, option in OPTIONS.items():
-        arguments[option_name] = {
-            'type': option['type'],
-        }
-        for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
-            if option.get(key) is not None:
-                arguments[option_name][key] = option.get(key)
-
-        if option.get('env_fallback'):
-            arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
-
-        if len(option.get('required', [])) == len(STATES):
-            arguments[option_name]['required'] = True
-
-    return arguments
-
-
-def get_sdk_config(module, sdk):
-    username = module.params.get('username')
-    password = module.params.get('password')
-    token = module.params.get('token')
-    api_url = module.params.get('api_url')
-    certificate_fingerprint = module.params.get('certificate_fingerprint')
-
-    if token is not None:
-        # use the token instead of username & password
-        conf = {
-            'token': token
-        }
-    else:
-        # use the username & password
-        conf = {
-            'username': username,
-            'password': password,
-        }
-
-    if api_url is not None:
-        conf['host'] = api_url
-        conf['server_index'] = None
-
-    if certificate_fingerprint is not None:
-        conf['fingerprint'] = certificate_fingerprint
-
-    return sdk.Configuration(**conf)
-
-
-def check_required_arguments(module, state, object_name):
-    # manually checking if token or username & password provided
-    if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
-    ):
-        module.fail_json(
-            msg='Token or username & password are required for {object_name} state {state}'.format(
-                object_name=object_name,
-                state=state,
-            ),
-        )
-
-    for option_name, option in OPTIONS.items():
-        if state in option.get('required', []) and not module.params.get(option_name):
-            module.fail_json(
-                msg='{option_name} parameter is required for {object_name} state {state}'.format(
-                    option_name=option_name,
-                    object_name=object_name,
-                    state=state,
-                ),
-            )
-
-
-def main():
-    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
-
-    if not HAS_SDK:
-        module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
-
-    state = module.params.get('state')
-    with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
-        api_client.user_agent = USER_AGENT
-        check_required_arguments(module, state, OBJECT_NAME)
+        if self.module.check_mode:
+            self.module.exit_json(changed=True)
 
         try:
-            if state == 'absent':
-                module.exit_json(**delete_shares(module, api_client))
-            elif state == 'present':
-                module.exit_json(**create_shares(module, api_client))
-            elif state == 'update':
-                module.exit_json(**update_shares(module, api_client))
+            share_list = user_management_server.um_groups_shares_get(group_id=group_id, depth=1)
+            existing = dict()
+            for share in share_list.items:
+                existing[share.id] = share
+
+            responses = []
+
+            for uuid in resource_ids:
+                if uuid in existing.keys():
+                    share = existing[uuid]
+
+                    share = GroupShare(properties=GroupShareProperties(
+                        edit_privilege=edit_privilege if edit_privilege is not None else share.properties.edit_privilege,
+                        share_privilege=share_privilege if share_privilege is not None else share.properties.share_privilege,
+                    ))
+
+                    _, _, headers = user_management_server.um_groups_shares_put_with_http_info(
+                        group_id=group_id, resource_id=uuid, resource=share,
+                    )
+                    if wait:
+                        request_id = _get_request_id(headers['Location'])
+                        client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+
+                return {
+                    'changed': True,
+                    'failed': False,
+                    'action': 'update',
+                    'share': [s.to_dict() for s in responses]
+                }
+
         except Exception as e:
-            module.fail_json(msg='failed to set {object_name} state {state}: {error}'.format(object_name=OBJECT_NAME,
-                                                                                             error=to_native(e),
-                                                                                             state=state))
+            self.module.fail_json(msg="failed to update the shares: %s" % to_native(e))
+
+
+    def absent_object(self, clients):
+        """
+        Remove shares
+
+        module : AnsibleModule object
+        client: authenticated ionoscloud object.
+
+        Returns:
+            True if the share was removed, false otherwise
+        """
+        group = self.module.params.get('group')
+        user_management_server = ionoscloud.UserManagementApi(api_client=clients[0])
+
+        # Locate UUID for the group
+        group_list = user_management_server.um_groups_get(depth=1)
+        group_id = get_resource_id(self.module, group_list, group)
+
+        if self.module.check_mode:
+            self.module.exit_json(changed=True)
+
+        try:
+
+            for uuid in self.module.params.get('resource_ids'):
+                user_management_server.um_groups_shares_delete(group_id=group_id, resource_id=uuid)
+
+            return {
+                'action': 'delete',
+                'changed': True,
+                'id': group_id
+            }
+        except Exception as e:
+            self.module.fail_json(msg="failed to remove the shares: %s" % to_native(e))
+            return {
+                'action': 'delete',
+                'changed': False,
+                'id': group_id
+            }
 
 
 if __name__ == '__main__':
-    main()
+    ionos_module = ShareModule()
+    if not HAS_SDK:
+        ionos_module.module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
+    ionos_module.main()

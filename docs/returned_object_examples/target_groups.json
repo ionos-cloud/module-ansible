@@ -1,0 +1,77 @@
+{
+    "changed": false,
+    "target_groups": [
+        {
+            "href": "https://api.ionos.com/cloudapi/v6/targetgroups/4d0ab89f-e213-4716-b647-3872ff1da800",
+            "id": "4d0ab89f-e213-4716-b647-3872ff1da800",
+            "metadata": {
+                "created_by": "<USER_EMAIL>",
+                "created_by_user_id": "<USER_ID>",
+                "created_date": "2021-10-21T12:57:44+00:00",
+                "etag": "c777db1245b328f6336b13a8c522dfd6",
+                "last_modified_by": "<USER_EMAIL>",
+                "last_modified_by_user_id": "<USER_ID>",
+                "last_modified_date": "2021-10-21T13:09:56+00:00",
+                "state": "AVAILABLE"
+            },
+            "properties": {
+                "algorithm": "RANDOM",
+                "health_check": {
+                    "check_interval": null,
+                    "check_timeout": 1000,
+                    "retries": 3
+                },
+                "http_health_check": null,
+                "name": "test_alb2",
+                "protocol": "HTTP",
+                "targets": [
+                    {
+                        "health_check_enabled": true,
+                        "ip": "<IP>",
+                        "maintenance_enabled": true,
+                        "port": "<PORT>",
+                        "weight": 1,
+                        "proxy_protocol": "none"
+                    },
+                    {
+                        "health_check_enabled": true,
+                        "ip": "<IP>",
+                        "maintenance_enabled": true,
+                        "port": "<PORT>",
+                        "weight": 2,
+                        "proxy_protocol": "none"
+                    }
+                ]
+            },
+            "type": "target-group"
+        },
+        {
+            "href": "https://api.ionos.com/cloudapi/v6/targetgroups/f838e79a-6c50-4e83-91bf-1a4f328ffb31",
+            "id": "f838e79a-6c50-4e83-91bf-1a4f328ffb31",
+            "metadata": {
+                "created_by": "<USER_EMAIL>",
+                "created_by_user_id": "<USER_ID>",
+                "created_date": "2021-08-09T14:03:44+00:00",
+                "etag": "7bb46108a69ec63cea0f02ba6b098aff",
+                "last_modified_by": "<USER_EMAIL>",
+                "last_modified_by_user_id": "<USER_ID>",
+                "last_modified_date": "2021-08-09T14:03:46+00:00",
+                "state": "AVAILABLE"
+            },
+            "properties": {
+                "algorithm": null,
+                "health_check": {
+                    "check_interval": null,
+                    "check_timeout": null,
+                    "retries": null
+                },
+                "http_health_check": null,
+                "name": "puppet_module_test1",
+                "protocol": "HTTP",
+                "targets": []
+            },
+            "type": "target-group"
+        }
+    ],
+    "failed": false
+}

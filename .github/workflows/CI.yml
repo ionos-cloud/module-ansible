@@ -64,8 +64,8 @@ jobs:
     env:
       IONOS_USERNAME: ${{ secrets.IONOS_USER_V6 }}
       IONOS_PASSWORD: ${{ secrets.IONOS_PASSWORD_V6 }}
-      IONOS_TOKEN: ${{ secrets.IONOS_PASSWORD_V6 }}
-      IONOSCTL_VERSION: 6.1.7
+      IONOS_TOKEN: ${{ secrets.IONOS_TOKEN_V6 }}
+      IONOSCTL_VERSION: 6.7.4
     steps:
       - name: Checking out module-ansible
         uses: actions/checkout@v2
@@ -167,9 +167,12 @@ jobs:
           python3 -m pip install ionoscloud-logging
           python3 -m pip install ionoscloud-vm-autoscaling
 
-      - name: Install Ansible
+      - name: Install Ansible and IONOS module
         run: |
           python3 -m pip install ansible
+          ansible-galaxy collection build /home/runner/work/module-ansible/module-ansible/
+          ansible-galaxy collection install ionoscloudsdk-ionoscloud-$(grep version: galaxy.yml | cut -c10-).tar.gz --force
+          rm ionoscloudsdk-ionoscloud-$(grep version: galaxy.yml | cut -c10-).tar.gz
 
       - name: Debug pip packages
         run: |

@@ -8,6 +8,7 @@ from pathlib import Path
 
 EXAMPLES_DIR = os.path.join('docs', 'returned_object_examples')
 TEMPLATES_DIR = os.path.join('docs', 'templates')
+MODULES_DIR = os.path.join('plugins', 'modules')
 
 DIRECTORY_TO_NAME = {
     'applicationloadbalancer': 'Application Load Balancer',
@@ -32,7 +33,6 @@ def generate_doc_file(module, module_name, states_parameters, template_file):
         except Exception:
             return_example = None
             print('!!! No return example found for {}\n'.format(module_name))
-        
         try:
             immutable_options = module.IMMUTABLE_OPTIONS
         except AttributeError:
@@ -56,7 +56,17 @@ def generate_doc_file(module, module_name, states_parameters, template_file):
 
 
 def generate_module_docs(module_name):
+    # Fixing module info imports
+    with open(os.path.join(MODULES_DIR, module_name) + '.py', 'r') as module_file_read:
+        initial_module = module_file_read.read()
+    with open(os.path.join(MODULES_DIR, module_name) + '.py', 'w') as plugin_file_write:
+        plugin_file_write.write(initial_module.replace('ansible_collections.ionoscloudsdk.ionoscloud.plugins', '.'))
+
     module = importlib.import_module('plugins.modules.' + module_name)
+
+    # Revert module changess
+    with open(os.path.join(MODULES_DIR, module_name) + '.py', 'w') as plugin_file_write:
+        plugin_file_write.write(initial_module)
 
     if module_name.endswith('_info'):
         def available_in_state(option):

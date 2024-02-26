@@ -4,12 +4,10 @@
 
 from __future__ import absolute_import, division, print_function
 
-import copy
 import re
 import traceback
-import yaml
 
-from uuid import (uuid4, UUID)
+from uuid import uuid4
 
 HAS_SDK = True
 
@@ -25,9 +23,16 @@ except ImportError:
     HAS_SDK = False
 
 from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.six.moves import xrange
 from ansible.module_utils._text import to_native
+
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
+    get_module_arguments, _get_request_id, check_required_arguments,
+    get_sdk_config, get_resource_id, get_resource,
+)
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
+
 
 __metaclass__ = type
 
@@ -197,84 +202,10 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'str',
     },
-    'allow_replace': {
-        'description': [
-            'Boolean indicating if the resource should be recreated when the state cannot be reached in '
-            'another way. This may be used to prevent resources from being deleted from specifying a different '
-            'value to an immutable property. An error will be thrown instead',
-        ],
-        'available': ['present', 'update'],
-        'default': False,
-        'type': 'bool',
-    },
-    'api_url': {
-        'description': ['The Ionos API base URL.'],
-        'version_added': '2.4',
-        'env_fallback': 'IONOS_API_URL',
-        'available': STATES,
-        'type': 'str',
-    },
-    'certificate_fingerprint': {
-        'description': ['The Ionos API certificate fingerprint.'],
-        'env_fallback': 'IONOS_CERTIFICATE_FINGERPRINT',
-        'available': STATES,
-        'type': 'str',
-    },
-    'username': {
-        # Required if no token, checked manually
-        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
-        'aliases': ['subscription_user'],
-        'env_fallback': 'IONOS_USERNAME',
-        'available': STATES,
-        'type': 'str',
-    },
-    'password': {
-        # Required if no token, checked manually
-        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
-        'aliases': ['subscription_password'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_PASSWORD',
-        'type': 'str',
-    },
-    'token': {
-        # If provided, then username and password no longer required
-        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_TOKEN',
-        'type': 'str',
-    },
-    'wait': {
-        'description': ['Wait for the resource to be created before returning.'],
-        'default': True,
-        'available': STATES,
-        'choices': [True, False],
-        'type': 'bool',
-    },
-    'wait_timeout': {
-        'description': ['How long before wait gives up, in seconds.'],
-        'default': 600,
-        'available': STATES,
-        'type': 'int',
-    },
-    'state': {
-        'description': ['Indicate desired state of the resource.'],
-        'default': 'present',
-        'choices': STATES,
-        'available': STATES,
-        'type': 'str',
-    },
+    **get_default_options(STATES),
 }
 
-def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES) 
-    del val['available']
-    del val['type']
-    return val
-
-DOCUMENTATION = '''
----
+DOCUMENTATION = """
 module: server
 short_description: Create, update, destroy, start, stop, and reboot a Ionos virtual machine.
 description:
@@ -284,13 +215,235 @@ description:
        module for operations with CUBE servers.
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})), default_flow_style=False).replace('\n', '\n  ') + '''
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    assign_public_ip:
+        choices:
+        - true
+        - false
+        default: false
+        description:
+        - This will assign the machine to the public LAN. If no LAN exists with public
+            Internet access it is created.
+        required: false
+    availability_zone:
+        choices:
+        - AUTO
+        - ZONE_1
+        - ZONE_2
+        default: AUTO
+        description:
+        - The availability zone in which the server should be provisioned.
+        required: false
+        version_added: '2.3'
+    boot_cdrom:
+        description:
+        - The CDROM used for boot.
+        required: false
+    boot_volume:
+        description:
+        - The volume used for boot.
+        required: false
+    bus:
+        choices:
+        - IDE
+        - VIRTIO
+        default: VIRTIO
+        description:
+        - The bus type for the volume.
+        required: false
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    cores:
+        default: 2
+        description:
+        - The total number of cores for the enterprise server.
+        required: false
+    count:
+        default: 1
+        description:
+        - The number of virtual machines to create.
+        required: false
+    cpu_family:
+        choices:
+        - AMD_OPTERON
+        - INTEL_XEON
+        - INTEL_SKYLAKE
+        default: AMD_OPTERON
+        description:
+        - CPU architecture on which server gets provisioned; not all CPU architectures
+            are available in all datacenter regions; available CPU architectures can be
+            retrieved from the datacenter resource; must not be provided for CUBE and
+            VCPU servers.
+        required: false
+        version_added: '2.2'
+    datacenter:
+        description:
+        - The datacenter to provision this virtual machine.
+        required: true
+    disk_type:
+        choices:
+        - HDD
+        - SSD
+        - SSD Standard
+        - SSD Premium
+        - DAS
+        default: HDD
+        description:
+        - The disk type for the volume.
+        required: false
+    image:
+        description:
+        - The image alias or ID for creating the virtual machine.
+        required: false
+    image_password:
+        description:
+        - Password set for the administrative user.
+        no_log: true
+        required: false
+        version_added: '2.2'
+    instance_ids:
+        default: []
+        description:
+        - list of instance ids. Should only contain one ID if renaming in update state
+        required: false
+    lan:
+        description:
+        - The ID or name of the LAN you wish to add the servers to (can be a string or
+            a number).
+        required: false
+    location:
+        choices:
+        - us/las
+        - us/ewr
+        - de/fra
+        - de/fkb
+        - de/txl
+        - gb/lhr
+        default: us/las
+        description:
+        - The datacenter location. Use only if you want to create the Datacenter or else
+            this value is ignored.
+        required: false
+    name:
+        description:
+        - The name of the  resource.
+        required: false
+    nat:
+        choices:
+        - true
+        - false
+        default: false
+        description:
+        - Boolean value indicating if the private IP address has outbound access to the
+            public Internet.
+        required: false
+        version_added: '2.3'
+    nic_ips:
+        description:
+        - The list of IPS for the NIC.
+        elements: str
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    ram:
+        default: 2048
+        description:
+        - The memory size for the enterprise server in MB, such as 2048. Size must be
+            specified in multiples of 256 MB with a minimum of 256 MB; however, if you
+            set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set
+            the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can
+            not be set to TRUE unless RAM size not set to less than 240GB.
+        required: false
+    remove_boot_volume:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Remove the bootVolume of the virtual machine you're destroying.
+        required: false
+    ssh_keys:
+        default: []
+        description:
+        - Public SSH keys allowing access to the virtual machine.
+        required: false
+        version_added: '2.2'
+    state:
+        choices:
+        - running
+        - stopped
+        - absent
+        - present
+        - update
+        default: present
+        description:
+        - Indicate desired state of the resource.
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    user_data:
+        description:
+        - The cloud-init configuration for the volume as base64 encoded string.
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
+    volume_availability_zone:
+        choices:
+        - AUTO
+        - ZONE_1
+        - ZONE_2
+        - ZONE_3
+        description:
+        - The storage availability zone assigned to the volume.
+        required: false
+        version_added: '2.3'
+    volume_size:
+        default: 10
+        description:
+        - The size in GB of the boot volume.
+        required: false
+    wait:
+        choices:
+        - true
+        - false
+        default: true
+        description:
+        - Wait for the resource to be created before returning.
+        required: false
+    wait_timeout:
+        default: 600
+        description:
+        - How long before wait gives up, in seconds.
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionos-cloud >= 5.2.0"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
-'''
+"""
 
 EXAMPLE_PER_STATE = {
   'present' : '''# Provisioning example. This will create three servers and enumerate their names.
@@ -360,57 +513,73 @@ EXAMPLE_PER_STATE = {
   ''',
 }
 
-EXAMPLES = '\n'.join(EXAMPLE_PER_STATE.values())
+EXAMPLES = """# Provisioning example. This will create three servers and enumerate their names.
+    - server:
+        datacenter: Tardis One
+        name: web%02d.stackpointcloud.com
+        cores: 4
+        ram: 2048
+        volume_size: 50
+        cpu_family: INTEL_XEON
+        image: ubuntu:latest
+        location: us/las
+        count: 3
+        assign_public_ip: true
+  
+# Update Virtual machines
+    - server:
+        datacenter: Tardis One
+        instance_ids:
+        - web001.stackpointcloud.com
+        - web002.stackpointcloud.com
+        cores: 4
+        ram: 4096
+        cpu_family: INTEL_XEON
+        availability_zone: ZONE_1
+        state: update
+  # Rename virtual machine
+    - server:
+        datacenter: Tardis One
+        instance_ids: web001.stackpointcloud.com
+        name: web101.stackpointcloud.com
+        cores: 4
+        ram: 4096
+        cpu_family: INTEL_XEON
+        availability_zone: ZONE_1
+        state: update
+
+# Removing Virtual machines
+    - server:
+        datacenter: Tardis One
+        instance_ids:
+        - 'web001.stackpointcloud.com'
+        - 'web002.stackpointcloud.com'
+        - 'web003.stackpointcloud.com'
+        wait_timeout: 500
+        state: absent
+  
+# Starting Virtual Machines.
+    - server:
+        datacenter: Tardis One
+        instance_ids:
+        - 'web001.stackpointcloud.com'
+        - 'web002.stackpointcloud.com'
+        - 'web003.stackpointcloud.com'
+        wait_timeout: 500
+        state: running
+  
+# Stopping Virtual Machines
+    - server:
+        datacenter: Tardis One
+        instance_ids:
+        - 'web001.stackpointcloud.com'
+        - 'web002.stackpointcloud.com'
+        - 'web003.stackpointcloud.com'
+        wait_timeout: 500
+        state: stopped
+"""
 
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
-
-
-def _get_matched_resources(resource_list, identity, identity_paths=None):
-    """
-    Fetch and return a resource based on an identity supplied for it, if none or more than one matches
-    are found an error is printed and None is returned.
-    """
-
-    if identity_paths is None:
-        identity_paths = [['id'], ['properties', 'name']]
-
-    def check_identity_method(resource):
-        resource_identity = []
-
-        for identity_path in identity_paths:
-            current = resource
-            for el in identity_path:
-                current = getattr(current, el)
-            resource_identity.append(current)
-
-        return identity in resource_identity
-
-    return list(filter(check_identity_method, resource_list.items))
-
-
-def get_resource(module, resource_list, identity, identity_paths=None):
-    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
-
-    if len(matched_resources) == 1:
-        return matched_resources[0]
-    elif len(matched_resources) > 1:
-        module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
-    else:
-        return None
-
-
-def get_resource_id(module, resource_list, identity, identity_paths=None):
-    resource = get_resource(module, resource_list, identity, identity_paths)
-    return resource.id if resource is not None else None
-
-
-def _get_request_id(headers):
-    match = re.search('/requests/([-A-Fa-f0-9]+)/', headers)
-    if match:
-        return match.group(1)
-    else:
-        raise Exception("Failed to extract request ID from response "
-                        "header 'location': '{location}'".format(location=headers['location']))
 
 
 def _get_lan_by_id_or_properties(networks, id=None, **kwargs):
@@ -987,81 +1156,8 @@ def startstop_server(module, client, state):
     }
 
 
-def get_module_arguments():
-    arguments = {}
-
-    for option_name, option in OPTIONS.items():
-      arguments[option_name] = {
-        'type': option['type'],
-      }
-      for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
-        if option.get(key) is not None:
-          arguments[option_name][key] = option.get(key)
-
-      if option.get('env_fallback'):
-        arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
-
-      if len(option.get('required', [])) == len(STATES):
-        arguments[option_name]['required'] = True
-
-    return arguments
-
-
-def get_sdk_config(module, sdk):
-    username = module.params.get('username')
-    password = module.params.get('password')
-    token = module.params.get('token')
-    api_url = module.params.get('api_url')
-    certificate_fingerprint = module.params.get('certificate_fingerprint')
-
-    if token is not None:
-        # use the token instead of username & password
-        conf = {
-            'token': token
-        }
-    else:
-        # use the username & password
-        conf = {
-            'username': username,
-            'password': password,
-        }
-
-    if api_url is not None:
-        conf['host'] = api_url
-        conf['server_index'] = None
-
-    if certificate_fingerprint is not None:
-        conf['fingerprint'] = certificate_fingerprint
-
-    return sdk.Configuration(**conf)
-
-
-def check_required_arguments(module, state, object_name):
-    # manually checking if token or username & password provided
-    if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
-    ):
-        module.fail_json(
-            msg='Token or username & password are required for {object_name} state {state}'.format(
-                object_name=object_name,
-                state=state,
-            ),
-        )
-
-    for option_name, option in OPTIONS.items():
-        if state in option.get('required', []) and not module.params.get(option_name):
-            module.fail_json(
-                msg='{option_name} parameter is required for {object_name} state {state}'.format(
-                    option_name=option_name,
-                    object_name=object_name,
-                    state=state,
-                ),
-            )
-
-
 def main():
-    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
+    module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES), supports_check_mode=True)
     if not HAS_SDK:
         module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
 
@@ -1072,16 +1168,10 @@ def main():
         module.fail_json(msg='lan should either be a string or a number')
 
     state = module.params.get('state')
-    check_required_arguments(module, state, OBJECT_NAME)
+    check_required_arguments(module, state, OBJECT_NAME, OPTIONS)
 
     with ApiClient(get_sdk_config(module, ionoscloud)) as api_client:
         api_client.user_agent = USER_AGENT
-
-        if module.params.get('type') == 'CUBE' or state in ('resume', 'suspend'):
-            module.warn(
-                'The CUBE functionality of the server module is DEPRECATED. Please use the new '
-                'cube_server module for operations with CUBE servers.',
-            )
 
         try:
             if state == 'absent':

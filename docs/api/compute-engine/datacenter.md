@@ -27,7 +27,7 @@ This is a simple module that supports creating or removing datacenters. A datace
     datacenter:
       datacenter: "Example DC"
       state: absent
-  
+
 ```
 
 &nbsp;

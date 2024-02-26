@@ -8,7 +8,7 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: "{{ location }}"
@@ -16,21 +16,21 @@
       register: datacenter_response
 
     - name: Create Listener LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         name: "listener_lan"
         public: false
       register: listener_lan
 
     - name: Create Target LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         name: "target_lan"
         public: false
       register: target_lan
 
     - name: Create Application Load Balancer
-      application_load_balancer:
+      ionoscloudsdk.ionoscloud.application_load_balancer:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         ips:
@@ -38,6 +38,7 @@
         listener_lan: "{{ listener_lan.lan.id }}"
         target_lan: "{{ target_lan.lan.id }}"
         wait: true
+        wait_timeout: 2000
       register: alb_response
       
     - name: Debug - Show Application Load Balancer
@@ -45,7 +46,7 @@
          msg: "{{ alb_response }}"
 
     - name: Create Application Load Balancer Flowlog
-      application_load_balancer_flowlog:
+      ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
         name: "{{ name }}"
         action: "ACCEPTED"
         direction: "INGRESS"
@@ -53,6 +54,7 @@
         datacenter: "{{ datacenter_response.datacenter.id }}"
         application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
         wait: true
+        wait_timeout: 2000
       register: alb_flowlog_response
 
     # - name: Print output to file
@@ -61,7 +63,7 @@
     #     dest: ../../docs/returned_object_examples/application_load_balancer_flowlog.json
 
     - name: List Application Load Balancer Flowlogs
-      application_load_balancer_flowlog_info:
+      ionoscloudsdk.ionoscloud.application_load_balancer_flowlog_info:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
       register: alb_flowlog_list_response
@@ -76,7 +78,7 @@
          msg: "{{ alb_flowlog_response }}"
 
     - name: Update Application Load Balancer Flowlog
-      application_load_balancer_flowlog:
+      ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
         flowlog: "{{ alb_flowlog_response.flowlog.id }}"
@@ -93,36 +95,36 @@
          msg: "{{ alb_flowlog_update_response }}"
 
     - name: Delete Application Load Balancer Flowlog
-      application_load_balancer_flowlog:
+      ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
         flowlog: "{{ alb_flowlog_response.flowlog.id }}"
         state: absent
 
     - name: Remove Application Load Balancer
-      application_load_balancer:
-       application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
-       datacenter: "{{ datacenter_response.datacenter.id }}"
-       wait: true
-       wait_timeout: 2000
-       state: absent
+      ionoscloudsdk.ionoscloud.application_load_balancer:
+        application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        wait: true
+        wait_timeout: 2000
+        state: absent
 
     - name: Remove Listener LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         lan: "listener_lan"
         state: absent
         wait: true
 
     - name: Remove Target LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         lan: "target_lan"
         state: absent
         wait: true
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter }}"
         wait: true
         state: absent

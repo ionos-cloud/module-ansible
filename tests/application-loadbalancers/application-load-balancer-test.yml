@@ -8,7 +8,7 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: "{{ location }}"
@@ -16,21 +16,21 @@
       register: datacenter_response
 
     - name: Create Listener LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         name: "listener_lan"
         public: false
       register: listener_lan
 
     - name: Create Target LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         name: "target_lan"
         public: false
       register: target_lan
 
     - name: Create Application Load Balancer
-      application_load_balancer:
+      ionoscloudsdk.ionoscloud.application_load_balancer:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         ips:
@@ -38,6 +38,7 @@
         listener_lan: "{{ listener_lan.lan.id }}"
         target_lan: "{{ target_lan.lan.id }}"
         wait: true
+        wait_timeout: 2000
       register: alb_response
 
     - name: Debug - Show Application Load Balancer
@@ -45,7 +46,7 @@
          msg: "{{ alb_response }}"
 
     - name: Update Application Load Balancer
-      application_load_balancer:
+      ionoscloudsdk.ionoscloud.application_load_balancer:
         datacenter: "{{ datacenter }}"
         application_load_balancer: "{{ alb_response.application_load_balancer.id }}"
         name: "{{ name }} - UPDATE"
@@ -53,6 +54,7 @@
         target_lan: "{{ target_lan.lan.id }}"
         wait: true
         state: update
+        wait_timeout: 2000
       register: alb_response_update
 
     - name: Debug - Show Application Load Balancer
@@ -60,26 +62,27 @@
          msg: "{{ alb_response_update }}"
 
     - name: Remove Application Load Balancer
-      application_load_balancer:
-       application_load_balancer: "{{ name }} - UPDATE"
-       datacenter: "{{ datacenter_response.datacenter.id }}"
-       wait: true
-       state: absent
+      ionoscloudsdk.ionoscloud.application_load_balancer:
+        application_load_balancer: "{{ name }} - UPDATE"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
+        wait: true
+        wait_timeout: 2000
+        state: absent
 
     - name: Remove Listener LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         lan: "listener_lan"
         state: absent
 
     - name: Remove Target LAN
-      lan:
+      ionoscloudsdk.ionoscloud.lan:
         datacenter: "{{ datacenter }}"
         lan: "target_lan"
         state: absent
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter }}"
         wait: true
         state: absent

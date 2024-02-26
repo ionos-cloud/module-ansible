@@ -11,7 +11,7 @@ This is a module that supports creating, updating or destroying Repositories
         registry: RegistryName
         repository: testRepository
         state: absent
-  
+
 ```
 
 
@@ -54,6 +54,11 @@ This is a module that supports creating, updating or destroying Repositories
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
+  </tr>
+  <tr>
+  <td>certificate_fingerprint<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The Ionos API certificate fingerprint.</td>
   </tr>
   <tr>
   <td>username<br/><mark style="color:blue;">str</mark></td>

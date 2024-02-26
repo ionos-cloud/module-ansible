@@ -40,7 +40,7 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
       k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       k8s_nodepool: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
       state: absent
-  
+
 ```
 
 &nbsp;

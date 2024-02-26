@@ -1,9 +1,8 @@
-import copy
-import yaml
-
 from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule, env_fallback
-from ansible.module_utils._text import to_native
+
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options
+
 
 HAS_SDK = True
 try:
@@ -16,7 +15,7 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-LOGGING_USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-logging/%s' % (
+USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python-logging/%s' % (
 __version__, ionoscloud_logging.__version__)
 DOC_DIRECTORY = 'logging'
 STATES = ['info']
@@ -24,225 +23,78 @@ OBJECT_NAME = 'Pipelines'
 RETURNED_KEY = 'pipelines'
 
 OPTIONS = {
-    'filters': {
-        'description': [
-            'Filter that can be used to list only objects which have a certain set of propeties. Filters '
-            'should be a dict with a key containing keys and value pair in the following format:'
-            "'properties.name': 'server_name'"
-        ],
-        'available': STATES,
-        'type': 'dict',
-    },
-    'api_url': {
-        'description': ['The Ionos API base URL.'],
-        'version_added': '2.4',
-        'env_fallback': 'IONOS_API_URL',
-        'available': STATES,
-        'type': 'str',
-    },
-    'username': {
-        # Required if no token, checked manually
-        'description': ['The Ionos username. Overrides the IONOS_USERNAME environment variable.'],
-        'aliases': ['subscription_user'],
-        'env_fallback': 'IONOS_USERNAME',
-        'available': STATES,
-        'type': 'str',
-    },
-    'password': {
-        # Required if no token, checked manually
-        'description': ['The Ionos password. Overrides the IONOS_PASSWORD environment variable.'],
-        'aliases': ['subscription_password'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_PASSWORD',
-        'type': 'str',
-    },
-    'token': {
-        # If provided, then username and password no longer required
-        'description': ['The Ionos token. Overrides the IONOS_TOKEN environment variable.'],
-        'available': STATES,
-        'no_log': True,
-        'env_fallback': 'IONOS_TOKEN',
-        'type': 'str',
-    },
+    **get_info_default_options(STATES),
 }
 
-
-def transform_for_documentation(val):
-    val['required'] = len(val.get('required', [])) == len(STATES)
-    del val['available']
-    del val['type']
-    return val
-
-
-DOCUMENTATION = '''
----
+DOCUMENTATION = """
 module: pipeline_info
 short_description: List Pipelines
 description:
      - This is a simple module that supports listing existing Pipelines
 version_added: "2.0"
 options:
-''' + '  ' + yaml.dump(
-    yaml.safe_load(str({k: transform_for_documentation(v) for k, v in copy.deepcopy(OPTIONS).items()})),
-    default_flow_style=False).replace('\n', '\n  ') + '''
+    api_url:
+        description:
+        - The Ionos API base URL.
+        env_fallback: IONOS_API_URL
+        required: false
+        version_added: '2.4'
+    certificate_fingerprint:
+        description:
+        - The Ionos API certificate fingerprint.
+        env_fallback: IONOS_CERTIFICATE_FINGERPRINT
+        required: false
+    filters:
+        description:
+        - 'Filter that can be used to list only objects which have a certain set of propeties.
+            Filters should be a dict with a key containing keys and value pair in the
+            following format: ''properties.name'': ''server_name'''
+        required: false
+    password:
+        aliases:
+        - subscription_password
+        description:
+        - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
+        env_fallback: IONOS_PASSWORD
+        no_log: true
+        required: false
+    token:
+        description:
+        - The Ionos token. Overrides the IONOS_TOKEN environment variable.
+        env_fallback: IONOS_TOKEN
+        no_log: true
+        required: false
+    username:
+        aliases:
+        - subscription_user
+        description:
+        - The Ionos username. Overrides the IONOS_USERNAME environment variable.
+        env_fallback: IONOS_USERNAME
+        required: false
 requirements:
     - "python >= 2.6"
     - "ionoscloud-logging >= 1.0.0"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
     - name: List Pipelines
         pipeline_info:
         register: pipelines_response
 
-
     - name: Show Pipelines
         debug:
             var: pipelines_response.result
-'''
-
-def get_method_from_filter(filter):
-    '''
-    Returns the method which check a filter for one object. Such a method would work in the following way:
-    for filter = ('properties.name', 'server_name') the resulting method would be
-    def method(item):
-        return item.properties.name == 'server_name'
-    Parameters:
-            filter (touple): Key, value pair representing the filter.
-    Returns:
-            the wanted method
-    '''
-    key, value = filter
-    def method(item):
-        current = item
-        for key_part in key.split('.'):
-            current = getattr(current, key_part)
-        return current == value
-    return method
+"""
 
 
-def get_method_to_apply_filters_to_item(filter_list):
-    '''
-    Returns the method which applies a list of filtering methods obtained using get_method_from_filter to
-    one object and returns true if all the filters return true
-    Parameters:
-            filter_list (list): List of filtering methods
-    Returns:
-            the wanted method
-    '''
-    def f(item):
-        return all([f(item) for f in filter_list])
-    return f
-
-
-def apply_filters(module, item_list):
-    '''
-    Creates a list of filtering methods from the filters module parameter, filters item_list to keep only the
-    items for which every filter matches using get_method_to_apply_filters_to_item to make that check and returns
-    those items
-    Parameters:
-            module: The current Ansible module
-            item_list (list): List of items to be filtered
-    Returns:
-            List of items which match the filters
-    '''
-    filters = module.params.get('filters')
-    if not filters:
-        return item_list
-    filter_methods = list(map(get_method_from_filter, filters.items()))
-
-    return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
-
-
-
-def get_module_arguments():
-    arguments = {}
-
-    for option_name, option in OPTIONS.items():
-        arguments[option_name] = {
-            'type': option['type'],
-        }
-        for key in ['choices', 'default', 'aliases', 'no_log', 'elements']:
-            if option.get(key) is not None:
-                arguments[option_name][key] = option.get(key)
-
-        if option.get('env_fallback'):
-            arguments[option_name]['fallback'] = (env_fallback, [option['env_fallback']])
-
-        if len(option.get('required', [])) == len(STATES):
-            arguments[option_name]['required'] = True
-
-    return arguments
-
-
-def get_sdk_config(module, sdk):
-    username = module.params.get('username')
-    password = module.params.get('password')
-    token = module.params.get('token')
-    api_url = module.params.get('api_url')
-
-    if token is not None:
-        # use the token instead of username & password
-        conf = {
-            'token': token
-        }
-    else:
-        # use the username & password
-        conf = {
-            'username': username,
-            'password': password,
-        }
-
-    if api_url is not None:
-        conf['host'] = api_url
-        conf['server_index'] = None
-
-    return sdk.Configuration(**conf)
-
-
-def check_required_arguments(module, object_name):
-    # manually checking if token or username & password provided
-    if (
-        not module.params.get("token")
-        and not (module.params.get("username") and module.params.get("password"))
-    ):
-        module.fail_json(
-            msg='Token or username & password are required for {object_name}'.format(
-                object_name=object_name,
-            ),
-        )
-    for option_name, option in OPTIONS.items():
-        if 'info' in option.get('required', []) and not module.params.get(option_name):
-            module.fail_json(
-                msg='{option_name} parameter is required for retrieving {object_name}'.format(
-                    option_name=option_name,
-                    object_name=object_name,
-                ),
-            )
-
-
-def main():
-    module = AnsibleModule(argument_spec=get_module_arguments(), supports_check_mode=True)
-
-    if not HAS_SDK:
-        module.fail_json(
-            msg='ionoscloud_logging is required for this module, run `pip install ionoscloud_logging`')
-
-    logging_api_client = ionoscloud_logging.ApiClient(get_sdk_config(module, ionoscloud_logging))
-    logging_api_client.user_agent = LOGGING_USER_AGENT
-
-    check_required_arguments(module, OBJECT_NAME)
-    try:
-        pipelines = ionoscloud_logging.PipelinesApi(logging_api_client).pipelines_get()
-        results = list(map(lambda x: x.to_dict(), apply_filters(module, pipelines.items)))
-        module.exit_json(**{RETURNED_KEY:results})
-    except Exception as e:
-        module.fail_json(
-            msg='failed to retrieve {object_name}: {error}'.format(object_name=OBJECT_NAME, error=to_native(e)))
+def get_objects(module, client):
+    return ionoscloud_logging.PipelinesApi(client).pipelines_get()
 
 
 if __name__ == '__main__':
-    main()
+    default_main_info(
+        ionoscloud_logging, 'ionoscloud_logging', USER_AGENT, HAS_SDK, OPTIONS,
+        STATES, OBJECT_NAME, RETURNED_KEY, get_objects,
+    )

@@ -8,7 +8,7 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter }}"
         description: "{{ description }}"
         location: "{{ location }}"
@@ -16,7 +16,7 @@
       register: datacenter_response
 
     - name: Create ipblock
-      ipblock:
+      ionoscloudsdk.ionoscloud.ipblock:
         name: "{{ name }}"
         location: "{{ location }}"
         size: 2
@@ -24,10 +24,11 @@
       register: ipblock_response
 
     - name: Create NAT Gateway
-      nat_gateway:
+      ionoscloudsdk.ionoscloud.nat_gateway:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         name: "{{ name }}"
         public_ips: "{{ ipblock_response.ipblock.properties.ips }}"
+        wait_timeout: 2000
         wait: true
       register: nat_gateway_response
 
@@ -37,7 +38,7 @@
     #     dest: ../../docs/returned_object_examples/nat_gateway.json
 
     - name: List NAT Gateways
-      nat_gateway_info:
+      ionoscloudsdk.ionoscloud.nat_gateway_info:
         datacenter: "{{ datacenter_response.datacenter.id }}"
       register: nat_gateway_list_response
 
@@ -51,7 +52,7 @@
          msg: "{{ nat_gateway_response }}"
 
     - name: Create NAT Gateway Rule
-      nat_gateway_rule:
+      ionoscloudsdk.ionoscloud.nat_gateway_rule:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
         name: "{{ name }}"
@@ -72,7 +73,7 @@
     #     dest: ../../docs/returned_object_examples/nat_gateway_rule.json
 
     - name: List NAT Gateway Rules
-      nat_gateway_rule_info:
+      ionoscloudsdk.ionoscloud.nat_gateway_rule_info:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
       register: nat_gateway_rule_list_response
@@ -87,7 +88,7 @@
          msg: "{{ nat_gateway_rule_response }}"
 
     - name: Update NAT Gateway Rule
-      nat_gateway_rule:
+      ionoscloudsdk.ionoscloud.nat_gateway_rule:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
         nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
@@ -105,21 +106,21 @@
          msg: "{{ nat_gateway_rule_update_response }}"
 
     - name: Delete NAT Gateway Rule
-      nat_gateway_rule:
+      ionoscloudsdk.ionoscloud.nat_gateway_rule:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
         nat_gateway_rule: "{{ nat_gateway_rule_response.nat_gateway_rule.id }}"
         state: absent
 
     - name: Delete NAT Gateway Rule
-      nat_gateway_rule:
+      ionoscloudsdk.ionoscloud.nat_gateway_rule:
         datacenter: "{{ datacenter_response.datacenter.id }}"
         nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
         nat_gateway_rule: "invalid-id"
         state: absent
 
     - name: Remove NAT Gateway
-      nat_gateway:
+      ionoscloudsdk.ionoscloud.nat_gateway:
        nat_gateway: "{{ nat_gateway_response.nat_gateway.id }}"
        datacenter: "{{ datacenter_response.datacenter.id }}"
        wait: true
@@ -127,12 +128,12 @@
        state: absent
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter }}"
         wait: true
         state: absent
 
     - name: Remove ipblock
-      ipblock:
+      ionoscloudsdk.ionoscloud.ipblock:
         ipblock: "{{ name }}"
         state: absent

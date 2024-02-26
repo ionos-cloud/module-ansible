@@ -11,7 +11,7 @@
       run_once: yes
 
     - name: Create user
-      user:
+      ionoscloudsdk.ionoscloud.user:
         firstname: John
         lastname: Doe
         email: "{{ random_user }}"
@@ -21,22 +21,22 @@
         state: present
 
     - name: Create first group
-      group:
+      ionoscloudsdk.ionoscloud.group:
         name: "{{ name }} 1"
 
     - name: Add user to first group
-      user:
+      ionoscloudsdk.ionoscloud.user:
         user: "{{ random_user }}"
         groups:
           - "{{ name }} 1"
         state: update
 
     - name: Create second group
-      group:
+      ionoscloudsdk.ionoscloud.group:
         name: "{{ name }} 2"
 
     - name: Update user
-      user:
+      ionoscloudsdk.ionoscloud.user:
         firstname: John
         lastname: Doe
         user: "{{ random_user }}"
@@ -59,22 +59,22 @@
         msg: "user-test: updating a user must keep its groups"
 
     - name: Remove user from groups
-      user:
+      ionoscloudsdk.ionoscloud.user:
         user: "{{ random_user }}"
         groups: []
         state: update
 
     - name: Delete user
-      user:
+      ionoscloudsdk.ionoscloud.user:
         user: "{{ random_user }}"
         state: absent
 
     - name: Delete user
-      user:
+      ionoscloudsdk.ionoscloud.user:
         user: "non-existent-user"
         state: absent
 
     - name: Delete group
-      group:
+      ionoscloudsdk.ionoscloud.group:
         group: "{{ name }}"
         state: absent

@@ -50,7 +50,7 @@ This module allows you to create, update or remove a firewall rule.
     nic: aa6c261b9c
     firewall_rule: Allow Ping
     state: absent
-  
+
 ```
 
 &nbsp;
@@ -202,11 +202,6 @@ This module allows you to create, update or remove a firewall rule.
   <td>ip_version<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The IP version for this rule. If sourceIp or targetIp are specified, you can omit this value - the IP version will then be deduced from the IP address(es) used; if you specify it anyway, it must match the specified IP address(es). If neither sourceIp nor targetIp are specified, this rule allows traffic only for the specified IP version. If neither sourceIp, targetIp nor ipVersion are specified, this rule will only allow IPv4 traffic.<br />Options: ['IPv4', 'IPv6']</td>
-  </tr>
-  <tr>
-  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
-  <td align="center">False</td>
-  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -439,11 +434,6 @@ This module allows you to create, update or remove a firewall rule.
   <td>ip_version<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The IP version for this rule. If sourceIp or targetIp are specified, you can omit this value - the IP version will then be deduced from the IP address(es) used; if you specify it anyway, it must match the specified IP address(es). If neither sourceIp nor targetIp are specified, this rule allows traffic only for the specified IP version. If neither sourceIp, targetIp nor ipVersion are specified, this rule will only allow IPv4 traffic.<br />Options: ['IPv4', 'IPv6']</td>
-  </tr>
-  <tr>
-  <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
-  <td align="center">False</td>
-  <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>

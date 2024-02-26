@@ -34,7 +34,7 @@ This module allows you to add, update or remove resource shares.
         - b50ba74e-b585-44d6-9b6e-68941b2ce98e
         - ba7efccb-a761-11e7-90a7-525400f64d8d
       state: absent
-  
+
 ```
 
 &nbsp;

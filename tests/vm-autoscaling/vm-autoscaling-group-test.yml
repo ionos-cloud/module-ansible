@@ -7,21 +7,21 @@
 
   tasks:
     - name: Create datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter_name }}"
         location: "{{ datacenter_location }}"
         wait: true
       register: datacenter_response
 
     - name: Create datacenter update
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         name: "{{ datacenter_name_update }}"
         location: "{{ datacenter_location_update }}"
         wait: true
       register: datacenter_response_update
 
     - name: Create VM Autoscaling Group
-      vm_autoscaling_group:
+      ionoscloudsdk.ionoscloud.vm_autoscaling_group:
         datacenter: "{{ datacenter_name }}"
         name: "{{ name }}"
         max_replica_count: "{{ max_replica_count }}"
@@ -52,7 +52,7 @@
     #     dest: ../../docs/returned_object_examples/vm_autoscaling_group.json
 
     - name: List VM Autoscaling Group Actions
-      vm_autoscaling_action_info:
+      ionoscloudsdk.ionoscloud.vm_autoscaling_action_info:
         vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
       register: vm_autoscaling_actions_response
 
@@ -66,7 +66,7 @@
     #     dest: ../../docs/returned_object_examples/vm_autoscaling_action_info.json
 
     - name: List VM Autoscaling Group Servers
-      vm_autoscaling_server_info:
+      ionoscloudsdk.ionoscloud.vm_autoscaling_server_info:
         vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
       register: vm_autoscaling_servers_response
 
@@ -80,7 +80,7 @@
         var: vm_autoscaling_servers_response.result
 
     - name: List VM Autoscaling Groups
-      vm_autoscaling_group_info:
+      ionoscloudsdk.ionoscloud.vm_autoscaling_group_info:
       register: vm_autoscaling_groups_response
 
     # - name: Print output to file
@@ -97,7 +97,7 @@
         var: vm_autoscaling_group_response.vm_autoscaling_group
 
     - name: Update VM Ausocaling Group
-      vm_autoscaling_group:
+      ionoscloudsdk.ionoscloud.vm_autoscaling_group:
         vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
         datacenter: "{{ datacenter_name_update }}"
         name: "{{ name_update }}"
@@ -116,24 +116,25 @@
         ram: "{{ ram_update }}"
         nics: "{{ nics_update }}"
         volumes: "{{ volumes_update }}"
+        do_not_replace: false
         state: update
       register: vm_autoscaling_group_response
 
     - name: Remove VM Ausocaling Group
-      vm_autoscaling_group:
+      ionoscloudsdk.ionoscloud.vm_autoscaling_group:
         vm_autoscaling_group: "{{ name }}"
         state: absent
       register: vm_autoscaling_group_response
 
     - name: Remove datacenter
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter_name }}"
         state: absent
         wait: true
       register: deleted_datacenter
 
     - name: Remove datacenter update
-      datacenter:
+      ionoscloudsdk.ionoscloud.datacenter:
         datacenter: "{{ datacenter_name_update }}"
         state: absent
         wait: true

@@ -42,7 +42,7 @@ This is a module that supports creating, updating, restoring or destroying Postg
     postgres_cluster:
       postgres_cluster: backuptest-04
       state: absent
-  
+
 ```
 
 &nbsp;
