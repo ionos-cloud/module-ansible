@@ -200,6 +200,8 @@ modules_to_generate = [
     'dns_secondary_zone_info',
     'mariadb_cluster',
     'mariadb_cluster_info',
+    'mariadb_backup',
+    'mariadb_backup_info',
 ]
 
 generated = {}

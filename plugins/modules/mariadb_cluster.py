@@ -9,11 +9,11 @@ try:
 except ImportError:
     HAS_SDK = False
 
-from ..module_utils.common_ionos_module import CommonIonosModule
-from ..module_utils.common_ionos_methods import (
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
     get_module_arguments, get_resource_id,
 )
-from ..module_utils.common_ionos_options import get_default_options_with_replace
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options_with_replace
 
 
 ANSIBLE_METADATA = {
@@ -27,7 +27,7 @@ USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-mariadb/%s' % (
     __version__, ionoscloud_dbaas_mariadb.__version__)
 DOC_DIRECTORY = 'dbaas-mariadb'
 STATES = ['present', 'absent', 'update', 'restore']
-OBJECT_NAME = 'Postgres Cluster'
+OBJECT_NAME = 'MariaDB Cluster'
 RETURNED_KEY = 'mariadb_cluster'
 
 OPTIONS = {
@@ -471,5 +471,5 @@ class MariaDBClusterModule(CommonIonosModule):
 if __name__ == '__main__':
     ionos_module = MariaDBClusterModule()
     if not HAS_SDK:
-        ionos_module.module.fail_json(msg='ionoscloud and ionoscloud_dbaas_mariadb is required for this module, run `pip install ionoscloud ionoscloud_dbaas_mariadb`')
+        ionos_module.module.fail_json(msg='ionoscloud and ionoscloud_dbaas_mariadb are required for this module, run `pip install ionoscloud ionoscloud_dbaas_mariadb`')
     ionos_module.main()

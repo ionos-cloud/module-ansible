@@ -157,6 +157,8 @@
     * [DNS Secondary Zones](api/dns/dns_secondary_zone_info.md)
 * Dbaas Mariadb
   * Modules
-    * [Postgres Cluster](api/dbaas-mariadb/mariadb_cluster.md)
+    * [MariaDB Cluster](api/dbaas-mariadb/mariadb_cluster.md)
+    * [MariaDB Cluster](api/dbaas-mariadb/mariadb_backup.md)
   * Info Modules
     * [MariaDB Clusters](api/dbaas-mariadb/mariadb_cluster_info.md)
+    * [MariaDB Cluster Backups](api/dbaas-mariadb/mariadb_backup_info.md)
