@@ -76,37 +76,12 @@ pip install ionoscloud-cert-manager
    git clone https://github.com/ionos-cloud/module-ansible
    ```
 
-2. Ansible must be made aware of the new module path. This too can be accomplished a few different ways depending on your requirements and environment.
+2. Install the collection with ansible-galaxy.
 
-   * Ansible configuration file: `ansible.cfg`
-   * Environment variable: `ANSIBLE_LIBRARY`
-   * Command line parameter: `ansible-playbook --module-path [path]`
-
-   2a. The preferred method is to update the Ansible configuration with the module path. To include the path globally for all users, edit the `/etc/ansible/ansible.cfg` file and add `library = /path/to/module/ionos_cloud` under the **\[default\]** section. For example:
-
-   ```text
-   [default]
-   library = /path/to/ionos-module-ansible/ionos_cloud
-   ```
-
-   Note that the Ansible configuration file is read from several locations in the following order:
-
-   * `ANSIBLE_CONFIG` environment variable path
-   * `ansible.cfg` from the current directory
-   * `.ansible.cfg` in the user home directory
-   * `/etc/ansible/ansible.cfg`
-
-   2b. The module path can also be set using an environment variable. This variable will be lost once the terminal session is closed:
-
-   ```text
-   export ANSIBLE_LIBRARY=/path/to/ionos-module-ansible/ionos_cloud
-   ```
-
-   2c. The module path can be overridden with an `ansible-playbook` command line parameter:
-
-   ```text
-   ansible-playbook --module-path /path/to/ionos-module-ansible/ionos_cloud playbook.yml
-   ```
+  ```bash
+  ansible-galaxy collection build .
+  ansible-galaxy collection install ionoscloudsdk-ionoscloud-<module_version>.tar.gz
+  ```
 
 ## FAQ
 

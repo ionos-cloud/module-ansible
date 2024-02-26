@@ -1,5 +1,12 @@
 # Changelog
 
+## 7.3.0
+* Refactor to use module_utile to remove duplicate code.
+### Changes
+* Using ansible-galaxy when installing from github
+* Modules called with the whole path(ionoscloudsdk.ionoscloud.<module_name>) 
+* allow_replace and depth have been removed from modules that do not support replace, they can still be sent so past playbooks that use it do not fail
+
 ## 7.2.0
 ### Features
 * Added Container Registry Vulnerability Scanning feature
