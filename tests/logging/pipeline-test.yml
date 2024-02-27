@@ -12,6 +12,7 @@
       name: "{{pipeline_name}}"
       logs: "{{pipeline_logs}}"
       wait: true
+      wait_timeout: 1200
     register: pipeline_response
 
   - name: List Pipelines
