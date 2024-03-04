@@ -18,6 +18,23 @@ This is a simple module that supports listing existing MariaDB Cluster backups
 
 ```
 
+&nbsp;
+
+&nbsp;
+## Returned object
+```json
+{
+    "changed": false,
+    "mariadb_backups": [
+        {
+            "created": "2024-02-27T16:04:46+00:00",
+            "size": 1
+        }
+    ],
+    "failed": false
+}
+
+```
 
 &nbsp;
 
