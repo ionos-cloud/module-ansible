@@ -75,12 +75,6 @@
   #   ansible.builtin.copy:
   #     content: "{{mariadb_clusters_response}}"
   #     dest: ../../docs/returned_object_examples/mariadb_cluster_info.json
-    
-  - name: Create Cluster Backup
-    ionoscloudsdk.ionoscloud.mariadb_backup:
-      mariadb_cluster: "{{ cluster_response.mariadb_cluster.properties.display_name }}"
-      state: present
-    register: cluster_backup_response
 
   - name: List all Cluster Backups
     ionoscloudsdk.ionoscloud.mariadb_backup_info:
@@ -90,10 +84,15 @@
     ionoscloudsdk.ionoscloud.mariadb_backup_info:
       mariadb_cluster: "{{ cluster_response.mariadb_cluster.properties.display_name }}"
     register: cluster_backups_response
+
+  # - name: Print output to file
+  #   ansible.builtin.copy:
+  #     content: "{{cluster_backups_response}}"
+  #     dest: ../../docs/returned_object_examples/mariadb_backup_info.json
   
-  # - name: Show backups
-  #   debug:
-  #     var: cluster_backups_response
+  - name: Show backups
+    debug:
+      var: cluster_backups_response
 
   - name: Create Cluster no change
     ionoscloudsdk.ionoscloud.mariadb_cluster:

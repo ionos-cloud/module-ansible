@@ -158,7 +158,6 @@
 * Dbaas Mariadb
   * Modules
     * [MariaDB Cluster](api/dbaas-mariadb/mariadb_cluster.md)
-    * [MariaDB Cluster](api/dbaas-mariadb/mariadb_backup.md)
   * Info Modules
     * [MariaDB Clusters](api/dbaas-mariadb/mariadb_cluster_info.md)
     * [MariaDB Cluster Backups](api/dbaas-mariadb/mariadb_backup_info.md)

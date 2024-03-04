@@ -112,7 +112,7 @@ def get_objects(module, client):
             [['id'], ['properties', 'display_name']],
         )
 
-        backups = backups_api.cluster_backups_get(mariadb_cluster_id)
+        backups = backups_api.cluster_backups_get(mariadb_cluster_id).properties
     else:
         backups = backups_api.backups_get()
     return backups

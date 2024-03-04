@@ -1,0 +1,37 @@
+{
+    "changed": false,
+    "failed": false,
+    "action": "create",
+    "mariadb_cluster": {
+        "id": "7182ab85-3671-45e5-b2bb-e943c4479e03",
+        "metadata": {
+            "created_date": "2024-02-27T16:02:55+00:00",
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "last_modified_date": "2024-02-27T16:02:55+00:00",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "state": "AVAILABLE"
+        },
+        "properties": {
+            "display_name": "MariaDB-cluster",
+            "mariadb_version": "10.6",
+            "dns_name": "<CLUSTER_DNS>",
+            "instances": 1,
+            "ram": 4,
+            "cores": 4,
+            "storage_size": 10,
+            "connections": [
+                {
+                    "datacenter_id": "3e223566-5a98-495a-9e4c-2c5fc71c057b",
+                    "lan_id": "2",
+                    "cidr": "<CIDR"
+                }
+            ],
+            "maintenance_window": {
+                "time": "14:17:42",
+                "day_of_the_week": "Tuesday"
+            }
+        }
+    }
+}

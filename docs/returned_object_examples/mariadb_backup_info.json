@@ -1,0 +1,10 @@
+{
+    "changed": false,
+    "mariadb_backups": [
+        {
+            "created": "2024-02-27T16:04:46+00:00",
+            "size": 1
+        }
+    ],
+    "failed": false
+}
