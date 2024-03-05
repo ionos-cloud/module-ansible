@@ -62,11 +62,12 @@ def generate_module_docs(module_name):
     with open(os.path.join(MODULES_DIR, module_name) + '.py', 'w') as plugin_file_write:
         plugin_file_write.write(initial_module.replace('ansible_collections.ionoscloudsdk.ionoscloud.plugins', '.'))
 
-    module = importlib.import_module('plugins.modules.' + module_name)
-
-    # Revert module changess
-    with open(os.path.join(MODULES_DIR, module_name) + '.py', 'w') as plugin_file_write:
-        plugin_file_write.write(initial_module)
+    try:
+        module = importlib.import_module('plugins.modules.' + module_name)
+    finally:
+        # Revert module changess
+        with open(os.path.join(MODULES_DIR, module_name) + '.py', 'w') as plugin_file_write:
+            plugin_file_write.write(initial_module)
 
     if module_name.endswith('_info'):
         def available_in_state(option):

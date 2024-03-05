@@ -68,24 +68,22 @@ OPTIONS = {
         'elements': 'str',
     },
     'public': {
-        'description': ['The indicator if the cluster is public or private.'],
+        'description': ['The indicator whether the cluster is public or private. Note that the status FALSE is still in the beta phase.'],
         'available': ['present'],
         'type': 'bool'
     },
     'location': {
-        'description': 'The location of the cluster if the cluster is private. This property is immutable. The '
-                       'location must be enabled for your contract or you must have a Datacenter within that '
-                       'location. This attribute is mandatory if the cluster is private.',
+        'description': ['This attribute is mandatory if the cluster is private. The location must be enabled for your contract, or you must have a data center at that location. This property is not adjustable.'],
         'available': ['present'],
         'type': 'str'
     },
     'nat_gateway_ip': {
-        'description': 'The nat gateway IP of the cluster if the cluster is private.',
+        'description': ['The nat gateway IP of the cluster if the cluster is private. This property is immutable. Must be a reserved IP in the same location as the cluster\'s location. This attribute is mandatory if the cluster is private.'],
         'available': ['present'],
         'type': 'str'
     },
     'node_subnet': {
-        'description': 'The node subnet of the cluster if the cluster is private.',
+        'description': ['The node subnet of the cluster, if the cluster is private. This property is optional and immutable. Must be a valid CIDR notation for an IPv4 network prefix of 16 bits length.'],
         'available': ['present'],
         'type': 'str'
     },
@@ -141,10 +139,10 @@ options:
             are suitable upgrade targets for all earlier versions.
         required: false
     location:
-        description: The location of the cluster if the cluster is private. This property
-            is immutable. The location must be enabled for your contract or you must have
-            a Datacenter within that location. This attribute is mandatory if the cluster
-            is private.
+        description:
+        - This attribute is mandatory if the cluster is private. The location must be
+            enabled for your contract, or you must have a data center at that location.
+            This property is not adjustable.
         required: false
     maintenance_window:
         description:
@@ -153,10 +151,16 @@ options:
             is no fixed default value.
         required: false
     nat_gateway_ip:
-        description: The nat gateway IP of the cluster if the cluster is private.
+        description:
+        - The nat gateway IP of the cluster if the cluster is private. This property is
+            immutable. Must be a reserved IP in the same location as the cluster's location.
+            This attribute is mandatory if the cluster is private.
         required: false
     node_subnet:
-        description: The node subnet of the cluster if the cluster is private.
+        description:
+        - The node subnet of the cluster, if the cluster is private. This property is
+            optional and immutable. Must be a valid CIDR notation for an IPv4 network
+            prefix of 16 bits length.
         required: false
     password:
         aliases:
@@ -168,7 +172,8 @@ options:
         required: false
     public:
         description:
-        - The indicator if the cluster is public or private.
+        - The indicator whether the cluster is public or private. Note that the status
+            FALSE is still in the beta phase.
         required: false
     s3_buckets_param:
         description:

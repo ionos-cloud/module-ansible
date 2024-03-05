@@ -14,12 +14,12 @@ def update_descriptions(module_name):
         initial_module = module_file_read.read()
     with open(os.path.join(MODULES_DIR, module_name) + '.py', 'w') as plugin_file_write:
         plugin_file_write.write(initial_module.replace('ansible_collections.ionoscloudsdk.ionoscloud.plugins', '.'))
-
-    module = importlib.import_module('plugins.modules.' + module_name)
-
-    # Revert module changess
-    with open(os.path.join(MODULES_DIR, module_name) + '.py', 'w') as plugin_file_write:
-        plugin_file_write.write(initial_module)
+    try:
+        module = importlib.import_module('plugins.modules.' + module_name)
+    finally:
+        # Revert module changess
+        with open(os.path.join(MODULES_DIR, module_name) + '.py', 'w') as plugin_file_write:
+            plugin_file_write.write(initial_module)
     
     # print(transform_options_for_ducumentation(module.OPTIONS, module.STATES))
 
