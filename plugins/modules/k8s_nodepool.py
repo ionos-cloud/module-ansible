@@ -333,24 +333,24 @@ author:
 EXAMPLE_PER_STATE = {
   'present' : '''
   - name: Create k8s cluster nodepool
-    k8s_nodepools:
+    k8s_nodepool:
       k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       datacenter: "4d495548-e330-434d-83a9-251bfa645875"
       node_count: 1
       cpu_family: "AMD_OPTERON"
-      cores_count: "1"
-      ram_size: "2048"
+      cores_count: 1
+      ram_size: 2048
       availability_zone: "AUTO"
       storage_type: "SSD"
-      storage_size: "100"
+      storage_size: 100
   ''',
   'update' : '''
   - name: Update k8s cluster nodepool
-    k8s_nodepools:
+    k8s_nodepool:
       k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
       k8s_nodepool: "6e9efcc6-649a-4514-bee5-6165b614c89e"
       node_count: 1
-      cores_count: "1"
+      cores_count: 1
       maintenance_window:
         day_of_the_week: 'Tuesday'
         time: '13:03:00'
@@ -361,7 +361,7 @@ EXAMPLE_PER_STATE = {
   ''',
   'absent' : '''
   - name: Delete k8s cluster nodepool
-    k8s_nodepools:
+    k8s_nodepool:
       k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       k8s_nodepool: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
       state: absent
@@ -370,24 +370,24 @@ EXAMPLE_PER_STATE = {
 
 EXAMPLES = """
   - name: Create k8s cluster nodepool
-    k8s_nodepools:
+    k8s_nodepool:
       k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       datacenter: "4d495548-e330-434d-83a9-251bfa645875"
       node_count: 1
       cpu_family: "AMD_OPTERON"
-      cores_count: "1"
-      ram_size: "2048"
+      cores_count: 1
+      ram_size: 2048
       availability_zone: "AUTO"
       storage_type: "SSD"
-      storage_size: "100"
+      storage_size: 100
   
 
   - name: Update k8s cluster nodepool
-    k8s_nodepools:
+    k8s_nodepool:
       k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
       k8s_nodepool: "6e9efcc6-649a-4514-bee5-6165b614c89e"
       node_count: 1
-      cores_count: "1"
+      cores_count: 1
       maintenance_window:
         day_of_the_week: 'Tuesday'
         time: '13:03:00'
@@ -398,7 +398,7 @@ EXAMPLES = """
   
 
   - name: Delete k8s cluster nodepool
-    k8s_nodepools:
+    k8s_nodepool:
       k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
       k8s_nodepool: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
       state: absent
