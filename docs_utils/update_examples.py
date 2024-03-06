@@ -26,8 +26,7 @@ def find_info_examples_in_test_file(filename, module_reference, left_states, sta
     with open(filename, 'r') as f:
         test_file = yaml.load(f.read(), Loader=yaml.SafeLoader)
         for task in test_file[0]['tasks']:
-            if module_reference in task.keys():
-                if 'info' not in state_examples:
+            if module_reference in task.keys() and 'info' in left_states:
                     state_examples['info'] = chevron.render(
                         yaml.dump(task, default_flow_style=False, sort_keys=False),
                         test_vars,
