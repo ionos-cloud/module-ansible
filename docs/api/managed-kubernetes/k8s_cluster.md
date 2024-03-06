@@ -128,22 +128,22 @@ register: cluster_response
   <tr>
   <td>public<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>The indicator if the cluster is public or private.</td>
+  <td>The indicator whether the cluster is public or private. Note that the status FALSE is still in the beta phase.</td>
   </tr>
   <tr>
   <td>location<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The location of the cluster if the cluster is private. This property is immutable. The location must be enabled for your contract or you must have a Datacenter within that location. This attribute is mandatory if the cluster is private.</td>
+  <td>This attribute is mandatory if the cluster is private. The location must be enabled for your contract, or you must have a data center at that location. This property is not adjustable.</td>
   </tr>
   <tr>
   <td>nat_gateway_ip<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The nat gateway IP of the cluster if the cluster is private.</td>
+  <td>The nat gateway IP of the cluster if the cluster is private. This property is immutable. Must be a reserved IP in the same location as the cluster's location. This attribute is mandatory if the cluster is private.</td>
   </tr>
   <tr>
   <td>node_subnet<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The node subnet of the cluster if the cluster is private.</td>
+  <td>The node subnet of the cluster, if the cluster is private. This property is optional and immutable. Must be a valid CIDR notation for an IPv4 network prefix of 16 bits length.</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
