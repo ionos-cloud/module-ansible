@@ -93,14 +93,9 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """
-    - name: Get all groups
-      group_info:
-      register: group_list_response
-    - name: Get all groups for a user
-      group_info:
-        user: <USER_EMAIL>
-      register: group_list_response
+EXAMPLES = """name: List Groups
+ionoscloudsdk.ionoscloud.group_info: null
+register: group_list_response
 """
 
 def get_objects(module, client):

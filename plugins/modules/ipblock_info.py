@@ -84,10 +84,9 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """
-    - name: Get all IP Blocks
-      ipblock_info:
-      register: ipblock_list_response
+EXAMPLES = """name: List IP Blocks
+ionoscloudsdk.ionoscloud.ipblock_info: null
+register: ipblock_list_response
 """
 
 

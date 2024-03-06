@@ -6,50 +6,36 @@ This module allows you to create, update or remove a firewall rule.
 
 
 ```yaml
-# Create a firewall rule
-- name: Create SSH firewall rule
-  firewall_rule:
-    datacenter: Virtual Datacenter
-    server: node001
-    nic: 7341c2454f
-    name: Allow SSH
-    protocol: TCP
-    source_ip: 0.0.0.0
-    port_range_start: 22
-    port_range_end: 22
-    state: present
+name: Create a firewall rule
+ionoscloudsdk.ionoscloud.firewall_rule:
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  nic: 'AnsibleAutoTestCompute'
+  name: SSH
+  protocol: ICMPv6
+  source_mac: 01:23:45:67:89:00
+  ip_version: IPv6
+  state: present
 
-- name: Create ping firewall rule
-  firewall_rule:
-    datacenter: Virtual Datacenter
-    server: node001
-    nic: 7341c2454f
-    name: Allow Ping
-    protocol: ICMP
-    source_ip: 0.0.0.0
-    icmp_type: 8
-    icmp_code: 0
-    state: present
-  
-# Update a firewall rule
-- name: Allow SSH access
-  firewall_rule:
-      datacenter: Virtual Datacenter
-      server: node001
-      nic: 7341c2454f
-      firewall_rule: Allow Ping
-      source_ip: 162.254.27.217
-      source_mac: 01:23:45:67:89:00
-      state: update
-  
-# Remove a firewall rule
-- name: Remove public ping firewall rule
-  firewall_rule:
-    datacenter: Virtual Datacenter
-    server: node001
-    nic: aa6c261b9c
-    firewall_rule: Allow Ping
-    state: absent
+name: Update firewall rule
+ionoscloudsdk.ionoscloud.firewall_rule:
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  nic: 'AnsibleAutoTestCompute'
+  firewall_rule: SSH
+  port_range_start: 22
+  port_range_end: 23
+  state: update
+
+name: Remove firewall rule
+ionoscloudsdk.ionoscloud.firewall_rule:
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  nic: 'AnsibleAutoTestCompute'
+  firewall_rule: SSH
+  wait: true
+  wait_timeout: '500'
+  state: absent
 
 ```
 
@@ -100,31 +86,17 @@ This module allows you to create, update or remove a firewall rule.
 
 # state: **present**
 ```yaml
-  # Create a firewall rule
-- name: Create SSH firewall rule
-  firewall_rule:
-    datacenter: Virtual Datacenter
-    server: node001
-    nic: 7341c2454f
-    name: Allow SSH
-    protocol: TCP
-    source_ip: 0.0.0.0
-    port_range_start: 22
-    port_range_end: 22
-    state: present
+  name: Create a firewall rule
+ionoscloudsdk.ionoscloud.firewall_rule:
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  nic: 'AnsibleAutoTestCompute'
+  name: SSH
+  protocol: ICMPv6
+  source_mac: 01:23:45:67:89:00
+  ip_version: IPv6
+  state: present
 
-- name: Create ping firewall rule
-  firewall_rule:
-    datacenter: Virtual Datacenter
-    server: node001
-    nic: 7341c2454f
-    name: Allow Ping
-    protocol: ICMP
-    source_ip: 0.0.0.0
-    icmp_type: 8
-    icmp_code: 0
-    state: present
-  
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -251,15 +223,16 @@ This module allows you to create, update or remove a firewall rule.
 &nbsp;
 # state: **absent**
 ```yaml
-  # Remove a firewall rule
-- name: Remove public ping firewall rule
-  firewall_rule:
-    datacenter: Virtual Datacenter
-    server: node001
-    nic: aa6c261b9c
-    firewall_rule: Allow Ping
-    state: absent
-  
+  name: Remove firewall rule
+ionoscloudsdk.ionoscloud.firewall_rule:
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  nic: 'AnsibleAutoTestCompute'
+  firewall_rule: SSH
+  wait: true
+  wait_timeout: '500'
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -341,17 +314,16 @@ This module allows you to create, update or remove a firewall rule.
 &nbsp;
 # state: **update**
 ```yaml
-  # Update a firewall rule
-- name: Allow SSH access
-  firewall_rule:
-      datacenter: Virtual Datacenter
-      server: node001
-      nic: 7341c2454f
-      firewall_rule: Allow Ping
-      source_ip: 162.254.27.217
-      source_mac: 01:23:45:67:89:00
-      state: update
-  
+  name: Update firewall rule
+ionoscloudsdk.ionoscloud.firewall_rule:
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  nic: 'AnsibleAutoTestCompute'
+  firewall_rule: SSH
+  port_range_start: 22
+  port_range_end: 23
+  state: update
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

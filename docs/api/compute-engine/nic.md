@@ -6,41 +6,41 @@ This module allows you to create, update or remove a NIC.
 
 
 ```yaml
-# Create a NIC
-    - name: Create NIC
-      nic:
-       name: NicName
-       datacenter: DatacenterName
-       server: ServerName
-       lan: 2
-       dhcp: true
-       firewall_active: true
-       ips:
-         - 10.0.0.1
-       wait: true
-       wait_timeout: 600
-       state: present
-      register: ionos_cloud_nic
-  
-# Update a NIC
-  - nic:
-      datacenter: DatacenterName
-      server: ServerName
-      nic: NicName
-      lan: 1
-      ips:
-        - 158.222.103.23
-        - 158.222.103.24
-      dhcp: false
-      state: update
-  
-# Remove a NIC
-  - nic:
-      datacenter: DatacenterName
-      server: ServerName
-      nic: NicName
-      wait_timeout: 500
-      state: absent
+name: Create NIC
+ionoscloudsdk.ionoscloud.nic:
+  name: 'AnsibleAutoTestCompute'
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  lan: 2
+  dhcp: true
+  firewall_active: true
+  ips:
+  - 10.0.0.1
+  wait: true
+  wait_timeout: '500'
+  state: present
+register: ionos_cloud_nic
+
+name: Update NIC
+ionoscloudsdk.ionoscloud.nic:
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  name: new-nic
+  nic: ''
+  dhcp: false
+  wait: true
+  wait_timeout: '500'
+  state: update
+register: updated_nic
+
+name: Remove NIC
+ionoscloudsdk.ionoscloud.nic:
+  nic: ''
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  wait: true
+  wait_timeout: '500'
+  state: absent
 
 ```
 
@@ -111,22 +111,21 @@ This module allows you to create, update or remove a NIC.
 
 # state: **present**
 ```yaml
-  # Create a NIC
-    - name: Create NIC
-      nic:
-       name: NicName
-       datacenter: DatacenterName
-       server: ServerName
-       lan: 2
-       dhcp: true
-       firewall_active: true
-       ips:
-         - 10.0.0.1
-       wait: true
-       wait_timeout: 600
-       state: present
-      register: ionos_cloud_nic
-  
+  name: Create NIC
+ionoscloudsdk.ionoscloud.nic:
+  name: 'AnsibleAutoTestCompute'
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  lan: 2
+  dhcp: true
+  firewall_active: true
+  ips:
+  - 10.0.0.1
+  wait: true
+  wait_timeout: '500'
+  state: present
+register: ionos_cloud_nic
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -238,14 +237,15 @@ This module allows you to create, update or remove a NIC.
 &nbsp;
 # state: **absent**
 ```yaml
-  # Remove a NIC
-  - nic:
-      datacenter: DatacenterName
-      server: ServerName
-      nic: NicName
-      wait_timeout: 500
-      state: absent
-  
+  name: Remove NIC
+ionoscloudsdk.ionoscloud.nic:
+  nic: ''
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  wait: true
+  wait_timeout: '500'
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -322,18 +322,18 @@ This module allows you to create, update or remove a NIC.
 &nbsp;
 # state: **update**
 ```yaml
-  # Update a NIC
-  - nic:
-      datacenter: DatacenterName
-      server: ServerName
-      nic: NicName
-      lan: 1
-      ips:
-        - 158.222.103.23
-        - 158.222.103.24
-      dhcp: false
-      state: update
-  
+  name: Update NIC
+ionoscloudsdk.ionoscloud.nic:
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  name: new-nic
+  nic: ''
+  dhcp: false
+  wait: true
+  wait_timeout: '500'
+  state: update
+register: updated_nic
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

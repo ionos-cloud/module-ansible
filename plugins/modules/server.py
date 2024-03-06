@@ -446,137 +446,133 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''# Provisioning example. This will create three servers and enumerate their names.
-    - server:
-        datacenter: Tardis One
-        name: web%02d.stackpointcloud.com
-        cores: 4
-        ram: 2048
-        volume_size: 50
-        cpu_family: INTEL_XEON
-        image: ubuntu:latest
-        location: us/las
-        count: 3
-        assign_public_ip: true
-  ''',
-  'update' : '''# Update Virtual machines
-    - server:
-        datacenter: Tardis One
-        instance_ids:
-        - web001.stackpointcloud.com
-        - web002.stackpointcloud.com
-        cores: 4
-        ram: 4096
-        cpu_family: INTEL_XEON
-        availability_zone: ZONE_1
-        state: update
-  # Rename virtual machine
-    - server:
-        datacenter: Tardis One
-        instance_ids: web001.stackpointcloud.com
-        name: web101.stackpointcloud.com
-        cores: 4
-        ram: 4096
-        cpu_family: INTEL_XEON
-        availability_zone: ZONE_1
-        state: update
+  'present' : '''name: Provision two servers
+ionoscloudsdk.ionoscloud.server:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute %02d'
+  cores: 1
+  ram: 1024
+  availability_zone: ZONE_1
+  lan: 'AnsibleAutoTestCompute'
+  volume_availability_zone: ZONE_3
+  volume_size: 20
+  cpu_family: INTEL_SKYLAKE
+  disk_type: SSD Standard
+  image: 'centos:7'
+  image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  location: 'gb/lhr'
+  user_data: ''
+  count: 2
+  remove_boot_volume: true
+  wait: true
+  wait_timeout: '500'
+  state: present
+register: server_create_result
 ''',
-  'absent' : '''# Removing Virtual machines
-    - server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: absent
-  ''',
-  'running' : '''# Starting Virtual Machines.
-    - server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: running
-  ''',
-  'stopped' : '''# Stopping Virtual Machines
-    - server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: stopped
-  ''',
+  'update' : '''name: Update servers
+ionoscloudsdk.ionoscloud.server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute 01'
+  - 'AnsibleAutoTestCompute 02'
+  cores: 2
+  cpu_family: INTEL_SKYLAKE
+  ram: 2048
+  wait_timeout: '500'
+  state: update
+''',
+  'absent' : '''name: Remove servers
+ionoscloudsdk.ionoscloud.server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute'
+  - 'AnsibleAutoTestCompute 02'
+  remove_boot_volume: true
+  wait_timeout: '500'
+  state: absent
+''',
+  'running' : '''name: Start servers
+ionoscloudsdk.ionoscloud.server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute'
+  - 'AnsibleAutoTestCompute 02'
+  wait_timeout: '500'
+  state: running
+''',
+  'stopped' : '''name: Stop servers
+ionoscloudsdk.ionoscloud.server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute'
+  - 'AnsibleAutoTestCompute 02'
+  wait_timeout: '500'
+  state: stopped
+''',
 }
 
-EXAMPLES = """# Provisioning example. This will create three servers and enumerate their names.
-    - server:
-        datacenter: Tardis One
-        name: web%02d.stackpointcloud.com
-        cores: 4
-        ram: 2048
-        volume_size: 50
-        cpu_family: INTEL_XEON
-        image: ubuntu:latest
-        location: us/las
-        count: 3
-        assign_public_ip: true
-  
-# Update Virtual machines
-    - server:
-        datacenter: Tardis One
-        instance_ids:
-        - web001.stackpointcloud.com
-        - web002.stackpointcloud.com
-        cores: 4
-        ram: 4096
-        cpu_family: INTEL_XEON
-        availability_zone: ZONE_1
-        state: update
-  # Rename virtual machine
-    - server:
-        datacenter: Tardis One
-        instance_ids: web001.stackpointcloud.com
-        name: web101.stackpointcloud.com
-        cores: 4
-        ram: 4096
-        cpu_family: INTEL_XEON
-        availability_zone: ZONE_1
-        state: update
+EXAMPLES = """name: Provision two servers
+ionoscloudsdk.ionoscloud.server:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute %02d'
+  cores: 1
+  ram: 1024
+  availability_zone: ZONE_1
+  lan: 'AnsibleAutoTestCompute'
+  volume_availability_zone: ZONE_3
+  volume_size: 20
+  cpu_family: INTEL_SKYLAKE
+  disk_type: SSD Standard
+  image: 'centos:7'
+  image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  location: 'gb/lhr'
+  user_data: ''
+  count: 2
+  remove_boot_volume: true
+  wait: true
+  wait_timeout: '500'
+  state: present
+register: server_create_result
 
-# Removing Virtual machines
-    - server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: absent
-  
-# Starting Virtual Machines.
-    - server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: running
-  
-# Stopping Virtual Machines
-    - server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: stopped
+name: Update servers
+ionoscloudsdk.ionoscloud.server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute 01'
+  - 'AnsibleAutoTestCompute 02'
+  cores: 2
+  cpu_family: INTEL_SKYLAKE
+  ram: 2048
+  wait_timeout: '500'
+  state: update
+
+name: Remove servers
+ionoscloudsdk.ionoscloud.server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute'
+  - 'AnsibleAutoTestCompute 02'
+  remove_boot_volume: true
+  wait_timeout: '500'
+  state: absent
+
+name: Start servers
+ionoscloudsdk.ionoscloud.server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute'
+  - 'AnsibleAutoTestCompute 02'
+  wait_timeout: '500'
+  state: running
+
+name: Stop servers
+ionoscloudsdk.ionoscloud.server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute'
+  - 'AnsibleAutoTestCompute 02'
+  wait_timeout: '500'
+  state: stopped
 """
 
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)

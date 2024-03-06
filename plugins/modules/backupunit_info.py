@@ -92,10 +92,9 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """
-    - name: Get all Backupunits
-      backupunit_info:
-      register: backupunit_list_response
+EXAMPLES = """name: List backupunits
+ionoscloudsdk.ionoscloud.backupunit_info: null
+register: backupunit_list_response
 """
 
 

@@ -6,11 +6,11 @@ This is a simple module that supports getting the config of K8s clusters This mo
 
 
 ```yaml
-
-  - name: Get k8s config
-  k8s_config:
-    k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
-    config_file: 'config.yaml'
+name: Get k8s config
+ionoscloudsdk.ionoscloud.k8s_config:
+  k8s_cluster: ''
+  config_file: config.yaml
+  state: present
 
 ```
 
@@ -33,12 +33,12 @@ This is a simple module that supports getting the config of K8s clusters This mo
 
 # state: **present**
 ```yaml
-  
-  - name: Get k8s config
-  k8s_config:
-    k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
-    config_file: 'config.yaml'
-  
+  name: Get k8s config
+ionoscloudsdk.ionoscloud.k8s_config:
+  k8s_cluster: ''
+  config_file: config.yaml
+  state: present
+
 ```
 ### Available parameters for state **present**:
 &nbsp;

@@ -6,10 +6,9 @@ This is a simple module that supports listing Cross Connects.
 
 
 ```yaml
-
-    - name: Get all PCCs
-      pcc_info:
-      register: pcc_list_response
+name: List PCCs
+ionoscloudsdk.ionoscloud.pcc_info: null
+register: pcc_list_response
 
 ```
 

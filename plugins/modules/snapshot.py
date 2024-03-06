@@ -270,67 +270,63 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''# Create a snapshot
-  - name: Create snapshot
-    snapshot:
-      datacenter: production DC
-      volume: master
-      name: boot volume image
-      state: present
-
-  ''',
-    'update': '''# Update a snapshot
-  - name: Update snapshot
-    snapshot:
-      snapshot: "boot volume image"
-      description: Ansible test snapshot - RENAME
-      state: update
-  ''',
-    'restore': '''# Restore a snapshot
-  - name: Restore snapshot
-    snapshot:
-      datacenter: production DC
-      volume: slave
-      snapshot: boot volume image
-      state: restore
-  ''',
-    'absent': '''# Remove a snapshot
-  - name: Remove snapshot
-    snapshot:
-      snapshot: master-Snapshot-11/30/2017
-      state: absent
-  ''',
+    'present': '''name: Create snapshot
+ionoscloudsdk.ionoscloud.snapshot:
+  datacenter: 'AnsibleAutoTestCompute'
+  volume: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute'
+  description: Ansible test snapshot
+  wait_timeout: 600
+register: result
+''',
+    'update': '''name: Update snapshot
+ionoscloudsdk.ionoscloud.snapshot:
+  snapshot: 'AnsibleAutoTestCompute'
+  description: Ansible test snapshot - RENAME
+  state: update
+''',
+    'restore': '''name: Restore snapshot
+ionoscloudsdk.ionoscloud.snapshot:
+  datacenter: 'AnsibleAutoTestCompute'
+  volume: 'AnsibleAutoTestCompute'
+  snapshot: 'AnsibleAutoTestCompute'
+  state: restore
+''',
+    'absent': '''name: Delete snapshot
+ionoscloudsdk.ionoscloud.snapshot:
+  snapshot: 'AnsibleAutoTestCompute'
+  wait_timeout: 600
+  state: absent
+''',
 }
 
-EXAMPLES = """# Create a snapshot
-  - name: Create snapshot
-    snapshot:
-      datacenter: production DC
-      volume: master
-      name: boot volume image
-      state: present
+EXAMPLES = """name: Create snapshot
+ionoscloudsdk.ionoscloud.snapshot:
+  datacenter: 'AnsibleAutoTestCompute'
+  volume: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute'
+  description: Ansible test snapshot
+  wait_timeout: 600
+register: result
 
-  
-# Update a snapshot
-  - name: Update snapshot
-    snapshot:
-      snapshot: "boot volume image"
-      description: Ansible test snapshot - RENAME
-      state: update
-  
-# Restore a snapshot
-  - name: Restore snapshot
-    snapshot:
-      datacenter: production DC
-      volume: slave
-      snapshot: boot volume image
-      state: restore
-  
-# Remove a snapshot
-  - name: Remove snapshot
-    snapshot:
-      snapshot: master-Snapshot-11/30/2017
-      state: absent
+name: Update snapshot
+ionoscloudsdk.ionoscloud.snapshot:
+  snapshot: 'AnsibleAutoTestCompute'
+  description: Ansible test snapshot - RENAME
+  state: update
+
+name: Restore snapshot
+ionoscloudsdk.ionoscloud.snapshot:
+  datacenter: 'AnsibleAutoTestCompute'
+  volume: 'AnsibleAutoTestCompute'
+  snapshot: 'AnsibleAutoTestCompute'
+  state: restore
+
+name: Delete snapshot
+ionoscloudsdk.ionoscloud.snapshot:
+  snapshot: 'AnsibleAutoTestCompute'
+  wait_timeout: 600
+  state: absent
 """
 
 

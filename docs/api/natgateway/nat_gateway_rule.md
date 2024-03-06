@@ -6,45 +6,42 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
 
 
 ```yaml
+name: Create NAT Gateway Rule
+ionoscloudsdk.ionoscloud.nat_gateway_rule:
+  datacenter: ''
+  nat_gateway: ''
+  name: 'AnsibleAutoTestNAT'
+  type: SNAT
+  protocol: TCP
+  source_subnet: 10.0.1.0/24
+  target_subnet: 10.0.1.0
+  target_port_range:
+    start: 10000
+    end: 20000
+  public_ip: ''
+  wait: true
+register: nat_gateway_rule_response
 
-  - name: Create NAT Gateway Rule
-    nat_gateway_rule:
-      datacenter: Datacentername
-      nat_gateway: NATGatewayName
-      name: RuleName
-      type: "SNAT"
-      protocol: "TCP"
-      source_subnet: "10.0.1.0/24"
-      target_subnet: "10.0.1.0"
-      target_port_range:
-        start: 10000
-        end: 20000
-      public_ip: <ip>
-      wait: true
-    register: nat_gateway_rule_response
-  
+name: Update NAT Gateway Rule
+ionoscloudsdk.ionoscloud.nat_gateway_rule:
+  datacenter: ''
+  nat_gateway: ''
+  nat_gateway_rule: ''
+  public_ip: ''
+  name: 'AnsibleAutoTestNAT - UPDATED'
+  type: SNAT
+  protocol: TCP
+  source_subnet: 10.0.1.0/24
+  wait: true
+  state: update
+register: nat_gateway_rule_update_response
 
-  - name: Update NAT Gateway Rule
-    nat_gateway_rule:
-      datacenter: Datacentername
-      nat_gateway: NATGatewayName
-      nat_gateway_rule: RuleName
-      public_ip: <newIp>
-      name: "RuleName - UPDATED"
-      type: "SNAT"
-      protocol: "TCP"
-      source_subnet: "10.0.1.0/24"
-      wait: true
-      state: update
-    register: nat_gateway_rule_update_response
-  
-
-  - name: Delete NAT Gateway Rule
-    nat_gateway_rule:
-      datacenter: Datacentername
-      nat_gateway: NATGatewayName
-      nat_gateway_rule: "RuleName - UPDATED"
-      state: absent
+name: Delete NAT Gateway Rule
+ionoscloudsdk.ionoscloud.nat_gateway_rule:
+  datacenter: ''
+  nat_gateway: ''
+  nat_gateway_rule: ''
+  state: absent
 
 ```
 
@@ -94,23 +91,22 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
 
 # state: **present**
 ```yaml
-  
-  - name: Create NAT Gateway Rule
-    nat_gateway_rule:
-      datacenter: Datacentername
-      nat_gateway: NATGatewayName
-      name: RuleName
-      type: "SNAT"
-      protocol: "TCP"
-      source_subnet: "10.0.1.0/24"
-      target_subnet: "10.0.1.0"
-      target_port_range:
-        start: 10000
-        end: 20000
-      public_ip: <ip>
-      wait: true
-    register: nat_gateway_rule_response
-  
+  name: Create NAT Gateway Rule
+ionoscloudsdk.ionoscloud.nat_gateway_rule:
+  datacenter: ''
+  nat_gateway: ''
+  name: 'AnsibleAutoTestNAT'
+  type: SNAT
+  protocol: TCP
+  source_subnet: 10.0.1.0/24
+  target_subnet: 10.0.1.0
+  target_port_range:
+    start: 10000
+    end: 20000
+  public_ip: ''
+  wait: true
+register: nat_gateway_rule_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -217,14 +213,13 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
 &nbsp;
 # state: **absent**
 ```yaml
-  
-  - name: Delete NAT Gateway Rule
-    nat_gateway_rule:
-      datacenter: Datacentername
-      nat_gateway: NATGatewayName
-      nat_gateway_rule: "RuleName - UPDATED"
-      state: absent
-  
+  name: Delete NAT Gateway Rule
+ionoscloudsdk.ionoscloud.nat_gateway_rule:
+  datacenter: ''
+  nat_gateway: ''
+  nat_gateway_rule: ''
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -306,21 +301,20 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
 &nbsp;
 # state: **update**
 ```yaml
-  
-  - name: Update NAT Gateway Rule
-    nat_gateway_rule:
-      datacenter: Datacentername
-      nat_gateway: NATGatewayName
-      nat_gateway_rule: RuleName
-      public_ip: <newIp>
-      name: "RuleName - UPDATED"
-      type: "SNAT"
-      protocol: "TCP"
-      source_subnet: "10.0.1.0/24"
-      wait: true
-      state: update
-    register: nat_gateway_rule_update_response
-  
+  name: Update NAT Gateway Rule
+ionoscloudsdk.ionoscloud.nat_gateway_rule:
+  datacenter: ''
+  nat_gateway: ''
+  nat_gateway_rule: ''
+  public_ip: ''
+  name: 'AnsibleAutoTestNAT - UPDATED'
+  type: SNAT
+  protocol: TCP
+  source_subnet: 10.0.1.0/24
+  wait: true
+  state: update
+register: nat_gateway_rule_update_response
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

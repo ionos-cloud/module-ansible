@@ -6,25 +6,10 @@ This is a simple module that supports listing servers.
 
 
 ```yaml
-
-    - name: Get all servers for a given datacenter
-      server_info:
-        datacenter: AnsibleDatacenter
-      register: server_list_response
-
-    - name: Get only the servers that need to be upgraded
-      server_info:
-        datacenter: AnsibleDatacenter
-        upgrade_needed: true
-      register: servers_list_upgrade_response
-
-    - name: Show all servers for the created datacenter
-      debug:
-        var: server_list_response
-
-    - name: Show servers that need an upgrade
-      debug:
-        var: servers_list_upgrade_response
+name: List Servers
+ionoscloudsdk.ionoscloud.server_info:
+  datacenter: 'AnsibleAutoTestCompute'
+register: server_list_response
 
 ```
 

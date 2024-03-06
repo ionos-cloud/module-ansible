@@ -92,16 +92,10 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """
-    - name: Get all Users of a group
-      user_info:
-        group: "AnsibleIonosGroup"
-      register: user_list_response
-
-    - name: Get all Users
-      user_info:
-      register: all_user_list_response
-    """
+EXAMPLES = """name: List Users
+ionoscloudsdk.ionoscloud.user_info: null
+register: user_list_response
+"""
 
 
 def list_users(depth, users_get_method, extra_args):

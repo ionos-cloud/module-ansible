@@ -122,19 +122,19 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'absent': '''- name: Delete Repository
-    registry_repository:
-        registry: RegistryName
-        repository: testRepository
-        state: absent
-  ''',
+    'absent': '''name: Ensure Repository does not exist
+ionoscloudsdk.ionoscloud.registry_repository:
+  registry: ''
+  repository: repo-name
+  state: absent
+''',
 }
 
-EXAMPLES = """- name: Delete Repository
-    registry_repository:
-        registry: RegistryName
-        repository: testRepository
-        state: absent
+EXAMPLES = """name: Ensure Repository does not exist
+ionoscloudsdk.ionoscloud.registry_repository:
+  registry: ''
+  repository: repo-name
+  state: absent
 """
 
 

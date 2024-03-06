@@ -114,13 +114,12 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """
-    - name: Get all volumes for a given datacenter
-      firewall_rule_info:
-        datacenter: "AnsibleDatacenter"
-        server: "AnsibleServer"
-        nic: "AnsibleNIC"
-      register: firewall_rule_list_response
+EXAMPLES = """name: List Firewall Rules
+ionoscloudsdk.ionoscloud.firewall_rule_info:
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  nic: 'AnsibleAutoTestCompute'
+register: firewall_rule_list_response
 """
 
 

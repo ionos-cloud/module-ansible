@@ -6,35 +6,33 @@ This module allows you to create or remove a snapshot.
 
 
 ```yaml
-# Create a snapshot
-  - name: Create snapshot
-    snapshot:
-      datacenter: production DC
-      volume: master
-      name: boot volume image
-      state: present
+name: Create snapshot
+ionoscloudsdk.ionoscloud.snapshot:
+  datacenter: 'AnsibleAutoTestCompute'
+  volume: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute'
+  description: Ansible test snapshot
+  wait_timeout: 600
+register: result
 
-  
-# Update a snapshot
-  - name: Update snapshot
-    snapshot:
-      snapshot: "boot volume image"
-      description: Ansible test snapshot - RENAME
-      state: update
-  
-# Restore a snapshot
-  - name: Restore snapshot
-    snapshot:
-      datacenter: production DC
-      volume: slave
-      snapshot: boot volume image
-      state: restore
-  
-# Remove a snapshot
-  - name: Remove snapshot
-    snapshot:
-      snapshot: master-Snapshot-11/30/2017
-      state: absent
+name: Update snapshot
+ionoscloudsdk.ionoscloud.snapshot:
+  snapshot: 'AnsibleAutoTestCompute'
+  description: Ansible test snapshot - RENAME
+  state: update
+
+name: Restore snapshot
+ionoscloudsdk.ionoscloud.snapshot:
+  datacenter: 'AnsibleAutoTestCompute'
+  volume: 'AnsibleAutoTestCompute'
+  snapshot: 'AnsibleAutoTestCompute'
+  state: restore
+
+name: Delete snapshot
+ionoscloudsdk.ionoscloud.snapshot:
+  snapshot: 'AnsibleAutoTestCompute'
+  wait_timeout: 600
+  state: absent
 
 ```
 
@@ -90,15 +88,15 @@ This module allows you to create or remove a snapshot.
 
 # state: **present**
 ```yaml
-  # Create a snapshot
-  - name: Create snapshot
-    snapshot:
-      datacenter: production DC
-      volume: master
-      name: boot volume image
-      state: present
+  name: Create snapshot
+ionoscloudsdk.ionoscloud.snapshot:
+  datacenter: 'AnsibleAutoTestCompute'
+  volume: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute'
+  description: Ansible test snapshot
+  wait_timeout: 600
+register: result
 
-  
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -175,12 +173,12 @@ This module allows you to create or remove a snapshot.
 &nbsp;
 # state: **absent**
 ```yaml
-  # Remove a snapshot
-  - name: Remove snapshot
-    snapshot:
-      snapshot: master-Snapshot-11/30/2017
-      state: absent
-  
+  name: Delete snapshot
+ionoscloudsdk.ionoscloud.snapshot:
+  snapshot: 'AnsibleAutoTestCompute'
+  wait_timeout: 600
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -247,13 +245,12 @@ This module allows you to create or remove a snapshot.
 &nbsp;
 # state: **update**
 ```yaml
-  # Update a snapshot
-  - name: Update snapshot
-    snapshot:
-      snapshot: "boot volume image"
-      description: Ansible test snapshot - RENAME
-      state: update
-  
+  name: Update snapshot
+ionoscloudsdk.ionoscloud.snapshot:
+  snapshot: 'AnsibleAutoTestCompute'
+  description: Ansible test snapshot - RENAME
+  state: update
+
 ```
 ### Available parameters for state **update**:
 &nbsp;
@@ -375,14 +372,13 @@ This module allows you to create or remove a snapshot.
 &nbsp;
 # state: **restore**
 ```yaml
-  # Restore a snapshot
-  - name: Restore snapshot
-    snapshot:
-      datacenter: production DC
-      volume: slave
-      snapshot: boot volume image
-      state: restore
-  
+  name: Restore snapshot
+ionoscloudsdk.ionoscloud.snapshot:
+  datacenter: 'AnsibleAutoTestCompute'
+  volume: 'AnsibleAutoTestCompute'
+  snapshot: 'AnsibleAutoTestCompute'
+  state: restore
+
 ```
 ### Available parameters for state **restore**:
 &nbsp;

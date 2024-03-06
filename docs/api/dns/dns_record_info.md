@@ -6,20 +6,10 @@ This is a simple module that supports listing DNS Records.
 
 
 ```yaml
-
-    - name: Get all DNS Records
-      dns_record_info:
-      register: dns_record_list_response
-
-    - name: Get all DNS Records in a Zone
-      dns_record_info:
-        zone: example.com
-      register: dns_record_list_response
-
-    - name: Get all DNS Records in a Secondary Zone
-      dns_record_info:
-        secondary_zone: example.com
-      register: dns_record_list_response
+name: List all Records in zone
+ionoscloudsdk.ionoscloud.dns_record_info:
+  zone: 'test.example.test.ansible.com'
+register: records_response
 
 ```
 

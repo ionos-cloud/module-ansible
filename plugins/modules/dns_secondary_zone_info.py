@@ -80,10 +80,9 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """
-    - name: Get all DNS Secondary Zones
-      dns_zone_info:
-      register: dns_zone_list_response
+EXAMPLES = """name: List Zones
+ionoscloudsdk.ionoscloud.dns_secondary_zone_info: null
+register: zones_response
 """
 
 

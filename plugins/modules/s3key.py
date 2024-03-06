@@ -153,47 +153,43 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''
-  - name: Create an s3key
-    s3key:
-      user: <user_id/email>
-  ''',
-    'update': '''
-  - name: Update an s3key
-    s3key:
-      user: <user_id/email>
-      key_id: "00ca413c94eecc56857d
-      active: False
-      state: update
-  ''',
-    'absent': '''
-  - name: Remove an s3key
-    s3key:
-      user: <user_id/email>
-      key_id: 00ca413c94eecc56857d
-      state: absent
-  ''',
+    'present': '''name: Create an s3key
+ionoscloudsdk.ionoscloud.s3key:
+  user: ''
+register: result
+''',
+    'update': '''name: Update an s3key
+ionoscloudsdk.ionoscloud.s3key:
+  user: ''
+  key_id: ''
+  active: false
+  state: update
+''',
+    'absent': '''name: Remove an s3key
+ionoscloudsdk.ionoscloud.s3key:
+  user: ''
+  key_id: ''
+  state: absent
+''',
 }
 
-EXAMPLES = """
-  - name: Create an s3key
-    s3key:
-      user: <user_id/email>
-  
+EXAMPLES = """name: Create an s3key
+ionoscloudsdk.ionoscloud.s3key:
+  user: ''
+register: result
 
-  - name: Update an s3key
-    s3key:
-      user: <user_id/email>
-      key_id: "00ca413c94eecc56857d
-      active: False
-      state: update
-  
+name: Update an s3key
+ionoscloudsdk.ionoscloud.s3key:
+  user: ''
+  key_id: ''
+  active: false
+  state: update
 
-  - name: Remove an s3key
-    s3key:
-      user: <user_id/email>
-      key_id: 00ca413c94eecc56857d
-      state: absent
+name: Remove an s3key
+ionoscloudsdk.ionoscloud.s3key:
+  user: ''
+  key_id: ''
+  state: absent
 """
 
 

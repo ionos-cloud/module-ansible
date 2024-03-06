@@ -6,36 +6,33 @@ This is a module that supports creating, updating or destroying DNS Secondary Zo
 
 
 ```yaml
-- name: Create Secondary Zone
-    dns_zone:
-      name: example.com
-      description: zone_description
-      primary_ips:
-        - <IP1>
-        - <IP2>
-    register: zone_response
-  
-- name: Update Secondary zone
-    dns_zone:
-      secondary_zone: example.com
-      description: zone_description_updated
-      primary_ips:
-        - <IP3>
-        - <IP4>
-      state: update
-    register: updated_zone_response
-  
-- name: Delete Secondary zone
-    dns_zone:
-      secondary_zone: example.com
-      wait: true
-      state: transfer
-  
-- name: Delete Secondary zone
-    dns_zone:
-      secondary_zone: example.com
-      wait: true
-      state: absent
+name: Create Secondary Zone
+ionoscloudsdk.ionoscloud.dns_secondary_zone:
+  name: 'test.example.test.ansible.com'
+  description: 'test_description'
+  primary_ips: ''
+register: zone_response
+
+name: Update Zone
+ionoscloudsdk.ionoscloud.dns_secondary_zone:
+  secondary_zone: ''
+  description: 'zone_description_updated'
+  primary_ips: ''
+  allow_replace: false
+  state: update
+register: updated_zone_response
+
+name: Transfer Zone
+ionoscloudsdk.ionoscloud.dns_secondary_zone:
+  secondary_zone: ''
+  wait: false
+  state: transfer
+
+name: Delete Zone
+ionoscloudsdk.ionoscloud.dns_secondary_zone:
+  secondary_zone: ''
+  wait: true
+  state: absent
 
 ```
 
@@ -82,15 +79,13 @@ This is a module that supports creating, updating or destroying DNS Secondary Zo
 
 # state: **present**
 ```yaml
-  - name: Create Secondary Zone
-    dns_zone:
-      name: example.com
-      description: zone_description
-      primary_ips:
-        - <IP1>
-        - <IP2>
-    register: zone_response
-  
+  name: Create Secondary Zone
+ionoscloudsdk.ionoscloud.dns_secondary_zone:
+  name: 'test.example.test.ansible.com'
+  description: 'test_description'
+  primary_ips: ''
+register: zone_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -167,12 +162,12 @@ This is a module that supports creating, updating or destroying DNS Secondary Zo
 &nbsp;
 # state: **absent**
 ```yaml
-  - name: Delete Secondary zone
-    dns_zone:
-      secondary_zone: example.com
-      wait: true
-      state: absent
-  
+  name: Delete Zone
+ionoscloudsdk.ionoscloud.dns_secondary_zone:
+  secondary_zone: ''
+  wait: true
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -239,16 +234,15 @@ This is a module that supports creating, updating or destroying DNS Secondary Zo
 &nbsp;
 # state: **update**
 ```yaml
-  - name: Update Secondary zone
-    dns_zone:
-      secondary_zone: example.com
-      description: zone_description_updated
-      primary_ips:
-        - <IP3>
-        - <IP4>
-      state: update
-    register: updated_zone_response
-  
+  name: Update Zone
+ionoscloudsdk.ionoscloud.dns_secondary_zone:
+  secondary_zone: ''
+  description: 'zone_description_updated'
+  primary_ips: ''
+  allow_replace: false
+  state: update
+register: updated_zone_response
+
 ```
 ### Available parameters for state **update**:
 &nbsp;
@@ -330,12 +324,12 @@ This is a module that supports creating, updating or destroying DNS Secondary Zo
 &nbsp;
 # state: **transfer**
 ```yaml
-  - name: Delete Secondary zone
-    dns_zone:
-      secondary_zone: example.com
-      wait: true
-      state: transfer
-  
+  name: Transfer Zone
+ionoscloudsdk.ionoscloud.dns_secondary_zone:
+  secondary_zone: ''
+  wait: false
+  state: transfer
+
 ```
 ### Available parameters for state **transfer**:
 &nbsp;

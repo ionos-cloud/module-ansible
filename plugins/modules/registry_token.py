@@ -174,75 +174,79 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''- name: Create Registry Token
-    registry_token:
-        registry: RegistryName
-        name: test_registry_token
-        scopes:
-            - actions: 
-                    - pull
-                      push
-                      delete
-                name: repo1
-                type: repositry
-        status: enabled
-        expiry_date: 2022-06-24T17:04:10+03:00
-    register: registry_token_response
-  ''',
-    'update': '''- name: Update Registry Token
-    registry_token:
-        registry: RegistryName
-        registry_token: test_registry_token
-        scopes:
-            - actions: 
-                    - pull
-                name: repo2
-                type: repositry
-        status: disbled
-        expiry_date: 2022-07-24T17:04:10+03:00
-    register: updated_registry_token_response
-  ''',
-    'absent': '''- name: Delete Registry Token
-    registry_token:
-        registry: RegistryName
-        registry_token: test_registry_token
-        state: absent
-  ''',
+    'present': '''name: Create Registry Token
+ionoscloudsdk.ionoscloud.registry_token:
+  registry: ''
+  name: testRegistryToken
+  scopes:
+  - actions:
+    - pull
+    - push
+    name: nume
+    type: repository
+  status: enabled
+register: registry_token_response
+''',
+    'update': '''name: Update Registry Token
+ionoscloudsdk.ionoscloud.registry_token:
+  registry: ''
+  registry_token: ''
+  scopes:
+  - actions:
+    - pull
+    - push
+    - delete
+    name: nume
+    type: repo1
+  status: disabled
+  allow_replace: false
+  state: update
+register: registry_token_response
+''',
+    'absent': '''name: Delete Registry Token
+ionoscloudsdk.ionoscloud.registry_token:
+  registry: ''
+  registry_token: ''
+  state: absent
+register: registry_token_response
+''',
 }
 
-EXAMPLES = """- name: Create Registry Token
-    registry_token:
-        registry: RegistryName
-        name: test_registry_token
-        scopes:
-            - actions: 
-                    - pull
-                      push
-                      delete
-                name: repo1
-                type: repositry
-        status: enabled
-        expiry_date: 2022-06-24T17:04:10+03:00
-    register: registry_token_response
-  
-- name: Update Registry Token
-    registry_token:
-        registry: RegistryName
-        registry_token: test_registry_token
-        scopes:
-            - actions: 
-                    - pull
-                name: repo2
-                type: repositry
-        status: disbled
-        expiry_date: 2022-07-24T17:04:10+03:00
-    register: updated_registry_token_response
-  
-- name: Delete Registry Token
-    registry_token:
-        registry: RegistryName
-        registry_token: test_registry_token
-        state: absent
+EXAMPLES = """name: Create Registry Token
+ionoscloudsdk.ionoscloud.registry_token:
+  registry: ''
+  name: testRegistryToken
+  scopes:
+  - actions:
+    - pull
+    - push
+    name: nume
+    type: repository
+  status: enabled
+register: registry_token_response
+
+name: Update Registry Token
+ionoscloudsdk.ionoscloud.registry_token:
+  registry: ''
+  registry_token: ''
+  scopes:
+  - actions:
+    - pull
+    - push
+    - delete
+    name: nume
+    type: repo1
+  status: disabled
+  allow_replace: false
+  state: update
+register: registry_token_response
+
+name: Delete Registry Token
+ionoscloudsdk.ionoscloud.registry_token:
+  registry: ''
+  registry_token: ''
+  state: absent
+register: registry_token_response
 """
 
 

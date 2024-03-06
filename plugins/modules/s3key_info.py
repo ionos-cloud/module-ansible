@@ -93,15 +93,10 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """
-    - name: List S3Keys for user
-      s3key_info:
-        user: <user_id/email>
-        register: s3key_info_response
-
-    - name: Show S3Keys
-      debug:
-        var: s3key_info_response.result
+EXAMPLES = """name: List s3keys
+ionoscloudsdk.ionoscloud.s3key_info:
+  user: ''
+register: s3key_list_response
 """
 
 

@@ -6,11 +6,11 @@ This is a module that supports creating, updating or destroying Repositories
 
 
 ```yaml
-- name: Delete Repository
-    registry_repository:
-        registry: RegistryName
-        repository: testRepository
-        state: absent
+name: Ensure Repository does not exist
+ionoscloudsdk.ionoscloud.registry_repository:
+  registry: ''
+  repository: repo-name
+  state: absent
 
 ```
 
@@ -21,12 +21,12 @@ This is a module that supports creating, updating or destroying Repositories
 
 # state: **absent**
 ```yaml
-  - name: Delete Repository
-    registry_repository:
-        registry: RegistryName
-        repository: testRepository
-        state: absent
-  
+  name: Ensure Repository does not exist
+ionoscloudsdk.ionoscloud.registry_repository:
+  registry: ''
+  repository: repo-name
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;

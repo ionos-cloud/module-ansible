@@ -134,47 +134,43 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''
-  - name: Create pcc
-    pcc:
-      name: PCCName
-      description: "Description for my PCC"
-  ''',
-    'update': '''
-  - name: Update pcc
-    pcc:
-      pcc: PCCName
-      name: NewPCCName
-      description: "New description for my PCC"
-      state: update
-  ''',
-    'absent': '''
-  - name: Remove pcc
-    pcc:
-      pcc: NewPCCName
-      state: absent
-  ''',
+    'present': '''name: Create pcc
+ionoscloudsdk.ionoscloud.pcc:
+  name: 'AnsibleAutoTestCompute'
+  description: 'Ansible Compute test description'
+register: result
+''',
+    'update': '''name: Update pcc
+ionoscloudsdk.ionoscloud.pcc:
+  pcc: 'AnsibleAutoTestCompute'
+  name: RENAMED AnsibleAutoTestCompute
+  description: 'Ansible Compute test description - RENAME'
+  state: update
+''',
+    'absent': '''name: Remove pcc
+ionoscloudsdk.ionoscloud.pcc:
+  pcc: ''
+  state: absent
+''',
 }
 
-EXAMPLES = """
-  - name: Create pcc
-    pcc:
-      name: PCCName
-      description: "Description for my PCC"
-  
+EXAMPLES = """name: Create pcc
+ionoscloudsdk.ionoscloud.pcc:
+  name: 'AnsibleAutoTestCompute'
+  description: 'Ansible Compute test description'
+register: result
 
-  - name: Update pcc
-    pcc:
-      pcc: PCCName
-      name: NewPCCName
-      description: "New description for my PCC"
-      state: update
-  
+name: Update pcc
+ionoscloudsdk.ionoscloud.pcc:
+  pcc: 'AnsibleAutoTestCompute'
+  name: RENAMED AnsibleAutoTestCompute
+  description: 'Ansible Compute test description - RENAME'
+  state: update
 
-  - name: Remove pcc
-    pcc:
-      pcc: NewPCCName
-      state: absent
+name: Remove pcc
+ionoscloudsdk.ionoscloud.pcc:
+  pcc: ''
+  state: absent
 """
 
 

@@ -103,12 +103,11 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """
-    - name: Get all Flowlogs for a given NAT Gateway
-     nat_gateway_flowlog_info:
-        datacenter: "AnsibleDatacenter"
-        nat_gateway: "AnsibleNATGateway"
-      register: flowlog_list_response
+EXAMPLES = """name: List NAT Gateway Flowlogs
+ionoscloudsdk.ionoscloud.nat_gateway_flowlog_info:
+  datacenter: ''
+  nat_gateway: ''
+register: nat_gateway_flowlog_list_response
 """
 
 

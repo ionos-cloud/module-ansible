@@ -6,11 +6,10 @@ This is a simple module that supports listing Shares.
 
 
 ```yaml
-
-    - name: Get all Shares of a group
-      share_info:
-        group: "AnsibleIonosGroup"
-      register: share_list_response
+name: List Shares
+ionoscloudsdk.ionoscloud.share_info:
+  group: Demo
+register: share_list_response
 
 ```
 

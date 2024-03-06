@@ -6,27 +6,26 @@ This is a simple module that supports uploading, updating or deleting certificat
 
 
 ```yaml
+name: Create Certificate
+ionoscloudsdk.ionoscloud.certificate:
+  certificate_name: 'test_certificate'
+  certificate_file: 'certificate.pem'
+  private_key_file: 'key.pem'
+register: certificate
 
-    - name: Create Certificate
-        certificate:
-            certificate_name: CertificateName
-            certificate_file: "certificate.pem"
-            private_key_file: "key.pem"
-        register: certificate
-  
+name: Create Certificate no change
+ionoscloudsdk.ionoscloud.certificate:
+  state: update
+  certificate: ''
+  certificate_name: 'test_certificate'
+  certificate_file: 'certificate.pem'
+  allow_replace: false
+register: certificatenochange
 
-    - name: Update Certificate
-        certificate:
-            certificate: CertificateName
-            certificate_name: CertificateNewName
-            state: update
-        register: updated_certificate
-  
-
-    - name: Delete Certificate
-        certificate:
-            certificate: CertificateNewName
-            state: delete
+name: Delete Certificate
+ionoscloudsdk.ionoscloud.certificate:
+  certificate: ''
+  state: absent
 
 ```
 
@@ -74,14 +73,13 @@ This is a simple module that supports uploading, updating or deleting certificat
 
 # state: **present**
 ```yaml
-  
-    - name: Create Certificate
-        certificate:
-            certificate_name: CertificateName
-            certificate_file: "certificate.pem"
-            private_key_file: "key.pem"
-        register: certificate
-  
+  name: Create Certificate
+ionoscloudsdk.ionoscloud.certificate:
+  certificate_name: 'test_certificate'
+  certificate_file: 'certificate.pem'
+  private_key_file: 'key.pem'
+register: certificate
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -168,12 +166,11 @@ This is a simple module that supports uploading, updating or deleting certificat
 &nbsp;
 # state: **absent**
 ```yaml
-  
-    - name: Delete Certificate
-        certificate:
-            certificate: CertificateNewName
-            state: delete
-  
+  name: Delete Certificate
+ionoscloudsdk.ionoscloud.certificate:
+  certificate: ''
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -245,14 +242,15 @@ This is a simple module that supports uploading, updating or deleting certificat
 &nbsp;
 # state: **update**
 ```yaml
-  
-    - name: Update Certificate
-        certificate:
-            certificate: CertificateName
-            certificate_name: CertificateNewName
-            state: update
-        register: updated_certificate
-  
+  name: Create Certificate no change
+ionoscloudsdk.ionoscloud.certificate:
+  state: update
+  certificate: ''
+  certificate_name: 'test_certificate'
+  certificate_file: 'certificate.pem'
+  allow_replace: false
+register: certificatenochange
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

@@ -6,25 +6,23 @@ This is a simple module that supports creating or removing S3Keys.
 
 
 ```yaml
+name: Create an s3key
+ionoscloudsdk.ionoscloud.s3key:
+  user: ''
+register: result
 
-  - name: Create an s3key
-    s3key:
-      user: <user_id/email>
-  
+name: Update an s3key
+ionoscloudsdk.ionoscloud.s3key:
+  user: ''
+  key_id: ''
+  active: false
+  state: update
 
-  - name: Update an s3key
-    s3key:
-      user: <user_id/email>
-      key_id: "00ca413c94eecc56857d
-      active: False
-      state: update
-  
-
-  - name: Remove an s3key
-    s3key:
-      user: <user_id/email>
-      key_id: 00ca413c94eecc56857d
-      state: absent
+name: Remove an s3key
+ionoscloudsdk.ionoscloud.s3key:
+  user: ''
+  key_id: ''
+  state: absent
 
 ```
 
@@ -60,11 +58,11 @@ This is a simple module that supports creating or removing S3Keys.
 
 # state: **present**
 ```yaml
-  
-  - name: Create an s3key
-    s3key:
-      user: <user_id/email>
-  
+  name: Create an s3key
+ionoscloudsdk.ionoscloud.s3key:
+  user: ''
+register: result
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -146,13 +144,12 @@ This is a simple module that supports creating or removing S3Keys.
 &nbsp;
 # state: **absent**
 ```yaml
-  
-  - name: Remove an s3key
-    s3key:
-      user: <user_id/email>
-      key_id: 00ca413c94eecc56857d
-      state: absent
-  
+  name: Remove an s3key
+ionoscloudsdk.ionoscloud.s3key:
+  user: ''
+  key_id: ''
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -224,14 +221,13 @@ This is a simple module that supports creating or removing S3Keys.
 &nbsp;
 # state: **update**
 ```yaml
-  
-  - name: Update an s3key
-    s3key:
-      user: <user_id/email>
-      key_id: "00ca413c94eecc56857d
-      active: False
-      state: update
-  
+  name: Update an s3key
+ionoscloudsdk.ionoscloud.s3key:
+  user: ''
+  key_id: ''
+  active: false
+  state: update
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

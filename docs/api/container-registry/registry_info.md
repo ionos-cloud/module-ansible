@@ -6,14 +6,9 @@ This is a simple module that supports listing existing Registries
 
 
 ```yaml
-
-    - name: List Registries
-        registry_info:
-        register: registries_response
-
-    - name: Show Registries
-        debug:
-            var: registries_response.result
+name: List Registries
+ionoscloudsdk.ionoscloud.registry_info: null
+register: registries_response
 
 ```
 

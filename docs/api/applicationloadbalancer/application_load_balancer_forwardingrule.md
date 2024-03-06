@@ -6,48 +6,43 @@ This is a simple module that supports creating or removing Application Loadbalan
 
 
 ```yaml
+name: Create Application Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
+  datacenter: ''
+  application_load_balancer: ''
+  name: 'AnsibleAutoTestALB'
+  protocol: HTTP
+  listener_ip: 10.12.118.224
+  listener_port: '8081'
+  http_rules:
+  - name: Ansible HTTP Rule
+    type: static
+    response_message: <>
+    content_type: application/json
+    conditions:
+    - type: HEADER
+      condition: STARTS_WITH
+      value: Friday
+  wait: true
+register: alb_forwarding_rule_response
 
-  - name: Create Application Load Balancer Forwarding Rule
-    application_load_balancer_forwardingrule:
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      name: RuleName
-      protocol: "HTTP"
-      listener_ip: "10.12.118.224"
-      listener_port: "8081"
-      client_timeout: 50
-      http_rules:
-        - name: "Ansible HTTP Rule"
-          type : static
-          response_message: "<>"
-          content_type: "application/json"
-          conditions:
-            - type: "HEADER"
-              condition: "STARTS_WITH"
-              value: "Friday"
+name: Update Application Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
+  datacenter: ''
+  application_load_balancer: ''
+  forwarding_rule: ''
+  name: 'AnsibleAutoTestALB - UPDATED'
+  protocol: HTTP
+  wait: true
+  state: update
+register: alb_forwarding_rule_update_response
 
-      wait: true
-    register: alb_forwarding_rule_response
-  
-
-  - name: Update Application Load Balancer Forwarding Rule
-    application_load_balancer_forwardingrule:
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      forwarding_rule: RuleName
-      name: "RuleName - UPDATED"
-      protocol: "HTTP"
-      wait: true
-      state: update
-    register: alb_forwarding_rule_update_response
-  
-
-  - name: Delete Application Load Balancer Forwarding Rule
-    application_load_balancer_forwardingrule:
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      forwarding_rule: "RuleName - UPDATED"
-      state: absent
+name: Delete Application Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
+  datacenter: ''
+  application_load_balancer: ''
+  forwarding_rule: ''
+  state: absent
 
 ```
 
@@ -114,29 +109,26 @@ This is a simple module that supports creating or removing Application Loadbalan
 
 # state: **present**
 ```yaml
-  
-  - name: Create Application Load Balancer Forwarding Rule
-    application_load_balancer_forwardingrule:
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      name: RuleName
-      protocol: "HTTP"
-      listener_ip: "10.12.118.224"
-      listener_port: "8081"
-      client_timeout: 50
-      http_rules:
-        - name: "Ansible HTTP Rule"
-          type : static
-          response_message: "<>"
-          content_type: "application/json"
-          conditions:
-            - type: "HEADER"
-              condition: "STARTS_WITH"
-              value: "Friday"
+  name: Create Application Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
+  datacenter: ''
+  application_load_balancer: ''
+  name: 'AnsibleAutoTestALB'
+  protocol: HTTP
+  listener_ip: 10.12.118.224
+  listener_port: '8081'
+  http_rules:
+  - name: Ansible HTTP Rule
+    type: static
+    response_message: <>
+    content_type: application/json
+    conditions:
+    - type: HEADER
+      condition: STARTS_WITH
+      value: Friday
+  wait: true
+register: alb_forwarding_rule_response
 
-      wait: true
-    register: alb_forwarding_rule_response
-  
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -253,14 +245,13 @@ This is a simple module that supports creating or removing Application Loadbalan
 &nbsp;
 # state: **absent**
 ```yaml
-  
-  - name: Delete Application Load Balancer Forwarding Rule
-    application_load_balancer_forwardingrule:
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      forwarding_rule: "RuleName - UPDATED"
-      state: absent
-  
+  name: Delete Application Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
+  datacenter: ''
+  application_load_balancer: ''
+  forwarding_rule: ''
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -342,18 +333,17 @@ This is a simple module that supports creating or removing Application Loadbalan
 &nbsp;
 # state: **update**
 ```yaml
-  
-  - name: Update Application Load Balancer Forwarding Rule
-    application_load_balancer_forwardingrule:
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      forwarding_rule: RuleName
-      name: "RuleName - UPDATED"
-      protocol: "HTTP"
-      wait: true
-      state: update
-    register: alb_forwarding_rule_update_response
-  
+  name: Update Application Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
+  datacenter: ''
+  application_load_balancer: ''
+  forwarding_rule: ''
+  name: 'AnsibleAutoTestALB - UPDATED'
+  protocol: HTTP
+  wait: true
+  state: update
+register: alb_forwarding_rule_update_response
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

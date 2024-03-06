@@ -6,12 +6,11 @@ This is a simple module that supports listing Network Loadbalancer forwarding ru
 
 
 ```yaml
-
-    - name: Get all forwarding rules for a Network Loadbalancer
-      network_load_balancer_rule_info:
-        datacenter: "AnsibleDatacenter"
-        network_load_balancer: "AnsibleNlb"
-      register: rule_list_response
+name: List Network Load Balancer Forwarding rules
+ionoscloudsdk.ionoscloud.network_load_balancer_rule_info:
+  datacenter: ''
+  network_load_balancer: ''
+register: nlb_forwardingrule_list_response
 
 ```
 

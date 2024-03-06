@@ -6,12 +6,11 @@ This is a simple module that supports listing Flowlogs.
 
 
 ```yaml
-
-    - name: Get all Flowlogs for a Network Loadbalancer
-      network_load_balancer_flowlog_info:
-        datacenter: "AnsibleDatacenter"
-        network_load_balancer: "AnsibleNlb"
-      register: flowlog_list_response
+name: List Network Load Balancer Flowlogs
+ionoscloudsdk.ionoscloud.network_load_balancer_flowlog_info:
+  datacenter: ''
+  network_load_balancer: ''
+register: nlb_flowlog_list_response
 
 ```
 

@@ -6,39 +6,40 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
 
 
 ```yaml
-- name: Create a nic flowlog
-  nic_flowlog:
-    name: FlowlogName
-    action: "ACCEPTED"
-    direction: "INGRESS"
-    bucket: "sdktest"
-    datacenter: DatacenterName
-    server: ServerName
-    nic: NicName
-  register: flowlog_response
-  
-- name: Update a nic flowlog
-  nic_flowlog:
-    name: "FlowlogName"
-    action: "ALL"
-    direction: "INGRESS"
-    bucket: "sdktest"
-    datacenter: DatacenterName
-    server: ServerName
-    nic: NicName
-    flowlog: FlowlogName
-  register: flowlog_update_response
-  
-- name: Delete a nic flowlog
-  nic_flowlog:
-    datacenter: DatacenterName
-    server: ServerName
-    nic: NicName
-    flowlog: FlowlogName
-    name: "FlowlogName"
-    state: absent
-    wait: true
-  register: flowlog_delete_response
+name: Create a nic flowlog
+ionoscloudsdk.ionoscloud.nic_flowlog:
+  name: 'AnsibleAutoTestCompute'
+  action: ACCEPTED
+  direction: INGRESS
+  bucket: sdktest
+  datacenter: ''
+  server: ''
+  nic: ''
+register: flowlog_response
+
+name: Update a nic flowlog
+ionoscloudsdk.ionoscloud.nic_flowlog:
+  name: 'AnsibleAutoTestCompute'
+  action: ALL
+  direction: INGRESS
+  bucket: sdktest
+  datacenter: ''
+  server: ''
+  nic: ''
+  flowlog: ''
+  state: update
+register: flowlog_update_response
+
+name: Delete a nic flowlog
+ionoscloudsdk.ionoscloud.nic_flowlog:
+  datacenter: ''
+  server: ''
+  nic: ''
+  flowlog: ''
+  name: 'AnsibleAutoTestCompute'
+  state: absent
+  wait: true
+register: flowlog_delete_response
 
 ```
 
@@ -82,17 +83,17 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
 
 # state: **present**
 ```yaml
-  - name: Create a nic flowlog
-  nic_flowlog:
-    name: FlowlogName
-    action: "ACCEPTED"
-    direction: "INGRESS"
-    bucket: "sdktest"
-    datacenter: DatacenterName
-    server: ServerName
-    nic: NicName
-  register: flowlog_response
-  
+  name: Create a nic flowlog
+ionoscloudsdk.ionoscloud.nic_flowlog:
+  name: 'AnsibleAutoTestCompute'
+  action: ACCEPTED
+  direction: INGRESS
+  bucket: sdktest
+  datacenter: ''
+  server: ''
+  nic: ''
+register: flowlog_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -189,17 +190,17 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
 &nbsp;
 # state: **absent**
 ```yaml
-  - name: Delete a nic flowlog
-  nic_flowlog:
-    datacenter: DatacenterName
-    server: ServerName
-    nic: NicName
-    flowlog: FlowlogName
-    name: "FlowlogName"
-    state: absent
-    wait: true
-  register: flowlog_delete_response
-  
+  name: Delete a nic flowlog
+ionoscloudsdk.ionoscloud.nic_flowlog:
+  datacenter: ''
+  server: ''
+  nic: ''
+  flowlog: ''
+  name: 'AnsibleAutoTestCompute'
+  state: absent
+  wait: true
+register: flowlog_delete_response
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -281,18 +282,19 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
 &nbsp;
 # state: **update**
 ```yaml
-  - name: Update a nic flowlog
-  nic_flowlog:
-    name: "FlowlogName"
-    action: "ALL"
-    direction: "INGRESS"
-    bucket: "sdktest"
-    datacenter: DatacenterName
-    server: ServerName
-    nic: NicName
-    flowlog: FlowlogName
-  register: flowlog_update_response
-  
+  name: Update a nic flowlog
+ionoscloudsdk.ionoscloud.nic_flowlog:
+  name: 'AnsibleAutoTestCompute'
+  action: ALL
+  direction: INGRESS
+  bucket: sdktest
+  datacenter: ''
+  server: ''
+  nic: ''
+  flowlog: ''
+  state: update
+register: flowlog_update_response
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

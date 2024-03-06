@@ -88,14 +88,10 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """
-    - name: List Mongo Clusters
-        mongo_cluster_info:
-        register: mongo_clusters_response
-
-    - name: Show Mongo Clusters
-        debug:
-            var: mongo_clusters_response.result
+EXAMPLES = """name: List Mongo Cluster Users
+ionoscloudsdk.ionoscloud.mongo_cluster_user_info:
+  mongo_cluster: ''
+register: mongo_cluster_users_response
 """
 
 

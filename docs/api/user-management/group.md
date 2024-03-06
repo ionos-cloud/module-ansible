@@ -6,30 +6,35 @@ This module allows you to create, update or remove a group.
 
 
 ```yaml
-# Create a group
-  - name: Create group
-    group:
-      name: guests
-      create_datacenter: true
-      create_snapshot: true
-      reserve_ip: false
-      access_activity_log: false
-      state: present
-  
-# Update a group
-  - name: Update group
-    group:
-      group: guests
-      create_datacenter: false
-      users:
-        - john.smith@test.com
-      state: update
-  
-# Remove a group
-  - name: Remove group
-    group:
-      group: guests
-      state: absent
+name: Create group
+ionoscloudsdk.ionoscloud.group:
+  name: 'AnsibleAutoTestUM'
+  create_datacenter: true
+  create_snapshot: true
+  reserve_ip: true
+  access_activity_log: true
+  create_pcc: true
+  s3_privilege: true
+  create_backup_unit: true
+  create_internet_access: true
+  create_k8s_cluster: true
+  create_flow_log: true
+  access_and_manage_monitoring: true
+  access_and_manage_certificates: true
+  manage_dbaas: true
+register: group_response
+
+name: Add user1 to group
+ionoscloudsdk.ionoscloud.group:
+  group: 'AnsibleAutoTestUM'
+  users:
+  - ''
+  state: update
+
+name: Delete group
+ionoscloudsdk.ionoscloud.group:
+  group: 'AnsibleAutoTestUM'
+  state: absent
 
 ```
 
@@ -77,16 +82,24 @@ This module allows you to create, update or remove a group.
 
 # state: **present**
 ```yaml
-  # Create a group
-  - name: Create group
-    group:
-      name: guests
-      create_datacenter: true
-      create_snapshot: true
-      reserve_ip: false
-      access_activity_log: false
-      state: present
-  
+  name: Create group
+ionoscloudsdk.ionoscloud.group:
+  name: 'AnsibleAutoTestUM'
+  create_datacenter: true
+  create_snapshot: true
+  reserve_ip: true
+  access_activity_log: true
+  create_pcc: true
+  s3_privilege: true
+  create_backup_unit: true
+  create_internet_access: true
+  create_k8s_cluster: true
+  create_flow_log: true
+  access_and_manage_monitoring: true
+  access_and_manage_certificates: true
+  manage_dbaas: true
+register: group_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -223,12 +236,11 @@ This module allows you to create, update or remove a group.
 &nbsp;
 # state: **absent**
 ```yaml
-  # Remove a group
-  - name: Remove group
-    group:
-      group: guests
-      state: absent
-  
+  name: Delete group
+ionoscloudsdk.ionoscloud.group:
+  group: 'AnsibleAutoTestUM'
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -300,15 +312,13 @@ This module allows you to create, update or remove a group.
 &nbsp;
 # state: **update**
 ```yaml
-  # Update a group
-  - name: Update group
-    group:
-      group: guests
-      create_datacenter: false
-      users:
-        - john.smith@test.com
-      state: update
-  
+  name: Add user1 to group
+ionoscloudsdk.ionoscloud.group:
+  group: 'AnsibleAutoTestUM'
+  users:
+  - ''
+  state: update
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

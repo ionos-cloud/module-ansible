@@ -152,65 +152,67 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''- name: Create Cluster User
-    mongo_cluster_user:
-      mongo_cluster: MongoClusterName
-      mongo_username: testuser
-      mongo_password: <password>
-      user_roles:
-        - role: read
-          database: test
-    register: mongo_user_response
-  ''',
-    'update': '''- name: Update User
-    mongo_cluster_user:
-      mongo_cluster: MongoClusterName
-      mongo_username: testuser
-      mongo_password: <newPassword>
-      user_roles:
-        - role: read
-          database: test
-        - role: readWrite
-          database: test
-      state: update
-    register: mongo_user_response
-  ''',
-    'absent': '''- name: Delete Cluster User
-    mongo_cluster_user:
-      mongo_cluster: MongoClusterName
-      mongo_username: testuser
-    register: mongo_user_response
-  ''',
+    'present': '''name: Create Cluster User
+ionoscloudsdk.ionoscloud.mongo_cluster_user:
+  mongo_cluster: ''
+  mongo_username: testuser
+  mongo_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  user_roles:
+  - role: read
+    database: test
+register: mongo_user_response
+''',
+    'update': '''name: Update User
+ionoscloudsdk.ionoscloud.mongo_cluster_user:
+  mongo_cluster: ''
+  mongo_username: testuser
+  mongo_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  user_roles:
+  - role: read
+    database: test
+  - role: readWrite
+    database: test
+  state: update
+register: mongo_user_response
+''',
+    'absent': '''name: Delete Cluster User
+ionoscloudsdk.ionoscloud.mongo_cluster_user:
+  mongo_cluster: ''
+  mongo_username: testuser
+  state: absent
+register: mongo_user_response
+''',
 }
 
-EXAMPLES = """- name: Create Cluster User
-    mongo_cluster_user:
-      mongo_cluster: MongoClusterName
-      mongo_username: testuser
-      mongo_password: <password>
-      user_roles:
-        - role: read
-          database: test
-    register: mongo_user_response
-  
-- name: Update User
-    mongo_cluster_user:
-      mongo_cluster: MongoClusterName
-      mongo_username: testuser
-      mongo_password: <newPassword>
-      user_roles:
-        - role: read
-          database: test
-        - role: readWrite
-          database: test
-      state: update
-    register: mongo_user_response
-  
-- name: Delete Cluster User
-    mongo_cluster_user:
-      mongo_cluster: MongoClusterName
-      mongo_username: testuser
-    register: mongo_user_response
+EXAMPLES = """name: Create Cluster User
+ionoscloudsdk.ionoscloud.mongo_cluster_user:
+  mongo_cluster: ''
+  mongo_username: testuser
+  mongo_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  user_roles:
+  - role: read
+    database: test
+register: mongo_user_response
+
+name: Update User
+ionoscloudsdk.ionoscloud.mongo_cluster_user:
+  mongo_cluster: ''
+  mongo_username: testuser
+  mongo_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  user_roles:
+  - role: read
+    database: test
+  - role: readWrite
+    database: test
+  state: update
+register: mongo_user_response
+
+name: Delete Cluster User
+ionoscloudsdk.ionoscloud.mongo_cluster_user:
+  mongo_cluster: ''
+  mongo_username: testuser
+  state: absent
+register: mongo_user_response
 """
 
 

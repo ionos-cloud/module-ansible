@@ -172,51 +172,57 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''# Create a Datacenter
-  - name: Create datacenter
-    datacenter:
-      name: "Example DC"
-      description: "description"
-      location: de/fra
-    register: datacenter_response
-  ''',
-  'update' : '''# Update a datacenter description
-  - name: Update datacenter
-    datacenter:
-      datacenter: "Example DC"
-      description: "description - RENAMED"
-      state: update
-    register: updated_datacenter
-  ''',
-  'absent' : '''# Destroy a Datacenter. This will remove all servers, volumes, and other objects in the datacenter.
-  - name: Remove datacenter
-    datacenter:
-      datacenter: "Example DC"
-      state: absent
-  ''',
+  'present' : '''name: Create datacenter
+ionoscloudsdk.ionoscloud.datacenter:
+  name: 'AnsibleAutoTestCompute'
+  description: 'Ansible Compute test description'
+  location: 'gb/lhr'
+  wait: true
+register: datacenter_response
+''',
+  'update' : '''name: Update datacenter no change 1
+ionoscloudsdk.ionoscloud.datacenter:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute'
+  description: 'Ansible Compute test description CHANGED'
+  state: update
+  allow_replace: false
+register: datacenter_response_no_change2
+''',
+  'absent' : '''name: Remove datacenter
+ionoscloudsdk.ionoscloud.datacenter:
+  datacenter: ''
+  name: 'AnsibleAutoTestCompute'
+  state: absent
+  wait: true
+register: deleted_datacenter
+''',
 }
 
-EXAMPLES = '''# Create a Datacenter
-  - name: Create datacenter
-    datacenter:
-      name: "Example DC"
-      description: "description"
-      location: de/fra
-    register: datacenter_response
-  
-# Update a datacenter description
-  - name: Update datacenter
-    datacenter:
-      datacenter: "Example DC"
-      description: "description - RENAMED"
-      state: update
-    register: updated_datacenter
-  
-# Destroy a Datacenter. This will remove all servers, volumes, and other objects in the datacenter.
-  - name: Remove datacenter
-    datacenter:
-      datacenter: "Example DC"
-      state: absent
+EXAMPLES = '''name: Create datacenter
+ionoscloudsdk.ionoscloud.datacenter:
+  name: 'AnsibleAutoTestCompute'
+  description: 'Ansible Compute test description'
+  location: 'gb/lhr'
+  wait: true
+register: datacenter_response
+
+name: Update datacenter no change 1
+ionoscloudsdk.ionoscloud.datacenter:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute'
+  description: 'Ansible Compute test description CHANGED'
+  state: update
+  allow_replace: false
+register: datacenter_response_no_change2
+
+name: Remove datacenter
+ionoscloudsdk.ionoscloud.datacenter:
+  datacenter: ''
+  name: 'AnsibleAutoTestCompute'
+  state: absent
+  wait: true
+register: deleted_datacenter
 '''
 
 

@@ -78,14 +78,9 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """
-    - name: List Registries
-        registry_info:
-        register: registries_response
-
-    - name: Show Registries
-        debug:
-            var: registries_response.result
+EXAMPLES = """name: List Registries
+ionoscloudsdk.ionoscloud.registry_info: null
+register: registries_response
 """
 
 

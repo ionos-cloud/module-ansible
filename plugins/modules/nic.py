@@ -246,79 +246,79 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''# Create a NIC
-    - name: Create NIC
-      nic:
-       name: NicName
-       datacenter: DatacenterName
-       server: ServerName
-       lan: 2
-       dhcp: true
-       firewall_active: true
-       ips:
-         - 10.0.0.1
-       wait: true
-       wait_timeout: 600
-       state: present
-      register: ionos_cloud_nic
-  ''',
-    'update': '''# Update a NIC
-  - nic:
-      datacenter: DatacenterName
-      server: ServerName
-      nic: NicName
-      lan: 1
-      ips:
-        - 158.222.103.23
-        - 158.222.103.24
-      dhcp: false
-      state: update
-  ''',
-    'absent': '''# Remove a NIC
-  - nic:
-      datacenter: DatacenterName
-      server: ServerName
-      nic: NicName
-      wait_timeout: 500
-      state: absent
-  ''',
+    'present': '''name: Create NIC
+ionoscloudsdk.ionoscloud.nic:
+  name: 'AnsibleAutoTestCompute'
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  lan: 2
+  dhcp: true
+  firewall_active: true
+  ips:
+  - 10.0.0.1
+  wait: true
+  wait_timeout: '500'
+  state: present
+register: ionos_cloud_nic
+''',
+    'update': '''name: Update NIC
+ionoscloudsdk.ionoscloud.nic:
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  name: new-nic
+  nic: ''
+  dhcp: false
+  wait: true
+  wait_timeout: '500'
+  state: update
+register: updated_nic
+''',
+    'absent': '''name: Remove NIC
+ionoscloudsdk.ionoscloud.nic:
+  nic: ''
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  wait: true
+  wait_timeout: '500'
+  state: absent
+''',
 }
 
-EXAMPLES = """# Create a NIC
-    - name: Create NIC
-      nic:
-       name: NicName
-       datacenter: DatacenterName
-       server: ServerName
-       lan: 2
-       dhcp: true
-       firewall_active: true
-       ips:
-         - 10.0.0.1
-       wait: true
-       wait_timeout: 600
-       state: present
-      register: ionos_cloud_nic
-  
-# Update a NIC
-  - nic:
-      datacenter: DatacenterName
-      server: ServerName
-      nic: NicName
-      lan: 1
-      ips:
-        - 158.222.103.23
-        - 158.222.103.24
-      dhcp: false
-      state: update
-  
-# Remove a NIC
-  - nic:
-      datacenter: DatacenterName
-      server: ServerName
-      nic: NicName
-      wait_timeout: 500
-      state: absent
+EXAMPLES = """name: Create NIC
+ionoscloudsdk.ionoscloud.nic:
+  name: 'AnsibleAutoTestCompute'
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  lan: 2
+  dhcp: true
+  firewall_active: true
+  ips:
+  - 10.0.0.1
+  wait: true
+  wait_timeout: '500'
+  state: present
+register: ionos_cloud_nic
+
+name: Update NIC
+ionoscloudsdk.ionoscloud.nic:
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  name: new-nic
+  nic: ''
+  dhcp: false
+  wait: true
+  wait_timeout: '500'
+  state: update
+register: updated_nic
+
+name: Remove NIC
+ionoscloudsdk.ionoscloud.nic:
+  nic: ''
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  wait: true
+  wait_timeout: '500'
+  state: absent
 """
 
 

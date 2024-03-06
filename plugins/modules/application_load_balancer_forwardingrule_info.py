@@ -105,12 +105,11 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = '''
-    - name: Get all Forwarding Rules for a given Application Load Balancer
-      application_load_balancer_forwardingrule_info:
-        datacenter: "AnsibleDatacenter"
-        application_load_balancer: "AnsibleAppLoadBalancer"
-      register: forwarding_rules_list_response
+EXAMPLES = '''name: List Application Load Balancer Forwarding rules
+ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule_info:
+  datacenter: ''
+  application_load_balancer: ''
+register: alb_forwardingrule_list_response
 '''
 
 

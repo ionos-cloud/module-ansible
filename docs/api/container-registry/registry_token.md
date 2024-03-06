@@ -6,39 +6,41 @@ This is a module that supports creating, updating or destroying Registry Tokens
 
 
 ```yaml
-- name: Create Registry Token
-    registry_token:
-        registry: RegistryName
-        name: test_registry_token
-        scopes:
-            - actions: 
-                    - pull
-                      push
-                      delete
-                name: repo1
-                type: repositry
-        status: enabled
-        expiry_date: 2022-06-24T17:04:10+03:00
-    register: registry_token_response
-  
-- name: Update Registry Token
-    registry_token:
-        registry: RegistryName
-        registry_token: test_registry_token
-        scopes:
-            - actions: 
-                    - pull
-                name: repo2
-                type: repositry
-        status: disbled
-        expiry_date: 2022-07-24T17:04:10+03:00
-    register: updated_registry_token_response
-  
-- name: Delete Registry Token
-    registry_token:
-        registry: RegistryName
-        registry_token: test_registry_token
-        state: absent
+name: Create Registry Token
+ionoscloudsdk.ionoscloud.registry_token:
+  registry: ''
+  name: testRegistryToken
+  scopes:
+  - actions:
+    - pull
+    - push
+    name: nume
+    type: repository
+  status: enabled
+register: registry_token_response
+
+name: Update Registry Token
+ionoscloudsdk.ionoscloud.registry_token:
+  registry: ''
+  registry_token: ''
+  scopes:
+  - actions:
+    - pull
+    - push
+    - delete
+    name: nume
+    type: repo1
+  status: disabled
+  allow_replace: false
+  state: update
+register: registry_token_response
+
+name: Delete Registry Token
+ionoscloudsdk.ionoscloud.registry_token:
+  registry: ''
+  registry_token: ''
+  state: absent
+register: registry_token_response
 
 ```
 
@@ -97,21 +99,19 @@ This is a module that supports creating, updating or destroying Registry Tokens
 
 # state: **present**
 ```yaml
-  - name: Create Registry Token
-    registry_token:
-        registry: RegistryName
-        name: test_registry_token
-        scopes:
-            - actions: 
-                    - pull
-                      push
-                      delete
-                name: repo1
-                type: repositry
-        status: enabled
-        expiry_date: 2022-06-24T17:04:10+03:00
-    register: registry_token_response
-  
+  name: Create Registry Token
+ionoscloudsdk.ionoscloud.registry_token:
+  registry: ''
+  name: testRegistryToken
+  scopes:
+  - actions:
+    - pull
+    - push
+    name: nume
+    type: repository
+  status: enabled
+register: registry_token_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -203,12 +203,13 @@ This is a module that supports creating, updating or destroying Registry Tokens
 &nbsp;
 # state: **absent**
 ```yaml
-  - name: Delete Registry Token
-    registry_token:
-        registry: RegistryName
-        registry_token: test_registry_token
-        state: absent
-  
+  name: Delete Registry Token
+ionoscloudsdk.ionoscloud.registry_token:
+  registry: ''
+  registry_token: ''
+  state: absent
+register: registry_token_response
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -280,19 +281,22 @@ This is a module that supports creating, updating or destroying Registry Tokens
 &nbsp;
 # state: **update**
 ```yaml
-  - name: Update Registry Token
-    registry_token:
-        registry: RegistryName
-        registry_token: test_registry_token
-        scopes:
-            - actions: 
-                    - pull
-                name: repo2
-                type: repositry
-        status: disbled
-        expiry_date: 2022-07-24T17:04:10+03:00
-    register: updated_registry_token_response
-  
+  name: Update Registry Token
+ionoscloudsdk.ionoscloud.registry_token:
+  registry: ''
+  registry_token: ''
+  scopes:
+  - actions:
+    - pull
+    - push
+    - delete
+    name: nume
+    type: repo1
+  status: disabled
+  allow_replace: false
+  state: update
+register: registry_token_response
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

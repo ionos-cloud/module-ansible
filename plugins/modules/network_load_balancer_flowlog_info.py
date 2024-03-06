@@ -104,12 +104,11 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """
-    - name: Get all Flowlogs for a Network Loadbalancer
-      network_load_balancer_flowlog_info:
-        datacenter: "AnsibleDatacenter"
-        network_load_balancer: "AnsibleNlb"
-      register: flowlog_list_response
+EXAMPLES = """name: List Network Load Balancer Flowlogs
+ionoscloudsdk.ionoscloud.network_load_balancer_flowlog_info:
+  datacenter: ''
+  network_load_balancer: ''
+register: nlb_flowlog_list_response
 """
 
 

@@ -253,71 +253,127 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''
-  - name: Create Data Platform nodepool
-    dataplatform_nodepool:
-      name: NodepoolName
-      cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      node_count: 1
-      cpu_family: "AMD_OPTERON"
-      cores_count: 1
-      ram_size: 2048
-      availability_zone: "AUTO"
-      storage_type: "SSD"
-      storage_size: 100
-  ''',
-  'update' : '''
-  - name: Update Data Platform nodepool
-    dataplatform_nodepool:
-      nodepool: NodepoolName
-      cluster: ClusterName
-      node_count: 1
-      cores_count: 1
-      maintenance_window:
-        day_of_the_week: 'Tuesday'
-        time: '13:03:00'
-      state: update
-  ''',
-  'absent' : '''
-  - name: Delete Data Platform nodepool
-    dataplatform_nodepool:
-      cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      nodepool: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
-      state: absent
-  ''',
+  'present' : '''name: Create DataPlatform cluster nodepool
+ionoscloudsdk.ionoscloud.dataplatform_nodepool:
+  name: my-nodepool
+  cluster: ''
+  node_count: 2
+  cpu_family: INTEL_SKYLAKE
+  cores_count: 1
+  ram_size: 2048
+  availability_zone: AUTO
+  storage_type: HDD
+  storage_size: '100'
+  maintenance_window:
+    day_of_the_week: Wednesday
+    time: '12:02:00'
+  labels:
+    foo: bar
+    color: red
+    size: '10'
+  annotations:
+    ann1: value1
+    ann2: value2
+  wait: true
+  wait_timeout: 7200
+register: result
+''',
+  'update' : '''name: Update DataPlatform cluster nodepool no change
+ionoscloudsdk.ionoscloud.dataplatform_nodepool:
+  cluster: ''
+  nodepool: ''
+  name: my-nodepool
+  node_count: 2
+  cpu_family: INTEL_SKYLAKE
+  cores_count: 1
+  ram_size: 2048
+  availability_zone: AUTO
+  storage_type: HDD
+  storage_size: '100'
+  maintenance_window:
+    day_of_the_week: Wednesday
+    time: '12:02:00'
+  labels:
+    foo: bar
+    color: red
+    size: '10'
+  annotations:
+    ann1: value1
+    ann2: value2
+  allow_replace: false
+  wait: true
+  wait_timeout: 7200
+  state: update
+register: result_no_change
+''',
+  'absent' : '''name: Delete DataPlatform cluster nodepool
+ionoscloudsdk.ionoscloud.dataplatform_nodepool:
+  cluster: ''
+  nodepool: ''
+  wait: true
+  state: absent
+''',
 }
 
-EXAMPLES = """
-  - name: Create Data Platform nodepool
-    dataplatform_nodepool:
-      name: NodepoolName
-      cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      node_count: 1
-      cpu_family: "AMD_OPTERON"
-      cores_count: 1
-      ram_size: 2048
-      availability_zone: "AUTO"
-      storage_type: "SSD"
-      storage_size: 100
-  
+EXAMPLES = """name: Create DataPlatform cluster nodepool
+ionoscloudsdk.ionoscloud.dataplatform_nodepool:
+  name: my-nodepool
+  cluster: ''
+  node_count: 2
+  cpu_family: INTEL_SKYLAKE
+  cores_count: 1
+  ram_size: 2048
+  availability_zone: AUTO
+  storage_type: HDD
+  storage_size: '100'
+  maintenance_window:
+    day_of_the_week: Wednesday
+    time: '12:02:00'
+  labels:
+    foo: bar
+    color: red
+    size: '10'
+  annotations:
+    ann1: value1
+    ann2: value2
+  wait: true
+  wait_timeout: 7200
+register: result
 
-  - name: Update Data Platform nodepool
-    dataplatform_nodepool:
-      nodepool: NodepoolName
-      cluster: ClusterName
-      node_count: 1
-      cores_count: 1
-      maintenance_window:
-        day_of_the_week: 'Tuesday'
-        time: '13:03:00'
-      state: update
-  
+name: Update DataPlatform cluster nodepool no change
+ionoscloudsdk.ionoscloud.dataplatform_nodepool:
+  cluster: ''
+  nodepool: ''
+  name: my-nodepool
+  node_count: 2
+  cpu_family: INTEL_SKYLAKE
+  cores_count: 1
+  ram_size: 2048
+  availability_zone: AUTO
+  storage_type: HDD
+  storage_size: '100'
+  maintenance_window:
+    day_of_the_week: Wednesday
+    time: '12:02:00'
+  labels:
+    foo: bar
+    color: red
+    size: '10'
+  annotations:
+    ann1: value1
+    ann2: value2
+  allow_replace: false
+  wait: true
+  wait_timeout: 7200
+  state: update
+register: result_no_change
 
-  - name: Delete Data Platform nodepool
-    dataplatform_nodepool:
-      cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      nodepool: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
-      state: absent
+name: Delete DataPlatform cluster nodepool
+ionoscloudsdk.ionoscloud.dataplatform_nodepool:
+  cluster: ''
+  nodepool: ''
+  wait: true
+  state: absent
 """
 
 

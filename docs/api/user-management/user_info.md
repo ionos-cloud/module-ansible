@@ -6,16 +6,10 @@ This is a simple module that supports listing Users.
 
 
 ```yaml
+name: List Users
+ionoscloudsdk.ionoscloud.user_info: null
+register: user_list_response
 
-    - name: Get all Users of a group
-      user_info:
-        group: "AnsibleIonosGroup"
-      register: user_list_response
-
-    - name: Get all Users
-      user_info:
-      register: all_user_list_response
-    
 ```
 
 &nbsp;

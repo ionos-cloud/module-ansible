@@ -6,12 +6,11 @@ This is a simple module that supports listing NICs.
 
 
 ```yaml
-
-    - name: Get all NICs of a server
-      nic_info:
-        datacenter: "AnsibleDatacenter"
-        server: "AnsibleServer"
-      register: nic_list_response
+name: List NICs
+ionoscloudsdk.ionoscloud.nic_info:
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+register: nic_list_response
 
 ```
 

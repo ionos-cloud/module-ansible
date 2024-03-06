@@ -194,59 +194,49 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''# Create a LAN
-- name: Create private LAN
-  lan:
-    datacenter: Virtual Datacenter
-    name: nameoflan
-    public: false
-    state: present
-  ''',
-  'update' : '''# Update a LAN
-- name: Update LAN
-  lan:
-    datacenter: Virtual Datacenter
-    lan: nameoflan
-    public: true
-    ip_failover:
-          208.94.38.167: 1de3e6ae-da16-4dc7-845c-092e8a19fded
-          208.94.38.168: 8f01cbd3-bec4-46b7-b085-78bb9ea0c77c
-    state: update
-  ''',
-  'absent' : '''# Remove a LAN
-- name: Remove LAN
-  lan:
-    datacenter: Virtual Datacenter
-    lan: nameoflan
-    state: absent
-  ''',
+  'present' : '''name: Create LAN
+ionoscloudsdk.ionoscloud.lan:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute'
+  public: false
+register: ionos_cloud_lan
+''',
+  'update' : '''name: Update LAN
+ionoscloudsdk.ionoscloud.lan:
+  datacenter: 'AnsibleAutoTestCompute'
+  lan: 'AnsibleAutoTestCompute'
+  pcc: ''
+  state: update
+''',
+  'absent' : '''name: Remove LAN
+ionoscloudsdk.ionoscloud.lan:
+  datacenter: 'AnsibleAutoTestCompute'
+  lan: 'AnsibleAutoTestCompute'
+  state: absent
+  wait: true
+''',
 }
 
-EXAMPLES = """# Create a LAN
-- name: Create private LAN
-  lan:
-    datacenter: Virtual Datacenter
-    name: nameoflan
-    public: false
-    state: present
-  
-# Update a LAN
-- name: Update LAN
-  lan:
-    datacenter: Virtual Datacenter
-    lan: nameoflan
-    public: true
-    ip_failover:
-          208.94.38.167: 1de3e6ae-da16-4dc7-845c-092e8a19fded
-          208.94.38.168: 8f01cbd3-bec4-46b7-b085-78bb9ea0c77c
-    state: update
-  
-# Remove a LAN
-- name: Remove LAN
-  lan:
-    datacenter: Virtual Datacenter
-    lan: nameoflan
-    state: absent
+EXAMPLES = """name: Create LAN
+ionoscloudsdk.ionoscloud.lan:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute'
+  public: false
+register: ionos_cloud_lan
+
+name: Update LAN
+ionoscloudsdk.ionoscloud.lan:
+  datacenter: 'AnsibleAutoTestCompute'
+  lan: 'AnsibleAutoTestCompute'
+  pcc: ''
+  state: update
+
+name: Remove LAN
+ionoscloudsdk.ionoscloud.lan:
+  datacenter: 'AnsibleAutoTestCompute'
+  lan: 'AnsibleAutoTestCompute'
+  state: absent
+  wait: true
 """
 
 

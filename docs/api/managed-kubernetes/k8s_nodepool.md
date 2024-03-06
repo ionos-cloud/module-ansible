@@ -6,40 +6,72 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
 
 
 ```yaml
+name: Create k8s cluster nodepool
+ionoscloudsdk.ionoscloud.k8s_nodepool:
+  name: my-nodepool-
+  k8s_cluster: ''
+  datacenter: ''
+  node_count: 2
+  cpu_family: INTEL_SKYLAKE
+  cores_count: 1
+  ram_size: 2048
+  availability_zone: AUTO
+  storage_type: HDD
+  storage_size: 100
+  public_ips: ''
+  lans:
+  - id: ''
+    dhcp: false
+  auto_scaling:
+    min_node_count: 1
+    max_node_count: 3
+  labels:
+    foo: bar
+    color: red
+    size: '10'
+  annotations:
+    ann1: value1
+    ann2: value2
+  wait: true
+register: result
 
-  - name: Create k8s cluster nodepool
-    k8s_nodepools:
-      k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      datacenter: "4d495548-e330-434d-83a9-251bfa645875"
-      node_count: 1
-      cpu_family: "AMD_OPTERON"
-      cores_count: "1"
-      ram_size: "2048"
-      availability_zone: "AUTO"
-      storage_type: "SSD"
-      storage_size: "100"
-  
+name: Update k8s cluster nodepool no change
+ionoscloudsdk.ionoscloud.k8s_nodepool:
+  k8s_cluster: ''
+  datacenter: ''
+  k8s_nodepool: ''
+  name: ''
+  node_count: 2
+  cpu_family: INTEL_SKYLAKE
+  cores_count: '1'
+  ram_size: '2048'
+  availability_zone: AUTO
+  storage_type: HDD
+  storage_size: '100'
+  public_ips: ''
+  lans:
+  - id: ''
+    dhcp: false
+  auto_scaling:
+    min_node_count: 1
+    max_node_count: 3
+  labels:
+    foo: bar
+    color: red
+    size: '10'
+  annotations:
+    ann1: value1
+    ann2: value2
+  wait: true
+  state: update
+register: result_no_change
 
-  - name: Update k8s cluster nodepool
-    k8s_nodepools:
-      k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
-      k8s_nodepool: "6e9efcc6-649a-4514-bee5-6165b614c89e"
-      node_count: 1
-      cores_count: "1"
-      maintenance_window:
-        day_of_the_week: 'Tuesday'
-        time: '13:03:00'
-      auto_scaling:
-        min_node_count: 1
-        max_node_count: 3
-      state: update
-  
-
-  - name: Delete k8s cluster nodepool
-    k8s_nodepools:
-      k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      k8s_nodepool: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
-      state: absent
+name: Delete k8s cluster nodepool
+ionoscloudsdk.ionoscloud.k8s_nodepool:
+  k8s_cluster: ''
+  k8s_nodepool: ''
+  wait: false
+  state: absent
 
 ```
 
@@ -131,19 +163,35 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
 
 # state: **present**
 ```yaml
-  
-  - name: Create k8s cluster nodepool
-    k8s_nodepools:
-      k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      datacenter: "4d495548-e330-434d-83a9-251bfa645875"
-      node_count: 1
-      cpu_family: "AMD_OPTERON"
-      cores_count: "1"
-      ram_size: "2048"
-      availability_zone: "AUTO"
-      storage_type: "SSD"
-      storage_size: "100"
-  
+  name: Create k8s cluster nodepool
+ionoscloudsdk.ionoscloud.k8s_nodepool:
+  name: my-nodepool-
+  k8s_cluster: ''
+  datacenter: ''
+  node_count: 2
+  cpu_family: INTEL_SKYLAKE
+  cores_count: 1
+  ram_size: 2048
+  availability_zone: AUTO
+  storage_type: HDD
+  storage_size: 100
+  public_ips: ''
+  lans:
+  - id: ''
+    dhcp: false
+  auto_scaling:
+    min_node_count: 1
+    max_node_count: 3
+  labels:
+    foo: bar
+    color: red
+    size: '10'
+  annotations:
+    ann1: value1
+    ann2: value2
+  wait: true
+register: result
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -295,13 +343,13 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
 &nbsp;
 # state: **absent**
 ```yaml
-  
-  - name: Delete k8s cluster nodepool
-    k8s_nodepools:
-      k8s_cluster: "a0a65f51-4d3c-438c-9543-39a3d7668af3"
-      k8s_nodepool: "e3aa6101-436f-49fa-9a8c-0d6617e0a277"
-      state: absent
-  
+  name: Delete k8s cluster nodepool
+ionoscloudsdk.ionoscloud.k8s_nodepool:
+  k8s_cluster: ''
+  k8s_nodepool: ''
+  wait: false
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -373,21 +421,37 @@ This is a simple module that supports creating or removing K8s Nodepools. This m
 &nbsp;
 # state: **update**
 ```yaml
-  
-  - name: Update k8s cluster nodepool
-    k8s_nodepools:
-      k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
-      k8s_nodepool: "6e9efcc6-649a-4514-bee5-6165b614c89e"
-      node_count: 1
-      cores_count: "1"
-      maintenance_window:
-        day_of_the_week: 'Tuesday'
-        time: '13:03:00'
-      auto_scaling:
-        min_node_count: 1
-        max_node_count: 3
-      state: update
-  
+  name: Update k8s cluster nodepool no change
+ionoscloudsdk.ionoscloud.k8s_nodepool:
+  k8s_cluster: ''
+  datacenter: ''
+  k8s_nodepool: ''
+  name: ''
+  node_count: 2
+  cpu_family: INTEL_SKYLAKE
+  cores_count: '1'
+  ram_size: '2048'
+  availability_zone: AUTO
+  storage_type: HDD
+  storage_size: '100'
+  public_ips: ''
+  lans:
+  - id: ''
+    dhcp: false
+  auto_scaling:
+    min_node_count: 1
+    max_node_count: 3
+  labels:
+    foo: bar
+    color: red
+    size: '10'
+  annotations:
+    ann1: value1
+    ann2: value2
+  wait: true
+  state: update
+register: result_no_change
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

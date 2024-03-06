@@ -103,12 +103,11 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """
-    - name: Get all NICs of a server
-      nic_info:
-        datacenter: "AnsibleDatacenter"
-        server: "AnsibleServer"
-      register: nic_list_response
+EXAMPLES = """name: List NICs
+ionoscloudsdk.ionoscloud.nic_info:
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+register: nic_list_response
 """
 
 

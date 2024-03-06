@@ -6,31 +6,26 @@ This module allows you to create or remove a LAN.
 
 
 ```yaml
-# Create a LAN
-- name: Create private LAN
-  lan:
-    datacenter: Virtual Datacenter
-    name: nameoflan
-    public: false
-    state: present
-  
-# Update a LAN
-- name: Update LAN
-  lan:
-    datacenter: Virtual Datacenter
-    lan: nameoflan
-    public: true
-    ip_failover:
-          208.94.38.167: 1de3e6ae-da16-4dc7-845c-092e8a19fded
-          208.94.38.168: 8f01cbd3-bec4-46b7-b085-78bb9ea0c77c
-    state: update
-  
-# Remove a LAN
-- name: Remove LAN
-  lan:
-    datacenter: Virtual Datacenter
-    lan: nameoflan
-    state: absent
+name: Create LAN
+ionoscloudsdk.ionoscloud.lan:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute'
+  public: false
+register: ionos_cloud_lan
+
+name: Update LAN
+ionoscloudsdk.ionoscloud.lan:
+  datacenter: 'AnsibleAutoTestCompute'
+  lan: 'AnsibleAutoTestCompute'
+  pcc: ''
+  state: update
+
+name: Remove LAN
+ionoscloudsdk.ionoscloud.lan:
+  datacenter: 'AnsibleAutoTestCompute'
+  lan: 'AnsibleAutoTestCompute'
+  state: absent
+  wait: true
 
 ```
 
@@ -75,14 +70,13 @@ This module allows you to create or remove a LAN.
 
 # state: **present**
 ```yaml
-  # Create a LAN
-- name: Create private LAN
-  lan:
-    datacenter: Virtual Datacenter
-    name: nameoflan
-    public: false
-    state: present
-  
+  name: Create LAN
+ionoscloudsdk.ionoscloud.lan:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute'
+  public: false
+register: ionos_cloud_lan
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -169,13 +163,13 @@ This module allows you to create or remove a LAN.
 &nbsp;
 # state: **absent**
 ```yaml
-  # Remove a LAN
-- name: Remove LAN
-  lan:
-    datacenter: Virtual Datacenter
-    lan: nameoflan
-    state: absent
-  
+  name: Remove LAN
+ionoscloudsdk.ionoscloud.lan:
+  datacenter: 'AnsibleAutoTestCompute'
+  lan: 'AnsibleAutoTestCompute'
+  state: absent
+  wait: true
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -247,17 +241,13 @@ This module allows you to create or remove a LAN.
 &nbsp;
 # state: **update**
 ```yaml
-  # Update a LAN
-- name: Update LAN
-  lan:
-    datacenter: Virtual Datacenter
-    lan: nameoflan
-    public: true
-    ip_failover:
-          208.94.38.167: 1de3e6ae-da16-4dc7-845c-092e8a19fded
-          208.94.38.168: 8f01cbd3-bec4-46b7-b085-78bb9ea0c77c
-    state: update
-  
+  name: Update LAN
+ionoscloudsdk.ionoscloud.lan:
+  datacenter: 'AnsibleAutoTestCompute'
+  lan: 'AnsibleAutoTestCompute'
+  pcc: ''
+  state: update
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

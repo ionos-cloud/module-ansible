@@ -6,67 +6,66 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 
 
 ```yaml
-# Provisioning example. This will create three servers and enumerate their names.
-    - vcpu_server:
-        datacenter: Tardis One
-        name: web%02d.stackpointcloud.com
-        cores: 4
-        ram: 2048
-        volume_size: 50
-        image: ubuntu:latest
-        location: us/las
-        count: 3
-        assign_public_ip: true
-  
-# Update Virtual machines
-    - vcpu_server:
-        datacenter: Tardis One
-        instance_ids:
-        - web001.stackpointcloud.com
-        - web002.stackpointcloud.com
-        cores: 4
-        ram: 4096
-        availability_zone: ZONE_1
-        state: update
-  # Rename virtual machine
-    - vcpu_server:
-        datacenter: Tardis One
-        instance_ids: web001.stackpointcloud.com
-        name: web101.stackpointcloud.com
-        cores: 4
-        ram: 4096
-        availability_zone: ZONE_1
-        state: update
+name: Provision two servers
+ionoscloudsdk.ionoscloud.vcpu_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute %02d'
+  cores: 1
+  ram: 1024
+  availability_zone: ZONE_1
+  lan: 'AnsibleAutoTestCompute'
+  volume_availability_zone: ZONE_3
+  volume_size: 20
+  disk_type: SSD Standard
+  image: 'centos:7'
+  image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  location: de/txl
+  user_data: ''
+  count: 2
+  remove_boot_volume: true
+  wait: true
+  wait_timeout: '500'
+  state: present
+register: server_create_result
 
-# Removing Virtual machines
-    - vcpu_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: absent
-  
-# Starting Virtual Machines.
-    - vcpu_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: running
-  
-# Stopping Virtual Machines
-    - vcpu_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: stopped
+name: Update servers
+ionoscloudsdk.ionoscloud.vcpu_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute 01'
+  - 'AnsibleAutoTestCompute 02'
+  cores: 2
+  ram: 2048
+  wait_timeout: '500'
+  state: update
+
+name: Remove servers
+ionoscloudsdk.ionoscloud.vcpu_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute'
+  - 'AnsibleAutoTestCompute 02'
+  remove_boot_volume: true
+  wait_timeout: '500'
+  state: absent
+
+name: Start servers
+ionoscloudsdk.ionoscloud.vcpu_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute'
+  - 'AnsibleAutoTestCompute 02'
+  wait_timeout: '500'
+  state: running
+
+name: Stop servers
+ionoscloudsdk.ionoscloud.vcpu_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute'
+  - 'AnsibleAutoTestCompute 02'
+  wait_timeout: '500'
+  state: stopped
 
 ```
 
@@ -77,16 +76,15 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 
 # state: **running**
 ```yaml
-  # Starting Virtual Machines.
-    - vcpu_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: running
-  
+  name: Start servers
+ionoscloudsdk.ionoscloud.vcpu_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute'
+  - 'AnsibleAutoTestCompute 02'
+  wait_timeout: '500'
+  state: running
+
 ```
 ### Available parameters for state **running**:
 &nbsp;
@@ -158,16 +156,15 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 &nbsp;
 # state: **stopped**
 ```yaml
-  # Stopping Virtual Machines
-    - vcpu_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: stopped
-  
+  name: Stop servers
+ionoscloudsdk.ionoscloud.vcpu_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute'
+  - 'AnsibleAutoTestCompute 02'
+  wait_timeout: '500'
+  state: stopped
+
 ```
 ### Available parameters for state **stopped**:
 &nbsp;
@@ -239,16 +236,16 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 &nbsp;
 # state: **absent**
 ```yaml
-  # Removing Virtual machines
-    - vcpu_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: absent
-  
+  name: Remove servers
+ionoscloudsdk.ionoscloud.vcpu_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute'
+  - 'AnsibleAutoTestCompute 02'
+  remove_boot_volume: true
+  wait_timeout: '500'
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -325,18 +322,28 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 &nbsp;
 # state: **present**
 ```yaml
-  # Provisioning example. This will create three servers and enumerate their names.
-    - vcpu_server:
-        datacenter: Tardis One
-        name: web%02d.stackpointcloud.com
-        cores: 4
-        ram: 2048
-        volume_size: 50
-        image: ubuntu:latest
-        location: us/las
-        count: 3
-        assign_public_ip: true
-  
+  name: Provision two servers
+ionoscloudsdk.ionoscloud.vcpu_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute %02d'
+  cores: 1
+  ram: 1024
+  availability_zone: ZONE_1
+  lan: 'AnsibleAutoTestCompute'
+  volume_availability_zone: ZONE_3
+  volume_size: 20
+  disk_type: SSD Standard
+  image: 'centos:7'
+  image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  location: de/txl
+  user_data: ''
+  count: 2
+  remove_boot_volume: true
+  wait: true
+  wait_timeout: '500'
+  state: present
+register: server_create_result
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -508,25 +515,16 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 &nbsp;
 # state: **update**
 ```yaml
-  # Update Virtual machines
-    - vcpu_server:
-        datacenter: Tardis One
-        instance_ids:
-        - web001.stackpointcloud.com
-        - web002.stackpointcloud.com
-        cores: 4
-        ram: 4096
-        availability_zone: ZONE_1
-        state: update
-  # Rename virtual machine
-    - vcpu_server:
-        datacenter: Tardis One
-        instance_ids: web001.stackpointcloud.com
-        name: web101.stackpointcloud.com
-        cores: 4
-        ram: 4096
-        availability_zone: ZONE_1
-        state: update
+  name: Update servers
+ionoscloudsdk.ionoscloud.vcpu_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute 01'
+  - 'AnsibleAutoTestCompute 02'
+  cores: 2
+  ram: 2048
+  wait_timeout: '500'
+  state: update
 
 ```
 ### Available parameters for state **update**:

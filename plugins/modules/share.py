@@ -148,65 +148,65 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''# Create shares
-  - name: Create share
-    share:
-      group: Demo
-      edit_privilege: true
-      share_privilege: true
-      resource_ids:
-        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
-        - ba7efccb-a761-11e7-90a7-525400f64d8d
-      state: present
-  ''',
-    'update': '''# Update shares
-  - name: Update shares
-    share:
-      group: Demo
-      edit_privilege: false
-      resource_ids:
-        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
-      state: update
-  ''',
-    'absent': '''# Remove shares
-  - name: Remove shares
-    share:
-      group: Demo
-      resource_ids:
-        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
-        - ba7efccb-a761-11e7-90a7-525400f64d8d
-      state: absent
-  ''',
+    'present': '''name: Create share
+ionoscloudsdk.ionoscloud.share:
+  group: Demo
+  edit_privilege: true
+  share_privilege: true
+  resource_ids:
+  - ''
+  - ''
+  state: present
+register: share
+''',
+    'update': '''name: Update shares
+ionoscloudsdk.ionoscloud.share:
+  group: Demo
+  edit_privilege: false
+  share_privilege: true
+  resource_ids:
+  - ''
+  - ''
+  state: update
+''',
+    'absent': '''name: Remove shares
+ionoscloudsdk.ionoscloud.share:
+  group: Demo
+  resource_ids:
+  - ''
+  - ''
+  state: absent
+''',
 }
 
-EXAMPLES = """# Create shares
-  - name: Create share
-    share:
-      group: Demo
-      edit_privilege: true
-      share_privilege: true
-      resource_ids:
-        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
-        - ba7efccb-a761-11e7-90a7-525400f64d8d
-      state: present
-  
-# Update shares
-  - name: Update shares
-    share:
-      group: Demo
-      edit_privilege: false
-      resource_ids:
-        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
-      state: update
-  
-# Remove shares
-  - name: Remove shares
-    share:
-      group: Demo
-      resource_ids:
-        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
-        - ba7efccb-a761-11e7-90a7-525400f64d8d
-      state: absent
+EXAMPLES = """name: Create share
+ionoscloudsdk.ionoscloud.share:
+  group: Demo
+  edit_privilege: true
+  share_privilege: true
+  resource_ids:
+  - ''
+  - ''
+  state: present
+register: share
+
+name: Update shares
+ionoscloudsdk.ionoscloud.share:
+  group: Demo
+  edit_privilege: false
+  share_privilege: true
+  resource_ids:
+  - ''
+  - ''
+  state: update
+
+name: Remove shares
+ionoscloudsdk.ionoscloud.share:
+  group: Demo
+  resource_ids:
+  - ''
+  - ''
+  state: absent
 """
 
 

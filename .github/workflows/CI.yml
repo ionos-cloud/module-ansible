@@ -98,7 +98,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - namespace: application-loadbalancers
+          - namespace: applicationloadbalancer
             keywords: "application_load_balancer, target_group, application-load-balancer, target-group"
           - namespace: user-management
             keywords: "user, group, s3key, share"
@@ -116,7 +116,7 @@ jobs:
             keywords: "nat"
           - namespace: networkloadbalancer
             keywords: "network_load_balancer, network"
-          - namespace: certificate-manager
+          - namespace: certificate
             keywords: "certificate"
           - namespace: container-registry
             keywords: "registry"

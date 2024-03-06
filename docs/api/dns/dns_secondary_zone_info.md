@@ -6,10 +6,9 @@ This is a simple module that supports listing DNS Secondary Zones.
 
 
 ```yaml
-
-    - name: Get all DNS Secondary Zones
-      dns_zone_info:
-      register: dns_zone_list_response
+name: List Zones
+ionoscloudsdk.ionoscloud.dns_secondary_zone_info: null
+register: zones_response
 
 ```
 

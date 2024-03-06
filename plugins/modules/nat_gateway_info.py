@@ -94,11 +94,10 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """
-    - name: Get all NAT Gateways in a datacenter
-      nat_gateway_info:
-        datacenter: "AnsibleDatacenter"
-      register: nat_gateway_list_response
+EXAMPLES = """name: List NAT Gateways
+ionoscloudsdk.ionoscloud.nat_gateway_info:
+  datacenter: ''
+register: nat_gateway_list_response
 """
 
 

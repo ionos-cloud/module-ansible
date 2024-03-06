@@ -263,57 +263,67 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''# Create a group
-  - name: Create group
-    group:
-      name: guests
-      create_datacenter: true
-      create_snapshot: true
-      reserve_ip: false
-      access_activity_log: false
-      state: present
-  ''',
-  'update' : '''# Update a group
-  - name: Update group
-    group:
-      group: guests
-      create_datacenter: false
-      users:
-        - john.smith@test.com
-      state: update
-  ''',
-  'absent' : '''# Remove a group
-  - name: Remove group
-    group:
-      group: guests
-      state: absent
-  ''',
+  'present' : '''name: Create group
+ionoscloudsdk.ionoscloud.group:
+  name: 'AnsibleAutoTestUM'
+  create_datacenter: true
+  create_snapshot: true
+  reserve_ip: true
+  access_activity_log: true
+  create_pcc: true
+  s3_privilege: true
+  create_backup_unit: true
+  create_internet_access: true
+  create_k8s_cluster: true
+  create_flow_log: true
+  access_and_manage_monitoring: true
+  access_and_manage_certificates: true
+  manage_dbaas: true
+register: group_response
+''',
+  'update' : '''name: Add user1 to group
+ionoscloudsdk.ionoscloud.group:
+  group: 'AnsibleAutoTestUM'
+  users:
+  - ''
+  state: update
+''',
+  'absent' : '''name: Delete group
+ionoscloudsdk.ionoscloud.group:
+  group: 'AnsibleAutoTestUM'
+  state: absent
+''',
 }
 
-EXAMPLES = """# Create a group
-  - name: Create group
-    group:
-      name: guests
-      create_datacenter: true
-      create_snapshot: true
-      reserve_ip: false
-      access_activity_log: false
-      state: present
-  
-# Update a group
-  - name: Update group
-    group:
-      group: guests
-      create_datacenter: false
-      users:
-        - john.smith@test.com
-      state: update
-  
-# Remove a group
-  - name: Remove group
-    group:
-      group: guests
-      state: absent
+EXAMPLES = """name: Create group
+ionoscloudsdk.ionoscloud.group:
+  name: 'AnsibleAutoTestUM'
+  create_datacenter: true
+  create_snapshot: true
+  reserve_ip: true
+  access_activity_log: true
+  create_pcc: true
+  s3_privilege: true
+  create_backup_unit: true
+  create_internet_access: true
+  create_k8s_cluster: true
+  create_flow_log: true
+  access_and_manage_monitoring: true
+  access_and_manage_certificates: true
+  manage_dbaas: true
+register: group_response
+
+name: Add user1 to group
+ionoscloudsdk.ionoscloud.group:
+  group: 'AnsibleAutoTestUM'
+  users:
+  - ''
+  state: update
+
+name: Delete group
+ionoscloudsdk.ionoscloud.group:
+  group: 'AnsibleAutoTestUM'
+  state: absent
 """
 
 

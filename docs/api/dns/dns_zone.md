@@ -6,26 +6,27 @@ This is a module that supports creating, updating or destroying DNS Zones
 
 
 ```yaml
-- name: Create Zone
-    dns_zone:
-      name: example.com
-      description: zone_description
-      enabled: true
-    register: zone_response
-  
-- name: Update zone
-    dns_zone:
-      zone: example.com
-      description: zone_description_update
-      enabled: false
-      state: update
-    register: updated_zone_response
-  
-- name: Delete zone
-    dns_zone:
-      zone: example.com
-      wait: true
-      state: absent
+name: Create Zone
+ionoscloudsdk.ionoscloud.dns_zone:
+  name: 'test.example.test.ansible.com'
+  description: 'test_description'
+  enabled: 'False'
+register: zone_response
+
+name: Update Zone
+ionoscloudsdk.ionoscloud.dns_zone:
+  zone: ''
+  description: 'zone_description_updated'
+  enabled: 'True'
+  allow_replace: false
+  state: update
+register: updated_zone_response
+
+name: Delete Zone
+ionoscloudsdk.ionoscloud.dns_zone:
+  zone: ''
+  wait: true
+  state: absent
 
 ```
 
@@ -69,13 +70,13 @@ This is a module that supports creating, updating or destroying DNS Zones
 
 # state: **present**
 ```yaml
-  - name: Create Zone
-    dns_zone:
-      name: example.com
-      description: zone_description
-      enabled: true
-    register: zone_response
-  
+  name: Create Zone
+ionoscloudsdk.ionoscloud.dns_zone:
+  name: 'test.example.test.ansible.com'
+  description: 'test_description'
+  enabled: 'False'
+register: zone_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -152,12 +153,12 @@ This is a module that supports creating, updating or destroying DNS Zones
 &nbsp;
 # state: **absent**
 ```yaml
-  - name: Delete zone
-    dns_zone:
-      zone: example.com
-      wait: true
-      state: absent
-  
+  name: Delete Zone
+ionoscloudsdk.ionoscloud.dns_zone:
+  zone: ''
+  wait: true
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -224,14 +225,15 @@ This is a module that supports creating, updating or destroying DNS Zones
 &nbsp;
 # state: **update**
 ```yaml
-  - name: Update zone
-    dns_zone:
-      zone: example.com
-      description: zone_description_update
-      enabled: false
-      state: update
-    register: updated_zone_response
-  
+  name: Update Zone
+ionoscloudsdk.ionoscloud.dns_zone:
+  zone: ''
+  description: 'zone_description_updated'
+  enabled: 'True'
+  allow_replace: false
+  state: update
+register: updated_zone_response
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

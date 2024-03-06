@@ -93,11 +93,10 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """
-    - name: Get all Network Loadbalancers in a datacenter
-      network_load_balancer_info:
-        datacenter: "AnsibleDatacenter"
-      register: nlb_list_response
+EXAMPLES = """name: List Network Load Balancers
+ionoscloudsdk.ionoscloud.network_load_balancer_info:
+  datacenter: ''
+register: nlb_list_response
 """
 
 

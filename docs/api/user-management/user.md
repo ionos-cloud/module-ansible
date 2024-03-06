@@ -6,35 +6,27 @@ This module allows you to create, update or remove a user.
 
 
 ```yaml
-# Create a user
-  - name: Create user
-    user:
-      firstname: John
-      lastname: Doe
-      email: <email>
-      user_password: <password>
-      administrator: true
-      state: present
-  
-# Update a user
-  - name: Update user
-    user:
-      user: <email>
-      firstname: John II
-      lastname: Doe
-      email: <new_email>
-      administrator: false
-      force_sec_auth: false
-      groups:
-        - Developers
-        - Testers
-      state: update
-  
-# Remove a user
-  - name: Remove user
-    user:
-      user: <email>
-      state: absent
+name: Create user
+ionoscloudsdk.ionoscloud.user:
+  firstname: John
+  lastname: Doe
+  email: ''
+  administrator: false
+  user_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  force_sec_auth: false
+  state: present
+
+name: Add user to first group
+ionoscloudsdk.ionoscloud.user:
+  user: ''
+  groups:
+  - 'AnsibleAutoTestUM 1'
+  state: update
+
+name: Delete user
+ionoscloudsdk.ionoscloud.user:
+  user: ''
+  state: absent
 
 ```
 
@@ -78,16 +70,16 @@ This module allows you to create, update or remove a user.
 
 # state: **present**
 ```yaml
-  # Create a user
-  - name: Create user
-    user:
-      firstname: John
-      lastname: Doe
-      email: <email>
-      user_password: <password>
-      administrator: true
-      state: present
-  
+  name: Create user
+ionoscloudsdk.ionoscloud.user:
+  firstname: John
+  lastname: Doe
+  email: ''
+  administrator: false
+  user_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  force_sec_auth: false
+  state: present
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -189,12 +181,11 @@ This module allows you to create, update or remove a user.
 &nbsp;
 # state: **absent**
 ```yaml
-  # Remove a user
-  - name: Remove user
-    user:
-      user: <email>
-      state: absent
-  
+  name: Delete user
+ionoscloudsdk.ionoscloud.user:
+  user: ''
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -261,20 +252,13 @@ This module allows you to create, update or remove a user.
 &nbsp;
 # state: **update**
 ```yaml
-  # Update a user
-  - name: Update user
-    user:
-      user: <email>
-      firstname: John II
-      lastname: Doe
-      email: <new_email>
-      administrator: false
-      force_sec_auth: false
-      groups:
-        - Developers
-        - Testers
-      state: update
-  
+  name: Add user to first group
+ionoscloudsdk.ionoscloud.user:
+  user: ''
+  groups:
+  - 'AnsibleAutoTestUM 1'
+  state: update
+
 ```
 ### Available parameters for state **update**:
 &nbsp;
