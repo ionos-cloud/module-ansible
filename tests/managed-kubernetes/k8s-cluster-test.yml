@@ -43,13 +43,12 @@
         maintenance_window:
           day_of_the_week: "Wednesday"
           time: "12:02:00"
-        wait: true
-      register: cluster
+      register: cluster_response
 
     # - name: Print output to file
     #   ansible.builtin.copy:
-    #     content: "{{cluster}}"
-    #     dest: ../../../docs/returned_object_examples/k8s_cluster.json
+    #     content: "{{cluster_response}}"
+    #     dest: ../../docs/returned_object_examples/k8s_cluster.json
 
     - name: List Clusters
       ionoscloudsdk.ionoscloud.k8s_cluster_info:
@@ -58,7 +57,24 @@
     # - name: Print output to file
     #   ansible.builtin.copy:
     #     content: "{{k8s_cluster_list_response}}"
-    #     dest: ../../../docs/returned_object_examples/k8s_cluster_info.json
+    #     dest: ../../docs/returned_object_examples/k8s_cluster_info.json
+
+    - name: Get k8s config
+      ionoscloudsdk.ionoscloud.k8s_config:
+        k8s_cluster: "{{ cluster_response.cluster.id }}"
+        config_file: 'config.yaml'
+        state: present
+
+    - name: Update k8s cluster
+      ionoscloudsdk.ionoscloud.k8s_cluster:
+        cluster_name: "my_cluster"
+        k8s_cluster:  "{{ cluster_response.cluster.id }}"
+        maintenance_window:
+          day_of_the_week: "Wednesday"
+          time: "12:02:00"
+        state: update
+      register: cluster
+
 
     - name: Create k8s cluster nodepool
       ionoscloudsdk.ionoscloud.k8s_nodepool:
@@ -92,7 +108,7 @@
     # - name: Print output to file
     #   ansible.builtin.copy:
     #     content: "{{result}}"
-    #     dest: ../../../docs/returned_object_examples/k8s_nodepool.json
+    #     dest: ../../docs/returned_object_examples/k8s_nodepool.json
 
     - name: Debug - Show nodepool
       debug:
@@ -106,7 +122,7 @@
     # - name: Print output to file
     #   ansible.builtin.copy:
     #     content: "{{k8s_nodepool_list_response}}"
-    #     dest: ../../../docs/returned_object_examples/k8s_nodepool_info.json
+    #     dest: ../../docs/returned_object_examples/k8s_nodepool_info.json
 
     - name: Update k8s cluster nodepool no change
       ionoscloudsdk.ionoscloud.k8s_nodepool:
@@ -222,8 +238,19 @@
 
     - name: Delete k8s cluster
       ionoscloudsdk.ionoscloud.k8s_cluster:
-        k8s_cluster: "{{ cluster.cluster.id }}"
+        k8s_cluster: "{{ cluster_response.cluster.id }}"
+        state: absent
+        wait: false
+
+    - name: Delete k8s cluster
+      ionoscloudsdk.ionoscloud.k8s_cluster:
+        k8s_cluster: "{{ cluster_response.cluster.id }}"
+        state: absent
         wait: true
+
+    - name: Delete k8s cluster
+      ionoscloudsdk.ionoscloud.k8s_cluster:
+        k8s_cluster: "non-existent-cluster-id"
         state: absent
 
     - name: Remove ipblock for create nodepool
