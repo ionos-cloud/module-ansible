@@ -27,7 +27,6 @@ ionoscloudsdk.ionoscloud.s3key:
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -52,6 +51,7 @@ ionoscloudsdk.ionoscloud.s3key:
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/user-management).
 &nbsp;
 
 &nbsp;

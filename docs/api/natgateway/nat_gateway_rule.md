@@ -46,7 +46,6 @@ ionoscloudsdk.ionoscloud.nat_gateway_rule:
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -85,6 +84,7 @@ ionoscloudsdk.ionoscloud.nat_gateway_rule:
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/natgateway).
 &nbsp;
 
 &nbsp;

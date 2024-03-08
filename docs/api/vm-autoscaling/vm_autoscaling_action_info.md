@@ -43,6 +43,7 @@ register: vm_autoscaling_actions_response
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/vm-autoscaling).
 
 &nbsp;
 ### Available parameters:

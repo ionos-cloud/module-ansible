@@ -39,7 +39,6 @@ ionoscloudsdk.ionoscloud.group:
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -76,6 +75,7 @@ ionoscloudsdk.ionoscloud.group:
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/user-management).
 &nbsp;
 
 &nbsp;

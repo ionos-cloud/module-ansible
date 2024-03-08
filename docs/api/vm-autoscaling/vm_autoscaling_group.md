@@ -60,7 +60,6 @@ register: vm_autoscaling_group_response
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -179,6 +178,7 @@ register: vm_autoscaling_group_response
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/vm-autoscaling).
 &nbsp;
 
  **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!

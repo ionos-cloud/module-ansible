@@ -51,7 +51,6 @@ ionoscloudsdk.ionoscloud.target_group:
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -105,6 +104,7 @@ ionoscloudsdk.ionoscloud.target_group:
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/applicationloadbalancer).
 &nbsp;
 
 &nbsp;

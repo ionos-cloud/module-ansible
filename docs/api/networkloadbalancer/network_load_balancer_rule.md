@@ -49,7 +49,6 @@ ionoscloudsdk.ionoscloud.network_load_balancer_rule:
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -97,6 +96,7 @@ ionoscloudsdk.ionoscloud.network_load_balancer_rule:
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/networkloadbalancer).
 &nbsp;
 
 &nbsp;

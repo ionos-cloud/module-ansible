@@ -15,6 +15,7 @@ ionoscloudsdk.ionoscloud.registry_repository:
 ```
 
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/container-registry).
 &nbsp;
 
 &nbsp;

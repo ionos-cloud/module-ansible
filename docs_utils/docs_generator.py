@@ -49,6 +49,7 @@ def generate_doc_file(module, module_name, states_parameters, template_file):
                     'has_immutable_parameters': immutable_options is not None,
                     'immutable_parameters': immutable_options,
                     'return_example': return_example,
+                    'directory': module.DOC_DIRECTORY,
                 },
             ))
             print('Generated docs for <{}> in {}'.format(module_name, target_filename))

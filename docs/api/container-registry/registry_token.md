@@ -45,7 +45,6 @@ register: registry_token_response
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -90,6 +89,7 @@ register: registry_token_response
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/container-registry).
 &nbsp;
 
  **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
