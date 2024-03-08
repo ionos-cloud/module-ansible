@@ -68,10 +68,10 @@ def check_download_swagger(swagger):
     if os.path.isfile(filename):
         return
 
-    bashCommand = 'wget -q -O {destination_file} {url}'.format(
+    bash_command = 'wget -q -O {destination_file} {url}'.format(
         destination_file=filename, url=swagger['url'],
     )
-    process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+    process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE)
     _, error = process.communicate()
 
     if error:
@@ -79,13 +79,13 @@ def check_download_swagger(swagger):
 
 
 def extract_endpoint_info(filename, resource_endpoint, verb):
-    bashCommand = 'ruby {parser} {filename} {resource_endpoint} {verb}'.format(
+    bash_command = 'ruby {parser} {filename} {resource_endpoint} {verb}'.format(
         parser=SWAGGER_PARSER,
         filename=os.path.join(SWAGGER_CACHE, filename),
         resource_endpoint=resource_endpoint,
         verb=verb,
     )
-    process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+    process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE)
     output, error = process.communicate()
 
     if error:
@@ -99,7 +99,7 @@ def update_module(module_name, to_change):
         module_content = f.read()
 
     for old_line, new_line in to_change:
-        if type(old_line) == str:
+        if isinstance(old_line, str):
             module_content = module_content.replace(
                 old_line.replace('\n', ' ').replace('\'', '\\\'').strip(),
                 new_line.replace('\n', ' ').replace('\'', '\\\'').strip(),
