@@ -14,6 +14,15 @@
 * [Return values](usage/returnvalues.md)
 * [Testing](usage/testing.md)
 
+## Tutorials
+* [Tutorials introduction](tutorials/README.md)
+{{#generated_tutorials}}
+* [{{tutorial_name}}](tutorials/{{tutorial_name}}/README.md)
+{{#files}}
+    * [{{filename}}](tutorials/{{tutorial_name}}/.gitbook_files/{{filename}})
+{{/files}}
+{{/generated_tutorials}}
+
 ## API
 {{#generated}}
 * {{directory_name}}

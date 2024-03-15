@@ -1,0 +1,244 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars.yml
+    - vars.yml
+
+
+
+
+  tasks:
+    # =======================================================================
+    - name: Display EULA
+      ansible.builtin.pause:
+        prompt: "{{ IONOS_UNSUPPORTED_EULA }}"
+      register: INTERACTIVE_EULA_ACCEPTED
+      when: IONOS_UNSUPPORTED_EULA_ACCEPTED != "yes"
+
+
+    - name: Confirm acceptance of EULA
+      ansible.builtin.assert:
+        that:
+          - IONOS_UNSUPPORTED_EULA_ACCEPTED == "yes" or INTERACTIVE_EULA_ACCEPTED.user_input == "yes"  
+
+
+
+
+    # =======================================================================
+    - name: Create the datacenter '{{ datacenter_name }}' in {{ location }}
+      ionoscloudsdk.ionoscloud.datacenter:
+        name: "{{ datacenter_name }}"
+        location: "{{ location }}"
+        state: present
+      register: datacenter_response
+
+
+
+
+    # =======================================================================
+    # Provision the jumpbox, heavily borrowed from 3__jumpbox_with_internal_server
+    # - name: Retrieve Cube templates
+    #   ionoscloudsdk.ionoscloud.cube_template:
+    #     state: present
+    #   register: template_list
+
+
+    # - name: Retrieve Template ID for '{{ server_config['jumpbox'].cube_size }}'
+    #   set_fact:
+    #     desired_template_uuid: "{{ item.id }}"
+    #   when: item.properties.name == server_config['jumpbox'].cube_size
+    #   with_items:
+    #     - "{{ template_list.template['items'] }}"
+
+
+    # - name: Provision a minimal Cube Jumpbox
+    #   ionoscloudsdk.ionoscloud.cube_server:
+    #     datacenter: "{{ datacenter_name }}"
+    #     name: "{{ server_config['jumpbox'].name }}"
+    #     template_uuid: "{{ desired_template_uuid }}"
+    #     disk_type: DAS
+    #     image: "{{ image_alias }}"
+    #     image_password: "{{ default_password }}"
+    #     ssh_keys:
+    #       - "{{ ssh_public_key }}"
+    #     assign_public_ip: true
+    #     remove_boot_volume: true
+
+    #     state: present
+    #     wait: true
+    #     wait_timeout: "{{ wait_timeout }}"
+    #   register: create_cube_response
+
+
+    - name: Create a second, internal LAN within '{{ datacenter_name }}'
+      ionoscloudsdk.ionoscloud.lan:
+        datacenter: "{{ datacenter_name }}"
+        name: "{{ lan.name }}"
+        public: false
+      register: create_second_lan_response
+
+
+    # - name: Create a second NIC for the Jumpbox
+    #   ionoscloudsdk.ionoscloud.nic:
+    #     datacenter: "{{ datacenter_name }}"
+    #     name: "{{ server_config['jumpbox'].name }}.eth1"
+    #     server: "{{ server_config['jumpbox'].name }}"
+    #     lan: "{{ create_second_lan_response.lan.id }}"
+    #     ips:
+    #       - "{{ server_config['jumpbox'].ip }}"
+    #     dhcp: true
+
+    #     state: present
+    #     wait: true
+    #     wait_timeout: "{{ wait_timeout }}"
+
+
+
+
+    # =======================================================================
+    # Create (and, where necessary, transfer) the required temporary files
+    # - name: Create a temporary ssh-key-pair so we can connect to the 'internal server' via the jumpbox
+    #   ansible.builtin.shell:
+    #     cmd: ssh-keygen -t rsa -b 4096 -f temporary_id_rsa -N "" || true
+
+
+    # - name: Create a local ssh_config file
+    #   ansible.builtin.template:
+    #     src: templates/ssh_config.j2
+    #     dest: ssh_config
+
+
+    # - name: Delete any pre-existing ssh_known_hosts_tmp file
+    #   ansible.builtin.shell: rm -f ssh_known_hosts_tmp
+
+
+    # - name: Add an Ansible host entry for the jumpbox
+    #   ansible.builtin.add_host:
+    #     hostname: "jumpbox"
+    #     ansible_host: "{{ create_cube_response['machines'][0]['entities']['nics']['items'][0]['properties']['ips'][0] }}"
+    #     remote_user: root
+    #     group: vms-to-be-configured
+
+
+
+
+    # =======================================================================
+    # Create a Kubernetes cluster, see https://docs.ionos.com/ansible/api/managed-kubernetes/k8scluster
+    - name: Create a Kubernetes Cluster for this example
+      ionoscloudsdk.ionoscloud.k8s_cluster:
+        cluster_name: "{{ k8s_config.cluster_name }}"
+        state: present
+      register: create_k8s_cluster_response
+
+
+    - name: debug
+      ansible.builtin.debug:
+        var: create_k8s_cluster_response
+
+    - name: Get k8s config
+      ionoscloudsdk.ionoscloud.k8s_config:
+        k8s_cluster_id: "{{ create_k8s_cluster_response.cluster.id }}"
+        config_file: "kubeconfig.yaml"
+        state: present
+
+
+
+
+    # =======================================================================
+    - name: Get information about the LANs in '{{ datacenter_name }}'
+      ansible.builtin.uri:
+        url: "https://api.ionos.com/cloudapi/v6/datacenters/{{ datacenter_response.datacenter.id }}/?pretty=true&depth=2&offset=0&limit=1000"
+        method: GET
+        return_content: true
+        headers:
+          Authorization: "Bearer {{ lookup('ansible.builtin.env', 'IONOS_TOKEN', default='') }}"
+      no_log: true
+      register: api__get_dataceter_response
+
+
+    - name: Debug
+      ansible.builtin.debug:
+        var: api__get_dataceter_response.json.properties.cpuArchitecture[0].cpuFamily
+
+
+
+    # Create a Node Pool, see https://docs.ionos.com/ansible/api/managed-kubernetes/k8snodepool
+    # NOTE: the above refers to ..nodepools, plural, but it actually needs to be .nodepool, singular
+    - name: Create a Kubernetes Node Pool  --- this can take quite a while (typically between 3 and 6 minutes), so please don't interrupt this operation...
+      ionoscloudsdk.ionoscloud.k8s_nodepool:
+        nodepool_name: "Node Pool for {{ k8s_config.cluster_name }}"
+        k8s_cluster_id: "{{ create_k8s_cluster_response.cluster.id }}"
+        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        node_count: "{{ k8s_config.nodepool_config.node_count }}"
+        cores_count: "{{ k8s_config.nodepool_config.node_spec.cores }}"
+        #cpu_family: "{{ api__get_dataceter_response.json.properties.cpuArchitecture[0].cpuFamily }}"
+        ram_size: "{{ k8s_config.nodepool_config.node_spec.ram }}"
+        storage_type: "{{ k8s_config.nodepool_config.node_spec.storage_type }}"
+        storage_size: "{{ k8s_config.nodepool_config.node_spec.volume_size }}"
+
+        auto_scaling: "{{ k8s_nodepool_config.auto_scaling if k8s_nodepool_config.auto_scaling is defined else omit }}"
+
+        state: present
+        wait: true
+        wait_timeout: "{{ wait_timeout }}"
+      register: create_k8s_nodepools_response
+
+    - name: debug
+      ansible.builtin.debug:
+        var: create_k8s_nodepools_response
+
+
+
+
+
+# =======================================================================
+# And in our second play, go ahead and configure the jumpbox (which was
+# added, dynamically, to our inventory above using the add_host module)
+# - hosts: vms-to-be-configured
+#   gather_facts: false
+
+
+#   tasks:
+#     - name: Set ansible_ssh_common_args
+#       set_fact:
+#         ansible_ssh_common_args: "-F ssh_config"
+
+
+#     - name: Update repositories cache and upgrade the system
+#       ansible.builtin.apt:
+#         upgrade: dist
+#         update_cache: yes
+#         cache_valid_time: 3600
+
+
+#     - name: Install required packages
+#       ansible.builtin.package:
+#         name:
+#           - gnupg
+#           - postgresql-client-common
+#           - postgresql-client
+#         state: present
+
+
+#     - name: Add the MongoDB 6.0 signing key
+#       ansible.builtin.apt_key:
+#         url: https://www.mongodb.org/static/pgp/server-6.0.asc
+#         state: present
+
+
+#     - name: Add the MongoDB 6.0 Linux repository
+#       ansible.builtin.apt_repository:
+#         repo: deb [arch=amd64] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse
+#         filename: mongodb-org-6.0
+#         state: present
+
+
+#     - name: Install MongoSH
+#       ansible.builtin.apt:
+#         name:
+#           - mongodb-mongosh
+#         update_cache: yes
+#         state: present

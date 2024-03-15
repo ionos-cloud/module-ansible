@@ -3,12 +3,16 @@ import copy
 import importlib
 import os
 import yaml
+import shutil
 from pathlib import Path
 
 
 EXAMPLES_DIR = os.path.join('docs', 'returned_object_examples')
 TEMPLATES_DIR = os.path.join('docs', 'templates')
+TUTORIALS_DIR = os.path.join('docs', 'tutorials')
 MODULES_DIR = os.path.join('plugins', 'modules')
+
+TUTORIALS_SUBDIR = '.gitbook_files'
 
 DIRECTORY_TO_NAME = {
     'applicationloadbalancer': 'Application Load Balancer',
@@ -20,7 +24,7 @@ DIRECTORY_TO_NAME = {
     'dataplatform': 'Data Platform',
 }
 
-
+# Generate docs
 def generate_doc_file(module, module_name, states_parameters, template_file):
     with open(os.path.join(TEMPLATES_DIR, template_file), 'r') as template_file:
         target_directory = os.path.join('docs', os.path.join('api', module.DOC_DIRECTORY))
@@ -200,8 +204,9 @@ modules_to_generate = [
     'dns_secondary_zone',
     'dns_secondary_zone_info',
 ]
-
+modules_to_generate = []
 generated = {}
+generated_tutorials = {}
 
 for module_name in modules_to_generate:
     docs_dir, file_name, object_name = generate_module_docs(module_name)
@@ -231,11 +236,72 @@ for module_name in modules_to_generate:
                 'modules': [generated_module],
         }
 
+# Generate tutorials
+def adapt_file_for_gitbook(source_filename, target_filename):
+    try:
+        with open(source_filename, 'r') as f:
+            file_content = f.read()
+    except Exception as e:
+        print(source_filename)
+        raise e
+    _, extension = os.path.splitext(source_filename)
+    if extension == '.j2':
+        file_type = 'jinja2'
+    if extension == '.txt':
+        file_type = 'bash'
+    else:
+        file_type = extension[1:]
+
+    with open(os.path.join(TEMPLATES_DIR, 'tutorial_file.mustache'), 'r') as template_file:
+
+        with open(target_filename, 'w') as target_file:
+            target_file.write(chevron.render(
+                template_file,
+                {
+                    'tutorial_name': tutorial_name,
+                    'file_type': file_type,
+                    'file_content': file_content,
+                },
+            ))
+
+
+for tutorial_name in sorted(next(os.walk(TUTORIALS_DIR))[1]):
+    tutorial_dir = os.path.join(TUTORIALS_DIR, tutorial_name)
+    destination_dir = os.path.join(tutorial_dir, TUTORIALS_SUBDIR)
+
+    def get_add_dir_path_f(dir_path):
+        def add_dir_path(n):
+            return os.path.join(dir_path, n)
+        return add_dir_path
+
+    files = []
+    for directory, _, dir_files in os.walk(tutorial_dir):
+        if not directory.endswith(TUTORIALS_SUBDIR):
+            files.extend(list(map(get_add_dir_path_f(directory), dir_files)))
+    files = list(filter(lambda x : not x.endswith('README.md') and not x.endswith('.png'), files))
+
+    generated_tutorials[tutorial_name] = {
+        'files': [], 
+        'tutorial_name': tutorial_name,
+    }
+
+    if len(files) > 0:
+        shutil.rmtree(destination_dir, ignore_errors=True)
+        Path(destination_dir).mkdir(exist_ok=True)
+        for file in files:
+            head, tail = os.path.split(file)
+            target_file_name = head.replace(os.sep, '_') + '_' +  tail + '.md'
+            adapt_file_for_gitbook(file, os.path.join(destination_dir, target_file_name))
+            generated_tutorials[tutorial_name]['files'].append({'filename': target_file_name})
+
+
+print(list(generated_tutorials.values()))
 with open(os.path.join('docs', 'summary.md'), 'w') as target_file:
     with open(os.path.join(TEMPLATES_DIR, 'summary.mustache'), 'r') as template_file:
         target_file.write(chevron.render(
             template_file,
             {
                 'generated': list(generated.values()),
+                'generated_tutorials': list(generated_tutorials.values()),
             },
         ))

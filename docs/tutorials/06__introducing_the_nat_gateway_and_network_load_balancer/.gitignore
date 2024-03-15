@@ -1,0 +1,5 @@
+ssh_config
+ssh_known_hosts_tmp
+inventory.yml
+temporary_id_rsa*
+cloud-init--app-servers.txt
