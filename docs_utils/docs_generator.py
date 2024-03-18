@@ -283,6 +283,7 @@ for tutorial_name in sorted(next(os.walk(TUTORIALS_DIR))[1]):
     generated_tutorials[tutorial_name] = {
         'files': [], 
         'tutorial_name': tutorial_name,
+        'tutorial_nice_name': tutorial_name[4:].replace('_', ' ').capitalize(),
     }
 
     if len(files) > 0:
