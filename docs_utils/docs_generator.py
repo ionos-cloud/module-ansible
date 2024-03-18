@@ -290,12 +290,15 @@ for tutorial_name in sorted(next(os.walk(TUTORIALS_DIR))[1]):
         Path(destination_dir).mkdir(exist_ok=True)
         for file in files:
             head, tail = os.path.split(file)
-            target_file_name = head.replace(os.sep, '_') + '_' +  tail + '.md'
+            head = head.replace(tutorial_dir, '') 
+            head = head[1:] if head.startswith(os.sep) else head
+            head = head + os.sep if head else head
+
+            target_file_name = head.replace(os.sep, '_') + tail + '.md'
             adapt_file_for_gitbook(file, os.path.join(destination_dir, target_file_name))
             generated_tutorials[tutorial_name]['files'].append({'filename': target_file_name})
 
-
-print(list(generated_tutorials.values()))
+# Generate summary
 with open(os.path.join('docs', 'summary.md'), 'w') as target_file:
     with open(os.path.join(TEMPLATES_DIR, 'summary.mustache'), 'r') as template_file:
         target_file.write(chevron.render(
