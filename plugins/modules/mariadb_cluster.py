@@ -103,16 +103,8 @@ OPTIONS = {
 }
 
 IMMUTABLE_OPTIONS = [
-    { "name": "maintenance_window", "note": "" },
     { "name": "mariadb_version", "note": "" },
-    { "name": "instances", "note": "" },
-    { "name": "cores", "note": "" },
-    { "name": "ram", "note": "" },
-    { "name": "storage_size", "note": "" },
     { "name": "connections", "note": "" },
-    { "name": "display_name", "note": "" },
-    { "name": "db_username", "note": "" },
-    { "name": "db_password", "note": "" },
 ]
 
 DOCUMENTATION = """
@@ -352,25 +344,27 @@ class MariaDBClusterModule(CommonIonosModule):
                 or existing_object.properties.connections[0].lan_id != lan_id
                 or existing_object.properties.connections[0].cidr != cidr
             )
-            or self.module.params.get('display_name') is not None
+            or self.module.params.get('mariadb_version') is not None
+            and existing_object.properties.mariadb_version != self.module.params.get('mariadb_version')
+        )
+
+    def _should_update_object(self, existing_object, clients):
+        return (
+            self.module.params.get('display_name') is not None
             and existing_object.properties.display_name != self.module.params.get('display_name')
                     or self.module.params.get('maintenance_window') is not None
             and (
                 existing_object.properties.maintenance_window.day_of_the_week != self.module.params.get('maintenance_window').get('day_of_the_week')
                 or existing_object.properties.maintenance_window.time != self.module.params.get('maintenance_window').get('time')
-            ) or self.module.params.get('mariadb_version') is not None
-            and existing_object.properties.mariadb_version != self.module.params.get('mariadb_version')
-            or self.module.params.get('instances') is not None
+            ) or self.module.params.get('instances') is not None
             and existing_object.properties.instances != self.module.params.get('instances')
+            or self.module.params.get('storage_size') is not None
+            and existing_object.properties.storage_size != self.module.params.get('storage_size')
             or self.module.params.get('cores') is not None
             and existing_object.properties.cores != self.module.params.get('cores')
             or self.module.params.get('ram') is not None
             and existing_object.properties.ram != self.module.params.get('ram')
         )
-
-
-    def _should_update_object(self, existing_object, clients):
-        return False
 
     def _get_object_list(self, clients):
         return ionoscloud_dbaas_mariadb.ClustersApi(clients[0]).clusters_get()
@@ -443,7 +437,48 @@ class MariaDBClusterModule(CommonIonosModule):
 
 
     def _update_object(self, existing_object, clients):
-        pass
+        dbaas_client = clients[0]
+        clusters_api = ionoscloud_dbaas_mariadb.ClustersApi(dbaas_client)
+        dbaas_client.wait_for(
+            fn_request=lambda: clusters_api.clusters_find_by_id(existing_object.id),
+            fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
+            scaleup=10000,
+        )
+        maintenance_window = self.module.params.get('maintenance_window')
+        if maintenance_window:
+            maintenance_window = dict(self.module.params.get('maintenance_window'))
+            maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
+
+        clusters_api = ionoscloud_dbaas_mariadb.ClustersApi(dbaas_client)
+
+        mariadb_cluster_properties = ionoscloud_dbaas_mariadb.PatchClusterProperties(
+            instances=self.module.params.get('instances'),
+            cores=self.module.params.get('cores'),
+            ram=self.module.params.get('ram'),
+            storage_size=self.module.params.get('storage_size'),
+            display_name=self.module.params.get('display_name'),
+            maintenance_window=maintenance_window,
+        )
+
+        mariadb_cluster = ionoscloud_dbaas_mariadb.PatchClusterRequest(properties=mariadb_cluster_properties)
+
+        try:
+            mariadb_cluster = clusters_api.clusters_patch(
+                cluster_id=existing_object.id,
+                patch_cluster_request=mariadb_cluster,
+            )
+
+            if self.module.params.get('wait'):
+                dbaas_client.wait_for(
+                    fn_request=lambda: clusters_api.clusters_find_by_id(mariadb_cluster.id),
+                    fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
+                    scaleup=10000,
+                    timeout=self.module.params.get('wait_timeout'),
+                )
+
+        except Exception as e:
+            self.module.fail_json(msg="failed to update the MariaDB Cluster: %s" % to_native(e))
+        return mariadb_cluster
 
 
     def _remove_object(self, existing_object, clients):
