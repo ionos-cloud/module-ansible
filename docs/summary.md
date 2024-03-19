@@ -24,7 +24,6 @@
 * [Jumpbox with internal server](tutorials/03__jumpbox_with_internal_server/README.md)
     * [main.yml.md](tutorials/03__jumpbox_with_internal_server/.gitbook_files/main.yml.md)
     * [cloud-init.txt.md](tutorials/03__jumpbox_with_internal_server/.gitbook_files/cloud-init.txt.md)
-    * [.gitignore.md](tutorials/03__jumpbox_with_internal_server/.gitbook_files/.gitignore.md)
     * [configure-internal-server.yml.md](tutorials/03__jumpbox_with_internal_server/.gitbook_files/configure-internal-server.yml.md)
     * [templates_ssh_config.j2.md](tutorials/03__jumpbox_with_internal_server/.gitbook_files/templates_ssh_config.j2.md)
 * [Working with existing resources](tutorials/04__working_with_existing_resources/README.md)
@@ -52,7 +51,6 @@
     * [roles_common_base-server_meta_main.yml.md](tutorials/05__introducing_roles/.gitbook_files/roles_common_base-server_meta_main.yml.md)
     * [templates_ssh_config.j2.md](tutorials/05__introducing_roles/.gitbook_files/templates_ssh_config.j2.md)
 * [Introducing the nat gateway and network load balancer](tutorials/06__introducing_the_nat_gateway_and_network_load_balancer/README.md)
-    * [.gitignore.md](tutorials/06__introducing_the_nat_gateway_and_network_load_balancer/.gitbook_files/.gitignore.md)
     * [nginx-config.patch.md](tutorials/06__introducing_the_nat_gateway_and_network_load_balancer/.gitbook_files/nginx-config.patch.md)
     * [01__create_jumpbox_and_nat_gw.yml.md](tutorials/06__introducing_the_nat_gateway_and_network_load_balancer/.gitbook_files/01__create_jumpbox_and_nat_gw.yml.md)
     * [04__clean_up.yml.md](tutorials/06__introducing_the_nat_gateway_and_network_load_balancer/.gitbook_files/04__clean_up.yml.md)
@@ -64,7 +62,6 @@
     * [templates_ssh_config.j2.md](tutorials/06__introducing_the_nat_gateway_and_network_load_balancer/.gitbook_files/templates_ssh_config.j2.md)
     * [templates_inventory.j2.md](tutorials/06__introducing_the_nat_gateway_and_network_load_balancer/.gitbook_files/templates_inventory.j2.md)
 * [Introducing the application load balancer](tutorials/07__introducing_the_application_load_balancer/README.md)
-    * [.gitignore.md](tutorials/07__introducing_the_application_load_balancer/.gitbook_files/.gitignore.md)
     * [01__create_jumpbox_and_nat_gw.yml.md](tutorials/07__introducing_the_application_load_balancer/.gitbook_files/01__create_jumpbox_and_nat_gw.yml.md)
     * [04__clean_up.yml.md](tutorials/07__introducing_the_application_load_balancer/.gitbook_files/04__clean_up.yml.md)
     * [vars.yml.md](tutorials/07__introducing_the_application_load_balancer/.gitbook_files/vars.yml.md)
@@ -81,7 +78,5 @@
     * [vars.yml.md](tutorials/09__a_quick_introduction_to_dbaas/.gitbook_files/vars.yml.md)
     * [02a__create_postgres_cluster.yml.md](tutorials/09__a_quick_introduction_to_dbaas/.gitbook_files/02a__create_postgres_cluster.yml.md)
     * [templates_ssh_config.j2.md](tutorials/09__a_quick_introduction_to_dbaas/.gitbook_files/templates_ssh_config.j2.md)
-* [Bringing it all together](tutorials/10__bringing_it_all_together/README.md)
-* [Wrap up and whats next](tutorials/11__wrap_up_and_whats_next/README.md)
 
 ## API
