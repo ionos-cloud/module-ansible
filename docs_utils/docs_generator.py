@@ -237,6 +237,14 @@ for module_name in modules_to_generate:
         }
 
 # Generate tutorials
+
+TUTORIAL_NAMES = {
+    '02__server_with_multiple_nics_and_storage_volumes': 'Server with multiple NICs and storage volumes',
+    '06__introducing_the_nat_gateway_and_network_load_balancer': 'Introducing the NAT Gateway and Network Load Balancer',
+    '07__introducing_the_application_load_balancer': 'Introducing the Application Load Balancer',
+    '09__a_quick_introduction_to_dbaas': 'A quick introduction to DBaaS',
+}
+
 def adapt_file_for_gitbook(source_filename, target_filename):
     try:
         with open(source_filename, 'r') as f:
@@ -283,7 +291,7 @@ for tutorial_name in sorted(next(os.walk(TUTORIALS_DIR))[1]):
     generated_tutorials[tutorial_name] = {
         'files': [], 
         'tutorial_name': tutorial_name,
-        'tutorial_nice_name': tutorial_name[4:].replace('_', ' ').capitalize(),
+        'tutorial_nice_name': TUTORIAL_NAMES.get(tutorial_name, tutorial_name[4:].replace('_', ' ').capitalize()),
     }
 
     if len(files) > 0:
@@ -298,6 +306,9 @@ for tutorial_name in sorted(next(os.walk(TUTORIALS_DIR))[1]):
             target_file_name = head.replace(os.sep, '_') + tail + '.md'
             adapt_file_for_gitbook(file, os.path.join(destination_dir, target_file_name))
             generated_tutorials[tutorial_name]['files'].append({'filename': target_file_name})
+        generated_tutorials[tutorial_name]['files'].sort(
+            key=lambda x: x['filename'],
+        )
 
 # Generate summary
 with open(os.path.join('docs', 'summary.md'), 'w') as target_file:
