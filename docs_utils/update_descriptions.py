@@ -10,7 +10,7 @@ MODULES_DIR = os.path.join('plugins', 'modules')
 SWAGGER_CACHE = os.path.join('update_description_utils', 'swaggers')
 SWAGGER_PARSER = os.path.join('update_description_utils', 'parse_swagger.rb')
 CLOUDAPI_SWAGGER = {
-    'url': 'https://ionos-cloud.github.io/rest-api/docs/public-cloud-v6.ga.json',
+    'url': 'https://ionos-cloud.github.io/rest-api/docs/public-cloud-v6.ga.yaml',
     'filename': 'cloudapi_swagger.json',
 }
 POSTGRES_SWAGGER = {

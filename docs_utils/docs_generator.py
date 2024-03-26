@@ -204,7 +204,6 @@ modules_to_generate = [
     'dns_secondary_zone',
     'dns_secondary_zone_info',
 ]
-modules_to_generate = []
 generated = {}
 generated_tutorials = {}
 
