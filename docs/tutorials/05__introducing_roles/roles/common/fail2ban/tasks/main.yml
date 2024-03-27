@@ -1,0 +1,12 @@
+---
+# ==============================================================================
+- name: About to execute tasks file for role 'fail2ban'
+  ansible.builtin.meta: noop
+
+
+
+- name: Install fail2ban
+  ansible.builtin.package:
+    name:
+      - fail2ban
+    state: present

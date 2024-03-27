@@ -1,0 +1,20 @@
+galaxy_info:
+  author: Peter Metz <peter.metz@ionos.com>
+  description: Install fail2ban
+  company: IONOS Cloud
+
+  min_ansible_version: 2.1
+
+  platforms:
+  - name: Debian
+    versions:
+      - all
+  - name: Ubuntu
+    versions:
+      - focal
+      - jammy
+
+  galaxy_tags: []
+
+
+dependencies: []

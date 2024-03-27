@@ -1,0 +1,12 @@
+Host *
+User root
+StrictHostKeyChecking accept-new
+UserKnownHostsFile ssh_known_hosts_tmp
+
+Host jumpbox
+Hostname {{ create_cube_response['machines'][0]['entities']['nics']['items'][0]['properties']['ips'][0] }}
+
+Host internal
+Hostname {{ create_server_response['machines'][0]['entities']['nics']['items'][0]['properties']['ips'][0] }}
+ProxyJump jumpbox
+IdentityFile temporary_id_rsa

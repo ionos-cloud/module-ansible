@@ -1,0 +1,15 @@
+---
+gateways:
+  hosts:
+    {{ server_config['jumpbox'].name }}:
+
+
+app-servers:
+  hosts:
+{% for server in server_config['app_server'] %}
+    {{ server.name }}:
+{% endfor %}
+
+all:
+  vars:
+    ansible_ssh_common_args: "-F ssh_config"
