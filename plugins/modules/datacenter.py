@@ -172,7 +172,8 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create datacenter
+  'present' : '''
+name: Create datacenter
 ionoscloudsdk.ionoscloud.datacenter:
   name: 'AnsibleAutoTestCompute'
   description: 'Ansible Compute test description'
@@ -180,7 +181,8 @@ ionoscloudsdk.ionoscloud.datacenter:
   wait: true
 register: datacenter_response
 ''',
-  'update' : '''name: Update datacenter no change 1
+  'update' : '''
+name: Update datacenter no change 1
 ionoscloudsdk.ionoscloud.datacenter:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute'
@@ -189,7 +191,8 @@ ionoscloudsdk.ionoscloud.datacenter:
   allow_replace: false
 register: datacenter_response_no_change2
 ''',
-  'absent' : '''name: Remove datacenter
+  'absent' : '''
+name: Remove datacenter
 ionoscloudsdk.ionoscloud.datacenter:
   datacenter: ''
   name: 'AnsibleAutoTestCompute'
@@ -199,13 +202,15 @@ register: deleted_datacenter
 ''',
 }
 
-EXAMPLES = '''name: Create datacenter
+EXAMPLES = '''
+name: Create datacenter
 ionoscloudsdk.ionoscloud.datacenter:
   name: 'AnsibleAutoTestCompute'
   description: 'Ansible Compute test description'
   location: 'gb/lhr'
   wait: true
 register: datacenter_response
+
 
 name: Update datacenter no change 1
 ionoscloudsdk.ionoscloud.datacenter:
@@ -215,6 +220,7 @@ ionoscloudsdk.ionoscloud.datacenter:
   state: update
   allow_replace: false
 register: datacenter_response_no_change2
+
 
 name: Remove datacenter
 ionoscloudsdk.ionoscloud.datacenter:

@@ -184,7 +184,8 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create Application Load Balancer Flowlog
+  'present' : '''
+name: Create Application Load Balancer Flowlog
 ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
   name: 'AnsibleAutoTestALB'
   action: ACCEPTED
@@ -196,7 +197,8 @@ ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
   wait_timeout: 2000
 register: alb_flowlog_response
 ''',
-  'update' : '''name: Update Application Load Balancer Flowlog
+  'update' : '''
+name: Update Application Load Balancer Flowlog
 ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
   datacenter: ''
   application_load_balancer: ''
@@ -209,7 +211,8 @@ ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
   state: update
 register: alb_flowlog_update_response
 ''',
-  'absent' : '''name: Delete Application Load Balancer Flowlog
+  'absent' : '''
+name: Delete Application Load Balancer Flowlog
 ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
   datacenter: ''
   application_load_balancer: ''
@@ -218,7 +221,8 @@ ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
 ''',
 }
 
-EXAMPLES = """name: Create Application Load Balancer Flowlog
+EXAMPLES = """
+name: Create Application Load Balancer Flowlog
 ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
   name: 'AnsibleAutoTestALB'
   action: ACCEPTED
@@ -229,6 +233,7 @@ ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
   wait: true
   wait_timeout: 2000
 register: alb_flowlog_response
+
 
 name: Update Application Load Balancer Flowlog
 ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
@@ -242,6 +247,7 @@ ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
   wait: true
   state: update
 register: alb_flowlog_update_response
+
 
 name: Delete Application Load Balancer Flowlog
 ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:

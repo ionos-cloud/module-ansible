@@ -6,6 +6,7 @@ This is a simple module that supports listing group.
 
 
 ```yaml
+
 name: List Groups
 ionoscloudsdk.ionoscloud.group_info: null
 register: group_list_response

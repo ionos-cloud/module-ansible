@@ -6,6 +6,7 @@ This is a module that supports creating, updating or destroying Pipelines
 
 
 ```yaml
+
 name: Create Pipeline
 ionoscloudsdk.ionoscloud.pipeline:
   name: 'ansiblepipelinetest'
@@ -13,6 +14,7 @@ ionoscloudsdk.ionoscloud.pipeline:
   wait: true
   wait_timeout: 1200
 register: pipeline_response
+
 
 name: Update pipeline
 ionoscloudsdk.ionoscloud.pipeline:
@@ -22,11 +24,13 @@ ionoscloudsdk.ionoscloud.pipeline:
   state: update
 register: updated_pipeline_response
 
+
 name: Delete pipeline
 ionoscloudsdk.ionoscloud.pipeline:
   pipeline: ''
   wait: true
   state: absent
+
 
 name: Renew Pipeline key
 ionoscloudsdk.ionoscloud.pipeline:
@@ -107,7 +111,8 @@ ionoscloudsdk.ionoscloud.pipeline:
 
 # state: **present**
 ```yaml
-  name: Create Pipeline
+  
+name: Create Pipeline
 ionoscloudsdk.ionoscloud.pipeline:
   name: 'ansiblepipelinetest'
   logs: '[{'source': 'kubernetes', 'tag': 'tag', 'protocol': 'http', 'destinations': [{'type': 'loki', 'retention_in_days': 7}]}]'
@@ -186,7 +191,8 @@ register: pipeline_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete pipeline
+  
+name: Delete pipeline
 ionoscloudsdk.ionoscloud.pipeline:
   pipeline: ''
   wait: true
@@ -258,7 +264,8 @@ ionoscloudsdk.ionoscloud.pipeline:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update pipeline
+  
+name: Update pipeline
 ionoscloudsdk.ionoscloud.pipeline:
   pipeline: ''
   name: 'ansiblepipeNEW'
@@ -342,7 +349,8 @@ register: updated_pipeline_response
 &nbsp;
 # state: **renew**
 ```yaml
-  name: Renew Pipeline key
+  
+name: Renew Pipeline key
 ionoscloudsdk.ionoscloud.pipeline:
   pipeline: ''
   state: renew

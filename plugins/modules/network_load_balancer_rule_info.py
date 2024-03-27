@@ -103,7 +103,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Network Load Balancer Forwarding rules
+EXAMPLES = """
+name: List Network Load Balancer Forwarding rules
 ionoscloudsdk.ionoscloud.network_load_balancer_rule_info:
   datacenter: ''
   network_load_balancer: ''

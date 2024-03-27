@@ -136,7 +136,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create Pipeline
+    'present': '''
+name: Create Pipeline
 ionoscloudsdk.ionoscloud.pipeline:
   name: 'ansiblepipelinetest'
   logs: '[{'source': 'kubernetes', 'tag': 'tag', 'protocol': 'http', 'destinations': [{'type': 'loki', 'retention_in_days': 7}]}]'
@@ -144,7 +145,8 @@ ionoscloudsdk.ionoscloud.pipeline:
   wait_timeout: 1200
 register: pipeline_response
 ''',
-    'update': '''name: Update pipeline
+    'update': '''
+name: Update pipeline
 ionoscloudsdk.ionoscloud.pipeline:
   pipeline: ''
   name: 'ansiblepipeNEW'
@@ -152,26 +154,30 @@ ionoscloudsdk.ionoscloud.pipeline:
   state: update
 register: updated_pipeline_response
 ''',
-    'absent': '''name: Delete pipeline
+    'absent': '''
+name: Delete pipeline
 ionoscloudsdk.ionoscloud.pipeline:
   pipeline: ''
   wait: true
   state: absent
 ''',
-    'renew': '''name: Renew Pipeline key
+    'renew': '''
+name: Renew Pipeline key
 ionoscloudsdk.ionoscloud.pipeline:
   pipeline: ''
   state: renew
 ''',
 }
 
-EXAMPLES = """name: Create Pipeline
+EXAMPLES = """
+name: Create Pipeline
 ionoscloudsdk.ionoscloud.pipeline:
   name: 'ansiblepipelinetest'
   logs: '[{'source': 'kubernetes', 'tag': 'tag', 'protocol': 'http', 'destinations': [{'type': 'loki', 'retention_in_days': 7}]}]'
   wait: true
   wait_timeout: 1200
 register: pipeline_response
+
 
 name: Update pipeline
 ionoscloudsdk.ionoscloud.pipeline:
@@ -181,11 +187,13 @@ ionoscloudsdk.ionoscloud.pipeline:
   state: update
 register: updated_pipeline_response
 
+
 name: Delete pipeline
 ionoscloudsdk.ionoscloud.pipeline:
   pipeline: ''
   wait: true
   state: absent
+
 
 name: Renew Pipeline key
 ionoscloudsdk.ionoscloud.pipeline:

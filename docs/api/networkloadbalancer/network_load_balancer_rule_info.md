@@ -6,6 +6,7 @@ This is a simple module that supports listing Network Loadbalancer forwarding ru
 
 
 ```yaml
+
 name: List Network Load Balancer Forwarding rules
 ionoscloudsdk.ionoscloud.network_load_balancer_rule_info:
   datacenter: ''

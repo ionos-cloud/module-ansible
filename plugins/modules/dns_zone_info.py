@@ -86,7 +86,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Zones
+EXAMPLES = """
+name: List Zones
 ionoscloudsdk.ionoscloud.dns_zone_info: null
 register: zones_response
 """

@@ -6,6 +6,7 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
 
 
 ```yaml
+
 name: Create NAT Gateway Flowlog
 ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
   name: 'AnsibleAutoTestNAT'
@@ -16,6 +17,7 @@ ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
   nat_gateway: ''
   wait: true
 register: nat_gateway_flowlog_response
+
 
 name: Update NAT Gateway Flowlog
 ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
@@ -29,6 +31,7 @@ ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
   wait: true
   state: update
 register: nat_gateway_flowlog_update_response
+
 
 name: Delete NAT Gateway Flowlog
 ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
@@ -79,7 +82,8 @@ ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
 
 # state: **present**
 ```yaml
-  name: Create NAT Gateway Flowlog
+  
+name: Create NAT Gateway Flowlog
 ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
   name: 'AnsibleAutoTestNAT'
   action: ACCEPTED
@@ -181,7 +185,8 @@ register: nat_gateway_flowlog_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete NAT Gateway Flowlog
+  
+name: Delete NAT Gateway Flowlog
 ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
   datacenter: ''
   nat_gateway: ''
@@ -269,7 +274,8 @@ ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update NAT Gateway Flowlog
+  
+name: Update NAT Gateway Flowlog
 ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
   datacenter: ''
   nat_gateway: ''

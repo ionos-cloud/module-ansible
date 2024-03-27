@@ -6,6 +6,7 @@ This module allows you to create or remove a LAN.
 
 
 ```yaml
+
 name: Create LAN
 ionoscloudsdk.ionoscloud.lan:
   datacenter: 'AnsibleAutoTestCompute'
@@ -13,12 +14,14 @@ ionoscloudsdk.ionoscloud.lan:
   public: false
 register: ionos_cloud_lan
 
+
 name: Update LAN
 ionoscloudsdk.ionoscloud.lan:
   datacenter: 'AnsibleAutoTestCompute'
   lan: 'AnsibleAutoTestCompute'
   pcc: ''
   state: update
+
 
 name: Remove LAN
 ionoscloudsdk.ionoscloud.lan:
@@ -70,7 +73,8 @@ ionoscloudsdk.ionoscloud.lan:
 
 # state: **present**
 ```yaml
-  name: Create LAN
+  
+name: Create LAN
 ionoscloudsdk.ionoscloud.lan:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute'
@@ -163,7 +167,8 @@ register: ionos_cloud_lan
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Remove LAN
+  
+name: Remove LAN
 ionoscloudsdk.ionoscloud.lan:
   datacenter: 'AnsibleAutoTestCompute'
   lan: 'AnsibleAutoTestCompute'
@@ -241,7 +246,8 @@ ionoscloudsdk.ionoscloud.lan:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update LAN
+  
+name: Update LAN
 ionoscloudsdk.ionoscloud.lan:
   datacenter: 'AnsibleAutoTestCompute'
   lan: 'AnsibleAutoTestCompute'

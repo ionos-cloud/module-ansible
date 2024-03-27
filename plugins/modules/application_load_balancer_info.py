@@ -95,7 +95,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Application Load Balancers
+EXAMPLES = """
+name: List Application Load Balancers
 ionoscloudsdk.ionoscloud.application_load_balancer_info:
   datacenter: ''
 register: alb_list_response

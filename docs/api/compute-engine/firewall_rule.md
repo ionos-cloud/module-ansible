@@ -6,6 +6,7 @@ This module allows you to create, update or remove a firewall rule.
 
 
 ```yaml
+
 name: Create a firewall rule
 ionoscloudsdk.ionoscloud.firewall_rule:
   datacenter: 'AnsibleAutoTestCompute'
@@ -17,6 +18,7 @@ ionoscloudsdk.ionoscloud.firewall_rule:
   ip_version: IPv6
   state: present
 
+
 name: Update firewall rule
 ionoscloudsdk.ionoscloud.firewall_rule:
   datacenter: 'AnsibleAutoTestCompute'
@@ -26,6 +28,7 @@ ionoscloudsdk.ionoscloud.firewall_rule:
   port_range_start: 22
   port_range_end: 23
   state: update
+
 
 name: Remove firewall rule
 ionoscloudsdk.ionoscloud.firewall_rule:
@@ -86,7 +89,8 @@ ionoscloudsdk.ionoscloud.firewall_rule:
 
 # state: **present**
 ```yaml
-  name: Create a firewall rule
+  
+name: Create a firewall rule
 ionoscloudsdk.ionoscloud.firewall_rule:
   datacenter: 'AnsibleAutoTestCompute'
   server: 'AnsibleAutoTestCompute'
@@ -223,7 +227,8 @@ ionoscloudsdk.ionoscloud.firewall_rule:
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Remove firewall rule
+  
+name: Remove firewall rule
 ionoscloudsdk.ionoscloud.firewall_rule:
   datacenter: 'AnsibleAutoTestCompute'
   server: 'AnsibleAutoTestCompute'
@@ -314,7 +319,8 @@ ionoscloudsdk.ionoscloud.firewall_rule:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update firewall rule
+  
+name: Update firewall rule
 ionoscloudsdk.ionoscloud.firewall_rule:
   datacenter: 'AnsibleAutoTestCompute'
   server: 'AnsibleAutoTestCompute'

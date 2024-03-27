@@ -184,7 +184,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create Network Load Balancer
+  'present' : '''
+name: Create Network Load Balancer
 ionoscloudsdk.ionoscloud.network_load_balancer:
   datacenter: ''
   name: 'AnsibleAutoTestNLB'
@@ -196,7 +197,8 @@ ionoscloudsdk.ionoscloud.network_load_balancer:
   wait_timeout: 2000
 register: nlb_response
 ''',
-  'update' : '''name: Update Network Load Balancer
+  'update' : '''
+name: Update Network Load Balancer
 ionoscloudsdk.ionoscloud.network_load_balancer:
   datacenter: ''
   network_load_balancer: ''
@@ -208,7 +210,8 @@ ionoscloudsdk.ionoscloud.network_load_balancer:
   state: update
 register: nlb_response_update
 ''',
-  'absent' : '''name: Remove Network Load Balancer
+  'absent' : '''
+name: Remove Network Load Balancer
 ionoscloudsdk.ionoscloud.network_load_balancer:
   network_load_balancer: ''
   datacenter: ''
@@ -218,7 +221,8 @@ ionoscloudsdk.ionoscloud.network_load_balancer:
 ''',
 }
 
-EXAMPLES = """name: Create Network Load Balancer
+EXAMPLES = """
+name: Create Network Load Balancer
 ionoscloudsdk.ionoscloud.network_load_balancer:
   datacenter: ''
   name: 'AnsibleAutoTestNLB'
@@ -229,6 +233,7 @@ ionoscloudsdk.ionoscloud.network_load_balancer:
   wait: true
   wait_timeout: 2000
 register: nlb_response
+
 
 name: Update Network Load Balancer
 ionoscloudsdk.ionoscloud.network_load_balancer:
@@ -241,6 +246,7 @@ ionoscloudsdk.ionoscloud.network_load_balancer:
   wait_timeout: 2000
   state: update
 register: nlb_response_update
+
 
 name: Remove Network Load Balancer
 ionoscloudsdk.ionoscloud.network_load_balancer:

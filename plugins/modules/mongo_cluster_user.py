@@ -152,7 +152,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create Cluster User
+    'present': '''
+name: Create Cluster User
 ionoscloudsdk.ionoscloud.mongo_cluster_user:
   mongo_cluster: ''
   mongo_username: testuser
@@ -162,7 +163,8 @@ ionoscloudsdk.ionoscloud.mongo_cluster_user:
     database: test
 register: mongo_user_response
 ''',
-    'update': '''name: Update User
+    'update': '''
+name: Update User
 ionoscloudsdk.ionoscloud.mongo_cluster_user:
   mongo_cluster: ''
   mongo_username: testuser
@@ -175,7 +177,8 @@ ionoscloudsdk.ionoscloud.mongo_cluster_user:
   state: update
 register: mongo_user_response
 ''',
-    'absent': '''name: Delete Cluster User
+    'absent': '''
+name: Delete Cluster User
 ionoscloudsdk.ionoscloud.mongo_cluster_user:
   mongo_cluster: ''
   mongo_username: testuser
@@ -184,7 +187,8 @@ register: mongo_user_response
 ''',
 }
 
-EXAMPLES = """name: Create Cluster User
+EXAMPLES = """
+name: Create Cluster User
 ionoscloudsdk.ionoscloud.mongo_cluster_user:
   mongo_cluster: ''
   mongo_username: testuser
@@ -193,6 +197,7 @@ ionoscloudsdk.ionoscloud.mongo_cluster_user:
   - role: read
     database: test
 register: mongo_user_response
+
 
 name: Update User
 ionoscloudsdk.ionoscloud.mongo_cluster_user:
@@ -206,6 +211,7 @@ ionoscloudsdk.ionoscloud.mongo_cluster_user:
     database: test
   state: update
 register: mongo_user_response
+
 
 name: Delete Cluster User
 ionoscloudsdk.ionoscloud.mongo_cluster_user:

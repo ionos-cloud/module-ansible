@@ -102,7 +102,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Volumes
+EXAMPLES = """
+name: List Volumes
 ionoscloudsdk.ionoscloud.volume_info:
   datacenter: 'AnsibleAutoTestCompute'
 register: volume_list_response

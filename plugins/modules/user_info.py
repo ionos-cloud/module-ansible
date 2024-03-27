@@ -92,7 +92,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Users
+EXAMPLES = """
+name: List Users
 ionoscloudsdk.ionoscloud.user_info: null
 register: user_list_response
 """

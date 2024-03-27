@@ -6,6 +6,7 @@ This is a module that supports creating, updating or destroying Registry Tokens
 
 
 ```yaml
+
 name: Create Registry Token
 ionoscloudsdk.ionoscloud.registry_token:
   registry: ''
@@ -18,6 +19,7 @@ ionoscloudsdk.ionoscloud.registry_token:
     type: repository
   status: enabled
 register: registry_token_response
+
 
 name: Update Registry Token
 ionoscloudsdk.ionoscloud.registry_token:
@@ -34,6 +36,7 @@ ionoscloudsdk.ionoscloud.registry_token:
   allow_replace: false
   state: update
 register: registry_token_response
+
 
 name: Delete Registry Token
 ionoscloudsdk.ionoscloud.registry_token:
@@ -99,7 +102,8 @@ register: registry_token_response
 
 # state: **present**
 ```yaml
-  name: Create Registry Token
+  
+name: Create Registry Token
 ionoscloudsdk.ionoscloud.registry_token:
   registry: ''
   name: testRegistryToken
@@ -203,7 +207,8 @@ register: registry_token_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete Registry Token
+  
+name: Delete Registry Token
 ionoscloudsdk.ionoscloud.registry_token:
   registry: ''
   registry_token: ''
@@ -281,7 +286,8 @@ register: registry_token_response
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update Registry Token
+  
+name: Update Registry Token
 ionoscloudsdk.ionoscloud.registry_token:
   registry: ''
   registry_token: ''

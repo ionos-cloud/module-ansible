@@ -6,6 +6,7 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 
 
 ```yaml
+
 name: Provision a server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
@@ -24,6 +25,7 @@ ionoscloudsdk.ionoscloud.cube_server:
   state: present
 register: server_cube
 
+
 name: Update server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
@@ -34,6 +36,7 @@ ionoscloudsdk.ionoscloud.cube_server:
   wait_timeout: '500'
   state: update
 
+
 name: Remove server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
@@ -43,6 +46,7 @@ ionoscloudsdk.ionoscloud.cube_server:
   wait_timeout: '500'
   state: absent
 
+
 name: Resume server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
@@ -50,6 +54,7 @@ ionoscloudsdk.ionoscloud.cube_server:
   - 'AnsibleAutoTestCompute - UPDATED'
   wait_timeout: '500'
   state: resume
+
 
 name: Suspend server
 ionoscloudsdk.ionoscloud.cube_server:
@@ -235,7 +240,8 @@ ionoscloudsdk.ionoscloud.cube_server:
 
 # state: **resume**
 ```yaml
-  name: Resume server
+  
+name: Resume server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
   instance_ids:
@@ -314,7 +320,8 @@ ionoscloudsdk.ionoscloud.cube_server:
 &nbsp;
 # state: **suspend**
 ```yaml
-  name: Suspend server
+  
+name: Suspend server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
   instance_ids:
@@ -393,7 +400,8 @@ ionoscloudsdk.ionoscloud.cube_server:
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Remove server
+  
+name: Remove server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
   instance_ids:
@@ -478,7 +486,8 @@ ionoscloudsdk.ionoscloud.cube_server:
 &nbsp;
 # state: **present**
 ```yaml
-  name: Provision a server
+  
+name: Provision a server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute 01'
@@ -652,7 +661,8 @@ register: server_cube
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update server
+  
+name: Update server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute - UPDATED'

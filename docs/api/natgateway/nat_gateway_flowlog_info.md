@@ -6,6 +6,7 @@ This is a simple module that supports listing Flowlogs.
 
 
 ```yaml
+
 name: List NAT Gateway Flowlogs
 ionoscloudsdk.ionoscloud.nat_gateway_flowlog_info:
   datacenter: ''

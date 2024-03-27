@@ -122,7 +122,9 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'absent': '''name: Ensure Repository does not exist
+    'absent': '''
+
+name: Ensure Repository does not exist
 ionoscloudsdk.ionoscloud.registry_repository:
   registry: ''
   repository: repo-name
@@ -130,7 +132,8 @@ ionoscloudsdk.ionoscloud.registry_repository:
 ''',
 }
 
-EXAMPLES = """name: Ensure Repository does not exist
+EXAMPLES = """
+name: Ensure Repository does not exist
 ionoscloudsdk.ionoscloud.registry_repository:
   registry: ''
   repository: repo-name

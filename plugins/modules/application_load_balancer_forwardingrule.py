@@ -250,7 +250,8 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create Application Load Balancer Forwarding Rule
+  'present' : '''
+name: Create Application Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
   datacenter: ''
   application_load_balancer: ''
@@ -270,7 +271,8 @@ ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
   wait: true
 register: alb_forwarding_rule_response
 ''',
-  'update' : '''name: Update Application Load Balancer Forwarding Rule
+  'update' : '''
+name: Update Application Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
   datacenter: ''
   application_load_balancer: ''
@@ -281,7 +283,8 @@ ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
   state: update
 register: alb_forwarding_rule_update_response
 ''',
-  'absent' : '''name: Delete Application Load Balancer Forwarding Rule
+  'absent' : '''
+name: Delete Application Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
   datacenter: ''
   application_load_balancer: ''
@@ -290,7 +293,8 @@ ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
 ''',
 }
 
-EXAMPLES = """name: Create Application Load Balancer Forwarding Rule
+EXAMPLES = """
+name: Create Application Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
   datacenter: ''
   application_load_balancer: ''
@@ -309,6 +313,7 @@ ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
       value: Friday
   wait: true
 register: alb_forwarding_rule_response
+
 
 name: Update Application Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
@@ -320,6 +325,7 @@ ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
   wait: true
   state: update
 register: alb_forwarding_rule_update_response
+
 
 name: Delete Application Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:

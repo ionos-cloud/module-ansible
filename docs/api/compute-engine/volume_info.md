@@ -6,6 +6,7 @@ This is a simple module that supports listing volumes.
 
 
 ```yaml
+
 name: List Volumes
 ionoscloudsdk.ionoscloud.volume_info:
   datacenter: 'AnsibleAutoTestCompute'

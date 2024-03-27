@@ -6,6 +6,7 @@ This is a simple module that supports listing Target Groups.
 
 
 ```yaml
+
 name: List Target Groups
 ionoscloudsdk.ionoscloud.target_group_info: null
 register: target_groups_response

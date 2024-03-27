@@ -103,7 +103,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List NICs
+EXAMPLES = """
+name: List NICs
 ionoscloudsdk.ionoscloud.nic_info:
   datacenter: 'AnsibleAutoTestCompute'
   server: 'AnsibleAutoTestCompute'

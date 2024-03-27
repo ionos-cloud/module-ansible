@@ -6,12 +6,14 @@ This is a module that supports creating, updating or destroying DNS Zones
 
 
 ```yaml
+
 name: Create Zone
 ionoscloudsdk.ionoscloud.dns_zone:
   name: 'test.example.test.ansible.com'
   description: 'test_description'
   enabled: 'False'
 register: zone_response
+
 
 name: Update Zone
 ionoscloudsdk.ionoscloud.dns_zone:
@@ -21,6 +23,7 @@ ionoscloudsdk.ionoscloud.dns_zone:
   allow_replace: false
   state: update
 register: updated_zone_response
+
 
 name: Delete Zone
 ionoscloudsdk.ionoscloud.dns_zone:
@@ -70,7 +73,8 @@ ionoscloudsdk.ionoscloud.dns_zone:
 
 # state: **present**
 ```yaml
-  name: Create Zone
+  
+name: Create Zone
 ionoscloudsdk.ionoscloud.dns_zone:
   name: 'test.example.test.ansible.com'
   description: 'test_description'
@@ -153,7 +157,8 @@ register: zone_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete Zone
+  
+name: Delete Zone
 ionoscloudsdk.ionoscloud.dns_zone:
   zone: ''
   wait: true
@@ -225,7 +230,8 @@ ionoscloudsdk.ionoscloud.dns_zone:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update Zone
+  
+name: Update Zone
 ionoscloudsdk.ionoscloud.dns_zone:
   zone: ''
   description: 'zone_description_updated'

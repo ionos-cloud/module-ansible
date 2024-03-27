@@ -6,6 +6,7 @@ This is a simple module that supports creating or removing NIC Flowlogs. This mo
 
 
 ```yaml
+
 name: Create a nic flowlog
 ionoscloudsdk.ionoscloud.nic_flowlog:
   name: 'AnsibleAutoTestCompute'
@@ -16,6 +17,7 @@ ionoscloudsdk.ionoscloud.nic_flowlog:
   server: ''
   nic: ''
 register: flowlog_response
+
 
 name: Update a nic flowlog
 ionoscloudsdk.ionoscloud.nic_flowlog:
@@ -29,6 +31,7 @@ ionoscloudsdk.ionoscloud.nic_flowlog:
   flowlog: ''
   state: update
 register: flowlog_update_response
+
 
 name: Delete a nic flowlog
 ionoscloudsdk.ionoscloud.nic_flowlog:
@@ -83,7 +86,8 @@ register: flowlog_delete_response
 
 # state: **present**
 ```yaml
-  name: Create a nic flowlog
+  
+name: Create a nic flowlog
 ionoscloudsdk.ionoscloud.nic_flowlog:
   name: 'AnsibleAutoTestCompute'
   action: ACCEPTED
@@ -190,7 +194,8 @@ register: flowlog_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete a nic flowlog
+  
+name: Delete a nic flowlog
 ionoscloudsdk.ionoscloud.nic_flowlog:
   datacenter: ''
   server: ''
@@ -282,7 +287,8 @@ register: flowlog_delete_response
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update a nic flowlog
+  
+name: Update a nic flowlog
 ionoscloudsdk.ionoscloud.nic_flowlog:
   name: 'AnsibleAutoTestCompute'
   action: ALL

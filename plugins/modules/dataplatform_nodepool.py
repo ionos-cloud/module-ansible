@@ -253,7 +253,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create DataPlatform cluster nodepool
+  'present' : '''
+name: Create DataPlatform cluster nodepool
 ionoscloudsdk.ionoscloud.dataplatform_nodepool:
   name: my-nodepool
   cluster: ''
@@ -278,7 +279,8 @@ ionoscloudsdk.ionoscloud.dataplatform_nodepool:
   wait_timeout: 7200
 register: result
 ''',
-  'update' : '''name: Update DataPlatform cluster nodepool no change
+  'update' : '''
+name: Update DataPlatform cluster nodepool no change
 ionoscloudsdk.ionoscloud.dataplatform_nodepool:
   cluster: ''
   nodepool: ''
@@ -306,7 +308,8 @@ ionoscloudsdk.ionoscloud.dataplatform_nodepool:
   state: update
 register: result_no_change
 ''',
-  'absent' : '''name: Delete DataPlatform cluster nodepool
+  'absent' : '''
+name: Delete DataPlatform cluster nodepool
 ionoscloudsdk.ionoscloud.dataplatform_nodepool:
   cluster: ''
   nodepool: ''
@@ -315,7 +318,8 @@ ionoscloudsdk.ionoscloud.dataplatform_nodepool:
 ''',
 }
 
-EXAMPLES = """name: Create DataPlatform cluster nodepool
+EXAMPLES = """
+name: Create DataPlatform cluster nodepool
 ionoscloudsdk.ionoscloud.dataplatform_nodepool:
   name: my-nodepool
   cluster: ''
@@ -339,6 +343,7 @@ ionoscloudsdk.ionoscloud.dataplatform_nodepool:
   wait: true
   wait_timeout: 7200
 register: result
+
 
 name: Update DataPlatform cluster nodepool no change
 ionoscloudsdk.ionoscloud.dataplatform_nodepool:
@@ -367,6 +372,7 @@ ionoscloudsdk.ionoscloud.dataplatform_nodepool:
   wait_timeout: 7200
   state: update
 register: result_no_change
+
 
 name: Delete DataPlatform cluster nodepool
 ionoscloudsdk.ionoscloud.dataplatform_nodepool:

@@ -6,12 +6,14 @@ This is a simple module that supports creating or removing Backup Units. This mo
 
 
 ```yaml
+
 name: Create backupunit
 ionoscloudsdk.ionoscloud.backupunit:
   backupunit_email: 'ansible.test@mail.com'
   backupunit_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   name: My AnsibleAutoTestBackup
 register: create_result
+
 
 name: Recreate backupunit
 ionoscloudsdk.ionoscloud.backupunit:
@@ -22,6 +24,7 @@ ionoscloudsdk.ionoscloud.backupunit:
   allow_replace: true
   state: update
 register: recreate_result
+
 
 name: Remove backupunit
 ionoscloudsdk.ionoscloud.backupunit:
@@ -76,7 +79,8 @@ register: delete_result
 
 # state: **present**
 ```yaml
-  name: Create backupunit
+  
+name: Create backupunit
 ionoscloudsdk.ionoscloud.backupunit:
   backupunit_email: 'ansible.test@mail.com'
   backupunit_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
@@ -164,7 +168,8 @@ register: create_result
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Remove backupunit
+  
+name: Remove backupunit
 ionoscloudsdk.ionoscloud.backupunit:
   backupunit: My AnsibleAutoTestBackup UPDATED
   state: absent
@@ -237,7 +242,8 @@ register: delete_result
 &nbsp;
 # state: **update**
 ```yaml
-  name: Recreate backupunit
+  
+name: Recreate backupunit
 ionoscloudsdk.ionoscloud.backupunit:
   backupunit: My AnsibleAutoTestBackup
   backupunit_email: 'updated.ansible.test@mail.com'

@@ -6,6 +6,7 @@ This module allows you to create or remove an IPBlock.
 
 
 ```yaml
+
 name: Create ipblock
 ionoscloudsdk.ionoscloud.ipblock:
   name: 'AnsibleAutoTestCompute'
@@ -13,6 +14,7 @@ ionoscloudsdk.ionoscloud.ipblock:
   size: 2
   state: present
 register: response
+
 
 name: Remove ipblock
 ionoscloudsdk.ionoscloud.ipblock:
@@ -70,7 +72,8 @@ register: delete_result
 
 # state: **present**
 ```yaml
-  name: Create ipblock
+  
+name: Create ipblock
 ionoscloudsdk.ionoscloud.ipblock:
   name: 'AnsibleAutoTestCompute'
   location: 'gb/lhr'
@@ -159,7 +162,8 @@ register: response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Remove ipblock
+  
+name: Remove ipblock
 ionoscloudsdk.ionoscloud.ipblock:
   ipblock: 'AnsibleAutoTestCompute'
   state: absent

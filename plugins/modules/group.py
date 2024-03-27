@@ -263,7 +263,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create group
+  'present' : '''
+name: Create group
 ionoscloudsdk.ionoscloud.group:
   name: 'AnsibleAutoTestUM'
   create_datacenter: true
@@ -281,21 +282,24 @@ ionoscloudsdk.ionoscloud.group:
   manage_dbaas: true
 register: group_response
 ''',
-  'update' : '''name: Add user1 to group
+  'update' : '''
+name: Add user1 to group
 ionoscloudsdk.ionoscloud.group:
   group: 'AnsibleAutoTestUM'
   users:
   - ''
   state: update
 ''',
-  'absent' : '''name: Delete group
+  'absent' : '''
+name: Delete group
 ionoscloudsdk.ionoscloud.group:
   group: 'AnsibleAutoTestUM'
   state: absent
 ''',
 }
 
-EXAMPLES = """name: Create group
+EXAMPLES = """
+name: Create group
 ionoscloudsdk.ionoscloud.group:
   name: 'AnsibleAutoTestUM'
   create_datacenter: true
@@ -312,6 +316,7 @@ ionoscloudsdk.ionoscloud.group:
   access_and_manage_certificates: true
   manage_dbaas: true
 register: group_response
+
 
 name: Add user1 to group
 ionoscloudsdk.ionoscloud.group:
@@ -319,6 +324,7 @@ ionoscloudsdk.ionoscloud.group:
   users:
   - ''
   state: update
+
 
 name: Delete group
 ionoscloudsdk.ionoscloud.group:

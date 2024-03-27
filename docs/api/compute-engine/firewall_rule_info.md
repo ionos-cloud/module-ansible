@@ -6,6 +6,7 @@ This is a simple module that supports listing Firewall Rules.
 
 
 ```yaml
+
 name: List Firewall Rules
 ionoscloudsdk.ionoscloud.firewall_rule_info:
   datacenter: 'AnsibleAutoTestCompute'

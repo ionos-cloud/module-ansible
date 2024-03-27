@@ -172,7 +172,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create Registry
+    'present': '''
+name: Create Registry
 ionoscloudsdk.ionoscloud.registry:
   name: 'ansibletest123-'
   location: de/fra
@@ -186,7 +187,8 @@ ionoscloudsdk.ionoscloud.registry:
   wait: true
 register: registry_response
 ''',
-    'update': '''name: Update Registry
+    'update': '''
+name: Update Registry
 ionoscloudsdk.ionoscloud.registry:
   registry: ''
   garbage_collection_schedule:
@@ -201,7 +203,8 @@ ionoscloudsdk.ionoscloud.registry:
   state: update
 register: updated_registry_response
 ''',
-    'absent': '''name: Delete Registry
+    'absent': '''
+name: Delete Registry
 ionoscloudsdk.ionoscloud.registry:
   registry: ''
   wait: true
@@ -209,7 +212,8 @@ ionoscloudsdk.ionoscloud.registry:
 ''',
 }
 
-EXAMPLES = """name: Create Registry
+EXAMPLES = """
+name: Create Registry
 ionoscloudsdk.ionoscloud.registry:
   name: 'ansibletest123-'
   location: de/fra
@@ -222,6 +226,7 @@ ionoscloudsdk.ionoscloud.registry:
       enabled: true
   wait: true
 register: registry_response
+
 
 name: Update Registry
 ionoscloudsdk.ionoscloud.registry:
@@ -237,6 +242,7 @@ ionoscloudsdk.ionoscloud.registry:
   allow_replace: false
   state: update
 register: updated_registry_response
+
 
 name: Delete Registry
 ionoscloudsdk.ionoscloud.registry:

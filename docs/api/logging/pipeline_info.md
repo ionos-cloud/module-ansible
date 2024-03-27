@@ -6,6 +6,7 @@ This is a simple module that supports listing existing Pipelines
 
 
 ```yaml
+
 name: List Pipelines
 ionoscloudsdk.ionoscloud.pipeline_info: null
 register: pipelines_response

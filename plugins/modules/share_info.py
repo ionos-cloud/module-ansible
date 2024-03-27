@@ -94,7 +94,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Shares
+EXAMPLES = """
+name: List Shares
 ionoscloudsdk.ionoscloud.share_info:
   group: Demo
 register: share_list_response

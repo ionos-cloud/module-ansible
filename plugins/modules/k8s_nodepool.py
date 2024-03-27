@@ -331,7 +331,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create k8s cluster nodepool
+  'present' : '''
+name: Create k8s cluster nodepool
 ionoscloudsdk.ionoscloud.k8s_nodepool:
   name: my-nodepool-
   k8s_cluster: ''
@@ -360,7 +361,8 @@ ionoscloudsdk.ionoscloud.k8s_nodepool:
   wait: true
 register: result
 ''',
-  'update' : '''name: Update k8s cluster nodepool no change
+  'update' : '''
+name: Update k8s cluster nodepool no change
 ionoscloudsdk.ionoscloud.k8s_nodepool:
   k8s_cluster: ''
   datacenter: ''
@@ -391,7 +393,8 @@ ionoscloudsdk.ionoscloud.k8s_nodepool:
   state: update
 register: result_no_change
 ''',
-  'absent' : '''name: Delete k8s cluster nodepool
+  'absent' : '''
+name: Delete k8s cluster nodepool
 ionoscloudsdk.ionoscloud.k8s_nodepool:
   k8s_cluster: ''
   k8s_nodepool: ''
@@ -400,7 +403,8 @@ ionoscloudsdk.ionoscloud.k8s_nodepool:
 ''',
 }
 
-EXAMPLES = """name: Create k8s cluster nodepool
+EXAMPLES = """
+name: Create k8s cluster nodepool
 ionoscloudsdk.ionoscloud.k8s_nodepool:
   name: my-nodepool-
   k8s_cluster: ''
@@ -428,6 +432,7 @@ ionoscloudsdk.ionoscloud.k8s_nodepool:
     ann2: value2
   wait: true
 register: result
+
 
 name: Update k8s cluster nodepool no change
 ionoscloudsdk.ionoscloud.k8s_nodepool:
@@ -459,6 +464,7 @@ ionoscloudsdk.ionoscloud.k8s_nodepool:
   wait: true
   state: update
 register: result_no_change
+
 
 name: Delete k8s cluster nodepool
 ionoscloudsdk.ionoscloud.k8s_nodepool:

@@ -6,6 +6,7 @@ This module allows you to create or remove a snapshot.
 
 
 ```yaml
+
 name: Create snapshot
 ionoscloudsdk.ionoscloud.snapshot:
   datacenter: 'AnsibleAutoTestCompute'
@@ -15,11 +16,13 @@ ionoscloudsdk.ionoscloud.snapshot:
   wait_timeout: 600
 register: result
 
+
 name: Update snapshot
 ionoscloudsdk.ionoscloud.snapshot:
   snapshot: 'AnsibleAutoTestCompute'
   description: Ansible test snapshot - RENAME
   state: update
+
 
 name: Restore snapshot
 ionoscloudsdk.ionoscloud.snapshot:
@@ -27,6 +30,7 @@ ionoscloudsdk.ionoscloud.snapshot:
   volume: 'AnsibleAutoTestCompute'
   snapshot: 'AnsibleAutoTestCompute'
   state: restore
+
 
 name: Delete snapshot
 ionoscloudsdk.ionoscloud.snapshot:
@@ -88,7 +92,8 @@ ionoscloudsdk.ionoscloud.snapshot:
 
 # state: **present**
 ```yaml
-  name: Create snapshot
+  
+name: Create snapshot
 ionoscloudsdk.ionoscloud.snapshot:
   datacenter: 'AnsibleAutoTestCompute'
   volume: 'AnsibleAutoTestCompute'
@@ -173,7 +178,8 @@ register: result
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete snapshot
+  
+name: Delete snapshot
 ionoscloudsdk.ionoscloud.snapshot:
   snapshot: 'AnsibleAutoTestCompute'
   wait_timeout: 600
@@ -245,7 +251,8 @@ ionoscloudsdk.ionoscloud.snapshot:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update snapshot
+  
+name: Update snapshot
 ionoscloudsdk.ionoscloud.snapshot:
   snapshot: 'AnsibleAutoTestCompute'
   description: Ansible test snapshot - RENAME
@@ -372,7 +379,8 @@ ionoscloudsdk.ionoscloud.snapshot:
 &nbsp;
 # state: **restore**
 ```yaml
-  name: Restore snapshot
+  
+name: Restore snapshot
 ionoscloudsdk.ionoscloud.snapshot:
   datacenter: 'AnsibleAutoTestCompute'
   volume: 'AnsibleAutoTestCompute'

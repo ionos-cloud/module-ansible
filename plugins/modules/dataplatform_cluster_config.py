@@ -119,14 +119,17 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Get kubeconfig by ID
+  'present' : '''
+
+name: Get kubeconfig by ID
 ionoscloudsdk.ionoscloud.dataplatform_cluster_config:
   cluster: ''
   config_file: config.yaml
 ''',
 }
 
-EXAMPLES = """name: Get kubeconfig by ID
+EXAMPLES = """
+name: Get kubeconfig by ID
 ionoscloudsdk.ionoscloud.dataplatform_cluster_config:
   cluster: ''
   config_file: config.yaml

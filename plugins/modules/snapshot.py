@@ -270,7 +270,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create snapshot
+    'present': '''
+name: Create snapshot
 ionoscloudsdk.ionoscloud.snapshot:
   datacenter: 'AnsibleAutoTestCompute'
   volume: 'AnsibleAutoTestCompute'
@@ -279,20 +280,23 @@ ionoscloudsdk.ionoscloud.snapshot:
   wait_timeout: 600
 register: result
 ''',
-    'update': '''name: Update snapshot
+    'update': '''
+name: Update snapshot
 ionoscloudsdk.ionoscloud.snapshot:
   snapshot: 'AnsibleAutoTestCompute'
   description: Ansible test snapshot - RENAME
   state: update
 ''',
-    'restore': '''name: Restore snapshot
+    'restore': '''
+name: Restore snapshot
 ionoscloudsdk.ionoscloud.snapshot:
   datacenter: 'AnsibleAutoTestCompute'
   volume: 'AnsibleAutoTestCompute'
   snapshot: 'AnsibleAutoTestCompute'
   state: restore
 ''',
-    'absent': '''name: Delete snapshot
+    'absent': '''
+name: Delete snapshot
 ionoscloudsdk.ionoscloud.snapshot:
   snapshot: 'AnsibleAutoTestCompute'
   wait_timeout: 600
@@ -300,7 +304,8 @@ ionoscloudsdk.ionoscloud.snapshot:
 ''',
 }
 
-EXAMPLES = """name: Create snapshot
+EXAMPLES = """
+name: Create snapshot
 ionoscloudsdk.ionoscloud.snapshot:
   datacenter: 'AnsibleAutoTestCompute'
   volume: 'AnsibleAutoTestCompute'
@@ -309,11 +314,13 @@ ionoscloudsdk.ionoscloud.snapshot:
   wait_timeout: 600
 register: result
 
+
 name: Update snapshot
 ionoscloudsdk.ionoscloud.snapshot:
   snapshot: 'AnsibleAutoTestCompute'
   description: Ansible test snapshot - RENAME
   state: update
+
 
 name: Restore snapshot
 ionoscloudsdk.ionoscloud.snapshot:
@@ -321,6 +328,7 @@ ionoscloudsdk.ionoscloud.snapshot:
   volume: 'AnsibleAutoTestCompute'
   snapshot: 'AnsibleAutoTestCompute'
   state: restore
+
 
 name: Delete snapshot
 ionoscloudsdk.ionoscloud.snapshot:

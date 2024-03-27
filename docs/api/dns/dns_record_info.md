@@ -6,6 +6,7 @@ This is a simple module that supports listing DNS Records.
 
 
 ```yaml
+
 name: List all Records in zone
 ionoscloudsdk.ionoscloud.dns_record_info:
   zone: 'test.example.test.ansible.com'

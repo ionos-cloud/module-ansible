@@ -119,7 +119,9 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Get k8s config
+  'present' : '''
+
+name: Get k8s config
 ionoscloudsdk.ionoscloud.k8s_config:
   k8s_cluster: ''
   config_file: config.yaml
@@ -127,7 +129,8 @@ ionoscloudsdk.ionoscloud.k8s_config:
 ''',
 }
 
-EXAMPLES = """name: Get k8s config
+EXAMPLES = """
+name: Get k8s config
 ionoscloudsdk.ionoscloud.k8s_config:
   k8s_cluster: ''
   config_file: config.yaml

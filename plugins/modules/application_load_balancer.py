@@ -191,7 +191,8 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create Application Load Balancer
+  'present' : '''
+name: Create Application Load Balancer
 ionoscloudsdk.ionoscloud.application_load_balancer:
   datacenter: ''
   name: 'AnsibleAutoTestALB'
@@ -203,7 +204,8 @@ ionoscloudsdk.ionoscloud.application_load_balancer:
   wait_timeout: 2000
 register: alb_response
 ''',
-  'update' : '''name: Update Application Load Balancer
+  'update' : '''
+name: Update Application Load Balancer
 ionoscloudsdk.ionoscloud.application_load_balancer:
   datacenter: 'AnsibleAutoTestALB'
   application_load_balancer: ''
@@ -215,7 +217,8 @@ ionoscloudsdk.ionoscloud.application_load_balancer:
   wait_timeout: 2000
 register: alb_response_update
 ''',
-  'absent' : '''name: Remove Application Load Balancer
+  'absent' : '''
+name: Remove Application Load Balancer
 ionoscloudsdk.ionoscloud.application_load_balancer:
   application_load_balancer: 'AnsibleAutoTestALB - UPDATE'
   datacenter: ''
@@ -225,7 +228,8 @@ ionoscloudsdk.ionoscloud.application_load_balancer:
 ''',
 }
 
-EXAMPLES = """name: Create Application Load Balancer
+EXAMPLES = """
+name: Create Application Load Balancer
 ionoscloudsdk.ionoscloud.application_load_balancer:
   datacenter: ''
   name: 'AnsibleAutoTestALB'
@@ -236,6 +240,7 @@ ionoscloudsdk.ionoscloud.application_load_balancer:
   wait: true
   wait_timeout: 2000
 register: alb_response
+
 
 name: Update Application Load Balancer
 ionoscloudsdk.ionoscloud.application_load_balancer:
@@ -248,6 +253,7 @@ ionoscloudsdk.ionoscloud.application_load_balancer:
   state: update
   wait_timeout: 2000
 register: alb_response_update
+
 
 name: Remove Application Load Balancer
 ionoscloudsdk.ionoscloud.application_load_balancer:

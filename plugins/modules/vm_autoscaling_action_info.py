@@ -92,7 +92,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List VM Autoscaling Group Actions
+EXAMPLES = """
+name: List VM Autoscaling Group Actions
 ionoscloudsdk.ionoscloud.vm_autoscaling_action_info:
   vm_autoscaling_group: ''
 register: vm_autoscaling_actions_response

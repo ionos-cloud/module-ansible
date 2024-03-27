@@ -113,7 +113,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List NIC Flowlogs
+EXAMPLES = """
+name: List NIC Flowlogs
 ionoscloudsdk.ionoscloud.nic_flowlog_info:
   datacenter: 'AnsibleAutoTestCompute'
   server: 'AnsibleAutoTestCompute'

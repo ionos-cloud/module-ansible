@@ -219,7 +219,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create Record
+    'present': '''
+name: Create Record
 ionoscloudsdk.ionoscloud.dns_record:
   zone: 'test.example.test.ansible.com'
   name: 'sdk-team-test-record'
@@ -230,7 +231,8 @@ ionoscloudsdk.ionoscloud.dns_record:
   enabled: 'True'
 register: record_response
 ''',
-    'update': '''name: Update record
+    'update': '''
+name: Update record
 ionoscloudsdk.ionoscloud.dns_record:
   zone: 'test.example.test.ansible.com'
   record: 'sdk-team-test-record'
@@ -243,7 +245,8 @@ ionoscloudsdk.ionoscloud.dns_record:
   state: update
 register: updated_record_response
 ''',
-    'absent': '''name: Delete Record
+    'absent': '''
+name: Delete Record
 ionoscloudsdk.ionoscloud.dns_record:
   zone: 'test.example.test.ansible.com'
   record: ''
@@ -252,7 +255,8 @@ ionoscloudsdk.ionoscloud.dns_record:
 ''',
 }
 
-EXAMPLES = """name: Create Record
+EXAMPLES = """
+name: Create Record
 ionoscloudsdk.ionoscloud.dns_record:
   zone: 'test.example.test.ansible.com'
   name: 'sdk-team-test-record'
@@ -262,6 +266,7 @@ ionoscloudsdk.ionoscloud.dns_record:
   priority: '35535'
   enabled: 'True'
 register: record_response
+
 
 name: Update record
 ionoscloudsdk.ionoscloud.dns_record:
@@ -275,6 +280,7 @@ ionoscloudsdk.ionoscloud.dns_record:
   allow_replace: false
   state: update
 register: updated_record_response
+
 
 name: Delete Record
 ionoscloudsdk.ionoscloud.dns_record:

@@ -6,6 +6,7 @@ This is a simple module that supports creating or removing Application Loadbalan
 
 
 ```yaml
+
 name: Create Application Load Balancer
 ionoscloudsdk.ionoscloud.application_load_balancer:
   datacenter: ''
@@ -18,6 +19,7 @@ ionoscloudsdk.ionoscloud.application_load_balancer:
   wait_timeout: 2000
 register: alb_response
 
+
 name: Update Application Load Balancer
 ionoscloudsdk.ionoscloud.application_load_balancer:
   datacenter: 'AnsibleAutoTestALB'
@@ -29,6 +31,7 @@ ionoscloudsdk.ionoscloud.application_load_balancer:
   state: update
   wait_timeout: 2000
 register: alb_response_update
+
 
 name: Remove Application Load Balancer
 ionoscloudsdk.ionoscloud.application_load_balancer:
@@ -84,7 +87,8 @@ ionoscloudsdk.ionoscloud.application_load_balancer:
 
 # state: **present**
 ```yaml
-  name: Create Application Load Balancer
+  
+name: Create Application Load Balancer
 ionoscloudsdk.ionoscloud.application_load_balancer:
   datacenter: ''
   name: 'AnsibleAutoTestALB'
@@ -187,7 +191,8 @@ register: alb_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Remove Application Load Balancer
+  
+name: Remove Application Load Balancer
 ionoscloudsdk.ionoscloud.application_load_balancer:
   application_load_balancer: 'AnsibleAutoTestALB - UPDATE'
   datacenter: ''
@@ -271,7 +276,8 @@ ionoscloudsdk.ionoscloud.application_load_balancer:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update Application Load Balancer
+  
+name: Update Application Load Balancer
 ionoscloudsdk.ionoscloud.application_load_balancer:
   datacenter: 'AnsibleAutoTestALB'
   application_load_balancer: ''

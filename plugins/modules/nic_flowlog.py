@@ -192,7 +192,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create a nic flowlog
+    'present': '''
+name: Create a nic flowlog
 ionoscloudsdk.ionoscloud.nic_flowlog:
   name: 'AnsibleAutoTestCompute'
   action: ACCEPTED
@@ -203,7 +204,8 @@ ionoscloudsdk.ionoscloud.nic_flowlog:
   nic: ''
 register: flowlog_response
 ''',
-    'update': '''name: Update a nic flowlog
+    'update': '''
+name: Update a nic flowlog
 ionoscloudsdk.ionoscloud.nic_flowlog:
   name: 'AnsibleAutoTestCompute'
   action: ALL
@@ -216,7 +218,8 @@ ionoscloudsdk.ionoscloud.nic_flowlog:
   state: update
 register: flowlog_update_response
 ''',
-    'absent': '''name: Delete a nic flowlog
+    'absent': '''
+name: Delete a nic flowlog
 ionoscloudsdk.ionoscloud.nic_flowlog:
   datacenter: ''
   server: ''
@@ -229,7 +232,8 @@ register: flowlog_delete_response
 ''',
 }
 
-EXAMPLES = """name: Create a nic flowlog
+EXAMPLES = """
+name: Create a nic flowlog
 ionoscloudsdk.ionoscloud.nic_flowlog:
   name: 'AnsibleAutoTestCompute'
   action: ACCEPTED
@@ -239,6 +243,7 @@ ionoscloudsdk.ionoscloud.nic_flowlog:
   server: ''
   nic: ''
 register: flowlog_response
+
 
 name: Update a nic flowlog
 ionoscloudsdk.ionoscloud.nic_flowlog:
@@ -252,6 +257,7 @@ ionoscloudsdk.ionoscloud.nic_flowlog:
   flowlog: ''
   state: update
 register: flowlog_update_response
+
 
 name: Delete a nic flowlog
 ionoscloudsdk.ionoscloud.nic_flowlog:

@@ -6,6 +6,7 @@ This is a simple module that supports listing Users.
 
 
 ```yaml
+
 name: List Users
 ionoscloudsdk.ionoscloud.user_info: null
 register: user_list_response

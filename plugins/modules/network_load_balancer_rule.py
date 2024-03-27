@@ -213,7 +213,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create Network Load Balancer Forwarding Rule
+  'present' : '''
+name: Create Network Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.network_load_balancer_rule:
   name: 'AnsibleAutoTestNLB'
   algorithm: ROUND_ROBIN
@@ -234,7 +235,8 @@ ionoscloudsdk.ionoscloud.network_load_balancer_rule:
   wait: true
 register: nlb_forwarding_rule_response
 ''',
-  'update' : '''name: Update Network Load Balancer Forwarding Rule
+  'update' : '''
+name: Update Network Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.network_load_balancer_rule:
   datacenter: ''
   network_load_balancer: ''
@@ -246,7 +248,8 @@ ionoscloudsdk.ionoscloud.network_load_balancer_rule:
   state: update
 register: nlb_forwarding_rule_update_response
 ''',
-  'absent' : '''name: Delete Network Load Balancer Forwarding Rule
+  'absent' : '''
+name: Delete Network Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.network_load_balancer_rule:
   datacenter: ''
   network_load_balancer: ''
@@ -255,7 +258,8 @@ ionoscloudsdk.ionoscloud.network_load_balancer_rule:
 ''',
 }
 
-EXAMPLES = """name: Create Network Load Balancer Forwarding Rule
+EXAMPLES = """
+name: Create Network Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.network_load_balancer_rule:
   name: 'AnsibleAutoTestNLB'
   algorithm: ROUND_ROBIN
@@ -275,6 +279,7 @@ ionoscloudsdk.ionoscloud.network_load_balancer_rule:
   network_load_balancer: ''
   wait: true
 register: nlb_forwarding_rule_response
+
 
 name: Update Network Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.network_load_balancer_rule:
@@ -287,6 +292,7 @@ ionoscloudsdk.ionoscloud.network_load_balancer_rule:
   wait: true
   state: update
 register: nlb_forwarding_rule_update_response
+
 
 name: Delete Network Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.network_load_balancer_rule:

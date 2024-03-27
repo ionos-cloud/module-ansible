@@ -6,6 +6,7 @@ This is a simple module that supports listing existing Repositories
 
 
 ```yaml
+
 name: List Repositories
 ionoscloudsdk.ionoscloud.registry_repository_info:
   registry: ''

@@ -6,6 +6,7 @@ This is a module that supports creating, updating or destroying DNS Records
 
 
 ```yaml
+
 name: Create Record
 ionoscloudsdk.ionoscloud.dns_record:
   zone: 'test.example.test.ansible.com'
@@ -16,6 +17,7 @@ ionoscloudsdk.ionoscloud.dns_record:
   priority: '35535'
   enabled: 'True'
 register: record_response
+
 
 name: Update record
 ionoscloudsdk.ionoscloud.dns_record:
@@ -29,6 +31,7 @@ ionoscloudsdk.ionoscloud.dns_record:
   allow_replace: false
   state: update
 register: updated_record_response
+
 
 name: Delete Record
 ionoscloudsdk.ionoscloud.dns_record:
@@ -81,7 +84,8 @@ ionoscloudsdk.ionoscloud.dns_record:
 
 # state: **present**
 ```yaml
-  name: Create Record
+  
+name: Create Record
 ionoscloudsdk.ionoscloud.dns_record:
   zone: 'test.example.test.ansible.com'
   name: 'sdk-team-test-record'
@@ -193,7 +197,8 @@ register: record_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete Record
+  
+name: Delete Record
 ionoscloudsdk.ionoscloud.dns_record:
   zone: 'test.example.test.ansible.com'
   record: ''
@@ -271,7 +276,8 @@ ionoscloudsdk.ionoscloud.dns_record:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update record
+  
+name: Update record
 ionoscloudsdk.ionoscloud.dns_record:
   zone: 'test.example.test.ansible.com'
   record: 'sdk-team-test-record'

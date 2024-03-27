@@ -6,6 +6,7 @@ This is a simple module that supports listing Forwarding Rules.
 
 
 ```yaml
+
 name: List Application Load Balancer Forwarding rules
 ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule_info:
   datacenter: ''

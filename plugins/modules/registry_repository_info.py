@@ -88,7 +88,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Repositories
+EXAMPLES = """
+name: List Repositories
 ionoscloudsdk.ionoscloud.registry_repository_info:
   registry: ''
 register: repositories_response

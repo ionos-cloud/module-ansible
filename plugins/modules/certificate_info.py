@@ -78,7 +78,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Certificates
+EXAMPLES = """
+name: List Certificates
 ionoscloudsdk.ionoscloud.certificate_info: null
 register: certificates_response
 """

@@ -6,6 +6,7 @@ This is a simple module that supports listing existing Mongo Cluster Templates
 
 
 ```yaml
+
 name: List Mongo Cluster Templates
 ionoscloudsdk.ionoscloud.mongo_cluster_template_info: null
 register: mongo_cluster_templates_response

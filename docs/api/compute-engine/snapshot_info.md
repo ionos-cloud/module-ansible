@@ -6,6 +6,7 @@ This is a simple module that supports listing Snapshots.
 
 
 ```yaml
+
 name: List Snapshots
 ionoscloudsdk.ionoscloud.snapshot_info: null
 register: snapshot_list_response

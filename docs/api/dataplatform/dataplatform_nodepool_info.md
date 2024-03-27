@@ -8,6 +8,7 @@ This is a simple module that supports listing existing DataPlatform Nodepools
 
 
 ```yaml
+
 name: Get all DataPlaform nodepools from a specific cluster
 ionoscloudsdk.ionoscloud.dataplatform_nodepool_info:
   cluster: ''

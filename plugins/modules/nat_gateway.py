@@ -164,7 +164,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create NAT Gateway
+  'present' : '''
+name: Create NAT Gateway
 ionoscloudsdk.ionoscloud.nat_gateway:
   datacenter: ''
   name: 'AnsibleAutoTestNAT'
@@ -177,7 +178,8 @@ ionoscloudsdk.ionoscloud.nat_gateway:
   wait: true
 register: nat_gateway_response
 ''',
-  'update' : '''name: Update NAT Gateway
+  'update' : '''
+name: Update NAT Gateway
 ionoscloudsdk.ionoscloud.nat_gateway:
   datacenter: ''
   name: 'AnsibleAutoTestNAT - UPDATED'
@@ -188,7 +190,8 @@ ionoscloudsdk.ionoscloud.nat_gateway:
   state: update
 register: nat_gateway_response_update
 ''',
-  'absent' : '''name: Remove NAT Gateway
+  'absent' : '''
+name: Remove NAT Gateway
 ionoscloudsdk.ionoscloud.nat_gateway:
   nat_gateway: ''
   datacenter: ''
@@ -198,7 +201,8 @@ ionoscloudsdk.ionoscloud.nat_gateway:
 ''',
 }
 
-EXAMPLES = """name: Create NAT Gateway
+EXAMPLES = """
+name: Create NAT Gateway
 ionoscloudsdk.ionoscloud.nat_gateway:
   datacenter: ''
   name: 'AnsibleAutoTestNAT'
@@ -210,6 +214,7 @@ ionoscloudsdk.ionoscloud.nat_gateway:
   wait_timeout: 2000
   wait: true
 register: nat_gateway_response
+
 
 name: Update NAT Gateway
 ionoscloudsdk.ionoscloud.nat_gateway:
@@ -221,6 +226,7 @@ ionoscloudsdk.ionoscloud.nat_gateway:
   wait: true
   state: update
 register: nat_gateway_response_update
+
 
 name: Remove NAT Gateway
 ionoscloudsdk.ionoscloud.nat_gateway:

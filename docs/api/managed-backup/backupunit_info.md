@@ -6,6 +6,7 @@ This is a simple module that supports listing Backupunits.
 
 
 ```yaml
+
 name: List backupunits
 ionoscloudsdk.ionoscloud.backupunit_info: null
 register: backupunit_list_response

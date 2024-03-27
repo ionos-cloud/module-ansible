@@ -8,6 +8,7 @@ This is a simple module that supports listing existing DataPlatform Clusters
 
 
 ```yaml
+
 name: Get all Data Platform clusters
 ionoscloudsdk.ionoscloud.dataplatform_cluster_info: null
 register: cluster_list_response

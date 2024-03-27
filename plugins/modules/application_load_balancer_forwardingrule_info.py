@@ -105,7 +105,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = '''name: List Application Load Balancer Forwarding rules
+EXAMPLES = '''
+name: List Application Load Balancer Forwarding rules
 ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule_info:
   datacenter: ''
   application_load_balancer: ''

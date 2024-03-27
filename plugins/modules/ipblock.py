@@ -170,7 +170,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create ipblock
+  'present' : '''
+name: Create ipblock
 ionoscloudsdk.ionoscloud.ipblock:
   name: 'AnsibleAutoTestCompute'
   location: 'gb/lhr'
@@ -178,7 +179,8 @@ ionoscloudsdk.ionoscloud.ipblock:
   state: present
 register: response
 ''',
-  'absent' : '''name: Remove ipblock
+  'absent' : '''
+name: Remove ipblock
 ionoscloudsdk.ionoscloud.ipblock:
   ipblock: 'AnsibleAutoTestCompute'
   state: absent
@@ -186,13 +188,15 @@ register: delete_result
 ''',
 }
 
-EXAMPLES = """name: Create ipblock
+EXAMPLES = """
+name: Create ipblock
 ionoscloudsdk.ionoscloud.ipblock:
   name: 'AnsibleAutoTestCompute'
   location: 'gb/lhr'
   size: 2
   state: present
 register: response
+
 
 name: Remove ipblock
 ionoscloudsdk.ionoscloud.ipblock:

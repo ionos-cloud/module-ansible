@@ -165,14 +165,16 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create Certificate
+    'present': '''
+name: Create Certificate
 ionoscloudsdk.ionoscloud.certificate:
   certificate_name: 'test_certificate'
   certificate_file: 'certificate.pem'
   private_key_file: 'key.pem'
 register: certificate
 ''',
-    'update': '''name: Create Certificate no change
+    'update': '''
+name: Create Certificate no change
 ionoscloudsdk.ionoscloud.certificate:
   state: update
   certificate: ''
@@ -181,19 +183,22 @@ ionoscloudsdk.ionoscloud.certificate:
   allow_replace: false
 register: certificatenochange
 ''',
-    'absent': '''name: Delete Certificate
+    'absent': '''
+name: Delete Certificate
 ionoscloudsdk.ionoscloud.certificate:
   certificate: ''
   state: absent
 ''',
 }
 
-EXAMPLES = """name: Create Certificate
+EXAMPLES = """
+name: Create Certificate
 ionoscloudsdk.ionoscloud.certificate:
   certificate_name: 'test_certificate'
   certificate_file: 'certificate.pem'
   private_key_file: 'key.pem'
 register: certificate
+
 
 name: Create Certificate no change
 ionoscloudsdk.ionoscloud.certificate:
@@ -203,6 +208,7 @@ ionoscloudsdk.ionoscloud.certificate:
   certificate_file: 'certificate.pem'
   allow_replace: false
 register: certificatenochange
+
 
 name: Delete Certificate
 ionoscloudsdk.ionoscloud.certificate:

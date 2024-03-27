@@ -6,6 +6,7 @@ This is a simple module that supports listing existing Registry Tokens
 
 
 ```yaml
+
 name: List Registry Tokens
 ionoscloudsdk.ionoscloud.registry_token_info:
   registry: ''

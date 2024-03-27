@@ -92,7 +92,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List VM Autoscaling Group Servers
+EXAMPLES = """
+name: List VM Autoscaling Group Servers
 ionoscloudsdk.ionoscloud.vm_autoscaling_server_info:
   vm_autoscaling_group: ''
 register: vm_autoscaling_servers_response

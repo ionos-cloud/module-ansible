@@ -6,6 +6,7 @@ This is a simple module that supports listing Application Load Balancers.
 
 
 ```yaml
+
 name: List Application Load Balancers
 ionoscloudsdk.ionoscloud.application_load_balancer_info:
   datacenter: ''

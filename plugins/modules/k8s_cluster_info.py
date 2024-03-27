@@ -83,7 +83,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Clusters
+EXAMPLES = """
+name: List Clusters
 ionoscloudsdk.ionoscloud.k8s_cluster_info: null
 register: k8s_cluster_list_response
 """

@@ -6,6 +6,7 @@ This is a module that supports creating, updating, restoring or destroying Postg
 
 
 ```yaml
+
 name: Create Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster:
   postgres_version: 12
@@ -27,6 +28,7 @@ ionoscloudsdk.ionoscloud.postgres_cluster:
   wait: true
 register: cluster_response
 
+
 name: Update Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster:
   postgres_cluster: ''
@@ -37,6 +39,7 @@ ionoscloudsdk.ionoscloud.postgres_cluster:
   state: update
   wait: true
 register: updated_cluster_response
+
 
 name: Delete Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster:
@@ -108,7 +111,8 @@ ionoscloudsdk.ionoscloud.postgres_cluster:
 
 # state: **present**
 ```yaml
-  name: Create Cluster
+  
+name: Create Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster:
   postgres_version: 12
   instances: 1
@@ -275,7 +279,8 @@ register: cluster_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete Cluster
+  
+name: Delete Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster:
   postgres_cluster: ''
   state: absent
@@ -347,7 +352,8 @@ ionoscloudsdk.ionoscloud.postgres_cluster:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update Cluster
+  
+name: Update Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster:
   postgres_cluster: ''
   instances: 2
