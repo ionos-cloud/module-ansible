@@ -148,7 +148,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create share
+    'present': '''
+name: Create share
 ionoscloudsdk.ionoscloud.share:
   group: Demo
   edit_privilege: true
@@ -159,7 +160,8 @@ ionoscloudsdk.ionoscloud.share:
   state: present
 register: share
 ''',
-    'update': '''name: Update shares
+    'update': '''
+name: Update shares
 ionoscloudsdk.ionoscloud.share:
   group: Demo
   edit_privilege: false
@@ -169,7 +171,8 @@ ionoscloudsdk.ionoscloud.share:
   - ''
   state: update
 ''',
-    'absent': '''name: Remove shares
+    'absent': '''
+name: Remove shares
 ionoscloudsdk.ionoscloud.share:
   group: Demo
   resource_ids:
@@ -179,7 +182,8 @@ ionoscloudsdk.ionoscloud.share:
 ''',
 }
 
-EXAMPLES = """name: Create share
+EXAMPLES = """
+name: Create share
 ionoscloudsdk.ionoscloud.share:
   group: Demo
   edit_privilege: true
@@ -189,6 +193,7 @@ ionoscloudsdk.ionoscloud.share:
   - ''
   state: present
 register: share
+
 
 name: Update shares
 ionoscloudsdk.ionoscloud.share:
@@ -199,6 +204,7 @@ ionoscloudsdk.ionoscloud.share:
   - ''
   - ''
   state: update
+
 
 name: Remove shares
 ionoscloudsdk.ionoscloud.share:

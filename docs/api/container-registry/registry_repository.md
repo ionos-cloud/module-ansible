@@ -6,6 +6,7 @@ This is a module that supports creating, updating or destroying Repositories
 
 
 ```yaml
+
 name: Ensure Repository does not exist
 ionoscloudsdk.ionoscloud.registry_repository:
   registry: ''
@@ -22,7 +23,9 @@ ionoscloudsdk.ionoscloud.registry_repository:
 
 # state: **absent**
 ```yaml
-  name: Ensure Repository does not exist
+  
+
+name: Ensure Repository does not exist
 ionoscloudsdk.ionoscloud.registry_repository:
   registry: ''
   repository: repo-name

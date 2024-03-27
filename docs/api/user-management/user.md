@@ -6,6 +6,7 @@ This module allows you to create, update or remove a user.
 
 
 ```yaml
+
 name: Create user
 ionoscloudsdk.ionoscloud.user:
   firstname: John
@@ -16,12 +17,14 @@ ionoscloudsdk.ionoscloud.user:
   force_sec_auth: false
   state: present
 
+
 name: Add user to first group
 ionoscloudsdk.ionoscloud.user:
   user: ''
   groups:
   - 'AnsibleAutoTestUM 1'
   state: update
+
 
 name: Delete user
 ionoscloudsdk.ionoscloud.user:
@@ -70,7 +73,8 @@ ionoscloudsdk.ionoscloud.user:
 
 # state: **present**
 ```yaml
-  name: Create user
+  
+name: Create user
 ionoscloudsdk.ionoscloud.user:
   firstname: John
   lastname: Doe
@@ -181,7 +185,8 @@ ionoscloudsdk.ionoscloud.user:
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete user
+  
+name: Delete user
 ionoscloudsdk.ionoscloud.user:
   user: ''
   state: absent
@@ -252,7 +257,8 @@ ionoscloudsdk.ionoscloud.user:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Add user to first group
+  
+name: Add user to first group
 ionoscloudsdk.ionoscloud.user:
   user: ''
   groups:

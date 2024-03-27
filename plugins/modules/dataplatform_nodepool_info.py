@@ -91,7 +91,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: Get all DataPlaform nodepools from a specific cluster
+EXAMPLES = """
+name: Get all DataPlaform nodepools from a specific cluster
 ionoscloudsdk.ionoscloud.dataplatform_nodepool_info:
   cluster: ''
 register: nodepool_list_response

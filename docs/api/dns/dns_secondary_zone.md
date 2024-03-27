@@ -6,12 +6,14 @@ This is a module that supports creating, updating or destroying DNS Secondary Zo
 
 
 ```yaml
+
 name: Create Secondary Zone
 ionoscloudsdk.ionoscloud.dns_secondary_zone:
   name: 'test.example.test.ansible.com'
   description: 'test_description'
   primary_ips: ''
 register: zone_response
+
 
 name: Update Zone
 ionoscloudsdk.ionoscloud.dns_secondary_zone:
@@ -22,11 +24,13 @@ ionoscloudsdk.ionoscloud.dns_secondary_zone:
   state: update
 register: updated_zone_response
 
+
 name: Transfer Zone
 ionoscloudsdk.ionoscloud.dns_secondary_zone:
   secondary_zone: ''
   wait: false
   state: transfer
+
 
 name: Delete Zone
 ionoscloudsdk.ionoscloud.dns_secondary_zone:
@@ -79,7 +83,8 @@ ionoscloudsdk.ionoscloud.dns_secondary_zone:
 
 # state: **present**
 ```yaml
-  name: Create Secondary Zone
+  
+name: Create Secondary Zone
 ionoscloudsdk.ionoscloud.dns_secondary_zone:
   name: 'test.example.test.ansible.com'
   description: 'test_description'
@@ -162,7 +167,8 @@ register: zone_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete Zone
+  
+name: Delete Zone
 ionoscloudsdk.ionoscloud.dns_secondary_zone:
   secondary_zone: ''
   wait: true
@@ -234,7 +240,8 @@ ionoscloudsdk.ionoscloud.dns_secondary_zone:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update Zone
+  
+name: Update Zone
 ionoscloudsdk.ionoscloud.dns_secondary_zone:
   secondary_zone: ''
   description: 'zone_description_updated'
@@ -324,7 +331,8 @@ register: updated_zone_response
 &nbsp;
 # state: **transfer**
 ```yaml
-  name: Transfer Zone
+  
+name: Transfer Zone
 ionoscloudsdk.ionoscloud.dns_secondary_zone:
   secondary_zone: ''
   wait: false

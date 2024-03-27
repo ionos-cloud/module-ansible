@@ -83,7 +83,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Snapshots
+EXAMPLES = """
+name: List Snapshots
 ionoscloudsdk.ionoscloud.snapshot_info: null
 register: snapshot_list_response
 """

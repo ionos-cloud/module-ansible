@@ -85,7 +85,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Datacenters
+EXAMPLES = """
+name: List Datacenters
 ionoscloudsdk.ionoscloud.datacenter_info: null
 register: datacenter_list_response
 """

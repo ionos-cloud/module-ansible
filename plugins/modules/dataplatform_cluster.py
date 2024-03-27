@@ -168,7 +168,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create Data Platform cluster
+  'present' : '''
+name: Create Data Platform cluster
 ionoscloudsdk.ionoscloud.dataplatform_cluster:
   name: 'AnsibleAutoTestDataPlatform'
   dataplatform_version: '23.11'
@@ -181,7 +182,8 @@ ionoscloudsdk.ionoscloud.dataplatform_cluster:
   wait_timeout: 7200
 register: cluster_response
 ''',
-  'update' : '''name: Patch Data Platform cluster no change
+  'update' : '''
+name: Patch Data Platform cluster no change
 ionoscloudsdk.ionoscloud.dataplatform_cluster:
   cluster: 'AnsibleAutoTestDataPlatform'
   dataplatform_version: '23.11'
@@ -194,7 +196,8 @@ ionoscloudsdk.ionoscloud.dataplatform_cluster:
   wait_timeout: 7200
 register: cluster_response_nochange
 ''',
-  'absent' : '''name: Delete Data Platform cluster
+  'absent' : '''
+name: Delete Data Platform cluster
 ionoscloudsdk.ionoscloud.dataplatform_cluster:
   cluster: ''
   state: absent
@@ -203,7 +206,8 @@ ionoscloudsdk.ionoscloud.dataplatform_cluster:
 ''',
 }
 
-EXAMPLES = """name: Create Data Platform cluster
+EXAMPLES = """
+name: Create Data Platform cluster
 ionoscloudsdk.ionoscloud.dataplatform_cluster:
   name: 'AnsibleAutoTestDataPlatform'
   dataplatform_version: '23.11'
@@ -215,6 +219,7 @@ ionoscloudsdk.ionoscloud.dataplatform_cluster:
   wait: true
   wait_timeout: 7200
 register: cluster_response
+
 
 name: Patch Data Platform cluster no change
 ionoscloudsdk.ionoscloud.dataplatform_cluster:
@@ -228,6 +233,7 @@ ionoscloudsdk.ionoscloud.dataplatform_cluster:
   wait: true
   wait_timeout: 7200
 register: cluster_response_nochange
+
 
 name: Delete Data Platform cluster
 ionoscloudsdk.ionoscloud.dataplatform_cluster:

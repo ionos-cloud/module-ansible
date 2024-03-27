@@ -93,7 +93,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Groups
+EXAMPLES = """
+name: List Groups
 ionoscloudsdk.ionoscloud.group_info: null
 register: group_list_response
 """

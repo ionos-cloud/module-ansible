@@ -6,6 +6,7 @@ This is a simple module that supports creating or removing datacenters. A datace
 
 
 ```yaml
+
 name: Create datacenter
 ionoscloudsdk.ionoscloud.datacenter:
   name: 'AnsibleAutoTestCompute'
@@ -13,6 +14,7 @@ ionoscloudsdk.ionoscloud.datacenter:
   location: 'gb/lhr'
   wait: true
 register: datacenter_response
+
 
 name: Update datacenter no change 1
 ionoscloudsdk.ionoscloud.datacenter:
@@ -22,6 +24,7 @@ ionoscloudsdk.ionoscloud.datacenter:
   state: update
   allow_replace: false
 register: datacenter_response_no_change2
+
 
 name: Remove datacenter
 ionoscloudsdk.ionoscloud.datacenter:
@@ -165,7 +168,8 @@ register: deleted_datacenter
 
 # state: **present**
 ```yaml
-  name: Create datacenter
+  
+name: Create datacenter
 ionoscloudsdk.ionoscloud.datacenter:
   name: 'AnsibleAutoTestCompute'
   description: 'Ansible Compute test description'
@@ -254,7 +258,8 @@ register: datacenter_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Remove datacenter
+  
+name: Remove datacenter
 ionoscloudsdk.ionoscloud.datacenter:
   datacenter: ''
   name: 'AnsibleAutoTestCompute'
@@ -328,7 +333,8 @@ register: deleted_datacenter
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update datacenter no change 1
+  
+name: Update datacenter no change 1
 ionoscloudsdk.ionoscloud.datacenter:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute'

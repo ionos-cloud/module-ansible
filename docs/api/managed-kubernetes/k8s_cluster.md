@@ -6,6 +6,7 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 
 
 ```yaml
+
 name: Create k8s cluster
 ionoscloudsdk.ionoscloud.k8s_cluster:
   cluster_name: my-cluster-
@@ -13,6 +14,7 @@ ionoscloudsdk.ionoscloud.k8s_cluster:
     day_of_the_week: Wednesday
     time: '12:02:00'
 register: cluster_response
+
 
 name: Update k8s cluster
 ionoscloudsdk.ionoscloud.k8s_cluster:
@@ -23,6 +25,7 @@ ionoscloudsdk.ionoscloud.k8s_cluster:
     time: '12:02:00'
   state: update
 register: cluster
+
 
 name: Delete k8s cluster
 ionoscloudsdk.ionoscloud.k8s_cluster:
@@ -79,7 +82,8 @@ ionoscloudsdk.ionoscloud.k8s_cluster:
 
 # state: **present**
 ```yaml
-  name: Create k8s cluster
+  
+name: Create k8s cluster
 ionoscloudsdk.ionoscloud.k8s_cluster:
   cluster_name: my-cluster-
   maintenance_window:
@@ -193,7 +197,8 @@ register: cluster_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete k8s cluster
+  
+name: Delete k8s cluster
 ionoscloudsdk.ionoscloud.k8s_cluster:
   k8s_cluster: ''
   state: absent
@@ -265,7 +270,8 @@ ionoscloudsdk.ionoscloud.k8s_cluster:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update k8s cluster
+  
+name: Update k8s cluster
 ionoscloudsdk.ionoscloud.k8s_cluster:
   cluster_name: my_cluster
   k8s_cluster: ''

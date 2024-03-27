@@ -6,6 +6,7 @@ This is a simple module that supports creating or removing NATGateway rules. Thi
 
 
 ```yaml
+
 name: Create NAT Gateway Rule
 ionoscloudsdk.ionoscloud.nat_gateway_rule:
   datacenter: ''
@@ -22,6 +23,7 @@ ionoscloudsdk.ionoscloud.nat_gateway_rule:
   wait: true
 register: nat_gateway_rule_response
 
+
 name: Update NAT Gateway Rule
 ionoscloudsdk.ionoscloud.nat_gateway_rule:
   datacenter: ''
@@ -35,6 +37,7 @@ ionoscloudsdk.ionoscloud.nat_gateway_rule:
   wait: true
   state: update
 register: nat_gateway_rule_update_response
+
 
 name: Delete NAT Gateway Rule
 ionoscloudsdk.ionoscloud.nat_gateway_rule:
@@ -91,7 +94,8 @@ ionoscloudsdk.ionoscloud.nat_gateway_rule:
 
 # state: **present**
 ```yaml
-  name: Create NAT Gateway Rule
+  
+name: Create NAT Gateway Rule
 ionoscloudsdk.ionoscloud.nat_gateway_rule:
   datacenter: ''
   nat_gateway: ''
@@ -213,7 +217,8 @@ register: nat_gateway_rule_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete NAT Gateway Rule
+  
+name: Delete NAT Gateway Rule
 ionoscloudsdk.ionoscloud.nat_gateway_rule:
   datacenter: ''
   nat_gateway: ''
@@ -301,7 +306,8 @@ ionoscloudsdk.ionoscloud.nat_gateway_rule:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update NAT Gateway Rule
+  
+name: Update NAT Gateway Rule
 ionoscloudsdk.ionoscloud.nat_gateway_rule:
   datacenter: ''
   nat_gateway: ''

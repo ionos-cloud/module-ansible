@@ -78,7 +78,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Pipelines
+EXAMPLES = """
+name: List Pipelines
 ionoscloudsdk.ionoscloud.pipeline_info: null
 register: pipelines_response
 """

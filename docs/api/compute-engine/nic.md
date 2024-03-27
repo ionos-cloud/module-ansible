@@ -6,6 +6,7 @@ This module allows you to create, update or remove a NIC.
 
 
 ```yaml
+
 name: Create NIC
 ionoscloudsdk.ionoscloud.nic:
   name: 'AnsibleAutoTestCompute'
@@ -21,6 +22,7 @@ ionoscloudsdk.ionoscloud.nic:
   state: present
 register: ionos_cloud_nic
 
+
 name: Update NIC
 ionoscloudsdk.ionoscloud.nic:
   datacenter: 'AnsibleAutoTestCompute'
@@ -32,6 +34,7 @@ ionoscloudsdk.ionoscloud.nic:
   wait_timeout: '500'
   state: update
 register: updated_nic
+
 
 name: Remove NIC
 ionoscloudsdk.ionoscloud.nic:
@@ -111,7 +114,8 @@ ionoscloudsdk.ionoscloud.nic:
 
 # state: **present**
 ```yaml
-  name: Create NIC
+  
+name: Create NIC
 ionoscloudsdk.ionoscloud.nic:
   name: 'AnsibleAutoTestCompute'
   datacenter: 'AnsibleAutoTestCompute'
@@ -237,7 +241,8 @@ register: ionos_cloud_nic
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Remove NIC
+  
+name: Remove NIC
 ionoscloudsdk.ionoscloud.nic:
   nic: ''
   datacenter: 'AnsibleAutoTestCompute'
@@ -322,7 +327,8 @@ ionoscloudsdk.ionoscloud.nic:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update NIC
+  
+name: Update NIC
 ionoscloudsdk.ionoscloud.nic:
   datacenter: 'AnsibleAutoTestCompute'
   server: 'AnsibleAutoTestCompute'

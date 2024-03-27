@@ -6,6 +6,7 @@ This is a simple module that supports listing k8s nodepools.
 
 
 ```yaml
+
 name: List Nodepools
 ionoscloudsdk.ionoscloud.k8s_nodepool_info:
   k8s_cluster: ''

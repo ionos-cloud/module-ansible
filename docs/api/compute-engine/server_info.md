@@ -6,6 +6,7 @@ This is a simple module that supports listing servers.
 
 
 ```yaml
+
 name: List Servers
 ionoscloudsdk.ionoscloud.server_info:
   datacenter: 'AnsibleAutoTestCompute'

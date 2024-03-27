@@ -93,7 +93,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Nodepools
+EXAMPLES = """
+name: List Nodepools
 ionoscloudsdk.ionoscloud.k8s_nodepool_info:
   k8s_cluster: ''
 register: k8s_nodepool_list_response

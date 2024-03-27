@@ -6,6 +6,7 @@ This is a simple module that supports listing NAT Gateways.
 
 
 ```yaml
+
 name: List NAT Gateways
 ionoscloudsdk.ionoscloud.nat_gateway_info:
   datacenter: ''

@@ -277,7 +277,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create a firewall rule
+    'present': '''
+name: Create a firewall rule
 ionoscloudsdk.ionoscloud.firewall_rule:
   datacenter: 'AnsibleAutoTestCompute'
   server: 'AnsibleAutoTestCompute'
@@ -288,7 +289,8 @@ ionoscloudsdk.ionoscloud.firewall_rule:
   ip_version: IPv6
   state: present
 ''',
-    'update': '''name: Update firewall rule
+    'update': '''
+name: Update firewall rule
 ionoscloudsdk.ionoscloud.firewall_rule:
   datacenter: 'AnsibleAutoTestCompute'
   server: 'AnsibleAutoTestCompute'
@@ -298,7 +300,8 @@ ionoscloudsdk.ionoscloud.firewall_rule:
   port_range_end: 23
   state: update
 ''',
-    'absent': '''name: Remove firewall rule
+    'absent': '''
+name: Remove firewall rule
 ionoscloudsdk.ionoscloud.firewall_rule:
   datacenter: 'AnsibleAutoTestCompute'
   server: 'AnsibleAutoTestCompute'
@@ -310,7 +313,8 @@ ionoscloudsdk.ionoscloud.firewall_rule:
 ''',
 }
 
-EXAMPLES = """name: Create a firewall rule
+EXAMPLES = """
+name: Create a firewall rule
 ionoscloudsdk.ionoscloud.firewall_rule:
   datacenter: 'AnsibleAutoTestCompute'
   server: 'AnsibleAutoTestCompute'
@@ -321,6 +325,7 @@ ionoscloudsdk.ionoscloud.firewall_rule:
   ip_version: IPv6
   state: present
 
+
 name: Update firewall rule
 ionoscloudsdk.ionoscloud.firewall_rule:
   datacenter: 'AnsibleAutoTestCompute'
@@ -330,6 +335,7 @@ ionoscloudsdk.ionoscloud.firewall_rule:
   port_range_start: 22
   port_range_end: 23
   state: update
+
 
 name: Remove firewall rule
 ionoscloudsdk.ionoscloud.firewall_rule:

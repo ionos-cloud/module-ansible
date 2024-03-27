@@ -6,6 +6,7 @@ This is a simple module that supports listing Flowlogs.
 
 
 ```yaml
+
 name: List NIC Flowlogs
 ionoscloudsdk.ionoscloud.nic_flowlog_info:
   datacenter: 'AnsibleAutoTestCompute'

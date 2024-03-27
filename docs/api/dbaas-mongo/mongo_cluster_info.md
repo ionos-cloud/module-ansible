@@ -6,6 +6,7 @@ This is a simple module that supports listing existing the users in a Mongo Clus
 
 
 ```yaml
+
 name: List Mongo Clusters
 ionoscloudsdk.ionoscloud.mongo_cluster_info: null
 register: mongo_clusters_response

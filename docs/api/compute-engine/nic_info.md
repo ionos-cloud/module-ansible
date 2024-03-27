@@ -6,6 +6,7 @@ This is a simple module that supports listing NICs.
 
 
 ```yaml
+
 name: List NICs
 ionoscloudsdk.ionoscloud.nic_info:
   datacenter: 'AnsibleAutoTestCompute'

@@ -6,6 +6,7 @@ This is a simple module that supports listing Shares.
 
 
 ```yaml
+
 name: List Shares
 ionoscloudsdk.ionoscloud.share_info:
   group: Demo

@@ -200,7 +200,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create user
+    'present': '''
+name: Create user
 ionoscloudsdk.ionoscloud.user:
   firstname: John
   lastname: Doe
@@ -210,21 +211,24 @@ ionoscloudsdk.ionoscloud.user:
   force_sec_auth: false
   state: present
 ''',
-    'update': '''name: Add user to first group
+    'update': '''
+name: Add user to first group
 ionoscloudsdk.ionoscloud.user:
   user: ''
   groups:
   - 'AnsibleAutoTestUM 1'
   state: update
 ''',
-    'absent': '''name: Delete user
+    'absent': '''
+name: Delete user
 ionoscloudsdk.ionoscloud.user:
   user: ''
   state: absent
 ''',
 }
 
-EXAMPLES = """name: Create user
+EXAMPLES = """
+name: Create user
 ionoscloudsdk.ionoscloud.user:
   firstname: John
   lastname: Doe
@@ -233,6 +237,7 @@ ionoscloudsdk.ionoscloud.user:
   user_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   force_sec_auth: false
   state: present
+
 
 name: Add user to first group
 ionoscloudsdk.ionoscloud.user:
@@ -240,6 +245,7 @@ ionoscloudsdk.ionoscloud.user:
   groups:
   - 'AnsibleAutoTestUM 1'
   state: update
+
 
 name: Delete user
 ionoscloudsdk.ionoscloud.user:

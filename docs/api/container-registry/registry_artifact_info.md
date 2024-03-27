@@ -6,6 +6,7 @@ This is a simple module that supports listing existing Artifacts
 
 
 ```yaml
+
 name: List artifacts
 ionoscloudsdk.ionoscloud.registry_artifact_info:
   registry: ''

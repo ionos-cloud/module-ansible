@@ -6,6 +6,7 @@ This is a module that supports creating and destroying Mongo Cluster Users
 
 
 ```yaml
+
 name: Create Cluster User
 ionoscloudsdk.ionoscloud.mongo_cluster_user:
   mongo_cluster: ''
@@ -15,6 +16,7 @@ ionoscloudsdk.ionoscloud.mongo_cluster_user:
   - role: read
     database: test
 register: mongo_user_response
+
 
 name: Update User
 ionoscloudsdk.ionoscloud.mongo_cluster_user:
@@ -28,6 +30,7 @@ ionoscloudsdk.ionoscloud.mongo_cluster_user:
     database: test
   state: update
 register: mongo_user_response
+
 
 name: Delete Cluster User
 ionoscloudsdk.ionoscloud.mongo_cluster_user:
@@ -75,7 +78,8 @@ register: mongo_user_response
 
 # state: **present**
 ```yaml
-  name: Create Cluster User
+  
+name: Create Cluster User
 ionoscloudsdk.ionoscloud.mongo_cluster_user:
   mongo_cluster: ''
   mongo_username: testuser
@@ -166,7 +170,8 @@ register: mongo_user_response
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update User
+  
+name: Update User
 ionoscloudsdk.ionoscloud.mongo_cluster_user:
   mongo_cluster: ''
   mongo_username: testuser
@@ -260,7 +265,8 @@ register: mongo_user_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete Cluster User
+  
+name: Delete Cluster User
 ionoscloudsdk.ionoscloud.mongo_cluster_user:
   mongo_cluster: ''
   mongo_username: testuser

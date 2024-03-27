@@ -6,6 +6,7 @@ This is a simple module that supports creating or removing Target Groups.
 
 
 ```yaml
+
 name: Create Target Group
 ionoscloudsdk.ionoscloud.target_group:
   name: 'AnsibleAutoTestALB'
@@ -31,6 +32,7 @@ ionoscloudsdk.ionoscloud.target_group:
   wait: true
 register: target_group_response
 
+
 name: Update Target Group
 ionoscloudsdk.ionoscloud.target_group:
   name: 'AnsibleAutoTestALB - UPDATED'
@@ -40,6 +42,7 @@ ionoscloudsdk.ionoscloud.target_group:
   wait: true
   state: update
 register: target_group_response_update
+
 
 name: Remove Target Group
 ionoscloudsdk.ionoscloud.target_group:
@@ -111,7 +114,8 @@ ionoscloudsdk.ionoscloud.target_group:
 
 # state: **present**
 ```yaml
-  name: Create Target Group
+  
+name: Create Target Group
 ionoscloudsdk.ionoscloud.target_group:
   name: 'AnsibleAutoTestALB'
   algorithm: ROUND_ROBIN
@@ -227,7 +231,8 @@ register: target_group_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Remove Target Group
+  
+name: Remove Target Group
 ionoscloudsdk.ionoscloud.target_group:
   target_group: ''
   wait: true
@@ -305,7 +310,8 @@ ionoscloudsdk.ionoscloud.target_group:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update Target Group
+  
+name: Update Target Group
 ionoscloudsdk.ionoscloud.target_group:
   name: 'AnsibleAutoTestALB - UPDATED'
   algorithm: ROUND_ROBIN

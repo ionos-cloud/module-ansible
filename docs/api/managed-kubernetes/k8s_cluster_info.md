@@ -6,6 +6,7 @@ This is a simple module that supports listing k8s clusters.
 
 
 ```yaml
+
 name: List Clusters
 ionoscloudsdk.ionoscloud.k8s_cluster_info: null
 register: k8s_cluster_list_response

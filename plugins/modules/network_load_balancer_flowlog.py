@@ -182,7 +182,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create Network Load Balancer Flowlog
+  'present' : '''
+name: Create Network Load Balancer Flowlog
 ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
   name: 'AnsibleAutoTestNLB'
   action: ACCEPTED
@@ -193,7 +194,8 @@ ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
   wait: true
 register: nlb_flowlog_response
 ''',
-  'update' : '''name: Update Network Load Balancer Flowlog
+  'update' : '''
+name: Update Network Load Balancer Flowlog
 ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
   datacenter: ''
   network_load_balancer: ''
@@ -206,7 +208,8 @@ ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
   state: update
 register: nlb_flowlog_update_response
 ''',
-  'absent' : '''name: Delete Network Load Balancer Flowlog
+  'absent' : '''
+name: Delete Network Load Balancer Flowlog
 ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
   datacenter: ''
   network_load_balancer: ''
@@ -215,7 +218,8 @@ ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
 ''',
 }
 
-EXAMPLES = """name: Create Network Load Balancer Flowlog
+EXAMPLES = """
+name: Create Network Load Balancer Flowlog
 ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
   name: 'AnsibleAutoTestNLB'
   action: ACCEPTED
@@ -225,6 +229,7 @@ ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
   network_load_balancer: ''
   wait: true
 register: nlb_flowlog_response
+
 
 name: Update Network Load Balancer Flowlog
 ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
@@ -238,6 +243,7 @@ ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
   wait: true
   state: update
 register: nlb_flowlog_update_response
+
 
 name: Delete Network Load Balancer Flowlog
 ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:

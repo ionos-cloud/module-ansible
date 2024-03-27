@@ -78,7 +78,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Mongo Clusters
+EXAMPLES = """
+name: List Mongo Clusters
 ionoscloudsdk.ionoscloud.mongo_cluster_info: null
 register: mongo_clusters_response
 """

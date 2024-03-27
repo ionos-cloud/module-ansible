@@ -303,7 +303,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create Cluster
+    'present': '''
+name: Create Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster:
   postgres_version: 12
   instances: 1
@@ -324,7 +325,8 @@ ionoscloudsdk.ionoscloud.postgres_cluster:
   wait: true
 register: cluster_response
 ''',
-    'update': '''name: Update Cluster
+    'update': '''
+name: Update Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster:
   postgres_cluster: ''
   instances: 2
@@ -335,7 +337,8 @@ ionoscloudsdk.ionoscloud.postgres_cluster:
   wait: true
 register: updated_cluster_response
 ''',
-    'absent': '''name: Delete Cluster
+    'absent': '''
+name: Delete Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster:
   postgres_cluster: ''
   state: absent
@@ -343,7 +346,8 @@ ionoscloudsdk.ionoscloud.postgres_cluster:
 ''',
 }
 
-EXAMPLES = """name: Create Cluster
+EXAMPLES = """
+name: Create Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster:
   postgres_version: 12
   instances: 1
@@ -363,6 +367,7 @@ ionoscloudsdk.ionoscloud.postgres_cluster:
   db_password: 7357cluster
   wait: true
 register: cluster_response
+
 
 name: Update Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster:
@@ -374,6 +379,7 @@ ionoscloudsdk.ionoscloud.postgres_cluster:
   state: update
   wait: true
 register: updated_cluster_response
+
 
 name: Delete Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster:

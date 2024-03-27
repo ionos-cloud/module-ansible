@@ -217,7 +217,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create NAT Gateway Rule
+  'present' : '''
+name: Create NAT Gateway Rule
 ionoscloudsdk.ionoscloud.nat_gateway_rule:
   datacenter: ''
   nat_gateway: ''
@@ -233,7 +234,8 @@ ionoscloudsdk.ionoscloud.nat_gateway_rule:
   wait: true
 register: nat_gateway_rule_response
 ''',
-  'update' : '''name: Update NAT Gateway Rule
+  'update' : '''
+name: Update NAT Gateway Rule
 ionoscloudsdk.ionoscloud.nat_gateway_rule:
   datacenter: ''
   nat_gateway: ''
@@ -247,7 +249,8 @@ ionoscloudsdk.ionoscloud.nat_gateway_rule:
   state: update
 register: nat_gateway_rule_update_response
 ''',
-  'absent' : '''name: Delete NAT Gateway Rule
+  'absent' : '''
+name: Delete NAT Gateway Rule
 ionoscloudsdk.ionoscloud.nat_gateway_rule:
   datacenter: ''
   nat_gateway: ''
@@ -256,7 +259,8 @@ ionoscloudsdk.ionoscloud.nat_gateway_rule:
 ''',
 }
 
-EXAMPLES = """name: Create NAT Gateway Rule
+EXAMPLES = """
+name: Create NAT Gateway Rule
 ionoscloudsdk.ionoscloud.nat_gateway_rule:
   datacenter: ''
   nat_gateway: ''
@@ -271,6 +275,7 @@ ionoscloudsdk.ionoscloud.nat_gateway_rule:
   public_ip: ''
   wait: true
 register: nat_gateway_rule_response
+
 
 name: Update NAT Gateway Rule
 ionoscloudsdk.ionoscloud.nat_gateway_rule:
@@ -285,6 +290,7 @@ ionoscloudsdk.ionoscloud.nat_gateway_rule:
   wait: true
   state: update
 register: nat_gateway_rule_update_response
+
 
 name: Delete NAT Gateway Rule
 ionoscloudsdk.ionoscloud.nat_gateway_rule:

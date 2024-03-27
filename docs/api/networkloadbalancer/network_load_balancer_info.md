@@ -6,6 +6,7 @@ This is a simple module that supports listing Network Loadbalancers.
 
 
 ```yaml
+
 name: List Network Load Balancers
 ionoscloudsdk.ionoscloud.network_load_balancer_info:
   datacenter: ''

@@ -6,6 +6,7 @@ This is a simple module that supports listing S3Keys.
 
 
 ```yaml
+
 name: List s3keys
 ionoscloudsdk.ionoscloud.s3key_info:
   user: ''

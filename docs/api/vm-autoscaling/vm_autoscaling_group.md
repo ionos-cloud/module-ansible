@@ -6,6 +6,7 @@ This is a module that supports creating, updating or destroying VM Autoscaling G
 
 
 ```yaml
+
 name: Create VM Autoscaling Group
 ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   datacenter: 'AnsibleVMAutoscaling'
@@ -26,6 +27,7 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True}, {'lan': 1, 'name': 'SDK_TEST_NIC2', 'dhcp': False}]'
   volumes: '[{'image': 'b6d8c6f2-febc-11ed-86e8-2e7f0689c849', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
 register: vm_autoscaling_group_response
+
 
 name: Update VM Ausocaling Group
 ionoscloudsdk.ionoscloud.vm_autoscaling_group:
@@ -50,6 +52,7 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   do_not_replace: false
   state: update
 register: vm_autoscaling_group_response
+
 
 name: Remove VM Ausocaling Group
 ionoscloudsdk.ionoscloud.vm_autoscaling_group:
@@ -188,7 +191,8 @@ register: vm_autoscaling_group_response
 
 # state: **present**
 ```yaml
-  name: Create VM Autoscaling Group
+  
+name: Create VM Autoscaling Group
 ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   datacenter: 'AnsibleVMAutoscaling'
   name: 'AnsibleVMAutoscalingGroup'
@@ -360,7 +364,8 @@ register: vm_autoscaling_group_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Remove VM Ausocaling Group
+  
+name: Remove VM Ausocaling Group
 ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   vm_autoscaling_group: 'AnsibleVMAutoscalingGroup'
   state: absent
@@ -432,7 +437,8 @@ register: vm_autoscaling_group_response
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update VM Ausocaling Group
+  
+name: Update VM Ausocaling Group
 ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   vm_autoscaling_group: ''
   datacenter: 'AnsibleVMAutoscalingUpdate'

@@ -6,6 +6,7 @@ This is a simple module that supports listing DNS Zones.
 
 
 ```yaml
+
 name: List Zones
 ionoscloudsdk.ionoscloud.dns_zone_info: null
 register: zones_response

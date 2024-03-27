@@ -6,6 +6,7 @@ This is a simple module that supports listing existing VM Autoscaling Group Acti
 
 
 ```yaml
+
 name: List VM Autoscaling Group Actions
 ionoscloudsdk.ionoscloud.vm_autoscaling_action_info:
   vm_autoscaling_group: ''

@@ -103,7 +103,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Servers
+EXAMPLES = """
+name: List Servers
 ionoscloudsdk.ionoscloud.server_info:
   datacenter: 'AnsibleAutoTestCompute'
 register: server_list_response

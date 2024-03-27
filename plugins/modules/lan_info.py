@@ -93,7 +93,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List LANs
+EXAMPLES = """
+name: List LANs
 ionoscloudsdk.ionoscloud.lan_info:
   datacenter: 'AnsibleAutoTestCompute'
 register: lan_list_response

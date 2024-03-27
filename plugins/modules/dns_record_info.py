@@ -98,7 +98,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List all Records in zone
+EXAMPLES = """
+name: List all Records in zone
 ionoscloudsdk.ionoscloud.dns_record_info:
   zone: 'test.example.test.ansible.com'
 register: records_response

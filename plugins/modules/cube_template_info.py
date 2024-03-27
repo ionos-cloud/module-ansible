@@ -105,13 +105,16 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: List templates
+  'present' : '''
+
+name: List templates
 ionoscloudsdk.ionoscloud.cube_template_info: null
 register: template_list
   ''',
 }
 
-EXAMPLES = """name: List templates
+EXAMPLES = """
+name: List templates
 ionoscloudsdk.ionoscloud.cube_template_info: null
 register: template_list
 """

@@ -114,7 +114,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Firewall Rules
+EXAMPLES = """
+name: List Firewall Rules
 ionoscloudsdk.ionoscloud.firewall_rule_info:
   datacenter: 'AnsibleAutoTestCompute'
   server: 'AnsibleAutoTestCompute'

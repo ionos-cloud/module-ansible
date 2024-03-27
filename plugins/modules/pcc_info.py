@@ -83,7 +83,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List PCCs
+EXAMPLES = """
+name: List PCCs
 ionoscloudsdk.ionoscloud.pcc_info: null
 register: pcc_list_response
 """

@@ -134,31 +134,36 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create pcc
+    'present': '''
+name: Create pcc
 ionoscloudsdk.ionoscloud.pcc:
   name: 'AnsibleAutoTestCompute'
   description: 'Ansible Compute test description'
 register: result
 ''',
-    'update': '''name: Update pcc
+    'update': '''
+name: Update pcc
 ionoscloudsdk.ionoscloud.pcc:
   pcc: 'AnsibleAutoTestCompute'
   name: RENAMED AnsibleAutoTestCompute
   description: 'Ansible Compute test description - RENAME'
   state: update
 ''',
-    'absent': '''name: Remove pcc
+    'absent': '''
+name: Remove pcc
 ionoscloudsdk.ionoscloud.pcc:
   pcc: ''
   state: absent
 ''',
 }
 
-EXAMPLES = """name: Create pcc
+EXAMPLES = """
+name: Create pcc
 ionoscloudsdk.ionoscloud.pcc:
   name: 'AnsibleAutoTestCompute'
   description: 'Ansible Compute test description'
 register: result
+
 
 name: Update pcc
 ionoscloudsdk.ionoscloud.pcc:
@@ -166,6 +171,7 @@ ionoscloudsdk.ionoscloud.pcc:
   name: RENAMED AnsibleAutoTestCompute
   description: 'Ansible Compute test description - RENAME'
   state: update
+
 
 name: Remove pcc
 ionoscloudsdk.ionoscloud.pcc:

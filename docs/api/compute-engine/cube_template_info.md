@@ -6,6 +6,7 @@ This is a simple module that supports retrieving one or more Cube templates
 
 
 ```yaml
+
 name: List templates
 ionoscloudsdk.ionoscloud.cube_template_info: null
 register: template_list

@@ -6,6 +6,7 @@ Create, update, destroy, update, start, stop, and reboot a Ionos virtual machine
 
 
 ```yaml
+
 name: Provision two servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
@@ -29,6 +30,7 @@ ionoscloudsdk.ionoscloud.server:
   state: present
 register: server_create_result
 
+
 name: Update servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
@@ -41,6 +43,7 @@ ionoscloudsdk.ionoscloud.server:
   wait_timeout: '500'
   state: update
 
+
 name: Remove servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
@@ -51,6 +54,7 @@ ionoscloudsdk.ionoscloud.server:
   wait_timeout: '500'
   state: absent
 
+
 name: Start servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
@@ -59,6 +63,7 @@ ionoscloudsdk.ionoscloud.server:
   - 'AnsibleAutoTestCompute 02'
   wait_timeout: '500'
   state: running
+
 
 name: Stop servers
 ionoscloudsdk.ionoscloud.server:
@@ -152,7 +157,8 @@ ionoscloudsdk.ionoscloud.server:
 
 # state: **running**
 ```yaml
-  name: Start servers
+  
+name: Start servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
   instance_ids:
@@ -232,7 +238,8 @@ ionoscloudsdk.ionoscloud.server:
 &nbsp;
 # state: **stopped**
 ```yaml
-  name: Stop servers
+  
+name: Stop servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
   instance_ids:
@@ -312,7 +319,8 @@ ionoscloudsdk.ionoscloud.server:
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Remove servers
+  
+name: Remove servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
   instance_ids:
@@ -398,7 +406,8 @@ ionoscloudsdk.ionoscloud.server:
 &nbsp;
 # state: **present**
 ```yaml
-  name: Provision two servers
+  
+name: Provision two servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute %02d'
@@ -597,7 +606,8 @@ register: server_create_result
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update servers
+  
+name: Update servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
   instance_ids:

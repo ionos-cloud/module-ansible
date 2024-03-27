@@ -6,6 +6,7 @@ This is a simple module that supports creating or removing Application Loadbalan
 
 
 ```yaml
+
 name: Create Application Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
   datacenter: ''
@@ -26,6 +27,7 @@ ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
   wait: true
 register: alb_forwarding_rule_response
 
+
 name: Update Application Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
   datacenter: ''
@@ -36,6 +38,7 @@ ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
   wait: true
   state: update
 register: alb_forwarding_rule_update_response
+
 
 name: Delete Application Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
@@ -109,7 +112,8 @@ ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
 
 # state: **present**
 ```yaml
-  name: Create Application Load Balancer Forwarding Rule
+  
+name: Create Application Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
   datacenter: ''
   application_load_balancer: ''
@@ -245,7 +249,8 @@ register: alb_forwarding_rule_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete Application Load Balancer Forwarding Rule
+  
+name: Delete Application Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
   datacenter: ''
   application_load_balancer: ''
@@ -333,7 +338,8 @@ ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update Application Load Balancer Forwarding Rule
+  
+name: Update Application Load Balancer Forwarding Rule
 ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
   datacenter: ''
   application_load_balancer: ''

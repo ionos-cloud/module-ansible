@@ -160,14 +160,16 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create backupunit
+  'present' : '''
+name: Create backupunit
 ionoscloudsdk.ionoscloud.backupunit:
   backupunit_email: 'ansible.test@mail.com'
   backupunit_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   name: My AnsibleAutoTestBackup
 register: create_result
 ''',
-  'update' : '''name: Recreate backupunit
+  'update' : '''
+name: Recreate backupunit
 ionoscloudsdk.ionoscloud.backupunit:
   backupunit: My AnsibleAutoTestBackup
   backupunit_email: 'updated.ansible.test@mail.com'
@@ -177,7 +179,8 @@ ionoscloudsdk.ionoscloud.backupunit:
   state: update
 register: recreate_result
 ''',
-  'absent' : '''name: Remove backupunit
+  'absent' : '''
+name: Remove backupunit
 ionoscloudsdk.ionoscloud.backupunit:
   backupunit: My AnsibleAutoTestBackup UPDATED
   state: absent
@@ -186,12 +189,14 @@ register: delete_result
 ''',
 }
 
-EXAMPLES = """name: Create backupunit
+EXAMPLES = """
+name: Create backupunit
 ionoscloudsdk.ionoscloud.backupunit:
   backupunit_email: 'ansible.test@mail.com'
   backupunit_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   name: My AnsibleAutoTestBackup
 register: create_result
+
 
 name: Recreate backupunit
 ionoscloudsdk.ionoscloud.backupunit:
@@ -202,6 +207,7 @@ ionoscloudsdk.ionoscloud.backupunit:
   allow_replace: true
   state: update
 register: recreate_result
+
 
 name: Remove backupunit
 ionoscloudsdk.ionoscloud.backupunit:

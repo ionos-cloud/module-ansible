@@ -194,21 +194,24 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create LAN
+  'present' : '''
+name: Create LAN
 ionoscloudsdk.ionoscloud.lan:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute'
   public: false
 register: ionos_cloud_lan
 ''',
-  'update' : '''name: Update LAN
+  'update' : '''
+name: Update LAN
 ionoscloudsdk.ionoscloud.lan:
   datacenter: 'AnsibleAutoTestCompute'
   lan: 'AnsibleAutoTestCompute'
   pcc: ''
   state: update
 ''',
-  'absent' : '''name: Remove LAN
+  'absent' : '''
+name: Remove LAN
 ionoscloudsdk.ionoscloud.lan:
   datacenter: 'AnsibleAutoTestCompute'
   lan: 'AnsibleAutoTestCompute'
@@ -217,12 +220,14 @@ ionoscloudsdk.ionoscloud.lan:
 ''',
 }
 
-EXAMPLES = """name: Create LAN
+EXAMPLES = """
+name: Create LAN
 ionoscloudsdk.ionoscloud.lan:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute'
   public: false
 register: ionos_cloud_lan
+
 
 name: Update LAN
 ionoscloudsdk.ionoscloud.lan:
@@ -230,6 +235,7 @@ ionoscloudsdk.ionoscloud.lan:
   lan: 'AnsibleAutoTestCompute'
   pcc: ''
   state: update
+
 
 name: Remove LAN
 ionoscloudsdk.ionoscloud.lan:

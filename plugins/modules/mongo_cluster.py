@@ -205,7 +205,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create Cluster
+    'present': '''
+name: Create Cluster
 ionoscloudsdk.ionoscloud.mongo_cluster:
   mongo_db_version: 5.0
   instances: 3
@@ -223,7 +224,8 @@ ionoscloudsdk.ionoscloud.mongo_cluster:
   wait_timeout: 7200
 register: cluster_response
 ''',
-    'update': '''name: Update Cluster
+    'update': '''
+name: Update Cluster
 ionoscloudsdk.ionoscloud.mongo_cluster:
   mongo_cluster: 'AnsibleTestMongoDBCluster'
   display_name: 'AnsibleTestMongoDBCluster UPDATED'
@@ -238,7 +240,8 @@ register: cluster_response
       backup_id: 9ab6545c-b138-4a86-b6ca-0d872a2b0953
       state: restore
   ''',
-    'absent': '''name: Delete Cluster
+    'absent': '''
+name: Delete Cluster
 ionoscloudsdk.ionoscloud.mongo_cluster:
   mongo_cluster: ''
   state: absent
@@ -246,7 +249,8 @@ ionoscloudsdk.ionoscloud.mongo_cluster:
 ''',
 }
 
-EXAMPLES = """name: Create Cluster
+EXAMPLES = """
+name: Create Cluster
 ionoscloudsdk.ionoscloud.mongo_cluster:
   mongo_db_version: 5.0
   instances: 3
@@ -263,6 +267,7 @@ ionoscloudsdk.ionoscloud.mongo_cluster:
   wait: true
   wait_timeout: 7200
 register: cluster_response
+
 
 name: Update Cluster
 ionoscloudsdk.ionoscloud.mongo_cluster:
@@ -279,6 +284,7 @@ register: cluster_response
       backup_id: 9ab6545c-b138-4a86-b6ca-0d872a2b0953
       state: restore
   
+
 name: Delete Cluster
 ionoscloudsdk.ionoscloud.mongo_cluster:
   mongo_cluster: ''

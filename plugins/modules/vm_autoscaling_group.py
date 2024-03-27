@@ -404,7 +404,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create VM Autoscaling Group
+    'present': '''
+name: Create VM Autoscaling Group
 ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   datacenter: 'AnsibleVMAutoscaling'
   name: 'AnsibleVMAutoscalingGroup'
@@ -425,7 +426,8 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   volumes: '[{'image': 'b6d8c6f2-febc-11ed-86e8-2e7f0689c849', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
 register: vm_autoscaling_group_response
 ''',
-    'update': '''name: Update VM Ausocaling Group
+    'update': '''
+name: Update VM Ausocaling Group
 ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   vm_autoscaling_group: ''
   datacenter: 'AnsibleVMAutoscalingUpdate'
@@ -449,7 +451,8 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   state: update
 register: vm_autoscaling_group_response
 ''',
-    'absent': '''name: Remove VM Ausocaling Group
+    'absent': '''
+name: Remove VM Ausocaling Group
 ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   vm_autoscaling_group: 'AnsibleVMAutoscalingGroup'
   state: absent
@@ -457,7 +460,8 @@ register: vm_autoscaling_group_response
 ''',
 }
 
-EXAMPLES = """name: Create VM Autoscaling Group
+EXAMPLES = """
+name: Create VM Autoscaling Group
 ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   datacenter: 'AnsibleVMAutoscaling'
   name: 'AnsibleVMAutoscalingGroup'
@@ -477,6 +481,7 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True}, {'lan': 1, 'name': 'SDK_TEST_NIC2', 'dhcp': False}]'
   volumes: '[{'image': 'b6d8c6f2-febc-11ed-86e8-2e7f0689c849', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
 register: vm_autoscaling_group_response
+
 
 name: Update VM Ausocaling Group
 ionoscloudsdk.ionoscloud.vm_autoscaling_group:
@@ -501,6 +506,7 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   do_not_replace: false
   state: update
 register: vm_autoscaling_group_response
+
 
 name: Remove VM Ausocaling Group
 ionoscloudsdk.ionoscloud.vm_autoscaling_group:

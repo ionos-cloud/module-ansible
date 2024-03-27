@@ -6,6 +6,7 @@ This is a module that supports creating and destroying Mongo Clusters
 
 
 ```yaml
+
 name: Create Cluster
 ionoscloudsdk.ionoscloud.mongo_cluster:
   mongo_db_version: 5.0
@@ -24,6 +25,7 @@ ionoscloudsdk.ionoscloud.mongo_cluster:
   wait_timeout: 7200
 register: cluster_response
 
+
 name: Update Cluster
 ionoscloudsdk.ionoscloud.mongo_cluster:
   mongo_cluster: 'AnsibleTestMongoDBCluster'
@@ -39,6 +41,7 @@ register: cluster_response
       backup_id: 9ab6545c-b138-4a86-b6ca-0d872a2b0953
       state: restore
   
+
 name: Delete Cluster
 ionoscloudsdk.ionoscloud.mongo_cluster:
   mongo_cluster: ''
@@ -107,7 +110,8 @@ ionoscloudsdk.ionoscloud.mongo_cluster:
 
 # state: **present**
 ```yaml
-  name: Create Cluster
+  
+name: Create Cluster
 ionoscloudsdk.ionoscloud.mongo_cluster:
   mongo_db_version: 5.0
   instances: 3
@@ -221,7 +225,8 @@ register: cluster_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete Cluster
+  
+name: Delete Cluster
 ionoscloudsdk.ionoscloud.mongo_cluster:
   mongo_cluster: ''
   state: absent
@@ -293,7 +298,8 @@ ionoscloudsdk.ionoscloud.mongo_cluster:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update Cluster
+  
+name: Update Cluster
 ionoscloudsdk.ionoscloud.mongo_cluster:
   mongo_cluster: 'AnsibleTestMongoDBCluster'
   display_name: 'AnsibleTestMongoDBCluster UPDATED'

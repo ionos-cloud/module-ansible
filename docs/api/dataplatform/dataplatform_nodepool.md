@@ -8,6 +8,7 @@ This is a simple module that supports creating or removing Data Platform Nodepoo
 
 
 ```yaml
+
 name: Create DataPlatform cluster nodepool
 ionoscloudsdk.ionoscloud.dataplatform_nodepool:
   name: my-nodepool
@@ -32,6 +33,7 @@ ionoscloudsdk.ionoscloud.dataplatform_nodepool:
   wait: true
   wait_timeout: 7200
 register: result
+
 
 name: Update DataPlatform cluster nodepool no change
 ionoscloudsdk.ionoscloud.dataplatform_nodepool:
@@ -60,6 +62,7 @@ ionoscloudsdk.ionoscloud.dataplatform_nodepool:
   wait_timeout: 7200
   state: update
 register: result_no_change
+
 
 name: Delete DataPlatform cluster nodepool
 ionoscloudsdk.ionoscloud.dataplatform_nodepool:
@@ -142,7 +145,8 @@ ionoscloudsdk.ionoscloud.dataplatform_nodepool:
 
 # state: **present**
 ```yaml
-  name: Create DataPlatform cluster nodepool
+  
+name: Create DataPlatform cluster nodepool
 ionoscloudsdk.ionoscloud.dataplatform_nodepool:
   name: my-nodepool
   cluster: ''
@@ -293,7 +297,8 @@ register: result
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete DataPlatform cluster nodepool
+  
+name: Delete DataPlatform cluster nodepool
 ionoscloudsdk.ionoscloud.dataplatform_nodepool:
   cluster: ''
   nodepool: ''
@@ -371,7 +376,8 @@ ionoscloudsdk.ionoscloud.dataplatform_nodepool:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update DataPlatform cluster nodepool no change
+  
+name: Update DataPlatform cluster nodepool no change
 ionoscloudsdk.ionoscloud.dataplatform_nodepool:
   cluster: ''
   nodepool: ''

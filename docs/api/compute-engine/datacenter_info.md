@@ -6,6 +6,7 @@ This is a simple module that supports listing Datacenter.
 
 
 ```yaml
+
 name: List Datacenters
 ionoscloudsdk.ionoscloud.datacenter_info: null
 register: datacenter_list_response

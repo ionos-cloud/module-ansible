@@ -143,14 +143,16 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create Secondary Zone
+    'present': '''
+name: Create Secondary Zone
 ionoscloudsdk.ionoscloud.dns_secondary_zone:
   name: 'test.example.test.ansible.com'
   description: 'test_description'
   primary_ips: ''
 register: zone_response
 ''',
-    'update': '''name: Update Zone
+    'update': '''
+name: Update Zone
 ionoscloudsdk.ionoscloud.dns_secondary_zone:
   secondary_zone: ''
   description: 'zone_description_updated'
@@ -159,13 +161,15 @@ ionoscloudsdk.ionoscloud.dns_secondary_zone:
   state: update
 register: updated_zone_response
 ''',
-    'transfer': '''name: Transfer Zone
+    'transfer': '''
+name: Transfer Zone
 ionoscloudsdk.ionoscloud.dns_secondary_zone:
   secondary_zone: ''
   wait: false
   state: transfer
 ''',
-    'absent': '''name: Delete Zone
+    'absent': '''
+name: Delete Zone
 ionoscloudsdk.ionoscloud.dns_secondary_zone:
   secondary_zone: ''
   wait: true
@@ -173,12 +177,14 @@ ionoscloudsdk.ionoscloud.dns_secondary_zone:
 ''',
 }
 
-EXAMPLES = """name: Create Secondary Zone
+EXAMPLES = """
+name: Create Secondary Zone
 ionoscloudsdk.ionoscloud.dns_secondary_zone:
   name: 'test.example.test.ansible.com'
   description: 'test_description'
   primary_ips: ''
 register: zone_response
+
 
 name: Update Zone
 ionoscloudsdk.ionoscloud.dns_secondary_zone:
@@ -189,11 +195,13 @@ ionoscloudsdk.ionoscloud.dns_secondary_zone:
   state: update
 register: updated_zone_response
 
+
 name: Transfer Zone
 ionoscloudsdk.ionoscloud.dns_secondary_zone:
   secondary_zone: ''
   wait: false
   state: transfer
+
 
 name: Delete Zone
 ionoscloudsdk.ionoscloud.dns_secondary_zone:

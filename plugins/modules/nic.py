@@ -246,7 +246,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create NIC
+    'present': '''
+name: Create NIC
 ionoscloudsdk.ionoscloud.nic:
   name: 'AnsibleAutoTestCompute'
   datacenter: 'AnsibleAutoTestCompute'
@@ -261,7 +262,8 @@ ionoscloudsdk.ionoscloud.nic:
   state: present
 register: ionos_cloud_nic
 ''',
-    'update': '''name: Update NIC
+    'update': '''
+name: Update NIC
 ionoscloudsdk.ionoscloud.nic:
   datacenter: 'AnsibleAutoTestCompute'
   server: 'AnsibleAutoTestCompute'
@@ -273,7 +275,8 @@ ionoscloudsdk.ionoscloud.nic:
   state: update
 register: updated_nic
 ''',
-    'absent': '''name: Remove NIC
+    'absent': '''
+name: Remove NIC
 ionoscloudsdk.ionoscloud.nic:
   nic: ''
   datacenter: 'AnsibleAutoTestCompute'
@@ -284,7 +287,8 @@ ionoscloudsdk.ionoscloud.nic:
 ''',
 }
 
-EXAMPLES = """name: Create NIC
+EXAMPLES = """
+name: Create NIC
 ionoscloudsdk.ionoscloud.nic:
   name: 'AnsibleAutoTestCompute'
   datacenter: 'AnsibleAutoTestCompute'
@@ -298,6 +302,7 @@ ionoscloudsdk.ionoscloud.nic:
   wait_timeout: '500'
   state: present
 register: ionos_cloud_nic
+
 
 name: Update NIC
 ionoscloudsdk.ionoscloud.nic:
@@ -310,6 +315,7 @@ ionoscloudsdk.ionoscloud.nic:
   wait_timeout: '500'
   state: update
 register: updated_nic
+
 
 name: Remove NIC
 ionoscloudsdk.ionoscloud.nic:

@@ -6,6 +6,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
 
 ```yaml
+
 name: Create Network Load Balancer
 ionoscloudsdk.ionoscloud.network_load_balancer:
   datacenter: ''
@@ -18,6 +19,7 @@ ionoscloudsdk.ionoscloud.network_load_balancer:
   wait_timeout: 2000
 register: nlb_response
 
+
 name: Update Network Load Balancer
 ionoscloudsdk.ionoscloud.network_load_balancer:
   datacenter: ''
@@ -29,6 +31,7 @@ ionoscloudsdk.ionoscloud.network_load_balancer:
   wait_timeout: 2000
   state: update
 register: nlb_response_update
+
 
 name: Remove Network Load Balancer
 ionoscloudsdk.ionoscloud.network_load_balancer:
@@ -84,7 +87,8 @@ ionoscloudsdk.ionoscloud.network_load_balancer:
 
 # state: **present**
 ```yaml
-  name: Create Network Load Balancer
+  
+name: Create Network Load Balancer
 ionoscloudsdk.ionoscloud.network_load_balancer:
   datacenter: ''
   name: 'AnsibleAutoTestNLB'
@@ -187,7 +191,8 @@ register: nlb_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Remove Network Load Balancer
+  
+name: Remove Network Load Balancer
 ionoscloudsdk.ionoscloud.network_load_balancer:
   network_load_balancer: ''
   datacenter: ''
@@ -271,7 +276,8 @@ ionoscloudsdk.ionoscloud.network_load_balancer:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update Network Load Balancer
+  
+name: Update Network Load Balancer
 ionoscloudsdk.ionoscloud.network_load_balancer:
   datacenter: ''
   network_load_balancer: ''

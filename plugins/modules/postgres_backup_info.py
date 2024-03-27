@@ -87,7 +87,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List Postgres Cluster Backups
+EXAMPLES = """
+name: List Postgres Cluster Backups
 ionoscloudsdk.ionoscloud.postgres_backup_info: null
 register: postgres_backup_response
 """

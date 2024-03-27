@@ -446,7 +446,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Provision two servers
+  'present' : '''
+name: Provision two servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute %02d'
@@ -469,7 +470,8 @@ ionoscloudsdk.ionoscloud.server:
   state: present
 register: server_create_result
 ''',
-  'update' : '''name: Update servers
+  'update' : '''
+name: Update servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
   instance_ids:
@@ -481,7 +483,8 @@ ionoscloudsdk.ionoscloud.server:
   wait_timeout: '500'
   state: update
 ''',
-  'absent' : '''name: Remove servers
+  'absent' : '''
+name: Remove servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
   instance_ids:
@@ -491,7 +494,8 @@ ionoscloudsdk.ionoscloud.server:
   wait_timeout: '500'
   state: absent
 ''',
-  'running' : '''name: Start servers
+  'running' : '''
+name: Start servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
   instance_ids:
@@ -500,7 +504,8 @@ ionoscloudsdk.ionoscloud.server:
   wait_timeout: '500'
   state: running
 ''',
-  'stopped' : '''name: Stop servers
+  'stopped' : '''
+name: Stop servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
   instance_ids:
@@ -511,7 +516,8 @@ ionoscloudsdk.ionoscloud.server:
 ''',
 }
 
-EXAMPLES = """name: Provision two servers
+EXAMPLES = """
+name: Provision two servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute %02d'
@@ -533,6 +539,7 @@ ionoscloudsdk.ionoscloud.server:
   wait_timeout: '500'
   state: present
 register: server_create_result
+
 
 name: Update servers
 ionoscloudsdk.ionoscloud.server:
@@ -546,6 +553,7 @@ ionoscloudsdk.ionoscloud.server:
   wait_timeout: '500'
   state: update
 
+
 name: Remove servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
@@ -556,6 +564,7 @@ ionoscloudsdk.ionoscloud.server:
   wait_timeout: '500'
   state: absent
 
+
 name: Start servers
 ionoscloudsdk.ionoscloud.server:
   datacenter: 'AnsibleAutoTestCompute'
@@ -564,6 +573,7 @@ ionoscloudsdk.ionoscloud.server:
   - 'AnsibleAutoTestCompute 02'
   wait_timeout: '500'
   state: running
+
 
 name: Stop servers
 ionoscloudsdk.ionoscloud.server:

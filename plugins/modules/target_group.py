@@ -188,7 +188,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create Target Group
+  'present' : '''
+name: Create Target Group
 ionoscloudsdk.ionoscloud.target_group:
   name: 'AnsibleAutoTestALB'
   algorithm: ROUND_ROBIN
@@ -213,7 +214,8 @@ ionoscloudsdk.ionoscloud.target_group:
   wait: true
 register: target_group_response
 ''',
-  'update' : '''name: Update Target Group
+  'update' : '''
+name: Update Target Group
 ionoscloudsdk.ionoscloud.target_group:
   name: 'AnsibleAutoTestALB - UPDATED'
   algorithm: ROUND_ROBIN
@@ -223,7 +225,8 @@ ionoscloudsdk.ionoscloud.target_group:
   state: update
 register: target_group_response_update
 ''',
-  'absent' : '''name: Remove Target Group
+  'absent' : '''
+name: Remove Target Group
 ionoscloudsdk.ionoscloud.target_group:
   target_group: ''
   wait: true
@@ -232,7 +235,8 @@ ionoscloudsdk.ionoscloud.target_group:
 ''',
 }
 
-EXAMPLES = """name: Create Target Group
+EXAMPLES = """
+name: Create Target Group
 ionoscloudsdk.ionoscloud.target_group:
   name: 'AnsibleAutoTestALB'
   algorithm: ROUND_ROBIN
@@ -256,6 +260,7 @@ ionoscloudsdk.ionoscloud.target_group:
     negate: false
   wait: true
 register: target_group_response
+
 
 name: Update Target Group
 ionoscloudsdk.ionoscloud.target_group:
@@ -266,6 +271,7 @@ ionoscloudsdk.ionoscloud.target_group:
   wait: true
   state: update
 register: target_group_response_update
+
 
 name: Remove Target Group
 ionoscloudsdk.ionoscloud.target_group:

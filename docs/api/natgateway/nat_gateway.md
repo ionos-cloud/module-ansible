@@ -6,6 +6,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
 
 
 ```yaml
+
 name: Create NAT Gateway
 ionoscloudsdk.ionoscloud.nat_gateway:
   datacenter: ''
@@ -19,6 +20,7 @@ ionoscloudsdk.ionoscloud.nat_gateway:
   wait: true
 register: nat_gateway_response
 
+
 name: Update NAT Gateway
 ionoscloudsdk.ionoscloud.nat_gateway:
   datacenter: ''
@@ -29,6 +31,7 @@ ionoscloudsdk.ionoscloud.nat_gateway:
   wait: true
   state: update
 register: nat_gateway_response_update
+
 
 name: Remove NAT Gateway
 ionoscloudsdk.ionoscloud.nat_gateway:
@@ -99,7 +102,8 @@ ionoscloudsdk.ionoscloud.nat_gateway:
 
 # state: **present**
 ```yaml
-  name: Create NAT Gateway
+  
+name: Create NAT Gateway
 ionoscloudsdk.ionoscloud.nat_gateway:
   datacenter: ''
   name: 'AnsibleAutoTestNAT'
@@ -193,7 +197,8 @@ register: nat_gateway_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Remove NAT Gateway
+  
+name: Remove NAT Gateway
 ionoscloudsdk.ionoscloud.nat_gateway:
   nat_gateway: ''
   datacenter: ''
@@ -277,7 +282,8 @@ ionoscloudsdk.ionoscloud.nat_gateway:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update NAT Gateway
+  
+name: Update NAT Gateway
 ionoscloudsdk.ionoscloud.nat_gateway:
   datacenter: ''
   name: 'AnsibleAutoTestNAT - UPDATED'

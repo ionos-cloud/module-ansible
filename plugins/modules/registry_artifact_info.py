@@ -97,7 +97,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List artifacts
+EXAMPLES = """
+name: List artifacts
 ionoscloudsdk.ionoscloud.registry_artifact_info:
   registry: ''
 register: artifacts_response

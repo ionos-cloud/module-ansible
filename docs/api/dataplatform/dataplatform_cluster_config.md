@@ -8,6 +8,7 @@ This is a simple module that supports getting config of DataPlatform clusters
 
 
 ```yaml
+
 name: Get kubeconfig by ID
 ionoscloudsdk.ionoscloud.dataplatform_cluster_config:
   cluster: ''
@@ -34,7 +35,9 @@ ionoscloudsdk.ionoscloud.dataplatform_cluster_config:
 
 # state: **present**
 ```yaml
-  name: Get kubeconfig by ID
+  
+
+name: Get kubeconfig by ID
 ionoscloudsdk.ionoscloud.dataplatform_cluster_config:
   cluster: ''
   config_file: config.yaml

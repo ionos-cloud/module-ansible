@@ -383,7 +383,8 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Provision a server
+  'present' : '''
+name: Provision a server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute 01'
@@ -401,7 +402,8 @@ ionoscloudsdk.ionoscloud.cube_server:
   state: present
 register: server_cube
 ''',
-  'update' : '''name: Update server
+  'update' : '''
+name: Update server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute - UPDATED'
@@ -411,7 +413,8 @@ ionoscloudsdk.ionoscloud.cube_server:
   wait_timeout: '500'
   state: update
 ''',
-  'absent' : '''name: Remove server
+  'absent' : '''
+name: Remove server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
   instance_ids:
@@ -420,7 +423,8 @@ ionoscloudsdk.ionoscloud.cube_server:
   wait_timeout: '500'
   state: absent
 ''',
-  'resume' : '''name: Resume server
+  'resume' : '''
+name: Resume server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
   instance_ids:
@@ -428,7 +432,8 @@ ionoscloudsdk.ionoscloud.cube_server:
   wait_timeout: '500'
   state: resume
 ''',
-  'suspend' : '''name: Suspend server
+  'suspend' : '''
+name: Suspend server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
   instance_ids:
@@ -438,7 +443,8 @@ ionoscloudsdk.ionoscloud.cube_server:
 ''',
 }
 
-EXAMPLES = """name: Provision a server
+EXAMPLES = """
+name: Provision a server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute 01'
@@ -455,6 +461,7 @@ ionoscloudsdk.ionoscloud.cube_server:
   wait_timeout: '500'
   state: present
 register: server_cube
+
 
 name: Update server
 ionoscloudsdk.ionoscloud.cube_server:
@@ -466,6 +473,7 @@ ionoscloudsdk.ionoscloud.cube_server:
   wait_timeout: '500'
   state: update
 
+
 name: Remove server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
@@ -475,6 +483,7 @@ ionoscloudsdk.ionoscloud.cube_server:
   wait_timeout: '500'
   state: absent
 
+
 name: Resume server
 ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
@@ -482,6 +491,7 @@ ionoscloudsdk.ionoscloud.cube_server:
   - 'AnsibleAutoTestCompute - UPDATED'
   wait_timeout: '500'
   state: resume
+
 
 name: Suspend server
 ionoscloudsdk.ionoscloud.cube_server:

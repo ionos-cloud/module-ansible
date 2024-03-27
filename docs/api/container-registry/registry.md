@@ -6,6 +6,7 @@ This is a module that supports creating, updating or destroying Registries
 
 
 ```yaml
+
 name: Create Registry
 ionoscloudsdk.ionoscloud.registry:
   name: 'ansibletest123-'
@@ -19,6 +20,7 @@ ionoscloudsdk.ionoscloud.registry:
       enabled: true
   wait: true
 register: registry_response
+
 
 name: Update Registry
 ionoscloudsdk.ionoscloud.registry:
@@ -34,6 +36,7 @@ ionoscloudsdk.ionoscloud.registry:
   allow_replace: false
   state: update
 register: updated_registry_response
+
 
 name: Delete Registry
 ionoscloudsdk.ionoscloud.registry:
@@ -96,7 +99,8 @@ ionoscloudsdk.ionoscloud.registry:
 
 # state: **present**
 ```yaml
-  name: Create Registry
+  
+name: Create Registry
 ionoscloudsdk.ionoscloud.registry:
   name: 'ansibletest123-'
   location: de/fra
@@ -196,7 +200,8 @@ register: registry_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete Registry
+  
+name: Delete Registry
 ionoscloudsdk.ionoscloud.registry:
   registry: ''
   wait: true
@@ -268,7 +273,8 @@ ionoscloudsdk.ionoscloud.registry:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update Registry
+  
+name: Update Registry
 ionoscloudsdk.ionoscloud.registry:
   registry: ''
   garbage_collection_schedule:

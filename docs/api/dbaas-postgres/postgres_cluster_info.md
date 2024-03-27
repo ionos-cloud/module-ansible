@@ -6,6 +6,7 @@ This is a simple module that supports listing existing Postgres Clusters
 
 
 ```yaml
+
 name: List Postgres Clusters
 ionoscloudsdk.ionoscloud.postgres_cluster_info: null
 register: postgres_clusters_response

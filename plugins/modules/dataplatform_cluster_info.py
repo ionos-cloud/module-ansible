@@ -82,7 +82,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: Get all Data Platform clusters
+EXAMPLES = """
+name: Get all Data Platform clusters
 ionoscloudsdk.ionoscloud.dataplatform_cluster_info: null
 register: cluster_list_response
 """

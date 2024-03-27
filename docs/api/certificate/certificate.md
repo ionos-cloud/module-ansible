@@ -6,12 +6,14 @@ This is a simple module that supports uploading, updating or deleting certificat
 
 
 ```yaml
+
 name: Create Certificate
 ionoscloudsdk.ionoscloud.certificate:
   certificate_name: 'test_certificate'
   certificate_file: 'certificate.pem'
   private_key_file: 'key.pem'
 register: certificate
+
 
 name: Create Certificate no change
 ionoscloudsdk.ionoscloud.certificate:
@@ -21,6 +23,7 @@ ionoscloudsdk.ionoscloud.certificate:
   certificate_file: 'certificate.pem'
   allow_replace: false
 register: certificatenochange
+
 
 name: Delete Certificate
 ionoscloudsdk.ionoscloud.certificate:
@@ -73,7 +76,8 @@ ionoscloudsdk.ionoscloud.certificate:
 
 # state: **present**
 ```yaml
-  name: Create Certificate
+  
+name: Create Certificate
 ionoscloudsdk.ionoscloud.certificate:
   certificate_name: 'test_certificate'
   certificate_file: 'certificate.pem'
@@ -166,7 +170,8 @@ register: certificate
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete Certificate
+  
+name: Delete Certificate
 ionoscloudsdk.ionoscloud.certificate:
   certificate: ''
   state: absent
@@ -242,7 +247,8 @@ ionoscloudsdk.ionoscloud.certificate:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Create Certificate no change
+  
+name: Create Certificate no change
 ionoscloudsdk.ionoscloud.certificate:
   state: update
   certificate: ''

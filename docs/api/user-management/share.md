@@ -6,6 +6,7 @@ This module allows you to add, update or remove resource shares.
 
 
 ```yaml
+
 name: Create share
 ionoscloudsdk.ionoscloud.share:
   group: Demo
@@ -17,6 +18,7 @@ ionoscloudsdk.ionoscloud.share:
   state: present
 register: share
 
+
 name: Update shares
 ionoscloudsdk.ionoscloud.share:
   group: Demo
@@ -26,6 +28,7 @@ ionoscloudsdk.ionoscloud.share:
   - ''
   - ''
   state: update
+
 
 name: Remove shares
 ionoscloudsdk.ionoscloud.share:
@@ -76,7 +79,8 @@ ionoscloudsdk.ionoscloud.share:
 
 # state: **present**
 ```yaml
-  name: Create share
+  
+name: Create share
 ionoscloudsdk.ionoscloud.share:
   group: Demo
   edit_privilege: true
@@ -168,7 +172,8 @@ register: share
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Remove shares
+  
+name: Remove shares
 ionoscloudsdk.ionoscloud.share:
   group: Demo
   resource_ids:
@@ -247,7 +252,8 @@ ionoscloudsdk.ionoscloud.share:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Update shares
+  
+name: Update shares
 ionoscloudsdk.ionoscloud.share:
   group: Demo
   edit_privilege: false

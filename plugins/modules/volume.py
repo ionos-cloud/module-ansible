@@ -397,7 +397,8 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create volumes
+  'present' : '''
+name: Create volumes
 ionoscloudsdk.ionoscloud.volume:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute %02d'
@@ -418,7 +419,8 @@ ionoscloudsdk.ionoscloud.volume:
   state: present
 register: volume_create_response
 ''',
-  'update' : '''name: Update no change
+  'update' : '''
+name: Update no change
 ionoscloudsdk.ionoscloud.volume:
   datacenter: 'AnsibleAutoTestCompute'
   instance_ids:
@@ -439,7 +441,8 @@ ionoscloudsdk.ionoscloud.volume:
   state: update
 register: volume_create_response_nochange
 ''',
-  'absent' : '''name: Delete volumes
+  'absent' : '''
+name: Delete volumes
 ionoscloudsdk.ionoscloud.volume:
   datacenter: 'AnsibleAutoTestCompute'
   instance_ids:
@@ -450,7 +453,8 @@ ionoscloudsdk.ionoscloud.volume:
 ''',
 }
 
-EXAMPLES = """name: Create volumes
+EXAMPLES = """
+name: Create volumes
 ionoscloudsdk.ionoscloud.volume:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute %02d'
@@ -470,6 +474,7 @@ ionoscloudsdk.ionoscloud.volume:
   wait: true
   state: present
 register: volume_create_response
+
 
 name: Update no change
 ionoscloudsdk.ionoscloud.volume:
@@ -491,6 +496,7 @@ ionoscloudsdk.ionoscloud.volume:
   wait: true
   state: update
 register: volume_create_response_nochange
+
 
 name: Delete volumes
 ionoscloudsdk.ionoscloud.volume:

@@ -153,19 +153,22 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create an s3key
+    'present': '''
+name: Create an s3key
 ionoscloudsdk.ionoscloud.s3key:
   user: ''
 register: result
 ''',
-    'update': '''name: Update an s3key
+    'update': '''
+name: Update an s3key
 ionoscloudsdk.ionoscloud.s3key:
   user: ''
   key_id: ''
   active: false
   state: update
 ''',
-    'absent': '''name: Remove an s3key
+    'absent': '''
+name: Remove an s3key
 ionoscloudsdk.ionoscloud.s3key:
   user: ''
   key_id: ''
@@ -173,10 +176,12 @@ ionoscloudsdk.ionoscloud.s3key:
 ''',
 }
 
-EXAMPLES = """name: Create an s3key
+EXAMPLES = """
+name: Create an s3key
 ionoscloudsdk.ionoscloud.s3key:
   user: ''
 register: result
+
 
 name: Update an s3key
 ionoscloudsdk.ionoscloud.s3key:
@@ -184,6 +189,7 @@ ionoscloudsdk.ionoscloud.s3key:
   key_id: ''
   active: false
   state: update
+
 
 name: Remove an s3key
 ionoscloudsdk.ionoscloud.s3key:

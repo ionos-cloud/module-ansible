@@ -94,7 +94,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """name: List NAT Gateways
+EXAMPLES = """
+name: List NAT Gateways
 ionoscloudsdk.ionoscloud.nat_gateway_info:
   datacenter: ''
 register: nat_gateway_list_response

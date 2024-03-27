@@ -105,7 +105,8 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = '''name: List Application Load Balancer Flowlogs
+EXAMPLES = '''
+name: List Application Load Balancer Flowlogs
 ionoscloudsdk.ionoscloud.application_load_balancer_flowlog_info:
   datacenter: ''
   application_load_balancer: ''

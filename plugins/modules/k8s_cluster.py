@@ -224,7 +224,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''name: Create k8s cluster
+  'present' : '''
+name: Create k8s cluster
 ionoscloudsdk.ionoscloud.k8s_cluster:
   cluster_name: my-cluster-
   maintenance_window:
@@ -232,7 +233,8 @@ ionoscloudsdk.ionoscloud.k8s_cluster:
     time: '12:02:00'
 register: cluster_response
 ''',
-  'update' : '''name: Update k8s cluster
+  'update' : '''
+name: Update k8s cluster
 ionoscloudsdk.ionoscloud.k8s_cluster:
   cluster_name: my_cluster
   k8s_cluster: ''
@@ -242,7 +244,8 @@ ionoscloudsdk.ionoscloud.k8s_cluster:
   state: update
 register: cluster
 ''',
-  'absent' : '''name: Delete k8s cluster
+  'absent' : '''
+name: Delete k8s cluster
 ionoscloudsdk.ionoscloud.k8s_cluster:
   k8s_cluster: ''
   state: absent
@@ -250,13 +253,15 @@ ionoscloudsdk.ionoscloud.k8s_cluster:
 ''',
 }
 
-EXAMPLES = """name: Create k8s cluster
+EXAMPLES = """
+name: Create k8s cluster
 ionoscloudsdk.ionoscloud.k8s_cluster:
   cluster_name: my-cluster-
   maintenance_window:
     day_of_the_week: Wednesday
     time: '12:02:00'
 register: cluster_response
+
 
 name: Update k8s cluster
 ionoscloudsdk.ionoscloud.k8s_cluster:
@@ -267,6 +272,7 @@ ionoscloudsdk.ionoscloud.k8s_cluster:
     time: '12:02:00'
   state: update
 register: cluster
+
 
 name: Delete k8s cluster
 ionoscloudsdk.ionoscloud.k8s_cluster:

@@ -6,6 +6,7 @@ This module allows you to create, update or remove a group.
 
 
 ```yaml
+
 name: Create group
 ionoscloudsdk.ionoscloud.group:
   name: 'AnsibleAutoTestUM'
@@ -24,12 +25,14 @@ ionoscloudsdk.ionoscloud.group:
   manage_dbaas: true
 register: group_response
 
+
 name: Add user1 to group
 ionoscloudsdk.ionoscloud.group:
   group: 'AnsibleAutoTestUM'
   users:
   - ''
   state: update
+
 
 name: Delete group
 ionoscloudsdk.ionoscloud.group:
@@ -82,7 +85,8 @@ ionoscloudsdk.ionoscloud.group:
 
 # state: **present**
 ```yaml
-  name: Create group
+  
+name: Create group
 ionoscloudsdk.ionoscloud.group:
   name: 'AnsibleAutoTestUM'
   create_datacenter: true
@@ -236,7 +240,8 @@ register: group_response
 &nbsp;
 # state: **absent**
 ```yaml
-  name: Delete group
+  
+name: Delete group
 ionoscloudsdk.ionoscloud.group:
   group: 'AnsibleAutoTestUM'
   state: absent
@@ -312,7 +317,8 @@ ionoscloudsdk.ionoscloud.group:
 &nbsp;
 # state: **update**
 ```yaml
-  name: Add user1 to group
+  
+name: Add user1 to group
 ionoscloudsdk.ionoscloud.group:
   group: 'AnsibleAutoTestUM'
   users:

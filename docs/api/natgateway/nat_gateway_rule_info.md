@@ -6,6 +6,7 @@ This is a simple module that supports listing NAT Gateway Rules.
 
 
 ```yaml
+
 name: List NAT Gateway Rules
 ionoscloudsdk.ionoscloud.nat_gateway_rule_info:
   datacenter: ''

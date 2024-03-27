@@ -6,6 +6,7 @@ This is a simple module that supports listing LANs.
 
 
 ```yaml
+
 name: List LANs
 ionoscloudsdk.ionoscloud.lan_info:
   datacenter: 'AnsibleAutoTestCompute'

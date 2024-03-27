@@ -174,7 +174,8 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create Registry Token
+    'present': '''
+name: Create Registry Token
 ionoscloudsdk.ionoscloud.registry_token:
   registry: ''
   name: testRegistryToken
@@ -187,7 +188,8 @@ ionoscloudsdk.ionoscloud.registry_token:
   status: enabled
 register: registry_token_response
 ''',
-    'update': '''name: Update Registry Token
+    'update': '''
+name: Update Registry Token
 ionoscloudsdk.ionoscloud.registry_token:
   registry: ''
   registry_token: ''
@@ -203,7 +205,8 @@ ionoscloudsdk.ionoscloud.registry_token:
   state: update
 register: registry_token_response
 ''',
-    'absent': '''name: Delete Registry Token
+    'absent': '''
+name: Delete Registry Token
 ionoscloudsdk.ionoscloud.registry_token:
   registry: ''
   registry_token: ''
@@ -212,7 +215,8 @@ register: registry_token_response
 ''',
 }
 
-EXAMPLES = """name: Create Registry Token
+EXAMPLES = """
+name: Create Registry Token
 ionoscloudsdk.ionoscloud.registry_token:
   registry: ''
   name: testRegistryToken
@@ -224,6 +228,7 @@ ionoscloudsdk.ionoscloud.registry_token:
     type: repository
   status: enabled
 register: registry_token_response
+
 
 name: Update Registry Token
 ionoscloudsdk.ionoscloud.registry_token:
@@ -240,6 +245,7 @@ ionoscloudsdk.ionoscloud.registry_token:
   allow_replace: false
   state: update
 register: registry_token_response
+
 
 name: Delete Registry Token
 ionoscloudsdk.ionoscloud.registry_token:

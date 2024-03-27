@@ -6,6 +6,7 @@ This is a simple module that supports getting the config of K8s clusters This mo
 
 
 ```yaml
+
 name: Get k8s config
 ionoscloudsdk.ionoscloud.k8s_config:
   k8s_cluster: ''
@@ -33,7 +34,9 @@ ionoscloudsdk.ionoscloud.k8s_config:
 
 # state: **present**
 ```yaml
-  name: Get k8s config
+  
+
+name: Get k8s config
 ionoscloudsdk.ionoscloud.k8s_config:
   k8s_cluster: ''
   config_file: config.yaml

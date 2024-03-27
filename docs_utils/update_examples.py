@@ -15,7 +15,7 @@ def find_examples_in_test_file(filename, module_reference, left_states, state_ex
                 module_reference in task.keys()
                 and task.get(module_reference, {}).get('state', 'present') in left_states
             ):
-                state_examples[task.get(module_reference, {}).get('state', 'present')] = chevron.render(
+                state_examples[task.get(module_reference, {}).get('state', 'present')] = '\n' + chevron.render(
                     yaml.dump(task, default_flow_style=False, sort_keys=False),
                     test_vars,
                 )
@@ -27,7 +27,7 @@ def find_info_examples_in_test_file(filename, module_reference, left_states, sta
         test_file = yaml.load(f.read(), Loader=yaml.SafeLoader)
         for task in test_file[0]['tasks']:
             if module_reference in task.keys() and 'info' in left_states:
-                    state_examples['info'] = chevron.render(
+                    state_examples['info'] = '\n' + chevron.render(
                         yaml.dump(task, default_flow_style=False, sort_keys=False),
                         test_vars,
                     )

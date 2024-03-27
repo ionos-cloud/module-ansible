@@ -141,14 +141,16 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''name: Create Zone
+    'present': '''
+name: Create Zone
 ionoscloudsdk.ionoscloud.dns_zone:
   name: 'test.example.test.ansible.com'
   description: 'test_description'
   enabled: 'False'
 register: zone_response
 ''',
-    'update': '''name: Update Zone
+    'update': '''
+name: Update Zone
 ionoscloudsdk.ionoscloud.dns_zone:
   zone: ''
   description: 'zone_description_updated'
@@ -157,7 +159,8 @@ ionoscloudsdk.ionoscloud.dns_zone:
   state: update
 register: updated_zone_response
 ''',
-    'absent': '''name: Delete Zone
+    'absent': '''
+name: Delete Zone
 ionoscloudsdk.ionoscloud.dns_zone:
   zone: ''
   wait: true
@@ -165,12 +168,14 @@ ionoscloudsdk.ionoscloud.dns_zone:
 ''',
 }
 
-EXAMPLES = """name: Create Zone
+EXAMPLES = """
+name: Create Zone
 ionoscloudsdk.ionoscloud.dns_zone:
   name: 'test.example.test.ansible.com'
   description: 'test_description'
   enabled: 'False'
 register: zone_response
+
 
 name: Update Zone
 ionoscloudsdk.ionoscloud.dns_zone:
@@ -180,6 +185,7 @@ ionoscloudsdk.ionoscloud.dns_zone:
   allow_replace: false
   state: update
 register: updated_zone_response
+
 
 name: Delete Zone
 ionoscloudsdk.ionoscloud.dns_zone:

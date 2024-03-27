@@ -6,6 +6,7 @@ This is a simple module that supports listing IP Blocks.
 
 
 ```yaml
+
 name: List IP Blocks
 ionoscloudsdk.ionoscloud.ipblock_info: null
 register: ipblock_list_response
