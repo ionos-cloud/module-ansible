@@ -122,14 +122,19 @@
   #     content: "{{cluster_response}}"
   #     dest: ../../docs/returned_object_examples/mariadb_cluster.json
 
-  - name: Update Cluster
+  - name: Replace Cluster
     ionoscloudsdk.ionoscloud.mariadb_cluster:
       mariadb_cluster: "{{ cluster_response.mariadb_cluster.properties.display_name }}"
+      mariadb_version: 10.6
       instances: 1
       cores: 4
       ram: 4
       storage_size: 20
+      display_name: MariaDB-clusterNew
+      db_username: db_admin123
+      db_password: password123
       state: update
+      allow_replace: true
       wait: true
     register: updated_cluster_response
 

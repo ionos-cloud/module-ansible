@@ -93,6 +93,12 @@ This is a module that supports creating, updating or destroying MariaDB Clusters
 ## Parameters that can trigger a resource replacement:
   * mariadb_version 
   * connections 
+  * maintenance_window 
+  * instances 
+  * cores 
+  * ram 
+  * storage_size 
+  * display_name 
 &nbsp;
 
 # state: **present**

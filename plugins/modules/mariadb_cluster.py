@@ -105,6 +105,12 @@ OPTIONS = {
 IMMUTABLE_OPTIONS = [
     { "name": "mariadb_version", "note": "" },
     { "name": "connections", "note": "" },
+    { "name": "maintenance_window", "note": "" },
+    { "name": "instances", "note": "" },
+    { "name": "cores", "note": "" },
+    { "name": "ram", "note": "" },
+    { "name": "storage_size", "note": "" },
+    { "name": "display_name", "note": "" },
 ]
 
 DOCUMENTATION = """
@@ -346,10 +352,7 @@ class MariaDBClusterModule(CommonIonosModule):
             )
             or self.module.params.get('mariadb_version') is not None
             and existing_object.properties.mariadb_version != self.module.params.get('mariadb_version')
-        )
-
-    def _should_update_object(self, existing_object, clients):
-        return (
+            or 
             self.module.params.get('display_name') is not None
             and existing_object.properties.display_name != self.module.params.get('display_name')
                     or self.module.params.get('maintenance_window') is not None
@@ -365,6 +368,9 @@ class MariaDBClusterModule(CommonIonosModule):
             or self.module.params.get('ram') is not None
             and existing_object.properties.ram != self.module.params.get('ram')
         )
+
+    def _should_update_object(self, existing_object, clients):
+        return False
 
     def _get_object_list(self, clients):
         return ionoscloud_dbaas_mariadb.ClustersApi(clients[0]).clusters_get()
@@ -388,21 +394,24 @@ class MariaDBClusterModule(CommonIonosModule):
         if existing_object is not None:
             maintenance_window = existing_object.properties.maintenance_window if maintenance_window is None else maintenance_window
 
-        connection = self.module.params.get('connections')[0]
+        if self.module.params.get('connections'):
+            connection = self.module.params.get('connections')[0]
 
-        datacenter_id = get_resource_id(self.module, ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=2), connection['datacenter'])
+            datacenter_id = get_resource_id(self.module, ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=2), connection['datacenter'])
 
-        if datacenter_id is None:
-            self.module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))
-        
-        lan_id = get_resource_id(self.module, ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1), connection['lan'])
+            if datacenter_id is None:
+                self.module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))
+            
+            lan_id = get_resource_id(self.module, ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1), connection['lan'])
 
-        if lan_id is None:
-            self.module.fail_json('LAN {} not found.'.format(connection['lan']))
+            if lan_id is None:
+                self.module.fail_json('LAN {} not found.'.format(connection['lan']))
 
-        connections = [
-            ionoscloud_dbaas_mariadb.Connection(datacenter_id=datacenter_id, lan_id=lan_id, cidr=connection['cidr']),
-        ]
+            connections = [
+                ionoscloud_dbaas_mariadb.Connection(datacenter_id=datacenter_id, lan_id=lan_id, cidr=connection['cidr']),
+            ]
+        else:
+            connections = existing_object.properties.connections if existing_object is not None else None
 
         clusters_api = ionoscloud_dbaas_mariadb.ClustersApi(dbaas_client)
 
@@ -437,48 +446,7 @@ class MariaDBClusterModule(CommonIonosModule):
 
 
     def _update_object(self, existing_object, clients):
-        dbaas_client = clients[0]
-        clusters_api = ionoscloud_dbaas_mariadb.ClustersApi(dbaas_client)
-        dbaas_client.wait_for(
-            fn_request=lambda: clusters_api.clusters_find_by_id(existing_object.id),
-            fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
-            scaleup=10000,
-        )
-        maintenance_window = self.module.params.get('maintenance_window')
-        if maintenance_window:
-            maintenance_window = dict(self.module.params.get('maintenance_window'))
-            maintenance_window['dayOfTheWeek'] = maintenance_window.pop('day_of_the_week')
-
-        clusters_api = ionoscloud_dbaas_mariadb.ClustersApi(dbaas_client)
-
-        mariadb_cluster_properties = ionoscloud_dbaas_mariadb.PatchClusterProperties(
-            instances=self.module.params.get('instances'),
-            cores=self.module.params.get('cores'),
-            ram=self.module.params.get('ram'),
-            storage_size=self.module.params.get('storage_size'),
-            display_name=self.module.params.get('display_name'),
-            maintenance_window=maintenance_window,
-        )
-
-        mariadb_cluster = ionoscloud_dbaas_mariadb.PatchClusterRequest(properties=mariadb_cluster_properties)
-
-        try:
-            mariadb_cluster = clusters_api.clusters_patch(
-                cluster_id=existing_object.id,
-                patch_cluster_request=mariadb_cluster,
-            )
-
-            if self.module.params.get('wait'):
-                dbaas_client.wait_for(
-                    fn_request=lambda: clusters_api.clusters_find_by_id(mariadb_cluster.id),
-                    fn_check=lambda cluster: cluster.metadata.state == 'AVAILABLE',
-                    scaleup=10000,
-                    timeout=self.module.params.get('wait_timeout'),
-                )
-
-        except Exception as e:
-            self.module.fail_json(msg="failed to update the MariaDB Cluster: %s" % to_native(e))
-        return mariadb_cluster
+        pass
 
 
     def _remove_object(self, existing_object, clients):
