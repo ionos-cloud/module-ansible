@@ -7,45 +7,43 @@ This is a simple module that supports creating or removing NATGateways. This mod
 
 ```yaml
 
-  - name: Create NAT Gateway
-    nat_gateway:
-      datacenter: DatacenterName
-      name: NATGatewayName
-      public_ips:
-        - <ip1>
-        - <ip2>
-      lans:
-        - id: 1
-          gateway_ips: "10.11.2.5/24"
-      wait: true
-    register: nat_gateway_response
-  
+name: Create NAT Gateway
+ionoscloudsdk.ionoscloud.nat_gateway:
+  datacenter: ''
+  name: 'AnsibleAutoTestNAT'
+  public_ips: ''
+  lans:
+  - id: ''
+    gateway_ips:
+    - 10.11.2.5/24
+  wait_timeout: 2000
+  wait: true
+register: nat_gateway_response
 
-  - name: Update NAT Gateway
-    nat_gateway:
-      datacenter: DatacenterName
-      name: "NATGatewayName - UPDATED"
-      public_ips:
-        - <ip1>
-        - <ip2>
-      nat_gateway: NATGatewayName
-      wait: true
-      state: update
-    register: nat_gateway_response_update
-  
 
-  - name: Remove NAT Gateway
-    nat_gateway:
-      nat_gateway: NATGatewayName
-      datacenter: DatacenterName
-      wait: true
-      wait_timeout: 2000
-      state: absent
+name: Update NAT Gateway
+ionoscloudsdk.ionoscloud.nat_gateway:
+  datacenter: ''
+  name: 'AnsibleAutoTestNAT - UPDATED'
+  public_ips: ''
+  nat_gateway: ''
+  wait_timeout: 2000
+  wait: true
+  state: update
+register: nat_gateway_response_update
+
+
+name: Remove NAT Gateway
+ionoscloudsdk.ionoscloud.nat_gateway:
+  nat_gateway: ''
+  datacenter: ''
+  wait: false
+  wait_timeout: 2000
+  state: absent
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -97,6 +95,7 @@ This is a simple module that supports creating or removing NATGateways. This mod
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/natgateway).
 &nbsp;
 
 &nbsp;
@@ -104,19 +103,19 @@ This is a simple module that supports creating or removing NATGateways. This mod
 # state: **present**
 ```yaml
   
-  - name: Create NAT Gateway
-    nat_gateway:
-      datacenter: DatacenterName
-      name: NATGatewayName
-      public_ips:
-        - <ip1>
-        - <ip2>
-      lans:
-        - id: 1
-          gateway_ips: "10.11.2.5/24"
-      wait: true
-    register: nat_gateway_response
-  
+name: Create NAT Gateway
+ionoscloudsdk.ionoscloud.nat_gateway:
+  datacenter: ''
+  name: 'AnsibleAutoTestNAT'
+  public_ips: ''
+  lans:
+  - id: ''
+    gateway_ips:
+    - 10.11.2.5/24
+  wait_timeout: 2000
+  wait: true
+register: nat_gateway_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -199,14 +198,14 @@ This is a simple module that supports creating or removing NATGateways. This mod
 # state: **absent**
 ```yaml
   
-  - name: Remove NAT Gateway
-    nat_gateway:
-      nat_gateway: NATGatewayName
-      datacenter: DatacenterName
-      wait: true
-      wait_timeout: 2000
-      state: absent
-  
+name: Remove NAT Gateway
+ionoscloudsdk.ionoscloud.nat_gateway:
+  nat_gateway: ''
+  datacenter: ''
+  wait: false
+  wait_timeout: 2000
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -284,18 +283,17 @@ This is a simple module that supports creating or removing NATGateways. This mod
 # state: **update**
 ```yaml
   
-  - name: Update NAT Gateway
-    nat_gateway:
-      datacenter: DatacenterName
-      name: "NATGatewayName - UPDATED"
-      public_ips:
-        - <ip1>
-        - <ip2>
-      nat_gateway: NATGatewayName
-      wait: true
-      state: update
-    register: nat_gateway_response_update
-  
+name: Update NAT Gateway
+ionoscloudsdk.ionoscloud.nat_gateway:
+  datacenter: ''
+  name: 'AnsibleAutoTestNAT - UPDATED'
+  public_ips: ''
+  nat_gateway: ''
+  wait_timeout: 2000
+  wait: true
+  state: update
+register: nat_gateway_response_update
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

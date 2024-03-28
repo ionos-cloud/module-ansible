@@ -7,9 +7,9 @@ This is a simple module that supports listing Backupunits.
 
 ```yaml
 
-    - name: Get all Backupunits
-      backupunit_info:
-      register: backupunit_list_response
+name: List backupunits
+ionoscloudsdk.ionoscloud.backupunit_info: null
+register: backupunit_list_response
 
 ```
 
@@ -68,6 +68,7 @@ This is a simple module that supports listing Backupunits.
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/managed-backup).
 
 &nbsp;
 ### Available parameters:

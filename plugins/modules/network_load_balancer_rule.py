@@ -214,82 +214,92 @@ author:
 
 EXAMPLE_PER_STATE = {
   'present' : '''
-  - name: Create Network Load Balancer Forwarding Rule
-    network_load_balancer_rule:
-      name: RuleName
-      algorithm: "ROUND_ROBIN"
-      protocol: "TCP"
-      listener_ip: "10.12.118.224"
-      listener_port: "8081"
-      targets:
-        - ip: "22.231.2.2"
-          port: "8080"
-          weight: "123"
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      wait: true
-    register: nlb_forwarding_rule_response
-  ''',
+name: Create Network Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.network_load_balancer_rule:
+  name: 'AnsibleAutoTestNLB'
+  algorithm: ROUND_ROBIN
+  protocol: TCP
+  listener_ip: 10.12.118.224
+  listener_port: '8081'
+  targets:
+  - ip: 22.231.2.2
+    port: '8080'
+    weight: '123'
+  health_check:
+    client_timeout: 50
+    connect_timeout: 5000
+    target_timeout: 5000
+    retries: 1
+  datacenter: ''
+  network_load_balancer: ''
+  wait: true
+register: nlb_forwarding_rule_response
+''',
   'update' : '''
-  - name: Update Network Load Balancer Forwarding Rule
-    network_load_balancer_rule:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      forwarding_rule: RuleName
-      name: "RuleName - UPDATED"
-      algorithm: "ROUND_ROBIN"
-      protocol: "TCP"
-      wait: true
-      state: update
-    register: nlb_forwarding_rule_update_response
-  ''',
+name: Update Network Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.network_load_balancer_rule:
+  datacenter: ''
+  network_load_balancer: ''
+  forwarding_rule: ''
+  name: 'AnsibleAutoTestNLB - UPDATED'
+  algorithm: ROUND_ROBIN
+  protocol: TCP
+  wait: true
+  state: update
+register: nlb_forwarding_rule_update_response
+''',
   'absent' : '''
-  - name: Delete Network Load Balancer Forwarding Rule
-    network_load_balancer_rule:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      forwarding_rule: "RuleName - UPDATED"
-      state: absent
-  ''',
+name: Delete Network Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.network_load_balancer_rule:
+  datacenter: ''
+  network_load_balancer: ''
+  forwarding_rule: ''
+  state: absent
+''',
 }
 
 EXAMPLES = """
-  - name: Create Network Load Balancer Forwarding Rule
-    network_load_balancer_rule:
-      name: RuleName
-      algorithm: "ROUND_ROBIN"
-      protocol: "TCP"
-      listener_ip: "10.12.118.224"
-      listener_port: "8081"
-      targets:
-        - ip: "22.231.2.2"
-          port: "8080"
-          weight: "123"
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      wait: true
-    register: nlb_forwarding_rule_response
-  
+name: Create Network Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.network_load_balancer_rule:
+  name: 'AnsibleAutoTestNLB'
+  algorithm: ROUND_ROBIN
+  protocol: TCP
+  listener_ip: 10.12.118.224
+  listener_port: '8081'
+  targets:
+  - ip: 22.231.2.2
+    port: '8080'
+    weight: '123'
+  health_check:
+    client_timeout: 50
+    connect_timeout: 5000
+    target_timeout: 5000
+    retries: 1
+  datacenter: ''
+  network_load_balancer: ''
+  wait: true
+register: nlb_forwarding_rule_response
 
-  - name: Update Network Load Balancer Forwarding Rule
-    network_load_balancer_rule:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      forwarding_rule: RuleName
-      name: "RuleName - UPDATED"
-      algorithm: "ROUND_ROBIN"
-      protocol: "TCP"
-      wait: true
-      state: update
-    register: nlb_forwarding_rule_update_response
-  
 
-  - name: Delete Network Load Balancer Forwarding Rule
-    network_load_balancer_rule:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      forwarding_rule: "RuleName - UPDATED"
-      state: absent
+name: Update Network Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.network_load_balancer_rule:
+  datacenter: ''
+  network_load_balancer: ''
+  forwarding_rule: ''
+  name: 'AnsibleAutoTestNLB - UPDATED'
+  algorithm: ROUND_ROBIN
+  protocol: TCP
+  wait: true
+  state: update
+register: nlb_forwarding_rule_update_response
+
+
+name: Delete Network Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.network_load_balancer_rule:
+  datacenter: ''
+  network_load_balancer: ''
+  forwarding_rule: ''
+  state: absent
 """
 
 

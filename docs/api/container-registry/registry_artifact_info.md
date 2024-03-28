@@ -7,15 +7,10 @@ This is a simple module that supports listing existing Artifacts
 
 ```yaml
 
-    - name: List Artifacts
-        registry_artifact_info:
-            registry: "RegistryName"
-            repository: "repositoryName"
-        register: artifacts_response
-
-    - name: Show Artifacts
-        debug:
-            var: artifacts_response.result
+name: List artifacts
+ionoscloudsdk.ionoscloud.registry_artifact_info:
+  registry: ''
+register: artifacts_response
 
 ```
 
@@ -73,6 +68,7 @@ This is a simple module that supports listing existing Artifacts
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/container-registry).
 
 &nbsp;
 ### Available parameters:

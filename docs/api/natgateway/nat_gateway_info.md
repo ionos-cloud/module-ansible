@@ -7,15 +7,16 @@ This is a simple module that supports listing NAT Gateways.
 
 ```yaml
 
-    - name: Get all NAT Gateways in a datacenter
-      nat_gateway_info:
-        datacenter: "AnsibleDatacenter"
-      register: nat_gateway_list_response
+name: List NAT Gateways
+ionoscloudsdk.ionoscloud.nat_gateway_info:
+  datacenter: ''
+register: nat_gateway_list_response
 
 ```
 
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/natgateway).
 
 &nbsp;
 ### Available parameters:

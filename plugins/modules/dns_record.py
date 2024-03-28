@@ -219,69 +219,75 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''- name: Create record
-    dns_record:
-      zone: example.com
-      name: record_name
-      type: MX
-      content: record_content
-      ttl: 3600
-      priority: 10
-      enabled: true
-    register: record_response
-  ''',
-    'update': '''- name: Update record
-    dns_record:
-      zone: example.com
-      record: record_name2
-      name: record_name2
-      type: MX
-      content: record_content
-      ttl: 1800
-      priority: 9
-      enabled: true
-      state: update
-    register: updated_record_response
-  ''',
-    'absent': '''- name: Delete record
-    dns_record:
-      zone: example.com
-      record: record_name2
-      wait: true
-      state: absent
-  ''',
+    'present': '''
+name: Create Record
+ionoscloudsdk.ionoscloud.dns_record:
+  zone: 'test.example.test.ansible.com'
+  name: 'sdk-team-test-record'
+  type: 'CNAME'
+  content: '1.2.3.4'
+  ttl: '3600'
+  priority: '35535'
+  enabled: 'True'
+register: record_response
+''',
+    'update': '''
+name: Update record
+ionoscloudsdk.ionoscloud.dns_record:
+  zone: 'test.example.test.ansible.com'
+  record: 'sdk-team-test-record'
+  type: 'CNAME'
+  content: '2.2.3.4'
+  ttl: '1800'
+  priority: '16'
+  enabled: 'False'
+  allow_replace: false
+  state: update
+register: updated_record_response
+''',
+    'absent': '''
+name: Delete Record
+ionoscloudsdk.ionoscloud.dns_record:
+  zone: 'test.example.test.ansible.com'
+  record: ''
+  wait: true
+  state: absent
+''',
 }
 
-EXAMPLES = """- name: Create record
-    dns_record:
-      zone: example.com
-      name: record_name
-      type: MX
-      content: record_content
-      ttl: 3600
-      priority: 10
-      enabled: true
-    register: record_response
-  
-- name: Update record
-    dns_record:
-      zone: example.com
-      record: record_name2
-      name: record_name2
-      type: MX
-      content: record_content
-      ttl: 1800
-      priority: 9
-      enabled: true
-      state: update
-    register: updated_record_response
-  
-- name: Delete record
-    dns_record:
-      zone: example.com
-      record: record_name2
-      wait: true
-      state: absent
+EXAMPLES = """
+name: Create Record
+ionoscloudsdk.ionoscloud.dns_record:
+  zone: 'test.example.test.ansible.com'
+  name: 'sdk-team-test-record'
+  type: 'CNAME'
+  content: '1.2.3.4'
+  ttl: '3600'
+  priority: '35535'
+  enabled: 'True'
+register: record_response
+
+
+name: Update record
+ionoscloudsdk.ionoscloud.dns_record:
+  zone: 'test.example.test.ansible.com'
+  record: 'sdk-team-test-record'
+  type: 'CNAME'
+  content: '2.2.3.4'
+  ttl: '1800'
+  priority: '16'
+  enabled: 'False'
+  allow_replace: false
+  state: update
+register: updated_record_response
+
+
+name: Delete Record
+ionoscloudsdk.ionoscloud.dns_record:
+  zone: 'test.example.test.ansible.com'
+  record: ''
+  wait: true
+  state: absent
 """
 
 

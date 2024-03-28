@@ -9,14 +9,10 @@ This is a simple module that supports listing existing DataPlatform Nodepools
 
 ```yaml
 
-    - name: List DataPlatform Nodepools
-        dataplatform_nodepool_info:
-            cluster: ClusterName
-        register: dataplatform_nodepools_response
-
-    - name: Show DataPlatform Clusters
-        debug:
-            var: dataplatform_nodepools_response.result
+name: Get all DataPlaform nodepools from a specific cluster
+ionoscloudsdk.ionoscloud.dataplatform_nodepool_info:
+  cluster: ''
+register: nodepool_list_response
 
 ```
 
@@ -78,6 +74,7 @@ This is a simple module that supports listing existing DataPlatform Nodepools
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/dataplatform).
 
 &nbsp;
 ### Available parameters:

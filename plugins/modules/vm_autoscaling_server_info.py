@@ -93,14 +93,10 @@ author:
 """
 
 EXAMPLES = """
-    - name: List VM Autoscaling Group Servers
-        vm_autoscaling_server_info:
-            vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
-        register: vm_autoscaling_servers_response
-
-    - name: Show VM Autoscaling Group Servers
-        debug:
-            var: vm_autoscaling_servers_response.result
+name: List VM Autoscaling Group Servers
+ionoscloudsdk.ionoscloud.vm_autoscaling_server_info:
+  vm_autoscaling_group: ''
+register: vm_autoscaling_servers_response
 """
 
 

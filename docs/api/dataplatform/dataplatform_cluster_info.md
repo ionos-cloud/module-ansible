@@ -9,13 +9,9 @@ This is a simple module that supports listing existing DataPlatform Clusters
 
 ```yaml
 
-    - name: List DataPlatform Clusters
-        dataplatform_cluster_info:
-        register: dataplatform_clusters_response
-
-    - name: Show DataPlatform Clusters
-        debug:
-            var: dataplatform_clusters_response.result
+name: Get all Data Platform clusters
+ionoscloudsdk.ionoscloud.dataplatform_cluster_info: null
+register: cluster_list_response
 
 ```
 
@@ -62,6 +58,7 @@ This is a simple module that supports listing existing DataPlatform Clusters
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/dataplatform).
 
 &nbsp;
 ### Available parameters:

@@ -6,44 +6,40 @@ This is a module that supports creating, updating or destroying Pipelines
 
 
 ```yaml
-- name: Create Pipeline
-    pipeline:
-      name: test_pipeline
-      logs:
-        - source: kubernetes
-          tag: tag
-          protocol: http
-          destinations:
-            - type: loki
-            - retention_in_days: 7
-    register: pipeline_response
-  
-- name: Update Pipeline
-    pipeline:
-      pipeline: test_pipeline
-      name: test_pipeline_updated
-      logs:
-        - source: kubernetes
-          tag: new_tag
-          protocol: http
-          labels:
-            - label
-          destinations:
-            - type: loki
-            - retention_in_days: 10
-      state: update
-    register: updated_pipeline_response
-  
-- name: Delete Pipeline
-    pipeline:
-      pipeline: test_pipeline
-      wait: true
-      state: absent
+
+name: Create Pipeline
+ionoscloudsdk.ionoscloud.pipeline:
+  name: 'ansiblepipelinetest'
+  logs: '[{'source': 'kubernetes', 'tag': 'tag', 'protocol': 'http', 'destinations': [{'type': 'loki', 'retention_in_days': 7}]}]'
+  wait: true
+  wait_timeout: 1200
+register: pipeline_response
+
+
+name: Update pipeline
+ionoscloudsdk.ionoscloud.pipeline:
+  pipeline: ''
+  name: 'ansiblepipeNEW'
+  logs: '[{'source': 'docker', 'tag': 'differenttag', 'protocol': 'tcp', 'labels': ['1'], 'destinations': [{'type': 'loki', 'retention_in_days': 14}]}, {'source': 'kubernetes', 'tag': 'updatedtag', 'protocol': 'http', 'labels': ['2'], 'destinations': [{'type': 'loki', 'retention_in_days': 14}]}]'
+  state: update
+register: updated_pipeline_response
+
+
+name: Delete pipeline
+ionoscloudsdk.ionoscloud.pipeline:
+  pipeline: ''
+  wait: true
+  state: absent
+
+
+name: Renew Pipeline key
+ionoscloudsdk.ionoscloud.pipeline:
+  pipeline: ''
+  state: renew
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -108,24 +104,22 @@ This is a module that supports creating, updating or destroying Pipelines
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/logging).
 &nbsp;
 
 &nbsp;
 
 # state: **present**
 ```yaml
-  - name: Create Pipeline
-    pipeline:
-      name: test_pipeline
-      logs:
-        - source: kubernetes
-          tag: tag
-          protocol: http
-          destinations:
-            - type: loki
-            - retention_in_days: 7
-    register: pipeline_response
   
+name: Create Pipeline
+ionoscloudsdk.ionoscloud.pipeline:
+  name: 'ansiblepipelinetest'
+  logs: '[{'source': 'kubernetes', 'tag': 'tag', 'protocol': 'http', 'destinations': [{'type': 'loki', 'retention_in_days': 7}]}]'
+  wait: true
+  wait_timeout: 1200
+register: pipeline_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -197,12 +191,13 @@ This is a module that supports creating, updating or destroying Pipelines
 &nbsp;
 # state: **absent**
 ```yaml
-  - name: Delete Pipeline
-    pipeline:
-      pipeline: test_pipeline
-      wait: true
-      state: absent
   
+name: Delete pipeline
+ionoscloudsdk.ionoscloud.pipeline:
+  pipeline: ''
+  wait: true
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -269,22 +264,15 @@ This is a module that supports creating, updating or destroying Pipelines
 &nbsp;
 # state: **update**
 ```yaml
-  - name: Update Pipeline
-    pipeline:
-      pipeline: test_pipeline
-      name: test_pipeline_updated
-      logs:
-        - source: kubernetes
-          tag: new_tag
-          protocol: http
-          labels:
-            - label
-          destinations:
-            - type: loki
-            - retention_in_days: 10
-      state: update
-    register: updated_pipeline_response
   
+name: Update pipeline
+ionoscloudsdk.ionoscloud.pipeline:
+  pipeline: ''
+  name: 'ansiblepipeNEW'
+  logs: '[{'source': 'docker', 'tag': 'differenttag', 'protocol': 'tcp', 'labels': ['1'], 'destinations': [{'type': 'loki', 'retention_in_days': 14}]}, {'source': 'kubernetes', 'tag': 'updatedtag', 'protocol': 'http', 'labels': ['2'], 'destinations': [{'type': 'loki', 'retention_in_days': 14}]}]'
+  state: update
+register: updated_pipeline_response
+
 ```
 ### Available parameters for state **update**:
 &nbsp;
@@ -362,6 +350,11 @@ This is a module that supports creating, updating or destroying Pipelines
 # state: **renew**
 ```yaml
   
+name: Renew Pipeline key
+ionoscloudsdk.ionoscloud.pipeline:
+  pipeline: ''
+  state: renew
+
 ```
 ### Available parameters for state **renew**:
 &nbsp;

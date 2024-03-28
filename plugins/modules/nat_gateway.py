@@ -165,78 +165,76 @@ author:
 
 EXAMPLE_PER_STATE = {
   'present' : '''
-  - name: Create NAT Gateway
-    nat_gateway:
-      datacenter: DatacenterName
-      name: NATGatewayName
-      public_ips:
-        - <ip1>
-        - <ip2>
-      lans:
-        - id: 1
-          gateway_ips: "10.11.2.5/24"
-      wait: true
-    register: nat_gateway_response
-  ''',
+name: Create NAT Gateway
+ionoscloudsdk.ionoscloud.nat_gateway:
+  datacenter: ''
+  name: 'AnsibleAutoTestNAT'
+  public_ips: ''
+  lans:
+  - id: ''
+    gateway_ips:
+    - 10.11.2.5/24
+  wait_timeout: 2000
+  wait: true
+register: nat_gateway_response
+''',
   'update' : '''
-  - name: Update NAT Gateway
-    nat_gateway:
-      datacenter: DatacenterName
-      name: "NATGatewayName - UPDATED"
-      public_ips:
-        - <ip1>
-        - <ip2>
-      nat_gateway: NATGatewayName
-      wait: true
-      state: update
-    register: nat_gateway_response_update
-  ''',
+name: Update NAT Gateway
+ionoscloudsdk.ionoscloud.nat_gateway:
+  datacenter: ''
+  name: 'AnsibleAutoTestNAT - UPDATED'
+  public_ips: ''
+  nat_gateway: ''
+  wait_timeout: 2000
+  wait: true
+  state: update
+register: nat_gateway_response_update
+''',
   'absent' : '''
-  - name: Remove NAT Gateway
-    nat_gateway:
-      nat_gateway: NATGatewayName
-      datacenter: DatacenterName
-      wait: true
-      wait_timeout: 2000
-      state: absent
-  ''',
+name: Remove NAT Gateway
+ionoscloudsdk.ionoscloud.nat_gateway:
+  nat_gateway: ''
+  datacenter: ''
+  wait: false
+  wait_timeout: 2000
+  state: absent
+''',
 }
 
 EXAMPLES = """
-  - name: Create NAT Gateway
-    nat_gateway:
-      datacenter: DatacenterName
-      name: NATGatewayName
-      public_ips:
-        - <ip1>
-        - <ip2>
-      lans:
-        - id: 1
-          gateway_ips: "10.11.2.5/24"
-      wait: true
-    register: nat_gateway_response
-  
+name: Create NAT Gateway
+ionoscloudsdk.ionoscloud.nat_gateway:
+  datacenter: ''
+  name: 'AnsibleAutoTestNAT'
+  public_ips: ''
+  lans:
+  - id: ''
+    gateway_ips:
+    - 10.11.2.5/24
+  wait_timeout: 2000
+  wait: true
+register: nat_gateway_response
 
-  - name: Update NAT Gateway
-    nat_gateway:
-      datacenter: DatacenterName
-      name: "NATGatewayName - UPDATED"
-      public_ips:
-        - <ip1>
-        - <ip2>
-      nat_gateway: NATGatewayName
-      wait: true
-      state: update
-    register: nat_gateway_response_update
-  
 
-  - name: Remove NAT Gateway
-    nat_gateway:
-      nat_gateway: NATGatewayName
-      datacenter: DatacenterName
-      wait: true
-      wait_timeout: 2000
-      state: absent
+name: Update NAT Gateway
+ionoscloudsdk.ionoscloud.nat_gateway:
+  datacenter: ''
+  name: 'AnsibleAutoTestNAT - UPDATED'
+  public_ips: ''
+  nat_gateway: ''
+  wait_timeout: 2000
+  wait: true
+  state: update
+register: nat_gateway_response_update
+
+
+name: Remove NAT Gateway
+ionoscloudsdk.ionoscloud.nat_gateway:
+  nat_gateway: ''
+  datacenter: ''
+  wait: false
+  wait_timeout: 2000
+  state: absent
 """
 
 class NatGatewayModule(CommonIonosModule):

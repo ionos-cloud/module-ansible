@@ -136,75 +136,69 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''- name: Create Pipeline
-    pipeline:
-      name: test_pipeline
-      logs:
-        - source: kubernetes
-          tag: tag
-          protocol: http
-          destinations:
-            - type: loki
-            - retention_in_days: 7
-    register: pipeline_response
-  ''',
-    'update': '''- name: Update Pipeline
-    pipeline:
-      pipeline: test_pipeline
-      name: test_pipeline_updated
-      logs:
-        - source: kubernetes
-          tag: new_tag
-          protocol: http
-          labels:
-            - label
-          destinations:
-            - type: loki
-            - retention_in_days: 10
-      state: update
-    register: updated_pipeline_response
-  ''',
-    'absent': '''- name: Delete Pipeline
-    pipeline:
-      pipeline: test_pipeline
-      wait: true
-      state: absent
-  ''',
+    'present': '''
+name: Create Pipeline
+ionoscloudsdk.ionoscloud.pipeline:
+  name: 'ansiblepipelinetest'
+  logs: '[{'source': 'kubernetes', 'tag': 'tag', 'protocol': 'http', 'destinations': [{'type': 'loki', 'retention_in_days': 7}]}]'
+  wait: true
+  wait_timeout: 1200
+register: pipeline_response
+''',
+    'update': '''
+name: Update pipeline
+ionoscloudsdk.ionoscloud.pipeline:
+  pipeline: ''
+  name: 'ansiblepipeNEW'
+  logs: '[{'source': 'docker', 'tag': 'differenttag', 'protocol': 'tcp', 'labels': ['1'], 'destinations': [{'type': 'loki', 'retention_in_days': 14}]}, {'source': 'kubernetes', 'tag': 'updatedtag', 'protocol': 'http', 'labels': ['2'], 'destinations': [{'type': 'loki', 'retention_in_days': 14}]}]'
+  state: update
+register: updated_pipeline_response
+''',
+    'absent': '''
+name: Delete pipeline
+ionoscloudsdk.ionoscloud.pipeline:
+  pipeline: ''
+  wait: true
+  state: absent
+''',
+    'renew': '''
+name: Renew Pipeline key
+ionoscloudsdk.ionoscloud.pipeline:
+  pipeline: ''
+  state: renew
+''',
 }
 
-EXAMPLES = """- name: Create Pipeline
-    pipeline:
-      name: test_pipeline
-      logs:
-        - source: kubernetes
-          tag: tag
-          protocol: http
-          destinations:
-            - type: loki
-            - retention_in_days: 7
-    register: pipeline_response
-  
-- name: Update Pipeline
-    pipeline:
-      pipeline: test_pipeline
-      name: test_pipeline_updated
-      logs:
-        - source: kubernetes
-          tag: new_tag
-          protocol: http
-          labels:
-            - label
-          destinations:
-            - type: loki
-            - retention_in_days: 10
-      state: update
-    register: updated_pipeline_response
-  
-- name: Delete Pipeline
-    pipeline:
-      pipeline: test_pipeline
-      wait: true
-      state: absent
+EXAMPLES = """
+name: Create Pipeline
+ionoscloudsdk.ionoscloud.pipeline:
+  name: 'ansiblepipelinetest'
+  logs: '[{'source': 'kubernetes', 'tag': 'tag', 'protocol': 'http', 'destinations': [{'type': 'loki', 'retention_in_days': 7}]}]'
+  wait: true
+  wait_timeout: 1200
+register: pipeline_response
+
+
+name: Update pipeline
+ionoscloudsdk.ionoscloud.pipeline:
+  pipeline: ''
+  name: 'ansiblepipeNEW'
+  logs: '[{'source': 'docker', 'tag': 'differenttag', 'protocol': 'tcp', 'labels': ['1'], 'destinations': [{'type': 'loki', 'retention_in_days': 14}]}, {'source': 'kubernetes', 'tag': 'updatedtag', 'protocol': 'http', 'labels': ['2'], 'destinations': [{'type': 'loki', 'retention_in_days': 14}]}]'
+  state: update
+register: updated_pipeline_response
+
+
+name: Delete pipeline
+ionoscloudsdk.ionoscloud.pipeline:
+  pipeline: ''
+  wait: true
+  state: absent
+
+
+name: Renew Pipeline key
+ionoscloudsdk.ionoscloud.pipeline:
+  pipeline: ''
+  state: renew
 """
 
 

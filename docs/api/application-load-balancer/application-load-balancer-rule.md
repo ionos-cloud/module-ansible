@@ -1,2 +1,0 @@
-# Application Load Balancer Rule
-

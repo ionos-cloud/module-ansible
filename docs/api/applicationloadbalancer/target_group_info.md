@@ -7,14 +7,15 @@ This is a simple module that supports listing Target Groups.
 
 ```yaml
 
-    - name: Get all Target Groups
-      target_group_info:
-      register: target_group_list_response
+name: List Target Groups
+ionoscloudsdk.ionoscloud.target_group_info: null
+register: target_groups_response
 
 ```
 
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/applicationloadbalancer).
 
 &nbsp;
 ### Available parameters:

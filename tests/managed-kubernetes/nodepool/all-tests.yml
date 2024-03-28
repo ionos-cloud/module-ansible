@@ -1,6 +1,0 @@
-- hosts: localhost
-  connection: local
-  gather_facts: false
-
-- name: Run K8s Cluster Nodepool Test
-  import_playbook: k8s-cluster-nodepool-test.yml

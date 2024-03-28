@@ -183,74 +183,74 @@ author:
 
 EXAMPLE_PER_STATE = {
   'present' : '''
-  - name: Create NAT Gateway Flowlog
-    nat_gateway_flowlog:
-      name: FlowlogName
-      action: "ACCEPTED"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      datacenter: DatacenterName
-      nat_gateway: NATGatewayName
-      wait: true
-    register: nat_gateway_flowlog_response
-  ''',
+name: Create NAT Gateway Flowlog
+ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
+  name: 'AnsibleAutoTestNAT'
+  action: ACCEPTED
+  direction: INGRESS
+  bucket: sdktest
+  datacenter: ''
+  nat_gateway: ''
+  wait: true
+register: nat_gateway_flowlog_response
+''',
   'update' : '''
-  - name: Update NAT Gateway Flowlog
-    nat_gateway_flowlog:
-      datacenter: DatacenterName
-      nat_gateway: NATGatewayName
-      flowlog: FlowlogName
-      name: FlowlogName
-      action: "ALL"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      wait: true
-      state: update
-    register: nat_gateway_flowlog_update_response
-  ''',
+name: Update NAT Gateway Flowlog
+ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
+  datacenter: ''
+  nat_gateway: ''
+  flowlog: ''
+  name: 'AnsibleAutoTestNAT'
+  action: ALL
+  direction: INGRESS
+  bucket: sdktest
+  wait: true
+  state: update
+register: nat_gateway_flowlog_update_response
+''',
   'absent' : '''
-  - name: Delete NAT Gateway Flowlog
-    nat_gateway_flowlog:
-      datacenter: DatacenterName
-      nat_gateway: NATGatewayName
-      flowlog: FlowlogName
-      state: absent
-  ''',
+name: Delete NAT Gateway Flowlog
+ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
+  datacenter: ''
+  nat_gateway: ''
+  flowlog: ''
+  state: absent
+''',
 }
 
 EXAMPLES = """
-  - name: Create NAT Gateway Flowlog
-    nat_gateway_flowlog:
-      name: FlowlogName
-      action: "ACCEPTED"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      datacenter: DatacenterName
-      nat_gateway: NATGatewayName
-      wait: true
-    register: nat_gateway_flowlog_response
-  
+name: Create NAT Gateway Flowlog
+ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
+  name: 'AnsibleAutoTestNAT'
+  action: ACCEPTED
+  direction: INGRESS
+  bucket: sdktest
+  datacenter: ''
+  nat_gateway: ''
+  wait: true
+register: nat_gateway_flowlog_response
 
-  - name: Update NAT Gateway Flowlog
-    nat_gateway_flowlog:
-      datacenter: DatacenterName
-      nat_gateway: NATGatewayName
-      flowlog: FlowlogName
-      name: FlowlogName
-      action: "ALL"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      wait: true
-      state: update
-    register: nat_gateway_flowlog_update_response
-  
 
-  - name: Delete NAT Gateway Flowlog
-    nat_gateway_flowlog:
-      datacenter: DatacenterName
-      nat_gateway: NATGatewayName
-      flowlog: FlowlogName
-      state: absent
+name: Update NAT Gateway Flowlog
+ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
+  datacenter: ''
+  nat_gateway: ''
+  flowlog: ''
+  name: 'AnsibleAutoTestNAT'
+  action: ALL
+  direction: INGRESS
+  bucket: sdktest
+  wait: true
+  state: update
+register: nat_gateway_flowlog_update_response
+
+
+name: Delete NAT Gateway Flowlog
+ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
+  datacenter: ''
+  nat_gateway: ''
+  flowlog: ''
+  state: absent
 """
 
 

@@ -7,15 +7,16 @@ This is a simple module that supports listing Network Loadbalancers.
 
 ```yaml
 
-    - name: Get all Network Loadbalancers in a datacenter
-      network_load_balancer_info:
-        datacenter: "AnsibleDatacenter"
-      register: nlb_list_response
+name: List Network Load Balancers
+ionoscloudsdk.ionoscloud.network_load_balancer_info:
+  datacenter: ''
+register: nlb_list_response
 
 ```
 
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/networkloadbalancer).
 
 &nbsp;
 ### Available parameters:

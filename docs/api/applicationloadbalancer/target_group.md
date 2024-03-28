@@ -7,54 +7,53 @@ This is a simple module that supports creating or removing Target Groups.
 
 ```yaml
 
-  - name: Create Target Group
-    target_group:
-      name: "AnsibleAutoTestCompute"
-      algorithm: "ROUND_ROBIN"
-      protocol: "HTTP"
-      targets:
-        - ip: "22.231.2.2"
-          port: 8080
-          weight: 123
-          health_check_enabled: true
-          maintenance_enabled: false
-      health_check:
-        check_timeout: 2000
-        check_interval: 1000
-        retries: 3
-      http_health_check:
-        path: "./"
-        method: "GET"
-        match_type: "STATUS_CODE"
-        response: 200
-        regex: false
-        negate: false
-      wait: true
-    register: target_group_response
-  
+name: Create Target Group
+ionoscloudsdk.ionoscloud.target_group:
+  name: 'AnsibleAutoTestALB'
+  algorithm: ROUND_ROBIN
+  protocol: HTTP
+  targets:
+  - ip: 22.231.2.2
+    port: 8080
+    weight: 123
+    health_check_enabled: true
+    maintenance_enabled: false
+  health_check:
+    check_timeout: 2000
+    check_interval: 1000
+    retries: 3
+  http_health_check:
+    path: ./
+    method: GET
+    match_type: STATUS_CODE
+    response: '200'
+    regex: false
+    negate: false
+  wait: true
+register: target_group_response
 
-  - name: Update Target Group
-    target_group:
-      name: "AnsibleAutoTestCompute - UPDATED"
-      algorithm: "ROUND_ROBIN"
-      protocol: "HTTP"
-      target_group: "AnsibleAutoTestCompute"
-      wait: true
-      state: update
-    register: target_group_response_update
-  
 
-  - name: Remove Target Group
-    target_group:
-      target_group: "AnsibleAutoTestCompute - UPDATED"
-      wait: true
-      wait_timeout: 2000
-      state: absent
+name: Update Target Group
+ionoscloudsdk.ionoscloud.target_group:
+  name: 'AnsibleAutoTestALB - UPDATED'
+  algorithm: ROUND_ROBIN
+  protocol: HTTP
+  target_group: ''
+  wait: true
+  state: update
+register: target_group_response_update
+
+
+name: Remove Target Group
+ionoscloudsdk.ionoscloud.target_group:
+  target_group: ''
+  wait: true
+  wait_timeout: 2000
+  state: absent
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -108,6 +107,7 @@ This is a simple module that supports creating or removing Target Groups.
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/applicationloadbalancer).
 &nbsp;
 
 &nbsp;
@@ -115,31 +115,31 @@ This is a simple module that supports creating or removing Target Groups.
 # state: **present**
 ```yaml
   
-  - name: Create Target Group
-    target_group:
-      name: "AnsibleAutoTestCompute"
-      algorithm: "ROUND_ROBIN"
-      protocol: "HTTP"
-      targets:
-        - ip: "22.231.2.2"
-          port: 8080
-          weight: 123
-          health_check_enabled: true
-          maintenance_enabled: false
-      health_check:
-        check_timeout: 2000
-        check_interval: 1000
-        retries: 3
-      http_health_check:
-        path: "./"
-        method: "GET"
-        match_type: "STATUS_CODE"
-        response: 200
-        regex: false
-        negate: false
-      wait: true
-    register: target_group_response
-  
+name: Create Target Group
+ionoscloudsdk.ionoscloud.target_group:
+  name: 'AnsibleAutoTestALB'
+  algorithm: ROUND_ROBIN
+  protocol: HTTP
+  targets:
+  - ip: 22.231.2.2
+    port: 8080
+    weight: 123
+    health_check_enabled: true
+    maintenance_enabled: false
+  health_check:
+    check_timeout: 2000
+    check_interval: 1000
+    retries: 3
+  http_health_check:
+    path: ./
+    method: GET
+    match_type: STATUS_CODE
+    response: '200'
+    regex: false
+    negate: false
+  wait: true
+register: target_group_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -232,13 +232,13 @@ This is a simple module that supports creating or removing Target Groups.
 # state: **absent**
 ```yaml
   
-  - name: Remove Target Group
-    target_group:
-      target_group: "AnsibleAutoTestCompute - UPDATED"
-      wait: true
-      wait_timeout: 2000
-      state: absent
-  
+name: Remove Target Group
+ionoscloudsdk.ionoscloud.target_group:
+  target_group: ''
+  wait: true
+  wait_timeout: 2000
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -311,16 +311,16 @@ This is a simple module that supports creating or removing Target Groups.
 # state: **update**
 ```yaml
   
-  - name: Update Target Group
-    target_group:
-      name: "AnsibleAutoTestCompute - UPDATED"
-      algorithm: "ROUND_ROBIN"
-      protocol: "HTTP"
-      target_group: "AnsibleAutoTestCompute"
-      wait: true
-      state: update
-    register: target_group_response_update
-  
+name: Update Target Group
+ionoscloudsdk.ionoscloud.target_group:
+  name: 'AnsibleAutoTestALB - UPDATED'
+  algorithm: ROUND_ROBIN
+  protocol: HTTP
+  target_group: ''
+  wait: true
+  state: update
+register: target_group_response_update
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

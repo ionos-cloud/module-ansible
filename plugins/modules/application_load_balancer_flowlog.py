@@ -185,74 +185,76 @@ author:
 
 EXAMPLE_PER_STATE = {
   'present' : '''
-  - name: Create Application Load Balancer Flowlog
-    application_load_balancer_flowlog:
-      name: FlowlogName
-      action: "ACCEPTED"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      wait: true
-    register: alb_flowlog_response
-  ''',
+name: Create Application Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
+  name: 'AnsibleAutoTestALB'
+  action: ACCEPTED
+  direction: INGRESS
+  bucket: sdktest
+  datacenter: ''
+  application_load_balancer: ''
+  wait: true
+  wait_timeout: 2000
+register: alb_flowlog_response
+''',
   'update' : '''
-  - name: Update Application Load Balancer Flowlog
-    application_load_balancer_flowlog:
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      flowlog:FlowlogName
-      name: FlowlogName
-      action: "ALL"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      wait: true
-      state: update
-    register: alb_flowlog_update_response
-  ''',
+name: Update Application Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
+  datacenter: ''
+  application_load_balancer: ''
+  flowlog: ''
+  name: 'AnsibleAutoTestALB'
+  action: ALL
+  direction: INGRESS
+  bucket: sdktest
+  wait: true
+  state: update
+register: alb_flowlog_update_response
+''',
   'absent' : '''
-  - name: Delete Application Load Balancer Flowlog
-    application_load_balancer_flowlog:
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      flowlog: FlowlogName
-      state: absent
-  ''',
+name: Delete Application Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
+  datacenter: ''
+  application_load_balancer: ''
+  flowlog: ''
+  state: absent
+''',
 }
 
 EXAMPLES = """
-  - name: Create Application Load Balancer Flowlog
-    application_load_balancer_flowlog:
-      name: FlowlogName
-      action: "ACCEPTED"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      wait: true
-    register: alb_flowlog_response
-  
+name: Create Application Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
+  name: 'AnsibleAutoTestALB'
+  action: ACCEPTED
+  direction: INGRESS
+  bucket: sdktest
+  datacenter: ''
+  application_load_balancer: ''
+  wait: true
+  wait_timeout: 2000
+register: alb_flowlog_response
 
-  - name: Update Application Load Balancer Flowlog
-    application_load_balancer_flowlog:
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      flowlog:FlowlogName
-      name: FlowlogName
-      action: "ALL"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      wait: true
-      state: update
-    register: alb_flowlog_update_response
-  
 
-  - name: Delete Application Load Balancer Flowlog
-    application_load_balancer_flowlog:
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      flowlog: FlowlogName
-      state: absent
+name: Update Application Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
+  datacenter: ''
+  application_load_balancer: ''
+  flowlog: ''
+  name: 'AnsibleAutoTestALB'
+  action: ALL
+  direction: INGRESS
+  bucket: sdktest
+  wait: true
+  state: update
+register: alb_flowlog_update_response
+
+
+name: Delete Application Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.application_load_balancer_flowlog:
+  datacenter: ''
+  application_load_balancer: ''
+  flowlog: ''
+  state: absent
 """
 
 

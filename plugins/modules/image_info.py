@@ -83,10 +83,11 @@ author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLES = """
-    - name: Get all images
-      image_info:
-      register: image_list_response
+EXAMPLES = """name: List Images
+ionoscloudsdk.ionoscloud.image_info:
+  filters:
+    properties.name: debian-10.0.0-amd64-netinst.iso
+register: image_list_response
 """
 
 

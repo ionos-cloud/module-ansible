@@ -243,59 +243,57 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'update' : '''# Update an image
-  - name: Update image
-    image:
-      image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
-      name: "CentOS-8.3.2011-x86_64-boot-renamed.iso"
-      description: "An image used for testing the Ansible Module"
-      cpu_hot_plug: true
-      cpu_hot_unplug: false
-      ram_hot_plug: true
-      ram_hot_unplug: true
-      nic_hot_plug: true
-      nic_hot_unplug: true
-      disc_virtio_hot_plug: true
-      disc_virtio_hot_unplug: true
-      disc_scsi_hot_plug: true
-      disc_scsi_hot_unplug: false
-      licence_type: "LINUX"
-      cloud_init: V1
-      state: update
-  ''',
-  'absent' : '''# Destroy an image
-  - name: Delete image
-    image:
-      image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
-      state: absent
-  ''',
+  'update' : '''name: Update image
+ionoscloudsdk.ionoscloud.image:
+  image_id: 87fe5b95-05e4-11ee-a7cb-028794406dc9
+  name: debian-11.7.0-amd64-netinst-renamed.iso
+  description: An image used for testing the Ansible Module
+  cpu_hot_plug: true
+  cpu_hot_unplug: false
+  ram_hot_plug: true
+  ram_hot_unplug: true
+  nic_hot_plug: true
+  nic_hot_unplug: true
+  disc_virtio_hot_plug: true
+  disc_virtio_hot_unplug: true
+  disc_scsi_hot_plug: true
+  disc_scsi_hot_unplug: false
+  licence_type: LINUX
+  cloud_init: V1
+  state: update
+register: image_output
+''',
+  'absent' : '''name: Delete image
+ionoscloudsdk.ionoscloud.image:
+  image_id: 916b10ea-be31-11eb-b909-c608708a73fa
+  state: absent
+''',
 }
 
-EXAMPLES = """# Update an image
-  - name: Update image
-    image:
-      image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
-      name: "CentOS-8.3.2011-x86_64-boot-renamed.iso"
-      description: "An image used for testing the Ansible Module"
-      cpu_hot_plug: true
-      cpu_hot_unplug: false
-      ram_hot_plug: true
-      ram_hot_unplug: true
-      nic_hot_plug: true
-      nic_hot_unplug: true
-      disc_virtio_hot_plug: true
-      disc_virtio_hot_unplug: true
-      disc_scsi_hot_plug: true
-      disc_scsi_hot_unplug: false
-      licence_type: "LINUX"
-      cloud_init: V1
-      state: update
-  
-# Destroy an image
-  - name: Delete image
-    image:
-      image_id: "916b10ea-be31-11eb-b909-c608708a73fa"
-      state: absent
+EXAMPLES = """name: Update image
+ionoscloudsdk.ionoscloud.image:
+  image_id: 87fe5b95-05e4-11ee-a7cb-028794406dc9
+  name: debian-11.7.0-amd64-netinst-renamed.iso
+  description: An image used for testing the Ansible Module
+  cpu_hot_plug: true
+  cpu_hot_unplug: false
+  ram_hot_plug: true
+  ram_hot_unplug: true
+  nic_hot_plug: true
+  nic_hot_unplug: true
+  disc_virtio_hot_plug: true
+  disc_virtio_hot_unplug: true
+  disc_scsi_hot_plug: true
+  disc_scsi_hot_unplug: false
+  licence_type: LINUX
+  cloud_init: V1
+  state: update
+register: image_output
+
+name: Delete image
+ionoscloudsdk.ionoscloud.image:
+  image_id: 916b10ea-be31-11eb-b909-c608708a73fa
+  state: absent
 """
 
 def delete_image(module, client):

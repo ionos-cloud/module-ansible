@@ -7,43 +7,42 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
 
 ```yaml
 
-  - name: Create NAT Gateway Flowlog
-    nat_gateway_flowlog:
-      name: FlowlogName
-      action: "ACCEPTED"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      datacenter: DatacenterName
-      nat_gateway: NATGatewayName
-      wait: true
-    register: nat_gateway_flowlog_response
-  
+name: Create NAT Gateway Flowlog
+ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
+  name: 'AnsibleAutoTestNAT'
+  action: ACCEPTED
+  direction: INGRESS
+  bucket: sdktest
+  datacenter: ''
+  nat_gateway: ''
+  wait: true
+register: nat_gateway_flowlog_response
 
-  - name: Update NAT Gateway Flowlog
-    nat_gateway_flowlog:
-      datacenter: DatacenterName
-      nat_gateway: NATGatewayName
-      flowlog: FlowlogName
-      name: FlowlogName
-      action: "ALL"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      wait: true
-      state: update
-    register: nat_gateway_flowlog_update_response
-  
 
-  - name: Delete NAT Gateway Flowlog
-    nat_gateway_flowlog:
-      datacenter: DatacenterName
-      nat_gateway: NATGatewayName
-      flowlog: FlowlogName
-      state: absent
+name: Update NAT Gateway Flowlog
+ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
+  datacenter: ''
+  nat_gateway: ''
+  flowlog: ''
+  name: 'AnsibleAutoTestNAT'
+  action: ALL
+  direction: INGRESS
+  bucket: sdktest
+  wait: true
+  state: update
+register: nat_gateway_flowlog_update_response
+
+
+name: Delete NAT Gateway Flowlog
+ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
+  datacenter: ''
+  nat_gateway: ''
+  flowlog: ''
+  state: absent
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -76,6 +75,7 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/natgateway).
 &nbsp;
 
 &nbsp;
@@ -83,17 +83,17 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
 # state: **present**
 ```yaml
   
-  - name: Create NAT Gateway Flowlog
-    nat_gateway_flowlog:
-      name: FlowlogName
-      action: "ACCEPTED"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      datacenter: DatacenterName
-      nat_gateway: NATGatewayName
-      wait: true
-    register: nat_gateway_flowlog_response
-  
+name: Create NAT Gateway Flowlog
+ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
+  name: 'AnsibleAutoTestNAT'
+  action: ACCEPTED
+  direction: INGRESS
+  bucket: sdktest
+  datacenter: ''
+  nat_gateway: ''
+  wait: true
+register: nat_gateway_flowlog_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -186,13 +186,13 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
 # state: **absent**
 ```yaml
   
-  - name: Delete NAT Gateway Flowlog
-    nat_gateway_flowlog:
-      datacenter: DatacenterName
-      nat_gateway: NATGatewayName
-      flowlog: FlowlogName
-      state: absent
-  
+name: Delete NAT Gateway Flowlog
+ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
+  datacenter: ''
+  nat_gateway: ''
+  flowlog: ''
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -275,19 +275,19 @@ This is a simple module that supports creating or removing NATGateway Flowlogs. 
 # state: **update**
 ```yaml
   
-  - name: Update NAT Gateway Flowlog
-    nat_gateway_flowlog:
-      datacenter: DatacenterName
-      nat_gateway: NATGatewayName
-      flowlog: FlowlogName
-      name: FlowlogName
-      action: "ALL"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      wait: true
-      state: update
-    register: nat_gateway_flowlog_update_response
-  
+name: Update NAT Gateway Flowlog
+ionoscloudsdk.ionoscloud.nat_gateway_flowlog:
+  datacenter: ''
+  nat_gateway: ''
+  flowlog: ''
+  name: 'AnsibleAutoTestNAT'
+  action: ALL
+  direction: INGRESS
+  bucket: sdktest
+  wait: true
+  state: update
+register: nat_gateway_flowlog_update_response
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

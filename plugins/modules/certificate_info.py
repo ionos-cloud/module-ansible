@@ -79,12 +79,9 @@ author:
 """
 
 EXAMPLES = """
-    - name: List Certificates
-        certificate_info:
-        register: certificates_response
-    - name: Show Certificates
-        debug:
-            var: certificates_response.result
+name: List Certificates
+ionoscloudsdk.ionoscloud.certificate_info: null
+register: certificates_response
 """
 
 

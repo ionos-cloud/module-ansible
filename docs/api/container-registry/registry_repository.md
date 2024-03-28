@@ -6,27 +6,30 @@ This is a module that supports creating, updating or destroying Repositories
 
 
 ```yaml
-- name: Delete Repository
-    registry_repository:
-        registry: RegistryName
-        repository: testRepository
-        state: absent
+
+name: Ensure Repository does not exist
+ionoscloudsdk.ionoscloud.registry_repository:
+  registry: ''
+  repository: repo-name
+  state: absent
 
 ```
 
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/container-registry).
 &nbsp;
 
 &nbsp;
 
 # state: **absent**
 ```yaml
-  - name: Delete Repository
-    registry_repository:
-        registry: RegistryName
-        repository: testRepository
-        state: absent
   
+name: Ensure Repository does not exist
+ionoscloudsdk.ionoscloud.registry_repository:
+  registry: ''
+  repository: repo-name
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;

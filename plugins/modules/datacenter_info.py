@@ -86,9 +86,9 @@ author:
 """
 
 EXAMPLES = """
-    - name: Get all Datacenter
-      datacenter_info:
-      register: datacenter_list_response
+name: List Datacenters
+ionoscloudsdk.ionoscloud.datacenter_info: null
+register: datacenter_list_response
 """
 
 def get_objects(module, client):

@@ -84,9 +84,9 @@ author:
 """
 
 EXAMPLES = """
-    - name: Get all PCCs
-      pcc_info:
-      register: pcc_list_response
+name: List PCCs
+ionoscloudsdk.ionoscloud.pcc_info: null
+register: pcc_list_response
 """
 
 

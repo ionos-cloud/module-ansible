@@ -94,10 +94,10 @@ author:
 """
 
 EXAMPLES = """
-    - name: Get all LANs for a given datacenter
-      lan_info:
-        datacenter: "AnsibleDatacenter"
-      register: lan_list_response
+name: List LANs
+ionoscloudsdk.ionoscloud.lan_info:
+  datacenter: 'AnsibleAutoTestCompute'
+register: lan_list_response
 """
 
 

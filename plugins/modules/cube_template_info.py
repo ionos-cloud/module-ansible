@@ -106,28 +106,16 @@ author:
 
 EXAMPLE_PER_STATE = {
   'present' : '''
-    - name: List templates
-      cube_template:
-        state: present
-      register: template_list
-
-    - name: Get template by template id
-      cube_template:
-        template_id: 9ab6545c-b138-4a86-b6ca-0d872a2b0953
-      register: template_response
+name: List templates
+ionoscloudsdk.ionoscloud.cube_template_info: null
+register: template_list
   ''',
 }
 
 EXAMPLES = """
-    - name: List templates
-      cube_template:
-        state: present
-      register: template_list
-
-    - name: Get template by template id
-      cube_template:
-        template_id: 9ab6545c-b138-4a86-b6ca-0d872a2b0953
-      register: template_response
+name: List templates
+ionoscloudsdk.ionoscloud.cube_template_info: null
+register: template_list
 """
 
 

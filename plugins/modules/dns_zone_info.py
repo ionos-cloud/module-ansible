@@ -87,9 +87,9 @@ author:
 """
 
 EXAMPLES = """
-    - name: Get all DNS Zones
-      dns_zone_info:
-      register: dns_zone_list_response
+name: List Zones
+ionoscloudsdk.ionoscloud.dns_zone_info: null
+register: zones_response
 """
 
 

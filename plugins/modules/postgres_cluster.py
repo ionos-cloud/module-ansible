@@ -303,81 +303,89 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''- name: Create Postgres Cluster
-    postgres_cluster:
-      postgres_version: 12
-      instances: 1
-      cores: 1
-      ram: 2048
-      storage_size: 20480
-      storage_type: HDD
-      location: de/fra
-      connections:
-        - cidr: 192.168.1.106/24
-          datacenter: DatacenterName
-          lan: LanName
-      display_name: backuptest-04
-      synchronization_mode: ASYNCHRONOUS
-      db_username: test
-      db_password: 7357cluster
-      wait: true
-    register: cluster_response
-  ''',
-    'update': '''- name: Update Postgres Cluster
-    postgres_cluster:
-      postgres_cluster: backuptest-04
-      postgres_version: 12
-      instances: 2
-      cores: 2
-      ram: 4096
-      storage_size: 30480
-      state: update
-      wait: true
-    register: updated_cluster_response
-  ''',
-    'absent': '''- name: Delete Postgres Cluster
-    postgres_cluster:
-      postgres_cluster: backuptest-04
-      state: absent
-  ''',
+    'present': '''
+name: Create Cluster
+ionoscloudsdk.ionoscloud.postgres_cluster:
+  postgres_version: 12
+  instances: 1
+  cores: 1
+  ram: 2048
+  storage_size: 20480
+  storage_type: SSD Premium
+  location: de/fra
+  backup_location: eu-central-2
+  connections:
+  - cidr: 192.168.1.106/24
+    datacenter: 'AnsibleAutoTestDBaaS - DBaaS'
+    lan: test_lan1
+  display_name: backuptest-04
+  synchronization_mode: ASYNCHRONOUS
+  db_username: clusteruser
+  db_password: 7357cluster
+  wait: true
+register: cluster_response
+''',
+    'update': '''
+name: Update Cluster
+ionoscloudsdk.ionoscloud.postgres_cluster:
+  postgres_cluster: ''
+  instances: 2
+  cores: 2
+  ram: 4096
+  storage_size: 30480
+  state: update
+  wait: true
+register: updated_cluster_response
+''',
+    'absent': '''
+name: Delete Cluster
+ionoscloudsdk.ionoscloud.postgres_cluster:
+  postgres_cluster: ''
+  state: absent
+  wait: false
+''',
 }
 
-EXAMPLES = """- name: Create Postgres Cluster
-    postgres_cluster:
-      postgres_version: 12
-      instances: 1
-      cores: 1
-      ram: 2048
-      storage_size: 20480
-      storage_type: HDD
-      location: de/fra
-      connections:
-        - cidr: 192.168.1.106/24
-          datacenter: DatacenterName
-          lan: LanName
-      display_name: backuptest-04
-      synchronization_mode: ASYNCHRONOUS
-      db_username: test
-      db_password: 7357cluster
-      wait: true
-    register: cluster_response
-  
-- name: Update Postgres Cluster
-    postgres_cluster:
-      postgres_cluster: backuptest-04
-      postgres_version: 12
-      instances: 2
-      cores: 2
-      ram: 4096
-      storage_size: 30480
-      state: update
-      wait: true
-    register: updated_cluster_response
-  
-- name: Delete Postgres Cluster
-    postgres_cluster:
-      postgres_cluster: backuptest-04
-      state: absent
+EXAMPLES = """
+name: Create Cluster
+ionoscloudsdk.ionoscloud.postgres_cluster:
+  postgres_version: 12
+  instances: 1
+  cores: 1
+  ram: 2048
+  storage_size: 20480
+  storage_type: SSD Premium
+  location: de/fra
+  backup_location: eu-central-2
+  connections:
+  - cidr: 192.168.1.106/24
+    datacenter: 'AnsibleAutoTestDBaaS - DBaaS'
+    lan: test_lan1
+  display_name: backuptest-04
+  synchronization_mode: ASYNCHRONOUS
+  db_username: clusteruser
+  db_password: 7357cluster
+  wait: true
+register: cluster_response
+
+
+name: Update Cluster
+ionoscloudsdk.ionoscloud.postgres_cluster:
+  postgres_cluster: ''
+  instances: 2
+  cores: 2
+  ram: 4096
+  storage_size: 30480
+  state: update
+  wait: true
+register: updated_cluster_response
+
+
+name: Delete Cluster
+ionoscloudsdk.ionoscloud.postgres_cluster:
+  postgres_cluster: ''
+  state: absent
+  wait: false
 """
 
 class PostgresClusterModule(CommonIonosModule):

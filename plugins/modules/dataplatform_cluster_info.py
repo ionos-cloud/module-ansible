@@ -83,13 +83,9 @@ author:
 """
 
 EXAMPLES = """
-    - name: List DataPlatform Clusters
-        dataplatform_cluster_info:
-        register: dataplatform_clusters_response
-
-    - name: Show DataPlatform Clusters
-        debug:
-            var: dataplatform_clusters_response.result
+name: Get all Data Platform clusters
+ionoscloudsdk.ionoscloud.dataplatform_cluster_info: null
+register: cluster_list_response
 """
 
 

@@ -96,10 +96,10 @@ author:
 """
 
 EXAMPLES = """
-    - name: Get all Application Load Balancers for a given Datacenter
-      application_load_balancer_info:
-        datacenter: "AnsibleDatacenter"
-      register: application_load_balancer_list_response
+name: List Application Load Balancers
+ionoscloudsdk.ionoscloud.application_load_balancer_info:
+  datacenter: ''
+register: alb_list_response
 """
 
 

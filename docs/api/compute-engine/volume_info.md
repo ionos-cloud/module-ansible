@@ -7,20 +7,10 @@ This is a simple module that supports listing volumes.
 
 ```yaml
 
-    - name: Get all volumes for a given datacenter
-      volume_info:
-        datacenter: "AnsibleDatacenter"
-      register: volume_list_response
-      
-    - name: Get all volumes for a given server
-      volume_info:
-        datacenter: "AnsibleDatacenter"
-        server: "AnsibleServerName"
-      register: volume_list_server_response
-
-    - name: Show all volumes for the datacenter
-      debug:
-        var: volume_list_response
+name: List Volumes
+ionoscloudsdk.ionoscloud.volume_info:
+  datacenter: 'AnsibleAutoTestCompute'
+register: volume_list_response
 
 ```
 
@@ -118,6 +108,7 @@ This is a simple module that supports listing volumes.
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/compute-engine).
 
 &nbsp;
 ### Available parameters:

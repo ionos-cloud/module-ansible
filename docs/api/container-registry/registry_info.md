@@ -7,13 +7,9 @@ This is a simple module that supports listing existing Registries
 
 ```yaml
 
-    - name: List Registries
-        registry_info:
-        register: registries_response
-
-    - name: Show Registries
-        debug:
-            var: registries_response.result
+name: List Registries
+ionoscloudsdk.ionoscloud.registry_info: null
+register: registries_response
 
 ```
 
@@ -61,6 +57,7 @@ This is a simple module that supports listing existing Registries
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/container-registry).
 
 &nbsp;
 ### Available parameters:

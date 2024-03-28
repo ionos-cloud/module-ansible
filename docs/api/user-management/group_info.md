@@ -7,13 +7,9 @@ This is a simple module that supports listing group.
 
 ```yaml
 
-    - name: Get all groups
-      group_info:
-      register: group_list_response
-    - name: Get all groups for a user
-      group_info:
-        user: <USER_EMAIL>
-      register: group_list_response
+name: List Groups
+ionoscloudsdk.ionoscloud.group_info: null
+register: group_list_response
 
 ```
 
@@ -108,6 +104,7 @@ This is a simple module that supports listing group.
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/user-management).
 
 &nbsp;
 ### Available parameters:

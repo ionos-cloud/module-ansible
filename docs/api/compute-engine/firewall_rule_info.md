@@ -7,12 +7,12 @@ This is a simple module that supports listing Firewall Rules.
 
 ```yaml
 
-    - name: Get all volumes for a given datacenter
-      firewall_rule_info:
-        datacenter: "AnsibleDatacenter"
-        server: "AnsibleServer"
-        nic: "AnsibleNIC"
-      register: firewall_rule_list_response
+name: List Firewall Rules
+ionoscloudsdk.ionoscloud.firewall_rule_info:
+  datacenter: 'AnsibleAutoTestCompute'
+  server: 'AnsibleAutoTestCompute'
+  nic: 'AnsibleAutoTestCompute'
+register: firewall_rule_list_response
 
 ```
 
@@ -59,6 +59,7 @@ This is a simple module that supports listing Firewall Rules.
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/compute-engine).
 
 &nbsp;
 ### Available parameters:

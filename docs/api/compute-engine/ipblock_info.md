@@ -7,9 +7,9 @@ This is a simple module that supports listing IP Blocks.
 
 ```yaml
 
-    - name: Get all IP Blocks
-      ipblock_info:
-      register: ipblock_list_response
+name: List IP Blocks
+ionoscloudsdk.ionoscloud.ipblock_info: null
+register: ipblock_list_response
 
 ```
 
@@ -77,6 +77,7 @@ This is a simple module that supports listing IP Blocks.
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/compute-engine).
 
 &nbsp;
 ### Available parameters:

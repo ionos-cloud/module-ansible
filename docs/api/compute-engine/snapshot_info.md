@@ -7,9 +7,9 @@ This is a simple module that supports listing Snapshots.
 
 ```yaml
 
-    - name: Get all Snapshots
-      snapshot_info:
-      register: snapshot_list_response
+name: List Snapshots
+ionoscloudsdk.ionoscloud.snapshot_info: null
+register: snapshot_list_response
 
 ```
 
@@ -61,6 +61,7 @@ This is a simple module that supports listing Snapshots.
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/compute-engine).
 
 &nbsp;
 ### Available parameters:

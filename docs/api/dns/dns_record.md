@@ -6,41 +6,43 @@ This is a module that supports creating, updating or destroying DNS Records
 
 
 ```yaml
-- name: Create record
-    dns_record:
-      zone: example.com
-      name: record_name
-      type: MX
-      content: record_content
-      ttl: 3600
-      priority: 10
-      enabled: true
-    register: record_response
-  
-- name: Update record
-    dns_record:
-      zone: example.com
-      record: record_name2
-      name: record_name2
-      type: MX
-      content: record_content
-      ttl: 1800
-      priority: 9
-      enabled: true
-      state: update
-    register: updated_record_response
-  
-- name: Delete record
-    dns_record:
-      zone: example.com
-      record: record_name2
-      wait: true
-      state: absent
+
+name: Create Record
+ionoscloudsdk.ionoscloud.dns_record:
+  zone: 'test.example.test.ansible.com'
+  name: 'sdk-team-test-record'
+  type: 'CNAME'
+  content: '1.2.3.4'
+  ttl: '3600'
+  priority: '35535'
+  enabled: 'True'
+register: record_response
+
+
+name: Update record
+ionoscloudsdk.ionoscloud.dns_record:
+  zone: 'test.example.test.ansible.com'
+  record: 'sdk-team-test-record'
+  type: 'CNAME'
+  content: '2.2.3.4'
+  ttl: '1800'
+  priority: '16'
+  enabled: 'False'
+  allow_replace: false
+  state: update
+register: updated_record_response
+
+
+name: Delete Record
+ionoscloudsdk.ionoscloud.dns_record:
+  zone: 'test.example.test.ansible.com'
+  record: ''
+  wait: true
+  state: absent
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -72,6 +74,7 @@ This is a module that supports creating, updating or destroying DNS Records
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/dns).
 &nbsp;
 
  **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
@@ -81,17 +84,18 @@ This is a module that supports creating, updating or destroying DNS Records
 
 # state: **present**
 ```yaml
-  - name: Create record
-    dns_record:
-      zone: example.com
-      name: record_name
-      type: MX
-      content: record_content
-      ttl: 3600
-      priority: 10
-      enabled: true
-    register: record_response
   
+name: Create Record
+ionoscloudsdk.ionoscloud.dns_record:
+  zone: 'test.example.test.ansible.com'
+  name: 'sdk-team-test-record'
+  type: 'CNAME'
+  content: '1.2.3.4'
+  ttl: '3600'
+  priority: '35535'
+  enabled: 'True'
+register: record_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -193,13 +197,14 @@ This is a module that supports creating, updating or destroying DNS Records
 &nbsp;
 # state: **absent**
 ```yaml
-  - name: Delete record
-    dns_record:
-      zone: example.com
-      record: record_name2
-      wait: true
-      state: absent
   
+name: Delete Record
+ionoscloudsdk.ionoscloud.dns_record:
+  zone: 'test.example.test.ansible.com'
+  record: ''
+  wait: true
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -271,19 +276,20 @@ This is a module that supports creating, updating or destroying DNS Records
 &nbsp;
 # state: **update**
 ```yaml
-  - name: Update record
-    dns_record:
-      zone: example.com
-      record: record_name2
-      name: record_name2
-      type: MX
-      content: record_content
-      ttl: 1800
-      priority: 9
-      enabled: true
-      state: update
-    register: updated_record_response
   
+name: Update record
+ionoscloudsdk.ionoscloud.dns_record:
+  zone: 'test.example.test.ansible.com'
+  record: 'sdk-team-test-record'
+  type: 'CNAME'
+  content: '2.2.3.4'
+  ttl: '1800'
+  priority: '16'
+  enabled: 'False'
+  allow_replace: false
+  state: update
+register: updated_record_response
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

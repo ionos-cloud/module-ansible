@@ -251,92 +251,88 @@ author:
 
 EXAMPLE_PER_STATE = {
   'present' : '''
-  - name: Create Application Load Balancer Forwarding Rule
-    application_load_balancer_forwardingrule:
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      name: RuleName
-      protocol: "HTTP"
-      listener_ip: "10.12.118.224"
-      listener_port: "8081"
-      client_timeout: 50
-      http_rules:
-        - name: "Ansible HTTP Rule"
-          type : static
-          response_message: "<>"
-          content_type: "application/json"
-          conditions:
-            - type: "HEADER"
-              condition: "STARTS_WITH"
-              value: "Friday"
-
-      wait: true
-    register: alb_forwarding_rule_response
-  ''',
+name: Create Application Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
+  datacenter: ''
+  application_load_balancer: ''
+  name: 'AnsibleAutoTestALB'
+  protocol: HTTP
+  listener_ip: 10.12.118.224
+  listener_port: '8081'
+  http_rules:
+  - name: Ansible HTTP Rule
+    type: static
+    response_message: <>
+    content_type: application/json
+    conditions:
+    - type: HEADER
+      condition: STARTS_WITH
+      value: Friday
+  wait: true
+register: alb_forwarding_rule_response
+''',
   'update' : '''
-  - name: Update Application Load Balancer Forwarding Rule
-    application_load_balancer_forwardingrule:
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      forwarding_rule: RuleName
-      name: "RuleName - UPDATED"
-      protocol: "HTTP"
-      wait: true
-      state: update
-    register: alb_forwarding_rule_update_response
-  ''',
+name: Update Application Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
+  datacenter: ''
+  application_load_balancer: ''
+  forwarding_rule: ''
+  name: 'AnsibleAutoTestALB - UPDATED'
+  protocol: HTTP
+  wait: true
+  state: update
+register: alb_forwarding_rule_update_response
+''',
   'absent' : '''
-  - name: Delete Application Load Balancer Forwarding Rule
-    application_load_balancer_forwardingrule:
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      forwarding_rule: "RuleName - UPDATED"
-      state: absent
-  ''',
+name: Delete Application Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
+  datacenter: ''
+  application_load_balancer: ''
+  forwarding_rule: ''
+  state: absent
+''',
 }
 
 EXAMPLES = """
-  - name: Create Application Load Balancer Forwarding Rule
-    application_load_balancer_forwardingrule:
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      name: RuleName
-      protocol: "HTTP"
-      listener_ip: "10.12.118.224"
-      listener_port: "8081"
-      client_timeout: 50
-      http_rules:
-        - name: "Ansible HTTP Rule"
-          type : static
-          response_message: "<>"
-          content_type: "application/json"
-          conditions:
-            - type: "HEADER"
-              condition: "STARTS_WITH"
-              value: "Friday"
+name: Create Application Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
+  datacenter: ''
+  application_load_balancer: ''
+  name: 'AnsibleAutoTestALB'
+  protocol: HTTP
+  listener_ip: 10.12.118.224
+  listener_port: '8081'
+  http_rules:
+  - name: Ansible HTTP Rule
+    type: static
+    response_message: <>
+    content_type: application/json
+    conditions:
+    - type: HEADER
+      condition: STARTS_WITH
+      value: Friday
+  wait: true
+register: alb_forwarding_rule_response
 
-      wait: true
-    register: alb_forwarding_rule_response
-  
 
-  - name: Update Application Load Balancer Forwarding Rule
-    application_load_balancer_forwardingrule:
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      forwarding_rule: RuleName
-      name: "RuleName - UPDATED"
-      protocol: "HTTP"
-      wait: true
-      state: update
-    register: alb_forwarding_rule_update_response
-  
+name: Update Application Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
+  datacenter: ''
+  application_load_balancer: ''
+  forwarding_rule: ''
+  name: 'AnsibleAutoTestALB - UPDATED'
+  protocol: HTTP
+  wait: true
+  state: update
+register: alb_forwarding_rule_update_response
 
-  - name: Delete Application Load Balancer Forwarding Rule
-    application_load_balancer_forwardingrule:
-      datacenter: DatacenterName
-      application_load_balancer: AppLoadBalancerName
-      forwarding_rule: "RuleName - UPDATED"
-      state: absent
+
+name: Delete Application Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
+  datacenter: ''
+  application_load_balancer: ''
+  forwarding_rule: ''
+  state: absent
 """
 
 

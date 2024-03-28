@@ -9,30 +9,44 @@ This is a simple module that supports creating or removing Data Platform Cluster
 
 ```yaml
 
-  - name: Create Data Platform cluster
-    dataplatform_cluster:
-      name: ClusterName
-  
+name: Create Data Platform cluster
+ionoscloudsdk.ionoscloud.dataplatform_cluster:
+  name: 'AnsibleAutoTestDataPlatform'
+  dataplatform_version: '23.11'
+  datacenter: ''
+  maintenance_window:
+    day_of_the_week: Wednesday
+    time: '12:02:00'
+  state: present
+  wait: true
+  wait_timeout: 7200
+register: cluster_response
 
-  - name: Update Data Platform cluster
-    dataplatform_cluster:
-      cluster: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
-      maintenance_window:
-        day_of_the_week: 'Tuesday'
-        time: '13:03:00'
-      dataplatform_version: 1.17.8
-      state: update
-  
 
-  - name: Delete Data Platform cluster
-    dataplatform_cluster:
-      cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
-      state: absent
+name: Patch Data Platform cluster no change
+ionoscloudsdk.ionoscloud.dataplatform_cluster:
+  cluster: 'AnsibleAutoTestDataPlatform'
+  dataplatform_version: '23.11'
+  allow_replace: false
+  maintenance_window:
+    day_of_the_week: Wednesday
+    time: '12:02:00'
+  state: update
+  wait: true
+  wait_timeout: 7200
+register: cluster_response_nochange
+
+
+name: Delete Data Platform cluster
+ionoscloudsdk.ionoscloud.dataplatform_cluster:
+  cluster: ''
+  state: absent
+  wait: true
+  wait_timeout: 2000
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -72,6 +86,7 @@ This is a simple module that supports creating or removing Data Platform Cluster
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/dataplatform).
 &nbsp;
 
  **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
@@ -82,10 +97,19 @@ This is a simple module that supports creating or removing Data Platform Cluster
 # state: **present**
 ```yaml
   
-  - name: Create Data Platform cluster
-    dataplatform_cluster:
-      name: ClusterName
-  
+name: Create Data Platform cluster
+ionoscloudsdk.ionoscloud.dataplatform_cluster:
+  name: 'AnsibleAutoTestDataPlatform'
+  dataplatform_version: '23.11'
+  datacenter: ''
+  maintenance_window:
+    day_of_the_week: Wednesday
+    time: '12:02:00'
+  state: present
+  wait: true
+  wait_timeout: 7200
+register: cluster_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -173,11 +197,13 @@ This is a simple module that supports creating or removing Data Platform Cluster
 # state: **absent**
 ```yaml
   
-  - name: Delete Data Platform cluster
-    dataplatform_cluster:
-      cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
-      state: absent
-  
+name: Delete Data Platform cluster
+ionoscloudsdk.ionoscloud.dataplatform_cluster:
+  cluster: ''
+  state: absent
+  wait: true
+  wait_timeout: 2000
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -245,15 +271,19 @@ This is a simple module that supports creating or removing Data Platform Cluster
 # state: **update**
 ```yaml
   
-  - name: Update Data Platform cluster
-    dataplatform_cluster:
-      cluster: "89a5aeb0-d6c1-4cef-8f6b-2b9866d85850"
-      maintenance_window:
-        day_of_the_week: 'Tuesday'
-        time: '13:03:00'
-      dataplatform_version: 1.17.8
-      state: update
-  
+name: Patch Data Platform cluster no change
+ionoscloudsdk.ionoscloud.dataplatform_cluster:
+  cluster: 'AnsibleAutoTestDataPlatform'
+  dataplatform_version: '23.11'
+  allow_replace: false
+  maintenance_window:
+    day_of_the_week: Wednesday
+    time: '12:02:00'
+  state: update
+  wait: true
+  wait_timeout: 7200
+register: cluster_response_nochange
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

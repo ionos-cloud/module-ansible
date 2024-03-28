@@ -105,11 +105,11 @@ author:
 """
 
 EXAMPLES = """
-    - name: Get all NAT Gateway Rules for a given NAT Gateway
-     nat_gateway_rule_info:
-        datacenter: "AnsibleDatacenter"
-        nat_gateway: "AnsibleNATGateway"
-      register: rule_list_response
+name: List NAT Gateway Rules
+ionoscloudsdk.ionoscloud.nat_gateway_rule_info:
+  datacenter: ''
+  nat_gateway: ''
+register: nat_gateway_rule_list_response
 """
 
 

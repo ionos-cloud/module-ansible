@@ -84,9 +84,9 @@ author:
 """
 
 EXAMPLES = """
-    - name: Get all k8s clusters
-      k8s_cluster_info:
-      register: k8s_cluster_list_response
+name: List Clusters
+ionoscloudsdk.ionoscloud.k8s_cluster_info: null
+register: k8s_cluster_list_response
 """
 
 

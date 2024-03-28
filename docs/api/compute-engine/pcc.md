@@ -7,29 +7,29 @@ This is a simple module that supports creating or removing Cross Connects. This 
 
 ```yaml
 
-  - name: Create pcc
-    pcc:
-      name: PCCName
-      description: "Description for my PCC"
-  
+name: Create pcc
+ionoscloudsdk.ionoscloud.pcc:
+  name: 'AnsibleAutoTestCompute'
+  description: 'Ansible Compute test description'
+register: result
 
-  - name: Update pcc
-    pcc:
-      pcc: PCCName
-      name: NewPCCName
-      description: "New description for my PCC"
-      state: update
-  
 
-  - name: Remove pcc
-    pcc:
-      pcc: NewPCCName
-      state: absent
+name: Update pcc
+ionoscloudsdk.ionoscloud.pcc:
+  pcc: 'AnsibleAutoTestCompute'
+  name: RENAMED AnsibleAutoTestCompute
+  description: 'Ansible Compute test description - RENAME'
+  state: update
+
+
+name: Remove pcc
+ionoscloudsdk.ionoscloud.pcc:
+  pcc: ''
+  state: absent
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -62,6 +62,7 @@ This is a simple module that supports creating or removing Cross Connects. This 
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/compute-engine).
 &nbsp;
 
 &nbsp;
@@ -69,11 +70,12 @@ This is a simple module that supports creating or removing Cross Connects. This 
 # state: **present**
 ```yaml
   
-  - name: Create pcc
-    pcc:
-      name: PCCName
-      description: "Description for my PCC"
-  
+name: Create pcc
+ionoscloudsdk.ionoscloud.pcc:
+  name: 'AnsibleAutoTestCompute'
+  description: 'Ansible Compute test description'
+register: result
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -146,11 +148,11 @@ This is a simple module that supports creating or removing Cross Connects. This 
 # state: **absent**
 ```yaml
   
-  - name: Remove pcc
-    pcc:
-      pcc: NewPCCName
-      state: absent
-  
+name: Remove pcc
+ionoscloudsdk.ionoscloud.pcc:
+  pcc: ''
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -218,13 +220,13 @@ This is a simple module that supports creating or removing Cross Connects. This 
 # state: **update**
 ```yaml
   
-  - name: Update pcc
-    pcc:
-      pcc: PCCName
-      name: NewPCCName
-      description: "New description for my PCC"
-      state: update
-  
+name: Update pcc
+ionoscloudsdk.ionoscloud.pcc:
+  pcc: 'AnsibleAutoTestCompute'
+  name: RENAMED AnsibleAutoTestCompute
+  description: 'Ansible Compute test description - RENAME'
+  state: update
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

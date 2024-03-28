@@ -43,7 +43,6 @@ This is a module that supports creating, updating or destroying MariaDB Clusters
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -87,6 +86,7 @@ This is a module that supports creating, updating or destroying MariaDB Clusters
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/dbaas-mariadb).
 &nbsp;
 
  **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!

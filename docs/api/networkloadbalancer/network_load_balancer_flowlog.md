@@ -7,43 +7,42 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
 
 ```yaml
 
-  - name: Create Network Load Balancer Flowlog
-    network_load_balancer_flowlog:
-      name: FlowlogName
-      action: "ACCEPTED"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      wait: true
-    register: nlb_flowlog_response
-  
+name: Create Network Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
+  name: 'AnsibleAutoTestNLB'
+  action: ACCEPTED
+  direction: INGRESS
+  bucket: sdktest
+  datacenter: ''
+  network_load_balancer: ''
+  wait: true
+register: nlb_flowlog_response
 
-  - name: Update Network Load Balancer Flowlog
-    network_load_balancer_flowlog:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      flowlog: FlowlogName
-      name: FlowlogName
-      action: "ALL"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      wait: true
-      state: update
-    register: nlb_flowlog_update_response
-  
 
-  - name: Delete Network Load Balancer Flowlog
-    network_load_balancer_flowlog:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      flowlog: FlowlogName
-      state: absent
+name: Update Network Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
+  datacenter: ''
+  network_load_balancer: ''
+  flowlog: ''
+  name: 'AnsibleAutoTestNLB'
+  action: ALL
+  direction: INGRESS
+  bucket: sdktest
+  wait: true
+  state: update
+register: nlb_flowlog_update_response
+
+
+name: Delete Network Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
+  datacenter: ''
+  network_load_balancer: ''
+  flowlog: ''
+  state: absent
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -76,6 +75,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/networkloadbalancer).
 &nbsp;
 
 &nbsp;
@@ -83,17 +83,17 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
 # state: **present**
 ```yaml
   
-  - name: Create Network Load Balancer Flowlog
-    network_load_balancer_flowlog:
-      name: FlowlogName
-      action: "ACCEPTED"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      wait: true
-    register: nlb_flowlog_response
-  
+name: Create Network Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
+  name: 'AnsibleAutoTestNLB'
+  action: ACCEPTED
+  direction: INGRESS
+  bucket: sdktest
+  datacenter: ''
+  network_load_balancer: ''
+  wait: true
+register: nlb_flowlog_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -186,13 +186,13 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
 # state: **absent**
 ```yaml
   
-  - name: Delete Network Load Balancer Flowlog
-    network_load_balancer_flowlog:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      flowlog: FlowlogName
-      state: absent
-  
+name: Delete Network Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
+  datacenter: ''
+  network_load_balancer: ''
+  flowlog: ''
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -275,19 +275,19 @@ This is a simple module that supports creating or removing NetworkLoadbalancer F
 # state: **update**
 ```yaml
   
-  - name: Update Network Load Balancer Flowlog
-    network_load_balancer_flowlog:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      flowlog: FlowlogName
-      name: FlowlogName
-      action: "ALL"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      wait: true
-      state: update
-    register: nlb_flowlog_update_response
-  
+name: Update Network Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
+  datacenter: ''
+  network_load_balancer: ''
+  flowlog: ''
+  name: 'AnsibleAutoTestNLB'
+  action: ALL
+  direction: INGRESS
+  bucket: sdktest
+  wait: true
+  state: update
+register: nlb_flowlog_update_response
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

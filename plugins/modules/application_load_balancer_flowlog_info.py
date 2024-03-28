@@ -106,11 +106,11 @@ author:
 """
 
 EXAMPLES = '''
-    - name: Get all Flowlogs for a given Application Load Balancer
-      application_load_balancer_flowlog_info:
-        datacenter: "AnsibleDatacenter"
-        application_load_balancer: "AnsibleAppLoadBalancer"
-      register: flowlog_list_response
+name: List Application Load Balancer Flowlogs
+ionoscloudsdk.ionoscloud.application_load_balancer_flowlog_info:
+  datacenter: ''
+  application_load_balancer: ''
+register: alb_flowlog_list_response
 '''
 
 

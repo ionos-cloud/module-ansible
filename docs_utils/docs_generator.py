@@ -49,6 +49,7 @@ def generate_doc_file(module, module_name, states_parameters, template_file):
                     'has_immutable_parameters': immutable_options is not None,
                     'immutable_parameters': immutable_options,
                     'return_example': return_example,
+                    'directory': module.DOC_DIRECTORY,
                 },
             ))
             print('Generated docs for <{}> in {}'.format(module_name, target_filename))
@@ -151,6 +152,9 @@ modules_to_generate = [
     'mongo_cluster',
     'mongo_cluster_user',
     'mongo_cluster_user_info',
+    'mariadb_cluster',
+    'mariadb_cluster_info',
+    'mariadb_backup_info',
     'backupunit_info',
     'backupunit',
     'k8s_cluster_info',
@@ -198,9 +202,6 @@ modules_to_generate = [
     'dns_record_info',
     'dns_secondary_zone',
     'dns_secondary_zone_info',
-    'mariadb_cluster',
-    'mariadb_cluster_info',
-    'mariadb_backup_info',
 ]
 
 generated = {}

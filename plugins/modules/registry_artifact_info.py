@@ -98,15 +98,10 @@ author:
 """
 
 EXAMPLES = """
-    - name: List Artifacts
-        registry_artifact_info:
-            registry: "RegistryName"
-            repository: "repositoryName"
-        register: artifacts_response
-
-    - name: Show Artifacts
-        debug:
-            var: artifacts_response.result
+name: List artifacts
+ionoscloudsdk.ionoscloud.registry_artifact_info:
+  registry: ''
+register: artifacts_response
 """
 
 

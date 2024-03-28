@@ -89,14 +89,10 @@ author:
 """
 
 EXAMPLES = """
-    - name: List Registry Tokens
-        registry_token_info:
-            registry: "RegistryName"
-        register: registry_tokens_response
-
-    - name: Show Registry Tokens
-        debug:
-            var: registry_tokens_response.result
+name: List Registry Tokens
+ionoscloudsdk.ionoscloud.registry_token_info:
+  registry: ''
+register: registry_tokens_response
 """
 
 
