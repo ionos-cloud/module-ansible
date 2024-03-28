@@ -112,6 +112,8 @@ jobs:
             keywords: "mongo"
           - namespace: managed-kubernetes
             keywords: "k8s, k8s-cluster-nodepool, k8s_nodepool"
+          - namespace: dbaas-mariadb
+            keywords: "mariadb"
           - namespace: natgateway
             keywords: "nat"
           - namespace: networkloadbalancer
@@ -160,6 +162,7 @@ jobs:
           python3 -m pip install ionoscloud-dns
           python3 -m pip install ionoscloud-dbaas-postgres
           python3 -m pip install ionoscloud-dbaas-mongo
+          python3 -m pip install ionoscloud-dbaas-mariadb
           python3 -m pip install ionoscloud-container-registry
           python3 -m pip install ionoscloud-dataplatform
           python3 -m pip install ionoscloud-logging

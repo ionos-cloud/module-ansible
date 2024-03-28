@@ -1,0 +1,6 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+- name: Run MariaDB Cluster Test
+  import_playbook: mariadb-cluster-test.yml
