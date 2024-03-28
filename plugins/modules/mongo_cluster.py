@@ -368,30 +368,33 @@ class MongoClusterModule(CommonIonosModule):
         if existing_object is not None:
             maintenance_window = existing_object.properties.maintenance_window if maintenance_window is None else maintenance_window
 
-        connection = self.module.params.get('connections')[0]
+        if self.module.params.get('connections'):
+            connection = self.module.params.get('connections')[0]
 
-        datacenter_id = get_resource_id(
-            self.module, ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=2), connection['datacenter'],
-        )
+            datacenter_id = get_resource_id(
+                self.module, ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=2), connection['datacenter'],
+            )
 
-        if datacenter_id is None:
-            self.module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))
-        
-        lan_id = get_resource_id(
-            self.module,
-            ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1), connection['lan'],
-        )
+            if datacenter_id is None:
+                self.module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))
+            
+            lan_id = get_resource_id(
+                self.module,
+                ionoscloud.LANsApi(cloudapi_client).datacenters_lans_get(datacenter_id, depth=1), connection['lan'],
+            )
 
-        if lan_id is None:
-            self.module.fail_json('LAN {} not found.'.format(connection['lan']))
+            if lan_id is None:
+                self.module.fail_json('LAN {} not found.'.format(connection['lan']))
 
-        connections = [
-            ionoscloud_dbaas_mongo.Connection(
-                datacenter_id=datacenter_id,
-                lan_id=lan_id,
-                cidr_list=connection['cidr_list'],
-            ),
-        ]
+            connections = [
+                ionoscloud_dbaas_mongo.Connection(
+                    datacenter_id=datacenter_id,
+                    lan_id=lan_id,
+                    cidr_list=connection['cidr_list'],
+                ),
+            ]
+        else:
+            connections = existing_object.properties.connections if existing_object is not None else None
 
         mongo_cluster_properties = ionoscloud_dbaas_mongo.CreateClusterProperties(
             mongo_db_version=self.module.params.get('mongo_db_version'),
