@@ -152,6 +152,9 @@ modules_to_generate = [
     'mongo_cluster',
     'mongo_cluster_user',
     'mongo_cluster_user_info',
+    'mariadb_cluster',
+    'mariadb_cluster_info',
+    'mariadb_backup_info',
     'backupunit_info',
     'backupunit',
     'k8s_cluster_info',
@@ -199,9 +202,6 @@ modules_to_generate = [
     'dns_record_info',
     'dns_secondary_zone',
     'dns_secondary_zone_info',
-    'mariadb_cluster',
-    'mariadb_cluster_info',
-    'mariadb_backup_info',
 ]
 
 generated = {}
