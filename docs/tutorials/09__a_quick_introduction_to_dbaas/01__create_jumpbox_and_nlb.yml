@@ -41,31 +41,22 @@
     # =======================================================================
     # Provision the jumpbox, heavily borrowed from 3__jumpbox_with_internal_server
     - name: Retrieve Cube templates
-      ionoscloudsdk.ionoscloud.cube_template:
-        state: present
+      ionoscloudsdk.ionoscloud.cube_template_info:
+        filters: "{ 'properties.name': '{{ server_config['jumpbox'].cube_size }}' }"
       register: template_list
-
-
-    - name: Retrieve Template ID for '{{ server_config['jumpbox'].cube_size }}'
-      set_fact:
-        desired_template_uuid: "{{ item.id }}"
-      when: item.properties.name == server_config['jumpbox'].cube_size
-      with_items:
-        - "{{ template_list.template['items'] }}"
 
 
     - name: Provision a minimal Cube Jumpbox
       ionoscloudsdk.ionoscloud.cube_server:
         datacenter: "{{ datacenter_name }}"
         name: "{{ server_config['jumpbox'].name }}"
-        template_uuid: "{{ desired_template_uuid }}"
+        template_uuid: "{{ template_list.cube_templates[0].id }}"
         disk_type: DAS
         image: "{{ image_alias }}"
         image_password: "{{ default_password }}"
         ssh_keys:
           - "{{ ssh_public_key }}"
         assign_public_ip: true
-        remove_boot_volume: true
 
         state: present
         wait: true
@@ -131,7 +122,7 @@
 
 
     # =======================================================================
-    # Reserve a one IP address block for the NLB
+    # Reserve a one-IP-address block for the NLB
     - name: Create an IP Block for our datacenter
       ionoscloudsdk.ionoscloud.ipblock:
         name: "IP Block for {{ datacenter_name }}"
@@ -146,9 +137,9 @@
 
     # =======================================================================
     # see https://docs.ionos.com/ansible/api/network-load-balancer/network_load_balancer
-    - name: Create Network Load Balancer --- this can take quite a while (typically between 3 and 6 minutes), so please don't interrupt this operation...
+    - name: Create Network Load Balancer --- sometimes, this can take a while (up to 15 or so minutes), so please don't interrupt this operation...
       ionoscloudsdk.ionoscloud.network_load_balancer:
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_name }}"
         name: "{{ nlb.name }}"
         listener_lan: "{{ create_cube_response.machines[0]['entities']['nics']['items'][0]['properties']['lan'] }}"
         ips:
@@ -159,7 +150,7 @@
 
         state: present
         wait: true
-        wait_timeout: "{{ wait_timeout }}"
+        wait_timeout: "{{ vnf_wait_timeout }}"
       register: create_nlb_response
       when: ENABLE_EXPLICITLY_UNSUPPORTED_CONFIGURATIONS
 
@@ -178,9 +169,11 @@
           - ip: "{{ dbaas_config.postgres_cluster.ip }}"
             port: "5432"
             weight: "100"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ create_nlb_response.network_load_balancer.id }}"
+        datacenter: "{{ datacenter_name }}"
+        network_load_balancer: "{{ create_nlb_response.network_load_balancer.id }}"
+
         wait: true
+        wait_timeout: "{{ vnf_wait_timeout }}"
       register: nlb_forwarding_rule_response_psql
       when: ENABLE_EXPLICITLY_UNSUPPORTED_CONFIGURATIONS
 
@@ -196,9 +189,11 @@
           - ip: "{{ dbaas_config.mongodb_cluster.ip }}"
             port: "27017"
             weight: "100"
-        datacenter_id: "{{ datacenter_response.datacenter.id }}"
-        network_load_balancer_id: "{{ create_nlb_response.network_load_balancer.id }}"
+        datacenter: "{{ datacenter_name }}"
+        network_load_balancer: "{{ create_nlb_response.network_load_balancer.id }}"
+
         wait: true
+        wait_timeout: "{{ vnf_wait_timeout }}"
       register: nlb_forwarding_rule_response_mongo
       when: ENABLE_EXPLICITLY_UNSUPPORTED_CONFIGURATIONS
 
