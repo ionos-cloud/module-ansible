@@ -120,7 +120,7 @@
     # =======================================================================
     - name: Wait for user confirmation
       ansible.builtin.pause:
-        prompt: "End of example. Press <Enter> when you are ready for the contents of '{{ datacenter_name }}'' to be deleted..."
+        prompt: "End of example. Press <Enter> when you are ready for the contents of '{{ datacenter_name }}' to be deleted..."
       when: pause_between_operations
 
 
