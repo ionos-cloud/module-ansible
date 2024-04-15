@@ -55,7 +55,7 @@ If you do, then just follow the instructions over at the image's [Docker Hub pag
 
 > **Note:** Upon trying to 'apply' any of the examples in this repository, an 'End User Licence Agreement'-like statement will be displayed, which must also be accepted before the tasks proper can be executed.
 >
-> Also note that, while potentially quite minimal, you will incur charges for the resources based upon how long you keep them provisioned; for more information on the actual costs, you can follow the links displayed in the 'EULA' text. (But also, as a rough guide, a single-core VM with 1GB of RAM and 10GB of HDD storage would cost about 4.5 (Euro)cents per hour, as of September 2023.)
+> Also note that, while potentially quite minimal, you will incur charges for the resources based upon how long you keep them provisioned; for more information on the actual costs, you can follow the links displayed in the 'EULA' text. (But also, as a rough guide, a single-core VM with 1GB of RAM and 10GB of HDD storage would cost about 4.5 (Euro)cents per hour, as of April 2024.)
 >
 > **While every effort has been made to ensure each example 'cleans up' after itself, this cannot be guaranteed — particularly if an error is thrown, e.g., when trying out custom changes or otherwise experimenting with the provided files. To avoid any unexpected charges, we strongly recommend that you review your resources in the DCD, and manually delete anything that was missed by the Ansible Playbooks.** 
 
