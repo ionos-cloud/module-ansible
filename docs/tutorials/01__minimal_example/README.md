@@ -32,7 +32,7 @@ Even though this example is quite minimal, it includes and/or depends upon the f
 ## Usage
 > **Note:** As with all other 'executable' examples in this repository, an 'End User Licence Agreement'-like statement will be displayed, which must be accepted before the tasks proper can be executed.
 >
-> Please note that, while potentially quite minimal, you will incur charges for the resources based upon how long you keep them provisioned; for more information on the actual costs, you can follow the links displayed in the 'EULA' text. (But also, as a rough guide, a single-core VM with 1GB of RAM and 10GB of HDD storage would cost about 4.5 (Euro)cents per hour, as of September 2023.)
+> Please note that, while potentially quite minimal, you will incur charges for the resources based upon how long you keep them provisioned; for more information on the actual costs, you can follow the links displayed in the 'EULA' text. (But also, as a rough guide, a single-core VM with 1GB of RAM and 10GB of HDD storage would cost about 4.5 (Euro)cents per hour, as of April 2024.)
 
 To provision this infrastructure:
 
