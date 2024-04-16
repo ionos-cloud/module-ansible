@@ -36,7 +36,6 @@ ionoscloudsdk.ionoscloud.dataplatform_cluster_config:
 # state: **present**
 ```yaml
   
-
 name: Get kubeconfig by ID
 ionoscloudsdk.ionoscloud.dataplatform_cluster_config:
   cluster: ''

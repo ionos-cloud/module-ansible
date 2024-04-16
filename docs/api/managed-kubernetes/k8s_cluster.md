@@ -137,7 +137,7 @@ register: cluster_response
   <tr>
   <td>location<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>This attribute is mandatory if the cluster is private. The location must be enabled for your contract, or you must have a data center at that location. This property is not adjustable.</td>
+  <td>This attribute is mandatory if the cluster is private and optional if the cluster is public. The location must be enabled for your contract, or you must have a data center at that location. This property is not adjustable.</td>
   </tr>
   <tr>
   <td>nat_gateway_ip<br/><mark style="color:blue;">str</mark></td>
