@@ -1,0 +1,20 @@
+{
+    "changed": false,
+    "mariadb_backups": [
+        {
+            "id": "745d661a-4b9a-4970-94c5-8aab9062ea35",
+            "properties": {
+                "cluster_id": "745d661a-4b9a-4970-94c5-8aab9062ea35",
+                "earliest_recovery_target_time": "2024-03-19T14:35:39+00:00",
+                "size": 1,
+                "base_backups": [
+                    {
+                        "created": "2024-03-19T14:35:39+00:00",
+                        "size": 1
+                    }
+                ]
+            }
+        }
+    ],
+    "failed": false
+}

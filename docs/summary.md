@@ -144,6 +144,12 @@
     * [Mongo Cluster Users](api/dbaas-mongo/mongo_cluster_info.md)
     * [Mongo Cluster Templates](api/dbaas-mongo/mongo_cluster_template_info.md)
     * [Mongo Clusters](api/dbaas-mongo/mongo_cluster_user_info.md)
+* Dbaas Mariadb
+  * Modules
+    * [MariaDB Cluster](api/dbaas-mariadb/mariadb_cluster.md)
+  * Info Modules
+    * [MariaDB Clusters](api/dbaas-mariadb/mariadb_cluster_info.md)
+    * [MariaDB Cluster Backups](api/dbaas-mariadb/mariadb_backup_info.md)
 * Managed Backup
   * Modules
     * [Backup Unit](api/managed-backup/backupunit.md)

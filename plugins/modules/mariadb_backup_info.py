@@ -1,53 +1,41 @@
-#!/usr/bin/python
-# Copyright: Ansible Project
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
-
-from __future__ import absolute_import, division, print_function
-
-__metaclass__ = type
-
-HAS_SDK = True
-
-try:
-    import ionoscloud
-    from ionoscloud import __version__ as sdk_version
-except ImportError:
-    HAS_SDK = False
-
 from ansible import __version__
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options_with_depth
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_resource_id
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options
 
 
+HAS_SDK = True
+try:
+    import ionoscloud_dbaas_mariadb
+except ImportError:
+    HAS_SDK = False
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
     'status': ['preview'],
     'supported_by': 'community',
 }
-USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % ( __version__, sdk_version)
-DOC_DIRECTORY = 'compute-engine'
+USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-mariadb/%s' % (
+    __version__, ionoscloud_dbaas_mariadb.__version__)
+DOC_DIRECTORY = 'dbaas-mariadb'
 STATES = ['info']
-OBJECT_NAME = 'CUBE templates'
-RETURNED_KEY = 'cube_templates'
-
+OBJECT_NAME = 'MariaDB Cluster Backups'
+RETURNED_KEY = 'mariadb_backups'
 
 OPTIONS = {
-    'template_id': {
-        'description': ['The ID of the template.'],
+    'mariadb_cluster': {
+        'description': ['The ID or name of an existing MariaDB Cluster.'],
         'available': STATES,
         'type': 'str',
     },
-    **get_info_default_options_with_depth(STATES),
+    **get_info_default_options(STATES),
 }
 
-
 DOCUMENTATION = """
-module: cube_template
-short_description: Retrieve one or more Cube templates.
+module: mariadb_backup_info
+short_description: List MariaDB Cluster backups.
 description:
-     - This is a simple module that supports retrieving one or more Cube templates
+     - This is a simple module that supports listing existing MariaDB Cluster backups
 version_added: "2.0"
 options:
     api_url:
@@ -60,11 +48,6 @@ options:
         description:
         - The Ionos API certificate fingerprint.
         env_fallback: IONOS_CERTIFICATE_FINGERPRINT
-        required: false
-    depth:
-        default: 1
-        description:
-        - The depth used when retrieving the items.
         required: false
     filters:
         description:
@@ -80,9 +63,9 @@ options:
         env_fallback: IONOS_PASSWORD
         no_log: true
         required: false
-    template_id:
+    mariadb_cluster:
         description:
-        - The ID of the template.
+        - The ID or name of an existing MariaDB Cluster.
         required: false
     token:
         description:
@@ -99,45 +82,44 @@ options:
         required: false
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 6.0.2"
+    - "ionoscloud-dbaas-mariadb >= 1.0.0"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
-EXAMPLE_PER_STATE = {
-  'present' : '''
-
-name: List templates
-ionoscloudsdk.ionoscloud.cube_template_info: null
-register: template_list
-  ''',
-}
-
 EXAMPLES = """
+    - name: List MariaDB Cluster Backups
+        mariadb_cluster_backup_info:
+            mariadb_cluster: backuptest-04
+        register: mariadb_backups_response
 
-name: List templates
-ionoscloudsdk.ionoscloud.cube_template_info: null
-register: template_list
+    - name: Show MariaDB Cluster Backups
+        debug:
+            var: mariadb_backups_response.result
 """
 
 
-
 def get_objects(module, client):
-    template_id = module.params.get('template_id')
-    templates_api = ionoscloud.TemplatesApi(client)
+    backups_api = ionoscloud_dbaas_mariadb.BackupsApi(client)
+    mariadb_cluster = module.params.get('mariadb_cluster')
 
-    if template_id:
-        templates = ionoscloud.Templates(
-            items=[templates_api.templates_find_by_id(template_id)],
+    if mariadb_cluster:
+        mariadb_clusters_api = ionoscloud_dbaas_mariadb.ClustersApi(client)
+        mariadb_cluster_id = get_resource_id(
+            module,
+            mariadb_clusters_api.clusters_get(),
+            mariadb_cluster,
+            [['id'], ['properties', 'display_name']],
         )
-    else:
-        templates = templates_api.templates_get(depth=module.params.get('depth'))
 
-    return templates
+        backups = backups_api.cluster_backups_get(mariadb_cluster_id)
+    else:
+        backups = backups_api.backups_get()
+    return backups
 
 
 if __name__ == '__main__':
     default_main_info(
-        ionoscloud, 'ionoscloud', USER_AGENT, HAS_SDK, OPTIONS,
+        ionoscloud_dbaas_mariadb, 'ionoscloud_dbaas_mariadb', USER_AGENT, HAS_SDK, OPTIONS,
         STATES, OBJECT_NAME, RETURNED_KEY, get_objects,
     )
