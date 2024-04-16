@@ -35,7 +35,6 @@ ionoscloudsdk.ionoscloud.k8s_config:
 # state: **present**
 ```yaml
   
-
 name: Get k8s config
 ionoscloudsdk.ionoscloud.k8s_config:
   k8s_cluster: ''

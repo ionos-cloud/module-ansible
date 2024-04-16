@@ -120,7 +120,6 @@ author:
 
 EXAMPLE_PER_STATE = {
   'present' : '''
-
 name: Get k8s config
 ionoscloudsdk.ionoscloud.k8s_config:
   k8s_cluster: ''

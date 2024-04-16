@@ -46,7 +46,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         name: "{{ server_name }}"
         cores: "1"
         ram: "1024"
-        cpu_family: "{{ cpu_family }}"
+        cpu_family: "{{ datacenter_response.datacenter.properties.cpu_architecture[0].cpu_family }}"
         assign_public_ip: true
         disk_type: HDD
         volume_size: "10"

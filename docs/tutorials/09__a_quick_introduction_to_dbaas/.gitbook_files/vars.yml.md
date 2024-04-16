@@ -2,10 +2,16 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
 {% code title="01__create_jumpbox_and_nlb.yml" overflow="wrap" lineNumbers="true" %}
 ```yml
+# If ENABLE_EXPLICITLY_UNSUPPORTED_CONFIGURATIONS is set to true, a Network
+# Load Balancer (and its corresponding rules) will also be provisioned; as
+# its name suggests, this is an _unsupported_ configuration (which also offers
+# less security and security options than, e.g., using internal hosts and/or
+# a jumpbox), but it shows you how an NLB can be used to access your DBaaS
+# cluster(s) from _any_ public IP address
 ENABLE_EXPLICITLY_UNSUPPORTED_CONFIGURATIONS: false
 
 
-datacenter_name: Getting Started - Ansible - Introducing DBaaS
+datacenter_name: Ansible Tutorials - Introducing DBaaS
 
 ip_block:         { 'size': '1' }
 
@@ -25,6 +31,8 @@ dbaas_config:     { 'postgres_cluster': { 'ram': '2048',    # must be 2048 or gr
                     'mongodb_cluster':  { 'template': 'MongoDB Playground',
                                  'version': '6.0',
                                  'ip': '192.168.8.17' } }
+
+vnf_wait_timeout: 1800
 
 ```
 {% endcode %}

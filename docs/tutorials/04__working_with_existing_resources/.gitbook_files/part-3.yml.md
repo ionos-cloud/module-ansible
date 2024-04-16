@@ -40,7 +40,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
     - name: Delete the datacenter '{{ datacenter[0].name }}' and everything contained therein
       ionoscloudsdk.ionoscloud.datacenter:
-        id: "{{ datacenter[0].id }}"
+        datacenter: "{{ datacenter[0].id }}"
         state: absent
 
 ```

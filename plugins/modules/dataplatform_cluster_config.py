@@ -120,7 +120,6 @@ author:
 
 EXAMPLE_PER_STATE = {
   'present' : '''
-
 name: Get kubeconfig by ID
 ionoscloudsdk.ionoscloud.dataplatform_cluster_config:
   cluster: ''

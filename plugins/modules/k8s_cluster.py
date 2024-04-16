@@ -73,7 +73,7 @@ OPTIONS = {
         'type': 'bool'
     },
     'location': {
-        'description': ['This attribute is mandatory if the cluster is private. The location must be enabled for your contract, or you must have a data center at that location. This property is not adjustable.'],
+        'description': ['This attribute is mandatory if the cluster is private and optional if the cluster is public. The location must be enabled for your contract, or you must have a data center at that location. This property is not adjustable.'],
         'available': ['present'],
         'type': 'str'
     },
@@ -140,9 +140,9 @@ options:
         required: false
     location:
         description:
-        - This attribute is mandatory if the cluster is private. The location must be
-            enabled for your contract, or you must have a data center at that location.
-            This property is not adjustable.
+        - This attribute is mandatory if the cluster is private and optional if the cluster
+            is public. The location must be enabled for your contract, or you must have
+            a data center at that location. This property is not adjustable.
         required: false
     maintenance_window:
         description:

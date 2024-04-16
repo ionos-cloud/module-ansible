@@ -2,7 +2,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
 {% code title="01__create_jumpbox_and_nlb.yml" overflow="wrap" lineNumbers="true" %}
 ```yml
-datacenter_name: Getting Started - Ansible - Introducing roles
+datacenter_name: Ansible Tutorials - Introducing roles
 server_name: Example server
 
 ```

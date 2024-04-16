@@ -16,6 +16,12 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
   tasks:
     # =======================================================================
+    - name: Get information about the datacenter '{{ datacenter_name }}'
+      ionoscloudsdk.ionoscloud.datacenter_info:
+        filters: { 'properties.name': '{{ datacenter_name }}' }
+      register: datacenter_info_response
+
+
     - name: Get information about the LANs in '{{ datacenter_name }}'
       ionoscloudsdk.ionoscloud.lan_info:
         datacenter: "{{ datacenter_name }}"
@@ -52,7 +58,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         name: "{{ item.name }}"
         cores: "{{ item.cores }}"
         ram: "{{ item.ram }}"
-        cpu_family: "{{ cpu_family }}"
+        cpu_family: "{{ datacenter_info_response.datacenters[0].properties.cpu_architecture[0].cpu_family }}"
         disk_type: HDD
         volume_size: "5"
         image: "{{ image_alias }}"
@@ -147,9 +153,9 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
 
     # see https://docs.ionos.com/ansible/api/application-load-balancer
-    - name: Create the Application Load Balancer --- this can take quite a while (typically between 3 and 6 minutes), so please don't interrupt this operation...
+    - name: Create the Application Load Balancer --- sometimes, this can take a while (up to 15 or so minutes), so please don't interrupt this operation...
       ionoscloudsdk.ionoscloud.application_load_balancer:
-        datacenter: "{{ datacenter_named }}"
+        datacenter: "{{ datacenter_name }}"
         name: "{{ alb.name }}"
         listener_lan: "{{ public_lan.id }}"
         ips:
@@ -160,7 +166,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
         state: present
         wait: true
-        wait_timeout: "{{ wait_timeout }}"
+        wait_timeout: "{{ vnf_wait_timeout }}"
       register: create_alb_response
 
 
@@ -187,8 +193,18 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
         datacenter: "{{ datacenter_name }}"
         application_load_balancer: "{{ create_alb_response.application_load_balancer.id }}"
+
         wait: true
+        wait_timeout: "{{ vnf_wait_timeout }}"
       register: alb_forwardingrule_response
+
+
+    - name: Print the newly-provisioned Load Balancer's public IP address
+      ansible.builtin.debug:
+        msg:
+          - "The ALB's IP address is {{ ip_block[1] }}. To see its forwarding rule in action, run the"
+          - "command `curl http://{{ ip_block[1] }}` two or more times _after_ you have configured"
+          - "the app-servers via `ansible-playbook -i inventory.yml 03__configure_app_servers.yml"
 
 ```
 {% endcode %}

@@ -2,7 +2,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
 {% code title="01__create_jumpbox_and_nlb.yml" overflow="wrap" lineNumbers="true" %}
 ```j2
-Host nlb
+Host alb
 User root
 Hostname {{ ip_block_response.ipblock.properties.ips[1] }}
 StrictHostKeyChecking no

@@ -24,7 +24,6 @@ ionoscloudsdk.ionoscloud.registry_repository:
 # state: **absent**
 ```yaml
   
-
 name: Ensure Repository does not exist
 ionoscloudsdk.ionoscloud.registry_repository:
   registry: ''

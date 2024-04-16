@@ -5,12 +5,15 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 ---
 - hosts: app-servers
 
+  vars_files:
+    - vars.yml
+
 
   tasks:
     # Apply some basic network configurations needed, since these VMs are
     # behind the NAT Gateway and don't have access to a 'full' DHCP server
     - name: Set our default route
-      ansible.builtin.shell: "ip route add default via {{ nat_gateway.ip }}"
+      ansible.builtin.shell: "ip route add default via {{ nat_gateway.ip }} || true"
 
 
     # Arguably not the most robust solution, but while an approach based upon,
