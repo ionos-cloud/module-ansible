@@ -11,7 +11,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
     - ../vars.yml
 
   vars:
-    - datacenter_name: Getting Started - Ansible - Server with multiple NICs and Storage Volumes
+    - datacenter_name: Ansible Tutorials - Server with multiple NICs and Storage Volumes
     - server_name:     Example server
 
 
@@ -47,7 +47,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         name: "{{ server_name }}"
         cores: "1"
         ram: "1024"
-        cpu_family: "{{ cpu_family }}"
+        cpu_family: "{{ datacenter_response.datacenter.properties.cpu_architecture[0].cpu_family }}"
         assign_public_ip: true
         disk_type: HDD
         volume_size: "5"
@@ -155,7 +155,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
     # =======================================================================
     - name: Wait for user confirmation
       ansible.builtin.pause:
-        prompt: "End of example. Press <Enter> when you are ready for the contents of '{{ datacenter_name }}'' to be deleted..."
+        prompt: "End of example. Press <Enter> when you are ready for the contents of '{{ datacenter_name }}' to be deleted..."
       when: pause_between_operations
 
 

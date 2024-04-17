@@ -16,57 +16,29 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
   tasks:
     # =======================================================================
-    - name: Get information about the existing data centers
-      ansible.builtin.uri:
-        url: "https://api.ionos.com/cloudapi/v6/datacenters?pretty=true&depth=1&offset=0&limit=1000"
-        method: GET
-        return_content: true
-        headers:
-          Authorization: "Bearer {{ lookup('ansible.builtin.env', 'IONOS_TOKEN', default='') }}"
-      no_log: true
-      register: api__get_datacenters_response
-
-
-    - name: Extract the relevant entry from 'api__get_datacenters_response'
-      ansible.builtin.set_fact:
-        datacenter: "{{ (api__get_datacenters_response.content | from_json | json_query(query))[0] }}"
-      vars:
-        query: "items[?properties.name=='{{ datacenter_name }}'].{id: id, name: properties.name}"
-
-
     - name: Get information about the LANs in '{{ datacenter_name }}'
-      ansible.builtin.uri:
-        url: "https://api.ionos.com/cloudapi/v6/datacenters/{{ datacenter.id }}/lans?pretty=true&depth=2&offset=0&limit=1000"
-        method: GET
-        return_content: true
-        headers:
-          Authorization: "Bearer {{ lookup('ansible.builtin.env', 'IONOS_TOKEN', default='') }}"
-      register: api__get_lans_response
+      ionoscloudsdk.ionoscloud.lan_info:
+        datacenter: "{{ datacenter_name }}"
+      register: lan_info_response
 
 
     - name: Set the fact 'internal_lan' based on the above
       ansible.builtin.set_fact:
-        internal_lan: "{{ (api__get_lans_response.content | from_json | json_query(query))[0] }}"
+        internal_lan: "{{ (lan_info_response | json_query(query))[0] }}"
       vars:
-        query: "items[?properties.name=='{{ lan.name }}'].{id: id, properties: properties}"
+        query: "lans[?properties.name=='{{ lan.name }}']"
 
 
     - name: Get information about our reserved IP Blocks
-      ansible.builtin.uri:
-        url: "https://api.ionos.com/cloudapi/v6/ipblocks?pretty=true&depth=1&offset=0&limit=100"
-        method: GET
-        return_content: true
-        headers:
-          Authorization: "Bearer {{ lookup('ansible.builtin.env', 'IONOS_TOKEN', default='') }}"
-      register: api__get_ip_blocks_response
+      ionoscloudsdk.ionoscloud.ipblock_info:
+        filters: "{ 'properties.name': 'IP Block for {{ datacenter_name }}' }"
+      register: ipblock_info_response
       when: ENABLE_EXPLICITLY_UNSUPPORTED_CONFIGURATIONS
 
 
-    - name: Set the fact 'ip_block' based on the above
+    - name: Set 'ip_block' based on the above
       ansible.builtin.set_fact:
-        ip_block: "{{ (api__get_ip_blocks_response.content | from_json | json_query(query))[0] }}"
-      vars:
-        query: "items[?properties.name=='IP Block for {{ datacenter_name }}'].properties.ips"
+        ip_block: "{{ ipblock_info_response.ipblocks[0].properties.ips }}"
       when: ENABLE_EXPLICITLY_UNSUPPORTED_CONFIGURATIONS
 
 
@@ -95,20 +67,10 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
     # =======================================================================
     # See https://docs.ionos.com/ansible/api/compute-engine/cube_template
-    - name: Retrieve cluster templates
+    - name: Retrieve the cluster template for '{{ dbaas_config.mongodb_cluster.template }}'
       ionoscloudsdk.ionoscloud.mongo_cluster_template_info:
+        filters: "{ 'properties.name': '{{ dbaas_config.mongodb_cluster.template }}' }"
       register: template_list
-
-
-    # Iterate over the list of templates returned above and set the 'desired_
-    # template_uuid' fact based upon the specified 'search criterium'
-    # 'mongodb_cluster':  { 'cluster_template': 'MongoDB Playground',
-    - name: Retrieve Template ID for '{{ dbaas_config.mongodb_cluster.template }}'
-      set_fact:
-        desired_template_uuid: "{{ item.id }}"
-      when: item.properties.name == dbaas_config.mongodb_cluster.template
-      with_items:
-        - "{{ template_list['result'] }}"
 
 
 
@@ -119,15 +81,17 @@ The source files for this tutorial can be downloaded from its [GitHub repository
       ionoscloudsdk.ionoscloud.mongo_cluster:
         mongo_db_version: "{{ dbaas_config.mongodb_cluster.version }}"
         instances: 1
-        template_id: "{{ desired_template_uuid }}"
+        template_id: "{{ template_list.mongo_cluster_templates[0].id }}"
         location: "{{ location }}"
         connections:
           - cidr_list: 
               - "{{ dbaas_config.mongodb_cluster.ip }}/24"
-            datacenter: "{{ datacenter.id }}"
+            datacenter: "{{ datacenter_name }}"
             lan: "{{ internal_lan.id }}"
         display_name: "MongoDB Cluster for {{ datacenter_name }}"
+
         wait: true
+        wait_timeout: "{{ wait_timeout }}"
       register: mongodb_cluster_response    
 
 
@@ -138,7 +102,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
     - name: Create Cluster User
       ionoscloudsdk.ionoscloud.mongo_cluster_user:
-        mongo_cluster_id: "{{ mongodb_cluster_response.mongo_cluster.id }}"
+        mongo_cluster: "{{ mongodb_cluster_response.mongo_cluster.id }}"
         mongo_username: dbadmin
         mongo_password: "{{ default_password }}"
         user_roles:

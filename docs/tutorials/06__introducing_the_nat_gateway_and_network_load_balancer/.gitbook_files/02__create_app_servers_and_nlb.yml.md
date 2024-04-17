@@ -16,6 +16,12 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
   tasks:
     # =======================================================================
+    - name: Get information about the datacenter '{{ datacenter_name }}'
+      ionoscloudsdk.ionoscloud.datacenter_info:
+        filters: { 'properties.name': '{{ datacenter_name }}' }
+      register: datacenter_info_response
+
+
     - name: Get information about the LANs in '{{ datacenter_name }}'
       ionoscloudsdk.ionoscloud.lan_info:
         datacenter: "{{ datacenter_name }}"
@@ -52,7 +58,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         name: "{{ item.name }}"
         cores: "{{ item.cores }}"
         ram: "{{ item.ram }}"
-        cpu_family: "{{ cpu_family }}"
+        cpu_family: "{{ datacenter_info_response.datacenters[0].properties.cpu_architecture[0].cpu_family }}"
         disk_type: HDD
         volume_size: "5"
         image: "{{ image_alias }}"
@@ -91,7 +97,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
     # see https://docs.ionos.com/ansible/api/network-load-balancer/network_load_balancer
     #   --> the example really needs the lb_private_ips, too
-    - name: Create Network Load Balancer --- this can take quite a while (typically between 3 and 6 minutes), so please don't interrupt this operation...
+    - name: Create Network Load Balancer --- sometimes, this can take a while (up to 15 or so minutes), so please don't interrupt this operation...
       ionoscloudsdk.ionoscloud.network_load_balancer:
         datacenter: "{{ datacenter_name }}"
         name: "{{ nlb.name }}"
@@ -104,13 +110,11 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
         # state: present
         wait: true
-        wait_timeout: "{{ wait_timeout }}"
+        wait_timeout: "{{ vnf_wait_timeout }}"
       register: create_nlb_response
 
 
     # Before we can create a forwarding rule, we need the list of destination IPs
-    # PRM: not quite sure why "{{ (create_app_server_response | json_query(query))[] }}"
-    # won't work (when it does, e.g., on https://mixedanalytics.com/tools/jmespath-expression-tester/),
     - name: Set 'target_ips' based on 'create_app_server_response'
       ansible.builtin.set_fact:
         target_ips: "{{ create_app_server_response | json_query(query) }}"
@@ -157,7 +161,9 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         targets: "{{ targets_ssh }}"
         datacenter: "{{ datacenter_name }}"
         network_load_balancer: "{{ create_nlb_response.network_load_balancer.id }}"
+
         wait: true
+        wait_timeout: "{{ vnf_wait_timeout }}"
       register: nlb_forwarding_rule_response_ssh
 
 
@@ -171,8 +177,18 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         targets: "{{ targets_http }}"
         datacenter: "{{ datacenter_name }}"
         network_load_balancer: "{{ create_nlb_response.network_load_balancer.id }}"
+
         wait: true
+        wait_timeout: "{{ vnf_wait_timeout }}"
       register: nlb_forwarding_rule_response_http
+
+
+    - name: Print the newly-provisioned Load Balancer's public IP address
+      ansible.builtin.debug:
+        msg:
+          - "The NLB's IP address is {{ ip_block[1] }}. To see its forwarding rule in action, run the"
+          - "command `curl http://{{ ip_block[1] }}` two or more times _after_ you have configured"
+          - "the app-servers via `ansible-playbook -i inventory.yml 03__configure_app_servers.yml"
 
 ```
 {% endcode %}

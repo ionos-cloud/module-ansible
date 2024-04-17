@@ -43,30 +43,24 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
 
     # =======================================================================
-    # Provision the jumpbox, heavily borrowed from 3__jumpbox_with_internal_server
+    # Provision the jumpbox, heavily borrowed from 03__jumpbox_with_internal_server
     - name: Retrieve Cube templates
       ionoscloudsdk.ionoscloud.cube_template_info:
         filters: "{ 'properties.name': '{{ server_config['jumpbox'].cube_size }}' }"
       register: template_list
 
 
-    - name: Retrieve Template ID for '{{ server_config['jumpbox'].cube_size }}'
-      set_fact:
-        desired_template_uuid: "{{ template_list.cube_templates[0].id }}"
-
-
     - name: Provision a minimal Cube Jumpbox
       ionoscloudsdk.ionoscloud.cube_server:
         datacenter: "{{ datacenter_name }}"
         name: "{{ server_config['jumpbox'].name }}"
-        template_uuid: "{{ desired_template_uuid }}"
+        template_uuid: "{{ template_list.cube_templates[0].id }}"
         disk_type: DAS
         image: "{{ image_alias }}"
         image_password: "{{ default_password }}"
         ssh_keys:
           - "{{ ssh_public_key }}"
         assign_public_ip: true
-        remove_boot_volume: true
 
         state: present
         wait: true
@@ -144,7 +138,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
     # =======================================================================
     # Create the NAT Gateway --- see https://docs.ionos.com/ansible/api/nat-gateway/nat_gateway
-    - name: Create a NAT Gateway --- this can take quite a while (typically between 2 and 5 minutes), so please don't interrupt this operation...
+    - name: Create a NAT Gateway --- this can take a little while (typically between 3 and 8 minutes), so please don't interrupt this operation...
       ionoscloudsdk.ionoscloud.nat_gateway:
         datacenter: "{{ datacenter_name }}"    # can be either the name or the UUID of the datacenter
         name: "{{ nat_gateway.name }}"
@@ -153,7 +147,9 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         lans:
           - id: "{{ create_second_lan_response.lan.id }}"
             gateway_ips: "{{ nat_gateway.ip }}"
+
         wait: true
+        wait_timeout: "{{ vnf_wait_timeout }}"
       register: nat_gateway_response
 
 
@@ -167,8 +163,9 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         protocol: "ALL"
         source_subnet: "{{ lan.address }}"
         public_ip: "{{ ip_block_response.ipblock.properties.ips[0] }}"
-        wait: true
 
+        wait: true
+        wait_timeout: "{{ vnf_wait_timeout }}"
 
 ```
 {% endcode %}

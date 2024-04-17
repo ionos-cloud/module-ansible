@@ -39,7 +39,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
     # =======================================================================
     # Method 2: Using the Cloud API (https://api.ionos.com/docs/cloud/v6/),
     # the ansible.builtin.uri module, Bearer Authorization and json_query
-    - name: Get information about the LANs in '{{ datacenter_name }}'
+    - name: Get information about the LANs in '{{ datacenter_name }}' via the uri module
       ansible.builtin.uri:
         url: "https://api.ionos.com/cloudapi/v6/datacenters/{{ datacenter.id }}/lans?pretty=true&depth=2&offset=0&limit=1000"
         method: GET
@@ -48,6 +48,12 @@ The source files for this tutorial can be downloaded from its [GitHub repository
           Authorization: "Bearer {{ lookup('ansible.builtin.env', 'IONOS_TOKEN', default='') }}"
       no_log: true
       register: api__get_lans_response
+
+
+    - name: Print the contents of 'api__get_lans_response'
+      ansible.builtin.debug:
+        var: api__get_lans_response
+      when: verbose_debugging
 
 
     # See https://docs.ansible.com/ansible/latest/collections/community/general/docsite/filter_guide_selecting_json_data.html
@@ -84,7 +90,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
     # Method 3: Using one of the supported `_info` modules --- in this case,
     # `ionoscloudsdk.ionoscloud.server_info` --- to retrieve information 
     # _all_ of the servers contained in the Data Center 'datacenter_name'
-    - name: Get information about the server '{{ server_name }}'
+    - name: Get information about the server '{{ server_name }}' using the server_info module
       ionoscloudsdk.ionoscloud.server_info:
         datacenter: "{{ datacenter_name }}"
         depth: 5
@@ -114,12 +120,6 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         query: "servers[?properties.name=='{{ server_name }}']"
 
 
-
-
-    - name: Print the contents of 'api__get_lans_response'
-      ansible.builtin.debug:
-        var: api__get_lans_response
-      when: verbose_debugging
 
 
     - name: Print the contents of 'desired_server_info__iter'

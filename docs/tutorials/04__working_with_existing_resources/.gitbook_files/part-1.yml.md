@@ -53,7 +53,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         name: "{{ server_name }}"
         cores: "1"
         ram: "1024"
-        cpu_family: "{{ cpu_family }}"
+        cpu_family: "{{ datacenter_response.datacenter.properties.cpu_architecture[0].cpu_family }}"
         assign_public_ip: true
         disk_type: HDD
         volume_size: "5"
@@ -67,8 +67,8 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         wait_timeout: "{{ wait_timeout }}"
       # previously we have saved the output of this task in the following 
       # register variable, but since _this_ installment is all about using
-      # pre-existing resources, we'll skip this step, and show how one can
-      # use an `_info` module in part-2.yml
+      # pre-existing resources, we'll skip this step, and show a few ways
+      # to obtain such information module in part-2.yml
       ##register: create_server_response
     
 

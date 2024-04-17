@@ -37,9 +37,12 @@ This example includes and/or depends on the following files:
    ```
 2. To execute the 'meat' of this example, run the following command (possibly after enabling `verbose_debugging` — see below):
    ```
-   ansible-playbook part-2.yml
+   ansible-playbook -i inventory.yml part-2.yml
    ```
-3. Optionally, examine the outputs of the previous step; if you'd like to make changes to `part-2.yml`, you can delete the resources that were provisioned in Step 2, and re-run said playbook
+3. Optionally, examine the outputs of the previous step; to ssh into the VM, type the following _from the same directory in another shell_:
+   ```
+   ssh -F ssh_config example-server
+   ```
 4. Execute the following to delete the resources provisioned in the previous steps:
    ```
    ansible-playbook part-3.yml

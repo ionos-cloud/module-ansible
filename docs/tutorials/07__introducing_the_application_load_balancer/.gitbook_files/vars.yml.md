@@ -2,7 +2,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
 {% code title="01__create_jumpbox_and_nlb.yml" overflow="wrap" lineNumbers="true" %}
 ```yml
-datacenter_name: Getting Started - Ansible - Introducing the ALB
+datacenter_name: Ansible Tutorials - Introducing the ALB
 
 ip_block:         { 'size': '2' }
 
@@ -28,6 +28,10 @@ server_config:    { 'jumpbox': { 'name': 'jumpbox',
                                        'user_data_file': 'cloud-init--app-servers.txt',
                                        'ip': '192.168.8.17' } ] 
                   }
+
+vnf_wait_timeout: 1800
+
+ENABLE_PROXY_PROTOCOL: false
 
 ```
 {% endcode %}

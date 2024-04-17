@@ -16,60 +16,16 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
   tasks:
     # =======================================================================
-    - name: Get information about the existing data centers
-      ansible.builtin.uri:
-        url: "https://api.ionos.com/cloudapi/v6/datacenters?pretty=true&depth=1"
-        method: GET
-        return_content: true
-        headers:
-          Authorization: "Bearer {{ lookup('ansible.builtin.env', 'IONOS_TOKEN', default='') }}"
-      no_log: true
-      register: api__get_datacenters_response
-
-    
-    - name: Extract the relevant entry from 'api__get_datacenters_response'
-      ansible.builtin.set_fact:
-        datacenter: "{{ api__get_datacenters_response.content | from_json | json_query(query) }}"
-      vars:
-        query: "items[?properties.name=='{{ datacenter_name }}'].{id: id, name: properties.name}"
+    - name: Get information about 'Postgres Cluster for {{ datacenter_name }}'
+      ionoscloudsdk.ionoscloud.postgres_cluster_info:
+        filters: "{ 'properties.display_name': 'Postgres Cluster for {{ datacenter_name }}' }"
+      register: postgres_clusters_response
 
 
-    - name: Get information about the existing Postgres clusters
-      ansible.builtin.uri:
-        url: "https://api.ionos.com/databases/postgresql/clusters"
-        method: GET
-        return_content: true
-        headers:
-          Authorization: "Bearer {{ lookup('ansible.builtin.env', 'IONOS_TOKEN', default='') }}"
-      no_log: true
-      register: api__get_postgres_clusters_response
-
-
-    - name: Extract the relevant entry from 'api__get_postgres_clusters_response'
-      ansible.builtin.set_fact:
-        postgres_cluster: "{{ api__get_postgres_clusters_response.json | json_query(query) }}"
-      vars:
-        query: "items[?properties.displayName=='Postgres Cluster for {{ datacenter_name }}']"  #".{id: id, name: properties.name}"
-
-
-
-
-    - name: Get information about the existing MongoDB clusters
-      ansible.builtin.uri:
-        url: "https://api.ionos.com/databases/mongodb/clusters"
-        method: GET
-        return_content: true
-        headers:
-          Authorization: "Bearer {{ lookup('ansible.builtin.env', 'IONOS_TOKEN', default='') }}"
-      no_log: true
-      register: api__get_mongodb_clusters_response
-
-
-    - name: Extract the relevant entry from 'api__get_mongodb_clusters_response'
-      ansible.builtin.set_fact:
-        mongodb_cluster: "{{ api__get_mongodb_clusters_response.json | json_query(query) }}"
-      vars:
-        query: "items[?properties.displayName=='MongoDB Cluster for {{ datacenter_name }}']"
+    - name: Get information about 'MongoDB Cluster for {{ datacenter_name }}'
+      ionoscloudsdk.ionoscloud.mongo_cluster_info:
+        filters: "{ 'properties.display_name': 'MongoDB Cluster for {{ datacenter_name }}' }"
+      register: mongo_clusters_response
 
 
 
@@ -78,24 +34,26 @@ The source files for this tutorial can be downloaded from its [GitHub repository
     - name: Wait for user confirmation
       ansible.builtin.pause:
         prompt: "About to delete '{{ datacenter_name }}' and all of its contents. Press <Enter> to proceed..."
-      when: pause_between_operations
 
 
     - name: Delete Postgres Cluster
       ionoscloudsdk.ionoscloud.postgres_cluster:
-        postgres_cluster: "{{ postgres_cluster[0].id }}"
+        postgres_cluster: "{{ postgres_clusters_response.postgres_clusters[0].id }}"
         state: absent
+
         wait: true
-      when: postgres_cluster | length > 0
+        wait_timeout: "{{ wait_timeout }}"
+      when: postgres_clusters_response.postgres_clusters | length > 0
 
 
     - name: Delete MongoDB Cluster
       ionoscloudsdk.ionoscloud.mongo_cluster:
-        mongo_cluster: "{{ mongodb_cluster[0].id }}"
+        mongo_cluster: "{{ mongo_clusters_response.mongo_clusters[0].id }}"
         state: absent
-        wait: true
-      when: mongodb_cluster | length > 0
 
+        wait: true
+        wait_timeout: "{{ wait_timeout }}"
+      when: mongo_clusters_response.mongo_clusters | length > 0
 
 
 
@@ -105,11 +63,10 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         seconds: 15
         
 
-    - name: Delete the datacenter '{{ datacenter[0].name }}' and everything contained therein
+    - name: Delete the datacenter '{{ datacenter_name }}' and everything contained therein
       ionoscloudsdk.ionoscloud.datacenter:
-        id: "{{ datacenter[0].id }}"
+        datacenter: "{{ datacenter_name }}"
         state: absent
-      when: datacenter | length > 0
 
 
     - name: Delete the IP Block corresponding to this example

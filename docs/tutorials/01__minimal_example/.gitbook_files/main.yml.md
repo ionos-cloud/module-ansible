@@ -13,7 +13,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
     - ../vars.yml
 
   vars:
-    - datacenter_name: Getting Started - Ansible - Minimal Functional Test
+    - datacenter_name: Ansible Tutorials - Minimal Functional Test
     - server_name:     Example server
 
 
@@ -44,6 +44,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         state: present
       register: datacenter_response
 
+    
 
     # See https://docs.ionos.com/ansible/api/compute-engine/server for more
     # information
@@ -55,7 +56,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         name: "{{ server_name }}"
         cores: "1"
         ram: "1024"
-        cpu_family: "{{ cpu_family }}"
+        cpu_family: "{{ datacenter_response.datacenter.properties.cpu_architecture[0].cpu_family }}"
         assign_public_ip: true
         disk_type: HDD
         volume_size: "5"
@@ -63,7 +64,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         image_password: "{{ default_password }}"
         ssh_keys:
           - "{{ ssh_public_key }}"
-        # if you don't want to perform any provision-time tasks using cloud-init,
+        # if you don't want to perform any first-boot tasks using cloud-init,
         # simply remove the following line
         user_data: "{{ lookup('file', 'cloud-init.txt') | string | b64encode }}"
 
@@ -100,6 +101,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
 
 
+
     # =======================================================================
     - name: Wait for user confirmation
       ansible.builtin.pause:
@@ -118,10 +120,11 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
 
 
+
     # =======================================================================
     - name: Wait for user confirmation
       ansible.builtin.pause:
-        prompt: "End of example. Press <Enter> when you are ready for the contents of '{{ datacenter_name }}'' to be deleted..."
+        prompt: "End of example. Press <Enter> when you are ready for the contents of '{{ datacenter_name }}' to be deleted..."
       when: pause_between_operations
 
 
@@ -138,7 +141,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
     # This will remove all servers, volumes, and other objects contained therein
     - name: Delete the datacenter '{{ datacenter_name }}'
       ionoscloudsdk.ionoscloud.datacenter:
-        id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"    # can delete by name or id
         state: absent
 
 ```

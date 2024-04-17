@@ -13,7 +13,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
     - ../vars.yml
 
   vars:
-    - datacenter_name: Getting Started - Ansible - Jumpbox with Internal Server
+    - datacenter_name: Ansible Tutorials - Jumpbox with Internal Server
     - jumpbox_name:    Jumpbox
     - cube_size:       CUBES XS
     - int_server_name: Example internal server
@@ -59,21 +59,9 @@ The source files for this tutorial can be downloaded from its [GitHub repository
     # =======================================================================
     # See https://docs.ionos.com/ansible/api/compute-engine/cube_template
     - name: Retrieve Cube templates
-      ionoscloudsdk.ionoscloud.cube_template:
-        state: present
+      ionoscloudsdk.ionoscloud.cube_template_info:
+        filters: "{ 'properties.name': '{{ cube_size }}' }"
       register: template_list
-
-
-    # Iterate over the list of templates returned above and set the 'desired_
-    # template_uuid' fact based upon the specified 'search criterium'
-    - name: Retrieve Template ID for '{{ cube_size }}'
-      set_fact:
-        desired_template_uuid: "{{ item.id }}"
-      when: item.properties.name == cube_size
-      with_items:
-        - "{{ template_list.template['items'] }}"
-
-
 
 
     # See https://docs.ionos.com/ansible/api/compute-engine/cube_server
@@ -81,14 +69,13 @@ The source files for this tutorial can be downloaded from its [GitHub repository
       ionoscloudsdk.ionoscloud.cube_server:
         datacenter: "{{ datacenter_name }}"
         name: "{{ jumpbox_name }}"
-        template_uuid: "{{ desired_template_uuid }}"
+        template_uuid: "{{ template_list.cube_templates[0].id }}"
         disk_type: DAS
         image: "{{ image_alias }}"
         image_password: "{{ default_password }}"
         ssh_keys:
           - "{{ ssh_public_key }}"
         assign_public_ip: true
-        remove_boot_volume: true
 
         state: present
         wait: true
@@ -127,7 +114,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         name: "{{ int_server_name }}"
         cores: "1"
         ram: "1024"
-        cpu_family: "{{ cpu_family }}"
+        cpu_family: "{{ datacenter_response.datacenter.properties.cpu_architecture[0].cpu_family }}"
         disk_type: HDD
         volume_size: "5"
         image: "{{ image_alias }}"
@@ -218,7 +205,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 
     - name: Delete the datacenter '{{ datacenter_name }}' and everything contained therein
       ionoscloudsdk.ionoscloud.datacenter:
-        id: "{{ datacenter_response.datacenter.id }}"
+        datacenter: "{{ datacenter_response.datacenter.id }}"
         state: absent
 
 
@@ -227,7 +214,11 @@ The source files for this tutorial can be downloaded from its [GitHub repository
         path: "{{ item }}"
         state: absent
       with_items:
+        - inventory.yml
+        - ssh_config
         - ssh_known_hosts_tmp
+        - temporary_id_rsa
+        - temporary_id_rsa.pub
 
 ```
 {% endcode %}
