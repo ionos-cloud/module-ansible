@@ -1,5 +1,12 @@
 # Changelog
 
+## 7.4.1
+### Fixes
+* disk_type on cube_server now defaults to DAS, other arguments would have caused the call to fail
+### Docs
+* Added tutorials to docs, these show how this Ansible module can be used to provision many of our more commonly-used Compute resources and Managed Services in combinations that are at least _representative_ of 'real-world' deployments.
+* Updated the examples in the files to use the steps from our test playbooks to ensure they are working. This should fix numerous bugs within the examples.
+
 ## 7.4.0
 ### Features
 * Added MariaDB modules

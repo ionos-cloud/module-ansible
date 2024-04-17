@@ -251,7 +251,7 @@ options:
         - SSD Standard
         - SSD Premium
         - DAS
-        default: HDD
+        default: DAS
         description:
         - The disk type for the volume.
         required: false
