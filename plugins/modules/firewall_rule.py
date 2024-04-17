@@ -74,7 +74,7 @@ OPTIONS = {
         'description': ['The protocol for the rule. Property cannot be modified after it is created (disallowed in update requests).'],
         'required': ['present'],
         'available': ['present', 'update'],
-        'choices': ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'ANY'],
+        'choices': ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'GRE', 'VRRP', 'ESP', 'AH', 'ANY'],
         'type': 'str',
     },
     'source_mac': {
@@ -209,6 +209,10 @@ options:
         - UDP
         - ICMP
         - ICMPv6
+        - GRE
+        - VRRP
+        - ESP
+        - AH
         - ANY
         description:
         - The protocol for the rule. Property cannot be modified after it is created (disallowed

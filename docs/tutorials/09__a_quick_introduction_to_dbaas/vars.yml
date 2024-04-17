@@ -1,0 +1,31 @@
+# If ENABLE_EXPLICITLY_UNSUPPORTED_CONFIGURATIONS is set to true, a Network
+# Load Balancer (and its corresponding rules) will also be provisioned; as
+# its name suggests, this is an _unsupported_ configuration (which also offers
+# less security and security options than, e.g., using internal hosts and/or
+# a jumpbox), but it shows you how an NLB can be used to access your DBaaS
+# cluster(s) from _any_ public IP address
+ENABLE_EXPLICITLY_UNSUPPORTED_CONFIGURATIONS: false
+
+
+datacenter_name: Ansible Tutorials - Introducing DBaaS
+
+ip_block:         { 'size': '1' }
+
+lan:              { 'name': 'Internal LAN', 'address': '192.168.8.0/24',  'gw_ip': '192.168.8.1' }
+
+nlb:              { 'name': 'NLB', 'ip': '192.168.8.248' }
+
+server_config:    { 'jumpbox': { 'name': 'jumpbox',
+                                 'cube_size': 'CUBES XS',
+                                 'ip': '192.168.8.8' } }
+
+dbaas_config:     { 'postgres_cluster': { 'ram': '2048',    # must be 2048 or greater
+                                 'cores': '1',
+                                 'volume_size': '10240',    # in MB, must be 2048 or greater
+                                 'storage_type': 'HDD',
+                                 'ip': '192.168.8.16' },
+                    'mongodb_cluster':  { 'template': 'MongoDB Playground',
+                                 'version': '6.0',
+                                 'ip': '192.168.8.17' } }
+
+vnf_wait_timeout: 1800

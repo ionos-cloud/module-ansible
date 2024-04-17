@@ -137,7 +137,7 @@ ionoscloudsdk.ionoscloud.firewall_rule:
   <tr>
   <td>protocol<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The protocol for the rule. Property cannot be modified after it is created (disallowed in update requests).<br />Options: ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'ANY']</td>
+  <td>The protocol for the rule. Property cannot be modified after it is created (disallowed in update requests).<br />Options: ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'GRE', 'VRRP', 'ESP', 'AH', 'ANY']</td>
   </tr>
   <tr>
   <td>source_mac<br/><mark style="color:blue;">str</mark></td>
@@ -371,7 +371,7 @@ ionoscloudsdk.ionoscloud.firewall_rule:
   <tr>
   <td>protocol<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The protocol for the rule. Property cannot be modified after it is created (disallowed in update requests).<br />Options: ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'ANY']</td>
+  <td>The protocol for the rule. Property cannot be modified after it is created (disallowed in update requests).<br />Options: ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'GRE', 'VRRP', 'ESP', 'AH', 'ANY']</td>
   </tr>
   <tr>
   <td>source_mac<br/><mark style="color:blue;">str</mark></td>

@@ -1,0 +1,22 @@
+Host alb
+User root
+Hostname {{ ip_block_response.ipblock.properties.ips[1] }}
+StrictHostKeyChecking no
+UserKnownHostsFile /dev/null
+
+
+Host *
+User root
+StrictHostKeyChecking accept-new
+UserKnownHostsFile ssh_known_hosts_tmp
+IdentityFile temporary_id_rsa
+
+Host {{ server_config['jumpbox'].name }}
+Hostname {{ create_cube_response['machines'][0]['entities']['nics']['items'][0]['properties']['ips'][0] }}
+
+{% for server in server_config['app_server'] %}
+Host {{ server.name }}
+Hostname {{ server.ip }}
+ProxyJump jumpbox
+
+{% endfor %}
