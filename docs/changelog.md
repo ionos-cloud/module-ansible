@@ -1,5 +1,10 @@
 # Changelog
 
+## 7.4.0
+### Features
+* Added MariaDB modules
+  * new modules: mariadb_cluster, mariadb_cluster_info, mariadb_backup_info
+
 ## 7.3.0
 * Refactor to use module_utile to remove duplicate code.
 ### Changes

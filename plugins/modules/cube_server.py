@@ -149,7 +149,7 @@ OPTIONS = {
         'description': ['The disk type for the volume.'],
         'available': ['present'],
         'choices': ['HDD', 'SSD', 'SSD Standard', 'SSD Premium', 'DAS'],
-        'default': 'HDD',
+        'default': 'DAS',
         'type': 'str',
     },
     'nic_ips': {
