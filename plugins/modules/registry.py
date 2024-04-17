@@ -172,65 +172,83 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''- name: Create Registry
-    registry:
-      name: testregistry
-      location: de/fra
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-      features:
-        vulnerability_scanning:
-          enabled: false
-    register: registry_response
-  ''',
-    'update': '''- name: Update Registry
-    registry:
-      registry: testregistry
-      name: test_registry_update
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: updated_registry_response
-  ''',
-    'absent': '''- name: Delete Registry
-    registry:
-      registry: testregistry
-      wait: true
-      state: absent
-  ''',
+    'present': '''
+name: Create Registry
+ionoscloudsdk.ionoscloud.registry:
+  name: 'ansibletest123-'
+  location: de/fra
+  garbage_collection_schedule:
+    days:
+    - Wednesday
+    time: 04:17:00+00:00
+  features:
+    vulnerability_scanning:
+      enabled: true
+  wait: true
+register: registry_response
+''',
+    'update': '''
+name: Update Registry
+ionoscloudsdk.ionoscloud.registry:
+  registry: ''
+  garbage_collection_schedule:
+    days:
+    - Wednesday
+    - Sunday
+    time: 06:17:00+00:00
+  features:
+    vulnerability_scanning:
+      enabled: true
+  allow_replace: false
+  state: update
+register: updated_registry_response
+''',
+    'absent': '''
+name: Delete Registry
+ionoscloudsdk.ionoscloud.registry:
+  registry: ''
+  wait: true
+  state: absent
+''',
 }
 
-EXAMPLES = """- name: Create Registry
-    registry:
-      name: testregistry
-      location: de/fra
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-      features:
-        vulnerability_scanning:
-          enabled: false
-    register: registry_response
-  
-- name: Update Registry
-    registry:
-      registry: testregistry
-      name: test_registry_update
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: updated_registry_response
-  
-- name: Delete Registry
-    registry:
-      registry: testregistry
-      wait: true
-      state: absent
+EXAMPLES = """
+name: Create Registry
+ionoscloudsdk.ionoscloud.registry:
+  name: 'ansibletest123-'
+  location: de/fra
+  garbage_collection_schedule:
+    days:
+    - Wednesday
+    time: 04:17:00+00:00
+  features:
+    vulnerability_scanning:
+      enabled: true
+  wait: true
+register: registry_response
+
+
+name: Update Registry
+ionoscloudsdk.ionoscloud.registry:
+  registry: ''
+  garbage_collection_schedule:
+    days:
+    - Wednesday
+    - Sunday
+    time: 06:17:00+00:00
+  features:
+    vulnerability_scanning:
+      enabled: true
+  allow_replace: false
+  state: update
+register: updated_registry_response
+
+
+name: Delete Registry
+ionoscloudsdk.ionoscloud.registry:
+  registry: ''
+  wait: true
+  state: absent
 """
 
 

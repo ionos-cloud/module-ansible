@@ -183,74 +183,74 @@ author:
 
 EXAMPLE_PER_STATE = {
   'present' : '''
-  - name: Create Network Load Balancer Flowlog
-    network_load_balancer_flowlog:
-      name: FlowlogName
-      action: "ACCEPTED"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      wait: true
-    register: nlb_flowlog_response
-  ''',
+name: Create Network Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
+  name: 'AnsibleAutoTestNLB'
+  action: ACCEPTED
+  direction: INGRESS
+  bucket: sdktest
+  datacenter: ''
+  network_load_balancer: ''
+  wait: true
+register: nlb_flowlog_response
+''',
   'update' : '''
-  - name: Update Network Load Balancer Flowlog
-    network_load_balancer_flowlog:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      flowlog: FlowlogName
-      name: FlowlogName
-      action: "ALL"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      wait: true
-      state: update
-    register: nlb_flowlog_update_response
-  ''',
+name: Update Network Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
+  datacenter: ''
+  network_load_balancer: ''
+  flowlog: ''
+  name: 'AnsibleAutoTestNLB'
+  action: ALL
+  direction: INGRESS
+  bucket: sdktest
+  wait: true
+  state: update
+register: nlb_flowlog_update_response
+''',
   'absent' : '''
-  - name: Delete Network Load Balancer Flowlog
-    network_load_balancer_flowlog:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      flowlog: FlowlogName
-      state: absent
-  ''',
+name: Delete Network Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
+  datacenter: ''
+  network_load_balancer: ''
+  flowlog: ''
+  state: absent
+''',
 }
 
 EXAMPLES = """
-  - name: Create Network Load Balancer Flowlog
-    network_load_balancer_flowlog:
-      name: FlowlogName
-      action: "ACCEPTED"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      wait: true
-    register: nlb_flowlog_response
-  
+name: Create Network Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
+  name: 'AnsibleAutoTestNLB'
+  action: ACCEPTED
+  direction: INGRESS
+  bucket: sdktest
+  datacenter: ''
+  network_load_balancer: ''
+  wait: true
+register: nlb_flowlog_response
 
-  - name: Update Network Load Balancer Flowlog
-    network_load_balancer_flowlog:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      flowlog: FlowlogName
-      name: FlowlogName
-      action: "ALL"
-      direction: "INGRESS"
-      bucket: "sdktest"
-      wait: true
-      state: update
-    register: nlb_flowlog_update_response
-  
 
-  - name: Delete Network Load Balancer Flowlog
-    network_load_balancer_flowlog:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      flowlog: FlowlogName
-      state: absent
+name: Update Network Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
+  datacenter: ''
+  network_load_balancer: ''
+  flowlog: ''
+  name: 'AnsibleAutoTestNLB'
+  action: ALL
+  direction: INGRESS
+  bucket: sdktest
+  wait: true
+  state: update
+register: nlb_flowlog_update_response
+
+
+name: Delete Network Load Balancer Flowlog
+ionoscloudsdk.ionoscloud.network_load_balancer_flowlog:
+  datacenter: ''
+  network_load_balancer: ''
+  flowlog: ''
+  state: absent
 """
 
 

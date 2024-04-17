@@ -7,16 +7,17 @@ This is a simple module that supports listing Flowlogs.
 
 ```yaml
 
-    - name: Get all Flowlogs for a given Application Load Balancer
-      application_load_balancer_flowlog_info:
-        datacenter: "AnsibleDatacenter"
-        application_load_balancer: "AnsibleAppLoadBalancer"
-      register: flowlog_list_response
+name: List Application Load Balancer Flowlogs
+ionoscloudsdk.ionoscloud.application_load_balancer_flowlog_info:
+  datacenter: ''
+  application_load_balancer: ''
+register: alb_flowlog_list_response
 
 ```
 
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/applicationloadbalancer).
 
 &nbsp;
 ### Available parameters:

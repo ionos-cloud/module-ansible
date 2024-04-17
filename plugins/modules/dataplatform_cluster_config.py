@@ -120,18 +120,18 @@ author:
 
 EXAMPLE_PER_STATE = {
   'present' : '''
-  - name: Get DataPlatform config
-  dataplatform_cluster_config:
-    dataplatform_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
-    config_file: 'config.yaml'
-  ''',
+name: Get kubeconfig by ID
+ionoscloudsdk.ionoscloud.dataplatform_cluster_config:
+  cluster: ''
+  config_file: config.yaml
+''',
 }
 
 EXAMPLES = """
-  - name: Get DataPlatform config
-  dataplatform_cluster_config:
-    dataplatform_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
-    config_file: 'config.yaml'
+name: Get kubeconfig by ID
+ionoscloudsdk.ionoscloud.dataplatform_cluster_config:
+  cluster: ''
+  config_file: config.yaml
 """
 
 

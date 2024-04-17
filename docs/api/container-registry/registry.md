@@ -6,39 +6,47 @@ This is a module that supports creating, updating or destroying Registries
 
 
 ```yaml
-- name: Create Registry
-    registry:
-      name: testregistry
-      location: de/fra
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-      features:
-        vulnerability_scanning:
-          enabled: false
-    register: registry_response
-  
-- name: Update Registry
-    registry:
-      registry: testregistry
-      name: test_registry_update
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: updated_registry_response
-  
-- name: Delete Registry
-    registry:
-      registry: testregistry
-      wait: true
-      state: absent
+
+name: Create Registry
+ionoscloudsdk.ionoscloud.registry:
+  name: 'ansibletest123-'
+  location: de/fra
+  garbage_collection_schedule:
+    days:
+    - Wednesday
+    time: 04:17:00+00:00
+  features:
+    vulnerability_scanning:
+      enabled: true
+  wait: true
+register: registry_response
+
+
+name: Update Registry
+ionoscloudsdk.ionoscloud.registry:
+  registry: ''
+  garbage_collection_schedule:
+    days:
+    - Wednesday
+    - Sunday
+    time: 06:17:00+00:00
+  features:
+    vulnerability_scanning:
+      enabled: true
+  allow_replace: false
+  state: update
+register: updated_registry_response
+
+
+name: Delete Registry
+ionoscloudsdk.ionoscloud.registry:
+  registry: ''
+  wait: true
+  state: absent
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -79,6 +87,7 @@ This is a module that supports creating, updating or destroying Registries
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/container-registry).
 &nbsp;
 
  **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
@@ -90,19 +99,21 @@ This is a module that supports creating, updating or destroying Registries
 
 # state: **present**
 ```yaml
-  - name: Create Registry
-    registry:
-      name: testregistry
-      location: de/fra
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-      features:
-        vulnerability_scanning:
-          enabled: false
-    register: registry_response
   
+name: Create Registry
+ionoscloudsdk.ionoscloud.registry:
+  name: 'ansibletest123-'
+  location: de/fra
+  garbage_collection_schedule:
+    days:
+    - Wednesday
+    time: 04:17:00+00:00
+  features:
+    vulnerability_scanning:
+      enabled: true
+  wait: true
+register: registry_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -189,12 +200,13 @@ This is a module that supports creating, updating or destroying Registries
 &nbsp;
 # state: **absent**
 ```yaml
-  - name: Delete Registry
-    registry:
-      registry: testregistry
-      wait: true
-      state: absent
   
+name: Delete Registry
+ionoscloudsdk.ionoscloud.registry:
+  registry: ''
+  wait: true
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -261,16 +273,22 @@ This is a module that supports creating, updating or destroying Registries
 &nbsp;
 # state: **update**
 ```yaml
-  - name: Update Registry
-    registry:
-      registry: testregistry
-      name: test_registry_update
-      garbage_collection_schedule:
-        days: 
-            - Wednesday
-        time: 04:17:00+00:00
-    register: updated_registry_response
   
+name: Update Registry
+ionoscloudsdk.ionoscloud.registry:
+  registry: ''
+  garbage_collection_schedule:
+    days:
+    - Wednesday
+    - Sunday
+    time: 06:17:00+00:00
+  features:
+    vulnerability_scanning:
+      enabled: true
+  allow_replace: false
+  state: update
+register: updated_registry_response
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

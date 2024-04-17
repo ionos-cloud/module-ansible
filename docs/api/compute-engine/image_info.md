@@ -6,10 +6,11 @@ This is a simple module that supports listing images.
 
 
 ```yaml
-
-    - name: Get all images
-      image_info:
-      register: image_list_response
+name: List Images
+ionoscloudsdk.ionoscloud.image_info:
+  filters:
+    properties.name: debian-10.0.0-amd64-netinst.iso
+register: image_list_response
 
 ```
 
@@ -332,6 +333,7 @@ This is a simple module that supports listing images.
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/compute-engine).
 
 &nbsp;
 ### Available parameters:

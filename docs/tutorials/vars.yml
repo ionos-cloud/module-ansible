@@ -1,0 +1,46 @@
+location:     de/txl
+wait_timeout: 1200
+
+
+IONOS_UNSUPPORTED_EULA: |
+  ===============================================================================
+  This code-snippet is provided without warranty, as an example of how to use
+  specific aspects of the IONOS Cloud API / SDK.
+
+  While every effort has been made to ensure that the information and/or code
+  contained herein is current and works as intended, it has not been through any
+  formal or rigorous testing process, and therefore should be used at your own
+  discretion. See github.com/ionos-cloud/cloud-support for more details.
+
+  For definitive information and documentation, refer to docs.ionos.com/cloud
+
+  Additionally, applying this Ansible playbook will result in resources being
+  provisioned, and therefore ADDITIONAL COSTS (see cloud.ionos.com/prices,
+  cloud.ionos.de/preise or the appropriate page for your contract for pricing
+  information).
+
+  Please enter 'yes' to indicate you have read and accepted the above conditions
+  (or set the IONOS_UNSUPPORTED_EULA_ACCEPTED environment variable to 'yes' to
+  avoid being prompted for confirmation every time you run ansible-playbook).
+  ===============================================================================
+IONOS_UNSUPPORTED_EULA_ACCEPTED: "{{ lookup('ansible.builtin.env', 'IONOS_UNSUPPORTED_EULA_ACCEPTED', default='') }}"
+
+
+# Setup some default variables common to most example playbooks in this directory
+image_alias: debian:latest
+ssh_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+# Just a default XKCD-style password --- you should, of course, change this to something unique
+# Note that valid characters are: a-zA-Z0-9. Length between 8 and 50
+default_password: SLOWLYstoodPRINTEDfield
+
+
+# change to 'false' if you _don't_ want to be prompted between key phases
+pause_between_operations: true
+
+
+# change to 'true' if you want to see additional debugging information and/or
+# the values of the various registered variables --- this could come in handy
+# when, e.g., combined with https://jsonpathfinder.com and/or
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_debugger.html
+verbose_debugging: false

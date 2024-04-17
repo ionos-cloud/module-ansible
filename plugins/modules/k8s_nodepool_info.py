@@ -94,9 +94,10 @@ author:
 """
 
 EXAMPLES = """
-    - name: Get all k8s nodepools in a cluster
-      k8s_nodepool_info:
-      register: k8s_nodepool_list_response
+name: List Nodepools
+ionoscloudsdk.ionoscloud.k8s_nodepool_info:
+  k8s_cluster: ''
+register: k8s_nodepool_list_response
 """
 
 

@@ -6,66 +6,67 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 
 
 ```yaml
-# Provisioning example. This will create three CUBE servers and enumerate their names.
-    - cube_server:
-        datacenter: Tardis One
-        name: web%02d.stackpointcloud.com
-        template_id: <template_id>
-        image: ubuntu:latest
-        location: us/las
-        count: 3
-        assign_public_ip: true
-  
-# Update CUBE Virtual machines
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids:
-        - web001.stackpointcloud.com
-        - web002.stackpointcloud.com
-        availability_zone: ZONE_1
-        state: update
-  # Rename CUBE Virtual machine
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids: web001.stackpointcloud.com
-        name: web101.stackpointcloud.com
-        availability_zone: ZONE_1
-        state: update
 
-# Removing CUBE Virtual machines
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: absent
-  
-# Starting CUBE Virtual Machines.
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: resume
-  
-# Suspending CUBE Virtual Machines
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: suspend
+name: Provision a server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute 01'
+  disk_type: DAS
+  image: 'centos:7'
+  image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  location: de/txl
+  count: 1
+  assign_public_ip: true
+  remove_boot_volume: true
+  template_uuid: 15c6dd2f-02d2-4987-b439-9a58dd59ecc3
+  availability_zone: AUTO
+  wait: true
+  wait_timeout: '500'
+  state: present
+register: server_cube
+
+
+name: Update server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute - UPDATED'
+  instance_ids:
+  - 'AnsibleAutoTestCompute 01'
+  wait: true
+  wait_timeout: '500'
+  state: update
+
+
+name: Remove server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute - UPDATED'
+  remove_boot_volume: true
+  wait_timeout: '500'
+  state: absent
+
+
+name: Resume server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute - UPDATED'
+  wait_timeout: '500'
+  state: resume
+
+
+name: Suspend server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute - UPDATED'
+  wait_timeout: '500'
+  state: suspend
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -228,6 +229,7 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/compute-engine).
 &nbsp;
 
  **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
@@ -238,16 +240,15 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 
 # state: **resume**
 ```yaml
-  # Starting CUBE Virtual Machines.
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: resume
   
+name: Resume server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute - UPDATED'
+  wait_timeout: '500'
+  state: resume
+
 ```
 ### Available parameters for state **resume**:
 &nbsp;
@@ -319,16 +320,15 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 &nbsp;
 # state: **suspend**
 ```yaml
-  # Suspending CUBE Virtual Machines
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: suspend
   
+name: Suspend server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute - UPDATED'
+  wait_timeout: '500'
+  state: suspend
+
 ```
 ### Available parameters for state **suspend**:
 &nbsp;
@@ -400,16 +400,16 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 &nbsp;
 # state: **absent**
 ```yaml
-  # Removing CUBE Virtual machines
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: absent
   
+name: Remove server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute - UPDATED'
+  remove_boot_volume: true
+  wait_timeout: '500'
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -486,16 +486,25 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 &nbsp;
 # state: **present**
 ```yaml
-  # Provisioning example. This will create three CUBE servers and enumerate their names.
-    - cube_server:
-        datacenter: Tardis One
-        name: web%02d.stackpointcloud.com
-        template_id: <template_id>
-        image: ubuntu:latest
-        location: us/las
-        count: 3
-        assign_public_ip: true
   
+name: Provision a server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute 01'
+  disk_type: DAS
+  image: 'centos:7'
+  image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  location: de/txl
+  count: 1
+  assign_public_ip: true
+  remove_boot_volume: true
+  template_uuid: 15c6dd2f-02d2-4987-b439-9a58dd59ecc3
+  availability_zone: AUTO
+  wait: true
+  wait_timeout: '500'
+  state: present
+register: server_cube
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -652,21 +661,16 @@ Create, update, destroy, update, resume, suspend, and reboot a Ionos CUBE virtua
 &nbsp;
 # state: **update**
 ```yaml
-  # Update CUBE Virtual machines
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids:
-        - web001.stackpointcloud.com
-        - web002.stackpointcloud.com
-        availability_zone: ZONE_1
-        state: update
-  # Rename CUBE Virtual machine
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids: web001.stackpointcloud.com
-        name: web101.stackpointcloud.com
-        availability_zone: ZONE_1
-        state: update
+  
+name: Update server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute - UPDATED'
+  instance_ids:
+  - 'AnsibleAutoTestCompute 01'
+  wait: true
+  wait_timeout: '500'
+  state: update
 
 ```
 ### Available parameters for state **update**:

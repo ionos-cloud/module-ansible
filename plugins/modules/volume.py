@@ -397,107 +397,115 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''# Create Multiple Volumes
-    - name: Create volumes
-      volume:
-        datacenter: "AnsibleDatacenter"
-        name: "AnsibleAutoTestCompute %02d"
-        disk_type: SSD Premium
-        image: "centos:7"
-        image_password: "<password>"
-        count: 2
-        size: 20
-        availability_zone: AUTO
-        cpu_hot_plug: false
-        ram_hot_plug: true
-        nic_hot_plug: true
-        nic_hot_unplug: true
-        disc_virtio_hot_plug: true
-        disc_virtio_hot_unplug: true
-        wait_timeout: 600
-        wait: true
-        state: present
-      register: volume_create_response
-  ''',
-  'update' : '''# Update Volumes - only one ID if renaming
-    - name: Update volume
-      volume:
-        datacenter: "AnsibleDatacenter"
-        instance_ids:
-          - "AnsibleAutoTestCompute 01"
-        name: "AnsibleAutoTestCompute modified"
-        size: 25
-        cpu_hot_plug: false
-        ram_hot_plug: true
-        nic_hot_plug: true
-        nic_hot_unplug: true
-        disc_virtio_hot_plug: true
-        disc_virtio_hot_unplug: true
-        wait_timeout: 600
-        wait: true
-        state: update
-  ''',
-  'absent' : '''# Remove Volumes
-  - name: Delete volumes
-      volume:
-        datacenter: "{{ datacenter }}"
-        instance_ids:
-          - "AnsibleAutoTestCompute modified"
-          - "AnsibleAutoTestCompute 02"
-        wait_timeout: 600
-        state: absent
-  ''',
+  'present' : '''
+name: Create volumes
+ionoscloudsdk.ionoscloud.volume:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute %02d'
+  disk_type: SSD Premium
+  image: 'centos:7'
+  image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  count: 2
+  size: 20
+  availability_zone: AUTO
+  cpu_hot_plug: false
+  ram_hot_plug: true
+  nic_hot_plug: true
+  nic_hot_unplug: true
+  disc_virtio_hot_plug: true
+  disc_virtio_hot_unplug: true
+  wait_timeout: 600
+  wait: true
+  state: present
+register: volume_create_response
+''',
+  'update' : '''
+name: Update no change
+ionoscloudsdk.ionoscloud.volume:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute 01'
+  disk_type: SSD Premium
+  size: 20
+  availability_zone: AUTO
+  image: 01abcc20-a6b9-11ed-9e9f-e60bb43016ef
+  licence_type: LINUX
+  ram_hot_plug: true
+  nic_hot_plug: true
+  nic_hot_unplug: true
+  disc_virtio_hot_plug: true
+  disc_virtio_hot_unplug: true
+  allow_replace: false
+  wait_timeout: 600
+  wait: true
+  state: update
+register: volume_create_response_nochange
+''',
+  'absent' : '''
+name: Delete volumes
+ionoscloudsdk.ionoscloud.volume:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute modified'
+  - 'AnsibleAutoTestCompute 02'
+  wait_timeout: 600
+  state: absent
+''',
 }
 
-EXAMPLES = """# Create Multiple Volumes
-    - name: Create volumes
-      volume:
-        datacenter: "AnsibleDatacenter"
-        name: "AnsibleAutoTestCompute %02d"
-        disk_type: SSD Premium
-        image: "centos:7"
-        image_password: "<password>"
-        count: 2
-        size: 20
-        availability_zone: AUTO
-        cpu_hot_plug: false
-        ram_hot_plug: true
-        nic_hot_plug: true
-        nic_hot_unplug: true
-        disc_virtio_hot_plug: true
-        disc_virtio_hot_unplug: true
-        wait_timeout: 600
-        wait: true
-        state: present
-      register: volume_create_response
-  
-# Update Volumes - only one ID if renaming
-    - name: Update volume
-      volume:
-        datacenter: "AnsibleDatacenter"
-        instance_ids:
-          - "AnsibleAutoTestCompute 01"
-        name: "AnsibleAutoTestCompute modified"
-        size: 25
-        cpu_hot_plug: false
-        ram_hot_plug: true
-        nic_hot_plug: true
-        nic_hot_unplug: true
-        disc_virtio_hot_plug: true
-        disc_virtio_hot_unplug: true
-        wait_timeout: 600
-        wait: true
-        state: update
-  
-# Remove Volumes
-  - name: Delete volumes
-      volume:
-        datacenter: "{{ datacenter }}"
-        instance_ids:
-          - "AnsibleAutoTestCompute modified"
-          - "AnsibleAutoTestCompute 02"
-        wait_timeout: 600
-        state: absent
+EXAMPLES = """
+name: Create volumes
+ionoscloudsdk.ionoscloud.volume:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute %02d'
+  disk_type: SSD Premium
+  image: 'centos:7'
+  image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  count: 2
+  size: 20
+  availability_zone: AUTO
+  cpu_hot_plug: false
+  ram_hot_plug: true
+  nic_hot_plug: true
+  nic_hot_unplug: true
+  disc_virtio_hot_plug: true
+  disc_virtio_hot_unplug: true
+  wait_timeout: 600
+  wait: true
+  state: present
+register: volume_create_response
+
+
+name: Update no change
+ionoscloudsdk.ionoscloud.volume:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute 01'
+  disk_type: SSD Premium
+  size: 20
+  availability_zone: AUTO
+  image: 01abcc20-a6b9-11ed-9e9f-e60bb43016ef
+  licence_type: LINUX
+  ram_hot_plug: true
+  nic_hot_plug: true
+  nic_hot_unplug: true
+  disc_virtio_hot_plug: true
+  disc_virtio_hot_unplug: true
+  allow_replace: false
+  wait_timeout: 600
+  wait: true
+  state: update
+register: volume_create_response_nochange
+
+
+name: Delete volumes
+ionoscloudsdk.ionoscloud.volume:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute modified'
+  - 'AnsibleAutoTestCompute 02'
+  wait_timeout: 600
+  state: absent
 """
 
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)

@@ -7,12 +7,9 @@ This is a simple module that supports listing uploaded Certificates
 
 ```yaml
 
-    - name: List Certificates
-        certificate_info:
-        register: certificates_response
-    - name: Show Certificates
-        debug:
-            var: certificates_response.result
+name: List Certificates
+ionoscloudsdk.ionoscloud.certificate_info: null
+register: certificates_response
 
 ```
 
@@ -51,6 +48,7 @@ This is a simple module that supports listing uploaded Certificates
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/certificate).
 
 &nbsp;
 ### Available parameters:

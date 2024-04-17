@@ -120,18 +120,20 @@ author:
 
 EXAMPLE_PER_STATE = {
   'present' : '''
-  - name: Get k8s config
-  k8s_config:
-    k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
-    config_file: 'config.yaml'
-  ''',
+name: Get k8s config
+ionoscloudsdk.ionoscloud.k8s_config:
+  k8s_cluster: ''
+  config_file: config.yaml
+  state: present
+''',
 }
 
 EXAMPLES = """
-  - name: Get k8s config
-  k8s_config:
-    k8s_cluster: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
-    config_file: 'config.yaml'
+name: Get k8s config
+ionoscloudsdk.ionoscloud.k8s_config:
+  k8s_cluster: ''
+  config_file: config.yaml
+  state: present
 """
 
 

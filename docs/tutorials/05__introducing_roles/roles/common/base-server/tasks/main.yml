@@ -1,0 +1,28 @@
+---
+# ==============================================================================
+- name: About to execute tasks file for 'common/base server' role
+  ansible.builtin.meta: noop
+
+
+
+
+- name: Update repositories cache and upgrade the system
+  ansible.builtin.apt:
+    upgrade: dist
+    update_cache: yes
+    cache_valid_time: 3600
+
+
+
+
+- name: Install some more-or-less essential packages
+  ansible.builtin.package:
+    name:
+      - sudo
+      - curl
+      - wget
+      - git
+      - screen
+      - nmap
+      - traceroute
+    state: present

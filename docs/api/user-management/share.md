@@ -6,39 +6,41 @@ This module allows you to add, update or remove resource shares.
 
 
 ```yaml
-# Create shares
-  - name: Create share
-    share:
-      group: Demo
-      edit_privilege: true
-      share_privilege: true
-      resource_ids:
-        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
-        - ba7efccb-a761-11e7-90a7-525400f64d8d
-      state: present
-  
-# Update shares
-  - name: Update shares
-    share:
-      group: Demo
-      edit_privilege: false
-      resource_ids:
-        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
-      state: update
-  
-# Remove shares
-  - name: Remove shares
-    share:
-      group: Demo
-      resource_ids:
-        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
-        - ba7efccb-a761-11e7-90a7-525400f64d8d
-      state: absent
+
+name: Create share
+ionoscloudsdk.ionoscloud.share:
+  group: Demo
+  edit_privilege: true
+  share_privilege: true
+  resource_ids:
+  - ''
+  - ''
+  state: present
+register: share
+
+
+name: Update shares
+ionoscloudsdk.ionoscloud.share:
+  group: Demo
+  edit_privilege: false
+  share_privilege: true
+  resource_ids:
+  - ''
+  - ''
+  state: update
+
+
+name: Remove shares
+ionoscloudsdk.ionoscloud.share:
+  group: Demo
+  resource_ids:
+  - ''
+  - ''
+  state: absent
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -70,23 +72,25 @@ This module allows you to add, update or remove resource shares.
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/user-management).
 &nbsp;
 
 &nbsp;
 
 # state: **present**
 ```yaml
-  # Create shares
-  - name: Create share
-    share:
-      group: Demo
-      edit_privilege: true
-      share_privilege: true
-      resource_ids:
-        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
-        - ba7efccb-a761-11e7-90a7-525400f64d8d
-      state: present
   
+name: Create share
+ionoscloudsdk.ionoscloud.share:
+  group: Demo
+  edit_privilege: true
+  share_privilege: true
+  resource_ids:
+  - ''
+  - ''
+  state: present
+register: share
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -168,15 +172,15 @@ This module allows you to add, update or remove resource shares.
 &nbsp;
 # state: **absent**
 ```yaml
-  # Remove shares
-  - name: Remove shares
-    share:
-      group: Demo
-      resource_ids:
-        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
-        - ba7efccb-a761-11e7-90a7-525400f64d8d
-      state: absent
   
+name: Remove shares
+ionoscloudsdk.ionoscloud.share:
+  group: Demo
+  resource_ids:
+  - ''
+  - ''
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -248,15 +252,17 @@ This module allows you to add, update or remove resource shares.
 &nbsp;
 # state: **update**
 ```yaml
-  # Update shares
-  - name: Update shares
-    share:
-      group: Demo
-      edit_privilege: false
-      resource_ids:
-        - b50ba74e-b585-44d6-9b6e-68941b2ce98e
-      state: update
   
+name: Update shares
+ionoscloudsdk.ionoscloud.share:
+  group: Demo
+  edit_privilege: false
+  share_privilege: true
+  resource_ids:
+  - ''
+  - ''
+  state: update
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

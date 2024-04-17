@@ -7,47 +7,51 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
 
 ```yaml
 
-  - name: Create Network Load Balancer Forwarding Rule
-    network_load_balancer_rule:
-      name: RuleName
-      algorithm: "ROUND_ROBIN"
-      protocol: "TCP"
-      listener_ip: "10.12.118.224"
-      listener_port: "8081"
-      targets:
-        - ip: "22.231.2.2"
-          port: "8080"
-          weight: "123"
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      wait: true
-    register: nlb_forwarding_rule_response
-  
+name: Create Network Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.network_load_balancer_rule:
+  name: 'AnsibleAutoTestNLB'
+  algorithm: ROUND_ROBIN
+  protocol: TCP
+  listener_ip: 10.12.118.224
+  listener_port: '8081'
+  targets:
+  - ip: 22.231.2.2
+    port: '8080'
+    weight: '123'
+  health_check:
+    client_timeout: 50
+    connect_timeout: 5000
+    target_timeout: 5000
+    retries: 1
+  datacenter: ''
+  network_load_balancer: ''
+  wait: true
+register: nlb_forwarding_rule_response
 
-  - name: Update Network Load Balancer Forwarding Rule
-    network_load_balancer_rule:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      forwarding_rule: RuleName
-      name: "RuleName - UPDATED"
-      algorithm: "ROUND_ROBIN"
-      protocol: "TCP"
-      wait: true
-      state: update
-    register: nlb_forwarding_rule_update_response
-  
 
-  - name: Delete Network Load Balancer Forwarding Rule
-    network_load_balancer_rule:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      forwarding_rule: "RuleName - UPDATED"
-      state: absent
+name: Update Network Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.network_load_balancer_rule:
+  datacenter: ''
+  network_load_balancer: ''
+  forwarding_rule: ''
+  name: 'AnsibleAutoTestNLB - UPDATED'
+  algorithm: ROUND_ROBIN
+  protocol: TCP
+  wait: true
+  state: update
+register: nlb_forwarding_rule_update_response
+
+
+name: Delete Network Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.network_load_balancer_rule:
+  datacenter: ''
+  network_load_balancer: ''
+  forwarding_rule: ''
+  state: absent
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -95,6 +99,7 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/networkloadbalancer).
 &nbsp;
 
 &nbsp;
@@ -102,22 +107,27 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
 # state: **present**
 ```yaml
   
-  - name: Create Network Load Balancer Forwarding Rule
-    network_load_balancer_rule:
-      name: RuleName
-      algorithm: "ROUND_ROBIN"
-      protocol: "TCP"
-      listener_ip: "10.12.118.224"
-      listener_port: "8081"
-      targets:
-        - ip: "22.231.2.2"
-          port: "8080"
-          weight: "123"
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      wait: true
-    register: nlb_forwarding_rule_response
-  
+name: Create Network Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.network_load_balancer_rule:
+  name: 'AnsibleAutoTestNLB'
+  algorithm: ROUND_ROBIN
+  protocol: TCP
+  listener_ip: 10.12.118.224
+  listener_port: '8081'
+  targets:
+  - ip: 22.231.2.2
+    port: '8080'
+    weight: '123'
+  health_check:
+    client_timeout: 50
+    connect_timeout: 5000
+    target_timeout: 5000
+    retries: 1
+  datacenter: ''
+  network_load_balancer: ''
+  wait: true
+register: nlb_forwarding_rule_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -225,13 +235,13 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
 # state: **absent**
 ```yaml
   
-  - name: Delete Network Load Balancer Forwarding Rule
-    network_load_balancer_rule:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      forwarding_rule: "RuleName - UPDATED"
-      state: absent
-  
+name: Delete Network Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.network_load_balancer_rule:
+  datacenter: ''
+  network_load_balancer: ''
+  forwarding_rule: ''
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -314,18 +324,18 @@ This is a simple module that supports creating or removing NATGateway Flowlog ru
 # state: **update**
 ```yaml
   
-  - name: Update Network Load Balancer Forwarding Rule
-    network_load_balancer_rule:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      forwarding_rule: RuleName
-      name: "RuleName - UPDATED"
-      algorithm: "ROUND_ROBIN"
-      protocol: "TCP"
-      wait: true
-      state: update
-    register: nlb_forwarding_rule_update_response
-  
+name: Update Network Load Balancer Forwarding Rule
+ionoscloudsdk.ionoscloud.network_load_balancer_rule:
+  datacenter: ''
+  network_load_balancer: ''
+  forwarding_rule: ''
+  name: 'AnsibleAutoTestNLB - UPDATED'
+  algorithm: ROUND_ROBIN
+  protocol: TCP
+  wait: true
+  state: update
+register: nlb_forwarding_rule_update_response
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

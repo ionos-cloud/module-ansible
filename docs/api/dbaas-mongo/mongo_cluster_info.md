@@ -7,13 +7,9 @@ This is a simple module that supports listing existing the users in a Mongo Clus
 
 ```yaml
 
-    - name: List Mongo Cluster Users
-        mongo_cluster_user_info:
-        register: mongo_cluster_users_response
-
-    - name: Show Mongo Cluster Users
-        debug:
-            var: mongo_cluster_users_response.result
+name: List Mongo Clusters
+ionoscloudsdk.ionoscloud.mongo_cluster_info: null
+register: mongo_clusters_response
 
 ```
 
@@ -69,6 +65,7 @@ This is a simple module that supports listing existing the users in a Mongo Clus
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/dbaas-mongo).
 
 &nbsp;
 ### Available parameters:

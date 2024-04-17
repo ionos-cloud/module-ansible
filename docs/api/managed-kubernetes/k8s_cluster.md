@@ -7,30 +7,35 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 
 ```yaml
 
-  - name: Create k8s cluster
-    k8s_cluster:
-      name: ClusterName
-  
+name: Create k8s cluster
+ionoscloudsdk.ionoscloud.k8s_cluster:
+  cluster_name: my-cluster-
+  maintenance_window:
+    day_of_the_week: Wednesday
+    time: '12:02:00'
+register: cluster_response
 
-  - name: Update k8s cluster
-    k8s_cluster:
-      k8s_cluster: ClusterName
-      maintenance_window:
-        day_of_the_week: 'Tuesday'
-        time: '13:03:00'
-      k8s_version: 1.17.8
-      state: update
-  
 
-  - name: Delete k8s cluster
-    k8s_cluster:
-      k8s_cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
-      state: absent
+name: Update k8s cluster
+ionoscloudsdk.ionoscloud.k8s_cluster:
+  cluster_name: my_cluster
+  k8s_cluster: ''
+  maintenance_window:
+    day_of_the_week: Wednesday
+    time: '12:02:00'
+  state: update
+register: cluster
+
+
+name: Delete k8s cluster
+ionoscloudsdk.ionoscloud.k8s_cluster:
+  k8s_cluster: ''
+  state: absent
+  wait: false
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -70,6 +75,7 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/managed-kubernetes).
 &nbsp;
 
 &nbsp;
@@ -77,10 +83,14 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 # state: **present**
 ```yaml
   
-  - name: Create k8s cluster
-    k8s_cluster:
-      name: ClusterName
-  
+name: Create k8s cluster
+ionoscloudsdk.ionoscloud.k8s_cluster:
+  cluster_name: my-cluster-
+  maintenance_window:
+    day_of_the_week: Wednesday
+    time: '12:02:00'
+register: cluster_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -122,22 +132,22 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
   <tr>
   <td>public<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>The indicator if the cluster is public or private.</td>
+  <td>The indicator whether the cluster is public or private. Note that the status FALSE is still in the beta phase.</td>
   </tr>
   <tr>
   <td>location<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The location of the cluster if the cluster is private. This property is immutable. The location must be enabled for your contract or you must have a Datacenter within that location. This attribute is mandatory if the cluster is private.</td>
+  <td>This attribute is mandatory if the cluster is private and optional if the cluster is public. The location must be enabled for your contract, or you must have a data center at that location. This property is not adjustable.</td>
   </tr>
   <tr>
   <td>nat_gateway_ip<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The nat gateway IP of the cluster if the cluster is private.</td>
+  <td>The nat gateway IP of the cluster if the cluster is private. This property is immutable. Must be a reserved IP in the same location as the cluster's location. This attribute is mandatory if the cluster is private.</td>
   </tr>
   <tr>
   <td>node_subnet<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The node subnet of the cluster if the cluster is private.</td>
+  <td>The node subnet of the cluster, if the cluster is private. This property is optional and immutable. Must be a valid CIDR notation for an IPv4 network prefix of 16 bits length.</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -188,11 +198,12 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 # state: **absent**
 ```yaml
   
-  - name: Delete k8s cluster
-    k8s_cluster:
-      k8s_cluster: "a9b56a4b-8033-4f1a-a59d-cfea86cfe40b"
-      state: absent
-  
+name: Delete k8s cluster
+ionoscloudsdk.ionoscloud.k8s_cluster:
+  k8s_cluster: ''
+  state: absent
+  wait: false
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -260,15 +271,16 @@ This is a simple module that supports creating or removing K8s Clusters. This mo
 # state: **update**
 ```yaml
   
-  - name: Update k8s cluster
-    k8s_cluster:
-      k8s_cluster: ClusterName
-      maintenance_window:
-        day_of_the_week: 'Tuesday'
-        time: '13:03:00'
-      k8s_version: 1.17.8
-      state: update
-  
+name: Update k8s cluster
+ionoscloudsdk.ionoscloud.k8s_cluster:
+  cluster_name: my_cluster
+  k8s_cluster: ''
+  maintenance_window:
+    day_of_the_week: Wednesday
+    time: '12:02:00'
+  state: update
+register: cluster
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

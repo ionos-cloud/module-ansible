@@ -7,41 +7,43 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
 ```yaml
 
-  - name: Create Network Load Balancer
-    network_load_balancer:
-      datacenter: DatacenterName
-      name: NLBName
-      ips:
-        - "10.12.118.224"
-      listener_lan: 1
-      target_lan: 2
-      wait: true
-    register: nlb_response
-  
+name: Create Network Load Balancer
+ionoscloudsdk.ionoscloud.network_load_balancer:
+  datacenter: ''
+  name: 'AnsibleAutoTestNLB'
+  ips:
+  - 10.12.118.224
+  listener_lan: ''
+  target_lan: ''
+  wait: true
+  wait_timeout: 2000
+register: nlb_response
 
-  - name: Update Network Load Balancer
-    network_load_balancer:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      name: "NLBName - UPDATE"
-      listener_lan: 1
-      target_lan: 2
-      wait: true
-      state: update
-    register: nlb_response_update
-  
 
-  - name: Remove Network Load Balancer
-    network_load_balancer:
-      network_load_balancer: "NLBName - UPDATE"
-      datacenter: DatacenterName
-      wait: true
-      state: absent
+name: Update Network Load Balancer
+ionoscloudsdk.ionoscloud.network_load_balancer:
+  datacenter: ''
+  network_load_balancer: ''
+  name: 'AnsibleAutoTestNLB - UPDATE'
+  listener_lan: ''
+  target_lan: ''
+  wait: true
+  wait_timeout: 2000
+  state: update
+register: nlb_response_update
+
+
+name: Remove Network Load Balancer
+ionoscloudsdk.ionoscloud.network_load_balancer:
+  network_load_balancer: ''
+  datacenter: ''
+  wait: false
+  wait_timeout: 2000
+  state: absent
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -78,6 +80,7 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/networkloadbalancer).
 &nbsp;
 
 &nbsp;
@@ -85,17 +88,18 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 # state: **present**
 ```yaml
   
-  - name: Create Network Load Balancer
-    network_load_balancer:
-      datacenter: DatacenterName
-      name: NLBName
-      ips:
-        - "10.12.118.224"
-      listener_lan: 1
-      target_lan: 2
-      wait: true
-    register: nlb_response
-  
+name: Create Network Load Balancer
+ionoscloudsdk.ionoscloud.network_load_balancer:
+  datacenter: ''
+  name: 'AnsibleAutoTestNLB'
+  ips:
+  - 10.12.118.224
+  listener_lan: ''
+  target_lan: ''
+  wait: true
+  wait_timeout: 2000
+register: nlb_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -188,13 +192,14 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 # state: **absent**
 ```yaml
   
-  - name: Remove Network Load Balancer
-    network_load_balancer:
-      network_load_balancer: "NLBName - UPDATE"
-      datacenter: DatacenterName
-      wait: true
-      state: absent
-  
+name: Remove Network Load Balancer
+ionoscloudsdk.ionoscloud.network_load_balancer:
+  network_load_balancer: ''
+  datacenter: ''
+  wait: false
+  wait_timeout: 2000
+  state: absent
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -272,17 +277,18 @@ This is a simple module that supports creating or removing NetworkLoadbalancers.
 # state: **update**
 ```yaml
   
-  - name: Update Network Load Balancer
-    network_load_balancer:
-      datacenter: DatacenterName
-      network_load_balancer: NLBName
-      name: "NLBName - UPDATE"
-      listener_lan: 1
-      target_lan: 2
-      wait: true
-      state: update
-    register: nlb_response_update
-  
+name: Update Network Load Balancer
+ionoscloudsdk.ionoscloud.network_load_balancer:
+  datacenter: ''
+  network_load_balancer: ''
+  name: 'AnsibleAutoTestNLB - UPDATE'
+  listener_lan: ''
+  target_lan: ''
+  wait: true
+  wait_timeout: 2000
+  state: update
+register: nlb_response_update
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

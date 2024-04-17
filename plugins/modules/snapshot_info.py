@@ -84,9 +84,9 @@ author:
 """
 
 EXAMPLES = """
-    - name: Get all Snapshots
-      snapshot_info:
-      register: snapshot_list_response
+name: List Snapshots
+ionoscloudsdk.ionoscloud.snapshot_info: null
+register: snapshot_list_response
 """
 
 

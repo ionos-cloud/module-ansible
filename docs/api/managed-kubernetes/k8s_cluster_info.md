@@ -7,9 +7,9 @@ This is a simple module that supports listing k8s clusters.
 
 ```yaml
 
-    - name: Get all k8s clusters
-      k8s_cluster_info:
-      register: k8s_cluster_list_response
+name: List Clusters
+ionoscloudsdk.ionoscloud.k8s_cluster_info: null
+register: k8s_cluster_list_response
 
 ```
 
@@ -80,6 +80,7 @@ This is a simple module that supports listing k8s clusters.
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/managed-kubernetes).
 
 &nbsp;
 ### Available parameters:

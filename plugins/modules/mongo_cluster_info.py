@@ -79,13 +79,9 @@ author:
 """
 
 EXAMPLES = """
-    - name: List Mongo Cluster Users
-        mongo_cluster_user_info:
-        register: mongo_cluster_users_response
-
-    - name: Show Mongo Cluster Users
-        debug:
-            var: mongo_cluster_users_response.result
+name: List Mongo Clusters
+ionoscloudsdk.ionoscloud.mongo_cluster_info: null
+register: mongo_clusters_response
 """
 
 

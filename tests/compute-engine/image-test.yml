@@ -9,7 +9,7 @@
   tasks:
     - name: List Images
       ionoscloudsdk.ionoscloud.image_info:
-          filters: 
+        filters: 
             "properties.name": "debian-10.0.0-amd64-netinst.iso"
       register: image_list_response
 

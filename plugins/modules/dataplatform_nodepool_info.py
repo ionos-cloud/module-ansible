@@ -92,14 +92,10 @@ author:
 """
 
 EXAMPLES = """
-    - name: List DataPlatform Nodepools
-        dataplatform_nodepool_info:
-            cluster: ClusterName
-        register: dataplatform_nodepools_response
-
-    - name: Show DataPlatform Clusters
-        debug:
-            var: dataplatform_nodepools_response.result
+name: Get all DataPlaform nodepools from a specific cluster
+ionoscloudsdk.ionoscloud.dataplatform_nodepool_info:
+  cluster: ''
+register: nodepool_list_response
 """
 
 

@@ -192,70 +192,76 @@ author:
 
 EXAMPLE_PER_STATE = {
   'present' : '''
-  - name: Create Application Load Balancer
-    application_load_balancer:
-      datacenter: DatacenterName
-      name:AppLbName
-      ips:
-        - "10.12.118.224"
-      listener_lan: 1
-      target_lan: 2
-      wait: true
-    register: alb_response
-  ''',
+name: Create Application Load Balancer
+ionoscloudsdk.ionoscloud.application_load_balancer:
+  datacenter: ''
+  name: 'AnsibleAutoTestALB'
+  ips:
+  - 10.12.118.224
+  listener_lan: ''
+  target_lan: ''
+  wait: true
+  wait_timeout: 2000
+register: alb_response
+''',
   'update' : '''
-  - name: Update Application Load Balancer
-    application_load_balancer:
-      datacenter: DatacenterName
-      application_load_balancer: ApplicationLoadBalancerName
-      name: "AppLbName - UPDATE"
-      listener_lan: 1
-      target_lan: 2
-      wait: true
-      state: update
-    register: alb_response_update
-  ''',
+name: Update Application Load Balancer
+ionoscloudsdk.ionoscloud.application_load_balancer:
+  datacenter: 'AnsibleAutoTestALB'
+  application_load_balancer: ''
+  name: 'AnsibleAutoTestALB - UPDATE'
+  listener_lan: ''
+  target_lan: ''
+  wait: true
+  state: update
+  wait_timeout: 2000
+register: alb_response_update
+''',
   'absent' : '''
-  - name: Remove Application Load Balancer
-    application_load_balancer:
-      application_load_balancer: ApplicationLoadBalancerName
-      datacenter: DatacenterName
-      wait: true
-      state: absent
-  ''',
+name: Remove Application Load Balancer
+ionoscloudsdk.ionoscloud.application_load_balancer:
+  application_load_balancer: 'AnsibleAutoTestALB - UPDATE'
+  datacenter: ''
+  wait: true
+  wait_timeout: 2000
+  state: absent
+''',
 }
 
 EXAMPLES = """
-  - name: Create Application Load Balancer
-    application_load_balancer:
-      datacenter: DatacenterName
-      name:AppLbName
-      ips:
-        - "10.12.118.224"
-      listener_lan: 1
-      target_lan: 2
-      wait: true
-    register: alb_response
-  
+name: Create Application Load Balancer
+ionoscloudsdk.ionoscloud.application_load_balancer:
+  datacenter: ''
+  name: 'AnsibleAutoTestALB'
+  ips:
+  - 10.12.118.224
+  listener_lan: ''
+  target_lan: ''
+  wait: true
+  wait_timeout: 2000
+register: alb_response
 
-  - name: Update Application Load Balancer
-    application_load_balancer:
-      datacenter: DatacenterName
-      application_load_balancer: ApplicationLoadBalancerName
-      name: "AppLbName - UPDATE"
-      listener_lan: 1
-      target_lan: 2
-      wait: true
-      state: update
-    register: alb_response_update
-  
 
-  - name: Remove Application Load Balancer
-    application_load_balancer:
-      application_load_balancer: ApplicationLoadBalancerName
-      datacenter: DatacenterName
-      wait: true
-      state: absent
+name: Update Application Load Balancer
+ionoscloudsdk.ionoscloud.application_load_balancer:
+  datacenter: 'AnsibleAutoTestALB'
+  application_load_balancer: ''
+  name: 'AnsibleAutoTestALB - UPDATE'
+  listener_lan: ''
+  target_lan: ''
+  wait: true
+  state: update
+  wait_timeout: 2000
+register: alb_response_update
+
+
+name: Remove Application Load Balancer
+ionoscloudsdk.ionoscloud.application_load_balancer:
+  application_load_balancer: 'AnsibleAutoTestALB - UPDATE'
+  datacenter: ''
+  wait: true
+  wait_timeout: 2000
+  state: absent
 """
 
 

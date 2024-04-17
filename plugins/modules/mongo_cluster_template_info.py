@@ -79,13 +79,9 @@ author:
 """
 
 EXAMPLES = """
-    - name: List Mongo Cluster Templates
-        mongo_cluster_templates_info:
-        register: mongo_cluster_templates_response
-
-    - name: Show Mongo Cluster Templates
-        debug:
-            var: mongo_cluster_templates_response.result
+name: List Mongo Cluster Templates
+ionoscloudsdk.ionoscloud.mongo_cluster_template_info: null
+register: mongo_cluster_templates_response
 """
 
 

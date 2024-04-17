@@ -7,10 +7,10 @@ This is a simple module that supports listing LANs.
 
 ```yaml
 
-    - name: Get all LANs for a given datacenter
-      lan_info:
-        datacenter: "AnsibleDatacenter"
-      register: lan_list_response
+name: List LANs
+ionoscloudsdk.ionoscloud.lan_info:
+  datacenter: 'AnsibleAutoTestCompute'
+register: lan_list_response
 
 ```
 
@@ -61,6 +61,7 @@ This is a simple module that supports listing LANs.
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/compute-engine).
 
 &nbsp;
 ### Available parameters:

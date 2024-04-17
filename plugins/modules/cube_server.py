@@ -251,7 +251,7 @@ options:
         - SSD Standard
         - SSD Premium
         - DAS
-        default: HDD
+        default: DAS
         description:
         - The disk type for the volume.
         required: false
@@ -383,119 +383,123 @@ author:
 '''
 
 EXAMPLE_PER_STATE = {
-  'present' : '''# Provisioning example. This will create three CUBE servers and enumerate their names.
-    - cube_server:
-        datacenter: Tardis One
-        name: web%02d.stackpointcloud.com
-        template_id: <template_id>
-        image: ubuntu:latest
-        location: us/las
-        count: 3
-        assign_public_ip: true
-  ''',
-  'update' : '''# Update CUBE Virtual machines
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids:
-        - web001.stackpointcloud.com
-        - web002.stackpointcloud.com
-        availability_zone: ZONE_1
-        state: update
-  # Rename CUBE Virtual machine
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids: web001.stackpointcloud.com
-        name: web101.stackpointcloud.com
-        availability_zone: ZONE_1
-        state: update
+  'present' : '''
+name: Provision a server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute 01'
+  disk_type: DAS
+  image: 'centos:7'
+  image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  location: de/txl
+  count: 1
+  assign_public_ip: true
+  remove_boot_volume: true
+  template_uuid: 15c6dd2f-02d2-4987-b439-9a58dd59ecc3
+  availability_zone: AUTO
+  wait: true
+  wait_timeout: '500'
+  state: present
+register: server_cube
 ''',
-  'absent' : '''# Removing CUBE Virtual machines
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: absent
-  ''',
-  'resume' : '''# Starting CUBE Virtual Machines.
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: resume
-  ''',
-  'suspend' : '''# Suspending CUBE Virtual Machines
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: suspend
-  ''',
+  'update' : '''
+name: Update server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute - UPDATED'
+  instance_ids:
+  - 'AnsibleAutoTestCompute 01'
+  wait: true
+  wait_timeout: '500'
+  state: update
+''',
+  'absent' : '''
+name: Remove server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute - UPDATED'
+  remove_boot_volume: true
+  wait_timeout: '500'
+  state: absent
+''',
+  'resume' : '''
+name: Resume server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute - UPDATED'
+  wait_timeout: '500'
+  state: resume
+''',
+  'suspend' : '''
+name: Suspend server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute - UPDATED'
+  wait_timeout: '500'
+  state: suspend
+''',
 }
 
-EXAMPLES = """# Provisioning example. This will create three CUBE servers and enumerate their names.
-    - cube_server:
-        datacenter: Tardis One
-        name: web%02d.stackpointcloud.com
-        template_id: <template_id>
-        image: ubuntu:latest
-        location: us/las
-        count: 3
-        assign_public_ip: true
-  
-# Update CUBE Virtual machines
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids:
-        - web001.stackpointcloud.com
-        - web002.stackpointcloud.com
-        availability_zone: ZONE_1
-        state: update
-  # Rename CUBE Virtual machine
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids: web001.stackpointcloud.com
-        name: web101.stackpointcloud.com
-        availability_zone: ZONE_1
-        state: update
+EXAMPLES = """
+name: Provision a server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute 01'
+  disk_type: DAS
+  image: 'centos:7'
+  image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  location: de/txl
+  count: 1
+  assign_public_ip: true
+  remove_boot_volume: true
+  template_uuid: 15c6dd2f-02d2-4987-b439-9a58dd59ecc3
+  availability_zone: AUTO
+  wait: true
+  wait_timeout: '500'
+  state: present
+register: server_cube
 
-# Removing CUBE Virtual machines
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: absent
-  
-# Starting CUBE Virtual Machines.
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: resume
-  
-# Suspending CUBE Virtual Machines
-    - cube_server:
-        datacenter: Tardis One
-        instance_ids:
-        - 'web001.stackpointcloud.com'
-        - 'web002.stackpointcloud.com'
-        - 'web003.stackpointcloud.com'
-        wait_timeout: 500
-        state: suspend
+
+name: Update server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute - UPDATED'
+  instance_ids:
+  - 'AnsibleAutoTestCompute 01'
+  wait: true
+  wait_timeout: '500'
+  state: update
+
+
+name: Remove server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute - UPDATED'
+  remove_boot_volume: true
+  wait_timeout: '500'
+  state: absent
+
+
+name: Resume server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute - UPDATED'
+  wait_timeout: '500'
+  state: resume
+
+
+name: Suspend server
+ionoscloudsdk.ionoscloud.cube_server:
+  datacenter: 'AnsibleAutoTestCompute'
+  instance_ids:
+  - 'AnsibleAutoTestCompute - UPDATED'
+  wait_timeout: '500'
+  state: suspend
 """
 
 uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)

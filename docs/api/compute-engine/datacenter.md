@@ -6,32 +6,37 @@ This is a simple module that supports creating or removing datacenters. A datace
 
 
 ```yaml
-# Create a Datacenter
-  - name: Create datacenter
-    datacenter:
-      name: "Example DC"
-      description: "description"
-      location: de/fra
-    register: datacenter_response
-  
-# Update a datacenter description
-  - name: Update datacenter
-    datacenter:
-      datacenter: "Example DC"
-      description: "description - RENAMED"
-      state: update
-    register: updated_datacenter
-  
-# Destroy a Datacenter. This will remove all servers, volumes, and other objects in the datacenter.
-  - name: Remove datacenter
-    datacenter:
-      datacenter: "Example DC"
-      state: absent
+
+name: Create datacenter
+ionoscloudsdk.ionoscloud.datacenter:
+  name: 'AnsibleAutoTestCompute'
+  description: 'Ansible Compute test description'
+  location: 'gb/lhr'
+  wait: true
+register: datacenter_response
+
+
+name: Update datacenter no change 1
+ionoscloudsdk.ionoscloud.datacenter:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute'
+  description: 'Ansible Compute test description CHANGED'
+  state: update
+  allow_replace: false
+register: datacenter_response_no_change2
+
+
+name: Remove datacenter
+ionoscloudsdk.ionoscloud.datacenter:
+  datacenter: ''
+  name: 'AnsibleAutoTestCompute'
+  state: absent
+  wait: true
+register: deleted_datacenter
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -153,6 +158,7 @@ This is a simple module that supports creating or removing datacenters. A datace
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/compute-engine).
 &nbsp;
 
  **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
@@ -162,14 +168,15 @@ This is a simple module that supports creating or removing datacenters. A datace
 
 # state: **present**
 ```yaml
-  # Create a Datacenter
-  - name: Create datacenter
-    datacenter:
-      name: "Example DC"
-      description: "description"
-      location: de/fra
-    register: datacenter_response
   
+name: Create datacenter
+ionoscloudsdk.ionoscloud.datacenter:
+  name: 'AnsibleAutoTestCompute'
+  description: 'Ansible Compute test description'
+  location: 'gb/lhr'
+  wait: true
+register: datacenter_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -251,12 +258,15 @@ This is a simple module that supports creating or removing datacenters. A datace
 &nbsp;
 # state: **absent**
 ```yaml
-  # Destroy a Datacenter. This will remove all servers, volumes, and other objects in the datacenter.
-  - name: Remove datacenter
-    datacenter:
-      datacenter: "Example DC"
-      state: absent
   
+name: Remove datacenter
+ionoscloudsdk.ionoscloud.datacenter:
+  datacenter: ''
+  name: 'AnsibleAutoTestCompute'
+  state: absent
+  wait: true
+register: deleted_datacenter
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -323,14 +333,16 @@ This is a simple module that supports creating or removing datacenters. A datace
 &nbsp;
 # state: **update**
 ```yaml
-  # Update a datacenter description
-  - name: Update datacenter
-    datacenter:
-      datacenter: "Example DC"
-      description: "description - RENAMED"
-      state: update
-    register: updated_datacenter
   
+name: Update datacenter no change 1
+ionoscloudsdk.ionoscloud.datacenter:
+  datacenter: 'AnsibleAutoTestCompute'
+  name: 'AnsibleAutoTestCompute'
+  description: 'Ansible Compute test description CHANGED'
+  state: update
+  allow_replace: false
+register: datacenter_response_no_change2
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

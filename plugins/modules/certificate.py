@@ -166,50 +166,54 @@ author:
 
 EXAMPLE_PER_STATE = {
     'present': '''
-    - name: Create Certificate
-        certificate:
-            certificate_name: CertificateName
-            certificate_file: "certificate.pem"
-            private_key_file: "key.pem"
-        register: certificate
-  ''',
+name: Create Certificate
+ionoscloudsdk.ionoscloud.certificate:
+  certificate_name: 'test_certificate'
+  certificate_file: 'certificate.pem'
+  private_key_file: 'key.pem'
+register: certificate
+''',
     'update': '''
-    - name: Update Certificate
-        certificate:
-            certificate: CertificateName
-            certificate_name: CertificateNewName
-            state: update
-        register: updated_certificate
-  ''',
+name: Create Certificate no change
+ionoscloudsdk.ionoscloud.certificate:
+  state: update
+  certificate: ''
+  certificate_name: 'test_certificate'
+  certificate_file: 'certificate.pem'
+  allow_replace: false
+register: certificatenochange
+''',
     'absent': '''
-    - name: Delete Certificate
-        certificate:
-            certificate: CertificateNewName
-            state: delete
-  ''',
+name: Delete Certificate
+ionoscloudsdk.ionoscloud.certificate:
+  certificate: ''
+  state: absent
+''',
 }
 
 EXAMPLES = """
-    - name: Create Certificate
-        certificate:
-            certificate_name: CertificateName
-            certificate_file: "certificate.pem"
-            private_key_file: "key.pem"
-        register: certificate
-  
+name: Create Certificate
+ionoscloudsdk.ionoscloud.certificate:
+  certificate_name: 'test_certificate'
+  certificate_file: 'certificate.pem'
+  private_key_file: 'key.pem'
+register: certificate
 
-    - name: Update Certificate
-        certificate:
-            certificate: CertificateName
-            certificate_name: CertificateNewName
-            state: update
-        register: updated_certificate
-  
 
-    - name: Delete Certificate
-        certificate:
-            certificate: CertificateNewName
-            state: delete
+name: Create Certificate no change
+ionoscloudsdk.ionoscloud.certificate:
+  state: update
+  certificate: ''
+  certificate_name: 'test_certificate'
+  certificate_file: 'certificate.pem'
+  allow_replace: false
+register: certificatenochange
+
+
+name: Delete Certificate
+ionoscloudsdk.ionoscloud.certificate:
+  certificate: ''
+  state: absent
 """
 
 

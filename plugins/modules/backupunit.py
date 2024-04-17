@@ -160,49 +160,61 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-  'present' : '''# Create a Backup Unit
-  - name: Create Backup Unit
-    backupunit:
-      backupunit_email: <email>
-      backupunit_password: <password>
-      name: BackupUnitName
-  ''',
-  'update' : '''# Update a Backup Unit
-  - name: Update a Backup Unit
-    backupunit:
-      backupunit: BackupUnitName
-      backupunit_email: <newEmail>
-      backupunit_password: <newPassword>
-      state: update
-  ''',
-  'absent' : '''# Destroy a Backup Unit.
-  - name: Remove Backup Unit
-    backupunit:
-      backupunit: BackupUnitName
-      state: absent
-  ''',
+  'present' : '''
+name: Create backupunit
+ionoscloudsdk.ionoscloud.backupunit:
+  backupunit_email: 'ansible.test@mail.com'
+  backupunit_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  name: My AnsibleAutoTestBackup
+register: create_result
+''',
+  'update' : '''
+name: Recreate backupunit
+ionoscloudsdk.ionoscloud.backupunit:
+  backupunit: My AnsibleAutoTestBackup
+  backupunit_email: 'updated.ansible.test@mail.com'
+  backupunit_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  name: My AnsibleAutoTestBackup UPDATED
+  allow_replace: true
+  state: update
+register: recreate_result
+''',
+  'absent' : '''
+name: Remove backupunit
+ionoscloudsdk.ionoscloud.backupunit:
+  backupunit: My AnsibleAutoTestBackup UPDATED
+  state: absent
+  wait: true
+register: delete_result
+''',
 }
 
-EXAMPLES = """# Create a Backup Unit
-  - name: Create Backup Unit
-    backupunit:
-      backupunit_email: <email>
-      backupunit_password: <password>
-      name: BackupUnitName
-  
-# Update a Backup Unit
-  - name: Update a Backup Unit
-    backupunit:
-      backupunit: BackupUnitName
-      backupunit_email: <newEmail>
-      backupunit_password: <newPassword>
-      state: update
-  
-# Destroy a Backup Unit.
-  - name: Remove Backup Unit
-    backupunit:
-      backupunit: BackupUnitName
-      state: absent
+EXAMPLES = """
+name: Create backupunit
+ionoscloudsdk.ionoscloud.backupunit:
+  backupunit_email: 'ansible.test@mail.com'
+  backupunit_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  name: My AnsibleAutoTestBackup
+register: create_result
+
+
+name: Recreate backupunit
+ionoscloudsdk.ionoscloud.backupunit:
+  backupunit: My AnsibleAutoTestBackup
+  backupunit_email: 'updated.ansible.test@mail.com'
+  backupunit_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  name: My AnsibleAutoTestBackup UPDATED
+  allow_replace: true
+  state: update
+register: recreate_result
+
+
+name: Remove backupunit
+ionoscloudsdk.ionoscloud.backupunit:
+  backupunit: My AnsibleAutoTestBackup UPDATED
+  state: absent
+  wait: true
+register: delete_result
 """
 
 

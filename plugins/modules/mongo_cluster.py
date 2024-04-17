@@ -205,81 +205,91 @@ author:
 """
 
 EXAMPLE_PER_STATE = {
-    'present': '''- name: Create Cluster
-    mongo_cluster:
-      mongo_db_version: 5.0
-      instances: 3
-      location: de/fra
-      template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
-      connections:
-        - cidr_list: 
-            - 192.168.1.116/24
-            - 192.168.1.117/24
-            - 192.168.1.118/24
-          datacenter: "Datacenter - DBaaS Mongo"
-          lan: "test_lan"
-      display_name: backuptest-04
-      wait: true
-    register: cluster_response
-  ''',
-    'update': '''- name: Update Cluster
-    mongo_cluster:
-      mongo_cluster: backuptest-04
-      display_name: backuptest-05
-      state: update
-      allow_replace: True
-      wait: true
-    register: cluster_response
-  ''',
+    'present': '''
+name: Create Cluster
+ionoscloudsdk.ionoscloud.mongo_cluster:
+  mongo_db_version: 5.0
+  instances: 3
+  location: de/fra
+  template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
+  connections:
+  - cidr_list:
+    - 192.168.1.116/24
+    - 192.168.1.117/24
+    - 192.168.1.118/24
+    datacenter: 'AnsibleAutoTestDBaaSMongo - DBaaS Mongo'
+    lan: test_lan
+  display_name: 'AnsibleTestMongoDBCluster'
+  wait: true
+  wait_timeout: 7200
+register: cluster_response
+''',
+    'update': '''
+name: Update Cluster
+ionoscloudsdk.ionoscloud.mongo_cluster:
+  mongo_cluster: 'AnsibleTestMongoDBCluster'
+  display_name: 'AnsibleTestMongoDBCluster UPDATED'
+  state: update
+  allow_replace: false
+  wait: true
+register: cluster_response
+''',
     'restore': '''- name: Restore Mongo Cluster
     mongo_cluster:
       mongo_cluster: backuptest-05
       backup_id: 9ab6545c-b138-4a86-b6ca-0d872a2b0953
       state: restore
   ''',
-    'absent': '''- name: Delete Mongo Cluster
-    mongo_cluster:
-      mongo_cluster: backuptest-05
-      state: absent
-  ''',
+    'absent': '''
+name: Delete Cluster
+ionoscloudsdk.ionoscloud.mongo_cluster:
+  mongo_cluster: ''
+  state: absent
+  wait: false
+''',
 }
 
-EXAMPLES = """- name: Create Cluster
-    mongo_cluster:
-      mongo_db_version: 5.0
-      instances: 3
-      location: de/fra
-      template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
-      connections:
-        - cidr_list: 
-            - 192.168.1.116/24
-            - 192.168.1.117/24
-            - 192.168.1.118/24
-          datacenter: "Datacenter - DBaaS Mongo"
-          lan: "test_lan"
-      display_name: backuptest-04
-      wait: true
-    register: cluster_response
-  
-- name: Update Cluster
-    mongo_cluster:
-      mongo_cluster: backuptest-04
-      display_name: backuptest-05
-      state: update
-      allow_replace: True
-      wait: true
-    register: cluster_response
-  
+EXAMPLES = """
+name: Create Cluster
+ionoscloudsdk.ionoscloud.mongo_cluster:
+  mongo_db_version: 5.0
+  instances: 3
+  location: de/fra
+  template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
+  connections:
+  - cidr_list:
+    - 192.168.1.116/24
+    - 192.168.1.117/24
+    - 192.168.1.118/24
+    datacenter: 'AnsibleAutoTestDBaaSMongo - DBaaS Mongo'
+    lan: test_lan
+  display_name: 'AnsibleTestMongoDBCluster'
+  wait: true
+  wait_timeout: 7200
+register: cluster_response
+
+
+name: Update Cluster
+ionoscloudsdk.ionoscloud.mongo_cluster:
+  mongo_cluster: 'AnsibleTestMongoDBCluster'
+  display_name: 'AnsibleTestMongoDBCluster UPDATED'
+  state: update
+  allow_replace: false
+  wait: true
+register: cluster_response
+
 - name: Restore Mongo Cluster
     mongo_cluster:
       mongo_cluster: backuptest-05
       backup_id: 9ab6545c-b138-4a86-b6ca-0d872a2b0953
       state: restore
   
-- name: Delete Mongo Cluster
-    mongo_cluster:
-      mongo_cluster: backuptest-05
-      state: absent
+
+name: Delete Cluster
+ionoscloudsdk.ionoscloud.mongo_cluster:
+  mongo_cluster: ''
+  state: absent
+  wait: false
 """
 
 

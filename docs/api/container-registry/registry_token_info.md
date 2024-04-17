@@ -7,14 +7,10 @@ This is a simple module that supports listing existing Registry Tokens
 
 ```yaml
 
-    - name: List Registry Tokens
-        registry_token_info:
-            registry: "RegistryName"
-        register: registry_tokens_response
-
-    - name: Show Registry Tokens
-        debug:
-            var: registry_tokens_response.result
+name: List Registry Tokens
+ionoscloudsdk.ionoscloud.registry_token_info:
+  registry: ''
+register: registry_tokens_response
 
 ```
 
@@ -66,6 +62,7 @@ This is a simple module that supports listing existing Registry Tokens
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/container-registry).
 
 &nbsp;
 ### Available parameters:

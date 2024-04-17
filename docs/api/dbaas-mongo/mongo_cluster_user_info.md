@@ -7,13 +7,10 @@ This is a simple module that supports listing existing Mongo Clusters
 
 ```yaml
 
-    - name: List Mongo Clusters
-        mongo_cluster_info:
-        register: mongo_clusters_response
-
-    - name: Show Mongo Clusters
-        debug:
-            var: mongo_clusters_response.result
+name: List Mongo Cluster Users
+ionoscloudsdk.ionoscloud.mongo_cluster_user_info:
+  mongo_cluster: ''
+register: mongo_cluster_users_response
 
 ```
 
@@ -50,6 +47,7 @@ This is a simple module that supports listing existing Mongo Clusters
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/dbaas-mongo).
 
 &nbsp;
 ### Available parameters:

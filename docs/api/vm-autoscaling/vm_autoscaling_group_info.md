@@ -7,13 +7,9 @@ This is a simple module that supports listing existing VM Autoscaling Groups
 
 ```yaml
 
-    - name: List VM Autoscaling Groups
-        vm_autoscaling_group_info:
-        register: vm_autoscaling_groups_response
-
-    - name: Show VM Autoscaling Groups
-        debug:
-            var: vm_autoscaling_groups_response.result
+name: List VM Autoscaling Groups
+ionoscloudsdk.ionoscloud.vm_autoscaling_group_info: null
+register: vm_autoscaling_groups_response
 
 ```
 
@@ -132,6 +128,7 @@ This is a simple module that supports listing existing VM Autoscaling Groups
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/vm-autoscaling).
 
 &nbsp;
 ### Available parameters:

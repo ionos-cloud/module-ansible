@@ -6,24 +6,25 @@ This module allows you to create or remove an IPBlock.
 
 
 ```yaml
-# Create an IPBlock
-- name: Create IPBlock
-  ipblock:
-    name: staging
-    location: us/ewr
-    size: 2
-    state: present
-  
-# Remove an IPBlock
-- name: Remove IPBlock
-  ipblock:
-    ipblock: staging
-    state: absent
+
+name: Create ipblock
+ionoscloudsdk.ionoscloud.ipblock:
+  name: 'AnsibleAutoTestCompute'
+  location: 'gb/lhr'
+  size: 2
+  state: present
+register: response
+
+
+name: Remove ipblock
+ionoscloudsdk.ionoscloud.ipblock:
+  ipblock: 'AnsibleAutoTestCompute'
+  state: absent
+register: delete_result
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -60,6 +61,7 @@ This module allows you to create or remove an IPBlock.
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/compute-engine).
 &nbsp;
 
  **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
@@ -70,14 +72,15 @@ This module allows you to create or remove an IPBlock.
 
 # state: **present**
 ```yaml
-  # Create an IPBlock
-- name: Create IPBlock
-  ipblock:
-    name: staging
-    location: us/ewr
-    size: 2
-    state: present
   
+name: Create ipblock
+ionoscloudsdk.ionoscloud.ipblock:
+  name: 'AnsibleAutoTestCompute'
+  location: 'gb/lhr'
+  size: 2
+  state: present
+register: response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -159,12 +162,13 @@ This module allows you to create or remove an IPBlock.
 &nbsp;
 # state: **absent**
 ```yaml
-  # Remove an IPBlock
-- name: Remove IPBlock
-  ipblock:
-    ipblock: staging
-    state: absent
   
+name: Remove ipblock
+ionoscloudsdk.ionoscloud.ipblock:
+  ipblock: 'AnsibleAutoTestCompute'
+  state: absent
+register: delete_result
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;

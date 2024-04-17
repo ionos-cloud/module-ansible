@@ -1,0 +1,40 @@
+---
+# ==============================================================================
+- name: About to execute tasks file for role 'nfs-client'
+  ansible.builtin.meta: noop
+
+
+
+
+- name: Install the NFS client
+  ansible.builtin.package:
+    name:
+      - nfs-common
+    state: present
+
+
+- name: Install autofs
+  ansible.builtin.package:
+    name:
+      - autofs
+    state: present
+
+
+- name: Add an entry to /etc/auto.master
+  ansible.builtin.lineinfile:
+    path: /etc/auto.master
+    line: '/-   /etc/auto.nfs'
+
+
+- name: Create / add an entry to /etc/auto.nfs
+  ansible.builtin.lineinfile:
+    path: /etc/auto.nfs
+    line: "{{ nfs_mount_point }}    {{ nfs_server_path }}"
+    create: yes
+  when: nfs_server_path | length > 0
+
+
+- name: Restart the automounter service so these changes can take effect
+  ansible.builtin.service:
+    name: autofs
+    state: restarted

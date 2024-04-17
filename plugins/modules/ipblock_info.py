@@ -85,9 +85,9 @@ author:
 """
 
 EXAMPLES = """
-    - name: Get all IP Blocks
-      ipblock_info:
-      register: ipblock_list_response
+name: List IP Blocks
+ionoscloudsdk.ionoscloud.ipblock_info: null
+register: ipblock_list_response
 """
 
 

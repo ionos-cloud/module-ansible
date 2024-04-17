@@ -7,14 +7,10 @@ This is a simple module that supports listing S3Keys.
 
 ```yaml
 
-    - name: List S3Keys for user
-      s3key_info:
-        user: <user_id/email>
-        register: s3key_info_response
-
-    - name: Show S3Keys
-      debug:
-        var: s3key_info_response.result
+name: List s3keys
+ionoscloudsdk.ionoscloud.s3key_info:
+  user: ''
+register: s3key_list_response
 
 ```
 
@@ -59,6 +55,7 @@ This is a simple module that supports listing S3Keys.
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/user-management).
 
 &nbsp;
 ### Available parameters:

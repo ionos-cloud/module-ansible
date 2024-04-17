@@ -95,10 +95,10 @@ author:
 """
 
 EXAMPLES = """
-    - name: Get all NAT Gateways in a datacenter
-      nat_gateway_info:
-        datacenter: "AnsibleDatacenter"
-      register: nat_gateway_list_response
+name: List NAT Gateways
+ionoscloudsdk.ionoscloud.nat_gateway_info:
+  datacenter: ''
+register: nat_gateway_list_response
 """
 
 

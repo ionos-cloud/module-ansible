@@ -6,96 +6,63 @@ This is a module that supports creating, updating or destroying VM Autoscaling G
 
 
 ```yaml
-- name: Create VM Autoscaling Group
-      vm_autoscaling_group:
-        datacenter: DatacenterName
-        name: TestName
-        max_replica_count: 2
-        min_replica_count: 1
-        metric: "INSTANCE_CPU_UTILIZATION_AVERAGE"
-        range: "PT24H"
-        unit: "PER_HOUR"
-        scale_in_threshold: 33
-        scale_out_threshold: 77
-        scale_in_action:
-            amount: 1
-            amount_type: 'ABSOLUTE'
-            cooldown_period: 'PT5M'
-            termination_policy: 'RANDOM'
-            delete_volumes: true
-        scale_out_action:
-            amount: 1
-            amount_type: 'ABSOLUTE'
-            cooldown_period: 'PT5M'
-        availability_zone: "AUTO"
-        cores: 2
-        cpu_family: INTEL_XEON
-        ram: 1024
-        nics: 
-            - lan: 1
-              name: 'SDK_TEST_NIC1'
-              dhcp: true
-        volumes:
-            - image: <image_id>
-              image_password: <password>
-              name: 'SDK_TEST_VOLUME'
-              size: 50
-              type: 'HDD'
-              bus: 'IDE'
-              boot_order: 'AUTO'
-      register: vm_autoscaling_group_response
-  
-- name: Update VM Ausocaling Group
-      vm_autoscaling_group:
-        vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
-        datacenter: DatacenterName2
-        name: TestName2
-        max_replica_count: 1
-        min_replica_count: 0
-        metric: "INSTANCE_NETWORK_IN_BYTES"
-        range: "PT12H"
-        unit: "PER_MINUTE"
-        scale_in_threshold: 33
-        scale_out_threshold: 86
-        scale_in_action:
-            amount: 50
-            amount_type: 'PERCENTAGE'
-            cooldown_period: 'PT10M'
-            termination_policy: 'RANDOM'
-            delete_volumes: false
-        scale_out_action:
-            amount: 2
-            amount_type: 'ABSOLUTE'
-            cooldown_period: 'PT15M'
-        availability_zone: "AUTO"
-        cores: 1
-        cpu_family: "INTEL_SKYLAKE"
-        ram: 2048
-        nics: 
-            - lan: 2
-              name: 'SDK_TEST_NIC2'
-              dhcp: false
-        volumes:
-            - image: <image_id>
-              image_password: <password>
-              name: 'SDK_TEST_VOLUME'
-              size: 100
-              type: 'SSD'
-              bus: 'IDE'
-              boot_order: 'AUTO'
-        state: update
-      register: vm_autoscaling_group_response
-  
-- name: Remove VM Ausocaling Group
-      vm_autoscaling_group:
-        vm_autoscaling_group: "{{ name }}"
-        state: absent
-      register: vm_autoscaling_group_response
+
+name: Create VM Autoscaling Group
+ionoscloudsdk.ionoscloud.vm_autoscaling_group:
+  datacenter: 'AnsibleVMAutoscaling'
+  name: 'AnsibleVMAutoscalingGroup'
+  max_replica_count: '5'
+  min_replica_count: '1'
+  metric: 'INSTANCE_CPU_UTILIZATION_AVERAGE'
+  range: 'PT24H'
+  unit: 'PER_HOUR'
+  scale_in_threshold: '33'
+  scale_out_threshold: '77'
+  scale_in_action: '{'amount': 1, 'amount_type': 'ABSOLUTE', 'cooldown_period': 'PT5M', 'termination_policy': 'RANDOM', 'delete_volumes': True}'
+  scale_out_action: '{'amount': 1, 'amount_type': 'ABSOLUTE', 'cooldown_period': 'PT5M'}'
+  availability_zone: 'AUTO'
+  cores: '2'
+  cpu_family: 'INTEL_XEON'
+  ram: '1024'
+  nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True}, {'lan': 1, 'name': 'SDK_TEST_NIC2', 'dhcp': False}]'
+  volumes: '[{'image': 'b6d8c6f2-febc-11ed-86e8-2e7f0689c849', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
+register: vm_autoscaling_group_response
+
+
+name: Update VM Ausocaling Group
+ionoscloudsdk.ionoscloud.vm_autoscaling_group:
+  vm_autoscaling_group: ''
+  datacenter: 'AnsibleVMAutoscalingUpdate'
+  name: 'AnsibleVMAutoscalingGroupUPDATED'
+  max_replica_count: '1'
+  min_replica_count: '0'
+  metric: 'INSTANCE_NETWORK_IN_BYTES'
+  range: 'PT12H'
+  unit: 'PER_MINUTE'
+  scale_in_threshold: '30'
+  scale_out_threshold: '86'
+  scale_in_action: '{'amount': 50, 'amount_type': 'PERCENTAGE', 'cooldown_period': 'PT10M', 'termination_policy': 'RANDOM', 'delete_volumes': False}'
+  scale_out_action: '{'amount': 2, 'amount_type': 'ABSOLUTE', 'cooldown_period': 'PT15M'}'
+  availability_zone: 'AUTO'
+  cores: '1'
+  cpu_family: 'INTEL_SKYLAKE'
+  ram: '2048'
+  nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True, 'firewall_active': True, 'firewall_rules': [{'name': 'test2', 'protocol': 'TCP', 'port_range_end': 12}]}]'
+  volumes: '[{'image': 'e84aed99-feba-11ed-86e8-2e7f0689c849', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME_UPDATE', 'size': 75, 'type': 'SSD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
+  do_not_replace: false
+  state: update
+register: vm_autoscaling_group_response
+
+
+name: Remove VM Ausocaling Group
+ionoscloudsdk.ionoscloud.vm_autoscaling_group:
+  vm_autoscaling_group: 'AnsibleVMAutoscalingGroup'
+  state: absent
+register: vm_autoscaling_group_response
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -214,6 +181,7 @@ This is a module that supports creating, updating or destroying VM Autoscaling G
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/vm-autoscaling).
 &nbsp;
 
  **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
@@ -223,45 +191,28 @@ This is a module that supports creating, updating or destroying VM Autoscaling G
 
 # state: **present**
 ```yaml
-  - name: Create VM Autoscaling Group
-      vm_autoscaling_group:
-        datacenter: DatacenterName
-        name: TestName
-        max_replica_count: 2
-        min_replica_count: 1
-        metric: "INSTANCE_CPU_UTILIZATION_AVERAGE"
-        range: "PT24H"
-        unit: "PER_HOUR"
-        scale_in_threshold: 33
-        scale_out_threshold: 77
-        scale_in_action:
-            amount: 1
-            amount_type: 'ABSOLUTE'
-            cooldown_period: 'PT5M'
-            termination_policy: 'RANDOM'
-            delete_volumes: true
-        scale_out_action:
-            amount: 1
-            amount_type: 'ABSOLUTE'
-            cooldown_period: 'PT5M'
-        availability_zone: "AUTO"
-        cores: 2
-        cpu_family: INTEL_XEON
-        ram: 1024
-        nics: 
-            - lan: 1
-              name: 'SDK_TEST_NIC1'
-              dhcp: true
-        volumes:
-            - image: <image_id>
-              image_password: <password>
-              name: 'SDK_TEST_VOLUME'
-              size: 50
-              type: 'HDD'
-              bus: 'IDE'
-              boot_order: 'AUTO'
-      register: vm_autoscaling_group_response
   
+name: Create VM Autoscaling Group
+ionoscloudsdk.ionoscloud.vm_autoscaling_group:
+  datacenter: 'AnsibleVMAutoscaling'
+  name: 'AnsibleVMAutoscalingGroup'
+  max_replica_count: '5'
+  min_replica_count: '1'
+  metric: 'INSTANCE_CPU_UTILIZATION_AVERAGE'
+  range: 'PT24H'
+  unit: 'PER_HOUR'
+  scale_in_threshold: '33'
+  scale_out_threshold: '77'
+  scale_in_action: '{'amount': 1, 'amount_type': 'ABSOLUTE', 'cooldown_period': 'PT5M', 'termination_policy': 'RANDOM', 'delete_volumes': True}'
+  scale_out_action: '{'amount': 1, 'amount_type': 'ABSOLUTE', 'cooldown_period': 'PT5M'}'
+  availability_zone: 'AUTO'
+  cores: '2'
+  cpu_family: 'INTEL_XEON'
+  ram: '1024'
+  nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True}, {'lan': 1, 'name': 'SDK_TEST_NIC2', 'dhcp': False}]'
+  volumes: '[{'image': 'b6d8c6f2-febc-11ed-86e8-2e7f0689c849', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
+register: vm_autoscaling_group_response
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -413,12 +364,13 @@ This is a module that supports creating, updating or destroying VM Autoscaling G
 &nbsp;
 # state: **absent**
 ```yaml
-  - name: Remove VM Ausocaling Group
-      vm_autoscaling_group:
-        vm_autoscaling_group: "{{ name }}"
-        state: absent
-      register: vm_autoscaling_group_response
   
+name: Remove VM Ausocaling Group
+ionoscloudsdk.ionoscloud.vm_autoscaling_group:
+  vm_autoscaling_group: 'AnsibleVMAutoscalingGroup'
+  state: absent
+register: vm_autoscaling_group_response
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -485,47 +437,31 @@ This is a module that supports creating, updating or destroying VM Autoscaling G
 &nbsp;
 # state: **update**
 ```yaml
-  - name: Update VM Ausocaling Group
-      vm_autoscaling_group:
-        vm_autoscaling_group: "{{ vm_autoscaling_group_response.vm_autoscaling_group.id }}"
-        datacenter: DatacenterName2
-        name: TestName2
-        max_replica_count: 1
-        min_replica_count: 0
-        metric: "INSTANCE_NETWORK_IN_BYTES"
-        range: "PT12H"
-        unit: "PER_MINUTE"
-        scale_in_threshold: 33
-        scale_out_threshold: 86
-        scale_in_action:
-            amount: 50
-            amount_type: 'PERCENTAGE'
-            cooldown_period: 'PT10M'
-            termination_policy: 'RANDOM'
-            delete_volumes: false
-        scale_out_action:
-            amount: 2
-            amount_type: 'ABSOLUTE'
-            cooldown_period: 'PT15M'
-        availability_zone: "AUTO"
-        cores: 1
-        cpu_family: "INTEL_SKYLAKE"
-        ram: 2048
-        nics: 
-            - lan: 2
-              name: 'SDK_TEST_NIC2'
-              dhcp: false
-        volumes:
-            - image: <image_id>
-              image_password: <password>
-              name: 'SDK_TEST_VOLUME'
-              size: 100
-              type: 'SSD'
-              bus: 'IDE'
-              boot_order: 'AUTO'
-        state: update
-      register: vm_autoscaling_group_response
   
+name: Update VM Ausocaling Group
+ionoscloudsdk.ionoscloud.vm_autoscaling_group:
+  vm_autoscaling_group: ''
+  datacenter: 'AnsibleVMAutoscalingUpdate'
+  name: 'AnsibleVMAutoscalingGroupUPDATED'
+  max_replica_count: '1'
+  min_replica_count: '0'
+  metric: 'INSTANCE_NETWORK_IN_BYTES'
+  range: 'PT12H'
+  unit: 'PER_MINUTE'
+  scale_in_threshold: '30'
+  scale_out_threshold: '86'
+  scale_in_action: '{'amount': 50, 'amount_type': 'PERCENTAGE', 'cooldown_period': 'PT10M', 'termination_policy': 'RANDOM', 'delete_volumes': False}'
+  scale_out_action: '{'amount': 2, 'amount_type': 'ABSOLUTE', 'cooldown_period': 'PT15M'}'
+  availability_zone: 'AUTO'
+  cores: '1'
+  cpu_family: 'INTEL_SKYLAKE'
+  ram: '2048'
+  nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True, 'firewall_active': True, 'firewall_rules': [{'name': 'test2', 'protocol': 'TCP', 'port_range_end': 12}]}]'
+  volumes: '[{'image': 'e84aed99-feba-11ed-86e8-2e7f0689c849', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME_UPDATE', 'size': 75, 'type': 'SSD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
+  do_not_replace: false
+  state: update
+register: vm_autoscaling_group_response
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

@@ -64,6 +64,7 @@ This is a simple module that supports listing existing MariaDB Clusters
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/dbaas-mariadb).
 
 &nbsp;
 ### Available parameters:

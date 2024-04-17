@@ -7,13 +7,9 @@ This is a simple module that supports listing existing Postgres Clusters
 
 ```yaml
 
-    - name: List Postgres Clusters
-        postgres_cluster_info:
-        register: postgres_clusters_response
-
-    - name: Show Postgres Clusters
-        debug:
-            var: postgres_clusters_response.result
+name: List Postgres Clusters
+ionoscloudsdk.ionoscloud.postgres_cluster_info: null
+register: postgres_clusters_response
 
 ```
 
@@ -68,6 +64,7 @@ This is a simple module that supports listing existing Postgres Clusters
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/dbaas-postgres).
 
 &nbsp;
 ### Available parameters:

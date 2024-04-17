@@ -6,31 +6,36 @@ This is a simple module that supports creating or removing Backup Units. This mo
 
 
 ```yaml
-# Create a Backup Unit
-  - name: Create Backup Unit
-    backupunit:
-      backupunit_email: <email>
-      backupunit_password: <password>
-      name: BackupUnitName
-  
-# Update a Backup Unit
-  - name: Update a Backup Unit
-    backupunit:
-      backupunit: BackupUnitName
-      backupunit_email: <newEmail>
-      backupunit_password: <newPassword>
-      state: update
-  
-# Destroy a Backup Unit.
-  - name: Remove Backup Unit
-    backupunit:
-      backupunit: BackupUnitName
-      state: absent
+
+name: Create backupunit
+ionoscloudsdk.ionoscloud.backupunit:
+  backupunit_email: 'ansible.test@mail.com'
+  backupunit_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  name: My AnsibleAutoTestBackup
+register: create_result
+
+
+name: Recreate backupunit
+ionoscloudsdk.ionoscloud.backupunit:
+  backupunit: My AnsibleAutoTestBackup
+  backupunit_email: 'updated.ansible.test@mail.com'
+  backupunit_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  name: My AnsibleAutoTestBackup UPDATED
+  allow_replace: true
+  state: update
+register: recreate_result
+
+
+name: Remove backupunit
+ionoscloudsdk.ionoscloud.backupunit:
+  backupunit: My AnsibleAutoTestBackup UPDATED
+  state: absent
+  wait: true
+register: delete_result
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -62,6 +67,7 @@ This is a simple module that supports creating or removing Backup Units. This mo
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/managed-backup).
 &nbsp;
 
  **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
@@ -73,13 +79,14 @@ This is a simple module that supports creating or removing Backup Units. This mo
 
 # state: **present**
 ```yaml
-  # Create a Backup Unit
-  - name: Create Backup Unit
-    backupunit:
-      backupunit_email: <email>
-      backupunit_password: <password>
-      name: BackupUnitName
   
+name: Create backupunit
+ionoscloudsdk.ionoscloud.backupunit:
+  backupunit_email: 'ansible.test@mail.com'
+  backupunit_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  name: My AnsibleAutoTestBackup
+register: create_result
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
@@ -161,12 +168,14 @@ This is a simple module that supports creating or removing Backup Units. This mo
 &nbsp;
 # state: **absent**
 ```yaml
-  # Destroy a Backup Unit.
-  - name: Remove Backup Unit
-    backupunit:
-      backupunit: BackupUnitName
-      state: absent
   
+name: Remove backupunit
+ionoscloudsdk.ionoscloud.backupunit:
+  backupunit: My AnsibleAutoTestBackup UPDATED
+  state: absent
+  wait: true
+register: delete_result
+
 ```
 ### Available parameters for state **absent**:
 &nbsp;
@@ -233,14 +242,17 @@ This is a simple module that supports creating or removing Backup Units. This mo
 &nbsp;
 # state: **update**
 ```yaml
-  # Update a Backup Unit
-  - name: Update a Backup Unit
-    backupunit:
-      backupunit: BackupUnitName
-      backupunit_email: <newEmail>
-      backupunit_password: <newPassword>
-      state: update
   
+name: Recreate backupunit
+ionoscloudsdk.ionoscloud.backupunit:
+  backupunit: My AnsibleAutoTestBackup
+  backupunit_email: 'updated.ansible.test@mail.com'
+  backupunit_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
+  name: My AnsibleAutoTestBackup UPDATED
+  allow_replace: true
+  state: update
+register: recreate_result
+
 ```
 ### Available parameters for state **update**:
 &nbsp;

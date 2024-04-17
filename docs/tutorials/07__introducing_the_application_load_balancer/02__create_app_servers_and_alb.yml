@@ -1,0 +1,203 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars.yml
+    - vars.yml
+
+  
+
+
+  tasks:
+    # =======================================================================
+    - name: Get information about the datacenter '{{ datacenter_name }}'
+      ionoscloudsdk.ionoscloud.datacenter_info:
+        filters: { 'properties.name': '{{ datacenter_name }}' }
+      register: datacenter_info_response
+
+
+    - name: Get information about the LANs in '{{ datacenter_name }}'
+      ionoscloudsdk.ionoscloud.lan_info:
+        datacenter: "{{ datacenter_name }}"
+      register: lan_info_response
+
+
+    - name: Set the fact 'public_lan' based on the above
+      ansible.builtin.set_fact:
+        public_lan: "{{ (lan_info_response | json_query(query))[0] }}"
+      vars:
+        query: "lans[?properties.name=='public']"
+
+
+    - name: Set the fact 'secondary_lan' based on the above
+      ansible.builtin.set_fact:
+        secondary_lan: "{{ (lan_info_response | json_query(query))[0] }}"
+      vars:
+        query: "lans[?properties.name=='{{ lan.name }}']"
+
+
+
+
+    # =======================================================================
+    # Create the 'app servers' defined in 'server_config.app_server'
+    - name: Create the cloud-init file for our app servers
+      ansible.builtin.template:
+        src: templates/cloud-init--app-servers.j2
+        dest: cloud-init--app-servers.txt
+
+
+    - name: Create the app servers specified in server_config.app_server
+      ionoscloudsdk.ionoscloud.server:
+        datacenter: "{{ datacenter_name }}"
+        name: "{{ item.name }}"
+        cores: "{{ item.cores }}"
+        ram: "{{ item.ram }}"
+        cpu_family: "{{ datacenter_info_response.datacenters[0].properties.cpu_architecture[0].cpu_family }}"
+        disk_type: HDD
+        volume_size: "5"
+        image: "{{ image_alias }}"
+        image_password: "{{ default_password }}"
+        ssh_keys:
+          - "{{ ssh_public_key }}"
+          - "{{ lookup('file', 'temporary_id_rsa.pub') }}"
+        lan: "{{ secondary_lan.id }}"
+        nic_ips:
+          - "{{ item.ip }}"
+        user_data: "{{ lookup('file', item.user_data_file) | string | b64encode }}"
+
+        state: present
+        wait: true
+        wait_timeout: "{{ wait_timeout }}"
+      with_items: "{{ server_config.app_server }}"
+      register: create_app_server_response
+
+
+
+
+    # =======================================================================
+    # And finally create and minimally-configure an Application Load Balancer
+    - name: Get information about our reserved IP Blocks
+      ionoscloudsdk.ionoscloud.ipblock_info:
+        filters: "{ 'properties.name': 'IP Block for {{ datacenter_name }}' }"
+      register: ipblock_info_response
+
+
+    - name: Set 'ip_block' based on the above
+      ansible.builtin.set_fact:
+        ip_block: "{{ ipblock_info_response.ipblocks[0].properties.ips }}"
+
+
+
+
+    # Before we can create a forwarding rule, we need the list of destination IPs
+    - name: Set 'target_ips' based on 'create_app_server_response'
+      ansible.builtin.set_fact:
+        target_ips: "{{ create_app_server_response | json_query(query) }}"
+      vars:
+        query: "results[].machines[].entities.nics.items[].properties.ips"
+
+
+    # we need two separate set_fact calls to guarantee targets is initialised
+    # as an empty list before it is used in the second call...
+    - name: Create targets list
+      ansible.builtin.set_fact:
+        targets: []
+
+    - name: Add new JSON Objects to 'targets'
+      ansible.builtin.set_fact:
+        targets: "{{ targets + 
+                     [{ 'ip': item[0],
+                        'port': '80',
+                        'weight': '100',
+                        'health_check_enabled': 'false',
+                        'maintenance_enabled': 'false' }] }}"
+      loop: "{{ target_ips }}"
+
+
+    - name: Print target objects
+      ansible.builtin.debug:
+        var: targets
+      when: verbose_debugging
+
+
+
+
+    # see https://docs.ionos.com/ansible/api/application-load-balancer/target_group
+    - name: Create Target Group
+      ionoscloudsdk.ionoscloud.target_group:
+        name: "ALB HTTP target group"
+        algorithm: "ROUND_ROBIN"
+        protocol: "HTTP"
+        targets: "{{ targets }}"
+        # health_check:
+        #   check_timeout: 2000
+        #   check_interval: 1000
+        #   retries: 3
+        # http_health_check:
+        #   path: "./"
+        #   method: "GET"
+        #   match_type: "STATUS_CODE"
+        #   response: 200
+        #   regex: false
+        #   negate: false
+        wait: true
+      register: target_group_response
+
+
+
+
+    # see https://docs.ionos.com/ansible/api/application-load-balancer
+    - name: Create the Application Load Balancer --- sometimes, this can take a while (up to 15 or so minutes), so please don't interrupt this operation...
+      ionoscloudsdk.ionoscloud.application_load_balancer:
+        datacenter: "{{ datacenter_name }}"
+        name: "{{ alb.name }}"
+        listener_lan: "{{ public_lan.id }}"
+        ips:
+          - "{{ ip_block[1] }}"
+        target_lan: "{{ secondary_lan.id }}"
+        lb_private_ips:
+          - "{{ alb.ip }}"
+
+        state: present
+        wait: true
+        wait_timeout: "{{ vnf_wait_timeout }}"
+      register: create_alb_response
+
+
+    - name: Print create_alb_response
+      ansible.builtin.debug:
+        var: create_alb_response
+      when: verbose_debugging
+
+
+
+
+    # see https://docs.ionos.com/ansible/api/application-load-balancer/application-load-balancer-rule
+    - name: Create Application Load Balancer Forwarding Rule for tcp/http
+      ionoscloudsdk.ionoscloud.application_load_balancer_forwardingrule:
+        name: "ALB HTTP connections"
+        algorithm: "ROUND_ROBIN"
+        protocol: "HTTP"
+        listener_ip: "{{ ip_block[1] }}"
+        listener_port: "80"
+        http_rules:
+          - name: "HTTP Rule"
+            type: "FORWARD"
+            target_group: "{{ target_group_response.target_group.id }}"
+
+        datacenter: "{{ datacenter_name }}"
+        application_load_balancer: "{{ create_alb_response.application_load_balancer.id }}"
+
+        wait: true
+        wait_timeout: "{{ vnf_wait_timeout }}"
+      register: alb_forwardingrule_response
+
+
+    - name: Print the newly-provisioned Load Balancer's public IP address
+      ansible.builtin.debug:
+        msg:
+          - "The ALB's IP address is {{ ip_block[1] }}. To see its forwarding rule in action, run the"
+          - "command `curl http://{{ ip_block[1] }}` two or more times _after_ you have configured"
+          - "the app-servers via `ansible-playbook -i inventory.yml 03__configure_app_servers.yml"

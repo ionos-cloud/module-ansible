@@ -7,13 +7,9 @@ This is a simple module that supports listing existing Pipelines
 
 ```yaml
 
-    - name: List Pipelines
-        pipeline_info:
-        register: pipelines_response
-
-    - name: Show Pipelines
-        debug:
-            var: pipelines_response.result
+name: List Pipelines
+ionoscloudsdk.ionoscloud.pipeline_info: null
+register: pipelines_response
 
 ```
 
@@ -68,6 +64,7 @@ This is a simple module that supports listing existing Pipelines
 ```
 
 &nbsp;
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/logging).
 
 &nbsp;
 ### Available parameters:

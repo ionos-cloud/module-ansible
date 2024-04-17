@@ -9,15 +9,14 @@ This is a simple module that supports getting config of DataPlatform clusters
 
 ```yaml
 
-  - name: Get DataPlatform config
-  dataplatform_cluster_config:
-    dataplatform_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
-    config_file: 'config.yaml'
+name: Get kubeconfig by ID
+ionoscloudsdk.ionoscloud.dataplatform_cluster_config:
+  cluster: ''
+  config_file: config.yaml
 
 ```
 
 &nbsp;
-
 &nbsp;
 ## Returned object
 ```json
@@ -29,6 +28,7 @@ This is a simple module that supports getting config of DataPlatform clusters
 
 ```
 
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/dataplatform).
 &nbsp;
 
 &nbsp;
@@ -36,11 +36,11 @@ This is a simple module that supports getting config of DataPlatform clusters
 # state: **present**
 ```yaml
   
-  - name: Get DataPlatform config
-  dataplatform_cluster_config:
-    dataplatform_cluster_id: "ed67d8b3-63c2-4abe-9bf0-073cee7739c9"
-    config_file: 'config.yaml'
-  
+name: Get kubeconfig by ID
+ionoscloudsdk.ionoscloud.dataplatform_cluster_config:
+  cluster: ''
+  config_file: config.yaml
+
 ```
 ### Available parameters for state **present**:
 &nbsp;
