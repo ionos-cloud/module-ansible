@@ -502,7 +502,7 @@ ionoscloudsdk.ionoscloud.cube_server:
   state: suspend
 """
 
-uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
+uuid_match = re.compile(r'[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
 def _get_lan_by_id_or_properties(networks, id=None, **kwargs):
