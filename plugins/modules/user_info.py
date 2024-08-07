@@ -103,8 +103,9 @@ def get_objects(module, client):
     group = module.params.get('group')
     filters = module.params.get('filters')
     query_params = {}
-    for k, v in filters.items():
-        query_params['filter.' + k.split('.')[-1]] = v
+    if filters is not None:
+        for k, v in filters.items():
+            query_params['filter.' + k.split('.')[-1]] = v
 
     um_api = ionoscloud.UserManagementApi(api_client=client)
 
