@@ -26,6 +26,8 @@ from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_io
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
+import re
+
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
@@ -288,7 +290,17 @@ class UserModule(CommonIonosModule):
 
 
     def _get_object_list(self, clients):
-        return get_users(ionoscloud.UserManagementApi(clients[0]), ionoscloud.Users(items=[]))
+        query_params = {}
+        if self.module.params.get('email') is not None:
+            query_params = {
+                'filter.email': self.module.params.get('email')
+            }
+        elif self.module.params.get('user') and not None and re.match(r"[^@]+@[^@]+\.[^@]+", self.module.params.get('user')):
+            query_params = {
+                'filter.email': self.module.params.get('user')
+            }
+
+        return get_users(ionoscloud.UserManagementApi(clients[0]), ionoscloud.Users(items=[]), query_params=query_params)
 
 
     def _get_object_name(self):

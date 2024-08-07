@@ -99,23 +99,13 @@ register: user_list_response
 """
 
 
-def list_users(depth, users_get_method, extra_args):
-    all_users = ionoscloud.Users(items=[])
-    offset = 0
-    limit = 100
-
-    users = users_get_method(**extra_args, depth=depth, limit=limit, offset=offset)
-    all_users.items += users.items
-    while(users.links.next is not None):
-        offset += limit
-        users = users_get_method(**extra_args, depth=depth, limit=limit, offset=offset)
-        all_users.items += users.items
-
-    return all_users
-
-
 def get_objects(module, client):
     group = module.params.get('group')
+    filters = module.params.get('filters')
+    query_params = {}
+    for k, v in filters.items():
+        query_params['filter.' + k.split('.')[-1]] = v
+
     um_api = ionoscloud.UserManagementApi(api_client=client)
 
     if group:
@@ -123,17 +113,15 @@ def get_objects(module, client):
         group_list = um_api.um_groups_get(depth=1)
         group_id = get_resource_id(module, group_list, group)
 
-        users = list_users(
-            module.params.get('depth'),
-            users_get_method=um_api.um_groups_users_get,
-            extra_args={'group_id': group_id},
-        )
+        users = um_api.um_groups_users_get(group_id=group_id, depth=module.params.get('depth'), query_params=query_params)
     else:
-        users = list_users(
-            module.params.get('depth'),
-            users_get_method=um_api.um_users_get,
-            extra_args={},
+        users = get_users(
+            api=um_api,
+            all_users=ionoscloud.Users(items=[]),
+            depth=module.params.get('depth'),
+            query_params=query_params,
         )
+
     return users
 
 

@@ -55,15 +55,15 @@ def _get_request_id(headers):
         return None
 
 
-def get_users(api, all_users, depth=2):
+def get_users(api, all_users, depth=2, query_params=dict):
     offset = 0
     limit = 100
 
-    users = api.um_users_get(depth=depth, limit=limit, offset=offset)
+    users = api.um_users_get(depth=depth, limit=limit, offset=offset, query_params=query_params)
     all_users.items += users.items
     while(users.links.next is not None):
         offset += limit
-        users = api.um_users_get(depth=depth, limit=limit, offset=offset)
+        users = api.um_users_get(depth=depth, limit=limit, offset=offset, query_params=query_params)
         all_users.items += users.items
 
     return all_users
