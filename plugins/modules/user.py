@@ -290,17 +290,27 @@ class UserModule(CommonIonosModule):
 
 
     def _get_object_list(self, clients):
-        query_params = {}
+        all_users = ionoscloud.Users(items=[])
+        query_made = False
         if self.module.params.get('email') is not None:
-            query_params = {
-                'filter.email': self.module.params.get('email')
-            }
-        elif self.module.params.get('user') and not None and re.match(r"[^@]+@[^@]+\.[^@]+", self.module.params.get('user')):
-            query_params = {
-                'filter.email': self.module.params.get('user')
-            }
+            get_users(
+                ionoscloud.UserManagementApi(clients[0]),
+                all_users,
+                query_params={'filter.email': self.module.params.get('email')},
+            )
+            query_made = True
+        if self.module.params.get('user') and not None and re.match(r"[^@]+@[^@]+\.[^@]+", self.module.params.get('user')):
+            get_users(
+                ionoscloud.UserManagementApi(clients[0]),
+                all_users,
+                query_params={'filter.email': self.module.params.get('user')},
+            )
+            query_made = True
+        
+        if query_made is False:
+            get_users(ionoscloud.UserManagementApi(clients[0]), all_users)
 
-        return get_users(ionoscloud.UserManagementApi(clients[0]), ionoscloud.Users(items=[]), query_params=query_params)
+        return all_users
 
 
     def _get_object_name(self):
