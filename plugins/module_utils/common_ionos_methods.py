@@ -55,7 +55,8 @@ def _get_request_id(headers):
         return None
 
 
-def get_users(api, all_users, depth=2, query_params=dict):
+def get_users(api, all_users, depth=2, query_params=None):
+    query_params = query_params if query_params else {}
     offset = 0
     limit = 100
 
