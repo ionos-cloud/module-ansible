@@ -58,6 +58,38 @@
           - user_response.user['entities']['groups']['items'] | length == 2
         msg: "user-test: updating a user must keep its groups"
 
+    - name: Update user
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe
+        user: "{{ random_user }}"
+        administrator: false
+        force_sec_auth: false
+        state: update
+      register: user_response
+
+    - name: Testing user update no change
+      assert:
+        that:
+          - user_response.changed == false
+        msg: "user update not working correctly"
+
+    - name: Update user by ID
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe
+        user: "{{ user_response.user.id }}"
+        administrator: false
+        force_sec_auth: false
+        state: update
+      register: user_response
+    
+    - name: Testing user update no change
+      assert:
+        that:
+          - user_response.changed == false
+        msg: "user update not working correctly"
+
     - name: Remove user from groups
       ionoscloudsdk.ionoscloud.user:
         user: "{{ random_user }}"
