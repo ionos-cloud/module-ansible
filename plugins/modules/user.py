@@ -22,11 +22,9 @@ from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, _get_request_id, get_users, get_resource_id,
+    get_module_arguments, _get_request_id, get_users_by_identifier, get_resource_id,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
-
-import re
 
 
 ANSIBLE_METADATA = {
@@ -291,26 +289,9 @@ class UserModule(CommonIonosModule):
 
     def _get_object_list(self, clients):
         all_users = ionoscloud.Users(items=[])
-        if self.module.params.get('email') is not None:
-            get_users(
-                ionoscloud.UserManagementApi(clients[0]),
-                all_users,
-                query_params={'filter.email': self.module.params.get('email')},
-            )
-        if self.module.params.get('user') and not None:
-            if re.match(r"[^@]+@[^@]+\.[^@]+", self.module.params.get('user')):
-                get_users(
-                    ionoscloud.UserManagementApi(clients[0]),
-                    all_users,
-                    query_params={'filter.email': self.module.params.get('user')},
-                )
-            else:
-                um_api = ionoscloud.UserManagementApi(clients[0])
-                try:
-                    user = um_api.um_users_find_by_id(self.module.params.get('user'), depth=2)
-                    all_users.items += [user]
-                except ionoscloud.ApiException:
-                    pass
+
+        get_users_by_identifier(ionoscloud.UserManagementApi(clients[0]), all_users, self._get_object_name())
+        get_users_by_identifier(ionoscloud.UserManagementApi(clients[0]), all_users, self._get_object_identifier())
 
         return all_users
 

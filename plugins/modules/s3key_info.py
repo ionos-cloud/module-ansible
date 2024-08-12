@@ -7,7 +7,7 @@ except ImportError:
 
 from ansible import __version__
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_resource_id, get_users
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_resource_id, get_users_by_identifier
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options_with_depth
 
 
@@ -103,11 +103,9 @@ register: s3key_list_response
 
 
 def get_objects(module, client):
+    user_list = get_users_by_identifier(ionoscloud.UserManagementApi(client), ionoscloud.Users(items=[]), module.params.get('user'))
     user_id = get_resource_id(
-        module,
-        get_users(ionoscloud.UserManagementApi(client), ionoscloud.Users(items=[])), 
-        module.params.get('user'),
-        [['id'], ['properties', 'email']],
+        module, user_list, module.params.get('user'), [['id'], ['properties', 'email']],
     )
     user_s3keys_server = ionoscloud.UserS3KeysApi(client)
 
