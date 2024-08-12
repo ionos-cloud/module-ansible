@@ -291,24 +291,26 @@ class UserModule(CommonIonosModule):
 
     def _get_object_list(self, clients):
         all_users = ionoscloud.Users(items=[])
-        query_made = False
         if self.module.params.get('email') is not None:
             get_users(
                 ionoscloud.UserManagementApi(clients[0]),
                 all_users,
                 query_params={'filter.email': self.module.params.get('email')},
             )
-            query_made = True
-        if self.module.params.get('user') and not None and re.match(r"[^@]+@[^@]+\.[^@]+", self.module.params.get('user')):
-            get_users(
-                ionoscloud.UserManagementApi(clients[0]),
-                all_users,
-                query_params={'filter.email': self.module.params.get('user')},
-            )
-            query_made = True
-        
-        if query_made is False:
-            get_users(ionoscloud.UserManagementApi(clients[0]), all_users)
+        if self.module.params.get('user') and not None:
+            if re.match(r"[^@]+@[^@]+\.[^@]+", self.module.params.get('user')):
+                get_users(
+                    ionoscloud.UserManagementApi(clients[0]),
+                    all_users,
+                    query_params={'filter.email': self.module.params.get('user')},
+                )
+            else:
+                um_api = ionoscloud.UserManagementApi(clients[0])
+                try:
+                    user = um_api.um_users_find_by_id(self.module.params.get('user'), depth=2)
+                    all_users.items += [user]
+                except ionoscloud.ApiException:
+                    pass
 
         return all_users
 
