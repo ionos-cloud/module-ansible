@@ -53,7 +53,7 @@ OPTIONS = {
         'type': 'str',
     },
     'create_datacenter': {
-        'description': ['Boolean value indicating if the group is allowed to create virtual data centers.'],
+        'description': ['Create data center privilege.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
@@ -165,7 +165,7 @@ options:
         required: false
     create_datacenter:
         description:
-        - Boolean value indicating if the group is allowed to create virtual data centers.
+        - Create data center privilege.
         required: false
     create_flow_log:
         description:

@@ -20,6 +20,86 @@
         force_sec_auth: false
         state: present
 
+    - name: Test ignored fields
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: false
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        ignored_properties:
+          - user_password
+        state: present
+      register: user_response
+
+    - name: Asserting that the user was not updated
+      assert:
+        that:
+          - user_response.changed == false
+        msg: "User should not be changed when changed fields are in ignored_properties"
+
+    - name: Test ignored fields
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe Changed
+        email: "{{ random_user }}"
+        administrator: false
+        user_password: "{{ password }}"
+        groups:
+          - "{{ name }} 1"
+        force_sec_auth: false
+        ignored_properties:
+          - user_password
+          - groups
+          - lastname
+        state: present
+      register: user_response
+
+    - name: Asserting that the user was not updated
+      assert:
+        that:
+          - user_response.changed == false
+        msg: "User should not be changed when changed fields are in ignored_properties"
+
+    - name: Test ignored fields not set
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: false
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        state: present
+      register: user_response
+
+    - name: Asserting that the user was updated
+      assert:
+        that:
+          - user_response.changed == true
+        msg: "User should be changed when changed fields are not in ignored_properties"
+
+    - name: Test ignored fields
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John Changed
+        lastname: Doe Changed
+        email: "{{ random_user }}"
+        administrator: false
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        ignored_properties:
+          - user_password
+          - lastname
+        state: present
+      register: user_response
+
+    - name: Asserting that all the user fields were updated
+      assert:
+        that:
+          - user_response.changed == true
+          - user_response.user.properties.lastname == 'Doe Changed'
+          - user_response.user.properties.firstname == 'John Changed'
+
     - name: Create first group
       ionoscloudsdk.ionoscloud.group:
         name: "{{ name }} 1"
