@@ -257,7 +257,7 @@ ionoscloudsdk.ionoscloud.user:
 class UserModule(CommonIonosModule):
     def __init__(self) -> None:
         super().__init__()
-        self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES))
+        self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES), supports_check_mode=True)
         self.returned_key = RETURNED_KEY
         self.object_name = OBJECT_NAME
         self.sdks = [ionoscloud]
@@ -267,24 +267,54 @@ class UserModule(CommonIonosModule):
 
 
     def _should_replace_object(self, existing_object, clients):
-        return False
+        return False, []
 
 
     def _should_update_object(self, existing_object, clients):
-        return (
-            self.module.params.get('lastname') is not None
-            and existing_object.properties.lastname != self.module.params.get('lastname')
-            or self.module.params.get('firstname') is not None
-            and existing_object.properties.firstname != self.module.params.get('firstname')
-            or self.module.params.get('email') is not None
-            and existing_object.properties.email != self.module.params.get('email')
-            or self.module.params.get('administrator') is not None
-            and existing_object.properties.administrator != self.module.params.get('administrator')
-            or self.module.params.get('force_sec_auth') is not None
-            and existing_object.properties.force_sec_auth != self.module.params.get('force_sec_auth')
-            or self.module.params.get('user_password') is not None
-            or self.module.params.get('groups') is not None
-        )
+        should_update = False
+        changes = []
+
+        should_update_field = self.module.params.get('lastname') is not None and existing_object.properties.lastname != self.module.params.get('lastname')
+        should_update |= should_update_field
+
+        if should_update_field:
+            changes.append(
+                ' change lastname from ' + existing_object.properties.lastname + ' to ' + self.module.params.get('lastname'),
+            )
+
+        should_update_field = self.module.params.get('firstname') is not None and existing_object.properties.firstname != self.module.params.get('firstname')
+        should_update |= should_update_field
+
+        if should_update_field:
+            changes.append(
+                'change firstname from ' + existing_object.properties.firstname + ' to ' + self.module.params.get('firstname'),
+            )
+
+        should_update_field = self.module.params.get('email') is not None and existing_object.properties.email != self.module.params.get('email')
+        should_update |= should_update_field
+
+        if should_update_field:
+            changes.append(
+                'change email from ' + existing_object.properties.email + ' to ' + self.module.params.get('email'),
+            )
+
+
+        # return (
+        #     self.module.params.get('lastname') is not None
+        #     and existing_object.properties.lastname != self.module.params.get('lastname')
+        #     or self.module.params.get('firstname') is not None
+        #     and existing_object.properties.firstname != self.module.params.get('firstname')
+        #     or self.module.params.get('email') is not None
+        #     and existing_object.properties.email != self.module.params.get('email')
+        #     or self.module.params.get('administrator') is not None
+        #     and existing_object.properties.administrator != self.module.params.get('administrator')
+        #     or self.module.params.get('force_sec_auth') is not None
+        #     and existing_object.properties.force_sec_auth != self.module.params.get('force_sec_auth')
+        #     or self.module.params.get('user_password') is not None
+        #     or self.module.params.get('groups') is not None
+        # ), []
+
+        return should_update, changes
 
 
     def _get_object_list(self, clients):

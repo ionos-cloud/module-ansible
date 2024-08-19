@@ -1,3 +1,5 @@
+import yaml
+
 from ansible.module_utils._text import to_native
 
 from .common_ionos_methods import (
@@ -19,6 +21,7 @@ class CommonIonosModule():
 
         Returns:
             bool, if the object should be replaced
+            changes, an array of changes if replace would occur
         """
         pass
 
@@ -31,6 +34,7 @@ class CommonIonosModule():
 
         Returns:
             bool, if the object should be updated
+            changes, an array of changes if updated would occur
         """
         pass
 
@@ -67,11 +71,23 @@ class CommonIonosModule():
 
     def update_replace_object(self, existing_object, clients):
         module = self.module
-        if self._should_replace_object(existing_object, clients):
+        obj_identifier = self._get_object_identifier() if self._get_object_identifier() is not None else self._get_object_name()
+
+        should_replace, replace_changes = self._should_replace_object(existing_object, clients)
+        if should_replace:
 
             if not module.params.get('allow_replace'):
                 module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(self.object_name))
 
+            if module.check_mode:
+                module.exit_json(
+                    **{
+                        'changed': True,
+                        'diff': {
+                            'prepared': str(replace_changes),
+                        },
+                    },
+                )
             new_object = self._create_object(existing_object, clients).to_dict()
             self._remove_object(existing_object, clients)
             return {
@@ -80,7 +96,19 @@ class CommonIonosModule():
                 'action': 'create',
                 self.returned_key: new_object,
             }
-        if self._should_update_object(existing_object, clients):
+        
+        should_update, update_changes = self._should_update_object(existing_object, clients)
+        if should_update:
+            if module.check_mode:
+                module.exit_json(
+                    **{
+                        'skipped': True,
+                        'diff': {
+                            'prepared': yaml.safe_dump(update_changes),
+                        },
+                    },
+                )
+
             # Update
             return {
                 'changed': True,
@@ -106,6 +134,19 @@ class CommonIonosModule():
 
         if existing_object:
             return self.update_replace_object(existing_object, clients)
+
+        if self.module.check_mode:
+            self.module.exit_json(
+                **{
+                    'skipped': True,
+                    'diff': [
+                        '{object_name} {object_name_identifier} would be created'.format(
+                            object_name=self.object_name,
+                            object_name_identifier= self._get_object_name(),
+                        ),
+                    ],
+                },
+            )
 
         return {
             'changed': True,
@@ -158,6 +199,19 @@ class CommonIonosModule():
         if existing_object is None:
             self.module.exit_json(changed=False)
             return
+
+        if self.module.check_mode:
+            self.module.exit_json(
+                **{
+                    'skipped': True,
+                    'diff': [
+                        '{object_name} {object_name_identifier} would be deleted'.format(
+                            object_name=self.object_name,
+                            object_name_identifier=self._get_object_identifier(),
+                        ),
+                    ],
+                },
+            )
 
         self._remove_object(existing_object, clients)
 
