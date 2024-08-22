@@ -345,7 +345,7 @@ class GroupModule(CommonIonosModule):
 
 
     def _should_replace_object(self, existing_object, clients):
-        return False, []
+        return False
 
 
     def _should_update_object(self, existing_object, clients):
@@ -379,7 +379,7 @@ class GroupModule(CommonIonosModule):
             or self.module.params.get('manage_dbaas') is not None
             and existing_object.properties.manage_dbaas != self.module.params.get('manage_dbaas')
             or self.module.params.get('users') is not None
-        ), []
+        )
 
 
     def _get_object_list(self, clients):

@@ -21,7 +21,6 @@ class CommonIonosModule():
 
         Returns:
             bool, if the object should be replaced
-            changes, an array of changes if replace would occur
         """
         pass
 
@@ -34,7 +33,18 @@ class CommonIonosModule():
 
         Returns:
             bool, if the object should be updated
-            changes, an array of changes if updated would occur
+        """
+        pass
+
+    def calculate_object_diff(self, existing_object, clients):
+        """
+        Calculate before and after for the object, only used in diff mode
+
+        existing_object : Ionoscloud object returned by API object
+        clients: authenticated ionoscloud clients list.
+
+        Returns:
+            dict, a dict with 2 keys: 'before' and 'after' which should only the attributes watched by ansible in their states
         """
         pass
 
@@ -72,8 +82,10 @@ class CommonIonosModule():
     def update_replace_object(self, existing_object, clients):
         module = self.module
         obj_identifier = self._get_object_identifier() if self._get_object_identifier() is not None else self._get_object_name()
-
-        should_replace, replace_changes = self._should_replace_object(existing_object, clients)
+        module_diff = {}
+        if module._diff:
+            module_diff = self.calculate_object_diff(existing_object, clients)
+        should_replace = self._should_replace_object(existing_object, clients)
         if should_replace:
 
             if not module.params.get('allow_replace'):
@@ -83,9 +95,10 @@ class CommonIonosModule():
                 module.exit_json(
                     **{
                         'changed': True,
-                        'diff': {
-                            'prepared': str(replace_changes),
-                        },
+                        'msg': '{object_name} {object_name_identifier} would be recreated'.format(
+                            object_name=self.object_name, object_name_identifier=obj_identifier,
+                        ),
+                        'diff': module_diff,
                     },
                 )
             new_object = self._create_object(existing_object, clients).to_dict()
@@ -94,18 +107,20 @@ class CommonIonosModule():
                 'changed': True,
                 'failed': False,
                 'action': 'create',
+                'diff': module_diff,
                 self.returned_key: new_object,
             }
         
-        should_update, update_changes = self._should_update_object(existing_object, clients)
+        should_update = self._should_update_object(existing_object, clients)
         if should_update:
             if module.check_mode:
                 module.exit_json(
                     **{
-                        'skipped': True,
-                        'diff': {
-                            'prepared': yaml.safe_dump(update_changes),
-                        },
+                        'changed': True,
+                        'msg': '{object_name} {object_name_identifier} would be updated'.format(
+                            object_name=self.object_name, object_name_identifier=obj_identifier,
+                        ),
+                        'diff': module_diff,
                     },
                 )
 
@@ -114,6 +129,7 @@ class CommonIonosModule():
                 'changed': True,
                 'failed': False,
                 'action': 'update',
+                'diff': module_diff,
                 self.returned_key: self._update_object(existing_object, clients).to_dict()
             }
 
@@ -122,6 +138,7 @@ class CommonIonosModule():
             'changed': False,
             'failed': False,
             'action': 'create',
+            'diff': module_diff,
             self.returned_key: existing_object.to_dict()
         }
 
@@ -139,12 +156,9 @@ class CommonIonosModule():
             self.module.exit_json(
                 **{
                     'skipped': True,
-                    'diff': [
-                        '{object_name} {object_name_identifier} would be created'.format(
-                            object_name=self.object_name,
-                            object_name_identifier= self._get_object_name(),
-                        ),
-                    ],
+                    'msg': '{object_name} {object_name_identifier} would be created'.format(
+                        object_name=self.object_name, object_name_identifier=self._get_object_name(),
+                    )
                 },
             )
 
@@ -204,12 +218,9 @@ class CommonIonosModule():
             self.module.exit_json(
                 **{
                     'skipped': True,
-                    'diff': [
-                        '{object_name} {object_name_identifier} would be deleted'.format(
-                            object_name=self.object_name,
-                            object_name_identifier=self._get_object_identifier(),
-                        ),
-                    ],
+                    'msg': '{object_name} {object_name_identifier} would be deleted'.format(
+                        object_name=self.object_name, object_name_identifier=self._get_object_identifier(),
+                    )
                 },
             )
 

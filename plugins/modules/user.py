@@ -267,54 +267,46 @@ class UserModule(CommonIonosModule):
 
 
     def _should_replace_object(self, existing_object, clients):
-        return False, []
+        return False
 
 
     def _should_update_object(self, existing_object, clients):
-        should_update = False
-        changes = []
+        return (
+            self.module.params.get('lastname') is not None
+            and existing_object.properties.lastname != self.module.params.get('lastname')
+            or self.module.params.get('firstname') is not None
+            and existing_object.properties.firstname != self.module.params.get('firstname')
+            or self.module.params.get('email') is not None
+            and existing_object.properties.email != self.module.params.get('email')
+            or self.module.params.get('administrator') is not None
+            and existing_object.properties.administrator != self.module.params.get('administrator')
+            or self.module.params.get('force_sec_auth') is not None
+            and existing_object.properties.force_sec_auth != self.module.params.get('force_sec_auth')
+            or self.module.params.get('user_password') is not None
+            or self.module.params.get('groups') is not None
+        )
 
-        should_update_field = self.module.params.get('lastname') is not None and existing_object.properties.lastname != self.module.params.get('lastname')
-        should_update |= should_update_field
-
-        if should_update_field:
-            changes.append(
-                ' change lastname from ' + existing_object.properties.lastname + ' to ' + self.module.params.get('lastname'),
-            )
-
-        should_update_field = self.module.params.get('firstname') is not None and existing_object.properties.firstname != self.module.params.get('firstname')
-        should_update |= should_update_field
-
-        if should_update_field:
-            changes.append(
-                'change firstname from ' + existing_object.properties.firstname + ' to ' + self.module.params.get('firstname'),
-            )
-
-        should_update_field = self.module.params.get('email') is not None and existing_object.properties.email != self.module.params.get('email')
-        should_update |= should_update_field
-
-        if should_update_field:
-            changes.append(
-                'change email from ' + existing_object.properties.email + ' to ' + self.module.params.get('email'),
-            )
-
-
-        # return (
-        #     self.module.params.get('lastname') is not None
-        #     and existing_object.properties.lastname != self.module.params.get('lastname')
-        #     or self.module.params.get('firstname') is not None
-        #     and existing_object.properties.firstname != self.module.params.get('firstname')
-        #     or self.module.params.get('email') is not None
-        #     and existing_object.properties.email != self.module.params.get('email')
-        #     or self.module.params.get('administrator') is not None
-        #     and existing_object.properties.administrator != self.module.params.get('administrator')
-        #     or self.module.params.get('force_sec_auth') is not None
-        #     and existing_object.properties.force_sec_auth != self.module.params.get('force_sec_auth')
-        #     or self.module.params.get('user_password') is not None
-        #     or self.module.params.get('groups') is not None
-        # ), []
-
-        return should_update, changes
+    def calculate_object_diff(self, existing_object, clients):
+        return {
+            'before': {
+                'lastname': existing_object.properties.lastname,
+                'firstname': existing_object.properties.firstname,
+                'email': existing_object.properties.email,
+                'administrator': existing_object.properties.administrator,
+                'force_sec_auth': existing_object.properties.force_sec_auth,
+                'user_password': '',
+                'groups': '',
+            },
+            'after': {
+                'lastname': self.module.params.get('lastname'),
+                'firstname': self.module.params.get('firstname'),
+                'email': self.module.params.get('email'),
+                'administrator': self.module.params.get('administrator'),
+                'force_sec_auth': self.module.params.get('force_sec_auth'),
+                'user_password': '' if self.module.params.get('user_password') is None else 'user password will be updated',
+                'groups': '' if self.module.params.get('groups') is None else 'user groups will be updated',
+            }
+        }
 
 
     def _get_object_list(self, clients):
