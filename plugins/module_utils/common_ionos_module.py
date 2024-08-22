@@ -85,8 +85,8 @@ class CommonIonosModule():
         module_diff = {}
         if module._diff:
             module_diff = self.calculate_object_diff(existing_object, clients)
-        should_replace = self._should_replace_object(existing_object, clients)
-        if should_replace:
+
+        if self._should_replace_object(existing_object, clients):
 
             if not module.params.get('allow_replace'):
                 module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(self.object_name))
@@ -111,8 +111,7 @@ class CommonIonosModule():
                 self.returned_key: new_object,
             }
         
-        should_update = self._should_update_object(existing_object, clients)
-        if should_update:
+        if self._should_update_object(existing_object, clients):
             if module.check_mode:
                 module.exit_json(
                     **{
