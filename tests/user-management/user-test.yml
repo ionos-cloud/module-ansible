@@ -19,6 +19,102 @@
         user_password: "{{ password }}"
         force_sec_auth: false
         state: present
+      check_mode: true
+      diff: true
+      register: user_response
+
+    - name: Asserting that check_mode and diff work correctly
+      assert:
+        that:
+          - user_response.msg == "User {{ random_user }} would be created"
+          - user_response.diff == {}
+        msg: "check_mode and diff don't work correctly"
+
+    - name: Create user
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: false
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        state: present
+    
+    - name: Create user
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: false
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        state: present
+      check_mode: true
+      diff: false
+      register: user_response
+
+    - name: Asserting that check_mode and diff work correctly
+      assert:
+        that:
+          - user_response.msg == "User {{ random_user }} would be updated"
+          - user_response.diff == {}
+        msg: "check_mode and diff don't work correctly"
+    
+    - name: Create user
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: false
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        state: present
+      check_mode: true
+      diff: true
+      register: user_response
+
+    - name: Asserting that check_mode and diff work correctly
+      assert:
+        that:
+          - user_response.msg == "User {{ random_user }} would be updated"
+          - user_response.diff.before.administrator == user_response.diff.after.administrator == false
+          - user_response.diff.before.email == user_response.diff.after.email == "{{ random_user }}"
+          - user_response.diff.before.firstname == user_response.diff.after.firstname == 'John'
+          - user_response.diff.before.lastname == user_response.diff.after.lastname == 'Doe'
+          - user_response.diff.before.groups == user_response.diff.after.groups == ''
+          - user_response.diff.before.user_password != user_response.diff.after.user_password
+          - user_response.diff.before.user_password == '' 
+          - user_response.diff.after.user_password == 'user password will be updated'
+        msg: "check_mode and diff don't work correctly"
+
+    - name: Create user
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John changed
+        lastname: Doe changed
+        email: "{{ random_user }}"
+        administrator: true
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        state: present
+      check_mode: true
+      diff: true
+      register: user_response
+
+    - name: Asserting that check_mode and diff work correctly 2
+      assert:
+        that:
+          - user_response.msg == "User {{ random_user }} would be updated"
+          - user_response.diff.before.administrator == false
+          - user_response.diff.after.administrator == true
+          - user_response.diff.before.email == user_response.diff.after.email == "{{ random_user }}"
+          - user_response.diff.before.firstname == 'John'
+          - user_response.diff.after.firstname == 'John changed'
+          - user_response.diff.before.lastname == 'Doe'
+          - user_response.diff.after.lastname == 'Doe changed'
+          - user_response.diff.before.groups == user_response.diff.after.groups == ''
+          - user_response.diff.before.user_password == '' 
+          - user_response.diff.after.user_password == 'user password will be updated'
+        msg: "check_mode and diff don't work correctly"
 
     - name: Create first group
       ionoscloudsdk.ionoscloud.group:
@@ -63,6 +159,21 @@
         user: "{{ random_user }}"
         groups: []
         state: update
+
+    - name: Delete user
+      ionoscloudsdk.ionoscloud.user:
+        user: "{{ random_user }}"
+        state: absent
+      check_mode: true
+      diff: true
+      register: user_response
+
+    - name: Asserting that check_mode and diff work correctly
+      assert:
+        that:
+          - user_response.msg == "User {{ random_user }} would be deleted"
+          - user_response.diff == {}
+        msg: "check_mode and diff don't work correctly"
 
     - name: Delete user
       ionoscloudsdk.ionoscloud.user:

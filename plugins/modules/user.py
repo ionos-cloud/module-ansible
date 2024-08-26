@@ -298,11 +298,11 @@ class UserModule(CommonIonosModule):
                 'groups': '',
             },
             'after': {
-                'lastname': self.module.params.get('lastname'),
-                'firstname': self.module.params.get('firstname'),
-                'email': self.module.params.get('email'),
-                'administrator': self.module.params.get('administrator'),
-                'force_sec_auth': self.module.params.get('force_sec_auth'),
+                'lastname': existing_object.properties.lastname if self.module.params.get('lastname') is None else self.module.params.get('lastname'),
+                'firstname': existing_object.properties.firstname if self.module.params.get('firstname') is None else self.module.params.get('firstname'),
+                'email': existing_object.properties.email if self.module.params.get('email') is None else self.module.params.get('email'),
+                'administrator': existing_object.properties.administrator if self.module.params.get('administrator') is None else self.module.params.get('administrator'),
+                'force_sec_auth': existing_object.properties.force_sec_auth if self.module.params.get('force_sec_auth') is None else self.module.params.get('force_sec_auth'),
                 'user_password': '' if self.module.params.get('user_password') is None else 'user password will be updated',
                 'groups': '' if self.module.params.get('groups') is None else 'user groups will be updated',
             }
