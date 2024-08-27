@@ -27,7 +27,7 @@
       assert:
         that:
           - user_response.msg == "User {{ random_user }} would be created"
-          - user_response.diff == {}
+          - user_response.diff is not defined
         msg: "check_mode and diff don't work correctly"
 
     - name: Create user
@@ -172,7 +172,7 @@
       assert:
         that:
           - user_response.msg == "User {{ random_user }} would be deleted"
-          - user_response.diff == {}
+          - user_response.diff is not defined
         msg: "check_mode and diff don't work correctly"
 
     - name: Delete user
