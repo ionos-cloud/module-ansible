@@ -223,6 +223,9 @@ ionoscloudsdk.ionoscloud.user:
   user_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   force_sec_auth: false
   state: present
+check_mode: true
+diff: true
+register: user_response
 ''',
     'update': '''
 name: Add user to first group
@@ -237,6 +240,9 @@ name: Delete user
 ionoscloudsdk.ionoscloud.user:
   user: ''
   state: absent
+check_mode: true
+diff: true
+register: user_response
 ''',
 }
 
@@ -250,6 +256,9 @@ ionoscloudsdk.ionoscloud.user:
   user_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   force_sec_auth: false
   state: present
+check_mode: true
+diff: true
+register: user_response
 
 
 name: Add user to first group
@@ -264,6 +273,9 @@ name: Delete user
 ionoscloudsdk.ionoscloud.user:
   user: ''
   state: absent
+check_mode: true
+diff: true
+register: user_response
 """
 
 
