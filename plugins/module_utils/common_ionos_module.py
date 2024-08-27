@@ -1,3 +1,5 @@
+import yaml
+
 from ansible.module_utils._text import to_native
 
 from .common_ionos_methods import (
@@ -34,6 +36,18 @@ class CommonIonosModule():
         """
         pass
 
+    def calculate_object_diff(self, existing_object, clients):
+        """
+        Calculate before and after for the object, only used in diff mode
+
+        existing_object : Ionoscloud object returned by API object
+        clients: authenticated ionoscloud clients list.
+
+        Returns:
+            dict, a dict with 2 keys: 'before' and 'after' which compares only the attributes watched by ansible in their states
+        """
+        pass
+
 
     def _get_object_list(self, clients):
         """
@@ -67,10 +81,24 @@ class CommonIonosModule():
 
     def update_replace_object(self, existing_object, clients):
         module = self.module
+        obj_identifier = self._get_object_identifier() if self._get_object_identifier() is not None else self._get_object_name()
+        module_diff = {}
+        if module._diff:
+            module_diff = self.calculate_object_diff(existing_object, clients)
+
         if self._should_replace_object(existing_object, clients):
 
             if not module.params.get('allow_replace'):
                 module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(self.object_name))
+
+            if module.check_mode:
+                return {
+                    'changed': True,
+                    'msg': '{object_name} {object_name_identifier} would be recreated'.format(
+                        object_name=self.object_name, object_name_identifier=obj_identifier,
+                    ),
+                    'diff': module_diff,
+                }
 
             new_object = self._create_object(existing_object, clients).to_dict()
             self._remove_object(existing_object, clients)
@@ -78,14 +106,26 @@ class CommonIonosModule():
                 'changed': True,
                 'failed': False,
                 'action': 'create',
+                'diff': module_diff,
                 self.returned_key: new_object,
             }
+        
         if self._should_update_object(existing_object, clients):
+            if module.check_mode:
+                return {
+                    'changed': True,
+                    'msg': '{object_name} {object_name_identifier} would be updated'.format(
+                        object_name=self.object_name, object_name_identifier=obj_identifier,
+                    ),
+                    'diff': module_diff,
+                }
+
             # Update
             return {
                 'changed': True,
                 'failed': False,
                 'action': 'update',
+                'diff': module_diff,
                 self.returned_key: self._update_object(existing_object, clients).to_dict()
             }
 
@@ -94,6 +134,7 @@ class CommonIonosModule():
             'changed': False,
             'failed': False,
             'action': 'create',
+            'diff': module_diff,
             self.returned_key: existing_object.to_dict()
         }
 
@@ -106,6 +147,14 @@ class CommonIonosModule():
 
         if existing_object:
             return self.update_replace_object(existing_object, clients)
+
+        if self.module.check_mode:
+            return {
+                'skipped': True,
+                'msg': '{object_name} {object_name_identifier} would be created'.format(
+                    object_name=self.object_name, object_name_identifier=self._get_object_name(),
+                )
+            }
 
         return {
             'changed': True,
@@ -158,6 +207,14 @@ class CommonIonosModule():
         if existing_object is None:
             self.module.exit_json(changed=False)
             return
+
+        if self.module.check_mode:
+            return {
+                'skipped': True,
+                'msg': '{object_name} {object_name_identifier} would be deleted'.format(
+                    object_name=self.object_name, object_name_identifier=self._get_object_identifier(),
+                )
+            }
 
         self._remove_object(existing_object, clients)
 

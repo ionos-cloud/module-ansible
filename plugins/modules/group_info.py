@@ -7,7 +7,7 @@ except ImportError:
 
 from ansible import __version__
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_resource_id, get_users
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_resource_id, get_users_by_identifier
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options_with_depth
 
 
@@ -105,7 +105,7 @@ def get_objects(module, client):
 
     if user:
         # Locate UUID for User
-        user_list = get_users(client, ionoscloud.Users(items=[]))
+        user_list = get_users_by_identifier(client, ionoscloud.Users(items=[]), user)
         user_id = get_resource_id(module, user_list, user)
         groups = um_api.um_users_groups_get(user_id, depth=module.params.get('depth'))
 

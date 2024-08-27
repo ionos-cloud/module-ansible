@@ -10,9 +10,11 @@
 * [Ansible Playbooks](usage/ansibleplaybooks.md)
 * [Wait for Services](usage/waitforservices.md)
 * [Incrementing servers](usage/incrementingservers.md)
+* [Check Mode and Diff](usage/check_mode_and_diff.md)
 * [SSH Key Authentication](usage/sshkeyauthentication.md)
 * [Return values](usage/returnvalues.md)
 * [Testing](usage/testing.md)
+* [Declarative Changes](usage/declarative_changes.md)
 
 ## Tutorials
 * [Tutorials introduction](tutorials/README.md)

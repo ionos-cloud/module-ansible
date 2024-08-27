@@ -1,5 +1,16 @@
 # Changelog
 
+## 7.5.0-beta.1
+### Features
+* Added check_mode and diff to the user module
+* Added ignored_properties to the user module
+### Changes
+* use filters when retrieving user to speed up the request
+### Fixes
+* mark RegEx pattern as a raw string (fix by @jaudriga)
+### Docs
+* Added declarative modules page to summary
+
 ## 7.4.1
 ### Fixes
 * disk_type on cube_server now defaults to DAS, other arguments would have caused the call to fail

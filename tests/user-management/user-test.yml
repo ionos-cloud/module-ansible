@@ -19,6 +19,182 @@
         user_password: "{{ password }}"
         force_sec_auth: false
         state: present
+      check_mode: true
+      diff: true
+      register: user_response
+
+    - name: Asserting that check_mode and diff work correctly
+      assert:
+        that:
+          - user_response.msg == "User {{ random_user }} would be created"
+          - user_response.diff is not defined
+        msg: "check_mode and diff don't work correctly"
+
+    - name: Create user
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: false
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        state: present
+    
+    - name: Create user
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: false
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        state: present
+      check_mode: true
+      diff: false
+      register: user_response
+
+    - name: Asserting that check_mode and diff work correctly
+      assert:
+        that:
+          - user_response.msg == "User {{ random_user }} would be updated"
+          - user_response.diff == {}
+        msg: "check_mode and diff don't work correctly"
+    
+    - name: Create user
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: false
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        state: present
+      check_mode: true
+      diff: true
+      register: user_response
+
+    - name: Asserting that check_mode and diff work correctly
+      assert:
+        that:
+          - user_response.msg == "User {{ random_user }} would be updated"
+          - user_response.diff.before.administrator == user_response.diff.after.administrator == false
+          - user_response.diff.before.email == user_response.diff.after.email == "{{ random_user }}"
+          - user_response.diff.before.firstname == user_response.diff.after.firstname == 'John'
+          - user_response.diff.before.lastname == user_response.diff.after.lastname == 'Doe'
+          - user_response.diff.before.groups == user_response.diff.after.groups == ''
+          - user_response.diff.before.user_password != user_response.diff.after.user_password
+          - user_response.diff.before.user_password == '' 
+          - user_response.diff.after.user_password == 'user password will be updated'
+        msg: "check_mode and diff don't work correctly"
+
+    - name: Create user
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John changed
+        lastname: Doe changed
+        email: "{{ random_user }}"
+        administrator: true
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        state: present
+      check_mode: true
+      diff: true
+      register: user_response
+
+    - name: Asserting that check_mode and diff work correctly 2
+      assert:
+        that:
+          - user_response.msg == "User {{ random_user }} would be updated"
+          - user_response.diff.before.administrator == false
+          - user_response.diff.after.administrator == true
+          - user_response.diff.before.email == user_response.diff.after.email == "{{ random_user }}"
+          - user_response.diff.before.firstname == 'John'
+          - user_response.diff.after.firstname == 'John changed'
+          - user_response.diff.before.lastname == 'Doe'
+          - user_response.diff.after.lastname == 'Doe changed'
+          - user_response.diff.before.groups == user_response.diff.after.groups == ''
+          - user_response.diff.before.user_password == '' 
+          - user_response.diff.after.user_password == 'user password will be updated'
+        msg: "check_mode and diff don't work correctly"
+
+    - name: Test ignored fields
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: false
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        ignored_properties:
+          - user_password
+        state: present
+      register: user_response
+
+    - name: Asserting that the user was not updated
+      assert:
+        that:
+          - user_response.changed == false
+        msg: "User should not be changed when changed fields are in ignored_properties"
+
+    - name: Test ignored fields
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe Changed
+        email: "{{ random_user }}"
+        administrator: false
+        user_password: "{{ password }}"
+        groups:
+          - "{{ name }} 1"
+        force_sec_auth: false
+        ignored_properties:
+          - user_password
+          - groups
+          - lastname
+        state: present
+      register: user_response
+
+    - name: Asserting that the user was not updated
+      assert:
+        that:
+          - user_response.changed == false
+        msg: "User should not be changed when changed fields are in ignored_properties"
+
+    - name: Test ignored fields not set
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: false
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        state: present
+      register: user_response
+
+    - name: Asserting that the user was updated
+      assert:
+        that:
+          - user_response.changed == true
+        msg: "User should be changed when changed fields are not in ignored_properties"
+
+    - name: Test ignored fields
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John Changed
+        lastname: Doe Changed
+        email: "{{ random_user }}"
+        administrator: false
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        ignored_properties:
+          - user_password
+          - lastname
+        state: present
+      register: user_response
+
+    - name: Asserting that all the user fields were updated
+      assert:
+        that:
+          - user_response.changed == true
+          - user_response.user.properties.lastname == 'Doe Changed'
+          - user_response.user.properties.firstname == 'John Changed'
 
     - name: Create first group
       ionoscloudsdk.ionoscloud.group:
@@ -58,11 +234,58 @@
           - user_response.user['entities']['groups']['items'] | length == 2
         msg: "user-test: updating a user must keep its groups"
 
+    - name: Update user
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe
+        user: "{{ random_user }}"
+        administrator: false
+        force_sec_auth: false
+        state: update
+      register: user_response
+
+    - name: Testing user update no change
+      assert:
+        that:
+          - user_response.changed == false
+        msg: "user update not working correctly"
+
+    - name: Update user by ID
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe
+        user: "{{ user_response.user.id }}"
+        administrator: false
+        force_sec_auth: false
+        state: update
+      register: user_response
+    
+    - name: Testing user update no change
+      assert:
+        that:
+          - user_response.changed == false
+        msg: "user update not working correctly"
+
     - name: Remove user from groups
       ionoscloudsdk.ionoscloud.user:
         user: "{{ random_user }}"
         groups: []
         state: update
+
+    - name: Delete user
+      ionoscloudsdk.ionoscloud.user:
+        user: "{{ random_user }}"
+        state: absent
+      check_mode: true
+      diff: true
+      register: user_response
+
+    - name: Asserting that check_mode and diff work correctly
+      assert:
+        that:
+          - user_response.msg == "User {{ random_user }} would be deleted"
+          - user_response.diff is not defined
+        msg: "check_mode and diff don't work correctly"
 
     - name: Delete user
       ionoscloudsdk.ionoscloud.user:

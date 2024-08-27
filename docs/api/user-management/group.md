@@ -125,7 +125,7 @@ register: group_response
   <tr>
   <td>create_datacenter<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean value indicating if the group is allowed to create virtual data centers.</td>
+  <td>Create data center privilege.</td>
   </tr>
   <tr>
   <td>create_snapshot<br/><mark style="color:blue;">bool</mark></td>
@@ -351,7 +351,7 @@ ionoscloudsdk.ionoscloud.group:
   <tr>
   <td>create_datacenter<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Boolean value indicating if the group is allowed to create virtual data centers.</td>
+  <td>Create data center privilege.</td>
   </tr>
   <tr>
   <td>create_snapshot<br/><mark style="color:blue;">bool</mark></td>

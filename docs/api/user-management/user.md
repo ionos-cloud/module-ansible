@@ -16,6 +16,9 @@ ionoscloudsdk.ionoscloud.user:
   user_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   force_sec_auth: false
   state: present
+check_mode: true
+diff: true
+register: user_response
 
 
 name: Add user to first group
@@ -30,6 +33,9 @@ name: Delete user
 ionoscloudsdk.ionoscloud.user:
   user: ''
   state: absent
+check_mode: true
+diff: true
+register: user_response
 
 ```
 
@@ -83,6 +89,9 @@ ionoscloudsdk.ionoscloud.user:
   user_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   force_sec_auth: false
   state: present
+check_mode: true
+diff: true
+register: user_response
 
 ```
 ### Available parameters for state **present**:
@@ -138,6 +147,11 @@ ionoscloudsdk.ionoscloud.user:
   <td>Indicates if secure authentication is active for the user.</td>
   </tr>
   <tr>
+  <td>ignored_properties<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>A list of field to ignore changes to when evaluating whether to make changes to the ionos resource. These fields will still be used when creating or recreating the resource, but will not cause the operation themselves<br />Default: </td>
+  </tr>
+  <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The Ionos API base URL.</td>
@@ -190,6 +204,9 @@ name: Delete user
 ionoscloudsdk.ionoscloud.user:
   user: ''
   state: absent
+check_mode: true
+diff: true
+register: user_response
 
 ```
 ### Available parameters for state **absent**:
@@ -322,6 +339,11 @@ ionoscloudsdk.ionoscloud.user:
   <td>sec_auth_active<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
   <td>Indicates if secure authentication is active for the user.</td>
+  </tr>
+  <tr>
+  <td>ignored_properties<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>A list of field to ignore changes to when evaluating whether to make changes to the ionos resource. These fields will still be used when creating or recreating the resource, but will not cause the operation themselves<br />Default: </td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>

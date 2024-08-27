@@ -27,6 +27,24 @@
         email: "{{ random_user2 }}"
         administrator: false
       register: user_response
+    
+    - name: Update user2
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John2
+        lastname: Doe
+        email: "{{ random_user1 }}"
+        user: "{{ random_user2 }}"
+        administrator: false
+        state: update
+      ignore_errors: true
+      register: user_response
+
+    - name: Testing update with existing email return error
+      assert:
+        that:
+          - user_response.failed == true
+          - user_response.msg == "failed to update the User{{ ":" }} Another resource with the desired name ({{ random_user1 }}) exists"
+        msg: "object list no complete in user module"
 
     # - name: Print output to file
     #   ansible.builtin.copy:
@@ -41,6 +59,18 @@
     #   ansible.builtin.copy:
     #     content: "{{user_list_response}}"
     #     dest: ../../docs/returned_object_examples/user_info.json
+
+    - name: List Users Filter
+      ionoscloudsdk.ionoscloud.user_info:
+        filters:
+          properties.email: "{{ random_user2 }}"
+      register: user_list_response
+
+    - name: Testing if only one user returned
+      assert:
+        that:
+          - user_list_response.users | length == 1
+        msg: "user filters not working correctly"
 
     - name: Create group
       ionoscloudsdk.ionoscloud.group:
@@ -81,9 +111,75 @@
           - "{{ random_user1 }}"
         state: update
 
+    - name: List Users Filter Group
+      ionoscloudsdk.ionoscloud.user_info:
+        group: "{{ name }}"
+        filters:
+          properties.email: "{{ random_user1 }}"
+      register: user_list_response
+
+    - name: Testing if only one user returned
+      assert:
+        that:
+          - user_list_response.users | length == 1
+        msg: "user filters not working correctly"
+    
+    - name: List Users Filter Group
+      ionoscloudsdk.ionoscloud.user_info:
+        group: "{{ name }}"
+        filters:
+          properties.email: "{{ random_user1 }}"
+          properties.firstname: John1
+      register: user_list_response
+
+    - name: Testing if only one user returned
+      assert:
+        that:
+          - user_list_response.users | length == 1
+        msg: "user filters not working correctly"
+
+    - name: List Users Filter Group
+      ionoscloudsdk.ionoscloud.user_info:
+        group: "{{ name }}"
+        filters:
+          properties.firstname: John2
+      register: user_list_response
+
+    - name: Testing if no user returned
+      assert:
+        that:
+          - user_list_response.users | length == 0
+        msg: "user filters not working correctly"
+    
+    - name: List Users Filter Group
+      ionoscloudsdk.ionoscloud.user_info:
+        group: "{{ name }}"
+        filters:
+          properties.email: "{{ random_user2 }}"
+      register: user_list_response
+
+    - name: Testing if no user returned
+      assert:
+        that:
+          - user_list_response.users | length == 0
+        msg: "user filters not working correctly"
+
     - name: Debug - show response
       debug:
         msg: "{{ group_response }}"
+
+    - name: List Users Filter Group
+      ionoscloudsdk.ionoscloud.user_info:
+        group: "{{ name }}"
+        filters:
+          properties.lastname: Doe
+      register: user_list_response
+
+    - name: Testing if only one user returned
+      assert:
+        that:
+          - user_list_response.users | length == 1
+        msg: "user filters not working correctly"
 
     - name: Update group
       ionoscloudsdk.ionoscloud.group:
@@ -117,6 +213,45 @@
         that:
           - group_response.group['entities']['users']['items'] | length == 2
         msg: "Group-test: updating a group must keep its users"
+
+    - name: List Users Filter Group
+      ionoscloudsdk.ionoscloud.user_info:
+        group: "{{ name }}"
+        filters:
+          properties.email: "{{ random_user2 }}"
+      register: user_list_response
+
+    - name: Testing if only one user returned
+      assert:
+        that:
+          - user_list_response.users | length == 1
+        msg: "user filters not working correctly"
+
+    - name: List Users Filter Group
+      ionoscloudsdk.ionoscloud.user_info:
+        group: "{{ name }}"
+        filters:
+          properties.lastname: Doe
+      register: user_list_response
+
+    - name: Testing if only two users returned
+      assert:
+        that:
+          - user_list_response.users | length == 2
+        msg: "user filters not working correctly"
+
+    - name: List Users Filter Group
+      ionoscloudsdk.ionoscloud.user_info:
+        group: "{{ name }}"
+        filters:
+          properties.administrator: False
+      register: user_list_response
+
+    - name: Testing if only two users returned
+      assert:
+        that:
+          - user_list_response.users | length == 2
+        msg: "user filters not working correctly"
 
     - name: Remove user from group
       ionoscloudsdk.ionoscloud.group:

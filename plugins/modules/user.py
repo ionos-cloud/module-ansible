@@ -22,7 +22,7 @@ from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, _get_request_id, get_users, get_resource_id,
+    get_module_arguments, _get_request_id, get_users_by_identifier, get_resource_id,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
@@ -90,6 +90,12 @@ OPTIONS = {
         'available': ['present', 'update'],
         'type': 'bool',
     },
+    'ignored_properties': {
+        'description': ['A list of field to ignore changes to when evaluating whether to make changes to the ionos resource. These fields will still be used when creating or recreating the resource, but will not cause the operation themselves'],
+        'available': ['present', 'update'],
+        'type': 'list',
+        'default': [],
+    },
     **get_default_options(STATES),
 }
 
@@ -131,6 +137,13 @@ options:
         description:
         - A list of group IDs or names where the user (non-administrator) is to be added.
             Set to empty list ([]) to remove the user from all groups.
+        required: false
+    ignored_properties:
+        default: []
+        description:
+        - A list of field to ignore changes to when evaluating whether to make changes
+            to the ionos resource. These fields will still be used when creating or recreating
+            the resource, but will not cause the operation themselves
         required: false
     lastname:
         description:
@@ -210,6 +223,9 @@ ionoscloudsdk.ionoscloud.user:
   user_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   force_sec_auth: false
   state: present
+check_mode: true
+diff: true
+register: user_response
 ''',
     'update': '''
 name: Add user to first group
@@ -224,6 +240,9 @@ name: Delete user
 ionoscloudsdk.ionoscloud.user:
   user: ''
   state: absent
+check_mode: true
+diff: true
+register: user_response
 ''',
 }
 
@@ -237,6 +256,9 @@ ionoscloudsdk.ionoscloud.user:
   user_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   force_sec_auth: false
   state: present
+check_mode: true
+diff: true
+register: user_response
 
 
 name: Add user to first group
@@ -251,13 +273,16 @@ name: Delete user
 ionoscloudsdk.ionoscloud.user:
   user: ''
   state: absent
+check_mode: true
+diff: true
+register: user_response
 """
 
 
 class UserModule(CommonIonosModule):
     def __init__(self) -> None:
         super().__init__()
-        self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES))
+        self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES), supports_check_mode=True)
         self.returned_key = RETURNED_KEY
         self.object_name = OBJECT_NAME
         self.sdks = [ionoscloud]
@@ -271,24 +296,63 @@ class UserModule(CommonIonosModule):
 
 
     def _should_update_object(self, existing_object, clients):
+        ignored_properties = self.module.params.get('ignored_properties')
+
+        if not isinstance(ignored_properties, list):
+            ignored_properties = []
+
         return (
             self.module.params.get('lastname') is not None
+            and 'lastname' not in ignored_properties
             and existing_object.properties.lastname != self.module.params.get('lastname')
             or self.module.params.get('firstname') is not None
+            and 'firstname' not in ignored_properties
             and existing_object.properties.firstname != self.module.params.get('firstname')
             or self.module.params.get('email') is not None
+            and 'email' not in ignored_properties
             and existing_object.properties.email != self.module.params.get('email')
             or self.module.params.get('administrator') is not None
+            and 'administrator' not in ignored_properties
             and existing_object.properties.administrator != self.module.params.get('administrator')
             or self.module.params.get('force_sec_auth') is not None
+            and 'force_sec_auth' not in ignored_properties
             and existing_object.properties.force_sec_auth != self.module.params.get('force_sec_auth')
             or self.module.params.get('user_password') is not None
+            and 'user_password' not in ignored_properties
             or self.module.params.get('groups') is not None
+            and 'groups' not in ignored_properties
         )
+
+    def calculate_object_diff(self, existing_object, clients):
+        return {
+            'before': {
+                'lastname': existing_object.properties.lastname,
+                'firstname': existing_object.properties.firstname,
+                'email': existing_object.properties.email,
+                'administrator': existing_object.properties.administrator,
+                'force_sec_auth': existing_object.properties.force_sec_auth,
+                'user_password': '',
+                'groups': '',
+            },
+            'after': {
+                'lastname': existing_object.properties.lastname if self.module.params.get('lastname') is None else self.module.params.get('lastname'),
+                'firstname': existing_object.properties.firstname if self.module.params.get('firstname') is None else self.module.params.get('firstname'),
+                'email': existing_object.properties.email if self.module.params.get('email') is None else self.module.params.get('email'),
+                'administrator': existing_object.properties.administrator if self.module.params.get('administrator') is None else self.module.params.get('administrator'),
+                'force_sec_auth': existing_object.properties.force_sec_auth if self.module.params.get('force_sec_auth') is None else self.module.params.get('force_sec_auth'),
+                'user_password': '' if self.module.params.get('user_password') is None else 'user password will be updated',
+                'groups': '' if self.module.params.get('groups') is None else 'user groups will be updated',
+            }
+        }
 
 
     def _get_object_list(self, clients):
-        return get_users(ionoscloud.UserManagementApi(clients[0]), ionoscloud.Users(items=[]))
+        all_users = ionoscloud.Users(items=[])
+
+        get_users_by_identifier(ionoscloud.UserManagementApi(clients[0]), all_users, self._get_object_name())
+        get_users_by_identifier(ionoscloud.UserManagementApi(clients[0]), all_users, self._get_object_identifier())
+
+        return all_users
 
 
     def _get_object_name(self):
