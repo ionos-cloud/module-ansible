@@ -22,7 +22,7 @@ from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, _get_request_id, get_users, get_resource_id,
+    get_module_arguments, _get_request_id, get_users_by_identifier, get_resource_id,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
@@ -288,7 +288,12 @@ class UserModule(CommonIonosModule):
 
 
     def _get_object_list(self, clients):
-        return get_users(ionoscloud.UserManagementApi(clients[0]), ionoscloud.Users(items=[]))
+        all_users = ionoscloud.Users(items=[])
+
+        get_users_by_identifier(ionoscloud.UserManagementApi(clients[0]), all_users, self._get_object_name())
+        get_users_by_identifier(ionoscloud.UserManagementApi(clients[0]), all_users, self._get_object_identifier())
+
+        return all_users
 
 
     def _get_object_name(self):

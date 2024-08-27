@@ -1,4 +1,5 @@
 import re
+import uuid
 
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
@@ -55,15 +56,39 @@ def _get_request_id(headers):
         return None
 
 
-def get_users(api, all_users, depth=2):
+def get_users_by_identifier(api, all_users, identifier_value, depth=2):
+    if identifier_value is None:
+        return all_users
+
+    # check if identifier_value is a valid email
+    if re.match(r"[^@]+@[^@]+\.[^@]+", identifier_value):
+        get_users(
+            api,
+            all_users,
+            query_params={'filter.email': identifier_value},
+        )
+    else:
+        # check if identifier_value is a UUID then try to get the user
+        try:
+            uuid.UUID(identifier_value)
+            user = api.um_users_find_by_id(identifier_value, depth=2)
+            all_users.items += [user]
+        except Exception as e:
+            pass
+
+    return all_users
+
+
+def get_users(api, all_users, depth=2, query_params=None):
+    query_params = query_params if query_params else {}
     offset = 0
     limit = 100
 
-    users = api.um_users_get(depth=depth, limit=limit, offset=offset)
+    users = api.um_users_get(depth=depth, limit=limit, offset=offset, query_params=query_params)
     all_users.items += users.items
     while(users.links.next is not None):
         offset += limit
-        users = api.um_users_get(depth=depth, limit=limit, offset=offset)
+        users = api.um_users_get(depth=depth, limit=limit, offset=offset, query_params=query_params)
         all_users.items += users.items
 
     return all_users
