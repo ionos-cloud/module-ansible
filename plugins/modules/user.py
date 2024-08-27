@@ -270,7 +270,7 @@ ionoscloudsdk.ionoscloud.user:
 class UserModule(CommonIonosModule):
     def __init__(self) -> None:
         super().__init__()
-        self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES))
+        self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES), supports_check_mode=True)
         self.returned_key = RETURNED_KEY
         self.object_name = OBJECT_NAME
         self.sdks = [ionoscloud]
@@ -310,6 +310,28 @@ class UserModule(CommonIonosModule):
             or self.module.params.get('groups') is not None
             and 'groups' not in ignored_properties
         )
+
+    def calculate_object_diff(self, existing_object, clients):
+        return {
+            'before': {
+                'lastname': existing_object.properties.lastname,
+                'firstname': existing_object.properties.firstname,
+                'email': existing_object.properties.email,
+                'administrator': existing_object.properties.administrator,
+                'force_sec_auth': existing_object.properties.force_sec_auth,
+                'user_password': '',
+                'groups': '',
+            },
+            'after': {
+                'lastname': existing_object.properties.lastname if self.module.params.get('lastname') is None else self.module.params.get('lastname'),
+                'firstname': existing_object.properties.firstname if self.module.params.get('firstname') is None else self.module.params.get('firstname'),
+                'email': existing_object.properties.email if self.module.params.get('email') is None else self.module.params.get('email'),
+                'administrator': existing_object.properties.administrator if self.module.params.get('administrator') is None else self.module.params.get('administrator'),
+                'force_sec_auth': existing_object.properties.force_sec_auth if self.module.params.get('force_sec_auth') is None else self.module.params.get('force_sec_auth'),
+                'user_password': '' if self.module.params.get('user_password') is None else 'user password will be updated',
+                'groups': '' if self.module.params.get('groups') is None else 'user groups will be updated',
+            }
+        }
 
 
     def _get_object_list(self, clients):
