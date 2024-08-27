@@ -19,7 +19,7 @@ from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, _get_request_id, get_resource_id, get_resource, get_users
+    get_module_arguments, _get_request_id, get_resource_id, get_resource, get_users_by_identifier
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
@@ -212,11 +212,9 @@ class PccModule(CommonIonosModule):
 
     def present_object(self, clients):
         client = clients[0]
+        user_list = get_users_by_identifier(ionoscloud.UserManagementApi(client), ionoscloud.Users(items=[]), self.module.params.get('user'))
         user_id = get_resource_id(
-            self.module,
-            get_users(ionoscloud.UserManagementApi(client), ionoscloud.Users(items=[])), 
-            self.module.params.get('user'),
-            [['id'], ['properties', 'email']],
+            self.module, user_list, self.module.params.get('user'), [['id'], ['properties', 'email']],
         )
         do_idempotency = self.module.params.get('idempotency')
         key_id = self.module.params.get('key_id')
@@ -267,11 +265,9 @@ class PccModule(CommonIonosModule):
 
     def absent_object(self, clients):
         client = clients[0]
+        user_list = get_users_by_identifier(ionoscloud.UserManagementApi(client), ionoscloud.Users(items=[]), self.module.params.get('user'))
         user_id = get_resource_id(
-            self.module,
-            get_users(ionoscloud.UserManagementApi(client), ionoscloud.Users(items=[])), 
-            self.module.params.get('user'),
-            [['id'], ['properties', 'email']],
+            self.module, user_list, self.module.params.get('user'), [['id'], ['properties', 'email']],
         )
         key_id = self.module.params.get('key_id')
 
@@ -302,11 +298,10 @@ class PccModule(CommonIonosModule):
 
     def update_object(self, clients):
         client = clients[0]
+
+        user_list = get_users_by_identifier(ionoscloud.UserManagementApi(client), ionoscloud.Users(items=[]), self.module.params.get('user'))
         user_id = get_resource_id(
-            self.module,
-            get_users(ionoscloud.UserManagementApi(client), ionoscloud.Users(items=[])), 
-            self.module.params.get('user'),
-            [['id'], ['properties', 'email']],
+            self.module, user_list, self.module.params.get('user'), [['id'], ['properties', 'email']],
         )
         key_id = self.module.params.get('key_id')
         active = self.module.params.get('active')

@@ -508,7 +508,7 @@ ionoscloudsdk.ionoscloud.volume:
   state: absent
 """
 
-uuid_match = re.compile('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
+uuid_match = re.compile(r'[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', re.I)
 
 
 def _should_replace_object(module, existing_object, client):
