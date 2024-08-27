@@ -92,15 +92,14 @@ class CommonIonosModule():
                 module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(self.object_name))
 
             if module.check_mode:
-                module.exit_json(
-                    **{
-                        'changed': True,
-                        'msg': '{object_name} {object_name_identifier} would be recreated'.format(
-                            object_name=self.object_name, object_name_identifier=obj_identifier,
-                        ),
-                        'diff': module_diff,
-                    },
-                )
+                return {
+                    'changed': True,
+                    'msg': '{object_name} {object_name_identifier} would be recreated'.format(
+                        object_name=self.object_name, object_name_identifier=obj_identifier,
+                    ),
+                    'diff': module_diff,
+                }
+
             new_object = self._create_object(existing_object, clients).to_dict()
             self._remove_object(existing_object, clients)
             return {
@@ -113,15 +112,13 @@ class CommonIonosModule():
         
         if self._should_update_object(existing_object, clients):
             if module.check_mode:
-                module.exit_json(
-                    **{
-                        'changed': True,
-                        'msg': '{object_name} {object_name_identifier} would be updated'.format(
-                            object_name=self.object_name, object_name_identifier=obj_identifier,
-                        ),
-                        'diff': module_diff,
-                    },
-                )
+                return {
+                    'changed': True,
+                    'msg': '{object_name} {object_name_identifier} would be updated'.format(
+                        object_name=self.object_name, object_name_identifier=obj_identifier,
+                    ),
+                    'diff': module_diff,
+                }
 
             # Update
             return {
@@ -152,14 +149,12 @@ class CommonIonosModule():
             return self.update_replace_object(existing_object, clients)
 
         if self.module.check_mode:
-            self.module.exit_json(
-                **{
-                    'skipped': True,
-                    'msg': '{object_name} {object_name_identifier} would be created'.format(
-                        object_name=self.object_name, object_name_identifier=self._get_object_name(),
-                    )
-                },
-            )
+            return {
+                'skipped': True,
+                'msg': '{object_name} {object_name_identifier} would be created'.format(
+                    object_name=self.object_name, object_name_identifier=self._get_object_name(),
+                )
+            }
 
         return {
             'changed': True,
@@ -214,14 +209,12 @@ class CommonIonosModule():
             return
 
         if self.module.check_mode:
-            self.module.exit_json(
-                **{
-                    'skipped': True,
-                    'msg': '{object_name} {object_name_identifier} would be deleted'.format(
-                        object_name=self.object_name, object_name_identifier=self._get_object_identifier(),
-                    )
-                },
-            )
+            return {
+                'skipped': True,
+                'msg': '{object_name} {object_name_identifier} would be deleted'.format(
+                    object_name=self.object_name, object_name_identifier=self._get_object_identifier(),
+                )
+            }
 
         self._remove_object(existing_object, clients)
 
