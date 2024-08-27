@@ -44,7 +44,7 @@ class CommonIonosModule():
         clients: authenticated ionoscloud clients list.
 
         Returns:
-            dict, a dict with 2 keys: 'before' and 'after' which should only the attributes watched by ansible in their states
+            dict, a dict with 2 keys: 'before' and 'after' which compares only the attributes watched by ansible in their states
         """
         pass
 
