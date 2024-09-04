@@ -26,8 +26,22 @@
     - name: Asserting that check_mode and diff work correctly
       assert:
         that:
-          - user_response.msg == "User {{ random_user }} would be created"
-          - user_response.diff is not defined
+          - user_response.changed == True
+          - user_response.msg == 'User ' + random_user + ' would be created'
+          - user_response.diff.before == {}
+          - user_response.diff.after.email == random_user
+          - user_response.diff.after.firstname == 'John'
+          - user_response.diff.after.lastname == 'Doe'
+          - user_response.diff.after.groups == ''
+          - user_response.diff.after.user_password == 'user password will be updated'
+          - user_response.user.id == '<known after creation>'
+          - user_response.user.properties.email == random_user
+          - user_response.user.properties.firstname == 'John'
+          - user_response.user.properties.lastname == 'Doe'
+          - user_response.user.properties.administrator == False
+          - user_response.user.properties.force_sec_auth == False
+          - user_response.user.properties.groups == ''
+          - user_response.user.properties.user_password == 'user password will be updated'
         msg: "check_mode and diff don't work correctly"
 
     - name: Create user
@@ -39,6 +53,7 @@
         user_password: "{{ password }}"
         force_sec_auth: false
         state: present
+      register: user_response_created
     
     - name: Create user
       ionoscloudsdk.ionoscloud.user:
@@ -47,7 +62,7 @@
         email: "{{ random_user }}"
         administrator: false
         user_password: "{{ password }}"
-        force_sec_auth: false
+        force_sec_auth: true
         state: present
       check_mode: true
       diff: false
@@ -56,8 +71,17 @@
     - name: Asserting that check_mode and diff work correctly
       assert:
         that:
-          - user_response.msg == "User {{ random_user }} would be updated"
-          - user_response.diff == {}
+          - user_response.changed == True
+          - user_response.msg == 'User ' + random_user + ' would be updated'
+          - user_response.diff is not defined
+          - user_response.user.id == user_response_created.user.id
+          - user_response.user.properties.email == random_user
+          - user_response.user.properties.firstname == 'John'
+          - user_response.user.properties.lastname == 'Doe'
+          - user_response.user.properties.groups == ''
+          - user_response.user.properties.administrator == False
+          - user_response.user.properties.force_sec_auth == True
+          - user_response.user.properties.user_password == 'user password will be updated'
         msg: "check_mode and diff don't work correctly"
     
     - name: Create user
@@ -76,15 +100,23 @@
     - name: Asserting that check_mode and diff work correctly
       assert:
         that:
-          - user_response.msg == "User {{ random_user }} would be updated"
+          - user_response.changed == True
+          - user_response.msg == 'User ' + random_user + ' would be updated'
           - user_response.diff.before.administrator == user_response.diff.after.administrator == false
-          - user_response.diff.before.email == user_response.diff.after.email == "{{ random_user }}"
+          - user_response.diff.before.email == user_response.diff.after.email == random_user
           - user_response.diff.before.firstname == user_response.diff.after.firstname == 'John'
           - user_response.diff.before.lastname == user_response.diff.after.lastname == 'Doe'
           - user_response.diff.before.groups == user_response.diff.after.groups == ''
-          - user_response.diff.before.user_password != user_response.diff.after.user_password
           - user_response.diff.before.user_password == '' 
           - user_response.diff.after.user_password == 'user password will be updated'
+          - user_response.user.id == user_response_created.user.id
+          - user_response.user.properties.email == random_user
+          - user_response.user.properties.firstname == 'John'
+          - user_response.user.properties.lastname == 'Doe'
+          - user_response.user.properties.groups == ''
+          - user_response.user.properties.administrator == False
+          - user_response.user.properties.force_sec_auth == False
+          - user_response.user.properties.user_password == 'user password will be updated'
         msg: "check_mode and diff don't work correctly"
 
     - name: Create user
@@ -103,10 +135,11 @@
     - name: Asserting that check_mode and diff work correctly 2
       assert:
         that:
-          - user_response.msg == "User {{ random_user }} would be updated"
+          - user_response.changed == True
+          - user_response.msg == "User " + random_user + " would be updated"
           - user_response.diff.before.administrator == false
           - user_response.diff.after.administrator == true
-          - user_response.diff.before.email == user_response.diff.after.email == "{{ random_user }}"
+          - user_response.diff.before.email == user_response.diff.after.email == random_user
           - user_response.diff.before.firstname == 'John'
           - user_response.diff.after.firstname == 'John changed'
           - user_response.diff.before.lastname == 'Doe'
@@ -283,19 +316,54 @@
     - name: Asserting that check_mode and diff work correctly
       assert:
         that:
+          - user_response.changed == True
           - user_response.msg == "User {{ random_user }} would be deleted"
-          - user_response.diff is not defined
+          - user_response.diff.before.administrator == false
+          - user_response.diff.before.administrator == false
+          - user_response.diff.before.email == random_user
+          - user_response.diff.before.firstname == 'John'
+          - user_response.diff.before.lastname == 'Doe'
+          - user_response.diff.before.groups == ''
+          - user_response.diff.before.user_password == ''
+          - user_response.diff.after == {}
         msg: "check_mode and diff don't work correctly"
 
     - name: Delete user
       ionoscloudsdk.ionoscloud.user:
         user: "{{ random_user }}"
         state: absent
+      diff: true
+      register: user_response
+
+    - name: Asserting that check_mode and diff work correctly
+      assert:
+        that:
+          - user_response.changed == True
+          - user_response.msg == "User {{ random_user }} would be deleted"
+          - user_response.diff.before.administrator == false
+          - user_response.diff.before.administrator == false
+          - user_response.diff.before.email == random_user
+          - user_response.diff.before.firstname == 'John'
+          - user_response.diff.before.lastname == 'Doe'
+          - user_response.diff.before.groups == ''
+          - user_response.diff.before.user_password == ''
+          - user_response.diff.after == {}
+        msg: "check_mode and diff don't work correctly"
 
     - name: Delete user
       ionoscloudsdk.ionoscloud.user:
         user: "non-existent-user"
         state: absent
+      diff: true
+      register: user_response
+
+    - name: Asserting that check_mode and diff work correctly
+      assert:
+        that:
+          - user_response.changed == False
+          - user_response.msg is not defined
+          - user_response.diff is not defined
+        msg: "check_mode and diff don't work correctly"
 
     - name: Delete group
       ionoscloudsdk.ionoscloud.group:

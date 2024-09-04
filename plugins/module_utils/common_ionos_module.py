@@ -187,10 +187,11 @@ class CommonIonosModule():
             return self.update_replace_object(existing_object, clients)
 
         returned_json = {}
+        object_after = self.get_object_after(existing_object, clients)
         if self.module._diff:
             returned_json['diff'] = {
                 'before': {},
-                'after': self.get_object_after(existing_object, clients),
+                'after': object_after,
             }
 
         if self.module.check_mode:
@@ -201,6 +202,10 @@ class CommonIonosModule():
                     'msg': '{object_name} {object_name_identifier} would be created'.format(
                         object_name=self.object_name, object_name_identifier=self._get_object_name(),
                     ),
+                    self.returned_key: {
+                        'id': '<known after creation>',
+                        'properties': object_after,
+                    },
                 },
             }
 
