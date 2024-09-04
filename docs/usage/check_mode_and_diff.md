@@ -59,6 +59,18 @@ Output:
             }
         },
         "failed": false,
-        "msg": "User <email> would be updated"
+        "msg": "User <email> would be updated",
+        "user": {
+            "id": "<user-id>",
+            "properties": {
+                "administrator": false,
+                "email": "<email>",
+                "firstname": "John",
+                "force_sec_auth": false,
+                "groups": "",
+                "lastname": "Doe",
+                "user_password": "user password will be updated"
+            }
+        }
     }
 }
