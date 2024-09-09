@@ -7,6 +7,7 @@ Read bellow for info on how the IONOS Ansible module handles check mode and diff
 ### Check Mode
 When using check_mode the playbook will not make changes in the API and a message will be returned if such changes would have been made. Example: "user <email> would be updated.". The returned state is "changed".
 For operations that do not cause changes the regular response will be returned.
+> **_NOTE:_** Please note that the value returned when using check mode is not exactly the same as what is returned by the server and even though check mode is passing without error, errors may occur when making the api calls.
 
 ### Diff
 When using diff an additional property will be returned on the object showing the object states with before and after. These states only include the attributes which are checked by Ansible for update and recreate.
