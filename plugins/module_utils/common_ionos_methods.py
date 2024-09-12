@@ -71,7 +71,7 @@ def get_users_by_identifier(api, all_users, identifier_value, depth=2):
         # check if identifier_value is a UUID then try to get the user
         try:
             uuid.UUID(identifier_value)
-            user = api.um_users_find_by_id(identifier_value, depth=2)
+            user = api.um_users_find_by_id(identifier_value, depth=depth)
             all_users.items += [user]
         except Exception as e:
             pass

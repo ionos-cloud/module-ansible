@@ -323,26 +323,33 @@ class UserModule(CommonIonosModule):
             and 'groups' not in ignored_properties
         )
 
-    def calculate_object_diff(self, existing_object, clients):
+
+    def get_object_before(self, existing_object, clients):
         return {
-            'before': {
-                'lastname': existing_object.properties.lastname,
-                'firstname': existing_object.properties.firstname,
-                'email': existing_object.properties.email,
-                'administrator': existing_object.properties.administrator,
-                'force_sec_auth': existing_object.properties.force_sec_auth,
-                'user_password': '',
-                'groups': '',
-            },
-            'after': {
-                'lastname': existing_object.properties.lastname if self.module.params.get('lastname') is None else self.module.params.get('lastname'),
-                'firstname': existing_object.properties.firstname if self.module.params.get('firstname') is None else self.module.params.get('firstname'),
-                'email': existing_object.properties.email if self.module.params.get('email') is None else self.module.params.get('email'),
-                'administrator': existing_object.properties.administrator if self.module.params.get('administrator') is None else self.module.params.get('administrator'),
-                'force_sec_auth': existing_object.properties.force_sec_auth if self.module.params.get('force_sec_auth') is None else self.module.params.get('force_sec_auth'),
-                'user_password': '' if self.module.params.get('user_password') is None else 'user password will be updated',
-                'groups': '' if self.module.params.get('groups') is None else 'user groups will be updated',
-            }
+            'lastname': existing_object.properties.lastname,
+            'firstname': existing_object.properties.firstname,
+            'email': existing_object.properties.email,
+            'administrator': existing_object.properties.administrator,
+            'force_sec_auth': existing_object.properties.force_sec_auth,
+            'user_password': '',
+            'groups': '',
+        }
+
+
+    def get_object_after(self, existing_object, clients):
+        try:
+            object_properties = existing_object.properties
+        except AttributeError:
+            object_properties = ionoscloud.UserProperties()
+
+        return {
+            'lastname': object_properties.lastname if self.module.params.get('lastname') is None else self.module.params.get('lastname'),
+            'firstname': object_properties.firstname if self.module.params.get('firstname') is None else self.module.params.get('firstname'),
+            'email': object_properties.email if self.module.params.get('email') is None else self.module.params.get('email'),
+            'administrator': object_properties.administrator if self.module.params.get('administrator') is None else self.module.params.get('administrator'),
+            'force_sec_auth': object_properties.force_sec_auth if self.module.params.get('force_sec_auth') is None else self.module.params.get('force_sec_auth'),
+            'user_password': '' if self.module.params.get('user_password') is None else 'user password will be updated',
+            'groups': '' if self.module.params.get('groups') is None else 'user groups will be updated',
         }
 
 

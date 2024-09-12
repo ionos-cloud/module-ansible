@@ -36,15 +36,29 @@ class CommonIonosModule():
         """
         pass
 
-    def calculate_object_diff(self, existing_object, clients):
+
+    def get_object_before(self, existing_object, clients):
         """
-        Calculate before and after for the object, only used in diff mode
+        Return a dict with the 'before' state for the object
 
         existing_object : Ionoscloud object returned by API object
         clients: authenticated ionoscloud clients list.
 
         Returns:
-            dict, a dict with 2 keys: 'before' and 'after' which compares only the attributes watched by ansible in their states
+            dict, a dict with the object properties before the task is executed
+        """
+        pass
+
+
+    def get_object_after(self, existing_object, clients):
+        """
+        Return a dict with the 'after' state for the object
+
+        existing_object : Ionoscloud object returned by API object
+        clients: authenticated ionoscloud clients list.
+
+        Returns:
+            dict, a dict with the object properties after the task is executed
         """
         pass
 
@@ -82,9 +96,15 @@ class CommonIonosModule():
     def update_replace_object(self, existing_object, clients):
         module = self.module
         obj_identifier = self._get_object_identifier() if self._get_object_identifier() is not None else self._get_object_name()
-        module_diff = {}
+        object_after = self.get_object_after(existing_object, clients)
+
+        returned_json = {}
+
         if module._diff:
-            module_diff = self.calculate_object_diff(existing_object, clients)
+            returned_json['diff'] = {
+                'before': self.get_object_before(existing_object, clients),
+                'after': object_after,
+            }
 
         if self._should_replace_object(existing_object, clients):
 
@@ -93,49 +113,67 @@ class CommonIonosModule():
 
             if module.check_mode:
                 return {
-                    'changed': True,
-                    'msg': '{object_name} {object_name_identifier} would be recreated'.format(
-                        object_name=self.object_name, object_name_identifier=obj_identifier,
-                    ),
-                    'diff': module_diff,
+                    **returned_json,
+                    **{
+                        'changed': True,
+                        'msg': '{object_name} {object_name_identifier} would be recreated'.format(
+                            object_name=self.object_name, object_name_identifier=obj_identifier,
+                        ),
+                        self.returned_key: {
+                            'id': existing_object.id,
+                            'properties': object_after,
+                        },
+                    },
                 }
 
             new_object = self._create_object(existing_object, clients).to_dict()
             self._remove_object(existing_object, clients)
             return {
-                'changed': True,
-                'failed': False,
-                'action': 'create',
-                'diff': module_diff,
-                self.returned_key: new_object,
+                **returned_json,
+                **{
+                    'changed': True,
+                    'failed': False,
+                    'action': 'create',
+                    self.returned_key: new_object,
+                },
             }
         
         if self._should_update_object(existing_object, clients):
             if module.check_mode:
                 return {
-                    'changed': True,
-                    'msg': '{object_name} {object_name_identifier} would be updated'.format(
-                        object_name=self.object_name, object_name_identifier=obj_identifier,
-                    ),
-                    'diff': module_diff,
+                    **returned_json,
+                    **{
+                        'changed': True,
+                        'msg': '{object_name} {object_name_identifier} would be updated'.format(
+                            object_name=self.object_name, object_name_identifier=obj_identifier,
+                        ),
+                        self.returned_key: {
+                            'id': existing_object.id,
+                            'properties': object_after,
+                        },
+                    },
                 }
 
             # Update
             return {
-                'changed': True,
-                'failed': False,
-                'action': 'update',
-                'diff': module_diff,
-                self.returned_key: self._update_object(existing_object, clients).to_dict()
+                **returned_json,
+                **{
+                    'changed': True,
+                    'failed': False,
+                    'action': 'update',
+                    self.returned_key: self._update_object(existing_object, clients).to_dict(),
+                },
             }
 
         # No action
         return {
-            'changed': False,
-            'failed': False,
-            'action': 'create',
-            'diff': module_diff,
-            self.returned_key: existing_object.to_dict()
+            **returned_json,
+            **{
+                'changed': False,
+                'failed': False,
+                'action': 'create',
+                self.returned_key: existing_object.to_dict(),
+            },
         }
 
 
@@ -148,19 +186,37 @@ class CommonIonosModule():
         if existing_object:
             return self.update_replace_object(existing_object, clients)
 
+        returned_json = {}
+        object_after = self.get_object_after(existing_object, clients)
+        if self.module._diff:
+            returned_json['diff'] = {
+                'before': {},
+                'after': object_after,
+            }
+
         if self.module.check_mode:
             return {
-                'skipped': True,
-                'msg': '{object_name} {object_name_identifier} would be created'.format(
-                    object_name=self.object_name, object_name_identifier=self._get_object_name(),
-                )
+                **returned_json,
+                **{
+                    'changed': True,
+                    'msg': '{object_name} {object_name_identifier} would be created'.format(
+                        object_name=self.object_name, object_name_identifier=self._get_object_name(),
+                    ),
+                    self.returned_key: {
+                        'id': '<known after creation>',
+                        'properties': object_after,
+                    },
+                },
             }
 
         return {
-            'changed': True,
-            'failed': False,
-            'action': 'create',
-            self.returned_key: self._create_object(None, clients).to_dict()
+            **returned_json,
+            **{
+                'changed': True,
+                'failed': False,
+                'action': 'create',
+                self.returned_key: self._create_object(None, clients).to_dict(),
+            },
         }
 
 
@@ -208,20 +264,34 @@ class CommonIonosModule():
             self.module.exit_json(changed=False)
             return
 
+        returned_json = {}
+
+        if self.module._diff:
+            returned_json['diff'] = {
+                'before': self.get_object_before(existing_object, clients),
+                'after': {},
+            }
+
         if self.module.check_mode:
             return {
-                'skipped': True,
-                'msg': '{object_name} {object_name_identifier} would be deleted'.format(
-                    object_name=self.object_name, object_name_identifier=self._get_object_identifier(),
-                )
+                **returned_json,
+                **{
+                    'changed': True,
+                    'msg': '{object_name} {object_name_identifier} would be deleted'.format(
+                        object_name=self.object_name, object_name_identifier=self._get_object_identifier(),
+                    ),
+                },
             }
 
         self._remove_object(existing_object, clients)
 
         return {
-            'action': 'delete',
-            'changed': True,
-            'id': existing_object.id,
+            **returned_json,
+            **{
+                'action': 'delete',
+                'changed': True,
+                'id': existing_object.id,
+            },
         }
 
 
