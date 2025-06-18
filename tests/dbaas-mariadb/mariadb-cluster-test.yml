@@ -19,7 +19,7 @@
       disk_type: HDD
       image: "{{ image_alias }}"
       image_password: "{{ password }}"
-      location: de/txl
+      location: gb/lhr
       count: 1
       assign_public_ip: true
       remove_boot_volume: true
@@ -60,12 +60,30 @@
       display_name: MariaDB-cluster
       db_username: db_admin123
       db_password: password123
+      location: gb/lhr
       wait: true
     register: cluster_response
 
-  - name: List MariaDB Clusters
+  - name: List MariaDB Clusters wrong location
     ionoscloudsdk.ionoscloud.mariadb_cluster_info:
     register: mariadb_clusters_response
+  
+  - name: Asserting that mariadb_clusters_response contains no clusters when location is not set
+    assert:
+      that:
+        - mariadb_clusters_response.mariadb_clusters | length == 0
+      msg: "mariadb_clusters_response.mariadb_clusters should be an empty list"
+
+  - name: List MariaDB Clusters
+    ionoscloudsdk.ionoscloud.mariadb_cluster_info:
+      location: gb/lhr
+    register: mariadb_clusters_response
+
+  - name: Asserting that mariadb_clusters_response contains 1 cluster when location is set
+    assert:
+      that:
+        - mariadb_clusters_response.mariadb_clusters | length == 1
+      msg: "mariadb_clusters_response.mariadb_clusters should contain one cluster"
 
   - name: Show Clusters
     debug:
@@ -76,14 +94,38 @@
   #     content: "{{mariadb_clusters_response}}"
   #     dest: ../../docs/returned_object_examples/mariadb_cluster_info.json
 
-  - name: List all Cluster Backups
+  - name: List all Cluster Backups wrong location
     ionoscloudsdk.ionoscloud.mariadb_backup_info:
     register: cluster_backups_response
+  
+  - name: Asserting that cluster_backups_response contains no backup when location is not set
+    assert:
+      that:
+        - cluster_backups_response.mariadb_backups | length == 0
+      msg: "cluster_backups_response.mariadb_backups should be an empty list"
+
+  - name: List all Cluster Backups
+    ionoscloudsdk.ionoscloud.mariadb_backup_info:
+      location: gb/lhr
+    register: cluster_backups_response
+  
+  - name: Asserting that cluster_backups_response contains one backup when location is set
+    assert:
+      that:
+        - cluster_backups_response.mariadb_backups | length >= 1
+      msg: "cluster_backups_response.mariadb_backups should contain one backup"
 
   - name: List Cluster Backups
     ionoscloudsdk.ionoscloud.mariadb_backup_info:
+      location: gb/lhr
       mariadb_cluster: "{{ cluster_response.mariadb_cluster.properties.display_name }}"
     register: cluster_backups_response
+  
+  - name: Asserting that cluster_backups_response contains one backup when location is set
+    assert:
+      that:
+        - cluster_backups_response.mariadb_backups | length == 1
+      msg: "cluster_backups_response.mariadb_backups should contain one backup"
 
   # - name: Print output to file
   #   ansible.builtin.copy:
@@ -108,6 +150,7 @@
       display_name: MariaDB-cluster
       db_username: db_admin123
       db_password: password123
+      location: gb/lhr
       wait: true
     register: cluster_response_no_change
 
@@ -133,6 +176,7 @@
       display_name: MariaDB-clusterNew
       db_username: db_admin123
       db_password: password123
+      location: gb/lhr
       state: update
       allow_replace: true
       wait: true
@@ -145,6 +189,7 @@
       cores: 4
       ram: 4
       storage_size: 20
+      location: gb/lhr
       state: update
       wait: true
     register: updated_cluster_response_no_change
@@ -155,15 +200,30 @@
         - updated_cluster_response_no_change.changed == false
       msg: "Changed should be false"
 
+  - name: Delete Cluster wrong location
+    ionoscloudsdk.ionoscloud.mariadb_cluster:
+      mariadb_cluster: "{{ updated_cluster_response.mariadb_cluster.id }}"
+      state: absent
+      wait: false
+    register: delete_cluster_response_no_change
+
+  - name: Asserting that changed == false when no location is set
+    assert:
+      that:
+        - delete_cluster_response_no_change.changed == false
+      msg: "Changed should be false"
+
   - name: Delete Cluster
     ionoscloudsdk.ionoscloud.mariadb_cluster:
-      mariadb_cluster: "{{ cluster_response.mariadb_cluster.id }}"
+      mariadb_cluster: "{{ updated_cluster_response.mariadb_cluster.id }}"
+      location: gb/lhr
       state: absent
       wait: false
 
   - name: Delete Cluster
     ionoscloudsdk.ionoscloud.mariadb_cluster:
-      mariadb_cluster: "{{ cluster_response.mariadb_cluster.id }}"
+      mariadb_cluster: "{{ updated_cluster_response.mariadb_cluster.id }}"
+      location: gb/lhr
       state: absent
       wait: true
 

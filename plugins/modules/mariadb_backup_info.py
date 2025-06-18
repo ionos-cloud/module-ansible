@@ -28,6 +28,11 @@ OPTIONS = {
         'available': STATES,
         'type': 'str',
     },
+    'location': {
+        'description': ['The location from which to retrieve clusters and backups. Different service endpoints are used based on location, possible options are: "de/fra", "de/txl", "es/vit", "fr/par", "gb/lhr", "us/ewr", "us/las", "us/mci". If not set, the endpoint will be the one corresponding to "de/txl".'],
+        'available': STATES,
+        'type': 'str',
+    },
     **get_info_default_options(STATES),
 }
 

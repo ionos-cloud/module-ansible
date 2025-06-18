@@ -5,7 +5,7 @@ server: "AnsibleAutoTestDBaaSMariaDB"
 nic: "AnsibleAutoTestDBaaSMariaDB"
 lan: "AnsibleAutoTestDBaaSMariaDB"
 image: ce08ca15-0adf-11ec-9fa6-1e5ea9024c03
-image_alias: centos:7
+image_alias: ubuntu:latest
 password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}"
 updated_password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}"
 wait_timeout: 500

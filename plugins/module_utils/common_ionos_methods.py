@@ -5,6 +5,20 @@ from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
 
+
+LOCATION_CONSTANTS = {
+    'ionoscloud_dbaas_mariadb': {
+		'de/fra': 'https://mariadb.de-fra.ionos.com',
+		'de/txl': 'https://mariadb.de-txl.ionos.com',
+		'es/vit': 'https://mariadb.es-vit.ionos.com',
+		'fr/par': 'https://mariadb.fr-par.ionos.com',
+		'gb/lhr': 'https://mariadb.gb-lhr.ionos.com',
+		'us/ewr': 'https://mariadb.us-ewr.ionos.com',
+		'us/las': 'https://mariadb.us-las.ionos.com',
+		'us/mci': 'https://mariadb.us-mci.ionos.com',
+    }
+}
+
 #######################################################
 # Methods used to search for a resource inside a list #
 #######################################################
@@ -120,12 +134,13 @@ def get_module_arguments(options, states):
     return arguments
 
 
-def get_sdk_config(module, sdk):
+def get_sdk_config(module, sdk, location=None):
     username = module.params.get('username')
     password = module.params.get('password')
     token = module.params.get('token')
     api_url = module.params.get('api_url')
     certificate_fingerprint = module.params.get('certificate_fingerprint')
+    location_url = LOCATION_CONSTANTS.get(sdk.__name__, {}).get(location)
 
     if token is not None:
         # use the token instead of username & password
@@ -141,6 +156,9 @@ def get_sdk_config(module, sdk):
 
     if api_url is not None:
         conf['host'] = api_url
+        conf['server_index'] = None
+    elif location_url is not None:
+        conf['host'] = location_url
         conf['server_index'] = None
 
     if certificate_fingerprint is not None:
@@ -241,7 +259,7 @@ def default_main_info(ionos_module, ionos_module_name, user_agent, has_sdk, opti
         )
 
     state = module.params.get('state')
-    with ionos_module.ApiClient(get_sdk_config(module, ionos_module)) as api_client:
+    with ionos_module.ApiClient(get_sdk_config(module, ionos_module, module.params.get('location'))) as api_client:
         api_client.user_agent = user_agent
         check_required_arguments(module, 'info', object_name, options)
 
