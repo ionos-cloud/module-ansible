@@ -155,7 +155,7 @@ OPTIONS = {
     'location': {
         'description': ['The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.'],
         'available': ['present'],
-        'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
+        'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr', 'es/vit', 'fr/par', 'us/mci'],
         'default': 'us/las',
         'type': 'str',
     },
@@ -327,6 +327,9 @@ options:
         - de/fkb
         - de/txl
         - gb/lhr
+        - es/vit
+        - fr/par
+        - us/mci
         default: us/las
         description:
         - The datacenter location. Use only if you want to create the Datacenter or else

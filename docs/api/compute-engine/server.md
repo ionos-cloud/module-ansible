@@ -521,7 +521,7 @@ register: server_create_result
   <tr>
   <td>location<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.<br />Default: us/las<br />Options: ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr']</td>
+  <td>The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.<br />Default: us/las<br />Options: ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr', 'es/vit', 'fr/par', 'us/mci']</td>
   </tr>
   <tr>
   <td>lan<br/><mark style="color:blue;">str</mark></td>

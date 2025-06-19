@@ -59,7 +59,7 @@ OPTIONS = {
         'type': 'str',
     },
     'bucket': {
-        'description': ['The S3 bucket name of an existing IONOS Cloud S3 bucket.'],
+        'description': ['The bucket name of an existing IONOS Cloud Object storage bucket.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -110,7 +110,7 @@ options:
         required: true
     bucket:
         description:
-        - The S3 bucket name of an existing IONOS Cloud S3 bucket.
+        - The bucket name of an existing IONOS Cloud Object storage bucket.
         required: false
     certificate_fingerprint:
         description:

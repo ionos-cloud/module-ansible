@@ -60,6 +60,17 @@ options:
             Filters should be a dict with a key containing keys and value pair in the
             following format: ''properties.name'': ''server_name'''
         required: false
+    location:
+        description:
+        - 'The location from which to retrieve clusters and backups. Different service
+            endpoints are used based on location, possible options are: "de/fra", "de/txl",
+            "es/vit", "fr/par", "gb/lhr", "us/ewr", "us/las", "us/mci". If not set, the
+            endpoint will be the one corresponding to "de/txl".'
+        required: false
+    mariadb_cluster:
+        description:
+        - The ID or name of an existing MariaDB Cluster.
+        required: false
     password:
         aliases:
         - subscription_password
@@ -67,10 +78,6 @@ options:
         - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
         env_fallback: IONOS_PASSWORD
         no_log: true
-        required: false
-    mariadb_cluster:
-        description:
-        - The ID or name of an existing MariaDB Cluster.
         required: false
     token:
         description:

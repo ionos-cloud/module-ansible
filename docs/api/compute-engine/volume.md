@@ -199,7 +199,7 @@ register: volume_create_response
   <tr>
   <td>image<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>Image or snapshot ID to be used as template for this volume.</td>
+  <td>Image or snapshot ID to be used as template for this volume. MSSQL Enterprise Images can be used only if the feature toggle for MSSQL Enterprise is enabled on the contract.</td>
   </tr>
   <tr>
   <td>image_password<br/><mark style="color:blue;">str</mark></td>

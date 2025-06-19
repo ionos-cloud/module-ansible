@@ -56,6 +56,13 @@ options:
             Filters should be a dict with a key containing keys and value pair in the
             following format: ''properties.name'': ''server_name'''
         required: false
+    location:
+        description:
+        - 'The location from which to retrieve clusters. Different service endpoints are
+            used based on location, possible options are: "de/fra", "de/txl", "es/vit",
+            "fr/par", "gb/lhr", "us/ewr", "us/las", "us/mci". If not set, the endpoint
+            will be the one corresponding to "de/txl".'
+        required: false
     password:
         aliases:
         - subscription_password

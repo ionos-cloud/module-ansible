@@ -37,7 +37,7 @@ RETURNED_KEY = 's3key'
 
 OPTIONS = {
     'active': {
-        'description': ['Denotes weather the S3 key is active.'],
+        'description': ['Denotes weather the Object storage key is active.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
@@ -72,7 +72,7 @@ version_added: "2.0"
 options:
     active:
         description:
-        - Denotes weather the S3 key is active.
+        - Denotes weather the Object storage key is active.
         required: false
     api_url:
         description:

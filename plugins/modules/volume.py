@@ -72,7 +72,7 @@ OPTIONS = {
         'type': 'str',
     },
     'image': {
-        'description': ['Image or snapshot ID to be used as template for this volume.'],
+        'description': ['Image or snapshot ID to be used as template for this volume. MSSQL Enterprise Images can be used only if the feature toggle for MSSQL Enterprise is enabled on the contract.'],
         'available': ['present'],
         'type': 'str',
     },
@@ -279,7 +279,9 @@ options:
         required: false
     image:
         description:
-        - Image or snapshot ID to be used as template for this volume.
+        - Image or snapshot ID to be used as template for this volume. MSSQL Enterprise
+            Images can be used only if the feature toggle for MSSQL Enterprise is enabled
+            on the contract.
         required: false
     image_password:
         description:

@@ -11,7 +11,7 @@ SWAGGER_CACHE = os.path.join('update_description_utils', 'swaggers')
 SWAGGER_PARSER = os.path.join('update_description_utils', 'parse_swagger.rb')
 CLOUDAPI_SWAGGER = {
     'url': 'https://ionos-cloud.github.io/rest-api/docs/public-cloud-v6.ga.yaml',
-    'filename': 'cloudapi_swagger.json',
+    'filename': 'cloudapi_swagger.yml',
 }
 POSTGRES_SWAGGER = {
     'url': 'https://ionos-cloud.github.io/rest-api/docs/public-postgresql-v1.ga.yml',
@@ -35,11 +35,11 @@ CERTIFICATE_MANAGER_SWAGGER = {
 }
 LOGGING_SWAGGER = {
     'url': 'https://ionos-cloud.github.io/rest-api/docs/public-logging-v1.ga.yml',
-    'filename': 'logging_swagger.json',
+    'filename': 'logging_swagger.yml',
 }
 DNS_SWAGGER = {
     'url': 'https://ionos-cloud.github.io/rest-api/docs/public-dns-v1.ga.yml',
-    'filename': 'dns_swagger.json',
+    'filename': 'dns_swagger.yml',
 }
 
 OPTIONS_TO_IGNORE = [
@@ -138,10 +138,18 @@ def update_descriptions(module_name, swagger, resource_endpoint, verb, aliases):
         plugin_file_write.write(initial_module)
 
     check_download_swagger(swagger)
-    endpoint_info = json.loads(extract_endpoint_info(swagger['filename'], resource_endpoint, verb))
+    
+    try:
+        endpoint_info = json.loads(extract_endpoint_info(swagger['filename'], resource_endpoint, verb))
+    except Exception as _:
+        print('Could not extract info for ' + str((swagger['filename'], resource_endpoint, verb)) + '\n')
+        return
     to_change = []
     for option_name, option_details in module.OPTIONS.items():
         if option_name in OPTIONS_TO_IGNORE:
+            continue
+        if endpoint_info is None:
+            print('endpoint_info is None for' + str((swagger['filename'], resource_endpoint, verb)) + '\n')
             continue
         swagger_option = get_info_from_swagger(endpoint_info, aliases.get(option_name, to_camel_case(option_name)))
         if swagger_option:
