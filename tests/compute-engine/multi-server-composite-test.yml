@@ -19,7 +19,7 @@
          availability_zone: ZONE_1
          volume_availability_zone: ZONE_3
          volume_size: 20
-         cpu_family: AMD_OPTERON
+         cpu_family: INTEL_ICELAKE
          disk_type: HDD
          image: "{{ image_alias }}"
          image_password: "{{ password }}"

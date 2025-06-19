@@ -12,7 +12,7 @@ ionoscloudsdk.ionoscloud.volume:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute %02d'
   disk_type: SSD Premium
-  image: 'centos:7'
+  image: 'ubuntu:latest'
   image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   count: 2
   size: 20
@@ -37,7 +37,7 @@ ionoscloudsdk.ionoscloud.volume:
   disk_type: SSD Premium
   size: 20
   availability_zone: AUTO
-  image: 01abcc20-a6b9-11ed-9e9f-e60bb43016ef
+  image: 'c638b244-eeaa-11ef-8fa7-aee9942a25aa'
   licence_type: LINUX
   ram_hot_plug: true
   nic_hot_plug: true
@@ -142,7 +142,7 @@ ionoscloudsdk.ionoscloud.volume:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute %02d'
   disk_type: SSD Premium
-  image: 'centos:7'
+  image: 'ubuntu:latest'
   image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   count: 2
   size: 20
@@ -419,7 +419,7 @@ ionoscloudsdk.ionoscloud.volume:
   disk_type: SSD Premium
   size: 20
   availability_zone: AUTO
-  image: 01abcc20-a6b9-11ed-9e9f-e60bb43016ef
+  image: 'c638b244-eeaa-11ef-8fa7-aee9942a25aa'
   licence_type: LINUX
   ram_hot_plug: true
   nic_hot_plug: true

@@ -114,8 +114,8 @@ OPTIONS = {
     'cpu_family': {
         'description': ['CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers.'],
         'available': ['present'],
-        'choices': ['AMD_OPTERON', 'INTEL_XEON', 'INTEL_SKYLAKE'],
-        'default': 'AMD_OPTERON',
+        'choices': ['INTEL_XEON', 'INTEL_SKYLAKE', 'INTEL_ICELAKE', 'AMD_EPYC', 'INTEL_SIERRAFOREST'],
+        'default': 'INTEL_ICELAKE',
         'type': 'str',
         'version_added': '2.2',
     },
@@ -273,10 +273,12 @@ options:
         required: false
     cpu_family:
         choices:
-        - AMD_OPTERON
         - INTEL_XEON
         - INTEL_SKYLAKE
-        default: AMD_OPTERON
+        - INTEL_ICELAKE
+        - AMD_EPYC
+        - INTEL_SIERRAFOREST
+        default: INTEL_ICELAKE
         description:
         - CPU architecture on which server gets provisioned; not all CPU architectures
             are available in all datacenter regions; available CPU architectures can be
@@ -462,7 +464,7 @@ ionoscloudsdk.ionoscloud.server:
   volume_size: 20
   cpu_family: INTEL_SKYLAKE
   disk_type: SSD Standard
-  image: 'centos:7'
+  image: 'ubuntu:latest'
   image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   location: 'gb/lhr'
   user_data: ''
@@ -532,7 +534,7 @@ ionoscloudsdk.ionoscloud.server:
   volume_size: 20
   cpu_family: INTEL_SKYLAKE
   disk_type: SSD Standard
-  image: 'centos:7'
+  image: 'ubuntu:latest'
   image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   location: 'gb/lhr'
   user_data: ''

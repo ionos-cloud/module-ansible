@@ -304,7 +304,7 @@ register: vm_autoscaling_group_response
   <tr>
   <td>cpu_family<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The CPU family for the VMs created with this configuration. If the value is 'null', the VM is created with the default CPU family for the assigned site.<br />Options: ['AMD_OPTERON', 'INTEL_SKYLAKE', 'INTEL_XEON']</td>
+  <td>The CPU family for the VMs created with this configuration. If the value is 'null', the VM is created with the default CPU family for the assigned site.</td>
   </tr>
   <tr>
   <td>ram<br/><mark style="color:blue;">int</mark></td>
@@ -553,7 +553,7 @@ register: vm_autoscaling_group_response
   <tr>
   <td>cpu_family<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The CPU family for the VMs created with this configuration. If the value is 'null', the VM is created with the default CPU family for the assigned site.<br />Options: ['AMD_OPTERON', 'INTEL_SKYLAKE', 'INTEL_XEON']</td>
+  <td>The CPU family for the VMs created with this configuration. If the value is 'null', the VM is created with the default CPU family for the assigned site.</td>
   </tr>
   <tr>
   <td>ram<br/><mark style="color:blue;">int</mark></td>

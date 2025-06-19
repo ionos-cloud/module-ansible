@@ -175,11 +175,6 @@ OPTIONS = {
             "the VM is created with the default CPU family for the assigned site."
         ],
         'available': ['present', 'update'],
-        'choices': [
-          'AMD_OPTERON',
-          'INTEL_SKYLAKE',
-          'INTEL_XEON',
-        ],
         'type': 'str',
     },
     'ram': {
@@ -244,10 +239,6 @@ options:
         - The total number of cores for the VMs.
         required: false
     cpu_family:
-        choices:
-        - AMD_OPTERON
-        - INTEL_SKYLAKE
-        - INTEL_XEON
         description:
         - The CPU family for the VMs created with this configuration. If the value is
             'null', the VM is created with the default CPU family for the assigned site.
