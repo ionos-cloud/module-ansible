@@ -62,7 +62,7 @@ OPTIONS = {
         'elements': 'str',
     },
     's3_buckets_param': {
-        'description': ['List of S3 buckets configured for K8s usage. At the moment, it contains only one S3 bucket that is used to store K8s API audit logs.'],
+        'description': ['List of Object storage buckets configured for K8s usage. At the moment, it contains only one bucket that is used to store K8s API audit logs.'],
         'available': ['present', 'update'],
         'type': 'list',
         'elements': 'str',
@@ -177,8 +177,8 @@ options:
         required: false
     s3_buckets_param:
         description:
-        - List of S3 buckets configured for K8s usage. At the moment, it contains only
-            one S3 bucket that is used to store K8s API audit logs.
+        - List of Object storage buckets configured for K8s usage. At the moment, it contains
+            only one bucket that is used to store K8s API audit logs.
         elements: str
         required: false
     state:

@@ -389,7 +389,7 @@ ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute 01'
   disk_type: DAS
-  image: 'centos:7'
+  image: 'ubuntu:latest'
   image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   location: de/txl
   count: 1
@@ -449,7 +449,7 @@ ionoscloudsdk.ionoscloud.cube_server:
   datacenter: 'AnsibleAutoTestCompute'
   name: 'AnsibleAutoTestCompute 01'
   disk_type: DAS
-  image: 'centos:7'
+  image: 'ubuntu:latest'
   image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   location: de/txl
   count: 1

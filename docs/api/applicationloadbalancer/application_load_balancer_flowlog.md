@@ -127,7 +127,7 @@ register: alb_flowlog_response
   <tr>
   <td>bucket<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The S3 bucket name of an existing IONOS Cloud S3 bucket.</td>
+  <td>The bucket name of an existing IONOS Cloud Object storage bucket.</td>
   </tr>
   <tr>
   <td>datacenter<br/><mark style="color:blue;">str</mark></td>
@@ -321,7 +321,7 @@ register: alb_flowlog_update_response
   <tr>
   <td>bucket<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The S3 bucket name of an existing IONOS Cloud S3 bucket.</td>
+  <td>The bucket name of an existing IONOS Cloud Object storage bucket.</td>
   </tr>
   <tr>
   <td>datacenter<br/><mark style="color:blue;">str</mark></td>

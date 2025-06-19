@@ -7,7 +7,7 @@ This module allows you to create, update or remove a user.
 
 ```yaml
 
-name: Create user
+name: Create user check 1
 ionoscloudsdk.ionoscloud.user:
   firstname: John
   lastname: Doe
@@ -80,7 +80,7 @@ register: user_response
 # state: **present**
 ```yaml
   
-name: Create user
+name: Create user check 1
 ionoscloudsdk.ionoscloud.user:
   firstname: John
   lastname: Doe

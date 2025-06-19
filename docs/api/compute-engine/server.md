@@ -19,7 +19,7 @@ ionoscloudsdk.ionoscloud.server:
   volume_size: 20
   cpu_family: INTEL_SKYLAKE
   disk_type: SSD Standard
-  image: 'centos:7'
+  image: 'ubuntu:latest'
   image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   location: 'gb/lhr'
   user_data: ''
@@ -419,7 +419,7 @@ ionoscloudsdk.ionoscloud.server:
   volume_size: 20
   cpu_family: INTEL_SKYLAKE
   disk_type: SSD Standard
-  image: 'centos:7'
+  image: 'ubuntu:latest'
   image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   location: 'gb/lhr'
   user_data: ''
@@ -496,7 +496,7 @@ register: server_create_result
   <tr>
   <td>cpu_family<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers.<br />Default: AMD_OPTERON<br />Options: ['AMD_OPTERON', 'INTEL_XEON', 'INTEL_SKYLAKE']</td>
+  <td>CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers.<br />Default: INTEL_ICELAKE<br />Options: ['INTEL_XEON', 'INTEL_SKYLAKE', 'INTEL_ICELAKE', 'AMD_EPYC', 'INTEL_SIERRAFOREST']</td>
   </tr>
   <tr>
   <td>availability_zone<br/><mark style="color:blue;">str</mark></td>
@@ -521,7 +521,7 @@ register: server_create_result
   <tr>
   <td>location<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.<br />Default: us/las<br />Options: ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr']</td>
+  <td>The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.<br />Default: us/las<br />Options: ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr', 'es/vit', 'fr/par', 'us/mci']</td>
   </tr>
   <tr>
   <td>lan<br/><mark style="color:blue;">str</mark></td>

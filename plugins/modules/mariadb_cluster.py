@@ -93,6 +93,11 @@ OPTIONS = {
         'type': 'str',
         'no_log': True,
     },
+    'location': {
+        'description': ['The location in which the cluster will be created. Different service endpoints are used based on location, possible options are: "de/fra", "de/txl", "es/vit", "fr/par", "gb/lhr", "us/ewr", "us/las", "us/mci". If not set, the endpoint will be the one corresponding to "de/txl".'],
+        'available': STATES,
+        'type': 'str',
+    },
     'mariadb_cluster': {
         'description': ['The ID or name of an existing MariaDB Cluster.'],
         'available': ['update', 'absent'],
@@ -166,6 +171,13 @@ options:
     instances:
         description:
         - The total number of instances in the cluster (one master and n-1 standbys).
+        required: false
+    location:
+        description:
+        - 'The location in which the cluster will be created. Different service endpoints
+            are used based on location, possible options are: "de/fra", "de/txl", "es/vit",
+            "fr/par", "gb/lhr", "us/ewr", "us/las", "us/mci". If not set, the endpoint
+            will be the one corresponding to "de/txl".'
         required: false
     maintenance_window:
         description:

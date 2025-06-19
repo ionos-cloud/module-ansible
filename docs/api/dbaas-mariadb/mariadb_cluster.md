@@ -184,6 +184,11 @@ This is a module that supports creating, updating or destroying MariaDB Clusters
   <td>The password for a MariaDB user.</td>
   </tr>
   <tr>
+  <td>location<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The location in which the cluster will be created. Different service endpoints are used based on location, possible options are: &quot;de/fra&quot;, &quot;de/txl&quot;, &quot;es/vit&quot;, &quot;fr/par&quot;, &quot;gb/lhr&quot;, &quot;us/ewr&quot;, &quot;us/las&quot;, &quot;us/mci&quot;. If not set, the endpoint will be the one corresponding to &quot;de/txl&quot;.</td>
+  </tr>
+  <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
   <td>Boolean indicating if the resource should be recreated when the state cannot be reached in another way. This may be used to prevent resources from being deleted from specifying a different value to an immutable property. An error will be thrown instead<br />Default: False</td>
@@ -254,6 +259,11 @@ This is a module that supports creating, updating or destroying MariaDB Clusters
     </tr>
   </thead>
   <tbody>
+  <tr>
+  <td>location<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The location in which the cluster will be created. Different service endpoints are used based on location, possible options are: &quot;de/fra&quot;, &quot;de/txl&quot;, &quot;es/vit&quot;, &quot;fr/par&quot;, &quot;gb/lhr&quot;, &quot;us/ewr&quot;, &quot;us/las&quot;, &quot;us/mci&quot;. If not set, the endpoint will be the one corresponding to &quot;de/txl&quot;.</td>
+  </tr>
   <tr>
   <td>mariadb_cluster<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
@@ -368,6 +378,11 @@ This is a module that supports creating, updating or destroying MariaDB Clusters
   <td>The friendly name of your cluster.</td>
   </tr>
   <tr>
+  <td>location<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The location in which the cluster will be created. Different service endpoints are used based on location, possible options are: &quot;de/fra&quot;, &quot;de/txl&quot;, &quot;es/vit&quot;, &quot;fr/par&quot;, &quot;gb/lhr&quot;, &quot;us/ewr&quot;, &quot;us/las&quot;, &quot;us/mci&quot;. If not set, the endpoint will be the one corresponding to &quot;de/txl&quot;.</td>
+  </tr>
+  <tr>
   <td>mariadb_cluster<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
   <td>The ID or name of an existing MariaDB Cluster.</td>
@@ -439,6 +454,11 @@ This is a module that supports creating, updating or destroying MariaDB Clusters
     </tr>
   </thead>
   <tbody>
+  <tr>
+  <td>location<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The location in which the cluster will be created. Different service endpoints are used based on location, possible options are: &quot;de/fra&quot;, &quot;de/txl&quot;, &quot;es/vit&quot;, &quot;fr/par&quot;, &quot;gb/lhr&quot;, &quot;us/ewr&quot;, &quot;us/las&quot;, &quot;us/mci&quot;. If not set, the endpoint will be the one corresponding to &quot;de/txl&quot;.</td>
+  </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>

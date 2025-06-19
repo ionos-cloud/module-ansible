@@ -83,7 +83,7 @@ register: result
   <tr>
   <td>active<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Denotes weather the S3 key is active.</td>
+  <td>Denotes weather the Object storage key is active.</td>
   </tr>
   <tr>
   <td>user<br/><mark style="color:blue;">str</mark></td>
@@ -250,7 +250,7 @@ ionoscloudsdk.ionoscloud.s3key:
   <tr>
   <td>active<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Denotes weather the S3 key is active.</td>
+  <td>Denotes weather the Object storage key is active.</td>
   </tr>
   <tr>
   <td>user<br/><mark style="color:blue;">str</mark></td>

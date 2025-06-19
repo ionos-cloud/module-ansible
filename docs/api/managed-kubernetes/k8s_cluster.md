@@ -127,7 +127,7 @@ register: cluster_response
   <tr>
   <td>s3_buckets_param<br/><mark style="color:blue;">list</mark></td>
   <td align="center">False</td>
-  <td>List of S3 buckets configured for K8s usage. At the moment, it contains only one S3 bucket that is used to store K8s API audit logs.</td>
+  <td>List of Object storage buckets configured for K8s usage. At the moment, it contains only one bucket that is used to store K8s API audit logs.</td>
   </tr>
   <tr>
   <td>public<br/><mark style="color:blue;">bool</mark></td>
@@ -322,7 +322,7 @@ register: cluster
   <tr>
   <td>s3_buckets_param<br/><mark style="color:blue;">list</mark></td>
   <td align="center">False</td>
-  <td>List of S3 buckets configured for K8s usage. At the moment, it contains only one S3 bucket that is used to store K8s API audit logs.</td>
+  <td>List of Object storage buckets configured for K8s usage. At the moment, it contains only one bucket that is used to store K8s API audit logs.</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>

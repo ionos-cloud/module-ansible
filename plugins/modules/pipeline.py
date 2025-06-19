@@ -31,7 +31,7 @@ RETURNED_KEY = 'pipeline'
 
 OPTIONS = {
     'name': {
-        'description': ['The friendly name of your pipeline.'],
+        'description': ['The name of the pipeline. Must be not more that 20 characters long.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -77,7 +77,7 @@ options:
         required: false
     name:
         description:
-        - The friendly name of your pipeline.
+        - The name of the pipeline. Must be not more that 20 characters long.
         required: false
     password:
         aliases:

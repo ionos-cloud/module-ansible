@@ -136,7 +136,7 @@ register: pipeline_response
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The friendly name of your pipeline.</td>
+  <td>The name of the pipeline. Must be not more that 20 characters long.</td>
   </tr>
   <tr>
   <td>logs<br/><mark style="color:blue;">list</mark></td>
@@ -289,7 +289,7 @@ register: updated_pipeline_response
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The friendly name of your pipeline.</td>
+  <td>The name of the pipeline. Must be not more that 20 characters long.</td>
   </tr>
   <tr>
   <td>logs<br/><mark style="color:blue;">list</mark></td>

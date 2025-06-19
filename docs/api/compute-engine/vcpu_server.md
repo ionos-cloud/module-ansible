@@ -18,7 +18,7 @@ ionoscloudsdk.ionoscloud.vcpu_server:
   volume_availability_zone: ZONE_3
   volume_size: 20
   disk_type: SSD Standard
-  image: 'centos:7'
+  image: 'ubuntu:latest'
   image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   location: de/txl
   user_data: ''
@@ -343,7 +343,7 @@ ionoscloudsdk.ionoscloud.vcpu_server:
   volume_availability_zone: ZONE_3
   volume_size: 20
   disk_type: SSD Standard
-  image: 'centos:7'
+  image: 'ubuntu:latest'
   image_password: '{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}'
   location: de/txl
   user_data: ''
