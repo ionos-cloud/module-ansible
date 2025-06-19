@@ -641,7 +641,7 @@ def _create_object(module, client, name, existing_object=None):
     volumes_api = ionoscloud.VolumesApi(client)
 
     datacenter_list = datacenters_api.datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
+    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'), fail_not_found=True)
 
     try:
         volume_properties = VolumeProperties(
@@ -690,7 +690,7 @@ def _update_object(module, client, name, existing_object):
     volumes_api = ionoscloud.VolumesApi(client)
 
     datacenter_list = datacenters_api.datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
+    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'), fail_not_found=True)
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -726,7 +726,7 @@ def _remove_object(module, client, volume):
     volumes_api = ionoscloud.VolumesApi(client)
 
     datacenter_list = datacenters_api.datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
+    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'), fail_not_found=True)
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -760,7 +760,7 @@ def create_volume(module, client):
     servers_api = ionoscloud.ServersApi(client)
 
     datacenter_list = datacenters_api.datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter, fail_not_found=True)
 
     if datacenter_id is None:
         module.fail_json(msg='datacenter could not be found.')
@@ -849,7 +849,7 @@ def update_volume(module, client):
     changed = False
 
     datacenter_list = datacenters_api.datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter, fail_not_found=True)
     if datacenter_id is None:
         module.fail_json(msg='datacenter could not be found.')
 
@@ -910,7 +910,7 @@ def delete_volume(module, client):
 
     # Locate UUID for Datacenter
     datacenter_list = datacenters_api.datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter, fail_not_found=True)
 
     volumes = volumes_api.datacenters_volumes_get(datacenter_id, depth=1)
 

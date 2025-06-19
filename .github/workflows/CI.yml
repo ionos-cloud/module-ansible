@@ -84,7 +84,7 @@ jobs:
 
       # Upload the output as an artifact
       - name: Create an artifact with the output logs file
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: cleanup.log
