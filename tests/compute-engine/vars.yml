@@ -6,8 +6,8 @@ nic: "AnsibleAutoTestCompute"
 lan: "AnsibleAutoTestCompute"
 location: gb/lhr
 new_location: de/fra
-image: ce08ca15-0adf-11ec-9fa6-1e5ea9024c03
-image_alias: centos:7
+image: c638b244-eeaa-11ef-8fa7-aee9942a25aa
+image_alias: ubuntu:latest
 password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}"
 updated_password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}"
 wait_timeout: 500
