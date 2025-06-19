@@ -43,7 +43,7 @@
         count: 2
         size: 20
         availability_zone: AUTO
-        image: 01abcc20-a6b9-11ed-9e9f-e60bb43016ef
+        image: "{{ image }}"
         licence_type: LINUX
         ram_hot_plug: true
         nic_hot_plug: true
@@ -88,7 +88,7 @@
         disk_type: SSD Premium
         size: 20
         availability_zone: AUTO
-        image: 01abcc20-a6b9-11ed-9e9f-e60bb43016ef
+        image: "{{ image }}"
         licence_type: LINUX
         ram_hot_plug: true
         nic_hot_plug: true
