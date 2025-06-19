@@ -1,5 +1,13 @@
 # Changelog
 
+## 7.5.1
+### Features
+* added location to mariadb modules
+### Fixes
+* throw error when data center is not found in volume modules
+### Docs
+* catch errors in docs generation
+
 ## 7.5.0
 ### Features
 * Added check_mode and diff to the user module
