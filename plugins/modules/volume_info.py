@@ -120,7 +120,7 @@ def get_objects(module, client):
 
     # Locate UUID for Datacenter
     datacenter_list = datacenters_api.datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, datacenter)
+    datacenter_id = get_resource_id(module, datacenter_list, datacenter, fail_not_found=True)
 
     # Locate UUID for Server
     server_id = None

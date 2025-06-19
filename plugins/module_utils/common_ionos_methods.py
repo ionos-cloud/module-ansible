@@ -31,34 +31,40 @@ def _get_matched_resources(resource_list, identity, identity_paths=None):
 
     if identity_paths is None:
       identity_paths = [['id'], ['properties', 'name']]
+    checked_values = []
 
     def check_identity_method(resource):
-      resource_identity = []
+        resource_identity = []
+    
+        for identity_path in identity_paths:
+            current = resource
+            for el in identity_path:
+                current = getattr(current, el)
+            resource_identity.append(current)
+        checked_values.append(tuple(resource_identity))
 
-      for identity_path in identity_paths:
-        current = resource
-        for el in identity_path:
-          current = getattr(current, el)
-        resource_identity.append(current)
+        return identity in resource_identity
 
-      return identity in resource_identity
-
-    return list(filter(check_identity_method, resource_list.items))
+    return list(filter(check_identity_method, resource_list.items)), checked_values
 
 
-def get_resource(module, resource_list, identity, identity_paths=None):
-    matched_resources = _get_matched_resources(resource_list, identity, identity_paths)
+def get_resource(module, resource_list, identity, identity_paths=None, fail_not_found=False):
+    matched_resources, checked_values = _get_matched_resources(resource_list, identity, identity_paths)
 
     if len(matched_resources) == 1:
         return matched_resources[0]
     elif len(matched_resources) > 1:
         module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
     else:
+        if fail_not_found:
+            module.fail_json(msg='failed to get resource for ({identity}) api response is: {checked_values}'.format(
+                identity=identity, checked_values=checked_values,
+            ))
         return None
 
 
-def get_resource_id(module, resource_list, identity, identity_paths=None):
-    resource = get_resource(module, resource_list, identity, identity_paths)
+def get_resource_id(module, resource_list, identity, identity_paths=None, fail_not_found=False):
+    resource = get_resource(module, resource_list, identity, identity_paths, fail_not_found)
     return resource.id if resource is not None else None
 
 
