@@ -19,7 +19,7 @@ from ansible.module_utils._text import to_native
 from ansible.module_utils.basic import AnsibleModule
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments, _get_request_id
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments, _get_request_id, get_paginated
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options_with_replace
 
 __metaclass__ = type
@@ -261,7 +261,7 @@ class DatacenterModule(CommonIonosModule):
 
 
     def _get_object_list(self, clients):
-        return ionoscloud.DataCentersApi(clients[0]).datacenters_get(depth=1)
+        return get_paginated(ionoscloud.DataCentersApi(clients[0]).datacenters_get, depth=1)
 
 
     def _get_object_name(self):

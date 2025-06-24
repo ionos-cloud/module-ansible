@@ -23,7 +23,7 @@ from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
     get_module_arguments, _get_request_id, check_required_arguments,
-    get_sdk_config, get_resource_id, get_resource,
+    get_sdk_config, get_resource_id, get_resource, get_paginated,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options_with_replace
 
@@ -563,13 +563,13 @@ def _should_update_object(module, existing_object, new_object_name):
     )
 
 
-def update_replace_object(module, client, existing_object, new_object_name):
+def update_replace_object(module, client, datacenter_id, existing_object, new_object_name):
     if _should_replace_object(module, existing_object, client):
         if not module.params.get('allow_replace'):
             module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
     
-        new_object = _create_object(module, client, new_object_name, existing_object).to_dict()
-        _remove_object(module, client, existing_object)
+        new_object = _create_object(module, client, datacenter_id, new_object_name, existing_object).to_dict()
+        _remove_object(module, client, datacenter_id, existing_object)
         return {
             'changed': True,
             'failed': False,
@@ -582,7 +582,7 @@ def update_replace_object(module, client, existing_object, new_object_name):
             'changed': True,
             'failed': False,
             'action': 'update',
-            RETURNED_KEY: _update_object(module, client, new_object_name, existing_object).to_dict()
+            RETURNED_KEY: _update_object(module, client, new_object_name, datacenter_id, existing_object).to_dict()
         }
 
     # No action
@@ -594,7 +594,7 @@ def update_replace_object(module, client, existing_object, new_object_name):
     }
 
 
-def _create_object(module, client, name, existing_object=None):
+def _create_object(module, client, datacenter_id, name, existing_object=None):
     size = module.params.get('size')
     bus = module.params.get('bus')
     image = module.params.get('image')
@@ -639,11 +639,7 @@ def _create_object(module, client, name, existing_object=None):
     if module.check_mode:
         module.exit_json(changed=True)
    
-    datacenters_api = ionoscloud.DataCentersApi(client)
     volumes_api = ionoscloud.VolumesApi(client)
-
-    datacenter_list = datacenters_api.datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'), fail_not_found=True)
 
     try:
         volume_properties = VolumeProperties(
@@ -675,7 +671,7 @@ def _create_object(module, client, name, existing_object=None):
         module.fail_json(msg="failed to create the volume: %s" % to_native(e))
 
 
-def _update_object(module, client, name, existing_object):
+def _update_object(module, client, datacenter_id, name, existing_object):
     size = module.params.get('size')
     bus = module.params.get('bus')
     cpu_hot_plug = module.params.get('cpu_hot_plug')
@@ -688,11 +684,7 @@ def _update_object(module, client, name, existing_object):
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
 
-    datacenters_api = ionoscloud.DataCentersApi(client)
     volumes_api = ionoscloud.VolumesApi(client)
-
-    datacenter_list = datacenters_api.datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'), fail_not_found=True)
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -720,15 +712,11 @@ def _update_object(module, client, name, existing_object):
         module.fail_json(msg="failed to update the volume: %s" % to_native(e))
 
 
-def _remove_object(module, client, volume):
+def _remove_object(module, client, datacenter_id, volume):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenters_api = ionoscloud.DataCentersApi(client)
     volumes_api = ionoscloud.VolumesApi(client)
-
-    datacenter_list = datacenters_api.datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'), fail_not_found=True)
 
     if module.check_mode:
         module.exit_json(changed=True)
@@ -761,7 +749,7 @@ def create_volume(module, client):
     datacenters_api = ionoscloud.DataCentersApi(client)
     servers_api = ionoscloud.ServersApi(client)
 
-    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter_list = get_paginated(datacenters_api.datacenters_get)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter, fail_not_found=True)
 
     if datacenter_id is None:
@@ -800,12 +788,12 @@ def create_volume(module, client):
         existing_volume = get_resource(module, volume_list, name)
 
         if existing_volume is not None:
-            update_replace_result = update_replace_object(module, client, existing_volume, name)
+            update_replace_result = update_replace_object(module, client, datacenter_id, existing_volume, name)
             volume = update_replace_result[RETURNED_KEY]
             if update_replace_result['changed']:
                 changed = True
         else:
-            volume = _create_object(module, client, name).to_dict()
+            volume = _create_object(module, client, datacenter_id, name).to_dict()
             changed = True
         instance_ids.append(volume['id'])
         _attach_volume(module, servers_api, datacenter_id, volume['id'])
@@ -850,7 +838,7 @@ def update_volume(module, client):
 
     changed = False
 
-    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter_list = get_paginated(datacenters_api.datacenters_get)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter, fail_not_found=True)
     if datacenter_id is None:
         module.fail_json(msg='datacenter could not be found.')
@@ -872,7 +860,7 @@ def update_volume(module, client):
             module.fail_json(msg='A volume with the name %s already exists.' % name)
 
         if volume is not None:
-            update_replace_result = update_replace_object(module, client, instance, name)
+            update_replace_result = update_replace_object(module, client, datacenter_id, instance, name)
             update_response = update_replace_result[RETURNED_KEY]
             if update_replace_result['changed']:
                 changed = True
@@ -911,7 +899,7 @@ def delete_volume(module, client):
     instance_ids = module.params.get('instance_ids')
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter_list = get_paginated(datacenters_api.datacenters_get)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter, fail_not_found=True)
 
     volumes = volumes_api.datacenters_volumes_get(datacenter_id, depth=1)
@@ -931,7 +919,7 @@ def delete_volume(module, client):
     }
 
 
-def _attach_volume(module, servers_api, datacenter, volume_id):
+def _attach_volume(module, servers_api, datacenter_id, volume_id):
     """
     Attaches a volume.
 
@@ -947,12 +935,12 @@ def _attach_volume(module, servers_api, datacenter, volume_id):
 
     # Locate UUID for Server
     if server:
-        server_list = servers_api.datacenters_servers_get(datacenter_id=datacenter, depth=1)
+        server_list = servers_api.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
         server_id = get_resource_id(module, server_list, server)
 
         try:
             return servers_api.datacenters_servers_volumes_post(
-                datacenter_id=datacenter, server_id=server_id, volume=Volume(id=volume_id),
+                datacenter_id=datacenter_id, server_id=server_id, volume=Volume(id=volume_id),
             )
         except Exception as e:
             module.fail_json(msg='failed to attach volume: %s' % to_native(e))

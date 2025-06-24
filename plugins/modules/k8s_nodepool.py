@@ -6,17 +6,16 @@ try:
     from ionoscloud.models import KubernetesNodePool, KubernetesNodePoolProperties, \
         KubernetesNodePoolPropertiesForPut, KubernetesNodePoolForPut
     from ionoscloud.rest import ApiException
-    from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
 
 from ansible import __version__
-from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, get_resource_id,
+    get_module_arguments, get_resource_id, get_paginated,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options_with_replace
 
@@ -508,7 +507,7 @@ class K8SClusterModule(CommonIonosModule):
     def _should_replace_object(self, existing_object, clients):
         datacenter_id = get_resource_id(
             self.module, 
-            ionoscloud.DataCentersApi(clients[0]).datacenters_get(depth=1),
+            get_paginated(ionoscloud.DataCentersApi(clients[0]).datacenters_get),
             self.module.params.get('datacenter'),
         )
         return (
@@ -614,7 +613,7 @@ class K8SClusterModule(CommonIonosModule):
         )
         datacenter_id = get_resource_id(
             self.module, 
-            ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+            get_paginated(ionoscloud.DataCentersApi(client).datacenters_get),
             self.module.params.get('datacenter'),
         )
         k8s_version = self.module.params.get('k8s_version')

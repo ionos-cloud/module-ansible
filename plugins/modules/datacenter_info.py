@@ -7,7 +7,7 @@ except ImportError:
 
 from ansible import __version__
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_paginated
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options_with_depth
 
 
@@ -92,7 +92,7 @@ register: datacenter_list_response
 """
 
 def get_objects(module, client):
-    return ionoscloud.DataCentersApi(client).datacenters_get(depth=module.params.get('depth'))
+    return get_paginated(ionoscloud.DataCentersApi(client).datacenters_get, depth=module.params.get('depth'))
 
 
 if __name__ == '__main__':

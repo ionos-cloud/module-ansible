@@ -27,7 +27,7 @@ from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, get_resource_id, _get_request_id,
+    get_module_arguments, get_resource_id, _get_request_id, get_paginated,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
@@ -452,7 +452,7 @@ class ForwardingRuleModule(CommonIonosModule):
         client = clients[0]
         datacenter_id = get_resource_id(
             self.module, 
-            ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+            get_paginated(ionoscloud.DataCentersApi(client).datacenters_get),
             self.module.params.get('datacenter'),
         )
         application_load_balancer_id = get_resource_id(
@@ -489,7 +489,7 @@ class ForwardingRuleModule(CommonIonosModule):
         http_rules = list(map(lambda x: get_http_rule_object(x), http_rules)) if http_rules else None
         datacenter_id = get_resource_id(
             self.module, 
-            ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+            get_paginated(ionoscloud.DataCentersApi(client).datacenters_get),
             self.module.params.get('datacenter'),
         )
         application_load_balancer_id = get_resource_id(
@@ -546,7 +546,7 @@ class ForwardingRuleModule(CommonIonosModule):
         http_rules = list(map(lambda x: get_http_rule_object(x), http_rules)) if http_rules else None
         datacenter_id = get_resource_id(
             self.module, 
-            ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+            get_paginated(ionoscloud.DataCentersApi(client).datacenters_get),
             self.module.params.get('datacenter'),
         )
         application_load_balancer_id = get_resource_id(
@@ -585,7 +585,7 @@ class ForwardingRuleModule(CommonIonosModule):
         client = clients[0]
         datacenter_id = get_resource_id(
             self.module, 
-            ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+            get_paginated(ionoscloud.DataCentersApi(client).datacenters_get),
             self.module.params.get('datacenter'),
         )
         application_load_balancer_id = get_resource_id(

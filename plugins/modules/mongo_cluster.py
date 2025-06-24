@@ -11,7 +11,7 @@ except ImportError:
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, get_resource_id,
+    get_module_arguments, get_resource_id, get_paginated,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
@@ -319,7 +319,7 @@ class MongoClusterModule(CommonIonosModule):
         datacenter_id = lan_id = cidr_list = None
         if self.module.params.get('connections'):
             connection = self.module.params.get('connections')[0]
-            datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
+            datacenter_list = get_paginated(ionoscloud.DataCentersApi(cloudapi_client).datacenters_get)
             datacenter_id = get_resource_id(self.module, datacenter_list, connection['datacenter'])
 
             if datacenter_id is None:
@@ -382,7 +382,7 @@ class MongoClusterModule(CommonIonosModule):
             connection = self.module.params.get('connections')[0]
 
             datacenter_id = get_resource_id(
-                self.module, ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=2), connection['datacenter'],
+                self.module, get_paginated(ionoscloud.DataCentersApi(cloudapi_client).datacenters_get, depth=2), connection['datacenter'],
             )
 
             if datacenter_id is None:
@@ -452,7 +452,7 @@ class MongoClusterModule(CommonIonosModule):
             connection = self.module.params.get('connections')[0]
 
             datacenter_id = get_resource_id(
-                self.module, ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=2), connection['datacenter'],
+                self.module, get_paginated(ionoscloud.DataCentersApi(cloudapi_client).datacenters_get, depth=2), connection['datacenter'],
             )
 
             if datacenter_id is None:

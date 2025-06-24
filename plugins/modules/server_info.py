@@ -7,7 +7,7 @@ except ImportError:
 
 from ansible import __version__
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_resource_id
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_resource_id, get_paginated
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options_with_depth
 
 
@@ -119,7 +119,7 @@ def get_objects(module, client):
     depth = module.params.get('depth')
 
     # Locate UUID for Datacenter
-    datacenter_list = datacenter_server.datacenters_get(depth=1)
+    datacenter_list = get_paginated(datacenter_server.datacenters_get)
     datacenter = get_resource_id(module, datacenter_list, datacenter)
 
     return servers_api.datacenters_servers_get(
