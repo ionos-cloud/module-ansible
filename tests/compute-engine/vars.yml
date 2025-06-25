@@ -13,3 +13,4 @@ updated_password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_
 wait_timeout: 500
 email: ansible.test@mail.com
 updated_email: updated.ansible.test@mail.com
+cube_template: 72e73b81-8551-4e74-b398-fc63b39994af

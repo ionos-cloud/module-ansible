@@ -582,7 +582,7 @@ def update_replace_object(module, client, datacenter_id, existing_object, new_ob
             'changed': True,
             'failed': False,
             'action': 'update',
-            RETURNED_KEY: _update_object(module, client, new_object_name, datacenter_id, existing_object).to_dict()
+            RETURNED_KEY: _update_object(module, client, datacenter_id, new_object_name, existing_object).to_dict()
         }
 
     # No action
@@ -909,7 +909,7 @@ def delete_volume(module, client):
     for n in instance_ids:
         volume = get_resource(module, volumes, n)
         if volume is not None:
-            _remove_object(module, client, volume)
+            _remove_object(module, client, datacenter_id, volume)
             changed = True
 
     return {
