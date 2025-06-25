@@ -10,4 +10,4 @@ image_alias: centos:7
 wait_timeout: 500
 email: ansible.test@mail.com
 updated_email: updated.ansible.test@mail.com
-dataplatform_version: 23.11
+dataplatform_version: 25.3
