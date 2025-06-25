@@ -56,12 +56,13 @@ def get_resource(module, resource_list, identity, identity_paths=None, fail_not_
     elif len(matched_resources) > 1:
         module.fail_json(msg="found more resources of type {} for '{}'".format(resource_list.id, identity))
     else:
-        module.warn(
-            warning='Failed to get resource for ({identity}). Checked values were: {checked_values}'.format(
-                identity=identity,
-                checked_values=checked_values,
-            ),
-        )
+        if module._verbosity >= 3:
+            module.warn(
+                warning='Failed to get resource for ({identity}). Checked values were: {checked_values}'.format(
+                    identity=identity,
+                    checked_values=checked_values,
+                ),
+            )
         if fail_not_found:
             module.fail_json(msg='failed to get resource for ({identity})'.format(identity=identity))
         return None
