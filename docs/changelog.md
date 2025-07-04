@@ -1,5 +1,10 @@
 # Changelog
 
+## 7.5.2
+### Fixes
+* use pagination to retrieve all datacenters when limit is exceeded
+* show warning when resources are not found only for verbosity higher or equal to 3
+
 ## 7.5.1
 ### Features
 * added location to mariadb modules
