@@ -113,6 +113,22 @@ def get_users(api, all_users, depth=2, query_params=None):
 
     return all_users
 
+
+def get_paginated(method, depth=1, query_params=None):
+    query_params = query_params if query_params else {}
+    offset = 0
+    limit = 100
+
+    resources = method(depth=depth, limit=limit, offset=offset, query_params=query_params)
+    items = resources.items
+    while(resources.links.next is not None):
+        offset += limit
+        resources = method(depth=depth, limit=limit, offset=offset, query_params=query_params)
+        items += resources.items
+    resources.items = items
+
+    return resources
+
 #########################################
 # Methods used to initialize the module #
 #########################################

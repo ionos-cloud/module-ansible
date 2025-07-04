@@ -29,7 +29,7 @@ from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
     get_module_arguments, _get_request_id, check_required_arguments,
-    get_sdk_config, get_resource_id, get_resource,
+    get_sdk_config, get_resource_id, get_resource, get_paginated,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
@@ -549,13 +549,13 @@ def _should_update_object(module, existing_object, new_object_name):
     )
 
 
-def update_replace_object(module, client, existing_object, new_object_name):
+def update_replace_object(module, client, datacenter_id, existing_object, new_object_name):
     if _should_replace_object(module, existing_object):
         if not module.params.get('allow_replace'):
             module.fail_json(msg="{} should be replaced but allow_replace is set to False.".format(OBJECT_NAME))
     
-        new_object = _create_object(module, client, new_object_name, existing_object).to_dict()
-        _remove_object(module, client, existing_object)
+        new_object = _create_object(module, client, datacenter_id, new_object_name, existing_object).to_dict()
+        _remove_object(module, client, datacenter_id, existing_object)
         return {
             'changed': True,
             'failed': False,
@@ -568,7 +568,7 @@ def update_replace_object(module, client, existing_object, new_object_name):
             'changed': True,
             'failed': False,
             'action': 'update',
-            RETURNED_KEY: _update_object(module, client, new_object_name, existing_object).to_dict()
+            RETURNED_KEY: _update_object(module, client, datacenter_id, new_object_name, existing_object).to_dict()
         }
 
     # No action
@@ -580,7 +580,7 @@ def update_replace_object(module, client, existing_object, new_object_name):
     }
 
 
-def _create_object(module, client, name, existing_object=None):
+def _create_object(module, client, datacenter_id, name, existing_object=None):
     disk_type = module.params.get('disk_type')
     availability_zone = module.params.get('availability_zone')
     image_password = module.params.get('image_password')
@@ -604,12 +604,8 @@ def _create_object(module, client, name, existing_object=None):
     wait = module.params.get('wait')
     wait_timeout = module.params.get('wait_timeout')
 
-    datacenters_api = ionoscloud.DataCentersApi(client)
     servers_api = ionoscloud.ServersApi(api_client=client)
     lans_api = ionoscloud.LANsApi(api_client=client)
-
-    datacenter_list = datacenters_api.datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
 
     nics = []
 
@@ -775,18 +771,14 @@ def _remove_boot_volume(module, client, datacenter_id, server_id):
                          exception=traceback.format_exc())
 
 
-def _update_object(module, client, new_object_name, existing_object):
+def _update_object(module, client, datacenter_id, new_object_name, existing_object):
     boot_cdrom = module.params.get('boot_cdrom')
     boot_volume = module.params.get('boot_volume')
 
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
 
-    datacenters_api = ionoscloud.DataCentersApi(client)
     servers_api = ionoscloud.ServersApi(api_client=client)
-
-    datacenter_list = datacenters_api.datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
 
     new_server_properties = ServerProperties(
         name=new_object_name if new_object_name is not None else existing_object.properties.name,
@@ -805,18 +797,14 @@ def _update_object(module, client, new_object_name, existing_object):
         module.fail_json(msg="failed to update the server: %s" % to_native(e), exception=traceback.format_exc())
 
 
-def _remove_object(module, client, existing_object):
+def _remove_object(module, client, datacenter_id, existing_object):
     if module.check_mode:
         module.exit_json(changed=True)
 
     wait_timeout = module.params.get('wait_timeout')
     wait = module.params.get('wait')
 
-    datacenters_api = ionoscloud.DataCentersApi(client)
     servers_api = ionoscloud.ServersApi(api_client=client)
-
-    datacenter_list = datacenters_api.datacenters_get(depth=1)
-    datacenter_id = get_resource_id(module, datacenter_list, module.params.get('datacenter'))
 
     # Remove the server's boot volume
     if module.params.get('remove_boot_volume'):
@@ -855,7 +843,7 @@ def create_server(module, client):
     servers_api = ionoscloud.ServersApi(api_client=client)
 
     # Locate UUID for datacenter if referenced by name.
-    datacenter_list = datacenters_api.datacenters_get(depth=2)
+    datacenter_list = get_paginated(datacenters_api.datacenters_get, depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if datacenter_id:
         datacenter_found = True
@@ -891,12 +879,12 @@ def create_server(module, client):
     for name in names:
         existing_server = get_resource(module, server_list, name)
         if existing_server is not None:
-            update_replace = update_replace_object(module, client, existing_server, name)
+            update_replace = update_replace_object(module, client, datacenter_id, existing_server, name)
             create_response = update_replace[RETURNED_KEY]
             if update_replace['changed']:
                 changed = True
         else:
-            create_response =_create_object(module, client, name).to_dict()
+            create_response =_create_object(module, client, datacenter_id, name).to_dict()
             changed = True
 
         virtual_machines.append(create_response)
@@ -939,7 +927,7 @@ def update_server(module, client):
     # Locate UUID for datacenter if referenced by name.
     datacenters_api = ionoscloud.DataCentersApi(client)
 
-    datacenter_list = datacenters_api.datacenters_get(depth=1)
+    datacenter_list = get_paginated(datacenters_api.datacenters_get)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
@@ -962,7 +950,7 @@ def update_server(module, client):
 
         if module.check_mode:
             module.exit_json(changed=True)
-        update_replace = update_replace_object(module, client, instance, name)
+        update_replace = update_replace_object(module, client, datacenter_id, instance, name)
         server_response = update_replace[RETURNED_KEY]
         if update_replace['changed']:
             changed = True
@@ -1003,7 +991,7 @@ def remove_server(module, client):
         module.fail_json(msg='instance_ids should be a list of virtual machine ids or names, aborting')
 
     # Locate UUID for datacenter if referenced by name.
-    datacenter_list = datacenter_server.datacenters_get(depth=2)
+    datacenter_list = get_paginated(datacenter_server.datacenters_get, depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))
@@ -1014,7 +1002,7 @@ def remove_server(module, client):
         # Locate UUID for server if referenced by name.
         server = get_resource(module, server_list, instance)
         if server:
-            _remove_object(module, client, server)
+            _remove_object(module, client, datacenter_id, server)
             changed = True
 
     return {
@@ -1044,7 +1032,7 @@ def resume_server(module, client, state):
     servers_api = ionoscloud.ServersApi(api_client=client)
 
     # Locate UUID for datacenter if referenced by name.
-    datacenter_list = datacenters_api.datacenters_get(depth=2)
+    datacenter_list = get_paginated(datacenters_api.datacenters_get, depth=2)
     datacenter_id = get_resource_id(module, datacenter_list, datacenter)
     if not datacenter_id:
         module.fail_json(msg='Virtual data center \'%s\' not found.' % str(datacenter))

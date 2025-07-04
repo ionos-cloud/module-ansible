@@ -20,7 +20,7 @@ from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, _get_request_id, get_resource_id,
+    get_module_arguments, _get_request_id, get_resource_id, get_paginated,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
@@ -284,7 +284,7 @@ class LanModule(CommonIonosModule):
 
     def _get_object_list(self, clients):
         client = clients[0]
-        datacenter_list = ionoscloud.DataCentersApi(api_client=client).datacenters_get(depth=1)
+        datacenter_list = get_paginated(ionoscloud.DataCentersApi(api_client=client).datacenters_get)
         datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
 
         return ionoscloud.LANsApi(client).datacenters_lans_get(datacenter_id, depth=1)
@@ -318,7 +318,7 @@ class LanModule(CommonIonosModule):
         datacenters_api = ionoscloud.DataCentersApi(client)
         lans_api = ionoscloud.LANsApi(client)
 
-        datacenter_list = datacenters_api.datacenters_get(depth=1)
+        datacenter_list = get_paginated(datacenters_api.datacenters_get)
         datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
 
         lan = Lan(properties=LanProperties(
@@ -352,7 +352,7 @@ class LanModule(CommonIonosModule):
         datacenters_api = ionoscloud.DataCentersApi(client)
         lans_api = ionoscloud.LANsApi(client)
 
-        datacenter_list = datacenters_api.datacenters_get(depth=1)
+        datacenter_list = get_paginated(datacenters_api.datacenters_get)
         datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
 
         if ip_failover:
@@ -383,7 +383,7 @@ class LanModule(CommonIonosModule):
         datacenters_api = ionoscloud.DataCentersApi(client)
         lans_api = ionoscloud.LANsApi(client)
 
-        datacenter_list = datacenters_api.datacenters_get(depth=1)
+        datacenter_list = get_paginated(datacenters_api.datacenters_get)
         datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
 
         try:

@@ -11,7 +11,7 @@ except ImportError:
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, get_resource_id,
+    get_module_arguments, get_resource_id, get_paginated,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
@@ -589,7 +589,7 @@ def get_volume_object(volume_dict):
     )
 
 
-class RegistryModule(CommonIonosModule):
+class VMAutoScalingModule(CommonIonosModule):
     def __init__(self) -> None:
         super().__init__()
         self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES))
@@ -603,7 +603,7 @@ class RegistryModule(CommonIonosModule):
     def _should_replace_object(self, existing_object, clients):
         cloudapi_client = clients[1]
         if self.module.params.get('datacenter'):
-            datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
+            datacenter_list = get_paginated(ionoscloud.DataCentersApi(cloudapi_client).datacenters_get)
             datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
             if datacenter_id is None:
                 self.module.fail_json('Datacenter {} not found.'.format(self.module.params.get('datacenter')))
@@ -771,7 +771,7 @@ class RegistryModule(CommonIonosModule):
     def _create_object(self, existing_object, clients):
         vm_autoscaling_client = clients[0]
         cloudapi_client = clients[1]
-        datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
+        datacenter_list = get_paginated(ionoscloud.DataCentersApi(cloudapi_client).datacenters_get)
         datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
         max_replica_count = self.module.params.get('max_replica_count')
         min_replica_count = self.module.params.get('min_replica_count')
@@ -853,7 +853,7 @@ class RegistryModule(CommonIonosModule):
     def _update_object(self, existing_object, clients):
         vm_autoscaling_client = clients[0]
         cloudapi_client = clients[1]
-        datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
+        datacenter_list = get_paginated(ionoscloud.DataCentersApi(cloudapi_client).datacenters_get)
         datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
         max_replica_count = self.module.params.get('max_replica_count')
         min_replica_count = self.module.params.get('min_replica_count')
@@ -940,7 +940,7 @@ class RegistryModule(CommonIonosModule):
 
 
 if __name__ == '__main__':
-    ionos_module = RegistryModule()
+    ionos_module = VMAutoScalingModule()
     if not HAS_SDK:
         ionos_module.module.fail_json(msg='ionoscloud and ionoscloud_vm_autoscaling is required for this module, run `pip install ionoscloud ionoscloud_vm_autoscaling`')
     ionos_module.main()

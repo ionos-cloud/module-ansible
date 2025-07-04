@@ -9,11 +9,11 @@ try:
 except ImportError:
     HAS_SDK = False
 
-from ..module_utils.common_ionos_module import CommonIonosModule
-from ..module_utils.common_ionos_methods import (
-    get_module_arguments, get_resource, get_resource_id,
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
+    get_module_arguments, get_resource, get_resource_id, get_paginated,
 )
-from ..module_utils.common_ionos_options import get_default_options_with_replace
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options_with_replace
 
 
 ANSIBLE_METADATA = {
@@ -405,7 +405,7 @@ class PostgresClusterModule(CommonIonosModule):
         datacenter_id = lan_id = cidr = None
         if self.module.params.get('connections'):
             connection = self.module.params.get('connections')[0]
-            datacenter_list = ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1)
+            datacenter_list = get_paginated(ionoscloud.DataCentersApi(cloudapi_client).datacenters_get)
             datacenter_id = get_resource_id(self.module, datacenter_list, connection['datacenter'])
 
             if datacenter_id is None:
@@ -484,7 +484,7 @@ class PostgresClusterModule(CommonIonosModule):
         if self.module.params.get('connections'):
             connection = self.module.params.get('connections')[0]
 
-            datacenter_id = get_resource_id(self.module, ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=2), connection['datacenter'])
+            datacenter_id = get_resource_id(self.module, get_paginated(ionoscloud.DataCentersApi(cloudapi_client).datacenters_get, depth=2), connection['datacenter'])
 
             if datacenter_id is None:
                 self.module.fail_json('Datacenter {} not found.'.format(connection['datacenter']))

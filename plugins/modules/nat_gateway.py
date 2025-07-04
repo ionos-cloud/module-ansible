@@ -22,7 +22,7 @@ from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, _get_request_id, get_resource_id,
+    get_module_arguments, _get_request_id, get_resource_id, get_paginated,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
@@ -277,7 +277,7 @@ class NatGatewayModule(CommonIonosModule):
         client = clients[0]
         datacenter_id = get_resource_id(
             self.module, 
-            ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+            get_paginated(ionoscloud.DataCentersApi(client).datacenters_get),
             self.module.params.get('datacenter'),
         )
         return ionoscloud.NATGatewaysApi(client).datacenters_natgateways_get(datacenter_id, depth=1)
@@ -298,7 +298,7 @@ class NatGatewayModule(CommonIonosModule):
         lans = self.module.params.get('lans')
         datacenter_id = get_resource_id(
             self.module, 
-            ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+            get_paginated(ionoscloud.DataCentersApi(client).datacenters_get),
             self.module.params.get('datacenter'),
         )
         if existing_object is not None:
@@ -335,7 +335,7 @@ class NatGatewayModule(CommonIonosModule):
         lans = self.module.params.get('lans')
         datacenter_id = get_resource_id(
             self.module, 
-            ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+            get_paginated(ionoscloud.DataCentersApi(client).datacenters_get),
             self.module.params.get('datacenter'),
         )
 
@@ -364,7 +364,7 @@ class NatGatewayModule(CommonIonosModule):
         client = clients[0]
         datacenter_id = get_resource_id(
             self.module, 
-            ionoscloud.DataCentersApi(client).datacenters_get(depth=1),
+            get_paginated(ionoscloud.DataCentersApi(client).datacenters_get),
             self.module.params.get('datacenter'),
         )
 

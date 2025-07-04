@@ -20,7 +20,7 @@ except ImportError:
     HAS_SDK = False
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments, _get_request_id, get_resource_id
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments, _get_request_id, get_resource_id, get_paginated
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
 
@@ -403,7 +403,7 @@ class FirewallRuleModule(CommonIonosModule):
         firewall_rules_api = ionoscloud.FirewallRulesApi(api_client=client)
 
         # Locate UUID for virtual datacenter
-        datacenter_list = datacenter_api.datacenters_get(depth=1)
+        datacenter_list = get_paginated(datacenter_api.datacenters_get)
         datacenter_id = get_resource_id(self.module, datacenter_list, datacenter)
 
         # Locate UUID for server
@@ -459,7 +459,7 @@ class FirewallRuleModule(CommonIonosModule):
         servers_api = ionoscloud.ServersApi(api_client=client)
         firewall_rules_api = ionoscloud.FirewallRulesApi(api_client=client)
 
-        datacenter_list = datacenters_api.datacenters_get(depth=1)
+        datacenter_list = get_paginated(datacenters_api.datacenters_get)
         datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
 
         server_list = servers_api.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
@@ -520,7 +520,7 @@ class FirewallRuleModule(CommonIonosModule):
         nic_api = ionoscloud.NetworkInterfacesApi(client)
         firewall_rules_api = ionoscloud.FirewallRulesApi(api_client=client)
 
-        datacenter_list = datacenters_api.datacenters_get(depth=1)
+        datacenter_list = get_paginated(datacenters_api.datacenters_get)
         datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
 
         server_list = servers_api.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)
@@ -572,7 +572,7 @@ class FirewallRuleModule(CommonIonosModule):
         nic_api = ionoscloud.NetworkInterfacesApi(client)
         firewall_rules_api = ionoscloud.FirewallRulesApi(api_client=client)
 
-        datacenter_list = datacenters_api.datacenters_get(depth=1)
+        datacenter_list = get_paginated(datacenters_api.datacenters_get)
         datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
 
         server_list = servers_api.datacenters_servers_get(datacenter_id=datacenter_id, depth=1)

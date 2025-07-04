@@ -12,7 +12,7 @@ except ImportError:
     HAS_SDK = False
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments, get_resource_id
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments, get_resource_id, get_paginated
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options_with_replace
 
 
@@ -258,7 +258,7 @@ class DataPlatformClusterModule(CommonIonosModule):
     def _should_replace_object(self, existing_object, clients):
         datacenter_id = get_resource_id(
             self.module,
-            ionoscloud.DataCentersApi(clients[1]).datacenters_get(depth=1),
+            get_paginated(ionoscloud.DataCentersApi(clients[1]).datacenters_get),
             self.module.params.get('datacenter'),
         )
 
@@ -303,7 +303,7 @@ class DataPlatformClusterModule(CommonIonosModule):
 
         datacenter_id = get_resource_id(
             self.module,
-            ionoscloud.DataCentersApi(cloudapi_client).datacenters_get(depth=1),
+            get_paginated(ionoscloud.DataCentersApi(cloudapi_client).datacenters_get),
             self.module.params.get('datacenter'),
         )
 

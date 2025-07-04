@@ -20,7 +20,7 @@ from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, _get_request_id, get_resource_id,
+    get_module_arguments, _get_request_id, get_resource_id, get_paginated,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
@@ -374,7 +374,7 @@ class NicModule(CommonIonosModule):
         nics_api = ionoscloud.NetworkInterfacesApi(api_client=client)
 
         # Locate UUID for Datacenter
-        datacenter_list = datacenters_api.datacenters_get(depth=1)
+        datacenter_list = get_paginated(datacenters_api.datacenters_get)
         datacenter = get_resource_id(self.module, datacenter_list, datacenter)
 
         # Locate UUID for Server
@@ -417,7 +417,7 @@ class NicModule(CommonIonosModule):
         nics_api = ionoscloud.NetworkInterfacesApi(api_client=client)
 
         # Locate UUID for Datacenter
-        datacenter_list = datacenters_api.datacenters_get(depth=1)
+        datacenter_list = get_paginated(datacenters_api.datacenters_get)
         datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
 
         # Locate UUID for Server
@@ -461,7 +461,7 @@ class NicModule(CommonIonosModule):
         nics_api = ionoscloud.NetworkInterfacesApi(api_client=client)
 
         # Locate UUID for Datacenter
-        datacenter_list = datacenters_api.datacenters_get(depth=1)
+        datacenter_list = get_paginated(datacenters_api.datacenters_get)
         datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
 
         # Locate UUID for Server
@@ -505,7 +505,7 @@ class NicModule(CommonIonosModule):
         nics_api = ionoscloud.NetworkInterfacesApi(api_client=client)
 
         # Locate UUID for Datacenter
-        datacenter_list = datacenters_api.datacenters_get(depth=1)
+        datacenter_list = get_paginated(datacenters_api.datacenters_get)
         datacenter_id = get_resource_id(self.module, datacenter_list, self.module.params.get('datacenter'))
 
         # Locate UUID for Server

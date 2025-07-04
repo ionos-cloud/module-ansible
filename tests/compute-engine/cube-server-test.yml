@@ -26,7 +26,7 @@
          count: 1
          assign_public_ip: true
          remove_boot_volume: true
-         template_uuid: "15c6dd2f-02d2-4987-b439-9a58dd59ecc3"
+         template_uuid: "{{ cube_template }}"
          availability_zone: AUTO
          wait: true
          wait_timeout: "{{ wait_timeout }}"
@@ -48,7 +48,7 @@
          count: 1
          assign_public_ip: true
          remove_boot_volume: true
-         template_uuid: "15c6dd2f-02d2-4987-b439-9a58dd59ecc3"
+         template_uuid: "{{ cube_template }}"
          availability_zone: AUTO
          wait: true
          wait_timeout: "{{ wait_timeout }}"

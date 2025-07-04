@@ -6,8 +6,8 @@ nic: "AnsibleAutoTestDataPlatform"
 lan: "AnsibleAutoTestDataPlatform"
 location: gb/lhr
 image: ce08ca15-0adf-11ec-9fa6-1e5ea9024c03
-image_alias: centos:7
+image_alias: ubuntu:latest
 wait_timeout: 500
 email: ansible.test@mail.com
 updated_email: updated.ansible.test@mail.com
-dataplatform_version: 23.11
+dataplatform_version: 25.3
