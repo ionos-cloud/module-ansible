@@ -147,18 +147,9 @@
         datacenter: "{{ datacenter }}"
       register: server_list_response
 
-    - name: Get only the servers that need to be upgraded
-      ionoscloudsdk.ionoscloud.server_info:
-        datacenter: "{{ datacenter }}"
-      register: servers_list_upgrade_response
-
     - name: Show all servers for the created datacenter
       debug:
         var: server_list_response
-
-    - name: Show servers that need an upgrade
-      debug:
-        var: servers_list_upgrade_response
 
     - name: Start servers
       ionoscloudsdk.ionoscloud.server:
