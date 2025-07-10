@@ -3,6 +3,7 @@
 ## 7.5.3
 ### Fixes
 * remove upgrade_needed from server_info as it was removed from the API
+* use correct imports for Lan and LanProperties in cube_server and vcpu_server
 
 ## 7.5.2
 ### Fixes
