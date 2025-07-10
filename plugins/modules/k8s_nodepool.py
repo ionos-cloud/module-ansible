@@ -73,7 +73,7 @@ OPTIONS = {
         'type': 'int',
     },
     'cpu_family': {
-        'description': ['The CPU type for the nodes.'],
+        'description': ['The CPU type for the nodes. If this field is null or omitted from the request, an available CPU architecture will be automatically selected. Supplying an empty string is not accepted.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
@@ -205,7 +205,9 @@ options:
         required: false
     cpu_family:
         description:
-        - The CPU type for the nodes.
+        - The CPU type for the nodes. If this field is null or omitted from the request,
+            an available CPU architecture will be automatically selected. Supplying an
+            empty string is not accepted.
         required: false
     datacenter:
         description:

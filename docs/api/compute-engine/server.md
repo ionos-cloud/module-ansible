@@ -496,7 +496,7 @@ register: server_create_result
   <tr>
   <td>cpu_family<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers.<br />Default: INTEL_ICELAKE<br />Options: ['INTEL_XEON', 'INTEL_SKYLAKE', 'INTEL_ICELAKE', 'AMD_EPYC', 'INTEL_SIERRAFOREST']</td>
+  <td>CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers. Only if the field is omitted from the request, an available CPU architecture will be automatically selected. The values empty or null are not accepted.<br />Default: INTEL_ICELAKE<br />Options: ['INTEL_XEON', 'INTEL_SKYLAKE', 'INTEL_ICELAKE', 'AMD_EPYC', 'INTEL_SIERRAFOREST']</td>
   </tr>
   <tr>
   <td>availability_zone<br/><mark style="color:blue;">str</mark></td>

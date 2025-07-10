@@ -112,7 +112,7 @@ OPTIONS = {
         'type': 'int',
     },
     'cpu_family': {
-        'description': ['CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers.'],
+        'description': ['CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers. Only if the field is omitted from the request, an available CPU architecture will be automatically selected. The values empty or null are not accepted.'],
         'available': ['present'],
         'choices': ['INTEL_XEON', 'INTEL_SKYLAKE', 'INTEL_ICELAKE', 'AMD_EPYC', 'INTEL_SIERRAFOREST'],
         'default': 'INTEL_ICELAKE',
@@ -283,7 +283,9 @@ options:
         - CPU architecture on which server gets provisioned; not all CPU architectures
             are available in all datacenter regions; available CPU architectures can be
             retrieved from the datacenter resource; must not be provided for CUBE and
-            VCPU servers.
+            VCPU servers. Only if the field is omitted from the request, an available
+            CPU architecture will be automatically selected. The values empty or null
+            are not accepted.
         required: false
         version_added: '2.2'
     datacenter:

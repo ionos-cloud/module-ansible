@@ -1,5 +1,9 @@
 # Changelog
 
+## 7.5.3
+### Fixes
+* remove upgrade_needed from server_info as it was removed from the API
+
 ## 7.5.2
 ### Fixes
 * use pagination to retrieve all datacenters when limit is exceeded
