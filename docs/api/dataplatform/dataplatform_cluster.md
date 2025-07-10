@@ -12,7 +12,7 @@ This is a simple module that supports creating or removing Data Platform Cluster
 name: Create Data Platform cluster
 ionoscloudsdk.ionoscloud.dataplatform_cluster:
   name: 'AnsibleAutoTestDataPlatform'
-  dataplatform_version: '23.11'
+  dataplatform_version: '25.3'
   datacenter: ''
   maintenance_window:
     day_of_the_week: Wednesday
@@ -26,7 +26,7 @@ register: cluster_response
 name: Patch Data Platform cluster no change
 ionoscloudsdk.ionoscloud.dataplatform_cluster:
   cluster: 'AnsibleAutoTestDataPlatform'
-  dataplatform_version: '23.11'
+  dataplatform_version: '25.3'
   allow_replace: false
   maintenance_window:
     day_of_the_week: Wednesday
@@ -100,7 +100,7 @@ ionoscloudsdk.ionoscloud.dataplatform_cluster:
 name: Create Data Platform cluster
 ionoscloudsdk.ionoscloud.dataplatform_cluster:
   name: 'AnsibleAutoTestDataPlatform'
-  dataplatform_version: '23.11'
+  dataplatform_version: '25.3'
   datacenter: ''
   maintenance_window:
     day_of_the_week: Wednesday
@@ -274,7 +274,7 @@ ionoscloudsdk.ionoscloud.dataplatform_cluster:
 name: Patch Data Platform cluster no change
 ionoscloudsdk.ionoscloud.dataplatform_cluster:
   cluster: 'AnsibleAutoTestDataPlatform'
-  dataplatform_version: '23.11'
+  dataplatform_version: '25.3'
   allow_replace: false
   maintenance_window:
     day_of_the_week: Wednesday

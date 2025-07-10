@@ -395,7 +395,7 @@ ionoscloudsdk.ionoscloud.cube_server:
   count: 1
   assign_public_ip: true
   remove_boot_volume: true
-  template_uuid: 15c6dd2f-02d2-4987-b439-9a58dd59ecc3
+  template_uuid: '72e73b81-8551-4e74-b398-fc63b39994af'
   availability_zone: AUTO
   wait: true
   wait_timeout: '500'
@@ -455,7 +455,7 @@ ionoscloudsdk.ionoscloud.cube_server:
   count: 1
   assign_public_ip: true
   remove_boot_volume: true
-  template_uuid: 15c6dd2f-02d2-4987-b439-9a58dd59ecc3
+  template_uuid: '72e73b81-8551-4e74-b398-fc63b39994af'
   availability_zone: AUTO
   wait: true
   wait_timeout: '500'

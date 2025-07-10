@@ -29,11 +29,6 @@ OPTIONS = {
         'required': STATES,
         'type': 'str',
     },
-    'upgrade_needed': {
-        'description': ['Filter servers that can or that cannot be upgraded.'],
-        'available': STATES,
-        'type': 'bool',
-    },
     **get_info_default_options_with_depth(STATES),
 }
 
@@ -85,10 +80,6 @@ options:
         env_fallback: IONOS_TOKEN
         no_log: true
         required: false
-    upgrade_needed:
-        description:
-        - Filter servers that can or that cannot be upgraded.
-        required: false
     username:
         aliases:
         - subscription_user
@@ -115,7 +106,6 @@ def get_objects(module, client):
     datacenter = module.params.get('datacenter')
     servers_api = ionoscloud.ServersApi(client)
     datacenter_server = ionoscloud.DataCentersApi(api_client=client)
-    upgrade_needed = module.params.get('upgrade_needed')
     depth = module.params.get('depth')
 
     # Locate UUID for Datacenter
@@ -124,7 +114,6 @@ def get_objects(module, client):
 
     return servers_api.datacenters_servers_get(
         datacenter,
-        upgrade_needed=upgrade_needed,
         depth=depth,
     )
 

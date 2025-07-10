@@ -170,11 +170,6 @@ register: server_list_response
   <td>The ID or name of the datacenter.</td>
   </tr>
   <tr>
-  <td>upgrade_needed<br/><mark style="color:blue;">bool</mark></td>
-  <td align="center">False</td>
-  <td>Filter servers that can or that cannot be upgraded.</td>
-  </tr>
-  <tr>
   <td>depth<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
   <td>The depth used when retrieving the items.<br />Default: 1</td>

@@ -414,7 +414,7 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   cpu_family: 'INTEL_XEON'
   ram: '1024'
   nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True}, {'lan': 1, 'name': 'SDK_TEST_NIC2', 'dhcp': False}]'
-  volumes: '[{'image': 'b6d8c6f2-febc-11ed-86e8-2e7f0689c849', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
+  volumes: '[{'image': '0ede69ec-eeab-11ef-8fa7-aee9942a25aa', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
 register: vm_autoscaling_group_response
 ''',
     'update': '''
@@ -437,7 +437,7 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   cpu_family: 'INTEL_SKYLAKE'
   ram: '2048'
   nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True, 'firewall_active': True, 'firewall_rules': [{'name': 'test2', 'protocol': 'TCP', 'port_range_end': 12}]}]'
-  volumes: '[{'image': 'e84aed99-feba-11ed-86e8-2e7f0689c849', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME_UPDATE', 'size': 75, 'type': 'SSD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
+  volumes: '[{'image': 'b5548883-108b-11f0-8ffe-266d89ffd7f8', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME_UPDATE', 'size': 75, 'type': 'SSD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
   do_not_replace: false
   state: update
 register: vm_autoscaling_group_response
@@ -470,7 +470,7 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   cpu_family: 'INTEL_XEON'
   ram: '1024'
   nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True}, {'lan': 1, 'name': 'SDK_TEST_NIC2', 'dhcp': False}]'
-  volumes: '[{'image': 'b6d8c6f2-febc-11ed-86e8-2e7f0689c849', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
+  volumes: '[{'image': '0ede69ec-eeab-11ef-8fa7-aee9942a25aa', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
 register: vm_autoscaling_group_response
 
 
@@ -493,7 +493,7 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   cpu_family: 'INTEL_SKYLAKE'
   ram: '2048'
   nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True, 'firewall_active': True, 'firewall_rules': [{'name': 'test2', 'protocol': 'TCP', 'port_range_end': 12}]}]'
-  volumes: '[{'image': 'e84aed99-feba-11ed-86e8-2e7f0689c849', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME_UPDATE', 'size': 75, 'type': 'SSD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
+  volumes: '[{'image': 'b5548883-108b-11f0-8ffe-266d89ffd7f8', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME_UPDATE', 'size': 75, 'type': 'SSD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
   do_not_replace: false
   state: update
 register: vm_autoscaling_group_response
