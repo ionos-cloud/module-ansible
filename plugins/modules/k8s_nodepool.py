@@ -93,14 +93,14 @@ OPTIONS = {
     'availability_zone': {
         'description': ['The availability zone in which the target VM should be provisioned.'],
         'available': ['update', 'present'],
-        'choices': ['AUTO', 'ZONE_1', 'ZONE_2'],
+        'choices_docs': ['AUTO', 'ZONE_1', 'ZONE_2'],
         'type': 'str',
     },
     'storage_type': {
         'description': ['The storage type for the nodes.'],
         'available': ['update', 'present'],
         'required': ['present'],
-        'choices': ['HDD', 'SSD'],
+        'choices_docs': ['HDD', 'SSD'],
         'type': 'str',
     },
     'storage_size': {

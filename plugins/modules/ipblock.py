@@ -53,7 +53,7 @@ OPTIONS = {
     'location': {
         'description': ['Location of that IP block. Property cannot be modified after it is created (disallowed in update requests).'],
         'required': ['present'],
-        'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
+        'choices_docs': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
         'available': ['present'],
         'type': 'str',
     },

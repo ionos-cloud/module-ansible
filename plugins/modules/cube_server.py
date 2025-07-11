@@ -95,14 +95,14 @@ OPTIONS = {
     'availability_zone': {
         'description': ['The availability zone in which the server should be provisioned.'],
         'available': ['present'],
-        'choices': ['AUTO', 'ZONE_1', 'ZONE_2'],
+        'choices_docs': ['AUTO', 'ZONE_1', 'ZONE_2'],
         'type': 'str',
         'version_added': '2.3',
     },
     'bus': {
         'description': ['The bus type for the volume.'],
         'available': ['present'],
-        'choices': ['IDE', 'VIRTIO'],
+        'choices_docs': ['IDE', 'VIRTIO'],
         'default': 'VIRTIO',
         'type': 'str',
     },
@@ -121,7 +121,7 @@ OPTIONS = {
     'location': {
         'description': ['The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.'],
         'available': ['present'],
-        'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
+        'choices_docs': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr'],
         'default': 'us/las',
         'type': 'str',
     },
@@ -148,7 +148,7 @@ OPTIONS = {
     'disk_type': {
         'description': ['The disk type for the volume.'],
         'available': ['present'],
-        'choices': ['HDD', 'SSD', 'SSD Standard', 'SSD Premium', 'DAS'],
+        'choices_docs': ['HDD', 'SSD', 'SSD Standard', 'SSD Premium', 'DAS'],
         'default': 'DAS',
         'type': 'str',
     },
