@@ -227,7 +227,7 @@ register: result
   <tr>
   <td>datacenter<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The unique identifier of the VDC where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located.</td>
+  <td>The unique identifier of the data center where the worker nodes of the node pool are provisioned. Note that the data center must be located in the same location as the cluster of the node pool or in one of its associated locations. For private Kubernetes, the data centers of all node pools must be placed at the same location.</td>
   </tr>
   <tr>
   <td>lans<br/><mark style="color:blue;">list</mark></td>
@@ -494,7 +494,7 @@ register: result_no_change
   <tr>
   <td>datacenter<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The unique identifier of the VDC where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located.</td>
+  <td>The unique identifier of the data center where the worker nodes of the node pool are provisioned. Note that the data center must be located in the same location as the cluster of the node pool or in one of its associated locations. For private Kubernetes, the data centers of all node pools must be placed at the same location.</td>
   </tr>
   <tr>
   <td>lans<br/><mark style="color:blue;">list</mark></td>

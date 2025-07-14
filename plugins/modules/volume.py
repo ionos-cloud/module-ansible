@@ -274,6 +274,8 @@ options:
         - SSD
         - SSD Premium
         - SSD Standard
+        - DAS
+        - ISO
         description:
         - The disk type of the volume.
         required: false
@@ -302,7 +304,9 @@ options:
         - UNKNOWN
         - WINDOWS
         - WINDOWS2016
+        - WINDOWS2019
         - WINDOWS2022
+        - WINDOWS2025
         - RHEL
         - LINUX
         - OTHER

@@ -56,7 +56,7 @@ OPTIONS = {
         'type': 'str',
     },
     'datacenter': {
-        'description': ['The unique identifier of the VDC where the worker nodes of the node pool are provisioned.Note that the data center is located in the exact place where the parent cluster of the node pool is located.'],
+        'description': ['The unique identifier of the data center where the worker nodes of the node pool are provisioned. Note that the data center must be located in the same location as the cluster of the node pool or in one of its associated locations. For private Kubernetes, the data centers of all node pools must be placed at the same location.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
@@ -211,9 +211,11 @@ options:
         required: false
     datacenter:
         description:
-        - The unique identifier of the VDC where the worker nodes of the node pool are
-            provisioned.Note that the data center is located in the exact place where
-            the parent cluster of the node pool is located.
+        - The unique identifier of the data center where the worker nodes of the node
+            pool are provisioned. Note that the data center must be located in the same
+            location as the cluster of the node pool or in one of its associated locations.
+            For private Kubernetes, the data centers of all node pools must be placed
+            at the same location.
         required: false
     k8s_cluster:
         description:
