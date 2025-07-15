@@ -214,12 +214,12 @@ register: volume_create_response
   <tr>
   <td>disk_type<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The disk type of the volume.<br />Options: ['HDD', 'SSD', 'SSD Premium', 'SSD Standard']</td>
+  <td>The disk type of the volume.<br />Options: ['HDD', 'SSD', 'SSD Premium', 'SSD Standard', 'DAS', 'ISO']</td>
   </tr>
   <tr>
   <td>licence_type<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>OS type for this volume.<br />Options: ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'RHEL', 'LINUX', 'OTHER']</td>
+  <td>OS type for this volume.<br />Options: ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2019', 'WINDOWS2022', 'WINDOWS2025', 'RHEL', 'LINUX', 'OTHER']</td>
   </tr>
   <tr>
   <td>availability_zone<br/><mark style="color:blue;">str</mark></td>

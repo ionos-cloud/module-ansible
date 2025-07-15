@@ -141,6 +141,9 @@ def get_info_default_options(states):
 def transform_for_documentation(val, states):
     if isinstance(val.get('required', []), list):
         val['required'] = len(val.get('required', [])) == len(states)
+    if 'choices_docs' in val:
+        val['choices'] = val['choices_docs']
+        del val['choices_docs']
     if 'available' in val:
         del val['available']
     if 'type' in val:
