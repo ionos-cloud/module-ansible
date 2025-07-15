@@ -41,7 +41,6 @@
          image_password: "{{ password }}"
          location: "{{ location }}"
          remove_boot_volume: true
-         cpu_family: "INTEL_SKYLAKE"
          wait: true
          wait_timeout: "{{ wait_timeout }}"
          state: present
