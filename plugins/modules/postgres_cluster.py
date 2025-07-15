@@ -69,7 +69,7 @@ OPTIONS = {
     'storage_type': {
         'description': ['The storage type used in your cluster. (Value "SSD" is deprecated. Use the equivalent "SSD Premium" instead)'],
         'available': ['present'],
-        'choices': ['HDD', 'SSD', 'SSD Standard', 'SSD Premium'],
+        'choices_docs': ['HDD', 'SSD', 'SSD Standard', 'SSD Premium'],
         'required': ['present'],
         'type': 'str',
     },

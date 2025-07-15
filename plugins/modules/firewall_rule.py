@@ -74,7 +74,7 @@ OPTIONS = {
         'description': ['The protocol for the rule. Property cannot be modified after it is created (disallowed in update requests).'],
         'required': ['present'],
         'available': ['present', 'update'],
-        'choices': ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'GRE', 'VRRP', 'ESP', 'AH', 'ANY'],
+        'choices_docs': ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'GRE', 'VRRP', 'ESP', 'AH', 'ANY'],
         'type': 'str',
     },
     'source_mac': {
@@ -121,7 +121,7 @@ OPTIONS = {
             'sourceIp, targetIp nor ipVersion are specified, this rule will only allow IPv4 traffic.',
         ],
         'available': ['present', 'update'],
-        'choices': ['IPv4', 'IPv6'],
+        'choices_docs': ['IPv4', 'IPv6'],
         'type': 'str',
     },
     **get_default_options(STATES),

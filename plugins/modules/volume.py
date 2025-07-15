@@ -66,7 +66,7 @@ OPTIONS = {
     },
     'bus': {
         'description': ['The bus type for this volume; default is VIRTIO.'],
-        'choices': ['VIRTIO', 'IDE', 'UNKNOWN'],
+        'choices_docs': ['VIRTIO', 'IDE', 'UNKNOWN'],
         'default': 'VIRTIO',
         'available': ['present', 'update'],
         'type': 'str',
@@ -91,19 +91,19 @@ OPTIONS = {
     },
     'disk_type': {
         'description': ['The disk type of the volume.'],
-        'choices': ['HDD', 'SSD', 'SSD Premium', 'SSD Standard'],
+        'choices_docs': ['HDD', 'SSD', 'SSD Premium', 'SSD Standard', 'DAS', 'ISO'],
         'available': ['present'],
         'type': 'str',
     },
     'licence_type': {
         'description': ['OS type for this volume.'],
-        'choices': ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'RHEL', 'LINUX', 'OTHER'],
+        'choices_docs': ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2019', 'WINDOWS2022', 'WINDOWS2025', 'RHEL', 'LINUX', 'OTHER'],
         'available': ['present'],
         'type': 'str',
     },
     'availability_zone': {
         'description': ['The availability zone in which the volume should be provisioned. The storage volume will be provisioned on as few physical storage devices as possible, but this cannot be guaranteed upfront. This is uavailable for DAS (Direct Attached Storage), and subject to availability for SSD.'],
-        'choices': ['AUTO', 'ZONE_1', 'ZONE_2', 'ZONE_3'],
+        'choices_docs': ['AUTO', 'ZONE_1', 'ZONE_2', 'ZONE_3'],
         'available': ['present', 'update'],
         'type': 'str',
         'version_added': '2.3',
@@ -274,6 +274,8 @@ options:
         - SSD
         - SSD Premium
         - SSD Standard
+        - DAS
+        - ISO
         description:
         - The disk type of the volume.
         required: false
@@ -302,7 +304,9 @@ options:
         - UNKNOWN
         - WINDOWS
         - WINDOWS2016
+        - WINDOWS2019
         - WINDOWS2022
+        - WINDOWS2025
         - RHEL
         - LINUX
         - OTHER

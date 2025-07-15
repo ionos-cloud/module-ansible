@@ -97,7 +97,9 @@ def generate_module_docs(module_name):
                 el[1]['description'] = ''.join(el[1]['description'])
                 el[1]['required'] = state in el[1].get('required', [])
                 el[1]['hasDefault'] = (el[1].get('default') is not None)
-                el[1]['hasChoices'] = (el[1].get('choices') is not None)
+                el[1]['hasChoices'] = (el[1].get('choices') is not None) or (el[1].get('choices_docs') is not None)
+                if el[1].get('choices_docs') is not None:
+                    el[1]['choices'] = el[1].get('choices_docs')
                 state_parameters.append(el[1])
             parameters_per_state.append({
                 'state': state,

@@ -89,7 +89,7 @@ OPTIONS = {
     'volume_availability_zone': {
         'description': ['The storage availability zone assigned to the volume.'],
         'available': ['present'],
-        'choices': ['AUTO', 'ZONE_1', 'ZONE_2', 'ZONE_3'],
+        'choices_docs': ['AUTO', 'ZONE_1', 'ZONE_2', 'ZONE_3'],
         'type': 'str',
         'version_added': '2.3',
     },
@@ -114,7 +114,7 @@ OPTIONS = {
     'cpu_family': {
         'description': ['CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers. Only if the field is omitted from the request, an available CPU architecture will be automatically selected. The values empty or null are not accepted.'],
         'available': ['present'],
-        'choices': ['INTEL_XEON', 'INTEL_SKYLAKE', 'INTEL_ICELAKE', 'AMD_EPYC', 'INTEL_SIERRAFOREST'],
+        'choices_docs': ['INTEL_XEON', 'INTEL_SKYLAKE', 'INTEL_ICELAKE', 'AMD_EPYC', 'INTEL_SIERRAFOREST'],
         'default': 'INTEL_ICELAKE',
         'type': 'str',
         'version_added': '2.2',
@@ -122,7 +122,7 @@ OPTIONS = {
     'availability_zone': {
         'description': ['The availability zone in which the server should be provisioned.'],
         'available': ['present'],
-        'choices': ['AUTO', 'ZONE_1', 'ZONE_2'],
+        'choices_docs': ['AUTO', 'ZONE_1', 'ZONE_2'],
         'default': 'AUTO',
         'type': 'str',
         'version_added': '2.3',
@@ -136,7 +136,7 @@ OPTIONS = {
     'bus': {
         'description': ['The bus type for the volume.'],
         'available': ['present'],
-        'choices': ['IDE', 'VIRTIO'],
+        'choices_docs': ['IDE', 'VIRTIO'],
         'default': 'VIRTIO',
         'type': 'str',
     },
@@ -155,7 +155,7 @@ OPTIONS = {
     'location': {
         'description': ['The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.'],
         'available': ['present'],
-        'choices': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr', 'es/vit', 'fr/par', 'us/mci'],
+        'choices_docs': ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr', 'es/vit', 'fr/par', 'us/mci'],
         'default': 'us/las',
         'type': 'str',
     },
@@ -182,7 +182,7 @@ OPTIONS = {
     'disk_type': {
         'description': ['The disk type for the volume.'],
         'available': ['present'],
-        'choices': ['HDD', 'SSD', 'SSD Standard', 'SSD Premium', 'DAS'],
+        'choices_docs': ['HDD', 'SSD', 'SSD Standard', 'SSD Premium', 'DAS'],
         'default': 'HDD',
         'type': 'str',
     },

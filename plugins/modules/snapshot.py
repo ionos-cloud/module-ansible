@@ -69,7 +69,7 @@ OPTIONS = {
     },
     'licence_type': {
         'description': ['OS type of this snapshot'],
-        'choices': ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'RHEL', 'LINUX', 'OTHER'],
+        'choices_docs': ['UNKNOWN', 'WINDOWS', 'WINDOWS2016', 'WINDOWS2022', 'RHEL', 'LINUX', 'OTHER'],
         'available': ['update'],
         'type': 'str',
     },

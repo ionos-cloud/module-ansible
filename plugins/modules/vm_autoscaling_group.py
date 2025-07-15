@@ -71,7 +71,7 @@ OPTIONS = {
         ],
         'available': ['present', 'update'],
         'required': ['present'],
-        'choices': [
+        'choices_docs': [
           'INSTANCE_CPU_UTILIZATION_AVERAGE',
           'INSTANCE_NETWORK_IN_BYTES',
           'INSTANCE_NETWORK_IN_PACKETS',
@@ -93,7 +93,7 @@ OPTIONS = {
             "'INSTANCE_CPU_UTILIZATION_AVERAGE'.",
         ],
         'available': ['present', 'update'],
-        'choices': [
+        'choices_docs': [
           'PER_HOUR',
           'PER_MINUTE',
           'PER_SECOND',

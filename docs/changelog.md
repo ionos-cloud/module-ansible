@@ -1,6 +1,8 @@
 # Changelog
 
 ## 7.5.3
+### Changes
+* change most arguments which have the possible values defined to only use them for the documentation instead of failing when the supplied value is not in the list
 ### Fixes
 * remove upgrade_needed from server_info as it was removed from the API
 * use correct imports for Lan and LanProperties in cube_server and vcpu_server
