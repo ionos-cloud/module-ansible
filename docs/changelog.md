@@ -5,7 +5,7 @@
 * change most arguments which have the possible values defined to only use them for the documentation instead of failing when the supplied value is not in the list
 ### Fixes
 * remove upgrade_needed from server_info as it was removed from the API
-* fix lan and lanProperties import in the cube_server and vcpu_server modules
+* use correct imports for Lan and LanProperties in cube_server and vcpu_server
 
 ## 7.5.2
 ### Fixes
