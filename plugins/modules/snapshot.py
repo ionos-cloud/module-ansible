@@ -399,7 +399,7 @@ class SnapshotModule(CommonIonosModule):
         try:
             response = volume_server.datacenters_volumes_create_snapshot_post_with_http_info(
                 datacenter_id=datacenter_id,
-                volume_id=volume_id, 
+                volume_id=volume_id,
                 snapshot=ionoscloud.CreateSnapshot(
                     properties=ionoscloud.CreateSnapshotProperties(
                         name=name,
@@ -462,7 +462,7 @@ class SnapshotModule(CommonIonosModule):
         try:
             snapshot_response, _, headers = volume_server.datacenters_volumes_restore_snapshot_post_with_http_info(
                 datacenter_id=datacenter_id,
-                volume_id=volume_id, 
+                volume_id=volume_id,
                 restore_snapshot=ionoscloud.RestoreSnapshot(
                     properties=ionoscloud.RestoreSnapshotProperties(
                         snapshot_id=snapshot_id,
