@@ -294,7 +294,7 @@ class DatacenterModule(CommonIonosModule):
             datacenter_response, _, headers = datacenters_api.datacenters_post_with_http_info(datacenter=datacenter)
             if wait:
                 request_id = _get_request_id(headers['Location'])
-                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+                client.wait_for_completion(request_id=request_id, timeout=wait_timeout, initial_wait=2, scaleup=20)
                 datacenter_response = datacenters_api.datacenters_find_by_id(datacenter_response.id)
         except ApiException as e:
             self.module.fail_json(msg="failed to create the new datacenter: %s" % to_native(e))
@@ -319,7 +319,7 @@ class DatacenterModule(CommonIonosModule):
             )
             if wait:
                 request_id = _get_request_id(headers['Location'])
-                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+                client.wait_for_completion(request_id=request_id, timeout=wait_timeout, initial_wait=2, scaleup=20)
 
             return datacenter_response
         except ApiException as e:
@@ -339,7 +339,7 @@ class DatacenterModule(CommonIonosModule):
             )
             if wait:
                 request_id = _get_request_id(headers['Location'])
-                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+                client.wait_for_completion(request_id=request_id, timeout=wait_timeout, initial_wait=2, scaleup=20)
         except ApiException as e:
             self.module.fail_json(msg="failed to remove the datacenter: %s" % to_native(e))
 
