@@ -3,9 +3,11 @@
 ## 7.5.3
 ### Changes
 * change most arguments which have the possible values defined to only use them for the documentation instead of failing when the supplied value is not in the list
+* cpu_family does not default to INTEL_ICELAKE anymore 
 ### Fixes
 * remove upgrade_needed from server_info as it was removed from the API
 * use correct imports for Lan and LanProperties in cube_server and vcpu_server
+* updated snapshot creation and restore methods to use new SDK object structure, the module is not longer compatible with sdks before 6.1.10
 
 ## 7.5.2
 ### Fixes
