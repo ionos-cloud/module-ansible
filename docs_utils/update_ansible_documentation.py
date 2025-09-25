@@ -15,11 +15,12 @@ def update_descriptions(module_name):
     with open(os.path.join(MODULES_DIR, module_name) + '.py', 'w') as plugin_file_write:
         plugin_file_write.write(initial_module.replace('ansible_collections.ionoscloudsdk.ionoscloud.plugins', '.'))
 
-    module = importlib.import_module('plugins.modules.' + module_name)
-
-    # Revert module changess
-    with open(os.path.join(MODULES_DIR, module_name) + '.py', 'w') as plugin_file_write:
-        plugin_file_write.write(initial_module)
+    try:
+        module = importlib.import_module('plugins.modules.' + module_name)
+    finally:
+        # Revert module changess
+        with open(os.path.join(MODULES_DIR, module_name) + '.py', 'w') as plugin_file_write:
+            plugin_file_write.write(initial_module)
     
     # print(transform_options_for_ducumentation(module.OPTIONS, module.STATES))
 
@@ -122,11 +123,6 @@ modules_to_generate = [
     'user_info',
     'user',
     'vcpu_server',
-    'dataplatform_cluster',
-    'dataplatform_cluster_config',
-    'dataplatform_cluster_info',
-    'dataplatform_nodepool',
-    'dataplatform_nodepool_info',
     'certificate',
     'certificate_info',
     'pipeline',
