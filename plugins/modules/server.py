@@ -100,19 +100,19 @@ OPTIONS = {
         'type': 'str',
     },
     'cores': {
-        'description': ['The total number of cores for the enterprise server.'],
+        'description': ['The total number of cores for the server. It can not be supplied for the VMs that have to be created based on templates.'],
         'available': ['present', 'update'],
         'default': 2,
         'type': 'int',
     },
     'ram': {
-        'description': ['The memory size for the enterprise server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB.'],
+        'description': ['The memory size for the server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB. It can not be supplied for the VMs that have to be created based on templates.'],
         'available': ['present', 'update'],
         'default': 2048,
         'type': 'int',
     },
     'cpu_family': {
-        'description': ['CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers. Only if the field is omitted from the request, an available CPU architecture will be automatically selected. The values empty or null are not accepted.'],
+        'description': ['CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers. If the field is omitted from the request or the value is empty or null, an available CPU architecture will be automatically selected.'],
         'available': ['present'],
         'choices_docs': ['INTEL_XEON', 'INTEL_SKYLAKE', 'INTEL_ICELAKE', 'AMD_EPYC', 'INTEL_SIERRAFOREST'],
         'type': 'str',
@@ -263,7 +263,8 @@ options:
     cores:
         default: 2
         description:
-        - The total number of cores for the enterprise server.
+        - The total number of cores for the server. It can not be supplied for the VMs
+            that have to be created based on templates.
         required: false
     count:
         default: 1
@@ -281,9 +282,8 @@ options:
         - CPU architecture on which server gets provisioned; not all CPU architectures
             are available in all datacenter regions; available CPU architectures can be
             retrieved from the datacenter resource; must not be provided for CUBE and
-            VCPU servers. Only if the field is omitted from the request, an available
-            CPU architecture will be automatically selected. The values empty or null
-            are not accepted.
+            VCPU servers. If the field is omitted from the request or the value is empty
+            or null, an available CPU architecture will be automatically selected.
         required: false
         version_added: '2.2'
     datacenter:
@@ -367,11 +367,12 @@ options:
     ram:
         default: 2048
         description:
-        - The memory size for the enterprise server in MB, such as 2048. Size must be
-            specified in multiples of 256 MB with a minimum of 256 MB; however, if you
-            set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set
-            the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can
-            not be set to TRUE unless RAM size not set to less than 240GB.
+        - The memory size for the server in MB, such as 2048. Size must be specified in
+            multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug
+            to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more
+            than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE
+            unless RAM size not set to less than 240GB. It can not be supplied for the
+            VMs that have to be created based on templates.
         required: false
     remove_boot_volume:
         choices:
