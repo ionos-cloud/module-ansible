@@ -486,17 +486,17 @@ register: server_create_result
   <tr>
   <td>cores<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>The total number of cores for the server. It can not be supplied for the VMs that have to be created based on templates.<br />Default: 2</td>
+  <td>The total number of cores for the enterprise server.<br />Default: 2</td>
   </tr>
   <tr>
   <td>ram<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>The memory size for the server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB. It can not be supplied for the VMs that have to be created based on templates.<br />Default: 2048</td>
+  <td>The memory size for the enterprise server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB.<br />Default: 2048</td>
   </tr>
   <tr>
   <td>cpu_family<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers. If the field is omitted from the request or the value is empty or null, an available CPU architecture will be automatically selected.<br />Options: ['INTEL_XEON', 'INTEL_SKYLAKE', 'INTEL_ICELAKE', 'AMD_EPYC', 'INTEL_SIERRAFOREST']</td>
+  <td>CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers. Only if the field is omitted from the request, an available CPU architecture will be automatically selected. The values empty or null are not accepted.<br />Options: ['INTEL_XEON', 'INTEL_SKYLAKE', 'INTEL_ICELAKE', 'AMD_EPYC', 'INTEL_SIERRAFOREST']</td>
   </tr>
   <tr>
   <td>availability_zone<br/><mark style="color:blue;">str</mark></td>
@@ -645,12 +645,12 @@ ionoscloudsdk.ionoscloud.server:
   <tr>
   <td>cores<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>The total number of cores for the server. It can not be supplied for the VMs that have to be created based on templates.<br />Default: 2</td>
+  <td>The total number of cores for the enterprise server.<br />Default: 2</td>
   </tr>
   <tr>
   <td>ram<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>The memory size for the server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB. It can not be supplied for the VMs that have to be created based on templates.<br />Default: 2048</td>
+  <td>The memory size for the enterprise server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB.<br />Default: 2048</td>
   </tr>
   <tr>
   <td>instance_ids<br/><mark style="color:blue;">list</mark></td>

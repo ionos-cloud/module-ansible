@@ -25,8 +25,12 @@ MONGODB_SWAGGER = {
     'url': 'https://ionos-cloud.github.io/rest-api/docs/public-mongodb-v1.ga.yml',
     'filename': 'mongodb_swagger.yml',
 }
+DATAPLATFORM_SWAGGER = {
+    'url': 'https://ionos-cloud.github.io/rest-api/docs/public-dataplatform-v1.ga.yml',
+    'filename': 'dataplatform_swagger.yml',
+}
 CERTIFICATE_MANAGER_SWAGGER = {
-    'url': 'https://ionos-cloud.github.io/rest-api/public-certificatemanager-v2.ga.json',
+    'url': 'https://ionos-cloud.github.io/rest-api/docs/public-certificatemanager-v1.ga.json',
     'filename': 'certificatemanager_swagger.json',
 }
 LOGGING_SWAGGER = {
@@ -225,8 +229,15 @@ modules_to_generate = [
             'user_roles': 'roles',
         },
     ],
-    ['certificate', CERTIFICATE_MANAGER_SWAGGER, '/certificates', 'post', {}],
-    ['certificate_provider', CERTIFICATE_MANAGER_SWAGGER, '/providers', 'post', {}],
+    [
+        'dataplatform_cluster', DATAPLATFORM_SWAGGER, '/clusters', 'post',
+        {
+            'dataplatform_version': 'dataPlatformVersion',
+            'datacenter': 'datacenterId',
+        },
+    ],
+    ['dataplatform_nodepool', DATAPLATFORM_SWAGGER, '/clusters/{clusterId}/nodepools', 'post', {}],
+    # ['certificate', CERTIFICATE_MANAGER_SWAGGER, '/certificatemanager/certificates', 'post', {}],
     ['pipeline', LOGGING_SWAGGER, '/pipelines', 'post', {}],
     # ['dns_zone', DNS_SWAGGER, '/zones', 'post', {}],
 ]

@@ -601,7 +601,7 @@ register: server_cube
   <tr>
   <td>template_uuid<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The ID of the template for creating CUBE or GPU servers. If a template has GPU cards assigned, then it can only be used to create GPU servers, otherwise it can only be used for CUBE servers. The available templates can be found on the templates resource.</td>
+  <td>The ID of the template for creating a CUBE server; the available templates for CUBE servers can be found on the templates resource.</td>
   </tr>
   <tr>
   <td>boot_volume<br/><mark style="color:blue;">str</mark></td>
