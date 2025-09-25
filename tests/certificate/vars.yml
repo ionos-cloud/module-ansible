@@ -2,4 +2,3 @@ certificate_name: test_certificate
 certificate_updated_name: test_certificate_updated
 certificate_path: "certificate.pem"
 certificate_key_path: "key.pem"
-certificate_chain_file: "certificate.pem"

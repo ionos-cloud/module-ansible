@@ -26,7 +26,6 @@
         certificate_name: "{{ certificate_name }}"
         certificate_file: "{{ certificate_path }}"
         private_key_file: "{{ certificate_key_path }}"
-        certificate_chain_file: "{{ certificate_chain_file }}"
       register: certificate
 
     # - name: Print output to file

@@ -7,7 +7,7 @@ try:
 except ImportError:
     HAS_SDK = False
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_resource_id
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options
 
 
@@ -86,7 +86,7 @@ register: certificates_response
 
 
 def get_objects(module, client):
-    return ionoscloud_cert_manager.CertificateApi(client).certificates_get()
+    return ionoscloud_cert_manager.CertificatesApi(client).certificates_get()
 
 
 if __name__ == '__main__':

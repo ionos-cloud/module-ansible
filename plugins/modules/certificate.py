@@ -10,7 +10,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments, _get_request_id
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options_with_replace
 
 
@@ -53,7 +53,6 @@ OPTIONS = {
     'certificate_chain_file': {
         'description': ['File containing the certificate chain.'],
         'available': ['present'],
-        'required': ['present'],
         'type': 'str',
     },
     **get_default_options_with_replace(STATES),
@@ -172,7 +171,6 @@ ionoscloudsdk.ionoscloud.certificate:
   certificate_name: 'test_certificate'
   certificate_file: 'certificate.pem'
   private_key_file: 'key.pem'
-  certificate_chain_file: 'certificate.pem'
 register: certificate
 ''',
     'update': '''
@@ -199,7 +197,6 @@ ionoscloudsdk.ionoscloud.certificate:
   certificate_name: 'test_certificate'
   certificate_file: 'certificate.pem'
   private_key_file: 'key.pem'
-  certificate_chain_file: 'certificate.pem'
 register: certificate
 
 
@@ -255,7 +252,7 @@ class CertificateModule(CommonIonosModule):
 
 
     def _get_object_list(self, clients):
-        return ionoscloud_cert_manager.CertificateApi(clients[0]).certificates_get()
+        return ionoscloud_cert_manager.CertificatesApi(clients[0]).certificates_get()
 
 
     def _get_object_name(self):
@@ -281,12 +278,12 @@ class CertificateModule(CommonIonosModule):
             certificate_chain = existing_object.properties.certificate_chain if certificate_chain is None else certificate_chain
             certificate = existing_object.properties.certificate if certificate is None else certificate
 
-        certificates_api = ionoscloud_cert_manager.CertificateApi(client)
+        certificates_api = ionoscloud_cert_manager.CertificatesApi(client)
 
         try:
             new_certificate = certificates_api.certificates_post(
-                ionoscloud_cert_manager.CertificateCreate(
-                    properties=ionoscloud_cert_manager.Certificate(
+                ionoscloud_cert_manager.CertificatePostDto(
+                    properties=ionoscloud_cert_manager.CertificatePostPropertiesDto(
                         name=certificate_name,
                         certificate=certificate,
                         certificate_chain=certificate_chain,
@@ -302,10 +299,10 @@ class CertificateModule(CommonIonosModule):
     def _update_object(self, existing_object, clients):
         client = clients[0]
         try:
-            updated_certificate = ionoscloud_cert_manager.CertificateApi(client).certificates_patch(
+            updated_certificate = ionoscloud_cert_manager.CertificatesApi(client).certificates_patch(
                 existing_object.id,
-                ionoscloud_cert_manager.CertificatePatch(
-                    properties=ionoscloud_cert_manager.PatchName(
+                ionoscloud_cert_manager.CertificatePatchDto(
+                    properties=ionoscloud_cert_manager.CertificatePatchPropertiesDto(
                         name=self.module.params.get('certificate_name'),
                     ),
                 ),
@@ -319,7 +316,7 @@ class CertificateModule(CommonIonosModule):
     def _remove_object(self, existing_object, clients):
         client = clients[0]
         try:
-            ionoscloud_cert_manager.CertificateApi(client).certificates_delete(existing_object.id)
+            ionoscloud_cert_manager.CertificatesApi(client).certificates_delete(existing_object.id)
         except ionoscloud_cert_manager.ApiException as e:
             self.module.fail_json(msg="failed to remove the certificate: %s" % to_native(e))
 

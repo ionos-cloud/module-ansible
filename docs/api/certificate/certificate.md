@@ -12,7 +12,6 @@ ionoscloudsdk.ionoscloud.certificate:
   certificate_name: 'test_certificate'
   certificate_file: 'certificate.pem'
   private_key_file: 'key.pem'
-  certificate_chain_file: 'certificate.pem'
 register: certificate
 
 
@@ -83,7 +82,6 @@ ionoscloudsdk.ionoscloud.certificate:
   certificate_name: 'test_certificate'
   certificate_file: 'certificate.pem'
   private_key_file: 'key.pem'
-  certificate_chain_file: 'certificate.pem'
 register: certificate
 
 ```
@@ -116,7 +114,7 @@ register: certificate
   </tr>
   <tr>
   <td>certificate_chain_file<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
+  <td align="center">False</td>
   <td>File containing the certificate chain.</td>
   </tr>
   <tr>
