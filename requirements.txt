@@ -1,0 +1,14 @@
+cryptography
+PyYAML
+chevron
+ansible
+
+ionoscloud
+ionoscloud_cert_manager
+ionoscloud_container_registry
+ionoscloud_dbaas_postgres
+ionoscloud_dbaas_mongo
+ionoscloud_dbaas_mariadb
+ionoscloud_dns
+ionoscloud_logging
+ionoscloud_vm_autoscaling
