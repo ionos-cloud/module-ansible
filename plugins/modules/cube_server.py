@@ -159,7 +159,7 @@ OPTIONS = {
         'elements': 'str',
     },
     'template_uuid': {
-        'description': ['The ID of the template for creating CUBE or GPU servers. If a template has GPU cards assigned, then it can only be used to create GPU servers, otherwise it can only be used for CUBE servers. The available templates can be found on the templates resource.'],
+        'description': ['The ID of the template for creating a CUBE server; the available templates for CUBE servers can be found on the templates resource.'],
         'available': ['present'],
         'type': 'str',
     },
@@ -342,10 +342,8 @@ options:
         required: false
     template_uuid:
         description:
-        - The ID of the template for creating CUBE or GPU servers. If a template has GPU
-            cards assigned, then it can only be used to create GPU servers, otherwise
-            it can only be used for CUBE servers. The available templates can be found
-            on the templates resource.
+        - The ID of the template for creating a CUBE server; the available templates for
+            CUBE servers can be found on the templates resource.
         required: false
     token:
         description:
