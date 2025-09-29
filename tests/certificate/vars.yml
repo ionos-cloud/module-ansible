@@ -13,7 +13,7 @@ key_secret: "secret"
 
 zone_name: devsdkionos.net
 zone_description: test_description
-zone_enabled: false
+zone_enabled: true
 
 auto_certificate_name: autoCertificateTest
 auto_certificate_updated_name: autoCertificateTestUpdated

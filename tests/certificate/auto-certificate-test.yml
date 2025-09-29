@@ -32,7 +32,6 @@
         provider: "{{ certificate_provider.certificate_provider.id }}"
         key_algorithm: "{{ key_algorithm }}"
         allow_replace: true
-        wait: false
       register: auto_certificate
 
     # - name: Print output to file
@@ -47,7 +46,6 @@
         provider: "{{ certificate_provider.certificate_provider.id }}"
         key_algorithm: "{{ key_algorithm }}"
         allow_replace: false
-        wait: false
       register: auto_certificate_no_change
 
     - name: Asserting that changed == false when no update is made
@@ -63,7 +61,6 @@
         allow_replace: False
         state: update
         allow_replace: false
-        wait: false
       register: auto_certificate_update
 
     - name: Asserting that update is correct
