@@ -1,4 +1,4 @@
-# certificate
+# certificate_provider
 
 This is a simple module that supports uploading, updating or deleting certificates in the Ionos Cloud Certificate Manager.
 
@@ -7,28 +7,29 @@ This is a simple module that supports uploading, updating or deleting certificat
 
 ```yaml
 
-name: Create Certificate
-ionoscloudsdk.ionoscloud.certificate:
-  certificate_name: 'test_certificate'
-  certificate_file: 'certificate.pem'
-  private_key_file: 'key.pem'
-  certificate_chain_file: 'certificate.pem'
-register: certificate
+name: Create Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider_name: 'Let's Encrypt'
+  provider_email: 'sdk-go-v6@cloud.ionos.com'
+  provider_server: 'https://acme-staging-v02.api.letsencrypt.org/directory'
+  key_id: 'some-key-id'
+  key_secret: 'secret'
+  allow_replace: true
+register: certificate_provider
 
 
-name: Create Certificate no change
-ionoscloudsdk.ionoscloud.certificate:
-  state: update
-  certificate: ''
-  certificate_name: 'test_certificate'
-  certificate_file: 'certificate.pem'
+name: Update Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider: ''
+  provider_name: 'Let's Encrypt UPDATED'
   allow_replace: false
-register: certificatenochange
+  state: update
+register: certificateproviderupdate
 
 
-name: Delete Certificate
-ionoscloudsdk.ionoscloud.certificate:
-  certificate: ''
+name: Delete Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider: ''
   state: absent
 
 ```
@@ -41,24 +42,29 @@ ionoscloudsdk.ionoscloud.certificate:
     "changed": true,
     "failed": false,
     "action": "create",
-    "certificate": {
-        "id": "58da84bd-5dea-4838-9c43-391b7c75124a",
-        "type": "certificate",
-        "href": "https://api.ionos.com/certificatemanager/certificates/58da84bd-5dea-4838-9c43-391b7c75124a",
+    "certificate_provider": {
+        "id": "f9debe0b-8c4e-4bae-ab9a-5b634d7d054e",
+        "type": "provider",
+        "href": "/providers/f9debe0b-8c4e-4bae-ab9a-5b634d7d054e",
         "metadata": {
-            "etag": null,
-            "created_date": "2023-05-29T13:48:11Z",
+            "created_date": "2025-09-26T14:55:11.643007+00:00",
             "created_by": "<USER_EMAIL>",
             "created_by_user_id": "<USER_ID>",
             "last_modified_date": "2023-05-29T13:48:11Z",
             "last_modified_by": "<USER_EMAIL>",
             "last_modified_by_user_id": "<USER_ID>",
-            "state": "AVAILABLE"
+            "resource_urn": "<URN>",
+            "state": "AVAILABLE",
+            "message": "Ready"
         },
         "properties": {
-            "name": "test_certificate",
-            "certificate": "<CERTIFICATE>",
-            "certificate_chain": null
+            "name": "Let's Encrypt",
+            "email": "<EMAIL>",
+            "server": "<SERVR>",
+            "external_account_binding": {
+                "key_id": "some-key-id",
+                "key_secret": null
+            }
         }
     }
 }
@@ -70,21 +76,24 @@ ionoscloudsdk.ionoscloud.certificate:
 
  **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
 ## Parameters that can trigger a resource replacement:
-  * certificate_file 
-  * certificate_chain_file 
-  * private_key_file (Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!)
+  * provider_email 
+  * provider_server 
+  * key_id 
+  * key_secret (Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!)
 &nbsp;
 
 # state: **present**
 ```yaml
   
-name: Create Certificate
-ionoscloudsdk.ionoscloud.certificate:
-  certificate_name: 'test_certificate'
-  certificate_file: 'certificate.pem'
-  private_key_file: 'key.pem'
-  certificate_chain_file: 'certificate.pem'
-register: certificate
+name: Create Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider_name: 'Let's Encrypt'
+  provider_email: 'sdk-go-v6@cloud.ionos.com'
+  provider_server: 'https://acme-staging-v02.api.letsencrypt.org/directory'
+  key_id: 'some-key-id'
+  key_secret: 'secret'
+  allow_replace: true
+register: certificate_provider
 
 ```
 ### Available parameters for state **present**:
@@ -100,24 +109,29 @@ register: certificate
   </thead>
   <tbody>
   <tr>
-  <td>certificate_name<br/><mark style="color:blue;">str</mark></td>
+  <td>provider_name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The name of the certificate provider.</td>
+  </tr>
+  <tr>
+  <td>provider_email<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The email address of the certificate requester.</td>
+  </tr>
+  <tr>
+  <td>provider_server<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The URL of the certificate provider.</td>
+  </tr>
+  <tr>
+  <td>key_id<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The certificate name.</td>
+  <td>The key ID of the external account binding.</td>
   </tr>
   <tr>
-  <td>certificate_file<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>File containing the certificate body.</td>
-  </tr>
-  <tr>
-  <td>private_key_file<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>File containing the private key blob.</td>
-  </tr>
-  <tr>
-  <td>certificate_chain_file<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>File containing the certificate chain.</td>
+  <td>key_secret<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The secret of the external account binding.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
@@ -173,9 +187,9 @@ register: certificate
 # state: **absent**
 ```yaml
   
-name: Delete Certificate
-ionoscloudsdk.ionoscloud.certificate:
-  certificate: ''
+name: Delete Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider: ''
   state: absent
 
 ```
@@ -192,14 +206,34 @@ ionoscloudsdk.ionoscloud.certificate:
   </thead>
   <tbody>
   <tr>
-  <td>certificate<br/><mark style="color:blue;">str</mark></td>
+  <td>provider<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The certificate body.</td>
+  <td>The provider name or ID.</td>
   </tr>
   <tr>
-  <td>certificate_name<br/><mark style="color:blue;">str</mark></td>
+  <td>provider_name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The certificate name.</td>
+  <td>The name of the certificate provider.</td>
+  </tr>
+  <tr>
+  <td>provider_email<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The email address of the certificate requester.</td>
+  </tr>
+  <tr>
+  <td>provider_server<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The URL of the certificate provider.</td>
+  </tr>
+  <tr>
+  <td>key_id<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The key ID of the external account binding.</td>
+  </tr>
+  <tr>
+  <td>key_secret<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The secret of the external account binding.</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -250,14 +284,13 @@ ionoscloudsdk.ionoscloud.certificate:
 # state: **update**
 ```yaml
   
-name: Create Certificate no change
-ionoscloudsdk.ionoscloud.certificate:
-  state: update
-  certificate: ''
-  certificate_name: 'test_certificate'
-  certificate_file: 'certificate.pem'
+name: Update Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider: ''
+  provider_name: 'Let's Encrypt UPDATED'
   allow_replace: false
-register: certificatenochange
+  state: update
+register: certificateproviderupdate
 
 ```
 ### Available parameters for state **update**:
@@ -273,14 +306,34 @@ register: certificatenochange
   </thead>
   <tbody>
   <tr>
-  <td>certificate<br/><mark style="color:blue;">str</mark></td>
+  <td>provider<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The certificate body.</td>
+  <td>The provider name or ID.</td>
   </tr>
   <tr>
-  <td>certificate_name<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>The certificate name.</td>
+  <td>provider_name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The name of the certificate provider.</td>
+  </tr>
+  <tr>
+  <td>provider_email<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The email address of the certificate requester.</td>
+  </tr>
+  <tr>
+  <td>provider_server<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The URL of the certificate provider.</td>
+  </tr>
+  <tr>
+  <td>key_id<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The key ID of the external account binding.</td>
+  </tr>
+  <tr>
+  <td>key_secret<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The secret of the external account binding.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>

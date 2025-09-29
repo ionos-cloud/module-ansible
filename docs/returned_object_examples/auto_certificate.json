@@ -1,0 +1,29 @@
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "auto_certificate": {
+        "id": "c2a80f2c-d97d-47b8-ad38-6ff09881c8a8",
+        "type": "auto-certificate",
+        "href": "/auto-certificates/c2a80f2c-d97d-47b8-ad38-6ff09881c8a8",
+        "metadata": {
+            "created_date": "2025-09-29T11:14:24.072501+00:00",
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "last_modified_date": "2025-09-29T11:14:24.072501+00:00",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "resource_urn": "<URN>",
+            "state": "PROVISIONING",
+            "message": "Issue in progress.",
+            "last_issued_certificate": null
+        },
+        "properties": {
+            "provider": "92f64cc8-f137-4238-bd0a-3de9c6019ab7",
+            "common_name": "devsdkionos.net",
+            "key_algorithm": "rsa4096",
+            "name": "autoCertificateTest",
+            "subject_alternative_names": []
+        }
+    }
+}

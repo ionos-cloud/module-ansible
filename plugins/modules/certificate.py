@@ -27,7 +27,7 @@ RETURNED_KEY = 'certificate'
 
 OPTIONS = {
     'certificate': {
-        'description': ['The certificate name or ID.'],
+        'description': ['The certificate body.'],
         'available': ['update', 'absent'],
         'required': ['update'],
         'type': 'str',
@@ -92,7 +92,7 @@ options:
         version_added: '2.4'
     certificate:
         description:
-        - The certificate name or ID.
+        - The certificate body.
         required: false
     certificate_chain_file:
         description:

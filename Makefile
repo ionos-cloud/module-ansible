@@ -30,7 +30,7 @@ install-ruby-deps:
 
 # Install bundler and gems
 install-python-deps:
-	pip install -r requirements.txt
+	pip install -r requirements.txt -q
 	@echo "Adding Ansible collections path to site-packages..."
 	@SITE_PACKAGES=$$(python -c 'import site; print(site.getsitepackages()[0])'); \
 	PTH_FILE="$$SITE_PACKAGES/ansible_collections.pth"; \
@@ -47,7 +47,7 @@ install-python-deps:
 	fi
 
 # Run the script
-regenerate_docs: check-ruby install-ruby-deps install-python-deps regenerate_docs
+regenerate_docs: check-ruby install-ruby-deps install-python-deps
 	./regenerate_docs.sh
 
 # Create a basic Gemfile

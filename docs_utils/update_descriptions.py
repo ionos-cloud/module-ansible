@@ -26,7 +26,7 @@ MONGODB_SWAGGER = {
     'filename': 'mongodb_swagger.yml',
 }
 CERTIFICATE_MANAGER_SWAGGER = {
-    'url': 'https://ionos-cloud.github.io/rest-api/public-certificatemanager-v2.ga.json',
+    'url': 'https://ionos-cloud.github.io/rest-api/public-certificatemanager-v2.ga.yml',
     'filename': 'certificatemanager_swagger.json',
 }
 LOGGING_SWAGGER = {
@@ -226,7 +226,20 @@ modules_to_generate = [
         },
     ],
     ['certificate', CERTIFICATE_MANAGER_SWAGGER, '/certificates', 'post', {}],
-    ['certificate_provider', CERTIFICATE_MANAGER_SWAGGER, '/providers', 'post', {}],
+    [
+        'certificate_provider', CERTIFICATE_MANAGER_SWAGGER, '/providers', 'post',
+        {
+            'provider_name': 'name',
+            'provider_email': 'email',
+            'provider_server': 'server',
+        },
+    ],
+    [
+        'auto_certificate', CERTIFICATE_MANAGER_SWAGGER, '/auto-certificates', 'post', 
+        {
+            'certificate_name': 'name',
+        },
+    ],
     ['pipeline', LOGGING_SWAGGER, '/pipelines', 'post', {}],
     # ['dns_zone', DNS_SWAGGER, '/zones', 'post', {}],
 ]

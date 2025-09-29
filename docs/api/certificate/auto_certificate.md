@@ -1,4 +1,4 @@
-# certificate
+# auto_certificate
 
 This is a simple module that supports uploading, updating or deleting certificates in the Ionos Cloud Certificate Manager.
 
@@ -7,28 +7,29 @@ This is a simple module that supports uploading, updating or deleting certificat
 
 ```yaml
 
-name: Create Certificate
-ionoscloudsdk.ionoscloud.certificate:
-  certificate_name: 'test_certificate'
-  certificate_file: 'certificate.pem'
-  private_key_file: 'key.pem'
-  certificate_chain_file: 'certificate.pem'
-register: certificate
+name: Create Auto Certificate
+ionoscloudsdk.ionoscloud.auto_certificate:
+  certificate_name: 'autoCertificateTest'
+  common_name: 'devsdkionos.net'
+  provider: ''
+  key_algorithm: 'rsa4096'
+  allow_replace: true
+register: auto_certificate
 
 
-name: Create Certificate no change
-ionoscloudsdk.ionoscloud.certificate:
-  state: update
-  certificate: ''
-  certificate_name: 'test_certificate'
-  certificate_file: 'certificate.pem'
+name: Update Auto Certificate
+ionoscloudsdk.ionoscloud.auto_certificate:
+  auto_certificate: ''
+  certificate_name: 'autoCertificateTestUpdated'
   allow_replace: false
-register: certificatenochange
+  state: update
+register: auto_certificate_update
 
 
-name: Delete Certificate
-ionoscloudsdk.ionoscloud.certificate:
-  certificate: ''
+name: Delete Auto Certificate
+ionoscloudsdk.ionoscloud.auto_certificate:
+  auto_certificate: 'autoCertificateTestUpdated'
+  wait: true
   state: absent
 
 ```
@@ -41,24 +42,28 @@ ionoscloudsdk.ionoscloud.certificate:
     "changed": true,
     "failed": false,
     "action": "create",
-    "certificate": {
-        "id": "58da84bd-5dea-4838-9c43-391b7c75124a",
-        "type": "certificate",
-        "href": "https://api.ionos.com/certificatemanager/certificates/58da84bd-5dea-4838-9c43-391b7c75124a",
+    "auto_certificate": {
+        "id": "c2a80f2c-d97d-47b8-ad38-6ff09881c8a8",
+        "type": "auto-certificate",
+        "href": "/auto-certificates/c2a80f2c-d97d-47b8-ad38-6ff09881c8a8",
         "metadata": {
-            "etag": null,
-            "created_date": "2023-05-29T13:48:11Z",
+            "created_date": "2025-09-29T11:14:24.072501+00:00",
             "created_by": "<USER_EMAIL>",
             "created_by_user_id": "<USER_ID>",
-            "last_modified_date": "2023-05-29T13:48:11Z",
+            "last_modified_date": "2025-09-29T11:14:24.072501+00:00",
             "last_modified_by": "<USER_EMAIL>",
             "last_modified_by_user_id": "<USER_ID>",
-            "state": "AVAILABLE"
+            "resource_urn": "<URN>",
+            "state": "PROVISIONING",
+            "message": "Issue in progress.",
+            "last_issued_certificate": null
         },
         "properties": {
-            "name": "test_certificate",
-            "certificate": "<CERTIFICATE>",
-            "certificate_chain": null
+            "provider": "92f64cc8-f137-4238-bd0a-3de9c6019ab7",
+            "common_name": "devsdkionos.net",
+            "key_algorithm": "rsa4096",
+            "name": "autoCertificateTest",
+            "subject_alternative_names": []
         }
     }
 }
@@ -70,21 +75,23 @@ ionoscloudsdk.ionoscloud.certificate:
 
  **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
 ## Parameters that can trigger a resource replacement:
-  * certificate_file 
-  * certificate_chain_file 
-  * private_key_file (Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!)
+  * common_name 
+  * provider 
+  * key_algorithm 
+  * subject_alternative_names 
 &nbsp;
 
 # state: **present**
 ```yaml
   
-name: Create Certificate
-ionoscloudsdk.ionoscloud.certificate:
-  certificate_name: 'test_certificate'
-  certificate_file: 'certificate.pem'
-  private_key_file: 'key.pem'
-  certificate_chain_file: 'certificate.pem'
-register: certificate
+name: Create Auto Certificate
+ionoscloudsdk.ionoscloud.auto_certificate:
+  certificate_name: 'autoCertificateTest'
+  common_name: 'devsdkionos.net'
+  provider: ''
+  key_algorithm: 'rsa4096'
+  allow_replace: true
+register: auto_certificate
 
 ```
 ### Available parameters for state **present**:
@@ -102,22 +109,27 @@ register: certificate
   <tr>
   <td>certificate_name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The certificate name.</td>
+  <td>A certificate name used for management purposes.</td>
   </tr>
   <tr>
-  <td>certificate_file<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>File containing the certificate body.</td>
+  <td>common_name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The common name (DNS) of the certificate to issue. The common name needs to be part of a zone in IONOS Cloud DNS.</td>
   </tr>
   <tr>
-  <td>private_key_file<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>File containing the private key blob.</td>
+  <td>provider<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The certificate provider used to issue the certificates.</td>
   </tr>
   <tr>
-  <td>certificate_chain_file<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>File containing the certificate chain.</td>
+  <td>key_algorithm<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The key algorithm used to generate the certificate.</td>
+  </tr>
+  <tr>
+  <td>subject_alternative_names<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>Optional additional names to be added to the issued certificate. The additional names needs to be part of a zone in IONOS Cloud DNS.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
@@ -173,9 +185,10 @@ register: certificate
 # state: **absent**
 ```yaml
   
-name: Delete Certificate
-ionoscloudsdk.ionoscloud.certificate:
-  certificate: ''
+name: Delete Auto Certificate
+ionoscloudsdk.ionoscloud.auto_certificate:
+  auto_certificate: 'autoCertificateTestUpdated'
+  wait: true
   state: absent
 
 ```
@@ -192,14 +205,34 @@ ionoscloudsdk.ionoscloud.certificate:
   </thead>
   <tbody>
   <tr>
-  <td>certificate<br/><mark style="color:blue;">str</mark></td>
+  <td>auto_certificate<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The certificate body.</td>
+  <td>The certificate name or ID.</td>
   </tr>
   <tr>
   <td>certificate_name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The certificate name.</td>
+  <td>A certificate name used for management purposes.</td>
+  </tr>
+  <tr>
+  <td>common_name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The common name (DNS) of the certificate to issue. The common name needs to be part of a zone in IONOS Cloud DNS.</td>
+  </tr>
+  <tr>
+  <td>provider<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The certificate provider used to issue the certificates.</td>
+  </tr>
+  <tr>
+  <td>key_algorithm<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The key algorithm used to generate the certificate.</td>
+  </tr>
+  <tr>
+  <td>subject_alternative_names<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>Optional additional names to be added to the issued certificate. The additional names needs to be part of a zone in IONOS Cloud DNS.</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -250,14 +283,13 @@ ionoscloudsdk.ionoscloud.certificate:
 # state: **update**
 ```yaml
   
-name: Create Certificate no change
-ionoscloudsdk.ionoscloud.certificate:
-  state: update
-  certificate: ''
-  certificate_name: 'test_certificate'
-  certificate_file: 'certificate.pem'
+name: Update Auto Certificate
+ionoscloudsdk.ionoscloud.auto_certificate:
+  auto_certificate: ''
+  certificate_name: 'autoCertificateTestUpdated'
   allow_replace: false
-register: certificatenochange
+  state: update
+register: auto_certificate_update
 
 ```
 ### Available parameters for state **update**:
@@ -273,14 +305,34 @@ register: certificatenochange
   </thead>
   <tbody>
   <tr>
-  <td>certificate<br/><mark style="color:blue;">str</mark></td>
+  <td>auto_certificate<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The certificate body.</td>
+  <td>The certificate name or ID.</td>
   </tr>
   <tr>
   <td>certificate_name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The certificate name.</td>
+  <td>A certificate name used for management purposes.</td>
+  </tr>
+  <tr>
+  <td>common_name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The common name (DNS) of the certificate to issue. The common name needs to be part of a zone in IONOS Cloud DNS.</td>
+  </tr>
+  <tr>
+  <td>provider<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The certificate provider used to issue the certificates.</td>
+  </tr>
+  <tr>
+  <td>key_algorithm<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The key algorithm used to generate the certificate.</td>
+  </tr>
+  <tr>
+  <td>subject_alternative_names<br/><mark style="color:blue;">list</mark></td>
+  <td align="center">False</td>
+  <td>Optional additional names to be added to the issued certificate. The additional names needs to be part of a zone in IONOS Cloud DNS.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>

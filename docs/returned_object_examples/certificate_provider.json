@@ -1,0 +1,30 @@
+{
+    "changed": true,
+    "failed": false,
+    "action": "create",
+    "certificate_provider": {
+        "id": "f9debe0b-8c4e-4bae-ab9a-5b634d7d054e",
+        "type": "provider",
+        "href": "/providers/f9debe0b-8c4e-4bae-ab9a-5b634d7d054e",
+        "metadata": {
+            "created_date": "2025-09-26T14:55:11.643007+00:00",
+            "created_by": "<USER_EMAIL>",
+            "created_by_user_id": "<USER_ID>",
+            "last_modified_date": "2023-05-29T13:48:11Z",
+            "last_modified_by": "<USER_EMAIL>",
+            "last_modified_by_user_id": "<USER_ID>",
+            "resource_urn": "<URN>",
+            "state": "AVAILABLE",
+            "message": "Ready"
+        },
+        "properties": {
+            "name": "Let's Encrypt",
+            "email": "<EMAIL>",
+            "server": "<SERVR>",
+            "external_account_binding": {
+                "key_id": "some-key-id",
+                "key_secret": null
+            }
+        }
+    }
+}

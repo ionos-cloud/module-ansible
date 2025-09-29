@@ -125,9 +125,9 @@ class CommonIonosModule():
                         },
                     },
                 }
-
-            new_object = self._create_object(existing_object, clients).to_dict()
-            self._remove_object(existing_object, clients)
+            
+            new_object = self._replace_object(existing_object, clients)
+        
             return {
                 **returned_json,
                 **{
@@ -219,6 +219,10 @@ class CommonIonosModule():
             },
         }
 
+    def _replace_object(self, existing_object, clients):
+        new_object = self._create_object(existing_object, clients).to_dict()
+        self._remove_object(existing_object, clients)
+        return new_object
 
     def update_object(self, clients):
         object_name = self._get_object_name()

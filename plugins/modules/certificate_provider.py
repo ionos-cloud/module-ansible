@@ -20,7 +20,7 @@ ANSIBLE_METADATA = {
     'supported_by': 'community',
 }
 USER_AGENT = 'ansible-module/%s_sdk-python-certificate-manager/%s' % ( __version__, certificate_manager_sdk_version)
-DOC_DIRECTORY = 'certificate_provider'
+DOC_DIRECTORY = 'certificate'
 STATES = ['present', 'absent', 'update']
 OBJECT_NAME = 'Certificate Provider'
 RETURNED_KEY = 'certificate_provider'
@@ -39,24 +39,24 @@ OPTIONS = {
         'type': 'str',
     },
     'provider_email': {
-        'description': ['The certificate name.'],
+        'description': ['The email address of the certificate requester.'],
         'available': ['present', 'update', 'absent'],
         'required': ['present'],
         'type': 'str',
     },
     'provider_server': {
-        'description': ['The certificate name.'],
+        'description': ['The URL of the certificate provider.'],
         'available': ['present', 'update', 'absent'],
         'required': ['present'],
         'type': 'str',
     },
     'key_id': {
-        'description': ['The certificate name.'],
+        'description': ['The key ID of the external account binding.'],
         'available': ['present', 'update', 'absent'],
         'type': 'str',
     },
     'key_secret': {
-        'description': ['The certificate name.'],
+        'description': ['The secret of the external account binding.'],
         'available': ['present', 'update', 'absent'],
         'type': 'str',
     },
@@ -67,12 +67,15 @@ IMMUTABLE_OPTIONS = [
     { "name": "provider_email", "note": "" },
     { "name": "provider_server", "note": "" },
     { "name": "key_id", "note": "" },
-    { "name": "key_secret", "note": "" },
+    {
+        "name": "key_secret",
+        "note": "Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!",
+    },
 ]
 
 DOCUMENTATION = """
-module: certificate
-short_description: Upload, update or delete a certificate in the Ionos Cloud Certificate Manager.
+module: certificate_provider
+short_description: Upload, update or delete a Certificate Provider in the Ionos Cloud Certificate Manager.
 description:
      - This is a simple module that supports uploading, updating or deleting certificates in the
       Ionos Cloud Certificate Manager.
@@ -92,26 +95,18 @@ options:
         env_fallback: IONOS_API_URL
         required: false
         version_added: '2.4'
-    certificate:
-        description:
-        - The certificate name or ID.
-        required: false
-    certificate_chain_file:
-        description:
-        - File containing the certificate chain.
-        required: false
-    certificate_file:
-        description:
-        - File containing the certificate body.
-        required: false
     certificate_fingerprint:
         description:
         - The Ionos API certificate fingerprint.
         env_fallback: IONOS_CERTIFICATE_FINGERPRINT
         required: false
-    certificate_name:
+    key_id:
         description:
-        - The certificate name.
+        - The key ID of the external account binding.
+        required: false
+    key_secret:
+        description:
+        - The secret of the external account binding.
         required: false
     password:
         aliases:
@@ -121,9 +116,21 @@ options:
         env_fallback: IONOS_PASSWORD
         no_log: true
         required: false
-    private_key_file:
+    provider:
         description:
-        - File containing the private key blob.
+        - The provider name or ID.
+        required: false
+    provider_email:
+        description:
+        - The email address of the certificate requester.
+        required: false
+    provider_name:
+        description:
+        - The name of the certificate provider.
+        required: false
+    provider_server:
+        description:
+        - The URL of the certificate provider.
         required: false
     state:
         choices:
@@ -169,53 +176,57 @@ author:
 
 EXAMPLE_PER_STATE = {
     'present': '''
-name: Create Certificate
-ionoscloudsdk.ionoscloud.certificate:
-  certificate_name: 'test_certificate'
-  certificate_file: 'certificate.pem'
-  private_key_file: 'key.pem'
-register: certificate
+name: Create Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider_name: 'Let's Encrypt'
+  provider_email: 'sdk-go-v6@cloud.ionos.com'
+  provider_server: 'https://acme-staging-v02.api.letsencrypt.org/directory'
+  key_id: 'some-key-id'
+  key_secret: 'secret'
+  allow_replace: true
+register: certificate_provider
 ''',
     'update': '''
-name: Create Certificate no change
-ionoscloudsdk.ionoscloud.certificate:
-  state: update
-  certificate: ''
-  certificate_name: 'test_certificate'
-  certificate_file: 'certificate.pem'
+name: Update Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider: ''
+  provider_name: 'Let's Encrypt UPDATED'
   allow_replace: false
-register: certificatenochange
+  state: update
+register: certificateproviderupdate
 ''',
     'absent': '''
-name: Delete Certificate
-ionoscloudsdk.ionoscloud.certificate:
-  certificate: ''
+name: Delete Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider: ''
   state: absent
 ''',
 }
 
 EXAMPLES = """
-name: Create Certificate
-ionoscloudsdk.ionoscloud.certificate:
-  certificate_name: 'test_certificate'
-  certificate_file: 'certificate.pem'
-  private_key_file: 'key.pem'
-register: certificate
+name: Create Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider_name: 'Let's Encrypt'
+  provider_email: 'sdk-go-v6@cloud.ionos.com'
+  provider_server: 'https://acme-staging-v02.api.letsencrypt.org/directory'
+  key_id: 'some-key-id'
+  key_secret: 'secret'
+  allow_replace: true
+register: certificate_provider
 
 
-name: Create Certificate no change
-ionoscloudsdk.ionoscloud.certificate:
-  state: update
-  certificate: ''
-  certificate_name: 'test_certificate'
-  certificate_file: 'certificate.pem'
+name: Update Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider: ''
+  provider_name: 'Let's Encrypt UPDATED'
   allow_replace: false
-register: certificatenochange
+  state: update
+register: certificateproviderupdate
 
 
-name: Delete Certificate
-ionoscloudsdk.ionoscloud.certificate:
-  certificate: ''
+name: Delete Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider: ''
   state: absent
 """
 
@@ -240,7 +251,6 @@ class CertificateProviderModule(CommonIonosModule):
             or self.module.params.get('key_id') is not None
             and existing_object.properties.external_account_binding.key_id != self.module.params.get('key_id')
             or self.module.params.get('key_secret') is not None
-            and existing_object.properties.external_account_binding.key_secret != self.module.params.get('key_secret')
         )
 
 
@@ -296,6 +306,14 @@ class CertificateProviderModule(CommonIonosModule):
                     ),
                 ),
             )
+            if self.module.params.get('wait'):
+                client.wait_for(
+                    fn_request=lambda: provider_api.providers_find_by_id(new_provider.id).metadata.state,
+                    fn_check=lambda r: r == 'AVAILABLE',
+                    scaleup=10000,
+                    timeout=int(self.module.params.get('wait_timeout')),
+                )
+
         except ionoscloud_cert_manager.ApiException as e:
             self.module.fail_json(msg="failed to create the new {}: {}".format(self.object_name, to_native(e)))
         return new_provider
@@ -304,7 +322,8 @@ class CertificateProviderModule(CommonIonosModule):
     def _update_object(self, existing_object, clients):
         client = clients[0]
         try:
-            updated_certificate = ionoscloud_cert_manager.ProviderApi(client).providers_patch(
+            provider_api = ionoscloud_cert_manager.ProviderApi(client)
+            updated_provider = provider_api.providers_patch(
                 existing_object.id,
                 ionoscloud_cert_manager.ProviderPatch(
                     properties=ionoscloud_cert_manager.PatchName(
@@ -312,16 +331,44 @@ class CertificateProviderModule(CommonIonosModule):
                     ),
                 ),
             )
+            if self.module.params.get('wait'):
+                client.wait_for(
+                    fn_request=lambda: provider_api.providers_find_by_id(updated_provider.id).metadata.state,
+                    fn_check=lambda r: r == 'AVAILABLE',
+                    scaleup=10000,
+                    timeout=int(self.module.params.get('wait_timeout')),
+                )
 
-            return updated_certificate
+            return updated_provider
         except ionoscloud_cert_manager.ApiException as e:
             self.module.fail_json(msg="failed to update the {}: {}".format(self.object_name, to_native(e)))
 
 
+    # remove before create because provider name is unique
+    def _replace_object(self, existing_object, clients):
+        self._remove_object(existing_object, clients)
+        new_object = self._create_object(existing_object, clients).to_dict()
+
+        return new_object
+
     def _remove_object(self, existing_object, clients):
         client = clients[0]
         try:
-            ionoscloud_cert_manager.ProviderApi(client).providers_delete(existing_object.id)
+            provider_api = ionoscloud_cert_manager.ProviderApi(client)
+            provider_api.providers_delete(existing_object.id)
+
+            if self.module.params.get('wait'):
+                client.wait_for(
+                    fn_request=lambda: provider_api.providers_get(),
+                    fn_check=lambda r: len(list(filter(
+                        lambda e: e.id == existing_object.id,
+                        r.items
+                    ))) < 1,
+                    console_print='.',
+                    scaleup=10000,
+                    timeout=self.module.params.get('wait_timeout'),
+                )
+
         except ionoscloud_cert_manager.ApiException as e:
             self.module.fail_json(msg="failed to remove the {}: {}".format(self.object_name, to_native(e)))
 

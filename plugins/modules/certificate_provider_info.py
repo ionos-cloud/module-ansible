@@ -79,7 +79,7 @@ author:
 """
 
 EXAMPLES = """
-name: List Certificate providers
+name: List Certificates Providers
 ionoscloudsdk.ionoscloud.certificate_provider_info: null
 register: certificate_providers_response
 """

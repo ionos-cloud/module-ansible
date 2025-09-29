@@ -1,0 +1,93 @@
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+    - name: Create Certificate Provider
+      ionoscloudsdk.ionoscloud.certificate_provider:
+        provider_name: "{{ provider_name }}"
+        provider_email: "{{ provider_email }}"
+        provider_server: "{{ provider_server }}"
+        key_id: "{{ key_id }}"
+        key_secret: "{{ key_secret }}"
+        allow_replace: false
+      register: certificate_provider
+
+    - name: Create Zone
+      ionoscloudsdk.ionoscloud.dns_zone:
+        name: "{{ zone_name }}"
+        description: "{{ zone_description }}"
+        enabled: "{{ zone_enabled }}"
+      register: zone_response
+
+
+    - name: Create Auto Certificate
+      ionoscloudsdk.ionoscloud.auto_certificate:
+        certificate_name: "{{ auto_certificate_name }}"
+        common_name: "{{ zone_name }}"
+        provider: "{{ certificate_provider.certificate_provider.id }}"
+        key_algorithm: "{{ key_algorithm }}"
+        allow_replace: true
+        wait: false
+      register: auto_certificate
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{auto_certificate}}"
+    #     dest: ../../docs/returned_object_examples/auto_certificate.json
+
+    - name: Create Auto Certificate No change
+      ionoscloudsdk.ionoscloud.auto_certificate:
+        certificate_name: "{{ auto_certificate_name }}"
+        common_name: "{{ zone_name }}"
+        provider: "{{ certificate_provider.certificate_provider.id }}"
+        key_algorithm: "{{ key_algorithm }}"
+        allow_replace: false
+        wait: false
+      register: auto_certificate_no_change
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - auto_certificate_no_change.changed == false
+        msg: "Changed should be false"
+
+    - name: Update Auto Certificate
+      ionoscloudsdk.ionoscloud.auto_certificate:
+        auto_certificate: "{{ auto_certificate.auto_certificate.id }}"
+        certificate_name: "{{ auto_certificate_updated_name }}"
+        allow_replace: False
+        state: update
+        allow_replace: false
+        wait: false
+      register: auto_certificate_update
+
+    - name: Asserting that update is correct
+      assert:
+        that:
+          - auto_certificate_update.changed == true
+          - auto_certificate_update.auto_certificate.id == auto_certificate.auto_certificate.id
+          - auto_certificate_update.auto_certificate.properties.name == auto_certificate_updated_name
+        msg: "Changed should be true and change match"
+
+
+    - name: Delete Auto Certificate
+      ionoscloudsdk.ionoscloud.auto_certificate:
+        auto_certificate: "{{ auto_certificate_updated_name }}"
+        wait: true
+        state: absent
+
+    - name: Delete Zone
+      ionoscloudsdk.ionoscloud.dns_zone:
+        zone: "{{ zone_response.zone.properties.zone_name }}"
+        wait: true
+        state: absent
+
+    - name: Delete Certificate Provider
+      ionoscloudsdk.ionoscloud.certificate_provider:
+        provider: "{{ certificate_provider.certificate_provider.id }}"
+        state: absent

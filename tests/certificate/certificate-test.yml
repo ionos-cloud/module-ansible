@@ -13,13 +13,26 @@
         size: 2048
         mode: 0600
         type: RSA
-        
-    # - name: Ensure self-signed cert is present
-    #   community.crypto.x509_certificate:
-    #     path: "{{ certificate_path }}"
-    #     privatekey_path: "{{ certificate_key_path }}"
-    #     provider: selfsigned
-    #     mode: 0644
+    
+
+    - name: Generate CSR with dummy subject
+      community.crypto.openssl_csr:
+        path: /tmp/dummy.csr
+        privatekey_path: "{{ certificate_key_path }}"
+        common_name: "dummy.local"
+        country_name: "US"
+        state_or_province_name: "CA"
+        locality_name: "San Francisco"
+        organization_name: "Dummy Org"
+        mode: 0644
+
+    - name: Ensure self-signed cert is present
+      community.crypto.x509_certificate:
+        path: "{{ certificate_path }}"
+        privatekey_path: "{{ certificate_key_path }}"
+        provider: selfsigned
+        mode: 0644
+        csr_path: /tmp/dummy.csr
 
     - name: Create Certificate
       ionoscloudsdk.ionoscloud.certificate:
@@ -71,10 +84,10 @@
         certificate: "{{ certificate.certificate.id }}"
         state: absent
 
-    # - name: Delete local certificate
-    #   file:
-    #     state: absent
-    #     path: "{{ certificate_path }}"
+    - name: Delete local certificate
+      file:
+        state: absent
+        path: "{{ certificate_path }}"
 
     - name: Delete local key
       file:
