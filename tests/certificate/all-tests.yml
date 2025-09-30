@@ -4,3 +4,9 @@
 
 - name: Run Certificate Test
   import_playbook: certificate-test.yml
+
+- name: Run Certificate Provider Test
+  import_playbook: certificate-provider-test.yml
+
+- name: Run Auto Certificate Test
+  import_playbook: auto-certificate-test.yml

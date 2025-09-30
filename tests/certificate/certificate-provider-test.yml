@@ -1,0 +1,74 @@
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+    - name: Create Certificate Provider
+      ionoscloudsdk.ionoscloud.certificate_provider:
+        provider_name: "{{ provider_name }}"
+        provider_email: "{{ provider_email }}"
+        provider_server: "{{ provider_server }}"
+        key_id: "{{ key_id }}"
+        key_secret: "{{ key_secret }}"
+        allow_replace: true
+      register: certificate_provider
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{certificate_provider}}"
+    #     dest: ../../docs/returned_object_examples/certificate_provider.json
+
+    - name: List Certificates Providers
+      ionoscloudsdk.ionoscloud.certificate_provider_info:
+      register: certificate_providers_response
+
+    # - name: Print output to file
+    #   ansible.builtin.copy:
+    #     content: "{{certificate_providers_response}}"
+    #     dest: ../../docs/returned_object_examples/certificate_provider_info.json
+
+    - name: Create Certificate Provider no change
+      ionoscloudsdk.ionoscloud.certificate_provider:
+        provider_name: "{{ provider_name }}"
+        provider_email: "{{ provider_email }}"
+        provider_server: "{{ provider_server }}"
+        key_id: "{{ key_id }}"
+      register: certificateprovidernochange
+
+    - name: Asserting that changed == false when no update is made
+      assert:
+        that:
+          - certificateprovidernochange.changed == false
+        msg: "Changed should be false"
+
+    - name: Update Certificate Provider
+      ionoscloudsdk.ionoscloud.certificate_provider:
+        provider: "{{ certificate_provider.certificate_provider.id }}"
+        provider_name: "{{ provider_name_updated }}"
+        allow_replace: False
+        state: update
+      register: certificateproviderupdate
+
+    - name: Asserting that update is correct
+      assert:
+        that:
+          - certificateproviderupdate.changed == true
+          - certificateproviderupdate.changed == true
+        msg: "Changed should be false"
+
+
+    - name: Update Certificate Provider
+      ionoscloudsdk.ionoscloud.certificate_provider:
+        provider: "{{ certificate_provider.certificate_provider.id }}"
+        provider_name: "{{ provider_name_updated }}"
+        allow_replace: False
+        state: update
+
+    - name: Delete Certificate Provider
+      ionoscloudsdk.ionoscloud.certificate_provider:
+        provider: "{{ certificateprovidernochange.certificate_provider.id }}"
+        state: absent

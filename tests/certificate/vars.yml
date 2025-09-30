@@ -2,3 +2,19 @@ certificate_name: test_certificate
 certificate_updated_name: test_certificate_updated
 certificate_path: "certificate.pem"
 certificate_key_path: "key.pem"
+certificate_chain_file: "certificate.pem"
+
+provider_name: "Let's Encrypt"
+provider_name_updated: "Let's Encrypt UPDATED"
+provider_email: "sdk-go-v6@cloud.ionos.com"
+provider_server: "https://acme-staging-v02.api.letsencrypt.org/directory"
+key_id: "some-key-id"
+key_secret: "secret"
+
+zone_name: devsdkionos.net
+zone_description: test_description
+zone_enabled: true
+
+auto_certificate_name: autoCertificateTest
+auto_certificate_updated_name: autoCertificateTestUpdated
+key_algorithm: rsa4096

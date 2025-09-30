@@ -1,40 +1,36 @@
 from ansible import __version__
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_resource_id
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options
-
-
 HAS_SDK = True
 try:
-    import ionoscloud_dataplatform
+    import ionoscloud_cert_manager
+    from ionoscloud_cert_manager import __version__ as certificate_manager_sdk_version
 except ImportError:
     HAS_SDK = False
+
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options
+
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
     'status': ['preview'],
     'supported_by': 'community',
 }
-USER_AGENT = 'ansible-module/%s_ionos-cloud-sdk-python/%s' % (
-__version__, ionoscloud_dataplatform.__version__)
-DOC_DIRECTORY = 'dataplatform'
+USER_AGENT = 'ansible-module/%s_sdk-python-cert-manager/%s' % ( __version__, certificate_manager_sdk_version)
+DOC_DIRECTORY = 'certificate'
 STATES = ['info']
-OBJECT_NAME = 'DataPlatform Clusters'
-RETURNED_KEY = 'dataplatform_clusters'
-
+OBJECT_NAME = 'Auto Certificates'
+RETURNED_KEY = 'auto_certificates'
 
 OPTIONS = {
     **get_info_default_options(STATES),
 }
 
-
-
 DOCUMENTATION = """
-module: dataplatform_cluster_info
-short_description: List DataPlatform Clusters
+module: auto_certificate_info
+short_description: List Auto Certificates
 description:
-     - This is a simple module that supports listing existing DataPlatform Clusters
-     - ⚠️ **Note:** Data Platform is currently in the Early Access (EA) phase. We recommend keeping usage and testing to non-production critical applications. Please contact your sales representative or support for more information.
+     - This is a simple module that supports listing uploaded Certificates
 version_added: "2.0"
 options:
     api_url:
@@ -77,24 +73,24 @@ options:
         required: false
 requirements:
     - "python >= 2.6"
-    - "ionoscloud-dataplatform >= 1.0.0"
+    - "ionoscloud_cert_manager >= 1.0.0"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLES = """
-name: Get all Data Platform clusters
-ionoscloudsdk.ionoscloud.dataplatform_cluster_info: null
-register: cluster_list_response
+name: List Auto Certificates
+ionoscloudsdk.ionoscloud.auto_certificate_info: null
+register: auto_certificates_response
 """
 
 
 def get_objects(module, client):
-    return ionoscloud_dataplatform.DataPlatformClusterApi(client).get_clusters()
+    return ionoscloud_cert_manager.AutoCertificateApi(client).auto_certificates_get()
 
 
 if __name__ == '__main__':
     default_main_info(
-        ionoscloud_dataplatform, 'ionoscloud_dataplatform', USER_AGENT, HAS_SDK, OPTIONS,
+        ionoscloud_cert_manager, 'ionoscloud_cert_manager', USER_AGENT, HAS_SDK, OPTIONS,
         STATES, OBJECT_NAME, RETURNED_KEY, get_objects,
     )

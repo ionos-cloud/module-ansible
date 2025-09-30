@@ -88,17 +88,7 @@ def update_module(module_name, to_change):
 
 
 def update_examples(module_name):
-    # Fixing module info imports
-    with open(os.path.join(MODULES_DIR, module_name) + '.py', 'r') as module_file_read:
-        initial_module = module_file_read.read()
-    with open(os.path.join(MODULES_DIR, module_name) + '.py', 'w') as plugin_file_write:
-        plugin_file_write.write(initial_module.replace('ansible_collections.ionoscloudsdk.ionoscloud.plugins', '.'))
-
     module = importlib.import_module('plugins.modules.' + module_name)
-
-    # Revert module changess
-    with open(os.path.join(MODULES_DIR, module_name) + '.py', 'w') as plugin_file_write:
-        plugin_file_write.write(initial_module)
     
     state_examples = get_examples_from_tests(module_name, module)
     to_change = []
@@ -193,13 +183,12 @@ modules_to_generate = [
     'user_info',
     'user',
     'vcpu_server',
-    'dataplatform_cluster',
-    'dataplatform_cluster_config',
-    'dataplatform_cluster_info',
-    'dataplatform_nodepool',
-    'dataplatform_nodepool_info',
     'certificate',
     'certificate_info',
+    'auto_certificate',
+    'auto_certificate_info',
+    'certificate_provider',
+    'certificate_provider_info',
     'pipeline',
     'pipeline_info',
     'vm_autoscaling_group',

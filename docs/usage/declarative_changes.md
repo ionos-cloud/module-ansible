@@ -50,8 +50,6 @@ The following parameters, when changed or set, trigger resource replacement:
 | certificate           | certificate_file, certificate_chain_file                                                           | private_key_file |
 | cube_server           | template_uuid, availability_zone                                                                   | -                |
 | datacenter            | location                                                                                           | -                |
-| dataplatform_cluster  | datacenter                                                                                         | -                |
-| dataplatform_nodepool | name, cpu_family, cores_count, ram_size, availability_zone, storage_type, storage_size             | -                |
 | ipblock               | size, location                                                                                     | -                |
 | k8s_nodepool          | name, cpu_family, cores_count, ram_size, availability_zone, storage_type, storage_size, datacenter | -                |
 | mongo_cluster         | mongo_db_version, location                                                                         | -                |
@@ -102,9 +100,6 @@ The update involves changes in parameter names, removal of parameters, and addit
 **datacenter:**
 - removed id
 - added datacenter
-
-**dataplatform_cluster:**
-- datacenter_id -> datacenter
 
 **firewall_rule:**
 - added firewall_rule

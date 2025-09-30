@@ -100,3 +100,6 @@ ansible.cfg
 
 update_description_utils/swaggers
 reset.sh
+
+Gemfile.lock
+inventory.ini

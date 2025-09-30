@@ -194,19 +194,15 @@
     * [S3 Keys](api/user-management/s3key_info.md)
     * [Shares](api/user-management/share_info.md)
     * [Users](api/user-management/user_info.md)
-* Data Platform
-  * Modules
-    * [Data Platform Cluster](api/dataplatform/dataplatform_cluster.md)
-    * [DataPlatform Cluster Config](api/dataplatform/dataplatform_cluster_config.md)
-    * [Data Platform Nodepool](api/dataplatform/dataplatform_nodepool.md)
-  * Info Modules
-    * [DataPlatform Clusters](api/dataplatform/dataplatform_cluster_info.md)
-    * [DataPlatform Nodepools](api/dataplatform/dataplatform_nodepool_info.md)
 * Certificate Manager
   * Modules
     * [Certificate](api/certificate/certificate.md)
+    * [Auto Certificate](api/certificate/auto_certificate.md)
+    * [Certificate Provider](api/certificate/certificate_provider.md)
   * Info Modules
     * [Certificates](api/certificate/certificate_info.md)
+    * [Auto Certificates](api/certificate/auto_certificate_info.md)
+    * [Certificate Providers](api/certificate/certificate_provider_info.md)
 * Logging
   * Modules
     * [Pipeline](api/logging/pipeline.md)

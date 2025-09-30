@@ -1,48 +1,36 @@
-# dataplatform_cluster
+# certificate_provider
 
-This is a simple module that supports creating or removing Data Platform Clusters. This module has a dependency on ionoscloud &gt;= 6.0.2
-
-⚠️ **Note:** Data Platform is currently in the Early Access (EA) phase. We recommend keeping usage and testing to non-production critical applications. Please contact your sales representative or support for more information.
+This is a simple module that supports uploading, updating or deleting certificates in the Ionos Cloud Certificate Manager.
 
 ## Example Syntax
 
 
 ```yaml
 
-name: Create Data Platform cluster
-ionoscloudsdk.ionoscloud.dataplatform_cluster:
-  name: 'AnsibleAutoTestDataPlatform'
-  dataplatform_version: '25.3'
-  datacenter: ''
-  maintenance_window:
-    day_of_the_week: Wednesday
-    time: '12:02:00'
-  state: present
-  wait: true
-  wait_timeout: 7200
-register: cluster_response
+name: Create Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider_name: 'Let's Encrypt'
+  provider_email: 'sdk-go-v6@cloud.ionos.com'
+  provider_server: 'https://acme-staging-v02.api.letsencrypt.org/directory'
+  key_id: 'some-key-id'
+  key_secret: 'secret'
+  allow_replace: true
+register: certificate_provider
 
 
-name: Patch Data Platform cluster no change
-ionoscloudsdk.ionoscloud.dataplatform_cluster:
-  cluster: 'AnsibleAutoTestDataPlatform'
-  dataplatform_version: '25.3'
+name: Update Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider: ''
+  provider_name: 'Let's Encrypt UPDATED'
   allow_replace: false
-  maintenance_window:
-    day_of_the_week: Wednesday
-    time: '12:02:00'
   state: update
-  wait: true
-  wait_timeout: 7200
-register: cluster_response_nochange
+register: certificateproviderupdate
 
 
-name: Delete Data Platform cluster
-ionoscloudsdk.ionoscloud.dataplatform_cluster:
-  cluster: ''
+name: Delete Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider: ''
   state: absent
-  wait: true
-  wait_timeout: 2000
 
 ```
 
@@ -54,31 +42,28 @@ ionoscloudsdk.ionoscloud.dataplatform_cluster:
     "changed": true,
     "failed": false,
     "action": "create",
-    "dataplatform_cluster": {
-        "id": "fe6a5792-7473-4067-ba83-6d135582e623",
-        "type": "cluster",
-        "href": "https://api.ionos.com/dataplatform/clusters/fe6a5792-7473-4067-ba83-6d135582e623",
+    "certificate_provider": {
+        "id": "f9debe0b-8c4e-4bae-ab9a-5b634d7d054e",
+        "type": "provider",
+        "href": "/providers/f9debe0b-8c4e-4bae-ab9a-5b634d7d054e",
         "metadata": {
-            "e_tag": null,
-            "created_date": "2023-05-29T13:55:51+00:00",
+            "created_date": "2025-09-26T14:55:11.643007+00:00",
             "created_by": "<USER_EMAIL>",
             "created_by_user_id": "<USER_ID>",
-            "created_in_contract_number": "31909592",
-            "last_modified_date": "2023-05-29T13:55:51+00:00",
+            "last_modified_date": "2023-05-29T13:48:11Z",
             "last_modified_by": "<USER_EMAIL>",
             "last_modified_by_user_id": "<USER_ID>",
-            "current_data_platform_version": "22.11",
-            "current_data_platform_revision": 1,
-            "available_upgrade_versions": [],
-            "state": "DEPLOYING"
+            "resource_urn": "<URN>",
+            "state": "AVAILABLE",
+            "message": "Ready"
         },
         "properties": {
-            "name": "AnsibleAutoTestDataPlatform3",
-            "data_platform_version": "22.11",
-            "datacenter_id": "f68205d8-8334-43b0-9f64-b06babcf5bd6",
-            "maintenance_window": {
-                "time": "12:02:00",
-                "day_of_the_week": "Wednesday"
+            "name": "Let's Encrypt",
+            "email": "<EMAIL>",
+            "server": "<SERVR>",
+            "external_account_binding": {
+                "key_id": "some-key-id",
+                "key_secret": null
             }
         }
     }
@@ -86,29 +71,29 @@ ionoscloudsdk.ionoscloud.dataplatform_cluster:
 
 ```
 
-### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/dataplatform).
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/certificate).
 &nbsp;
 
  **_NOTE:_**   **If you are using a versions 7.0.0 and up**: modules can replace resources if certain set parameters differ from the results found in the API!
 ## Parameters that can trigger a resource replacement:
-  * datacenter 
+  * provider_email 
+  * provider_server 
+  * key_id 
+  * key_secret (Will trigger replace just by being set as this parameter cannot be retrieved from the api to check for changes!)
 &nbsp;
 
 # state: **present**
 ```yaml
   
-name: Create Data Platform cluster
-ionoscloudsdk.ionoscloud.dataplatform_cluster:
-  name: 'AnsibleAutoTestDataPlatform'
-  dataplatform_version: '25.3'
-  datacenter: ''
-  maintenance_window:
-    day_of_the_week: Wednesday
-    time: '12:02:00'
-  state: present
-  wait: true
-  wait_timeout: 7200
-register: cluster_response
+name: Create Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider_name: 'Let's Encrypt'
+  provider_email: 'sdk-go-v6@cloud.ionos.com'
+  provider_server: 'https://acme-staging-v02.api.letsencrypt.org/directory'
+  key_id: 'some-key-id'
+  key_secret: 'secret'
+  allow_replace: true
+register: certificate_provider
 
 ```
 ### Available parameters for state **present**:
@@ -124,24 +109,29 @@ register: cluster_response
   </thead>
   <tbody>
   <tr>
-  <td>name<br/><mark style="color:blue;">str</mark></td>
+  <td>provider_name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The name of your cluster. Must be 63 characters or less and must begin and end with an alphanumeric character (`[a-z0-9A-Z]`) with dashes (`-`), underscores (`_`), dots (`.`), and alphanumerics between.</td>
+  <td>The name of the certificate provider.</td>
   </tr>
   <tr>
-  <td>dataplatform_version<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">False</td>
-  <td>The version of the data platform.</td>
-  </tr>
-  <tr>
-  <td>datacenter<br/><mark style="color:blue;">str</mark></td>
+  <td>provider_email<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The UUID of the virtual data center (VDC) the cluster is provisioned.</td>
+  <td>The email address of the certificate requester.</td>
   </tr>
   <tr>
-  <td>maintenance_window<br/><mark style="color:blue;">dict</mark></td>
+  <td>provider_server<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The URL of the certificate provider.</td>
+  </tr>
+  <tr>
+  <td>key_id<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>Starting time of a weekly 4-hour-long window, during which maintenance might occur in the `HH:MM:SS` format.</td>
+  <td>The key ID of the external account binding.</td>
+  </tr>
+  <tr>
+  <td>key_secret<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The secret of the external account binding.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
@@ -197,12 +187,10 @@ register: cluster_response
 # state: **absent**
 ```yaml
   
-name: Delete Data Platform cluster
-ionoscloudsdk.ionoscloud.dataplatform_cluster:
-  cluster: ''
+name: Delete Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider: ''
   state: absent
-  wait: true
-  wait_timeout: 2000
 
 ```
 ### Available parameters for state **absent**:
@@ -218,9 +206,34 @@ ionoscloudsdk.ionoscloud.dataplatform_cluster:
   </thead>
   <tbody>
   <tr>
-  <td>cluster<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>The ID or name of the Data Platform cluster.</td>
+  <td>provider<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The provider name or ID.</td>
+  </tr>
+  <tr>
+  <td>provider_name<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The name of the certificate provider.</td>
+  </tr>
+  <tr>
+  <td>provider_email<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The email address of the certificate requester.</td>
+  </tr>
+  <tr>
+  <td>provider_server<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The URL of the certificate provider.</td>
+  </tr>
+  <tr>
+  <td>key_id<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The key ID of the external account binding.</td>
+  </tr>
+  <tr>
+  <td>key_secret<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The secret of the external account binding.</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -271,18 +284,13 @@ ionoscloudsdk.ionoscloud.dataplatform_cluster:
 # state: **update**
 ```yaml
   
-name: Patch Data Platform cluster no change
-ionoscloudsdk.ionoscloud.dataplatform_cluster:
-  cluster: 'AnsibleAutoTestDataPlatform'
-  dataplatform_version: '25.3'
+name: Update Certificate Provider
+ionoscloudsdk.ionoscloud.certificate_provider:
+  provider: ''
+  provider_name: 'Let's Encrypt UPDATED'
   allow_replace: false
-  maintenance_window:
-    day_of_the_week: Wednesday
-    time: '12:02:00'
   state: update
-  wait: true
-  wait_timeout: 7200
-register: cluster_response_nochange
+register: certificateproviderupdate
 
 ```
 ### Available parameters for state **update**:
@@ -298,29 +306,34 @@ register: cluster_response_nochange
   </thead>
   <tbody>
   <tr>
-  <td>name<br/><mark style="color:blue;">str</mark></td>
+  <td>provider<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">True</td>
+  <td>The provider name or ID.</td>
+  </tr>
+  <tr>
+  <td>provider_name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The name of your cluster. Must be 63 characters or less and must begin and end with an alphanumeric character (`[a-z0-9A-Z]`) with dashes (`-`), underscores (`_`), dots (`.`), and alphanumerics between.</td>
+  <td>The name of the certificate provider.</td>
   </tr>
   <tr>
-  <td>cluster<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>The ID or name of the Data Platform cluster.</td>
-  </tr>
-  <tr>
-  <td>dataplatform_version<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>The version of the data platform.</td>
-  </tr>
-  <tr>
-  <td>datacenter<br/><mark style="color:blue;">str</mark></td>
+  <td>provider_email<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The UUID of the virtual data center (VDC) the cluster is provisioned.</td>
+  <td>The email address of the certificate requester.</td>
   </tr>
   <tr>
-  <td>maintenance_window<br/><mark style="color:blue;">dict</mark></td>
-  <td align="center">True</td>
-  <td>Starting time of a weekly 4-hour-long window, during which maintenance might occur in the `HH:MM:SS` format.</td>
+  <td>provider_server<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The URL of the certificate provider.</td>
+  </tr>
+  <tr>
+  <td>key_id<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The key ID of the external account binding.</td>
+  </tr>
+  <tr>
+  <td>key_secret<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The secret of the external account binding.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>

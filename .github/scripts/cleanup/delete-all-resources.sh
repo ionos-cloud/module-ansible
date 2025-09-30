@@ -6,7 +6,6 @@
 
 
 # load delete functions
-source ./delete-dataplatform-resources.sh
 source ./delete-backup-resources.sh
 source ./delete-dbaas-resources.sh
 source ./delete-user-management-resources.sh
@@ -17,10 +16,6 @@ source ./delete-nlb-resources.sh
 
 # load print utils
 source ./print-utils.sh
-
-
-echo_step "starting cleanup on Data Platform resources"
-delete_dataplatform_resources
 
 echo_step "starting cleanup on Managed Backup resources"
 delete_backup_resources

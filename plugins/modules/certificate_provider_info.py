@@ -19,16 +19,16 @@ ANSIBLE_METADATA = {
 USER_AGENT = 'ansible-module/%s_sdk-python-cert-manager/%s' % ( __version__, certificate_manager_sdk_version)
 DOC_DIRECTORY = 'certificate'
 STATES = ['info']
-OBJECT_NAME = 'Certificates'
-RETURNED_KEY = 'certificates'
+OBJECT_NAME = 'Certificate Providers'
+RETURNED_KEY = 'certificate_providers'
 
 OPTIONS = {
     **get_info_default_options(STATES),
 }
 
 DOCUMENTATION = """
-module: certificate_info
-short_description: List Certificates
+module: certificate_provider_info
+short_description: List Certificate Providers
 description:
      - This is a simple module that supports listing uploaded Certificates
 version_added: "2.0"
@@ -79,14 +79,14 @@ author:
 """
 
 EXAMPLES = """
-name: List Certificates
-ionoscloudsdk.ionoscloud.certificate_info: null
-register: certificates_response
+name: List Certificates Providers
+ionoscloudsdk.ionoscloud.certificate_provider_info: null
+register: certificate_providers_response
 """
 
 
 def get_objects(module, client):
-    return ionoscloud_cert_manager.CertificateApi(client).certificates_get()
+    return ionoscloud_cert_manager.ProviderApi(client).providers_get()
 
 
 if __name__ == '__main__':
