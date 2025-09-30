@@ -1,6 +1,6 @@
 # auto_certificate
 
-This is a simple module that supports uploading, updating or deleting certificates in the Ionos Cloud Certificate Manager.
+This is a simple module that supports uploading, updating or deleting Auto Certificates in the Ionos Cloud Certificate Manager.
 
 ## Example Syntax
 
