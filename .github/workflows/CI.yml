@@ -122,8 +122,6 @@ jobs:
             keywords: "certificate"
           - namespace: container-registry
             keywords: "registry"
-          - namespace: dataplatform
-            keywords: "data_platform, dataplatform"
           - namespace: logging
             keywords: "pipeline"
           - namespace: dns
@@ -164,7 +162,6 @@ jobs:
           python3 -m pip install ionoscloud-dbaas-mongo
           python3 -m pip install ionoscloud-dbaas-mariadb
           python3 -m pip install ionoscloud-container-registry
-          python3 -m pip install ionoscloud-dataplatform
           python3 -m pip install ionoscloud-logging
           python3 -m pip install ionoscloud-vm-autoscaling
 
