@@ -93,7 +93,7 @@ OPTIONS = {
         'type': 'str',
     },
     'availability_zone': {
-        'description': ['The availability zone in which the server should be provisioned.'],
+        'description': ['The availability zone in which the server should be provisioned. For CUBE and GPU servers, the only value accepted is \'AUTO\'.'],
         'available': ['present'],
         'choices_docs': ['AUTO', 'ZONE_1', 'ZONE_2'],
         'type': 'str',
@@ -211,7 +211,8 @@ options:
         - ZONE_1
         - ZONE_2
         description:
-        - The availability zone in which the server should be provisioned.
+        - The availability zone in which the server should be provisioned. For CUBE and
+            GPU servers, the only value accepted is 'AUTO'.
         required: false
         version_added: '2.3'
     boot_cdrom:
