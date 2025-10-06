@@ -9,7 +9,6 @@ try:
     from ionoscloud.models import S3Key
     from ionoscloud.models import S3KeyProperties
     from ionoscloud.rest import ApiException
-    from ionoscloud import ApiClient
 except ImportError:
     HAS_SDK = False
 
@@ -199,153 +198,221 @@ ionoscloudsdk.ionoscloud.s3key:
 """
 
 
-class PccModule(CommonIonosModule):
+class S3KeyModule(CommonIonosModule):
     def __init__(self) -> None:
         super().__init__()
-        self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES))
+        self.module = AnsibleModule(argument_spec=get_module_arguments(OPTIONS, STATES), supports_check_mode=True)
         self.returned_key = RETURNED_KEY
         self.object_name = OBJECT_NAME
         self.sdks = [ionoscloud]
         self.user_agents = [USER_AGENT]
         self.options = OPTIONS
+        self.object_identity_paths = [['id']]
+
+
+    def _should_replace_object(self, existing_object, clients):
+        return False
+
+
+    def _should_update_object(self, existing_object, clients):
+        return (
+            self.module.params.get('active') is not None
+            and existing_object.properties.active != self.module.params.get('active')
+        )
+
+
+    def get_object_before(self, existing_object, clients):
+        return {
+            'active': existing_object.properties.active,
+        }
+
+
+    def get_object_after(self, existing_object, clients):
+        try:
+            object_properties = existing_object.properties
+        except AttributeError:
+            object_properties = ionoscloud.S3KeyProperties()
+
+        return {
+            'active': object_properties.active if self.module.params.get('active') is None else self.module.params.get('active'),
+        }
+
+
+    def _get_object_list(self, clients):
+        user_list = get_users_by_identifier(
+            ionoscloud.UserManagementApi(clients[0]),
+            ionoscloud.Users(items=[]),
+            self.module.params.get('user'),
+        )
+        user_id = get_resource_id(
+            self.module, user_list, self.module.params.get('user'), [['id'], ['properties', 'email']],
+        )
+
+        return ionoscloud.UserS3KeysApi(clients[0]).um_users_s3keys_get(user_id, depth=1)
+
+
+    def _get_object_name(self):
+        return self.module.params.get('key_id')
+
+
+    def _get_object_identifier(self):
+        return self.module.params.get('key_id')
+
+
+    def _create_object(self, existing_object, clients):
+        client = clients[0]
+        active = self.module.params.get('active')
+
+        user_list = get_users_by_identifier(
+            ionoscloud.UserManagementApi(clients[0]),
+            ionoscloud.Users(items=[]),
+            self.module.params.get('user'),
+        )
+        user_id = get_resource_id(
+            self.module, user_list, self.module.params.get('user'), [['id'], ['properties', 'email']],
+        )
+
+        if existing_object is not None:
+            active = existing_object.properties.active if active is None else active
+        
+        wait = self.module.params.get('wait')
+        wait_timeout = int(self.module.params.get('wait_timeout'))
+
+        s3keys_api = ionoscloud.UserS3KeysApi(client)
+
+        try:
+            s3key_response, _, headers = s3keys_api.um_users_s3keys_post_with_http_info(user_id=user_id)
+            if wait:
+                request_id = _get_request_id(headers['Location'])
+                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+                s3key_response = s3keys_api.um_users_s3keys_find_by_key_id(user_id=user_id, key_id=s3key_response.id)
+            
+            if active != s3key_response.properties.active:
+                s3key_response, _, headers = s3keys_api.um_users_s3keys_put_with_http_info(
+                    user_id=user_id,
+                    key_id=s3key_response.id,
+                    s3_key=ionoscloud.S3Key(properties=ionoscloud.S3KeyProperties(active=active)),
+                )
+                if wait:
+                    request_id = _get_request_id(headers['Location'])
+                    client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+                    s3key_response = s3keys_api.um_users_s3keys_find_by_key_id(user_id=user_id, key_id=s3key_response.id)
+
+        except ApiException as e:
+            self.module.fail_json(msg="failed to create the new {}: {}".format(self.object_name, to_native(e)))
+        return s3key_response
+
+
+    def _update_object(self, existing_object, clients):
+        client = clients[0]
+        active = self.module.params.get('active')
+        wait = self.module.params.get('wait')
+        wait_timeout = self.module.params.get('wait_timeout')
+
+        user_list = get_users_by_identifier(
+            ionoscloud.UserManagementApi(clients[0]),
+            ionoscloud.Users(items=[]),
+            self.module.params.get('user'),
+        )
+        user_id = get_resource_id(
+            self.module, user_list, self.module.params.get('user'), [['id'], ['properties', 'email']],
+        )
+
+        s3keys_api = ionoscloud.UserS3KeysApi(client)
+
+        try:
+            s3key_response, _, headers = s3keys_api.um_users_s3keys_put_with_http_info(
+                user_id=user_id,
+                key_id=existing_object.id,
+                s3_key=ionoscloud.S3Key(properties=ionoscloud.S3KeyProperties(active=active)),
+            )
+            if wait:
+                request_id = _get_request_id(headers['Location'])
+                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
+                s3key_response = s3keys_api.um_users_s3keys_find_by_key_id(user_id=user_id, key_id=s3key_response.id)
+
+            return s3key_response
+        except ApiException as e:
+            self.module.fail_json(msg="failed to update the {}: {}".format(self.object_name, to_native(e)))
+
+
+    def _remove_object(self, existing_object, clients):
+        client = clients[0]
+        wait = self.module.params.get('wait')
+        wait_timeout = self.module.params.get('wait_timeout')
+
+
+        user_list = get_users_by_identifier(
+            ionoscloud.UserManagementApi(clients[0]),
+            ionoscloud.Users(items=[]),
+            self.module.params.get('user'),
+        )
+        user_id = get_resource_id(
+            self.module, user_list, self.module.params.get('user'), [['id'], ['properties', 'email']],
+        )
+
+        try:
+            _, _, headers = ionoscloud.UserS3KeysApi(client).um_users_s3keys_delete_with_http_info(
+                user_id=user_id,
+                key_id=existing_object.id,
+            )
+            if wait:
+                request_id = _get_request_id(headers['Location'])
+                client.wait_for_completion(request_id=request_id, timeout=wait_timeout, initial_wait=2, scaleup=20)
+        except ApiException as e:
+            self.module.fail_json(msg="failed to remove the {}: {}".format(self.object_name, to_native(e)))
 
 
     def present_object(self, clients):
-        client = clients[0]
-        user_list = get_users_by_identifier(ionoscloud.UserManagementApi(client), ionoscloud.Users(items=[]), self.module.params.get('user'))
-        user_id = get_resource_id(
-            self.module, user_list, self.module.params.get('user'), [['id'], ['properties', 'email']],
+        s3key_list = self._get_object_list(clients)
+        existing_object = get_resource(
+            self.module, s3key_list,
+            self._get_object_identifier(),
+            self.object_identity_paths,
         )
-        do_idempotency = self.module.params.get('idempotency')
-        key_id = self.module.params.get('key_id')
-        active = self.module.params.get('active')
-        wait_timeout = int(self.module.params.get('wait_timeout'))
-        changed = False
 
-        user_s3keys_server = ionoscloud.UserS3KeysApi(client)
-        s3key_list = user_s3keys_server.um_users_s3keys_get(user_id=user_id, depth=1)
+        if not existing_object and self.module.params.get('idempotency') and len(s3key_list.items) > 0:
+            existing_object = s3key_list.items[0]
 
-        try:
-            s3key = get_resource(self.module, s3key_list, key_id, [['id']])
+        if existing_object:
+            return self.update_replace_object(existing_object, clients)
 
-            if not s3key and do_idempotency and len(s3key_list.items) > 0:
-                s3key = s3key_list.items[0]
-
-            if not s3key:
-                changed = True
-                s3key, _, headers = user_s3keys_server.um_users_s3keys_post_with_http_info(user_id=user_id)
-
-                request_id = _get_request_id(headers['Location'])
-                client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-            if s3key.properties.active != active:
-                changed = True
-                s3key, _, headers = user_s3keys_server.um_users_s3keys_put_with_http_info(
-                    user_id, s3key.id, S3Key(properties=S3KeyProperties(active=active)),
-                )
-
-                if self.module.params.get('wait'):
-                    request_id = _get_request_id(headers['Location'])
-                    client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
-
-            return {
-                'changed': changed,
-                'failed': False,
-                'action': 'create',
-                RETURNED_KEY: s3key.to_dict()
+        returned_json = {}
+        object_after = self.get_object_after(existing_object, clients)
+        if self.module._diff:
+            returned_json['diff'] = {
+                'before': {},
+                'after': object_after,
             }
-
-        except Exception as e:
-            self.module.fail_json(msg="failed to create the s3key: %s" % to_native(e))
-            return {
-                'changed': False,
-                'failed': True,
-                'action': 'create',
-            }
-
-
-    def absent_object(self, clients):
-        client = clients[0]
-        user_list = get_users_by_identifier(ionoscloud.UserManagementApi(client), ionoscloud.Users(items=[]), self.module.params.get('user'))
-        user_id = get_resource_id(
-            self.module, user_list, self.module.params.get('user'), [['id'], ['properties', 'email']],
-        )
-        key_id = self.module.params.get('key_id')
-
-        user_s3keys_server = ionoscloud.UserS3KeysApi(client)
-
-        s3key_list = user_s3keys_server.um_users_s3keys_get(user_id=user_id)
-        s3key_id = get_resource_id(self.module, s3key_list, key_id, [['id']])
-
-        if not s3key_id:
-            self.module.exit_json(changed=False)
-
-        try:
-            user_s3keys_server.um_users_s3keys_delete(user_id, s3key_id)
-            return {
-                'action': 'delete',
-                'changed': True,
-                'id': key_id
-            }
-
-        except Exception as e:
-            self.module.fail_json(msg="failed to delete the s3key: %s" % to_native(e))
-            return {
-                'action': 'delete',
-                'changed': False,
-                'id': key_id
-            }
-
-
-    def update_object(self, clients):
-        client = clients[0]
-
-        user_list = get_users_by_identifier(ionoscloud.UserManagementApi(client), ionoscloud.Users(items=[]), self.module.params.get('user'))
-        user_id = get_resource_id(
-            self.module, user_list, self.module.params.get('user'), [['id'], ['properties', 'email']],
-        )
-        key_id = self.module.params.get('key_id')
-        active = self.module.params.get('active')
-
-        changed = False
-
-        user_s3keys_server = ionoscloud.UserS3KeysApi(client)
-        s3key_list = user_s3keys_server.um_users_s3keys_get(user_id=user_id, depth=1)
-        s3key = get_resource(self.module, s3key_list, key_id, [['id']])
-
-        if not s3key:
-            self.module.exit_json(changed=False)
 
         if self.module.check_mode:
-            self.module.exit_json(changed=True)
-        try:
-            if s3key.properties.active != active:
-                changed = True
-                s3key, _, headers = user_s3keys_server.um_users_s3keys_put_with_http_info(
-                    user_id, s3key.id, S3Key(properties=S3KeyProperties(active=active)),
-                )
-
-                if self.module.params.get('wait'):
-                    request_id = _get_request_id(headers['Location'])
-                    client.wait_for_completion(request_id=request_id, timeout=self.module.params.get('wait_timeout'))
-
             return {
-                'changed': changed,
+                **returned_json,
+                **{
+                    'changed': True,
+                    'msg': '{object_name} {object_name_identifier} would be created'.format(
+                        object_name=self.object_name, object_name_identifier=self._get_object_name(),
+                    ),
+                    self.returned_key: {
+                        'id': '<known after creation>',
+                        'properties': object_after,
+                    },
+                },
+            }
+
+        return {
+            **returned_json,
+            **{
+                'changed': True,
                 'failed': False,
-                'action': 'update',
-                RETURNED_KEY: s3key.to_dict()
-            }
-
-        except Exception as e:
-            self.module.fail_json(msg="failed to update the s3key: %s" % to_native(e))
-            return {
-                'changed': False,
-                'failed': True,
-                'action': 'update',
-            }
+                'action': 'create',
+                self.returned_key: self._create_object(None, clients).to_dict(),
+            },
+        }
 
 
 if __name__ == '__main__':
-    ionos_module = PccModule()
+    ionos_module = S3KeyModule()
     if not HAS_SDK:
         ionos_module.module.fail_json(msg='ionoscloud is required for this module, run `pip install ionoscloud`')
     ionos_module.main()
