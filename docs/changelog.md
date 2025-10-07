@@ -3,8 +3,11 @@
 
 ## 7.6.0
 ### Features
+* added check_mode and diff to the `s3key` module
 * added new certificate manager v2 modules `auto_certificate`, `auto_certificate_info`, `certificate_provider` and `certificate_provider_info`
 * added `nic_multi_queue` to `server` and `vcpu_server`
+### Fixes
+* fixed `group_info` not working with user specified 
 ### Changes
 * changed `vcpu_server` module to be declarative, like the `server` module
 * changed existing certificate manager to use the the certificate manager v2 API. Will not be compatible with sdk versions bellow 2.0.0
