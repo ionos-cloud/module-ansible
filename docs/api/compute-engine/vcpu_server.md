@@ -271,7 +271,7 @@ ionoscloudsdk.ionoscloud.vcpu_server:
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The name of the virtual machine.</td>
+  <td>The name of the  resource.</td>
   </tr>
   <tr>
   <td>datacenter<br/><mark style="color:blue;">str</mark></td>
@@ -370,7 +370,7 @@ register: server_create_result
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The name of the virtual machine.</td>
+  <td>The name of the  resource.</td>
   </tr>
   <tr>
   <td>assign_public_ip<br/><mark style="color:blue;">bool</mark></td>
@@ -410,17 +410,22 @@ register: server_create_result
   <tr>
   <td>cores<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>The number of CPU cores to allocate to the virtual machine.<br />Default: 2</td>
+  <td>The total number of cores for the enterprise server.<br />Default: 2</td>
   </tr>
   <tr>
   <td>ram<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>The amount of memory to allocate to the virtual machine.<br />Default: 2048</td>
+  <td>The memory size for the enterprise server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB.<br />Default: 2048</td>
+  </tr>
+  <tr>
+  <td>nic_multi_queue<br/><mark style="color:blue;">bool</mark></td>
+  <td align="center">False</td>
+  <td>CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers. Only if the field is omitted from the request, an available CPU architecture will be automatically selected. The values empty or null are not accepted.</td>
   </tr>
   <tr>
   <td>availability_zone<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The availability zone assigned to the server.<br />Default: AUTO<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2', 'ZONE_3']</td>
+  <td>The availability zone in which the server should be provisioned.<br />Default: AUTO<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2']</td>
   </tr>
   <tr>
   <td>volume_size<br/><mark style="color:blue;">int</mark></td>
@@ -440,7 +445,7 @@ register: server_create_result
   <tr>
   <td>location<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.<br />Default: us/las<br />Options: ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr']</td>
+  <td>The datacenter location. Use only if you want to create the Datacenter or else this value is ignored.<br />Default: us/las<br />Options: ['us/las', 'us/ewr', 'de/fra', 'de/fkb', 'de/txl', 'gb/lhr', 'es/vit', 'fr/par', 'us/mci']</td>
   </tr>
   <tr>
   <td>lan<br/><mark style="color:blue;">str</mark></td>
@@ -553,7 +558,7 @@ ionoscloudsdk.ionoscloud.vcpu_server:
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The name of the virtual machine.</td>
+  <td>The name of the  resource.</td>
   </tr>
   <tr>
   <td>datacenter<br/><mark style="color:blue;">str</mark></td>
@@ -563,12 +568,12 @@ ionoscloudsdk.ionoscloud.vcpu_server:
   <tr>
   <td>cores<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>The number of CPU cores to allocate to the virtual machine.<br />Default: 2</td>
+  <td>The total number of cores for the enterprise server.<br />Default: 2</td>
   </tr>
   <tr>
   <td>ram<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>The amount of memory to allocate to the virtual machine.<br />Default: 2048</td>
+  <td>The memory size for the enterprise server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB.<br />Default: 2048</td>
   </tr>
   <tr>
   <td>instance_ids<br/><mark style="color:blue;">list</mark></td>

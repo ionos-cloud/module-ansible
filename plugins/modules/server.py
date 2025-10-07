@@ -118,8 +118,13 @@ OPTIONS = {
         'type': 'str',
         'version_added': '2.2',
     },
+    'nic_multi_queue': {
+        'description': ['Activate or deactivate the Multi Queue feature on all NICs of this server. This feature is beneficial to  enable when the NICs are experiencing performance issues (e.g. low throughput). Toggling this feature will also initiate a restart of the server. If the specified value is `true`, the feature will  be activated; if it is not specified or set to `false`, the feature will be deactivated. It is not allowed for servers of type Cube.'],
+        'available': ['present'],
+        'type': 'bool',
+    },
     'availability_zone': {
-        'description': ['The availability zone in which the server should be provisioned.'],
+        'description': ['The availability zone in which the server should be provisioned. For CUBE and GPU servers, the only value accepted is \'AUTO\'.'],
         'available': ['present'],
         'choices_docs': ['AUTO', 'ZONE_1', 'ZONE_2'],
         'default': 'AUTO',
@@ -236,7 +241,8 @@ options:
         - ZONE_2
         default: AUTO
         description:
-        - The availability zone in which the server should be provisioned.
+        - The availability zone in which the server should be provisioned. For CUBE and
+            GPU servers, the only value accepted is 'AUTO'.
         required: false
         version_added: '2.3'
     boot_cdrom:
@@ -355,6 +361,15 @@ options:
         description:
         - The list of IPS for the NIC.
         elements: str
+        required: false
+    nic_multi_queue:
+        description:
+        - Activate or deactivate the Multi Queue feature on all NICs of this server. This
+            feature is beneficial to  enable when the NICs are experiencing performance
+            issues (e.g. low throughput). Toggling this feature will also initiate a restart
+            of the server. If the specified value is `true`, the feature will  be activated;
+            if it is not specified or set to `false`, the feature will be deactivated.
+            It is not allowed for servers of type Cube.
         required: false
     password:
         aliases:
@@ -627,6 +642,8 @@ def _should_update_object(module, existing_object, new_object_name):
         and int(existing_object.properties.ram) != int(module.params.get('ram'))
         or module.params.get('cpu_family') is not None
         and existing_object.properties.cpu_family != module.params.get('cpu_family')
+        or module.params.get('nic_multi_queue') is not None
+        and existing_object.properties.nic_multi_queue != module.params.get('nic_multi_queue')
         or module.params.get('availability_zone') is not None
         and existing_object.properties.availability_zone != module.params.get('availability_zone')
     )
@@ -728,9 +745,13 @@ def _create_object(module, client, datacenter_id, name, existing_object=None):
             if nic_ips:
                 nic.properties.ips = nic_ips
             nics.append(nic)
+
     server_properties = ServerProperties(
         name=name, cores=cores, ram=ram, availability_zone=availability_zone, cpu_family=cpu_family,
     )
+
+    if module.params.get('nic_multi_queue'):
+        server_properties.nic_multi_queue = True
 
     volume_properties = VolumeProperties(
         name=str(uuid4()).replace('-', '')[:10],
@@ -861,6 +882,10 @@ def _update_object(module, client, datacenter_id, new_object_name, existing_obje
         cores=cores, ram=ram, availability_zone=availability_zone,
         cpu_family=cpu_family,
     )
+
+    if module.params.get('nic_multi_queue') != None:
+        new_server_propeties.nic_multi_queue = module.params.get('nic_multi_queue')
+
     try:
         server_response, _, headers = servers_api.datacenters_servers_patch_with_http_info(
             datacenter_id=datacenter_id, server_id=existing_object.id, server=new_server_propeties,

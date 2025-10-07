@@ -1,5 +1,15 @@
 # Changelog
 
+
+## 7.6.0
+### Features
+* added new certificate manager v2 modules `auto_certificate`, `auto_certificate_info`, `certificate_provider` and `certificate_provider_info`
+* added `nic_multi_queue` to `server` and `vcpu_server`
+### Changes
+* changed `vcpu_server` module to be declarative, like the `server` module
+* changed existing certificate manager to use the the certificate manager v2 API. Will not be compatible with sdk versions bellow 2.0.0
+* removed dataplatform as the API was discontinued
+
 ## 7.5.3
 ### Changes
 * change most arguments which have the possible values defined to only use them for the documentation instead of failing when the supplied value is not in the list

@@ -556,7 +556,7 @@ register: server_cube
   <tr>
   <td>availability_zone<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The availability zone in which the server should be provisioned.<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2']</td>
+  <td>The availability zone in which the server should be provisioned. For CUBE and GPU servers, the only value accepted is 'AUTO'.<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2']</td>
   </tr>
   <tr>
   <td>bus<br/><mark style="color:blue;">str</mark></td>
