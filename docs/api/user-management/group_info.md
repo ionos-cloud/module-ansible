@@ -122,7 +122,7 @@ register: group_list_response
   <tr>
   <td>user<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The ID or name of the user.</td>
+  <td>The ID or email of the user.</td>
   </tr>
   <tr>
   <td>depth<br/><mark style="color:blue;">int</mark></td>

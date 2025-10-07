@@ -24,7 +24,7 @@ RETURNED_KEY = 'groups'
 
 OPTIONS = {
     'user': {
-        'description': ['The ID or name of the user.'],
+        'description': ['The ID or email of the user.'],
         'available': STATES,
         'type': 'str',
     },
@@ -77,7 +77,7 @@ options:
         required: false
     user:
         description:
-        - The ID or name of the user.
+        - The ID or email of the user.
         required: false
     username:
         aliases:
@@ -105,8 +105,8 @@ def get_objects(module, client):
 
     if user:
         # Locate UUID for User
-        user_list = get_users_by_identifier(client, ionoscloud.Users(items=[]), user)
-        user_id = get_resource_id(module, user_list, user)
+        user_list = get_users_by_identifier(um_api, ionoscloud.Users(items=[]), user)
+        user_id = get_resource_id(module, user_list, user, [['id'], ['properties', 'email']])
         groups = um_api.um_users_groups_get(user_id, depth=module.params.get('depth'))
 
     else:

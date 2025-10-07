@@ -156,18 +156,19 @@ EXAMPLE_PER_STATE = {
 name: Create an s3key
 ionoscloudsdk.ionoscloud.s3key:
   user: ''
-register: result
+register: s3key_create_result
 ''',
     'update': '''
-name: Update an s3key
+name: Update an s3key no change
 ionoscloudsdk.ionoscloud.s3key:
   user: ''
   key_id: ''
-  active: false
+  active: true
   state: update
+register: s3key_update_nochange_result
 ''',
     'absent': '''
-name: Remove an s3key
+name: Remove an s3key 1
 ionoscloudsdk.ionoscloud.s3key:
   user: ''
   key_id: ''
@@ -179,18 +180,19 @@ EXAMPLES = """
 name: Create an s3key
 ionoscloudsdk.ionoscloud.s3key:
   user: ''
-register: result
+register: s3key_create_result
 
 
-name: Update an s3key
+name: Update an s3key no change
 ionoscloudsdk.ionoscloud.s3key:
   user: ''
   key_id: ''
-  active: false
+  active: true
   state: update
+register: s3key_update_nochange_result
 
 
-name: Remove an s3key
+name: Remove an s3key 1
 ionoscloudsdk.ionoscloud.s3key:
   user: ''
   key_id: ''
