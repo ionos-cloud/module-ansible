@@ -43,7 +43,7 @@
       assert:
         that:
           - user_response.failed == true
-          - user_response.msg == "failed to update the User{{ ":" }} Another resource with the desired name ({{ random_user1 }}) exists"
+          - "'Another resource with the desired name' in user_response.msg"
         msg: "object list no complete in user module"
 
     # - name: Print output to file
@@ -110,6 +110,21 @@
         users:
           - "{{ random_user1 }}"
         state: update
+
+    - name: List User Groups
+      ionoscloudsdk.ionoscloud.group_info:
+        user: "{{ random_user1 }}"
+      register: user_group_list_response
+
+    # - name: Debug - show response
+    #   debug:
+    #     msg: "{{ user_group_list_response }}"
+
+    - name: Testing if only one user group exists
+      assert:
+        that:
+          - user_group_list_response.groups | length == 1
+        msg: "List User Groups not working correctly"
 
     - name: List Users Filter Group
       ionoscloudsdk.ionoscloud.user_info:

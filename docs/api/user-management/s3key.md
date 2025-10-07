@@ -10,18 +10,19 @@ This is a simple module that supports creating or removing S3Keys.
 name: Create an s3key
 ionoscloudsdk.ionoscloud.s3key:
   user: ''
-register: result
+register: s3key_create_result
 
 
-name: Update an s3key
+name: Update an s3key no change
 ionoscloudsdk.ionoscloud.s3key:
   user: ''
   key_id: ''
-  active: false
+  active: true
   state: update
+register: s3key_update_nochange_result
 
 
-name: Remove an s3key
+name: Remove an s3key 1
 ionoscloudsdk.ionoscloud.s3key:
   user: ''
   key_id: ''
@@ -65,7 +66,7 @@ ionoscloudsdk.ionoscloud.s3key:
 name: Create an s3key
 ionoscloudsdk.ionoscloud.s3key:
   user: ''
-register: result
+register: s3key_create_result
 
 ```
 ### Available parameters for state **present**:
@@ -149,7 +150,7 @@ register: result
 # state: **absent**
 ```yaml
   
-name: Remove an s3key
+name: Remove an s3key 1
 ionoscloudsdk.ionoscloud.s3key:
   user: ''
   key_id: ''
@@ -227,12 +228,13 @@ ionoscloudsdk.ionoscloud.s3key:
 # state: **update**
 ```yaml
   
-name: Update an s3key
+name: Update an s3key no change
 ionoscloudsdk.ionoscloud.s3key:
   user: ''
   key_id: ''
-  active: false
+  active: true
   state: update
+register: s3key_update_nochange_result
 
 ```
 ### Available parameters for state **update**:

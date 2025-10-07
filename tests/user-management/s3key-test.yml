@@ -24,11 +24,20 @@
     - name: Create an s3key
       ionoscloudsdk.ionoscloud.s3key:
         user: "{{ user_response.user.properties.email }}"
-      register: result
+      register: s3key_create_result
+    
+    - name: Check Create new S3 Key
+      ansible.builtin.assert:
+        that:
+          - s3key_create_result.changed == true
+          - s3key_create_result.s3key.id != None
+          - s3key_create_result.s3key.properties.active == true
+          - s3key_create_result.s3key.properties.secret_key != None
+        success_msg: "S3 Key created successfully"
 
     # - name: Print output to file
     #   ansible.builtin.copy:
-    #     content: "{{result}}"
+    #     content: "{{s3key_create_result}}"
     #     dest: ../../docs/returned_object_examples/s3key.json
 
     - name: List s3keys
@@ -41,21 +50,58 @@
     #     content: "{{s3key_list_response}}"
     #     dest: ../../docs/returned_object_examples/s3key_info.json
 
-    - name: Debug - Show S3key
-      debug:
-        msg: "{{ result }}"
+    # - name: Debug - Show S3key
+    #   debug:
+    #     msg: "{{ s3key_create_result }}"
+
+    - name: Update an s3key no change
+      ionoscloudsdk.ionoscloud.s3key:
+        user: "{{ user_response.user.id }}"
+        key_id: "{{ s3key_create_result.s3key.id }}"
+        active: True
+        state: update
+      register: s3key_update_nochange_result
+    
+    - name: Check Update S3 Key no change
+      ansible.builtin.assert:
+        that:
+          - s3key_update_nochange_result.changed == false
+          - s3key_update_nochange_result.s3key.id == s3key_create_result.s3key.id
+          - s3key_update_nochange_result.s3key.properties.active == true
+          - s3key_update_nochange_result.s3key.properties.secret_key == s3key_create_result.s3key.properties.secret_key
+        success_msg: "S3 Key updated successfully 1"
 
     - name: Update an s3key
       ionoscloudsdk.ionoscloud.s3key:
         user: "{{ user_response.user.id }}"
-        key_id: "{{ result.s3key.id }}"
+        key_id: "{{ s3key_create_result.s3key.id }}"
         active: False
         state: update
+      register: s3key_update_result
+    
+    - name: Check Update S3 Key
+      ansible.builtin.assert:
+        that:
+          - s3key_update_result.changed == true
+          - s3key_update_result.s3key.id == s3key_create_result.s3key.id
+          - s3key_update_result.s3key.properties.active == false
+          - s3key_update_result.s3key.properties.secret_key == s3key_create_result.s3key.properties.secret_key
+        success_msg: "S3 Key updated successfully 2"
 
     - name: Create an s3key with idempotency
       ionoscloudsdk.ionoscloud.s3key:
         user: "{{ user_response.user.id }}"
         idempotency: True
+      register: s3key_idempotency_result
+    
+    - name: Check S3 Key idempotency
+      ansible.builtin.assert:
+        that:
+          - s3key_idempotency_result.changed == false
+          - s3key_idempotency_result.s3key.id == s3key_update_result.s3key.id
+          - s3key_idempotency_result.s3key.properties.active == false
+          - s3key_idempotency_result.s3key.properties.secret_key == s3key_update_result.s3key.properties.secret_key
+        success_msg: "S3 Key idempotency OK"
 
     - name: List S3Keys
       ionoscloudsdk.ionoscloud.s3key_info:
@@ -67,20 +113,83 @@
     #     content: "{{s3keys_info_response}}"
     #     dest: ../../docs/returned_object_examples/s3key_info.json
 
-    - name: Debug - Show response of s3keys_info
-      debug:
-        msg: "{{ s3keys_info_response.s3keys }}"
+    # - name: Debug - Show response of s3keys_info
+    #   debug:
+    #     msg: "{{ s3keys_info_response.s3keys }}"
 
     - name: Testing if only one s3key exists
       assert:
         that:
           - s3keys_info_response.s3keys | length == 1
         msg: "s3key idempotency not working correctly"
+    
+    - name: Create an s3key with the same id
+      ionoscloudsdk.ionoscloud.s3key:
+        user: "{{ user_response.user.properties.email }}"
+        key_id: "{{ s3key_create_result.s3key.id }}"
+      register: s3key_create_result_same_id1
+    
+    - name: Check Create an s3key with the same id 1
+      ansible.builtin.assert:
+        that:
+          - s3key_create_result_same_id1.changed == false
+          - s3key_create_result_same_id1.s3key.id == s3key_create_result.s3key.id
+          - s3key_create_result_same_id1.s3key.properties.active == false
+          - s3key_create_result_same_id1.s3key.properties.secret_key == s3key_create_result.s3key.properties.secret_key
+        success_msg: "S3 Key create same ID successfully 1"
+    
+    - name: Create an s3key with the same id active
+      ionoscloudsdk.ionoscloud.s3key:
+        user: "{{ user_response.user.properties.email }}"
+        key_id: "{{ s3key_create_result.s3key.id }}"
+        active: true
+      register: s3key_create_result_same_id2
+    
+    - name: Check Create an s3key with the same id 2
+      ansible.builtin.assert:
+        that:
+          - s3key_create_result_same_id2.changed == true
+          - s3key_create_result_same_id2.s3key.id == s3key_create_result.s3key.id
+          - s3key_create_result_same_id2.s3key.properties.active == true
+          - s3key_create_result_same_id2.s3key.properties.secret_key == s3key_create_result.s3key.properties.secret_key
+        success_msg: "S3 Key create same ID successfully 2"
 
-    - name: Remove an s3key
+    - name: Create a different s3key
+      ionoscloudsdk.ionoscloud.s3key:
+        user: "{{ user_response.user.properties.email }}"
+        active: true
+      register: s3key_create_result2
+    
+    - name: Check Create an s3key with the same id 2
+      ansible.builtin.assert:
+        that:
+          - s3key_create_result2.changed == true
+          - s3key_create_result2.s3key.id != s3key_create_result.s3key.id
+          - s3key_create_result2.s3key.properties.active == true
+          - s3key_create_result2.s3key.properties.secret_key != None
+        success_msg: "S3 Key create different ID successfully"
+
+    - name: List S3Keys
+      ionoscloudsdk.ionoscloud.s3key_info:
+        user: "{{ user_response.user.id }}"
+      register: s3keys_info_response
+
+    - name: Testing if two s3keys exist
+      assert:
+        that:
+          - s3keys_info_response.s3keys | length == 2
+        msg: "s3key create not working correctly"
+
+    - name: Remove an s3key 1
       ionoscloudsdk.ionoscloud.s3key:
         user: "{{ user_response.user.id }}"
-        key_id: "{{ result.s3key.id }}"
+        key_id: "{{ s3key_create_result.s3key.id }}"
+        state: absent
+
+    - name: Remove an s3key 2
+      ionoscloudsdk.ionoscloud.s3key:
+        user: "{{ user_response.user.id }}"
+        key_id: "{{ s3key_create_result2.s3key.id }}"
         state: absent
 
     - name: Remove an s3key - non existent
