@@ -3,12 +3,12 @@ PyYAML
 chevron
 ansible
 
-ionoscloud
-ionoscloud_cert_manager
-ionoscloud_container_registry
-ionoscloud_dbaas_postgres
-ionoscloud_dbaas_mongo
-ionoscloud_dbaas_mariadb
-ionoscloud_dns
-ionoscloud_logging
-ionoscloud_vm_autoscaling
+ionoscloud<7
+ionoscloud_cert_manager<3
+ionoscloud_container_registry<2
+ionoscloud_dbaas_postgres<2
+ionoscloud_dbaas_mongo<2
+ionoscloud_dbaas_mariadb<2
+ionoscloud_dns<2
+ionoscloud_logging<2
+ionoscloud_vm_autoscaling<2
