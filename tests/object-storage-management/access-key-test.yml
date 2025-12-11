@@ -1,0 +1,130 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  tasks:
+    - name : Run tests
+      block:
+        - name: Create Access Key
+          ionoscloudsdk.ionoscloud.object_storage_access_key:
+            description: "{{ description }}"
+          diff: true
+          register: access_key_create_result
+      
+        - name: Check Create Access Key
+          ansible.builtin.assert:
+            that:
+              - access_key_create_result.changed == true
+              - access_key_create_result.diff.before == {}
+              - access_key_create_result.diff.after.description == description
+              - access_key_create_result.access_key.id != None
+              - access_key_create_result.access_key.properties.access_key != None
+              - access_key_create_result.access_key.properties.secret_key != None
+              - access_key_create_result.access_key.properties.canonical_user_id != None
+              - access_key_create_result.access_key.properties.contract_user_id != None
+              - access_key_create_result.access_key.properties.description == description
+            success_msg: "Access Key created successfully"
+        
+        # - name: Debug - Show Access Key
+        #   debug:
+        #     msg: "{{ access_key_create_result }}"
+
+        - name: Create Access Key idempotency
+          ionoscloudsdk.ionoscloud.object_storage_access_key:
+            description: "{{ description }}"
+            idempotency: true
+          register: access_key_create_idempotency_result
+      
+        # - name: Debug - Show Access Key
+        #   debug:
+        #     msg: "{{ access_key_create_result }}"
+
+        # - name: Print output to file
+        #   ansible.builtin.copy:
+        #     content: "{{ access_key_create_idempotency_result }}"
+        #     dest: ../../docs/returned_object_examples/object_storage_access_key.json
+
+        - name: Debug - Show Access Key
+          debug:
+            msg: "{{ access_key_create_idempotency_result }}"
+        - name: Check Create Access Key idempotency
+          ansible.builtin.assert:
+            that:
+              - access_key_create_idempotency_result.changed == false
+              - access_key_create_idempotency_result.access_key.id == access_key_create_result.access_key.id
+              - access_key_create_idempotency_result.access_key.properties.description == description
+            success_msg: "Access Key created successfully"
+      
+        - name: Create Access Key idempotency change
+          ionoscloudsdk.ionoscloud.object_storage_access_key:
+            description: "{{ description_updated }}"
+            idempotency: true
+          register: access_key_create_idempotency_result
+      
+        - name: Check Create Access Key idempotency change
+          ansible.builtin.assert:
+            that:
+              - access_key_create_idempotency_result.changed == true
+              - access_key_create_idempotency_result.access_key.id == access_key_create_result.access_key.id
+              - access_key_create_idempotency_result.access_key.properties.description == description_updated
+            success_msg: "Access Key description updated successfully"
+        
+        - name: Update Access Key
+          ionoscloudsdk.ionoscloud.object_storage_access_key:
+            description: "{{ description }}"
+            access_key: "{{ access_key_create_result.access_key.id }}"
+            state: update
+          diff: true
+          register: access_key_update_result
+      
+        - name: Check Update Access Key
+          ansible.builtin.assert:
+            that:
+              - access_key_update_result.changed == true
+              - access_key_update_result.diff.before.description == description_updated
+              - access_key_update_result.diff.after.description == description
+              - access_key_update_result.access_key.id == access_key_create_result.access_key.id
+              - access_key_update_result.access_key.properties.description == description
+            success_msg: "Access Key description updated successfully"
+        
+        - name: Renew Access Key
+          ionoscloudsdk.ionoscloud.object_storage_access_key:
+            access_key: "{{ access_key_create_result.access_key.id }}"
+            state: renew
+          register: access_key_renew_result
+      
+        - name: Check Renew Access Key
+          ansible.builtin.assert:
+            that:
+              - access_key_renew_result.changed == true
+              - access_key_renew_result.access_key.id == access_key_create_result.access_key.id
+              - access_key_renew_result.access_key.properties.description == description
+              - access_key_renew_result.access_key.properties.secret_key != None
+              - access_key_renew_result.access_key.properties.secret_key != access_key_create_result.access_key.properties.secret_key
+            success_msg: "Access Key renew successfully"
+          
+        - name: List Access Keys
+          ionoscloudsdk.ionoscloud.object_storage_access_key_info:
+          register: access_keys_list
+        
+        # - name: Debug - Show Access Keys
+        #   debug:
+        #     msg: "{{ access_keys_list }}"
+
+        - name: List Regions
+          ionoscloudsdk.ionoscloud.object_storage_region_info:
+          register: region_list
+        
+        # - name: Debug - Show Regions
+        #   debug:
+        #     msg: "{{ region_list }}"
+
+      always:
+        - name: Delete an Access Key
+          ionoscloudsdk.ionoscloud.object_storage_access_key:
+            access_key: "{{ access_key_create_result.access_key.id  }}"
+            state: absent
+          register: access_key_create_result

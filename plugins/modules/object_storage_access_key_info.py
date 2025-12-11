@@ -79,9 +79,9 @@ author:
 """
 
 EXAMPLES = """
-name: List Auto Certificates
-ionoscloudsdk.ionoscloud.auto_certificate_info: null
-register: auto_certificates_response
+name: List Access Keys
+ionoscloudsdk.ionoscloud.object_storage_access_key_info:
+register: access_keys_list
 """
 
 

@@ -30,13 +30,13 @@ RETURNED_KEY = 'access_key'
 
 OPTIONS = {
     'access_key': {
-        'description': ['The ID of an existing access key.'],
+        'description': ['The UUID of an existing access key, not the access key field.'],
         'available': ['update', 'absent', 'renew'],
         'required': ['update', 'absent', 'renew'],
         'type': 'str',
     },
     'description': {
-        'description': ['The ID of the backup to be used.'],
+        'description': ['Description of the Access key.'],
         'available': ['present', 'update'],
         'type': 'str',
     },
@@ -60,50 +60,33 @@ description:
      - This is a module that supports creating and destroying Ionos Cloud Object Storage Access Keys
 version_added: "2.0"
 options:
+    access_key:
+        description:
+        - The UUID of an existing access key, not the access key field.
+        required: false
     api_url:
         description:
         - The Ionos API base URL.
         env_fallback: IONOS_API_URL
         required: false
         version_added: '2.4'
-    backup_id:
-        description:
-        - The ID of the backup to be used.
-        required: false
     certificate_fingerprint:
         description:
         - The Ionos API certificate fingerprint.
         env_fallback: IONOS_CERTIFICATE_FINGERPRINT
         required: false
-    connections:
+    description:
         description:
-        - Array of datacenters to connect to your cluster.
-        elements: dict
+        - Description of the Access key.
         required: false
-    display_name:
+    idempotency:
+        choices:
+        - true
+        - false
+        default: false
         description:
-        - The name of your cluster.
-        required: false
-    instances:
-        description:
-        - The total number of instances in the cluster (one primary and n-1 secondaries).
-        required: false
-    location:
-        description:
-        - The physical location where the cluster will be created. This is the location
-            where all your instances will be located. This property is immutable.
-        required: false
-    maintenance_window:
-        description:
-        - A weekly window of 4 hours during which maintenance work can be performed.
-        required: false
-    mongo_cluster:
-        description:
-        - The ID or name of an existing Mongo Cluster.
-        required: false
-    mongo_db_version:
-        description:
-        - The MongoDB version of your cluster.
+        - Flag that dictates respecting idempotency. If an s3key already exists, returns
+            with already existing key instead of creating more.
         required: false
     password:
         aliases:
@@ -118,17 +101,10 @@ options:
         - present
         - absent
         - update
-        - restore
+        - renew
         default: present
         description:
         - Indicate desired state of the resource.
-        required: false
-    template_id:
-        description:
-        - The unique ID of the template, which specifies the number of cores, storage
-            size, and memory. You cannot downgrade to a smaller template or minor edition
-            (e.g. from business to playground). To get a list of all templates to confirm
-            the changes use the /templates endpoint.
         required: false
     token:
         description:
@@ -166,90 +142,66 @@ author:
 
 EXAMPLE_PER_STATE = {
     'present': '''
-name: Create Cluster
-ionoscloudsdk.ionoscloud.mongo_cluster:
-  mongo_db_version: 5.0
-  instances: 3
-  location: de/fra
-  template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
-  connections:
-  - cidr_list:
-    - 192.168.1.116/24
-    - 192.168.1.117/24
-    - 192.168.1.118/24
-    datacenter: 'AnsibleAutoTestDBaaSMongo - DBaaS Mongo'
-    lan: test_lan
-  display_name: 'AnsibleTestMongoDBCluster'
-  wait: true
-  wait_timeout: 7200
-register: cluster_response
+name: Create Access Key
+    ionoscloudsdk.ionoscloud.object_storage_access_key:
+        description: "{{ description }}"
+        diff: true
+    register: access_key_create_result
 ''',
     'update': '''
-name: Update Cluster
-ionoscloudsdk.ionoscloud.mongo_cluster:
-  mongo_cluster: 'AnsibleTestMongoDBCluster'
-  display_name: 'AnsibleTestMongoDBCluster UPDATED'
-  state: update
-  allow_replace: false
-  wait: true
-register: cluster_response
+name: Update Access Key
+    ionoscloudsdk.ionoscloud.object_storage_access_key:
+        description: "{{ description }}"
+        access_key: "{{ access_key_create_result.access_key.id }}"
+        state: update
+        diff: true
+    register: access_key_update_result
 ''',
-    'restore': '''- name: Restore Mongo Cluster
-    mongo_cluster:
-      mongo_cluster: backuptest-05
-      backup_id: 9ab6545c-b138-4a86-b6ca-0d872a2b0953
-      state: restore
-  ''',
+    'restore': '''
+name: Renew Access Key
+    ionoscloudsdk.ionoscloud.object_storage_access_key:
+        access_key: "{{ access_key_create_result.access_key.id }}"
+        state: renew
+    register: access_key_renew_result
+''',
     'absent': '''
-name: Delete Cluster
-ionoscloudsdk.ionoscloud.mongo_cluster:
-  mongo_cluster: ''
-  state: absent
-  wait: false
+name: Delete an Access Key
+    ionoscloudsdk.ionoscloud.object_storage_access_key:
+        access_key: "{{ access_key_create_result.access_key.id  }}"
+        state: absent
+    register: access_key_create_result
 ''',
 }
 
 EXAMPLES = """
-name: Create Cluster
-ionoscloudsdk.ionoscloud.mongo_cluster:
-  mongo_db_version: 5.0
-  instances: 3
-  location: de/fra
-  template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
-  connections:
-  - cidr_list:
-    - 192.168.1.116/24
-    - 192.168.1.117/24
-    - 192.168.1.118/24
-    datacenter: 'AnsibleAutoTestDBaaSMongo - DBaaS Mongo'
-    lan: test_lan
-  display_name: 'AnsibleTestMongoDBCluster'
-  wait: true
-  wait_timeout: 7200
-register: cluster_response
+name: Create Access Key
+    ionoscloudsdk.ionoscloud.object_storage_access_key:
+        description: "{{ description }}"
+        diff: true
+    register: access_key_create_result
 
 
-name: Update Cluster
-ionoscloudsdk.ionoscloud.mongo_cluster:
-  mongo_cluster: 'AnsibleTestMongoDBCluster'
-  display_name: 'AnsibleTestMongoDBCluster UPDATED'
-  state: update
-  allow_replace: false
-  wait: true
-register: cluster_response
+name: Update Access Key
+    ionoscloudsdk.ionoscloud.object_storage_access_key:
+        description: "{{ description }}"
+        access_key: "{{ access_key_create_result.access_key.id }}"
+        state: update
+        diff: true
+    register: access_key_update_result
 
-- name: Restore Mongo Cluster
-    mongo_cluster:
-      mongo_cluster: backuptest-05
-      backup_id: 9ab6545c-b138-4a86-b6ca-0d872a2b0953
-      state: restore
-  
 
-name: Delete Cluster
-ionoscloudsdk.ionoscloud.mongo_cluster:
-  mongo_cluster: ''
-  state: absent
-  wait: false
+name: Renew Access Key
+    ionoscloudsdk.ionoscloud.object_storage_access_key:
+        access_key: "{{ access_key_create_result.access_key.id }}"
+        state: renew
+    register: access_key_renew_result
+
+
+name: Delete an Access Key
+    ionoscloudsdk.ionoscloud.object_storage_access_key:
+        access_key: "{{ access_key_create_result.access_key.id  }}"
+        state: absent
+    register: access_key_create_result
 """
 
 
@@ -273,7 +225,7 @@ class AccessKeyModule(CommonIonosModule):
 
     def get_object_before(self, existing_object, clients):
         return {
-            'description': existing_object.properties.descriptionactive,
+            'description': existing_object.properties.description,
         }
 
 
@@ -315,15 +267,17 @@ class AccessKeyModule(CommonIonosModule):
         )
 
         try:
-            access_key = ak_api.accesskeys_post(access_key)
+            access_key_initial = ak_api.accesskeys_post(access_key)
             if self.module.params.get('wait'):
                 ak_client.wait_for(
-                    fn_request=lambda: ak_api.accesskeys_find_by_id(access_key.id),
+                    fn_request=lambda: ak_api.accesskeys_find_by_id(access_key_initial.id),
                     fn_check=lambda ak: ak and ak.metadata and ak.metadata.status == 'AVAILABLE',
                     scaleup=10,
                     initial_wait=1,
                     timeout=self.module.params.get('wait_timeout'),
                 )
+            access_key = ak_api.accesskeys_find_by_id(access_key_initial.id)
+            access_key.properties.secret_key = access_key_initial.properties.secret_key
         except Exception as e:
             self.module.fail_json(msg="failed to create the {}: {}".format(self.object_name, to_native(e)))
 
@@ -396,14 +350,13 @@ class AccessKeyModule(CommonIonosModule):
         ak_api = ionoscloud_object_storage_management.AccesskeysApi(ak_client)
 
         ak_id = get_resource_id(
-            self.module, self._get_object_list(),
+            self.module, self._get_object_list(clients),
             self._get_object_identifier(),
             self.object_identity_paths,
         )
 
         try:
             access_key = ak_api.accesskeys_renew(ak_id)
-
             if self.module.params.get('wait'):
                 ak_client.wait_for(
                     fn_request=lambda: ak_api.accesskeys_find_by_id(access_key.id),
@@ -415,12 +368,10 @@ class AccessKeyModule(CommonIonosModule):
 
         
             return {
-                **access_key,
-                **{
-                    'action': 'restore',
-                    'changed': True,
-                    'id': access_key.id,
-                },
+                'access_key': access_key.to_dict(),
+                'action': 'restore',
+                'changed': True,
+                'id': access_key.id,
             }
         except Exception as e:
             self.module.fail_json(msg="failed to renew the {}: {}".format(self.object_name, to_native(e)))

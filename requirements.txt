@@ -11,4 +11,5 @@ ionoscloud_dbaas_mongo<2
 ionoscloud_dbaas_mariadb<2
 ionoscloud_dns<2
 ionoscloud_logging<2
+ionoscloud_object_storage_management<2
 ionoscloud_vm_autoscaling<2

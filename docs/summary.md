@@ -224,3 +224,9 @@
     * [DNS Zones](api/dns/dns_zone_info.md)
     * [DNS Records](api/dns/dns_record_info.md)
     * [DNS Secondary Zones](api/dns/dns_secondary_zone_info.md)
+* Object Storage Management
+  * Modules
+    * [Access Key](api/object-storage-management/object_storage_access_key.md)
+  * Info Modules
+    * [Access Keys](api/object-storage-management/object_storage_access_key_info.md)
+    * [Object Storage Regions](api/object-storage-management/object_storage_region_info.md)

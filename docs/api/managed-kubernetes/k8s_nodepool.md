@@ -242,7 +242,7 @@ register: result
   <tr>
   <td>cpu_family<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The CPU type for the nodes. If this field is null or omitted from the request, an available CPU architecture will be automatically selected. Supplying an empty string is not accepted.</td>
+  <td>The CPU type for the nodes. If this field is null or omitted from the request, an available CPU architecture will be automatically selected. Supplying an empty string is not accepted. | **Deprecated**: This property has been deprecated. For a specific use of a CPU type, use &quot;serverType&quot; instead.</td>
   </tr>
   <tr>
   <td>cores_count<br/><mark style="color:blue;">int</mark></td>
@@ -509,7 +509,7 @@ register: result_no_change
   <tr>
   <td>cpu_family<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The CPU type for the nodes. If this field is null or omitted from the request, an available CPU architecture will be automatically selected. Supplying an empty string is not accepted.</td>
+  <td>The CPU type for the nodes. If this field is null or omitted from the request, an available CPU architecture will be automatically selected. Supplying an empty string is not accepted. | **Deprecated**: This property has been deprecated. For a specific use of a CPU type, use &quot;serverType&quot; instead.</td>
   </tr>
   <tr>
   <td>cores_count<br/><mark style="color:blue;">int</mark></td>

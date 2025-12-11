@@ -17,7 +17,7 @@ ANSIBLE_METADATA = {
     'supported_by': 'community',
 }
 USER_AGENT = 'ansible-module/%s_sdk-python-object-storage-management/%s' % ( __version__, obj_storage_management_sdk_version)
-DOC_DIRECTORY = 'certificate'
+DOC_DIRECTORY = 'object-storage-management'
 STATES = ['info']
 OBJECT_NAME = 'Object Storage Regions'
 RETURNED_KEY = 'object_storage_regions'
@@ -79,9 +79,9 @@ author:
 """
 
 EXAMPLES = """
-name: List Auto Certificates
-ionoscloudsdk.ionoscloud.auto_certificate_info: null
-register: auto_certificates_response
+name: List Regions
+ionoscloudsdk.ionoscloud.object_storage_region_info:
+register: region_list
 """
 
 
