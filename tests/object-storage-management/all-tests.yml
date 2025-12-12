@@ -4,4 +4,3 @@
 
 - name: Run Access Key test
   import_playbook: access-key-test.yml
-  

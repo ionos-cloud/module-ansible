@@ -128,6 +128,8 @@ jobs:
             keywords: "dns, dns_zone, dns_record"
           - namespace: vm-autoscaling
             keywords: "autoscaling"
+          - namespace: object-storage-management
+            keywords: "object_storage, access_key"
 
     env:
       python-version: 3.8.15
@@ -155,15 +157,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install pydantic
-          python3 -m pip install ionoscloud
-          python3 -m pip install ionoscloud-cert-manager
-          python3 -m pip install ionoscloud-dns
-          python3 -m pip install ionoscloud-dbaas-postgres
-          python3 -m pip install ionoscloud-dbaas-mongo
-          python3 -m pip install ionoscloud-dbaas-mariadb
-          python3 -m pip install ionoscloud-container-registry
-          python3 -m pip install ionoscloud-logging
-          python3 -m pip install ionoscloud-vm-autoscaling
+          python3 -r /home/runner/work/module-ansible/module-ansible/requirements.txt
 
       - name: Install Ansible and IONOS module
         run: |

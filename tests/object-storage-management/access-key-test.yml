@@ -37,19 +37,12 @@
             description: "{{ description }}"
             idempotency: true
           register: access_key_create_idempotency_result
-      
-        # - name: Debug - Show Access Key
-        #   debug:
-        #     msg: "{{ access_key_create_result }}"
 
         # - name: Print output to file
         #   ansible.builtin.copy:
         #     content: "{{ access_key_create_idempotency_result }}"
         #     dest: ../../docs/returned_object_examples/object_storage_access_key.json
 
-        - name: Debug - Show Access Key
-          debug:
-            msg: "{{ access_key_create_idempotency_result }}"
         - name: Check Create Access Key idempotency
           ansible.builtin.assert:
             that:
