@@ -157,7 +157,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install pydantic
-          python3 -r /home/runner/work/module-ansible/module-ansible/requirements.txt
+          python3 -m pip install -r /home/runner/work/module-ansible/module-ansible/requirements.txt
 
       - name: Install Ansible and IONOS module
         run: |
