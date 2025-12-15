@@ -27,7 +27,7 @@ OPTIONS = {
 }
 
 DOCUMENTATION = """
-module: access_key_info
+module: object_storage_region_info
 short_description: List Object Storage Regions
 description:
      - This is a simple module that supports listing Object Storage Regions
@@ -73,7 +73,7 @@ options:
         required: false
 requirements:
     - "python >= 2.6"
-    - "ionoscloud_cert_manager >= 1.0.0"
+    - "ionoscloud_object_storage_management >= 1.0.0"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """

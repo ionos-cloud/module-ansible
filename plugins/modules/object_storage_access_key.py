@@ -134,8 +134,7 @@ options:
         required: false
 requirements:
     - "python >= 2.6"
-    - "ionoscloud >= 6.0.2"
-    - "ionoscloud-dbaas-mongo >= 1.0.0"
+    - "ionoscloud_object_storage_management >= 1.0.0"
 author:
     - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
 """
@@ -157,7 +156,7 @@ name: Update Access Key
         diff: true
     register: access_key_update_result
 ''',
-    'restore': '''
+    'renew': '''
 name: Renew Access Key
     ionoscloudsdk.ionoscloud.object_storage_access_key:
         access_key: "{{ access_key_create_result.access_key.id }}"
@@ -369,7 +368,7 @@ class AccessKeyModule(CommonIonosModule):
         
             return {
                 'access_key': access_key.to_dict(),
-                'action': 'restore',
+                'action': 'renew',
                 'changed': True,
                 'id': access_key.id,
             }
