@@ -73,7 +73,7 @@ OPTIONS = {
         'type': 'int',
     },
     'cpu_family': {
-        'description': ['The CPU type for the nodes. If this field is null or omitted from the request, an available CPU architecture will be automatically selected. Supplying an empty string is not accepted.'],
+        'description': ['The CPU type for the nodes. If this field is null or omitted from the request, an available CPU architecture will be automatically selected. Supplying an empty string is not accepted. | **Deprecated**: This property has been deprecated. For a specific use of a CPU type, use "serverType" instead.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
@@ -205,9 +205,10 @@ options:
         required: false
     cpu_family:
         description:
-        - The CPU type for the nodes. If this field is null or omitted from the request,
+        - 'The CPU type for the nodes. If this field is null or omitted from the request,
             an available CPU architecture will be automatically selected. Supplying an
-            empty string is not accepted.
+            empty string is not accepted. | **Deprecated**: This property has been deprecated.
+            For a specific use of a CPU type, use "serverType" instead.'
         required: false
     datacenter:
         description:

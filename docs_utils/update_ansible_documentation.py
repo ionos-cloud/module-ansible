@@ -133,6 +133,9 @@ modules_to_generate = [
     'mariadb_cluster',
     'mariadb_cluster_info',
     'mariadb_backup_info',
+    'object_storage_access_key',
+    'object_storage_access_key_info',
+    'object_storage_region_info',
 ]
 
 for module in modules_to_generate:

@@ -33,6 +33,10 @@ LOGGING_SWAGGER = {
     'url': 'https://ionos-cloud.github.io/rest-api/docs/public-logging-v1.ga.yml',
     'filename': 'logging_swagger.yml',
 }
+OBJECT_STORAGE_MANAGEMENT_SWAGGER = {
+    'url': 'https://ionos-cloud.github.io/rest-api/public-object-storage-management-v1.ga.yml',
+    'filename': 'object_storage_management_swagger.yml',
+}
 DNS_SWAGGER = {
     'url': 'https://ionos-cloud.github.io/rest-api/docs/public-dns-v1.ga.yml',
     'filename': 'dns_swagger.yml',
@@ -242,6 +246,12 @@ modules_to_generate = [
     ],
     ['pipeline', LOGGING_SWAGGER, '/pipelines', 'post', {}],
     # ['dns_zone', DNS_SWAGGER, '/zones', 'post', {}],
+    [
+        'object_storage_access_key', OBJECT_STORAGE_MANAGEMENT_SWAGGER, '/accesskeys', 'post', 
+        {
+            'access_key': None,
+        },
+    ],
 ]
 
 for module in modules_to_generate:

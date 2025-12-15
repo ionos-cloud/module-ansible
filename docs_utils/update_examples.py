@@ -201,6 +201,9 @@ modules_to_generate = [
     'dns_record_info',
     'dns_secondary_zone',
     'dns_secondary_zone_info',
+    'object_storage_access_key',
+    'object_storage_access_key_info',
+    'object_storage_region_info',
 ]
 
 for module in modules_to_generate:
