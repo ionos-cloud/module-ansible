@@ -1,5 +1,8 @@
 # Changelog
 
+## 7.7.0
+### Features
+* added new object storage management modules `object_storage_access_key_info`, `object_storage_access_key` and `object_storage_region_info`
 
 ## 7.6.0
 ### Features
