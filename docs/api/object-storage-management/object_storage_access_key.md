@@ -322,6 +322,12 @@ name: Update Access Key
 # state: **renew**
 ```yaml
   
+name: Renew Access Key
+    ionoscloudsdk.ionoscloud.object_storage_access_key:
+        access_key: "{{ access_key_create_result.access_key.id }}"
+        state: renew
+    register: access_key_renew_result
+
 ```
 ### Available parameters for state **renew**:
 &nbsp;
