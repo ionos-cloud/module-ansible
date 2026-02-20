@@ -287,7 +287,8 @@ class RegistryModule(CommonIonosModule):
                 or gc_schedule.get('time') is not None
                 and existing_object.properties.garbage_collection_schedule.time != gc_schedule.get('time')
             )
-            or features.get('enabled') is not None
+            or features is not None
+            and features.get('vulnerability_scanning', {}).get('enabled') is not None
             and existing_object.properties.features.vulnerability_scanning.enabled == False
             and features.get('vulnerability_scanning', {}).get('enabled') == True
         )
@@ -319,7 +320,7 @@ class RegistryModule(CommonIonosModule):
             )
         if features:
             vulnerability_scanning_feature = ionoscloud_container_registry.FeatureVulnerabilityScanning(
-                enabled=features.get('vulnerability_scanning').get('enabled'),
+                enabled=features.get('vulnerability_scanning', {}).get('enabled'),
             )
         name = self.module.params.get('name')
         location = self.module.params.get('location')
@@ -371,7 +372,7 @@ class RegistryModule(CommonIonosModule):
             )
         if features:
             vulnerability_scanning_feature = ionoscloud_container_registry.FeatureVulnerabilityScanning(
-                enabled=features.get('vulnerability_scanning').get('enabled'),
+                enabled=features.get('vulnerability_scanning', {}).get('enabled'),
             )
 
         registries_api = ionoscloud_container_registry.RegistriesApi(client)
