@@ -28,11 +28,16 @@ The IONOS module for Ansible requires the following:
 * IONOS Cloud account
 * Python >= 3.5
 * [Ansible](https://www.ansible.com/)
-* [IONOS Cloud **Compute Engine** Python SDK](https://pypi.org/project/ionoscloud/) >= 6.1.6
-* [IONOS Cloud **DBaaS PostgreSQL** Python SDK](https://pypi.org/project/ionoscloud-dbaas-postgres/) >= 1.1.1
-* [IONOS Cloud **DBaaS MongoDB** Python SDK](https://pypi.org/project/ionoscloud-dbaas-mongo/) >= 1.2.2
-* [IONOS Cloud **Container Registry** Python SDK](https://pypi.org/project/ionoscloud-container-registry/) >= 1.0.0
-* [IONOS Cloud **Certificate Manager** Python SDK](https://pypi.org/project/ionoscloud-cert-manager/) >= 1.0.0
+* [IONOS Cloud **Compute Engine** Python SDK](https://pypi.org/project/ionoscloud/) >= 6.1.6, < 7
+* [IONOS Cloud **DBaaS PostgreSQL** Python SDK](https://pypi.org/project/ionoscloud-dbaas-postgres/) < 2
+* [IONOS Cloud **DBaaS MongoDB** Python SDK](https://pypi.org/project/ionoscloud-dbaas-mongo/) < 2
+* [IONOS Cloud **DBaaS MariaDB** Python SDK](https://pypi.org/project/ionoscloud-dbaas-mariadb/) < 2
+* [IONOS Cloud **Container Registry** Python SDK](https://pypi.org/project/ionoscloud-container-registry/) < 2
+* [IONOS Cloud **Certificate Manager** Python SDK](https://pypi.org/project/ionoscloud-cert-manager/) < 3
+* [IONOS Cloud **DNS** Python SDK](https://pypi.org/project/ionoscloud-dns/) < 2
+* [IONOS Cloud **Logging** Python SDK](https://pypi.org/project/ionoscloud-logging/) < 2
+* [IONOS Cloud **Object Storage Management** Python SDK](https://pypi.org/project/ionoscloud-object-storage-management/) < 2
+* [IONOS Cloud **VM Autoscaling** Python SDK](https://pypi.org/project/ionoscloud-vm-autoscaling/) < 2
 
 > **_NOTE:_**  The Ansible module does not support Python 2. It only supports Python >= 3.5.
 
@@ -46,8 +51,13 @@ The IONOS module requires some IONOS SDKs for Python to be installed. This can e
 pip install ionoscloud
 pip install ionoscloud-dbaas-postgres
 pip install ionoscloud-dbaas-mongo
+pip install ionoscloud-dbaas-mariadb
 pip install ionoscloud-container-registry
 pip install ionoscloud-cert-manager
+pip install ionoscloud-dns
+pip install ionoscloud-logging
+pip install ionoscloud-object-storage-management
+pip install ionoscloud-vm-autoscaling
 ```
 
 # Installation
