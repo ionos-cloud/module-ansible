@@ -60,7 +60,7 @@ options:
         required: false
     filters:
         description:
-        - 'Filter that can be used to list only objects which have a certain set of propeties.
+        - 'Filter that can be used to list only objects which have a certain set of properties.
             Filters should be a dict with a key containing keys and value pair in the
             following format: ''properties.name'': ''server_name'''
         required: false
