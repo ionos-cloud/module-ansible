@@ -14,6 +14,12 @@
       enabled: "{{zone_enabled}}"
     register: zone_response
 
+  - name: Check Create Zone
+    ansible.builtin.assert:
+      that:
+        - zone_response.zone.properties.zone_name == zone_name
+      success_msg: "Zone created successfully"
+
   - name: Create Record
     ionoscloudsdk.ionoscloud.dns_record:
       zone: "{{zone_name}}"
@@ -25,6 +31,16 @@
       enabled: "{{record_enabled}}"
     register: record_response
 
+  - name: Check Create Record
+    ansible.builtin.assert:
+      that:
+        - record_response.record.properties.name == record_name
+        - record_response.record.properties.type == record_type
+        - record_response.record.properties.content == record_content
+        - record_response.record.properties.ttl == record_ttl
+        - record_response.record.properties.enabled == record_enabled
+      success_msg: "Record created successfully"
+
   # - name: Print output to file
   #   ansible.builtin.copy:
   #     content: "{{record_response}}"
@@ -33,24 +49,28 @@
   - name: List all Records in zone
     ionoscloudsdk.ionoscloud.dns_record_info:
       zone: "{{zone_name}}"
-    register: records_response
+    register: records_in_zone_response
 
-  - name: Show records
-    debug:
-      var: records_response.records
+  - name: Check List Records in zone contains created record
+    ansible.builtin.assert:
+      that:
+        - records_in_zone_response.records | selectattr('id', 'equalto', record_response.record.id) | list | length == 1
+      success_msg: "Created record found in zone records list"
 
   # - name: Print output to file
   #   ansible.builtin.copy:
-  #     content: "{{records_response}}"
+  #     content: "{{records_in_zone_response}}"
   #     dest: ../../docs/returned_object_examples/dns_record_info.json
 
   - name: List all Records
     ionoscloudsdk.ionoscloud.dns_record_info:
-    register: records_response
+    register: all_records_response
 
-  - name: Show records
-    debug:
-      var: records_response.records
+  - name: Check List all Records contains created record
+    ansible.builtin.assert:
+      that:
+        - all_records_response.records | selectattr('id', 'equalto', record_response.record.id) | list | length == 1
+      success_msg: "Created record found in global records list"
 
   - name: Update record
     ionoscloudsdk.ionoscloud.dns_record:
@@ -65,6 +85,17 @@
       state: update
     register: updated_record_response
 
+  - name: Check Update record
+    ansible.builtin.assert:
+      that:
+        - updated_record_response.record.id == record_response.record.id
+        - updated_record_response.record.properties.name == record_name
+        - updated_record_response.record.properties.type == record_type_updated
+        - updated_record_response.record.properties.content == record_content_updated
+        - updated_record_response.record.properties.ttl == record_ttl_updated
+        - updated_record_response.record.properties.enabled == record_enabled_updated
+      success_msg: "Record updated successfully"
+
   - name: Update record no change
     ionoscloudsdk.ionoscloud.dns_record:
       zone: "{{zone_name}}"
@@ -77,13 +108,19 @@
       enabled: "{{record_enabled_updated}}"
       allow_replace: False
       state: update
-    register: updated_record_response
+    register: record_no_change_response
 
-  - name: Asserting that changed == false when no update is made
-    assert:
+  - name: Check Update record no change
+    ansible.builtin.assert:
       that:
-        - updated_record_response.changed == false
-      msg: "Changed should be false"
+        - record_no_change_response.changed == false
+        - record_no_change_response.record.id == record_response.record.id
+        - record_no_change_response.record.properties.name == record_name
+        - record_no_change_response.record.properties.type == record_type_updated
+        - record_no_change_response.record.properties.content == record_content_updated
+        - record_no_change_response.record.properties.ttl == record_ttl_updated
+        - record_no_change_response.record.properties.enabled == record_enabled_updated
+      success_msg: "Record unchanged as expected"
 
   - name: Replace record
     ionoscloudsdk.ionoscloud.dns_record:
@@ -97,12 +134,23 @@
       enabled: "{{record_enabled_updated}}"
       allow_replace: true
       state: update
-    register: updated_record_response
+    register: replaced_record_response
+
+  - name: Check Replace record
+    ansible.builtin.assert:
+      that:
+        - replaced_record_response.record.id != record_response.record.id
+        - replaced_record_response.record.properties.name == record_name_updated
+        - replaced_record_response.record.properties.type == record_type_updated
+        - replaced_record_response.record.properties.content == record_content_updated
+        - replaced_record_response.record.properties.ttl == record_ttl_updated
+        - replaced_record_response.record.properties.enabled == record_enabled_updated
+      success_msg: "Record replaced successfully"
 
   - name: Delete Record
     ionoscloudsdk.ionoscloud.dns_record:
       zone: "{{zone_name}}"
-      record: "{{ updated_record_response.record.properties.name }}"
+      record: "{{ replaced_record_response.record.properties.name }}"
       wait: true
       state: absent
 

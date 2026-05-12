@@ -6,8 +6,8 @@ zone_enabled_updated: true
 
 record_name: sdk-team-test-record
 record_name_updated: sdk-team-test-record-updated
-record_type: CNAME
-record_type_updated: CNAME
+record_type: A
+record_type_updated: A
 record_content: 1.2.3.4
 record_content_updated: 2.2.3.4
 record_ttl: 3600

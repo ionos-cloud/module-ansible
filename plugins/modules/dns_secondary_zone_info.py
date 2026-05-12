@@ -7,7 +7,7 @@ except ImportError:
 
 from ansible import __version__
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_resource_id
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_paginated
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options
 
 
@@ -88,7 +88,7 @@ register: zones_response
 
 
 def get_objects(module, client):
-    return ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_get()
+    return get_paginated(ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_get, depth=None)
 
 
 if __name__ == '__main__':

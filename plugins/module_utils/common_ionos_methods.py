@@ -124,11 +124,15 @@ def get_paginated(method, depth=1, query_params=None):
     offset = 0
     limit = 100
 
-    resources = method(depth=depth, limit=limit, offset=offset, query_params=query_params)
+    base_kwargs = {'limit': limit, 'query_params': query_params}
+    if depth is not None:
+        base_kwargs['depth'] = depth
+
+    resources = method(offset=offset, **base_kwargs)
     items = resources.items
     while(resources.links.next is not None):
         offset += limit
-        resources = method(depth=depth, limit=limit, offset=offset, query_params=query_params)
+        resources = method(offset=offset, **base_kwargs)
         items += resources.items
     resources.items = items
 

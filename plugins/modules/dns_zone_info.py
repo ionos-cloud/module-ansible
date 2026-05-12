@@ -14,7 +14,7 @@ from ansible import __version__
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_resource_id
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_paginated, get_resource_id
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options
 
 
@@ -94,7 +94,7 @@ register: zones_response
 
 
 def get_objects(module, client):
-    return ionoscloud_dns.ZonesApi(client).zones_get()
+    return get_paginated(ionoscloud_dns.ZonesApi(client).zones_get, depth=None)
 
 
 if __name__ == '__main__':
