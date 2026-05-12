@@ -20,7 +20,7 @@ This example includes and/or depends on the following files:
 
 | File                | Description                                                                                                          |
 | ---                 | ---                                                                                                                  |
-| `main.yml`                        | This is the example's main Ansible file; it communicates via `localhost` and our Ansible Module with the IONOS Cloud [Cloud API](https://api.ionos.com/docs/cloud/) in order to provision our virtual resources   |
+| `main.yml`                        | This is the example's main Ansible file; it communicates via `localhost` and our Ansible Module with the IONOS CLOUD [Cloud API](https://api.ionos.com/docs/cloud/) in order to provision our virtual resources   |
 | `configure-internal-server.yml`   | This playbook is run _on the internal VM_ via the jumpbox (see `ansible_ssh_common_args` in `inventory.yml` and/or `ssh_config` _after_ running `main.yml`)   |
 | `cloud-init.txt`                  | This file contains the [cloud-init data](https://docs.ionos.com/cloud/compute-engine/virtual-servers/how-tos/boot-cloud-init) that will be used to tailor the internal server when it's being provisioned    |
 | `templates/ssh_config.j2`         | A simple [Jinja template](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_templating.html), in this case, to dynamically create the `ssh_config` file mentioned above     |

@@ -57,7 +57,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: dns_zone
-short_description: Allows operations with Ionos Cloud DNS Zones.
+short_description: Allows operations with IONOS CLOUD DNS Zones.
 description:
      - This is a module that supports creating, updating or destroying DNS Zones
 version_added: "2.0"
@@ -137,7 +137,7 @@ requirements:
     - "ionoscloud >= 6.0.2"
     - "ionoscloud-dns >= 1.0.0"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLE_PER_STATE = {

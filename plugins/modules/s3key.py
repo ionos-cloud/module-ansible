@@ -64,7 +64,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: s3key
-short_description: Create or destroy a Ionos Cloud S3Key.
+short_description: Create or destroy a IONOS CLOUD S3Key.
 description:
      - This is a simple module that supports creating or removing S3Keys.
 version_added: "2.0"
@@ -148,7 +148,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLE_PER_STATE = {

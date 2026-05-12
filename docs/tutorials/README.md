@@ -1,4 +1,4 @@
-# Getting Started with the IONOS Cloud Ansible Module
+# Getting Started with the IONOS CLOUD Ansible Module
 
 > **Warning**
 >
@@ -12,7 +12,7 @@
 
 
 ## Overview
-In this series, we will introduce the [IONOS Cloud Ansible Module](https://docs.ionos.com/ansible), and show how it can be used to provision many of our more commonly-used Compute resources and Managed Services in combinations that are at least _representative_ of 'real-world' deployments.
+In this series, we will introduce the [IONOS CLOUD Ansible Module](https://docs.ionos.com/ansible), and show how it can be used to provision many of our more commonly-used Compute resources and Managed Services in combinations that are at least _representative_ of 'real-world' deployments.
 
 Beyond providing prototypical examples, we will also introduce a few more general conventions and patterns which can be used to make your code more readable and reusable, and where there are a few different ways of performing the same task, we will try to introduce them, via comments, directly in the source files.
 
@@ -20,9 +20,9 @@ Beyond providing prototypical examples, we will also introduce a few more genera
 
 
 ### Intended audience
-The examples and code-snippets contained in this repository are intended for people who are not necessarily familiar with IONOS Cloud's product offerings and/or our Ansible module, but are wanting to learn how to provision and configure such resources in a scriptable way. A certain familiarity with Linux (or other UNIX-like operating systems) is assumed, and _some_ experience with Ansible or other scripting and/or programming languages would also help.
+The examples and code-snippets contained in this repository are intended for people who are not necessarily familiar with IONOS CLOUD's product offerings and/or our Ansible module, but are wanting to learn how to provision and configure such resources in a scriptable way. A certain familiarity with Linux (or other UNIX-like operating systems) is assumed, and _some_ experience with Ansible or other scripting and/or programming languages would also help.
 
-For some of the more 'advanced' topics — including our Managed Kubernetes and Database offerings — it is assumed that you are already familiar with the underlying software; in these cases, we will not be introducing basic concepts — rather, we will focus on IONOS Cloud-specific configuration and optimisation options.
+For some of the more 'advanced' topics — including our Managed Kubernetes and Database offerings — it is assumed that you are already familiar with the underlying software; in these cases, we will not be introducing basic concepts — rather, we will focus on IONOS CLOUD-specific configuration and optimisation options.
 
 A secondary use for these tutorials is to provide 'known-working' reference implementations, especially for Managed Services that have _practical_ dependencies on other types of resources. For this use case, the relevant examples can be provisioned and configured using Ansible, but then inspected and, potentially, 'tweaked' interactively via the Data Center Designer (DCD) or the API to get a better understanding of how these products might be used in 'production environments'.
 
@@ -49,7 +49,7 @@ This collection consists of the following tutorials — while each one typically
 ## Before you begin
 In order to use the examples in this tutorial series, you will need a working installation of [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html) and our [Ansible module](https://docs.ionos.com/ansible/#installation); if you have [git](https://git-scm.com) installed as well, that will make it easier to download and manage these examples' source and configuration files.
 
-While the recommended way to explore our APIs, SDKs and Confirguration Management Tools is to install the necessary software components as described in their respective documentation, a quick-and-easy way to get started is to use the [IONOS Cloud API / SDK 'Sandpit'](https://hub.docker.com/r/metzionos/ionos-cloud-api-sandpit) Docker container, assuming you have access to a machine with a working installation of [Docker Engine](https://docs.docker.com/engine/) or [Docker Desktop](https://docs.docker.com/desktop/) that's capable of running amd64-based Linux images.
+While the recommended way to explore our APIs, SDKs and Confirguration Management Tools is to install the necessary software components as described in their respective documentation, a quick-and-easy way to get started is to use the [IONOS CLOUD API / SDK 'Sandpit'](https://hub.docker.com/r/metzionos/ionos-cloud-api-sandpit) Docker container, assuming you have access to a machine with a working installation of [Docker Engine](https://docs.docker.com/engine/) or [Docker Desktop](https://docs.docker.com/desktop/) that's capable of running amd64-based Linux images.
 
 If you do, then just follow the instructions over at the image's [Docker Hub page](https://hub.docker.com/r/metzionos/ionos-cloud-api-sandpit) to spin up a 'sandpit environment' that you can use to explore our [Ansible module](https://docs.ionos.com/ansible) and [Terraform provider](https://docs.ionos.com/terraform-provider/), along with some other command line utilities...
 
@@ -66,19 +66,19 @@ Although most of our Configuration Management tools, Software Development Kits (
 
 Accordingly, whenever the code included in this repository makes lower-level calls to our Cloud API, it assumes that the `IONOS_TOKEN` environment variable contains a valid token, and will _not_ fallback to using the `IONOS_USERNAME` and `IONOS_PASSWORD` environment variables.
 
-For information on how to create a token that can be used for IONOS Cloud API calls, see our [Authentication API](https://api.ionos.com/docs/authentication/v1/#tag/tokens) documentation or [ionosctl / Authentication / Login](https://docs.ionos.com/cli-ionosctl/subcommands/authentication/login) and [TokenGenerate](https://docs.ionos.com/cli-ionosctl/subcommands/authentication/token-generate).
+For information on how to create a token that can be used for IONOS CLOUD API calls, see our [Authentication API](https://api.ionos.com/docs/authentication/v1/#tag/tokens) documentation or [ionosctl / Authentication / Login](https://docs.ionos.com/cli-ionosctl/subcommands/authentication/login) and [TokenGenerate](https://docs.ionos.com/cli-ionosctl/subcommands/authentication/token-generate).
 
 
 
 ### A few good-to-knows
 In addition to the above disclaimers, the following notes might help you troubleshoot problems commonly encountered when getting started:
 
-- If you get any `couldn't resolve module/action ... This often indicates a misspelling, missing collection, or incorrect module path` error messages, make sure you've downloaded and 'setup' the IONOS Cloud Ansible module; see [this page](https://docs.ionos.com/ansible/#installation) for the definitive information, however two ways of doing this are:
+- If you get any `couldn't resolve module/action ... This often indicates a misspelling, missing collection, or incorrect module path` error messages, make sure you've downloaded and 'setup' the IONOS CLOUD Ansible module; see [this page](https://docs.ionos.com/ansible/#installation) for the definitive information, however two ways of doing this are:
   - to run `ansible-galaxy collection install ionoscloudsdk.ionoscloud` as _yourself_ (i.e. without calling `sudo` or otherwise running this as `root`) — under Linux, this will install said module under `~/.ansible/collections/ansible_collections`; or
   - to clone the module into the location of your choosing using the command `git clone https://github.com/ionos-cloud/module-ansible`, and to inform Ansible of this location, either through the use of the `ANSIBLE_LIBRARY` environment variable or via a command-line argument (e.g., `ansible-playbook --module-path ${MODULE_PATH} ...`)
 - If you get a `name 'certificate_manager_sdk_version' is not defined` error message when working with the Application Load Balancer, make sure you have the module installed (this can be done by running the command `pip install ionoscloud-cert-manager`)
 - You will need to set the `IONOS_TOKEN` environment variable before running any of the playbooks contained in this subdirectory. For information on how to create a token, see the section above.
-- Should you wish to 'invoke' IONOS Cloud modules _without_ having to use their fully qualified collection name (FQCN) every time, you can use the [`collections`](https://docs.ansible.com/ansible/latest/collections_guide/collections_using_playbooks.html#simplifying-module-names-with-the-collections-keyword) keyword and the `ionoscloudsdk.ionoscloud` 'namespace'. (Whilst convenient, this _could_, in theory, lead to 'namespace collisions' with other third-party modules, hence the advice to use FQCNs in any production code.)
+- Should you wish to 'invoke' IONOS CLOUD modules _without_ having to use their fully qualified collection name (FQCN) every time, you can use the [`collections`](https://docs.ansible.com/ansible/latest/collections_guide/collections_using_playbooks.html#simplifying-module-names-with-the-collections-keyword) keyword and the `ionoscloudsdk.ionoscloud` 'namespace'. (Whilst convenient, this _could_, in theory, lead to 'namespace collisions' with other third-party modules, hence the advice to use FQCNs in any production code.)
 
 
 

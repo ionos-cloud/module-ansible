@@ -64,7 +64,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: mongo_cluster
-short_description: Allows operations with Ionos Cloud Mongo Cluster Users.
+short_description: Allows operations with IONOS CLOUD Mongo Cluster Users.
 description:
      - This is a module that supports creating and destroying Mongo Cluster Users
 version_added: "2.0"
@@ -148,7 +148,7 @@ requirements:
     - "ionoscloud >= 6.0.2"
     - "ionoscloud-dbaas-mongo >= 1.0.0"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLE_PER_STATE = {

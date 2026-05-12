@@ -10,14 +10,14 @@
 
 ![Alt text](.github/IONOS.CLOUD.BLU.svg?raw=true "Title")
 
-# Ansible Module for IONOS Cloud
+# Ansible Module for IONOS CLOUD
 
 ---
 
 
 ## Overview
 
-Ansible is an IT automation tool that allows you to configure, deploy, and orchestrate advanced tasks, such as continuous deployments or zero downtime rolling updates. The IONOS module for Ansible leverages the IONOS Cloud API.
+Ansible is an IT automation tool that allows you to configure, deploy, and orchestrate advanced tasks, such as continuous deployments or zero downtime rolling updates. The IONOS module for Ansible leverages the IONOS CLOUD API.
 
 ## Getting Started
 
@@ -25,23 +25,23 @@ Source code and in-depth documentation about installation and use are available 
 
 The IONOS module for Ansible requires the following:
 
-* IONOS Cloud account
+* IONOS CLOUD account
 * Python >= 3.5
 * [Ansible](https://www.ansible.com/)
-* [IONOS Cloud **Compute Engine** Python SDK](https://pypi.org/project/ionoscloud/) >= 6.1.6, < 7
-* [IONOS Cloud **DBaaS PostgreSQL** Python SDK](https://pypi.org/project/ionoscloud-dbaas-postgres/) < 2
-* [IONOS Cloud **DBaaS MongoDB** Python SDK](https://pypi.org/project/ionoscloud-dbaas-mongo/) < 2
-* [IONOS Cloud **DBaaS MariaDB** Python SDK](https://pypi.org/project/ionoscloud-dbaas-mariadb/) < 2
-* [IONOS Cloud **Container Registry** Python SDK](https://pypi.org/project/ionoscloud-container-registry/) < 2
-* [IONOS Cloud **Certificate Manager** Python SDK](https://pypi.org/project/ionoscloud-cert-manager/) < 3
-* [IONOS Cloud **DNS** Python SDK](https://pypi.org/project/ionoscloud-dns/) < 2
-* [IONOS Cloud **Logging** Python SDK](https://pypi.org/project/ionoscloud-logging/) < 2
-* [IONOS Cloud **Object Storage Management** Python SDK](https://pypi.org/project/ionoscloud-object-storage-management/) < 2
-* [IONOS Cloud **VM Autoscaling** Python SDK](https://pypi.org/project/ionoscloud-vm-autoscaling/) < 2
+* [IONOS CLOUD **Compute Engine** Python SDK](https://pypi.org/project/ionoscloud/) >= 6.1.6, < 7
+* [IONOS CLOUD **DBaaS PostgreSQL** Python SDK](https://pypi.org/project/ionoscloud-dbaas-postgres/) < 2
+* [IONOS CLOUD **DBaaS MongoDB** Python SDK](https://pypi.org/project/ionoscloud-dbaas-mongo/) < 2
+* [IONOS CLOUD **DBaaS MariaDB** Python SDK](https://pypi.org/project/ionoscloud-dbaas-mariadb/) < 2
+* [IONOS CLOUD **Container Registry** Python SDK](https://pypi.org/project/ionoscloud-container-registry/) < 2
+* [IONOS CLOUD **Certificate Manager** Python SDK](https://pypi.org/project/ionoscloud-cert-manager/) < 3
+* [IONOS CLOUD **DNS** Python SDK](https://pypi.org/project/ionoscloud-dns/) < 2
+* [IONOS CLOUD **Logging** Python SDK](https://pypi.org/project/ionoscloud-logging/) < 2
+* [IONOS CLOUD **Object Storage Management** Python SDK](https://pypi.org/project/ionoscloud-object-storage-management/) < 2
+* [IONOS CLOUD **VM Autoscaling** Python SDK](https://pypi.org/project/ionoscloud-vm-autoscaling/) < 2
 
 > **_NOTE:_**  The Ansible module does not support Python 2. It only supports Python >= 3.5.
 
-Before you begin you will need an IONOS account. The credentials from your registration will be used to authenticate against the IONOS Cloud API.
+Before you begin you will need an IONOS account. The credentials from your registration will be used to authenticate against the IONOS CLOUD API.
 
 Ansible must also be installed before the IONOS module can be used. Please review the official [Ansible Documentation](http://docs.ansible.com/ansible/intro_installation.html) for more information on installing Ansible.
 

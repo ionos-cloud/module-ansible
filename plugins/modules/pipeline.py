@@ -54,7 +54,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: pipeline
-short_description: Allows operations with Ionos Cloud Logging Pipelines.
+short_description: Allows operations with IONOS CLOUD Logging Pipelines.
 description:
      - This is a module that supports creating, updating or destroying Pipelines
 version_added: "2.0"
@@ -132,7 +132,7 @@ requirements:
     - "ionoscloud >= 6.0.2"
     - "ionoscloud-container-registry >= 1.0.0"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLE_PER_STATE = {

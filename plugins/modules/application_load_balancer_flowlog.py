@@ -21,11 +21,11 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
+from ..module_utils.common_ionos_module import CommonIonosModule
+from ..module_utils.common_ionos_methods import (
     get_module_arguments, get_resource_id, _get_request_id, get_paginated,
 )
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
+from ..module_utils.common_ionos_options import get_default_options
 
 
 ANSIBLE_METADATA = {
@@ -59,7 +59,7 @@ OPTIONS = {
         'type': 'str',
     },
     'bucket': {
-        'description': ['The bucket name of an existing IONOS Cloud Object storage bucket.'],
+        'description': ['The bucket name of an existing IONOS CLOUD Object storage bucket.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -89,7 +89,7 @@ OPTIONS = {
 DOCUMENTATION = '''
 ---
 module: application_balancer_flowlog
-short_description: Create or destroy a Ionos Cloud Application Loadbalancer Flowlog.
+short_description: Create or destroy a IONOS CLOUD Application Loadbalancer Flowlog.
 description:
      - This is a simple module that supports creating or removing Application Loadbalancer Flowlogs.
 version_added: "2.0"
@@ -110,7 +110,7 @@ options:
         required: true
     bucket:
         description:
-        - The bucket name of an existing IONOS Cloud Object storage bucket.
+        - The bucket name of an existing IONOS CLOUD Object storage bucket.
         required: false
     certificate_fingerprint:
         description:
@@ -180,7 +180,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.0"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 '''
 
 EXAMPLE_PER_STATE = {

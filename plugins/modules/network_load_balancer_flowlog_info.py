@@ -41,7 +41,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: network_load_balancer_flowlog_info
-short_description: List Ionos Cloud Flowlogs of a given Network Loadbalancer.
+short_description: List IONOS CLOUD Flowlogs of a given Network Loadbalancer.
 description:
      - This is a simple module that supports listing Flowlogs.
 version_added: "2.0"
@@ -68,7 +68,7 @@ options:
         required: false
     filters:
         description:
-        - 'Filter that can be used to list only objects which have a certain set of properties.
+        - 'Filter that can be used to list only objects which have a certain set of propeties.
             Filters should be a dict with a key containing keys and value pair in the
             following format: ''properties.name'': ''server_name'''
         required: false
@@ -101,7 +101,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLES = """

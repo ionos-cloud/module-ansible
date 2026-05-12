@@ -55,9 +55,9 @@ IMMUTABLE_OPTIONS = [
 
 DOCUMENTATION = """
 module: access_key
-short_description: Allows operations with Ionos Cloud Object Storage Access Keys.
+short_description: Allows operations with IONOS CLOUD Object Storage Access Keys.
 description:
-     - This is a module that supports creating and destroying Ionos Cloud Object Storage Access Keys
+     - This is a module that supports creating and destroying IONOS CLOUD Object Storage Access Keys
 version_added: "2.0"
 options:
     access_key:
@@ -136,7 +136,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud_object_storage_management >= 1.0.0"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLE_PER_STATE = {

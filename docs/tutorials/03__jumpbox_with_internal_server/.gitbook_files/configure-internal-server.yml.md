@@ -3,7 +3,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 {% code title="01__create_jumpbox_and_nlb.yml" overflow="wrap" lineNumbers="true" %}
 ```yml
 ---
-# Unlike main.yml (which communicates with the IONOS Cloud Ansible module via
+# Unlike main.yml (which communicates with the IONOS CLOUD Ansible module via
 # localhost), _this_ playbook is run on the internal server (i.e. the VM that
 # has _no_ connection to the Internet) via the jumpbox). Given said lack of
 # Internet access, we're not able to, e.g., install or update any software, so

@@ -84,7 +84,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: network_load_balancer
-short_description: Create or destroy a Ionos Cloud NetworkLoadbalancer.
+short_description: Create or destroy a IONOS CLOUD NetworkLoadbalancer.
 description:
      - This is a simple module that supports creating or removing NetworkLoadbalancers.
        This module has a dependency on ionoscloud >= 6.0.2
@@ -180,7 +180,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLE_PER_STATE = {

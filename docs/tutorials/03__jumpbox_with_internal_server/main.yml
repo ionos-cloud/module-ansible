@@ -1,5 +1,5 @@
 ---
-# The following host and connection specs are mandatory as the IONOS Cloud
+# The following host and connection specs are mandatory as the IONOS CLOUD
 # Ansible module is 'proxied' via localhost
 - hosts: localhost
   connection: local

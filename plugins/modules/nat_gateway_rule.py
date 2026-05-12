@@ -101,7 +101,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: nat_gateway_rule
-short_description: Create or destroy a Ionos Cloud NATGateway rule.
+short_description: Create or destroy a IONOS CLOUD NATGateway rule.
 description:
      - This is a simple module that supports creating or removing NATGateway rules.
        This module has a dependency on ionoscloud >= 6.0.2
@@ -213,7 +213,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLE_PER_STATE = {

@@ -1,7 +1,7 @@
 # 1. A Minimal Example
 
 ## Overview
-We begin our look at the IONOS Cloud Ansible Module with a minimal example that creates, and then deletes a Virtual Data Center (VDC) containing one server. It also shows you how the Ansible Module can be used to shut off a VM and power it back on.
+We begin our look at the IONOS CLOUD Ansible Module with a minimal example that creates, and then deletes a Virtual Data Center (VDC) containing one server. It also shows you how the Ansible Module can be used to shut off a VM and power it back on.
 
 
 
@@ -36,7 +36,7 @@ Even though this example is quite minimal, it includes and/or depends upon the f
 
 To provision this infrastructure:
 
-1. make sure that you have a working installation of Ansible and the IONOS Cloud Ansible module as described in the '[Before you begin](../README.md#before-you-begin)' section of this series' introduction, and that your `IONOS_TOKEN` environment variable is set; and
+1. make sure that you have a working installation of Ansible and the IONOS CLOUD Ansible module as described in the '[Before you begin](../README.md#before-you-begin)' section of this series' introduction, and that your `IONOS_TOKEN` environment variable is set; and
 2. run the following command on your Ansible host:
    ```
    ansible-playbook main.yml
@@ -53,7 +53,7 @@ Should you have any problems running this playbook, you might want to refer to t
 ## Summary
 Although quite limited in its scope, this example illustrates several things (at least to the beginner) including:
 
-1. how to provision IONOS Cloud Data Centers and Servers, and to change the state of the latter;
+1. how to provision IONOS CLOUD Data Centers and Servers, and to change the state of the latter;
 2. how to read in the contents of files and environment variables (in `../vars.yml`);
 3. how to prompt for user input (and evaluate composite conditionals); and
 4. how to use the results of previous tasks (i.e. register variables) — e.g., `datacenter_response` and `create_server_response`

@@ -3,7 +3,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 {% code title="01__create_jumpbox_and_nlb.yml" overflow="wrap" lineNumbers="true" %}
 ```yml
 ---
-# The following host and connection specs are mandatory as the IONOS Cloud
+# The following host and connection specs are mandatory as the IONOS CLOUD
 # Ansible module is 'proxied' via localhost
 - hosts: localhost
   connection: local

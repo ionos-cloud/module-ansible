@@ -2,7 +2,7 @@
 
 ## Overview
 
-Ansible is an IT automation tool that allows you to configure, deploy, and orchestrate advanced tasks, such as continuous deployments or zero downtime rolling updates. The IONOS module for Ansible leverages the IONOS Cloud API.
+Ansible is an IT automation tool that allows you to configure, deploy, and orchestrate advanced tasks, such as continuous deployments or zero downtime rolling updates. The IONOS module for Ansible leverages the IONOS CLOUD API.
 
 ## Getting Started
 
@@ -10,18 +10,18 @@ The module is also available on [Ansible Galaxy](https://galaxy.ansible.com/iono
 
 The IONOS module for Ansible requires the following:
 
-* IONOS Cloud account
+* IONOS CLOUD account
 * Python >= 3.5
 * [Ansible](https://www.ansible.com/)
-* [IONOS Cloud **Compute Engine** Python SDK](https://pypi.org/project/ionoscloud/) >= 6.1.6
-* [IONOS Cloud **DBaaS PostgreSQL** Python SDK](https://pypi.org/project/ionoscloud-dbaas-postgres/) >= 1.1.1
-* [IONOS Cloud **DBaaS MongoDB** Python SDK](https://pypi.org/project/ionoscloud-dbaas-mongo/) >= 1.2.2
-* [IONOS Cloud **Container Registry** Python SDK](https://pypi.org/project/ionoscloud-container-registry/) >= 1.0.0
-* [IONOS Cloud **Certificate Manager** Python SDK](https://pypi.org/project/ionoscloud-cert-manager/) >= 1.0.0
+* [IONOS CLOUD **Compute Engine** Python SDK](https://pypi.org/project/ionoscloud/) >= 6.1.6
+* [IONOS CLOUD **DBaaS PostgreSQL** Python SDK](https://pypi.org/project/ionoscloud-dbaas-postgres/) >= 1.1.1
+* [IONOS CLOUD **DBaaS MongoDB** Python SDK](https://pypi.org/project/ionoscloud-dbaas-mongo/) >= 1.2.2
+* [IONOS CLOUD **Container Registry** Python SDK](https://pypi.org/project/ionoscloud-container-registry/) >= 1.0.0
+* [IONOS CLOUD **Certificate Manager** Python SDK](https://pypi.org/project/ionoscloud-cert-manager/) >= 1.0.0
 
 > **_NOTE:_**  The Ansible module does not support Python 2. It only supports Python >= 3.5.
 
-Before you begin you will need an IONOS account. The credentials from your registration will be used to authenticate against the IONOS Cloud API.
+Before you begin you will need an IONOS account. The credentials from your registration will be used to authenticate against the IONOS CLOUD API.
 
 Ansible must also be installed before the IONOS module can be used. Please review the official [Ansible Documentation](http://docs.ansible.com/ansible/intro_installation.html) for more information on installing Ansible.
 

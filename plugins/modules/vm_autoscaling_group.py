@@ -212,7 +212,7 @@ IMMUTABLE_OPTIONS = [
 
 DOCUMENTATION = """
 module: vm_autoscaling_group
-short_description: Allows operations with Ionos Cloud VM Autoscaling Groups.
+short_description: Allows operations with IONOS CLOUD VM Autoscaling Groups.
 description:
      - This is a module that supports creating, updating or destroying VM Autoscaling Groups
 version_added: "2.0"
@@ -391,7 +391,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud-vm-autoscaling >= 1.0.0"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLE_PER_STATE = {

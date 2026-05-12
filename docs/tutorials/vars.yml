@@ -5,7 +5,7 @@ wait_timeout: 1200
 IONOS_UNSUPPORTED_EULA: |
   ===============================================================================
   This code-snippet is provided without warranty, as an example of how to use
-  specific aspects of the IONOS Cloud API / SDK.
+  specific aspects of the IONOS CLOUD API / SDK.
 
   While every effort has been made to ensure that the information and/or code
   contained herein is current and works as intended, it has not been through any
