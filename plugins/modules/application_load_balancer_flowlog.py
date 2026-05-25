@@ -21,11 +21,11 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 
 
-from ..module_utils.common_ionos_module import CommonIonosModule
-from ..module_utils.common_ionos_methods import (
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
     get_module_arguments, get_resource_id, _get_request_id, get_paginated,
 )
-from ..module_utils.common_ionos_options import get_default_options
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
 
 ANSIBLE_METADATA = {
