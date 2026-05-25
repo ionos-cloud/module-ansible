@@ -34,7 +34,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: network_load_balancer_info
-short_description: List Ionos Cloud Network Loadbalancers of a given datacenter.
+short_description: List IONOS CLOUD Network Loadbalancers of a given datacenter.
 description:
      - This is a simple module that supports listing Network Loadbalancers.
 version_added: "2.0"
@@ -90,7 +90,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLES = """

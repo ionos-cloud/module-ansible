@@ -30,7 +30,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: dns_secondary_zone_info
-short_description: List Ionos Cloud DNS Secondary Zones.
+short_description: List IONOS CLOUD DNS Secondary Zones.
 description:
      - This is a simple module that supports listing DNS Secondary Zones.
 version_added: "2.0"
@@ -77,7 +77,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLES = """

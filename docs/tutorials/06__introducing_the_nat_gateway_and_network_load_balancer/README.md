@@ -27,7 +27,7 @@ This example consists of the following files:
 | `../vars.yml`                         | This file is common to all of our Ansible examples and contains a set of more generally-used variable definitions     |
 
 
-More concretely, this example introduces the following IONOS Cloud modules:
+More concretely, this example introduces the following IONOS CLOUD modules:
 
 1. `ionoscloudsdk.ionoscloud.ipblock`
 2. `ionoscloudsdk.ionoscloud.nat_gateway` and `nat_gateway_rule`

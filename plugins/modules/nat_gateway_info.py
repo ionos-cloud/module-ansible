@@ -35,7 +35,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: nat_gateway_info
-short_description: List Ionos Cloud NAT Gateways of a given Datacenter.
+short_description: List IONOS CLOUD NAT Gateways of a given Datacenter.
 description:
      - This is a simple module that supports listing NAT Gateways.
 version_added: "2.0"
@@ -91,7 +91,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLES = """

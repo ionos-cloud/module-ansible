@@ -39,7 +39,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: volume_info
-short_description: List Ionos Cloud volumes of a given datacenter.
+short_description: List IONOS CLOUD volumes of a given datacenter.
 description:
      - This is a simple module that supports listing volumes.
 version_added: "2.0"
@@ -99,7 +99,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLES = """

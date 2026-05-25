@@ -35,7 +35,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: nic_info
-short_description: List Ionos Cloud Shares in a given group.
+short_description: List IONOS CLOUD Shares in a given group.
 description:
      - This is a simple module that supports listing Shares.
 version_added: "2.0"
@@ -91,7 +91,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLES = """

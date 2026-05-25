@@ -39,7 +39,7 @@ OPTIONS = {
         'type': 'str',
     },
     'common_name': {
-        'description': ['The common name (DNS) of the certificate to issue. The common name needs to be part of a zone in IONOS Cloud DNS.'],
+        'description': ['The common name (DNS) of the certificate to issue. The common name needs to be part of a zone in IONOS CLOUD DNS.'],
         'available': ['present', 'update', 'absent'],
         'type': 'str',
     },
@@ -54,7 +54,7 @@ OPTIONS = {
         'type': 'str',
     },
     'subject_alternative_names': {
-        'description': ['Optional additional names to be added to the issued certificate. The additional names needs to be part of a zone in IONOS Cloud DNS.'],
+        'description': ['Optional additional names to be added to the issued certificate. The additional names needs to be part of a zone in IONOS CLOUD DNS.'],
         'available': ['present', 'update', 'absent'],
         'type': 'list',
         'elements': 'str',
@@ -72,10 +72,10 @@ IMMUTABLE_OPTIONS = [
 
 DOCUMENTATION = """
 module: auto_certificate
-short_description: Upload, update or delete an Auto Certificate in the Ionos Cloud Certificate Manager.
+short_description: Upload, update or delete an Auto Certificate in the IONOS CLOUD Certificate Manager.
 description:
      - This is a simple module that supports uploading, updating or deleting Auto Certificates in the
-      Ionos Cloud Certificate Manager.
+      IONOS CLOUD Certificate Manager.
 version_added: "2.0"
 options:
     allow_replace:
@@ -108,7 +108,7 @@ options:
     common_name:
         description:
         - The common name (DNS) of the certificate to issue. The common name needs to
-            be part of a zone in IONOS Cloud DNS.
+            be part of a zone in IONOS CLOUD DNS.
         required: false
     key_algorithm:
         description:
@@ -138,7 +138,7 @@ options:
     subject_alternative_names:
         description:
         - Optional additional names to be added to the issued certificate. The additional
-            names needs to be part of a zone in IONOS Cloud DNS.
+            names needs to be part of a zone in IONOS CLOUD DNS.
         elements: str
         required: false
     token:
@@ -171,7 +171,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud_cert_manager >= 1.0.0"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLE_PER_STATE = {

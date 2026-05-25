@@ -86,7 +86,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: target_hroup
-short_description: Create or destroy a Ionos Cloud Target Group.
+short_description: Create or destroy a IONOS CLOUD Target Group.
 description:
      - This is a simple module that supports creating or removing Target Groups.
 version_added: "2.0"
@@ -184,7 +184,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.0"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLE_PER_STATE = {

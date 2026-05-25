@@ -7,7 +7,7 @@ In this installment, we will add a second NIC and volume to our basic server —
 
 
 ## Before you begin
-Continuing with the thought of learning about Ansible _and_ the IONOS Cloud module at the same time, you might find the following notes / hints helpful:
+Continuing with the thought of learning about Ansible _and_ the IONOS CLOUD module at the same time, you might find the following notes / hints helpful:
 
 1. At a minimum, go through `main.yml` and `../vars.yml` to get a feeling for how everything fits together. What do you expect to happen?
 2. Follow the steps outlined in the 'Usage' section below to actually provision your VM.

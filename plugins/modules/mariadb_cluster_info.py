@@ -88,7 +88,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud-dbaas-mariadb >= 1.0.1"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLES = """

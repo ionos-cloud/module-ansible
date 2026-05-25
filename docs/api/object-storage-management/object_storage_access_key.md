@@ -1,6 +1,6 @@
 # object_storage_access_key
 
-This is a module that supports creating and destroying Ionos Cloud Object Storage Access Keys
+This is a module that supports creating and destroying IONOS CLOUD Object Storage Access Keys
 
 ## Example Syntax
 

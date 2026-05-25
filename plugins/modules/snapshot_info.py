@@ -28,7 +28,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: backupunit_info
-short_description: List Ionos Cloud Snapshots.
+short_description: List IONOS CLOUD Snapshots.
 description:
      - This is a simple module that supports listing Snapshots.
 version_added: "2.0"
@@ -80,7 +80,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLES = """

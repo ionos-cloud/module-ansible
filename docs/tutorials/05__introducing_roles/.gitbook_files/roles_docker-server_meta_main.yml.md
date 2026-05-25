@@ -5,7 +5,7 @@ The source files for this tutorial can be downloaded from its [GitHub repository
 galaxy_info:
   author: Peter Metz <peter.metz@ionos.com>
   description: Install and configure Docker CE and friends
-  company: IONOS Cloud
+  company: IONOS CLOUD
 
   min_ansible_version: 2.1
 

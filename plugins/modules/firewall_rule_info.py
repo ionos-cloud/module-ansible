@@ -47,7 +47,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: firewall_rule_info
-short_description: List Ionos Cloud Firewall Rules of a given NIC.
+short_description: List IONOS CLOUD Firewall Rules of a given NIC.
 description:
      - This is a simple module that supports listing Firewall Rules.
 version_added: "2.0"
@@ -111,7 +111,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLES = """

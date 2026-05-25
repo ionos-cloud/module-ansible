@@ -57,7 +57,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: dns_secondary_zone
-short_description: Allows operations with Ionos Cloud DNS Secondary Zones.
+short_description: Allows operations with IONOS CLOUD DNS Secondary Zones.
 description:
      - This is a module that supports creating, updating or destroying DNS Secondary Zones
 version_added: "2.0"
@@ -139,7 +139,7 @@ requirements:
     - "ionoscloud >= 6.0.2"
     - "ionoscloud-dns >= 1.0.0"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLE_PER_STATE = {

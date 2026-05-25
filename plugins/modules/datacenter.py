@@ -69,7 +69,7 @@ IMMUTABLE_OPTIONS = [
 
 DOCUMENTATION = '''
 module: datacenter
-short_description: Create or destroy a Ionos Cloud Virtual Datacenter.
+short_description: Create or destroy a IONOS CLOUD Virtual Datacenter.
 description:
 - This is a simple module that supports creating or removing datacenters. A datacenter is required before you can create servers.
     This module has a dependency on ionoscloud >= 6.0.2
@@ -169,7 +169,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 '''
 
 EXAMPLE_PER_STATE = {

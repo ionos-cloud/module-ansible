@@ -10,9 +10,9 @@ version: 7.7.1
 readme: README.md
 
 authors:
-  - IONOS Cloud <sdk@cloud.ionos.com>
+  - IONOS CLOUD <sdk@cloud.ionos.com>
 
-description: The Ansible module of the Ionos Cloud API.
+description: The Ansible module of the IONOS CLOUD API.
 
 build_ignore:
   - .idea

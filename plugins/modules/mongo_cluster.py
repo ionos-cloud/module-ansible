@@ -95,7 +95,7 @@ IMMUTABLE_OPTIONS = [
 
 DOCUMENTATION = """
 module: mongo_cluster
-short_description: Allows operations with Ionos Cloud Mongo Clusters.
+short_description: Allows operations with IONOS CLOUD Mongo Clusters.
 description:
      - This is a module that supports creating and destroying Mongo Clusters
 version_added: "2.0"
@@ -201,7 +201,7 @@ requirements:
     - "ionoscloud >= 6.0.2"
     - "ionoscloud-dbaas-mongo >= 1.0.0"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLE_PER_STATE = {

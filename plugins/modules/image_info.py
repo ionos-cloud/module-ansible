@@ -28,7 +28,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: image_info
-short_description: List Ionos Cloud images.
+short_description: List IONOS CLOUD images.
 description:
      - This is a simple module that supports listing images.
 version_added: "2.0"
@@ -80,7 +80,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLES = """name: List Images

@@ -75,10 +75,10 @@ IMMUTABLE_OPTIONS = [
 
 DOCUMENTATION = """
 module: certificate_provider
-short_description: Upload, update or delete a Certificate Provider in the Ionos Cloud Certificate Manager.
+short_description: Upload, update or delete a Certificate Provider in the IONOS CLOUD Certificate Manager.
 description:
      - This is a simple module that supports uploading, updating or deleting certificates in the
-      Ionos Cloud Certificate Manager.
+      IONOS CLOUD Certificate Manager.
 version_added: "2.0"
 options:
     allow_replace:
@@ -171,7 +171,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud_cert_manager >= 1.0.0"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLE_PER_STATE = {

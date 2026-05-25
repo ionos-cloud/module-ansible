@@ -1,6 +1,6 @@
 # auto_certificate
 
-This is a simple module that supports uploading, updating or deleting Auto Certificates in the Ionos Cloud Certificate Manager.
+This is a simple module that supports uploading, updating or deleting Auto Certificates in the IONOS CLOUD Certificate Manager.
 
 ## Example Syntax
 
@@ -114,7 +114,7 @@ register: auto_certificate
   <tr>
   <td>common_name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The common name (DNS) of the certificate to issue. The common name needs to be part of a zone in IONOS Cloud DNS.</td>
+  <td>The common name (DNS) of the certificate to issue. The common name needs to be part of a zone in IONOS CLOUD DNS.</td>
   </tr>
   <tr>
   <td>provider<br/><mark style="color:blue;">str</mark></td>
@@ -129,7 +129,7 @@ register: auto_certificate
   <tr>
   <td>subject_alternative_names<br/><mark style="color:blue;">list</mark></td>
   <td align="center">False</td>
-  <td>Optional additional names to be added to the issued certificate. The additional names needs to be part of a zone in IONOS Cloud DNS.</td>
+  <td>Optional additional names to be added to the issued certificate. The additional names needs to be part of a zone in IONOS CLOUD DNS.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>
@@ -217,7 +217,7 @@ ionoscloudsdk.ionoscloud.auto_certificate:
   <tr>
   <td>common_name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The common name (DNS) of the certificate to issue. The common name needs to be part of a zone in IONOS Cloud DNS.</td>
+  <td>The common name (DNS) of the certificate to issue. The common name needs to be part of a zone in IONOS CLOUD DNS.</td>
   </tr>
   <tr>
   <td>provider<br/><mark style="color:blue;">str</mark></td>
@@ -232,7 +232,7 @@ ionoscloudsdk.ionoscloud.auto_certificate:
   <tr>
   <td>subject_alternative_names<br/><mark style="color:blue;">list</mark></td>
   <td align="center">False</td>
-  <td>Optional additional names to be added to the issued certificate. The additional names needs to be part of a zone in IONOS Cloud DNS.</td>
+  <td>Optional additional names to be added to the issued certificate. The additional names needs to be part of a zone in IONOS CLOUD DNS.</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -317,7 +317,7 @@ register: auto_certificate_update
   <tr>
   <td>common_name<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The common name (DNS) of the certificate to issue. The common name needs to be part of a zone in IONOS Cloud DNS.</td>
+  <td>The common name (DNS) of the certificate to issue. The common name needs to be part of a zone in IONOS CLOUD DNS.</td>
   </tr>
   <tr>
   <td>provider<br/><mark style="color:blue;">str</mark></td>
@@ -332,7 +332,7 @@ register: auto_certificate_update
   <tr>
   <td>subject_alternative_names<br/><mark style="color:blue;">list</mark></td>
   <td align="center">False</td>
-  <td>Optional additional names to be added to the issued certificate. The additional names needs to be part of a zone in IONOS Cloud DNS.</td>
+  <td>Optional additional names to be added to the issued certificate. The additional names needs to be part of a zone in IONOS CLOUD DNS.</td>
   </tr>
   <tr>
   <td>allow_replace<br/><mark style="color:blue;">bool</mark></td>

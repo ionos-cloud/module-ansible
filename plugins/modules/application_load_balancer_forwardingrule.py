@@ -126,7 +126,7 @@ OPTIONS = {
 DOCUMENTATION = '''
 ---
 module: application_load_balancer_rule
-short_description: Create or destroy a Ionos Cloud Application Loadbalancer Forwarding rule.
+short_description: Create or destroy a IONOS CLOUD Application Loadbalancer Forwarding rule.
 description:
      - This is a simple module that supports creating or removing Application Loadbalancer Forwarding rules.
 version_added: "2.0"
@@ -246,7 +246,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.0"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 '''
 
 EXAMPLE_PER_STATE = {

@@ -34,7 +34,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: lan_info
-short_description: List Ionos Cloud LANs in a datacenter.
+short_description: List IONOS CLOUD LANs in a datacenter.
 description:
      - This is a simple module that supports listing LANs.
 version_added: "2.0"
@@ -90,7 +90,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLES = """

@@ -82,7 +82,7 @@ OPTIONS = {
         'type': 'str',
     },
     'bucket': {
-        'description': ['The bucket name of an existing IONOS Cloud Object storage bucket.'],
+        'description': ['The bucket name of an existing IONOS CLOUD Object storage bucket.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'str',
@@ -92,7 +92,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: datacenter
-short_description: Create or destroy a Ionos Cloud NIC Flowlog.
+short_description: Create or destroy a IONOS CLOUD NIC Flowlog.
 description:
      - This is a simple module that supports creating or removing NIC Flowlogs.
        This module has a dependency on ionoscloud >= 6.0.2
@@ -110,7 +110,7 @@ options:
         version_added: '2.4'
     bucket:
         description:
-        - The bucket name of an existing IONOS Cloud Object storage bucket.
+        - The bucket name of an existing IONOS CLOUD Object storage bucket.
         required: false
     certificate_fingerprint:
         description:
@@ -188,7 +188,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLE_PER_STATE = {

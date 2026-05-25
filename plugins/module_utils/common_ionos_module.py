@@ -16,7 +16,7 @@ class CommonIonosModule():
         """
         Checks if the object should be replaced based on the input and the object state.
 
-        existing_object : Ionoscloud object returned by API object
+        existing_object : IONOS CLOUD object returned by API object
         clients: authenticated ionoscloud clients list.
 
         Returns:
@@ -28,7 +28,7 @@ class CommonIonosModule():
         """
         Checks if the object should be updated based on the input and the object state.
 
-        existing_object : Ionoscloud object returned by API object
+        existing_object : IONOS CLOUD object returned by API object
         clients: authenticated ionoscloud clients list.
 
         Returns:
@@ -41,7 +41,7 @@ class CommonIonosModule():
         """
         Return a dict with the 'before' state for the object
 
-        existing_object : Ionoscloud object returned by API object
+        existing_object : IONOS CLOUD object returned by API object
         clients: authenticated ionoscloud clients list.
 
         Returns:
@@ -54,7 +54,7 @@ class CommonIonosModule():
         """
         Return a dict with the 'after' state for the object
 
-        existing_object : Ionoscloud object returned by API object
+        existing_object : IONOS CLOUD object returned by API object
         clients: authenticated ionoscloud clients list.
 
         Returns:

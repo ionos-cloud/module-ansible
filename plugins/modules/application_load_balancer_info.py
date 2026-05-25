@@ -36,7 +36,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: application_load_balancer_info
-short_description: List Ionos Cloud Application Load Balancers in a given datacenter.
+short_description: List IONOS CLOUD Application Load Balancers in a given datacenter.
 description:
      - This is a simple module that supports listing Application Load Balancers.
 version_added: "2.0"
@@ -92,7 +92,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLES = """

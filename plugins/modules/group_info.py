@@ -34,7 +34,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: group_info
-short_description: List Ionos Cloud groups.
+short_description: List IONOS CLOUD groups.
 description:
      - This is a simple module that supports listing group.
 version_added: "2.0"
@@ -90,7 +90,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLES = """

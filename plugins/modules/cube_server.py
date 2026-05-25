@@ -382,7 +382,7 @@ requirements:
     - "python >= 2.6"
     - "ionos-cloud >= 5.2.0"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 '''
 
 EXAMPLE_PER_STATE = {

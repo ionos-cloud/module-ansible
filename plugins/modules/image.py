@@ -115,7 +115,7 @@ OPTIONS = {
 
 DOCUMENTATION = """
 module: image
-short_description: Update or destroy a Ionos Cloud Image.
+short_description: Update or destroy a IONOS CLOUD Image.
 description:
      - This is a simple module that supports updating or removing Images. This module has a dependency on ionoscloud >= 6.0.2
 version_added: "2.0"
@@ -239,7 +239,7 @@ requirements:
     - "python >= 2.6"
     - "ionoscloud >= 6.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLE_PER_STATE = {

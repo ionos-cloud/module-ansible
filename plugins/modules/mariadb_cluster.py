@@ -120,7 +120,7 @@ IMMUTABLE_OPTIONS = [
 
 DOCUMENTATION = """
 module: mariadb_cluster
-short_description: Allows operations with Ionos Cloud MariaDB Clusters.
+short_description: Allows operations with IONOS CLOUD MariaDB Clusters.
 description:
      - This is a module that supports creating, updating or destroying MariaDB Clusters
 version_added: "2.0"
@@ -248,7 +248,7 @@ requirements:
     - "ionoscloud >= 6.0.2"
     - "ionoscloud-dbaas-mariadb >= 1.0.2"
 author:
-    - "IONOS Cloud SDK Team <sdk-tooling@ionos.com>"
+    - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLE_PER_STATE = {
