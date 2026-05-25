@@ -3,6 +3,11 @@
 ## 7.7.1
 ### Fixes
 * added pagination to DNS modules (`dns_zone`, `dns_zone_info`, `dns_record`, `dns_record_info`, `dns_secondary_zone`, `dns_secondary_zone_info`)
+* fixed `AttributeError` caused by unsafe chained `.get()` calls in the `registry` module
+### Docs
+* added missing SDK requirements to README
+### Changes
+* aligned brand references to IONOS CLOUD across all user-facing content
 
 ## 7.7.0
 ### Features
