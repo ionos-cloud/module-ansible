@@ -10,7 +10,7 @@ This is a simple module that supports listing DNS Records.
 name: List all Records in zone
 ionoscloudsdk.ionoscloud.dns_record_info:
   zone: 'test.example.test.ansible.com'
-register: records_response
+register: records_in_zone_response
 
 ```
 

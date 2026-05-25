@@ -10,7 +10,7 @@ except ImportError:
     HAS_SDK = False
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments, get_resource_id
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments, get_paginated, get_resource_id
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options_with_replace
 
 
@@ -224,7 +224,7 @@ name: Create Record
 ionoscloudsdk.ionoscloud.dns_record:
   zone: 'test.example.test.ansible.com'
   name: 'sdk-team-test-record'
-  type: 'CNAME'
+  type: 'A'
   content: '1.2.3.4'
   ttl: '3600'
   priority: '35535'
@@ -236,7 +236,7 @@ name: Update record
 ionoscloudsdk.ionoscloud.dns_record:
   zone: 'test.example.test.ansible.com'
   record: 'sdk-team-test-record'
-  type: 'CNAME'
+  type: 'A'
   content: '2.2.3.4'
   ttl: '1800'
   priority: '16'
@@ -260,7 +260,7 @@ name: Create Record
 ionoscloudsdk.ionoscloud.dns_record:
   zone: 'test.example.test.ansible.com'
   name: 'sdk-team-test-record'
-  type: 'CNAME'
+  type: 'A'
   content: '1.2.3.4'
   ttl: '3600'
   priority: '35535'
@@ -272,7 +272,7 @@ name: Update record
 ionoscloudsdk.ionoscloud.dns_record:
   zone: 'test.example.test.ansible.com'
   record: 'sdk-team-test-record'
-  type: 'CNAME'
+  type: 'A'
   content: '2.2.3.4'
   ttl: '1800'
   priority: '16'
@@ -328,12 +328,17 @@ class DnsRecordModule(CommonIonosModule):
     def _get_object_list(self, clients):
         client = clients[0]
         zone_id = get_resource_id(
-            self.module, ionoscloud_dns.ZonesApi(client).zones_get(),
+            self.module,
+            get_paginated(ionoscloud_dns.ZonesApi(client).zones_get, depth=None),
             self.module.params.get('zone'),
             identity_paths=[['id'], ['properties', 'zone_name']],
         )
 
-        return ionoscloud_dns.RecordsApi(client).zones_records_get(zone_id)
+        records_api = ionoscloud_dns.RecordsApi(client)
+        return get_paginated(
+            lambda **kw: records_api.records_get(filter_zone_id=zone_id, **kw),
+            depth=None,
+        )
 
 
     def _get_object_name(self):
@@ -362,7 +367,8 @@ class DnsRecordModule(CommonIonosModule):
             enabled = existing_object.properties.enabled if enabled is None else enabled
 
         zone_id = get_resource_id(
-            self.module, ionoscloud_dns.ZonesApi(client).zones_get(),
+            self.module,
+            get_paginated(ionoscloud_dns.ZonesApi(client).zones_get, depth=None),
             self.module.params.get('zone'),
             identity_paths=[['id'], ['properties', 'zone_name']],
         )
@@ -400,7 +406,8 @@ class DnsRecordModule(CommonIonosModule):
             enabled = existing_object.properties.enabled if enabled is None else enabled
 
         zone_id = get_resource_id(
-            self.module, ionoscloud_dns.ZonesApi(client).zones_get(),
+            self.module,
+            get_paginated(ionoscloud_dns.ZonesApi(client).zones_get, depth=None),
             self.module.params.get('zone'),
             identity_paths=[['id'], ['properties', 'zone_name']],
         )
@@ -424,7 +431,8 @@ class DnsRecordModule(CommonIonosModule):
     def _remove_object(self, existing_object, clients):
         client = clients[0]
         zone_id = get_resource_id(
-            self.module, ionoscloud_dns.ZonesApi(client).zones_get(),
+            self.module,
+            get_paginated(ionoscloud_dns.ZonesApi(client).zones_get, depth=None),
             self.module.params.get('zone'),
             identity_paths=[['id'], ['properties', 'zone_name']],
         )

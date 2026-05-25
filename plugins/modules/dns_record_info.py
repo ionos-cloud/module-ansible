@@ -7,7 +7,7 @@ except ImportError:
 
 from ansible import __version__
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_resource_id
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_paginated, get_resource_id
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options
 
 
@@ -102,27 +102,36 @@ EXAMPLES = """
 name: List all Records in zone
 ionoscloudsdk.ionoscloud.dns_record_info:
   zone: 'test.example.test.ansible.com'
-register: records_response
+register: records_in_zone_response
 """
 
 
 def get_objects(module, client):
+    records_api = ionoscloud_dns.RecordsApi(client)
     zone_id = get_resource_id(
-        module, ionoscloud_dns.ZonesApi(client).zones_get(),
+        module,
+        get_paginated(ionoscloud_dns.ZonesApi(client).zones_get, depth=None),
         module.params.get('zone'),
         identity_paths=[['id'], ['properties', 'zone_name']],
     )
     secondary_zone_id = get_resource_id(
-        module, ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_get(),
+        module,
+        get_paginated(ionoscloud_dns.SecondaryZonesApi(client).secondaryzones_get, depth=None),
         module.params.get('secondary_zone'),
         identity_paths=[['id'], ['properties', 'zone_name']],
     )
     if zone_id:
-        dns_records = ionoscloud_dns.RecordsApi(client).zones_records_get(zone_id=zone_id)
+        dns_records = get_paginated(
+            lambda **kw: records_api.records_get(filter_zone_id=zone_id, **kw),
+            depth=None,
+        )
     elif secondary_zone_id:
-        dns_records = ionoscloud_dns.RecordsApi(client).secondaryzones_records_get(secondary_zone_id)
+        dns_records = get_paginated(
+            lambda **kw: records_api.secondaryzones_records_get(secondary_zone_id, **kw),
+            depth=None,
+        )
     else:
-        dns_records = ionoscloud_dns.RecordsApi(client).records_get()
+        dns_records = get_paginated(records_api.records_get, depth=None)
 
     return dns_records
 

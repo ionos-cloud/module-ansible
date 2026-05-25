@@ -11,7 +11,7 @@ name: Create Record
 ionoscloudsdk.ionoscloud.dns_record:
   zone: 'test.example.test.ansible.com'
   name: 'sdk-team-test-record'
-  type: 'CNAME'
+  type: 'A'
   content: '1.2.3.4'
   ttl: '3600'
   priority: '35535'
@@ -23,7 +23,7 @@ name: Update record
 ionoscloudsdk.ionoscloud.dns_record:
   zone: 'test.example.test.ansible.com'
   record: 'sdk-team-test-record'
-  type: 'CNAME'
+  type: 'A'
   content: '2.2.3.4'
   ttl: '1800'
   priority: '16'
@@ -89,7 +89,7 @@ name: Create Record
 ionoscloudsdk.ionoscloud.dns_record:
   zone: 'test.example.test.ansible.com'
   name: 'sdk-team-test-record'
-  type: 'CNAME'
+  type: 'A'
   content: '1.2.3.4'
   ttl: '3600'
   priority: '35535'
@@ -281,7 +281,7 @@ name: Update record
 ionoscloudsdk.ionoscloud.dns_record:
   zone: 'test.example.test.ansible.com'
   record: 'sdk-team-test-record'
-  type: 'CNAME'
+  type: 'A'
   content: '2.2.3.4'
   ttl: '1800'
   priority: '16'

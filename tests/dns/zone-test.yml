@@ -14,6 +14,14 @@
       enabled: "{{zone_enabled}}"
     register: zone_response
 
+  - name: Check Create Zone
+    ansible.builtin.assert:
+      that:
+        - zone_response.zone.properties.zone_name == zone_name
+        - zone_response.zone.properties.description == zone_description
+        - zone_response.zone.properties.enabled == zone_enabled
+      success_msg: "Zone created successfully"
+
   # - name: Print output to file
   #   ansible.builtin.copy:
   #     content: "{{zone_response}}"
@@ -23,14 +31,16 @@
     ionoscloudsdk.ionoscloud.dns_zone_info:
     register: zones_response
 
+  - name: Check List Zones contains created zone
+    ansible.builtin.assert:
+      that:
+        - zones_response.zones | selectattr('id', 'equalto', zone_response.zone.id) | list | length == 1
+      success_msg: "Created zone found in zones list"
+
   # - name: Print output to file
   #   ansible.builtin.copy:
   #     content: "{{zones_response}}"
   #     dest: ../../docs/returned_object_examples/dns_zone_info.json
-
-  - name: Show Zones
-    debug:
-      var: zones_response.zones
 
   - name: Update Zone
     ionoscloudsdk.ionoscloud.dns_zone:
@@ -41,6 +51,15 @@
       state: update
     register: updated_zone_response
 
+  - name: Check Update Zone
+    ansible.builtin.assert:
+      that:
+        - updated_zone_response.zone.id == zone_response.zone.id
+        - updated_zone_response.zone.properties.zone_name == zone_name
+        - updated_zone_response.zone.properties.description == zone_description_updated
+        - updated_zone_response.zone.properties.enabled == zone_enabled_updated
+      success_msg: "Zone updated successfully"
+
   - name: Update Zone no change
     ionoscloudsdk.ionoscloud.dns_zone:
       zone: "{{ zone_response.zone.properties.zone_name }}"
@@ -48,13 +67,17 @@
       enabled: "{{zone_enabled_updated}}"
       allow_replace: False
       state: update
-    register: updated_zone_response
+    register: zone_no_change_response
 
-  - name: Asserting that changed == false when no update is made
-    assert:
+  - name: Check Update Zone no change
+    ansible.builtin.assert:
       that:
-        - updated_zone_response.changed == false
-      msg: "Changed should be false"
+        - zone_no_change_response.changed == false
+        - zone_no_change_response.zone.id == zone_response.zone.id
+        - zone_no_change_response.zone.properties.zone_name == zone_name
+        - zone_no_change_response.zone.properties.description == zone_description_updated
+        - zone_no_change_response.zone.properties.enabled == zone_enabled_updated
+      success_msg: "Zone unchanged as expected"
 
   - name: Delete Zone
     ionoscloudsdk.ionoscloud.dns_zone:

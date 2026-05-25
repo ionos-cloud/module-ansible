@@ -10,7 +10,7 @@ except ImportError:
     HAS_SDK = False
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments, get_resource_id
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments, get_paginated
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
 
@@ -223,7 +223,7 @@ class DnsZoneModule(CommonIonosModule):
 
 
     def _get_object_list(self, clients):
-        return ionoscloud_dns.ZonesApi(clients[0]).zones_get()
+        return get_paginated(ionoscloud_dns.ZonesApi(clients[0]).zones_get, depth=None)
 
 
     def _get_object_name(self):

@@ -93,7 +93,7 @@ def get_info_default_options_with_depth(states):
 def get_info_default_options(states):
     return {
         'filters': {
-            'description': ["Filter that can be used to list only objects which have a certain set of propeties. Filters should be a dict with a key containing keys and value pair in the following format: 'properties.name': 'server_name'"],
+            'description': ["Filter that can be used to list only objects which have a certain set of properties. Filters should be a dict with a key containing keys and value pair in the following format: 'properties.name': 'server_name'"],
             'available': states,
             'type': 'dict',
         },

@@ -1,5 +1,9 @@
 # Changelog
 
+## 7.7.1
+### Fixes
+* added pagination to DNS modules (`dns_zone`, `dns_zone_info`, `dns_record`, `dns_record_info`, `dns_secondary_zone`, `dns_secondary_zone_info`)
+
 ## 7.7.0
 ### Features
 * added new object storage management modules `object_storage_access_key_info`, `object_storage_access_key` and `object_storage_region_info`
