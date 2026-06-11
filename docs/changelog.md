@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixes
+* `user` module now returns `changed=False` when the requested group membership already matches the user's current groups
+
 ## 7.7.1
 ### Fixes
 * added pagination to DNS modules (`dns_zone`, `dns_zone_info`, `dns_record`, `dns_record_info`, `dns_secondary_zone`, `dns_secondary_zone_info`)
