@@ -93,7 +93,7 @@ OPTIONS = {
         'type': 'str',
     },
     'availability_zone': {
-        'description': ['The availability zone in which the server should be provisioned. For CUBE and GPU servers, the only value accepted is \'AUTO\'.'],
+        'description': ['The availability zone in which the server should be provisioned. For CUBE and GPU servers, the only value accepted is \'AUTO\'. For servers with Confidential Computing enabled, this field is immutable once the server has been created — update requests attempting to change it will be rejected.'],
         'available': ['present'],
         'choices_docs': ['AUTO', 'ZONE_1', 'ZONE_2'],
         'type': 'str',
@@ -164,12 +164,12 @@ OPTIONS = {
         'type': 'str',
     },
     'boot_volume': {
-        'description': ['The volume used for boot.'],
+        'description': ['Reference to a volume used as boot device. If the server has a volume with a Confidential Computing image, that volume — and only that volume — is eligible as the boot volume. Setting `bootVolume` to any other volume is rejected. If `bootVolume` is not provided on a server that has a Confidential Computing volume, that volume is automatically selected as the boot device. On servers with Confidential Computing enabled this field is immutable once the server has been created — update requests attempting to change it will be rejected.'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'boot_cdrom': {
-        'description': ['The CDROM used for boot.'],
+        'description': ['Reference to a CD-ROM used as boot device. Forbidden when the server has a volume whose image is a Confidential Computing image: such a server must boot from that volume and cannot boot from a CD-ROM. On servers with Confidential Computing enabled this field is immutable — update requests attempting to change it will be rejected.'],
         'available': ['present', 'update'],
         'type': 'str',
     },
@@ -212,16 +212,28 @@ options:
         - ZONE_2
         description:
         - The availability zone in which the server should be provisioned. For CUBE and
-            GPU servers, the only value accepted is 'AUTO'.
+            GPU servers, the only value accepted is 'AUTO'. For servers with Confidential
+            Computing enabled, this field is immutable once the server has been created
+            — update requests attempting to change it will be rejected.
         required: false
         version_added: '2.3'
     boot_cdrom:
         description:
-        - The CDROM used for boot.
+        - 'Reference to a CD-ROM used as boot device. Forbidden when the server has a
+            volume whose image is a Confidential Computing image: such a server must boot
+            from that volume and cannot boot from a CD-ROM. On servers with Confidential
+            Computing enabled this field is immutable — update requests attempting to
+            change it will be rejected.'
         required: false
     boot_volume:
         description:
-        - The volume used for boot.
+        - Reference to a volume used as boot device. If the server has a volume with a
+            Confidential Computing image, that volume — and only that volume — is eligible
+            as the boot volume. Setting `bootVolume` to any other volume is rejected.
+            If `bootVolume` is not provided on a server that has a Confidential Computing
+            volume, that volume is automatically selected as the boot device. On servers
+            with Confidential Computing enabled this field is immutable once the server
+            has been created — update requests attempting to change it will be rejected.
         required: false
     bus:
         choices:

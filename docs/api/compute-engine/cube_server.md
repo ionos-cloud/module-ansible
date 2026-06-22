@@ -556,7 +556,7 @@ register: server_cube
   <tr>
   <td>availability_zone<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The availability zone in which the server should be provisioned. For CUBE and GPU servers, the only value accepted is 'AUTO'.<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2']</td>
+  <td>The availability zone in which the server should be provisioned. For CUBE and GPU servers, the only value accepted is 'AUTO'. For servers with Confidential Computing enabled, this field is immutable once the server has been created — update requests attempting to change it will be rejected.<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2']</td>
   </tr>
   <tr>
   <td>bus<br/><mark style="color:blue;">str</mark></td>
@@ -606,12 +606,12 @@ register: server_cube
   <tr>
   <td>boot_volume<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The volume used for boot.</td>
+  <td>Reference to a volume used as boot device. If the server has a volume with a Confidential Computing image, that volume — and only that volume — is eligible as the boot volume. Setting `bootVolume` to any other volume is rejected. If `bootVolume` is not provided on a server that has a Confidential Computing volume, that volume is automatically selected as the boot device. On servers with Confidential Computing enabled this field is immutable once the server has been created — update requests attempting to change it will be rejected.</td>
   </tr>
   <tr>
   <td>boot_cdrom<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The CDROM used for boot.</td>
+  <td>Reference to a CD-ROM used as boot device. Forbidden when the server has a volume whose image is a Confidential Computing image: such a server must boot from that volume and cannot boot from a CD-ROM. On servers with Confidential Computing enabled this field is immutable — update requests attempting to change it will be rejected.</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -703,12 +703,12 @@ ionoscloudsdk.ionoscloud.cube_server:
   <tr>
   <td>boot_volume<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The volume used for boot.</td>
+  <td>Reference to a volume used as boot device. If the server has a volume with a Confidential Computing image, that volume — and only that volume — is eligible as the boot volume. Setting `bootVolume` to any other volume is rejected. If `bootVolume` is not provided on a server that has a Confidential Computing volume, that volume is automatically selected as the boot device. On servers with Confidential Computing enabled this field is immutable once the server has been created — update requests attempting to change it will be rejected.</td>
   </tr>
   <tr>
   <td>boot_cdrom<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The CDROM used for boot.</td>
+  <td>Reference to a CD-ROM used as boot device. Forbidden when the server has a volume whose image is a Confidential Computing image: such a server must boot from that volume and cannot boot from a CD-ROM. On servers with Confidential Computing enabled this field is immutable — update requests attempting to change it will be rejected.</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>

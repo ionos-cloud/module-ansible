@@ -7,6 +7,17 @@ from ansible.module_utils._text import to_native
 
 
 LOCATION_CONSTANTS = {
+    'ionoscloud_dbaas_postgres': {
+        'de/fra': 'https://postgresql.de-fra.ionos.com',
+        'de/txl': 'https://postgresql.de-txl.ionos.com',
+        'es/vit': 'https://postgresql.es-vit.ionos.com',
+        'fr/par': 'https://postgresql.fr-par.ionos.com',
+        'gb/lhr': 'https://postgresql.gb-lhr.ionos.com',
+        'gb/bhx': 'https://postgresql.gb-bhx.ionos.com',
+        'us/ewr': 'https://postgresql.us-ewr.ionos.com',
+        'us/las': 'https://postgresql.us-las.ionos.com',
+        'us/mci': 'https://postgresql.us-mci.ionos.com',
+    },
     'ionoscloud_dbaas_mariadb': {
 		'de/fra': 'https://mariadb.de-fra.ionos.com',
 		'de/txl': 'https://mariadb.de-txl.ionos.com',
@@ -129,11 +140,12 @@ def get_paginated(method, depth=1, query_params=None):
         base_kwargs['depth'] = depth
 
     resources = method(offset=offset, **base_kwargs)
-    items = resources.items
-    while(resources.links.next is not None):
+    items = list(page := resources.items or [])
+    # a page shorter than limit is the last one, so a server echoing next can't spin this loop
+    while len(page) >= limit and resources.links is not None and resources.links.next is not None:
         offset += limit
         resources = method(offset=offset, **base_kwargs)
-        items += resources.items
+        items += (page := resources.items or [])
     resources.items = items
 
     return resources
@@ -296,7 +308,7 @@ def default_main_info(ionos_module, ionos_module_name, user_agent, has_sdk, opti
 
         try:
             try:
-                results = list(map(lambda x: x.to_dict(), apply_filters(module, get_objects(module, api_client).items)))
+                results = list(map(lambda x: x.to_dict(), apply_filters(module, get_objects(module, api_client).items or [])))
                 return module.exit_json(**{
                     'changed': False,
                     returned_key: results

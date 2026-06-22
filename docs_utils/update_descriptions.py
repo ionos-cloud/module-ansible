@@ -17,6 +17,10 @@ POSTGRES_SWAGGER = {
     'url': 'https://ionos-cloud.github.io/rest-api/docs/public-postgresql-v1.ga.yml',
     'filename': 'postgres_swagger.yml',
 }
+POSTGRES_V2_SWAGGER = {
+    'url': 'https://ionos-cloud.github.io/rest-api/public-postgresql-v2.ga.yml',
+    'filename': 'postgres_v2_swagger.yml',
+}
 CONTAINTER_REGISTRY_SWAGGER = {
     'url': 'https://ionos-cloud.github.io/rest-api/docs/public-containerregistry-v1.ga.yml',
     'filename': 'container_registry_swagger.yml',
@@ -210,6 +214,21 @@ modules_to_generate = [
         'postgres_cluster', POSTGRES_SWAGGER, '/clusters', 'post',
         {
             'db_username': 'credentials.username', 'db_password': 'credentials.password'
+        },
+    ],
+    [
+        'postgres_cluster_v2', POSTGRES_V2_SWAGGER, '/clusters', 'post',
+        {
+            'postgres_version': 'version',
+            'instances': 'instances.count',
+            'cores': 'instances.cores',
+            'ram': 'instances.ram',
+            'storage_size': 'instances.storageSize',
+            'db_username': 'credentials.username',
+            'db_password': 'credentials.password',
+            'db_database': 'credentials.database',
+            'backup_location': 'backup.location',
+            'backup_retention_days': 'backup.retentionDays',
         },
     ],
     # ['registry', CONTAINTER_REGISTRY_SWAGGER, '/registries', 'post', {}],

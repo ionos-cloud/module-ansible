@@ -2,9 +2,14 @@ import chevron
 import copy
 import importlib
 import os
+import re
 import yaml
 import shutil
 from pathlib import Path
+
+
+def is_info_module(name):
+    return re.search(r'_info(_v\d+)?$', name) is not None
 
 
 EXAMPLES_DIR = os.path.join('docs', 'returned_object_examples')
@@ -63,7 +68,7 @@ def generate_module_docs(module_name):
     # Fixing module info imports
     module = importlib.import_module('plugins.modules.' + module_name)
 
-    if module_name.endswith('_info'):
+    if is_info_module(module_name):
         def available_in_state(option):
             return state in option[1]['available']
         state_parameters = []
@@ -143,6 +148,11 @@ modules_to_generate = [
     'postgres_cluster',
     'postgres_backup_info',
     'postgres_cluster_info',
+    'postgres_cluster_v2',
+    'postgres_cluster_info_v2',
+    'postgres_backup_info_v2',
+    'postgres_backup_location_info_v2',
+    'postgres_version_info_v2',
     'mongo_cluster_info',
     'mongo_cluster_template_info',
     'mongo_cluster',
@@ -213,7 +223,7 @@ for module_name in modules_to_generate:
     }
 
     directory_name = DIRECTORY_TO_NAME.get(docs_dir, docs_dir.replace('-', ' ').title())
-    if file_name.endswith('_info.md'):
+    if is_info_module(module_name):
         if generated.get(directory_name):
             generated[directory_name]['info_modules'].append(generated_module)
         else:

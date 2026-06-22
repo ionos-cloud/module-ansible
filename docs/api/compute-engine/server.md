@@ -486,17 +486,17 @@ register: server_create_result
   <tr>
   <td>cores<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>The total number of cores for the server. It can not be supplied for the VMs that have to be created based on templates.<br />Default: 2</td>
+  <td>The total number of cores for the server. It can not be supplied for the VMs that have to be created based on templates. For servers with Confidential Computing enabled, the number of cores must match the amount of cores required by the Confidential Computing image, and this field is immutable once the server has been created — update requests attempting to change it will be rejected.<br />Default: 2</td>
   </tr>
   <tr>
   <td>ram<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>The memory size for the server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB. It can not be supplied for the VMs that have to be created based on templates.<br />Default: 2048</td>
+  <td>The memory size for the server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB. It can not be supplied for the VMs that have to be created based on templates. For servers with Confidential Computing enabled, this field is immutable once the server has been created — update requests attempting to change it will be rejected.<br />Default: 2048</td>
   </tr>
   <tr>
   <td>cpu_family<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers. If the field is omitted from the request or the value is empty or null, an available CPU architecture will be automatically selected.<br />Options: ['INTEL_XEON', 'INTEL_SKYLAKE', 'INTEL_ICELAKE', 'AMD_EPYC', 'INTEL_SIERRAFOREST']</td>
+  <td>CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers. If the field is omitted from the request or the value is empty or null, an available CPU architecture will be automatically selected. This field must not be supplied when creating a server with Confidential Computing enabled (i.e. when one of the attached volumes uses a confidential computing image); in that case the CPU family is determined by the image and is selected automatically. On servers with Confidential Computing enabled this field is also immutable — update requests attempting to change it will be rejected.<br />Options: ['INTEL_XEON', 'INTEL_SKYLAKE', 'INTEL_ICELAKE', 'AMD_EPYC', 'INTEL_SIERRAFOREST']</td>
   </tr>
   <tr>
   <td>nic_multi_queue<br/><mark style="color:blue;">bool</mark></td>
@@ -506,7 +506,7 @@ register: server_create_result
   <tr>
   <td>availability_zone<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The availability zone in which the server should be provisioned. For CUBE and GPU servers, the only value accepted is 'AUTO'.<br />Default: AUTO<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2']</td>
+  <td>The availability zone in which the server should be provisioned. For CUBE and GPU servers, the only value accepted is 'AUTO'. For servers with Confidential Computing enabled, this field is immutable once the server has been created — update requests attempting to change it will be rejected.<br />Default: AUTO<br />Options: ['AUTO', 'ZONE_1', 'ZONE_2']</td>
   </tr>
   <tr>
   <td>volume_size<br/><mark style="color:blue;">int</mark></td>
@@ -556,12 +556,12 @@ register: server_create_result
   <tr>
   <td>boot_volume<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The volume used for boot.</td>
+  <td>Reference to a volume used as boot device. If the server has a volume with a Confidential Computing image, that volume — and only that volume — is eligible as the boot volume. Setting `bootVolume` to any other volume is rejected. If `bootVolume` is not provided on a server that has a Confidential Computing volume, that volume is automatically selected as the boot device. On servers with Confidential Computing enabled this field is immutable once the server has been created — update requests attempting to change it will be rejected.</td>
   </tr>
   <tr>
   <td>boot_cdrom<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The CDROM used for boot.</td>
+  <td>Reference to a CD-ROM used as boot device. Forbidden when the server has a volume whose image is a Confidential Computing image: such a server must boot from that volume and cannot boot from a CD-ROM. On servers with Confidential Computing enabled this field is immutable — update requests attempting to change it will be rejected.</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
@@ -650,12 +650,12 @@ ionoscloudsdk.ionoscloud.server:
   <tr>
   <td>cores<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>The total number of cores for the server. It can not be supplied for the VMs that have to be created based on templates.<br />Default: 2</td>
+  <td>The total number of cores for the server. It can not be supplied for the VMs that have to be created based on templates. For servers with Confidential Computing enabled, the number of cores must match the amount of cores required by the Confidential Computing image, and this field is immutable once the server has been created — update requests attempting to change it will be rejected.<br />Default: 2</td>
   </tr>
   <tr>
   <td>ram<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>The memory size for the server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB. It can not be supplied for the VMs that have to be created based on templates.<br />Default: 2048</td>
+  <td>The memory size for the server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB. It can not be supplied for the VMs that have to be created based on templates. For servers with Confidential Computing enabled, this field is immutable once the server has been created — update requests attempting to change it will be rejected.<br />Default: 2048</td>
   </tr>
   <tr>
   <td>instance_ids<br/><mark style="color:blue;">list</mark></td>
@@ -665,12 +665,12 @@ ionoscloudsdk.ionoscloud.server:
   <tr>
   <td>boot_volume<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The volume used for boot.</td>
+  <td>Reference to a volume used as boot device. If the server has a volume with a Confidential Computing image, that volume — and only that volume — is eligible as the boot volume. Setting `bootVolume` to any other volume is rejected. If `bootVolume` is not provided on a server that has a Confidential Computing volume, that volume is automatically selected as the boot device. On servers with Confidential Computing enabled this field is immutable once the server has been created — update requests attempting to change it will be rejected.</td>
   </tr>
   <tr>
   <td>boot_cdrom<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The CDROM used for boot.</td>
+  <td>Reference to a CD-ROM used as boot device. Forbidden when the server has a volume whose image is a Confidential Computing image: such a server must boot from that volume and cannot boot from a CD-ROM. On servers with Confidential Computing enabled this field is immutable — update requests attempting to change it will be rejected.</td>
   </tr>
   <tr>
   <td>api_url<br/><mark style="color:blue;">str</mark></td>
