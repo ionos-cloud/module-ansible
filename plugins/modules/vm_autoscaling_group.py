@@ -167,7 +167,7 @@ OPTIONS = {
         'description': ['The total number of cores for the VMs.'],
         'available': ['present', 'update'],
         'required': ['present'],
-        'type': 'str',
+        'type': 'int',
     },
     'cpu_family': {
         'description': [
