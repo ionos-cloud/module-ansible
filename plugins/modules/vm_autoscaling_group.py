@@ -809,7 +809,7 @@ class VMAutoScalingModule(CommonIonosModule):
             nics = existing_object.properties.replica_configuration.nics if nics is None else nics
             volumes = existing_object.properties.replica_configuration.volumes if volumes is None else volumes
 
-        vm_autoscaling_group = ionoscloud_vm_autoscaling.Group(
+        vm_autoscaling_group = ionoscloud_vm_autoscaling.GroupPost(
             properties=ionoscloud_vm_autoscaling.GroupProperties(
                 datacenter=ionoscloud_vm_autoscaling.GroupPropertiesDatacenter(id=datacenter_id),
                 max_replica_count=max_replica_count,
@@ -872,9 +872,9 @@ class VMAutoScalingModule(CommonIonosModule):
         nics = [get_nic_object(nic) for nic in self.module.params.get('nics')] if self.module.params.get('nics') else None
         volumes = [get_volume_object(volume) for volume in self.module.params.get('volumes')] if self.module.params.get('volumes') else None
 
-        vm_autoscaling_group = ionoscloud_vm_autoscaling.Group(
-            properties=ionoscloud_vm_autoscaling.GroupProperties(
-                datacenter=ionoscloud_vm_autoscaling.GroupPropertiesDatacenter(
+        vm_autoscaling_group = ionoscloud_vm_autoscaling.GroupPut(
+            properties=ionoscloud_vm_autoscaling.GroupPutProperties(
+                datacenter=ionoscloud_vm_autoscaling.GroupPutPropertiesDatacenter(
                     id=datacenter_id if datacenter_id else existing_object.properties.datacenter.id,
                 ),
                 max_replica_count=max_replica_count if max_replica_count else existing_object.properties.max_replica_count,
