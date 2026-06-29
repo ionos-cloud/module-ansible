@@ -11,7 +11,7 @@ except ImportError:
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, get_resource_id, get_paginated,
+    get_module_arguments, get_resource_id, get_paginated, model_to_result_dict,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
@@ -742,7 +742,7 @@ class VMAutoScalingModule(CommonIonosModule):
             if module.params.get('do_not_replace'):
                 module.fail_json(msg="{} should be replaced but do_not_replace is set to False.".format(self.object_name))
 
-            new_object = self._create_object(existing_object, clients).to_dict()
+            new_object = model_to_result_dict(self._create_object(existing_object, clients))
             self._remove_object(existing_object, clients)
             return {
                 'changed': True,
@@ -756,7 +756,7 @@ class VMAutoScalingModule(CommonIonosModule):
                 'changed': True,
                 'failed': False,
                 'action': 'update',
-                self.returned_key: self._update_object(existing_object, clients).to_dict()
+                self.returned_key: model_to_result_dict(self._update_object(existing_object, clients))
             }
 
         # No action
@@ -764,7 +764,7 @@ class VMAutoScalingModule(CommonIonosModule):
             'changed': False,
             'failed': False,
             'action': 'create',
-            self.returned_key: existing_object.to_dict()
+            self.returned_key: model_to_result_dict(existing_object)
         }
 
 

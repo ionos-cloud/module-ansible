@@ -293,6 +293,22 @@ def apply_filters(module, item_list):
     return filter(get_method_to_apply_filters_to_item(filter_methods), item_list)
 
 
+def model_to_result_dict(model):
+    """Serialize an SDK model into the dict returned to Ansible.
+
+    Legacy (six-based) SDK models' ``to_dict()`` emit snake_case keys, but the
+    newer pydantic SDK models' ``to_dict()`` emits camelCase keys
+    (``model_dump(by_alias=True)``). Returning camelCase would silently break
+    the long-standing snake_case return contract that user playbooks rely on,
+    so pydantic models are dumped with ``by_alias=False``. Six-based models
+    have no ``model_dump`` and keep their snake_case ``to_dict()``.
+    """
+    model_dump = getattr(model, 'model_dump', None)
+    if callable(model_dump):
+        return model_dump(by_alias=False, exclude_none=True)
+    return model.to_dict()
+
+
 def default_main_info(ionos_module, ionos_module_name, user_agent, has_sdk, options, states, object_name, returned_key, get_objects):
     module = AnsibleModule(argument_spec=get_module_arguments(options, states), supports_check_mode=True)
 
@@ -308,7 +324,7 @@ def default_main_info(ionos_module, ionos_module_name, user_agent, has_sdk, opti
 
         try:
             try:
-                results = list(map(lambda x: x.to_dict(), apply_filters(module, get_objects(module, api_client).items or [])))
+                results = list(map(model_to_result_dict, apply_filters(module, get_objects(module, api_client).items or [])))
                 return module.exit_json(**{
                     'changed': False,
                     returned_key: results
