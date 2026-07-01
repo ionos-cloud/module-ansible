@@ -135,14 +135,14 @@
 * DBaaS Postgres
   * Modules
     * [Postgres Cluster](api/dbaas-postgres/postgres_cluster.md)
-    * [Postgres Cluster](api/dbaas-postgres/postgres_cluster_v2.md)
+    * [Postgres Cluster (v2)](api/dbaas-postgres/postgres_cluster_v2.md)
   * Info Modules
     * [Postgres Cluster Backups](api/dbaas-postgres/postgres_backup_info.md)
     * [Postgres Clusters](api/dbaas-postgres/postgres_cluster_info.md)
-    * [Postgres Clusters](api/dbaas-postgres/postgres_cluster_info_v2.md)
-    * [Postgres Cluster Backups](api/dbaas-postgres/postgres_backup_info_v2.md)
-    * [Postgres Backup Locations](api/dbaas-postgres/postgres_backup_location_info_v2.md)
-    * [Postgres Versions](api/dbaas-postgres/postgres_version_info_v2.md)
+    * [Postgres Clusters (v2)](api/dbaas-postgres/postgres_cluster_info_v2.md)
+    * [Postgres Cluster Backups (v2)](api/dbaas-postgres/postgres_backup_info_v2.md)
+    * [Postgres Backup Locations (v2)](api/dbaas-postgres/postgres_backup_location_info_v2.md)
+    * [Postgres Versions (v2)](api/dbaas-postgres/postgres_version_info_v2.md)
 * DBaaS Mongo
   * Modules
     * [Mongo Cluster](api/dbaas-mongo/mongo_cluster.md)
