@@ -91,7 +91,7 @@ OPTIONS = {
     },
     'disk_type': {
         'description': ['The disk type of the volume.'],
-        'choices_docs': ['HDD', 'SSD', 'SSD Premium', 'SSD Standard', 'DAS', 'ISO'],
+        'choices_docs': ['HDD', 'SSD', 'SSD Premium', 'SSD Standard', 'DAS', 'ISO', 'ESSENTIAL', 'BALANCED', 'PERFORMANCE'],
         'available': ['present'],
         'type': 'str',
     },
@@ -276,6 +276,9 @@ options:
         - SSD Standard
         - DAS
         - ISO
+        - ESSENTIAL
+        - BALANCED
+        - PERFORMANCE
         description:
         - The disk type of the volume.
         required: false

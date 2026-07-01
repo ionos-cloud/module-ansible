@@ -591,7 +591,7 @@ register: server_cube
   <tr>
   <td>disk_type<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The disk type for the volume.<br />Default: DAS<br />Options: ['HDD', 'SSD', 'SSD Standard', 'SSD Premium', 'DAS']</td>
+  <td>The disk type for the volume.<br />Default: DAS<br />Options: ['HDD', 'SSD', 'SSD Standard', 'SSD Premium', 'DAS', 'ESSENTIAL', 'BALANCED', 'PERFORMANCE']</td>
   </tr>
   <tr>
   <td>nic_ips<br/><mark style="color:blue;">list</mark></td>
