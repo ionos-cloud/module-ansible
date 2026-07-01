@@ -19,7 +19,7 @@ USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-postgres/%s' % (
     __version__, ionoscloud_dbaas_postgres.__version__)
 DOC_DIRECTORY = 'dbaas-postgres'
 STATES = ['info']
-OBJECT_NAME = 'Postgres Backup Locations'
+OBJECT_NAME = 'Postgres Backup Locations (v2)'
 RETURNED_KEY = 'postgres_backup_locations'
 
 OPTIONS = {

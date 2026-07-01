@@ -28,7 +28,7 @@ USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-postgres/%s' % (
     __version__, ionoscloud_dbaas_postgres.__version__)
 DOC_DIRECTORY = 'dbaas-postgres'
 STATES = ['present', 'absent', 'update', 'restore']
-OBJECT_NAME = 'Postgres Cluster'
+OBJECT_NAME = 'Postgres Cluster (v2)'
 RETURNED_KEY = 'postgres_cluster'
 
 OPTIONS = {
@@ -550,7 +550,7 @@ class PostgresClusterV2Module(CommonIonosModule):
             connection.get('datacenter'),
         )
         if datacenter_id is None:
-            self.module.fail_json('Datacenter {} not found.'.format(connection.get('datacenter')))
+            self.module.fail_json(msg='Datacenter {} not found.'.format(connection.get('datacenter')))
 
         lan_id = get_resource_id(
             self.module,
@@ -558,7 +558,7 @@ class PostgresClusterV2Module(CommonIonosModule):
             connection.get('lan'),
         )
         if lan_id is None:
-            self.module.fail_json('LAN {} not found.'.format(connection.get('lan')))
+            self.module.fail_json(msg='LAN {} not found.'.format(connection.get('lan')))
 
         return ionoscloud_dbaas_postgres.PostgresClusterConnection(
             datacenter_id=datacenter_id,

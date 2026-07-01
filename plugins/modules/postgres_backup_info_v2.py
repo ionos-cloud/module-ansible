@@ -20,7 +20,7 @@ USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-postgres/%s' % (
     __version__, ionoscloud_dbaas_postgres.__version__)
 DOC_DIRECTORY = 'dbaas-postgres'
 STATES = ['info']
-OBJECT_NAME = 'Postgres Cluster Backups'
+OBJECT_NAME = 'Postgres Cluster Backups (v2)'
 RETURNED_KEY = 'postgres_backups'
 
 OPTIONS = {
@@ -123,6 +123,7 @@ def get_objects(module, client):
             get_paginated(clusters_api.clusters_get, depth=None),
             postgres_cluster,
             [['id'], ['properties', 'name']],
+            fail_not_found=True,
         )
         return get_paginated(
             partial(backups_api.backups_get, filter_cluster_id=postgres_cluster_id),
