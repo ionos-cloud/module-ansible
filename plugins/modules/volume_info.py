@@ -103,10 +103,10 @@ author:
 """
 
 EXAMPLES = """
-name: List Volumes
+name: Look up the created volumes to get the API-resolved image UUID
 ionoscloudsdk.ionoscloud.volume_info:
   datacenter: 'AnsibleAutoTestCompute'
-register: volume_list_response
+register: volume_list_after_create
 """
 
 

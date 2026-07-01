@@ -37,8 +37,7 @@ ionoscloudsdk.ionoscloud.volume:
   disk_type: SSD Premium
   size: 20
   availability_zone: AUTO
-  image: 'c638b244-eeaa-11ef-8fa7-aee9942a25aa'
-  licence_type: LINUX
+  image: ''
   ram_hot_plug: true
   nic_hot_plug: true
   nic_hot_unplug: true
@@ -419,8 +418,7 @@ ionoscloudsdk.ionoscloud.volume:
   disk_type: SSD Premium
   size: 20
   availability_zone: AUTO
-  image: 'c638b244-eeaa-11ef-8fa7-aee9942a25aa'
-  licence_type: LINUX
+  image: ''
   ram_hot_plug: true
   nic_hot_plug: true
   nic_hot_unplug: true
