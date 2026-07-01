@@ -1,5 +1,9 @@
 # Changelog
 
+## 7.7.2
+### Features
+* added volume performance classes `ESSENTIAL`, `BALANCED` and `PERFORMANCE` to the `disk_type` options of the `volume`, `server`, `cube_server` and `vcpu_server` modules
+
 ## 7.7.1
 ### Fixes
 * added pagination to DNS modules (`dns_zone`, `dns_zone_info`, `dns_record`, `dns_record_info`, `dns_secondary_zone`, `dns_secondary_zone_info`)

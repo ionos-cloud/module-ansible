@@ -214,7 +214,7 @@ register: volume_create_response
   <tr>
   <td>disk_type<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The disk type of the volume.<br />Options: ['HDD', 'SSD', 'SSD Premium', 'SSD Standard', 'DAS', 'ISO']</td>
+  <td>The disk type of the volume.<br />Options: ['HDD', 'SSD', 'SSD Premium', 'SSD Standard', 'DAS', 'ISO', 'ESSENTIAL', 'BALANCED', 'PERFORMANCE']</td>
   </tr>
   <tr>
   <td>licence_type<br/><mark style="color:blue;">str</mark></td>
