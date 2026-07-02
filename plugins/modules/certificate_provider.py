@@ -10,7 +10,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import get_module_arguments, model_to_result_dict
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options_with_replace
 
 
@@ -347,7 +347,7 @@ class CertificateProviderModule(CommonIonosModule):
     # remove before create because provider name is unique
     def _replace_object(self, existing_object, clients):
         self._remove_object(existing_object, clients)
-        new_object = self._create_object(existing_object, clients).to_dict()
+        new_object = model_to_result_dict(self._create_object(existing_object, clients))
 
         return new_object
 

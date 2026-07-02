@@ -1,0 +1,256 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  vars:
+    # DBaaS PostgreSQL v2 is regional: pick the region with `location` (selects the API host).
+    # Set `api_url` instead to point at a specific endpoint/proxy and override location.
+    postgres_location: "de/fra"
+    postgres_dc_location: "de/fra"
+    # backup_location is an Object Storage location id from /backup-locations
+    # (postgres_backup_location_v2_info), NOT a datacenter region. Valid de-fra values:
+    # eu-central-3, eu-central-4, us-central-1.
+    postgres_backup_location: "eu-central-3"
+    postgres_cluster_name: "ansible-test-v2"
+    # DBaaS scale operations (add instance + resize) can take well over 10 min;
+    # the module default wait_timeout (600s) is too short for them.
+    postgres_wait_timeout: 3600
+    postgres_maintenance_window:
+      time: "16:30:00"
+      day_of_the_week: "Sunday"
+
+  tasks:
+
+  - name: Create datacenter
+    ionoscloudsdk.ionoscloud.datacenter:
+      name: "{{ datacenter }} - DBaaS v2"
+      location: "{{ postgres_dc_location }}"
+    register: datacenter_response
+
+  - name: Provision a server
+    ionoscloudsdk.ionoscloud.server:
+      datacenter: "{{ datacenter }} - DBaaS v2"
+      name: "{{ name }}"
+      cores: 1
+      ram: 2048
+      availability_zone: ZONE_1
+      volume_availability_zone: ZONE_3
+      volume_size: 10
+      cpu_family: INTEL_SKYLAKE
+      disk_type: HDD
+      image: "{{ image_alias }}"
+      image_password: "{{ password }}"
+      location: "{{ postgres_dc_location }}"
+      count: 1
+      assign_public_ip: true
+      remove_boot_volume: true
+      wait: true
+      wait_timeout: "{{ wait_timeout }}"
+      state: present
+    register: server_response
+
+  - name: Create private LAN
+    ionoscloudsdk.ionoscloud.lan:
+      datacenter: "{{ datacenter }} - DBaaS v2"
+      name: "test_lan1"
+      public: false
+    register: lan_response1
+
+  - name: Create NIC on the private LAN
+    ionoscloudsdk.ionoscloud.nic:
+      name: "test_nic1"
+      datacenter: "{{ datacenter }} - DBaaS v2"
+      server: "{{ server_response.machines[0].id }}"
+      lan: "{{ lan_response1.lan.id }}"
+      wait: true
+      wait_timeout: "{{ wait_timeout }}"
+      state: present
+    register: nic_response1
+
+  - name: List Postgres Backup Locations (pick a valid backup_location from here)
+    ionoscloudsdk.ionoscloud.postgres_backup_location_v2_info:
+      location: "{{ postgres_location }}"
+    register: postgres_backup_locations_response
+
+  - name: Show available backup locations
+    ansible.builtin.debug:
+      var: postgres_backup_locations_response.postgres_backup_locations
+
+  - name: List Postgres Versions
+    ionoscloudsdk.ionoscloud.postgres_version_v2_info:
+      location: "{{ postgres_location }}"
+    register: postgres_versions_response
+
+  - name: Show available postgres versions
+    ansible.builtin.debug:
+      var: postgres_versions_response.postgres_versions
+
+  - name: Create Cluster
+    ionoscloudsdk.ionoscloud.postgres_cluster_v2:
+      location: "{{ postgres_location }}"
+      postgres_version: "16"
+      instances: 1
+      cores: 1
+      ram: 4
+      storage_size: 10
+      connection:
+        datacenter: "{{ datacenter }} - DBaaS v2"
+        lan: "test_lan1"
+        primary_instance_address: 192.168.1.101/24
+      name: "{{ postgres_cluster_name }}"
+      replication_mode: ASYNCHRONOUS
+      maintenance_window: "{{ postgres_maintenance_window }}"
+      backup_location: "{{ postgres_backup_location }}"
+      backup_retention_days: 7
+      db_username: clusteruser
+      db_password: 7357Cluster!x
+      db_database: testdb
+      wait: true
+      wait_timeout: "{{ postgres_wait_timeout }}"
+    register: cluster_response
+
+  - name: Create Cluster no change
+    ionoscloudsdk.ionoscloud.postgres_cluster_v2:
+      location: "{{ postgres_location }}"
+      postgres_version: "16"
+      instances: 1
+      cores: 1
+      ram: 4
+      storage_size: 10
+      connection:
+        datacenter: "{{ datacenter }} - DBaaS v2"
+        lan: "test_lan1"
+        primary_instance_address: 192.168.1.101/24
+      name: "{{ postgres_cluster_name }}"
+      replication_mode: ASYNCHRONOUS
+      maintenance_window: "{{ postgres_maintenance_window }}"
+      backup_location: "{{ postgres_backup_location }}"
+      backup_retention_days: 7
+      db_username: clusteruser
+      db_password: 7357Cluster!x
+      db_database: testdb
+      wait: true
+      wait_timeout: "{{ postgres_wait_timeout }}"
+    register: cluster_response_no_change
+
+  - name: Asserting that changed == false when no update is made
+    assert:
+      that:
+        - cluster_response_no_change.changed == false
+      msg: "Changed should be false"
+
+  - name: List Postgres Clusters
+    ionoscloudsdk.ionoscloud.postgres_cluster_v2_info:
+      location: "{{ postgres_location }}"
+    register: postgres_clusters_response
+
+  - name: List Postgres Cluster Backups (all)
+    ionoscloudsdk.ionoscloud.postgres_backup_v2_info:
+      location: "{{ postgres_location }}"
+    register: postgres_backup_response
+
+  - name: List Postgres Cluster Backups for this cluster
+    ionoscloudsdk.ionoscloud.postgres_backup_v2_info:
+      location: "{{ postgres_location }}"
+      postgres_cluster: "{{ postgres_cluster_name }}"
+    register: postgres_backup_response_filtered
+
+  - name: Update Cluster
+    ionoscloudsdk.ionoscloud.postgres_cluster_v2:
+      location: "{{ postgres_location }}"
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      instances: 2
+      cores: 2
+      ram: 6
+      storage_size: 20
+      db_username: clusteruser
+      db_password: 7357Cluster!x
+      db_database: testdb
+      state: update
+      wait: true
+      wait_timeout: "{{ postgres_wait_timeout }}"
+    register: updated_cluster_response
+
+  - name: Update Cluster No change
+    ionoscloudsdk.ionoscloud.postgres_cluster_v2:
+      location: "{{ postgres_location }}"
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      instances: 2
+      cores: 2
+      ram: 6
+      storage_size: 20
+      db_username: clusteruser
+      db_password: 7357Cluster!x
+      db_database: testdb
+      state: update
+      wait: true
+    register: updated_cluster_response_no_change
+
+  - name: Asserting that changed == false when no update is made
+    assert:
+      that:
+        - updated_cluster_response_no_change.changed == false
+      msg: "Changed should be false"
+
+  # In-place restore replays the cluster's own backups up to recovery_target_time.
+  # It needs an existing backup and a target time inside the recoverable window, so it is
+  # left commented out to keep the run deterministic. To try it, pick a time from
+  # postgres_backup_response_filtered (earliest/latest recovery target time) and uncomment:
+  #
+  # - name: Restore Cluster (in-place)
+  #   ionoscloudsdk.ionoscloud.postgres_cluster_v2:
+  #     location: "{{ postgres_location }}"
+  #     postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+  #     recovery_target_time: "2026-06-08T13:00:00Z"
+  #     state: restore
+  #     wait: true
+
+  - name: Delete Cluster (async)
+    ionoscloudsdk.ionoscloud.postgres_cluster_v2:
+      location: "{{ postgres_location }}"
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      state: absent
+      wait: false
+
+  - name: Delete Cluster (wait)
+    ionoscloudsdk.ionoscloud.postgres_cluster_v2:
+      location: "{{ postgres_location }}"
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      state: absent
+      wait: true
+      wait_timeout: "{{ postgres_wait_timeout }}"
+
+  - name: Remove NIC
+    ionoscloudsdk.ionoscloud.nic:
+      nic: "test_nic1"
+      datacenter: "{{ datacenter }} - DBaaS v2"
+      server: "{{ server_response.machines[0].id }}"
+      wait: true
+      wait_timeout: "{{ wait_timeout }}"
+      state: absent
+
+  - name: Remove server
+    ionoscloudsdk.ionoscloud.server:
+      datacenter: "{{ datacenter }} - DBaaS v2"
+      instance_ids:
+        - "{{ server_response.machines[0].id }}"
+      remove_boot_volume: yes
+      wait_timeout: "{{ wait_timeout }}"
+      wait: true
+      state: absent
+
+  - name: Remove LAN
+    ionoscloudsdk.ionoscloud.lan:
+      datacenter: "{{ datacenter }} - DBaaS v2"
+      lan: "test_lan1"
+      state: absent
+      wait: true
+
+  - name: Remove datacenter
+    ionoscloudsdk.ionoscloud.datacenter:
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      state: absent
+      wait: true

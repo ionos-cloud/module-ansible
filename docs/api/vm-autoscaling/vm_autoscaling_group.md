@@ -25,7 +25,7 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   cpu_family: 'INTEL_XEON'
   ram: '1024'
   nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True}, {'lan': 1, 'name': 'SDK_TEST_NIC2', 'dhcp': False}]'
-  volumes: '[{'image': '0ede69ec-eeab-11ef-8fa7-aee9942a25aa', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
+  volumes: '[{'image_alias': 'ubuntu:latest', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
 register: vm_autoscaling_group_response
 
 
@@ -48,7 +48,7 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   cpu_family: 'INTEL_SKYLAKE'
   ram: '2048'
   nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True, 'firewall_active': True, 'firewall_rules': [{'name': 'test2', 'protocol': 'TCP', 'port_range_end': 12}]}]'
-  volumes: '[{'image': 'b5548883-108b-11f0-8ffe-266d89ffd7f8', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME_UPDATE', 'size': 75, 'type': 'SSD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
+  volumes: '[{'image_alias': 'ubuntu:latest', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME_UPDATE', 'size': 75, 'type': 'SSD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
   do_not_replace: false
   state: update
 register: vm_autoscaling_group_response
@@ -210,7 +210,7 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   cpu_family: 'INTEL_XEON'
   ram: '1024'
   nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True}, {'lan': 1, 'name': 'SDK_TEST_NIC2', 'dhcp': False}]'
-  volumes: '[{'image': '0ede69ec-eeab-11ef-8fa7-aee9942a25aa', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
+  volumes: '[{'image_alias': 'ubuntu:latest', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
 register: vm_autoscaling_group_response
 
 ```
@@ -297,7 +297,7 @@ register: vm_autoscaling_group_response
   <td>The zone where the VMs are created. The availability zone is always automatically set to 'AUTO' for performance reasons. Even if you set another value, e.g. 'null', or leave it empty.</td>
   </tr>
   <tr>
-  <td>cores<br/><mark style="color:blue;">str</mark></td>
+  <td>cores<br/><mark style="color:blue;">int</mark></td>
   <td align="center">True</td>
   <td>The total number of cores for the VMs.</td>
   </tr>
@@ -457,7 +457,7 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   cpu_family: 'INTEL_SKYLAKE'
   ram: '2048'
   nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True, 'firewall_active': True, 'firewall_rules': [{'name': 'test2', 'protocol': 'TCP', 'port_range_end': 12}]}]'
-  volumes: '[{'image': 'b5548883-108b-11f0-8ffe-266d89ffd7f8', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME_UPDATE', 'size': 75, 'type': 'SSD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
+  volumes: '[{'image_alias': 'ubuntu:latest', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME_UPDATE', 'size': 75, 'type': 'SSD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
   do_not_replace: false
   state: update
 register: vm_autoscaling_group_response
@@ -546,7 +546,7 @@ register: vm_autoscaling_group_response
   <td>The zone where the VMs are created. The availability zone is always automatically set to 'AUTO' for performance reasons. Even if you set another value, e.g. 'null', or leave it empty.</td>
   </tr>
   <tr>
-  <td>cores<br/><mark style="color:blue;">str</mark></td>
+  <td>cores<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
   <td>The total number of cores for the VMs.</td>
   </tr>

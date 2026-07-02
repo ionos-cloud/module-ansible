@@ -152,4 +152,4 @@ def transform_for_documentation(val, states):
 
 
 def transform_options_for_ducumentation(options, states):
-    return yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v, states) for k, v in copy.deepcopy(options).items()})), default_flow_style=False, indent=4).replace('\n', '\n    ')[:-5]
+    return yaml.dump(yaml.safe_load(str({k: transform_for_documentation(v, states) for k, v in copy.deepcopy(options).items()})), default_flow_style=False, indent=4, allow_unicode=True).replace('\n', '\n    ')[:-5]

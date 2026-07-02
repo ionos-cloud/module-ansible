@@ -9,7 +9,7 @@ This is a module that supports creating and destroying Mongo Clusters
 
 name: Create Cluster
 ionoscloudsdk.ionoscloud.mongo_cluster:
-  mongo_db_version: 5.0
+  mongo_db_version: 6.0
   instances: 3
   location: de/fra
   template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
@@ -113,7 +113,7 @@ ionoscloudsdk.ionoscloud.mongo_cluster:
   
 name: Create Cluster
 ionoscloudsdk.ionoscloud.mongo_cluster:
-  mongo_db_version: 5.0
+  mongo_db_version: 6.0
   instances: 3
   location: de/fra
   template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
@@ -165,7 +165,7 @@ register: cluster_response
   <tr>
   <td>template_id<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The unique ID of the template, which specifies the number of cores, storage size, and memory. You cannot downgrade to a smaller template or minor edition (e.g. from business to playground). To get a list of all templates to confirm the changes use the /templates endpoint.</td>
+  <td>The unique ID of the template, which specifies the number of cores, storage size, and memory. You cannot downgrade to a smaller template or minor edition; for example, downgrading from *Business* to *Playground* is not possible. To get a list of all templates to confirm the changes, use the '/templates' endpoint.</td>
   </tr>
   <tr>
   <td>location<br/><mark style="color:blue;">str</mark></td>
@@ -349,7 +349,7 @@ register: cluster_response
   <tr>
   <td>template_id<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The unique ID of the template, which specifies the number of cores, storage size, and memory. You cannot downgrade to a smaller template or minor edition (e.g. from business to playground). To get a list of all templates to confirm the changes use the /templates endpoint.</td>
+  <td>The unique ID of the template, which specifies the number of cores, storage size, and memory. You cannot downgrade to a smaller template or minor edition; for example, downgrading from *Business* to *Playground* is not possible. To get a list of all templates to confirm the changes, use the '/templates' endpoint.</td>
   </tr>
   <tr>
   <td>location<br/><mark style="color:blue;">str</mark></td>

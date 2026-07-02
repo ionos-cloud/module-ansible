@@ -11,7 +11,7 @@ except ImportError:
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, get_resource_id, get_resource,
+    get_module_arguments, get_resource_id, get_resource, model_to_result_dict,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
@@ -367,7 +367,7 @@ class AccessKeyModule(CommonIonosModule):
 
         
             return {
-                'access_key': access_key.to_dict(),
+                'access_key': model_to_result_dict(access_key),
                 'action': 'renew',
                 'changed': True,
                 'id': access_key.id,
@@ -419,7 +419,7 @@ class AccessKeyModule(CommonIonosModule):
                 'changed': True,
                 'failed': False,
                 'action': 'create',
-                self.returned_key: self._create_object(None, clients).to_dict(),
+                self.returned_key: model_to_result_dict(self._create_object(None, clients)),
             },
         }
 

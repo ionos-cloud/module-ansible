@@ -35,6 +35,21 @@
         state: present
       register: volume_create_response
 
+    # The create task above builds the volumes from an image ALIAS ("{{ image_alias }}").
+    # The API resolves that alias to a concrete image UUID during provisioning and stores
+    # it in properties.image. The idempotency check below must compare against that exact
+    # resolved UUID, otherwise volume._should_replace_object sees existing.image != param
+    # and demands a replace. A hardcoded UUID drifts whenever the public image is refreshed,
+    # so we read the resolved UUID back from the API instead (drift-proof).
+    - name: Look up the created volumes to get the API-resolved image UUID
+      ionoscloudsdk.ionoscloud.volume_info:
+        datacenter: "{{ datacenter }}"
+      register: volume_list_after_create
+
+    - name: Capture the resolved image UUID
+      set_fact:
+        resolved_image: "{{ (volume_list_after_create.volumes | selectattr('properties.name', 'equalto', name ~ ' 01') | first).properties.image }}"
+
     - name: Create same volumes (Idempotency)
       ionoscloudsdk.ionoscloud.volume:
         datacenter: "{{ datacenter }}"
@@ -43,8 +58,7 @@
         count: 2
         size: 20
         availability_zone: AUTO
-        image: "{{ image }}"
-        licence_type: LINUX
+        image: "{{ resolved_image }}"
         ram_hot_plug: true
         nic_hot_plug: true
         nic_hot_unplug: true
@@ -88,8 +102,7 @@
         disk_type: SSD Premium
         size: 20
         availability_zone: AUTO
-        image: "{{ image }}"
-        licence_type: LINUX
+        image: "{{ resolved_image }}"
         ram_hot_plug: true
         nic_hot_plug: true
         nic_hot_unplug: true

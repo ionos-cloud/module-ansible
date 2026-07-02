@@ -107,7 +107,7 @@ OPTIONS = {
         'no_log': True,
     },
     'synchronization_mode': {
-        'description': ['Represents different modes of replication.'],
+        'description': ['Represents the supported replication modes when creating a cluster. The SYNCHRONOUS mode is deprecated and cannot be used in create requests. It may still appear on existing clusters via the SynchronizationMode response schema. You may update your cluster to one of the supported modes yourself. Else, it will eventually be migrated to one of the supported modes.'],
         'available': ['present'],
         'required': ['present'],
         'type': 'str',
@@ -266,7 +266,11 @@ options:
         required: false
     synchronization_mode:
         description:
-        - Represents different modes of replication.
+        - Represents the supported replication modes when creating a cluster. The SYNCHRONOUS
+            mode is deprecated and cannot be used in create requests. It may still appear
+            on existing clusters via the SynchronizationMode response schema. You may
+            update your cluster to one of the supported modes yourself. Else, it will
+            eventually be migrated to one of the supported modes.
         required: false
     token:
         description:

@@ -100,19 +100,19 @@ OPTIONS = {
         'type': 'str',
     },
     'cores': {
-        'description': ['The total number of cores for the server. It can not be supplied for the VMs that have to be created based on templates.'],
+        'description': ['The total number of cores for the server. It can not be supplied for the VMs that have to be created based on templates. For servers with Confidential Computing enabled, the number of cores must match the amount of cores required by the Confidential Computing image, and this field is immutable once the server has been created — update requests attempting to change it will be rejected.'],
         'available': ['present', 'update'],
         'default': 2,
         'type': 'int',
     },
     'ram': {
-        'description': ['The memory size for the server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB. It can not be supplied for the VMs that have to be created based on templates.'],
+        'description': ['The memory size for the server in MB, such as 2048. Size must be specified in multiples of 256 MB with a minimum of 256 MB; however, if you set ramHotPlug to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE unless RAM size not set to less than 240GB. It can not be supplied for the VMs that have to be created based on templates. For servers with Confidential Computing enabled, this field is immutable once the server has been created — update requests attempting to change it will be rejected.'],
         'available': ['present', 'update'],
         'default': 2048,
         'type': 'int',
     },
     'cpu_family': {
-        'description': ['CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers. If the field is omitted from the request or the value is empty or null, an available CPU architecture will be automatically selected.'],
+        'description': ['CPU architecture on which server gets provisioned; not all CPU architectures are available in all datacenter regions; available CPU architectures can be retrieved from the datacenter resource; must not be provided for CUBE and VCPU servers. If the field is omitted from the request or the value is empty or null, an available CPU architecture will be automatically selected. This field must not be supplied when creating a server with Confidential Computing enabled (i.e. when one of the attached volumes uses a confidential computing image); in that case the CPU family is determined by the image and is selected automatically. On servers with Confidential Computing enabled this field is also immutable — update requests attempting to change it will be rejected.'],
         'available': ['present'],
         'choices_docs': ['INTEL_XEON', 'INTEL_SKYLAKE', 'INTEL_ICELAKE', 'AMD_EPYC', 'INTEL_SIERRAFOREST'],
         'type': 'str',
@@ -124,7 +124,7 @@ OPTIONS = {
         'type': 'bool',
     },
     'availability_zone': {
-        'description': ['The availability zone in which the server should be provisioned. For CUBE and GPU servers, the only value accepted is \'AUTO\'.'],
+        'description': ['The availability zone in which the server should be provisioned. For CUBE and GPU servers, the only value accepted is \'AUTO\'. For servers with Confidential Computing enabled, this field is immutable once the server has been created — update requests attempting to change it will be rejected.'],
         'available': ['present'],
         'choices_docs': ['AUTO', 'ZONE_1', 'ZONE_2'],
         'default': 'AUTO',
@@ -197,12 +197,12 @@ OPTIONS = {
         'elements': 'str',
     },
     'boot_volume': {
-        'description': ['The volume used for boot.'],
+        'description': ['Reference to a volume used as boot device. If the server has a volume with a Confidential Computing image, that volume — and only that volume — is eligible as the boot volume. Setting `bootVolume` to any other volume is rejected. If `bootVolume` is not provided on a server that has a Confidential Computing volume, that volume is automatically selected as the boot device. On servers with Confidential Computing enabled this field is immutable once the server has been created — update requests attempting to change it will be rejected.'],
         'available': ['present', 'update'],
         'type': 'str',
     },
     'boot_cdrom': {
-        'description': ['The CDROM used for boot.'],
+        'description': ['Reference to a CD-ROM used as boot device. Forbidden when the server has a volume whose image is a Confidential Computing image: such a server must boot from that volume and cannot boot from a CD-ROM. On servers with Confidential Computing enabled this field is immutable — update requests attempting to change it will be rejected.'],
         'available': ['present', 'update'],
         'type': 'str',
     },
@@ -242,16 +242,28 @@ options:
         default: AUTO
         description:
         - The availability zone in which the server should be provisioned. For CUBE and
-            GPU servers, the only value accepted is 'AUTO'.
+            GPU servers, the only value accepted is 'AUTO'. For servers with Confidential
+            Computing enabled, this field is immutable once the server has been created
+            — update requests attempting to change it will be rejected.
         required: false
         version_added: '2.3'
     boot_cdrom:
         description:
-        - The CDROM used for boot.
+        - 'Reference to a CD-ROM used as boot device. Forbidden when the server has a
+            volume whose image is a Confidential Computing image: such a server must boot
+            from that volume and cannot boot from a CD-ROM. On servers with Confidential
+            Computing enabled this field is immutable — update requests attempting to
+            change it will be rejected.'
         required: false
     boot_volume:
         description:
-        - The volume used for boot.
+        - Reference to a volume used as boot device. If the server has a volume with a
+            Confidential Computing image, that volume — and only that volume — is eligible
+            as the boot volume. Setting `bootVolume` to any other volume is rejected.
+            If `bootVolume` is not provided on a server that has a Confidential Computing
+            volume, that volume is automatically selected as the boot device. On servers
+            with Confidential Computing enabled this field is immutable once the server
+            has been created — update requests attempting to change it will be rejected.
         required: false
     bus:
         choices:
@@ -270,7 +282,11 @@ options:
         default: 2
         description:
         - The total number of cores for the server. It can not be supplied for the VMs
-            that have to be created based on templates.
+            that have to be created based on templates. For servers with Confidential
+            Computing enabled, the number of cores must match the amount of cores required
+            by the Confidential Computing image, and this field is immutable once the
+            server has been created — update requests attempting to change it will be
+            rejected.
         required: false
     count:
         default: 1
@@ -289,7 +305,12 @@ options:
             are available in all datacenter regions; available CPU architectures can be
             retrieved from the datacenter resource; must not be provided for CUBE and
             VCPU servers. If the field is omitted from the request or the value is empty
-            or null, an available CPU architecture will be automatically selected.
+            or null, an available CPU architecture will be automatically selected. This
+            field must not be supplied when creating a server with Confidential Computing
+            enabled (i.e. when one of the attached volumes uses a confidential computing
+            image); in that case the CPU family is determined by the image and is selected
+            automatically. On servers with Confidential Computing enabled this field is
+            also immutable — update requests attempting to change it will be rejected.
         required: false
         version_added: '2.2'
     datacenter:
@@ -387,7 +408,9 @@ options:
             to TRUE then you must use a minimum of 1024 MB. If you set the RAM size more
             than 240GB, then ramHotPlug will be set to FALSE and can not be set to TRUE
             unless RAM size not set to less than 240GB. It can not be supplied for the
-            VMs that have to be created based on templates.
+            VMs that have to be created based on templates. For servers with Confidential
+            Computing enabled, this field is immutable once the server has been created
+            — update requests attempting to change it will be rejected.
         required: false
     remove_boot_volume:
         choices:
