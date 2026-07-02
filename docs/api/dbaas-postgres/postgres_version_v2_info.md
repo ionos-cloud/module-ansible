@@ -1,4 +1,4 @@
-# postgres_version_info_v2
+# postgres_version_v2_info
 
 This is a simple module that supports listing the PostgreSQL versions available for clusters, using the DBaaS PostgreSQL v2 API. The region is selected through the I(location) option; set I(api_url) (e.g. C(https://postgresql.de-fra.ionos.com)) to override it directly.
 
@@ -8,7 +8,7 @@ This is a simple module that supports listing the PostgreSQL versions available 
 ```yaml
 
 name: List Postgres Versions
-ionoscloudsdk.ionoscloud.postgres_version_info_v2:
+ionoscloudsdk.ionoscloud.postgres_version_v2_info:
   location: ''
 register: postgres_versions_response
 

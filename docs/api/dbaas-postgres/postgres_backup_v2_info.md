@@ -1,4 +1,4 @@
-# postgres_backup_info_v2
+# postgres_backup_v2_info
 
 This is a simple module that supports listing existing Postgres Cluster backups using the DBaaS PostgreSQL v2 API. There is no per-cluster backups endpoint, so when I(postgres_cluster) is provided the account-wide backup list is filtered by cluster id server-side via the API's filter parameter.
 
@@ -8,7 +8,7 @@ This is a simple module that supports listing existing Postgres Cluster backups 
 ```yaml
 
 name: List Postgres Cluster Backups (all)
-ionoscloudsdk.ionoscloud.postgres_backup_info_v2:
+ionoscloudsdk.ionoscloud.postgres_backup_v2_info:
   location: ''
 register: postgres_backup_response
 

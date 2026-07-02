@@ -1,4 +1,4 @@
-# postgres_backup_location_info_v2
+# postgres_backup_location_v2_info
 
 This is a simple module that supports listing the Object Storage locations where Postgres Cluster backups can be stored, using the DBaaS PostgreSQL v2 API. The region is selected through the I(location) option; set I(api_url) (e.g. C(https://postgresql.de-fra.ionos.com)) to override it directly.
 
@@ -8,7 +8,7 @@ This is a simple module that supports listing the Object Storage locations where
 ```yaml
 
 name: List Postgres Backup Locations (pick a valid backup_location from here)
-ionoscloudsdk.ionoscloud.postgres_backup_location_info_v2:
+ionoscloudsdk.ionoscloud.postgres_backup_location_v2_info:
   location: ''
 register: postgres_backup_locations_response
 

@@ -11,7 +11,7 @@
     postgres_location: "de/fra"
     postgres_dc_location: "de/fra"
     # backup_location is an Object Storage location id from /backup-locations
-    # (postgres_backup_location_info_v2), NOT a datacenter region. Valid de-fra values:
+    # (postgres_backup_location_v2_info), NOT a datacenter region. Valid de-fra values:
     # eu-central-3, eu-central-4, us-central-1.
     postgres_backup_location: "eu-central-3"
     postgres_cluster_name: "ansible-test-v2"
@@ -71,7 +71,7 @@
     register: nic_response1
 
   - name: List Postgres Backup Locations (pick a valid backup_location from here)
-    ionoscloudsdk.ionoscloud.postgres_backup_location_info_v2:
+    ionoscloudsdk.ionoscloud.postgres_backup_location_v2_info:
       location: "{{ postgres_location }}"
     register: postgres_backup_locations_response
 
@@ -80,7 +80,7 @@
       var: postgres_backup_locations_response.postgres_backup_locations
 
   - name: List Postgres Versions
-    ionoscloudsdk.ionoscloud.postgres_version_info_v2:
+    ionoscloudsdk.ionoscloud.postgres_version_v2_info:
       location: "{{ postgres_location }}"
     register: postgres_versions_response
 
@@ -143,17 +143,17 @@
       msg: "Changed should be false"
 
   - name: List Postgres Clusters
-    ionoscloudsdk.ionoscloud.postgres_cluster_info_v2:
+    ionoscloudsdk.ionoscloud.postgres_cluster_v2_info:
       location: "{{ postgres_location }}"
     register: postgres_clusters_response
 
   - name: List Postgres Cluster Backups (all)
-    ionoscloudsdk.ionoscloud.postgres_backup_info_v2:
+    ionoscloudsdk.ionoscloud.postgres_backup_v2_info:
       location: "{{ postgres_location }}"
     register: postgres_backup_response
 
   - name: List Postgres Cluster Backups for this cluster
-    ionoscloudsdk.ionoscloud.postgres_backup_info_v2:
+    ionoscloudsdk.ionoscloud.postgres_backup_v2_info:
       location: "{{ postgres_location }}"
       postgres_cluster: "{{ postgres_cluster_name }}"
     register: postgres_backup_response_filtered

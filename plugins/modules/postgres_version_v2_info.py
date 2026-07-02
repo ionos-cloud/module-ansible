@@ -1,7 +1,6 @@
 from ansible import __version__
-from functools import partial
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_resource_id, get_paginated
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options
 
 
@@ -20,15 +19,10 @@ USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-postgres/%s' % (
     __version__, ionoscloud_dbaas_postgres.__version__)
 DOC_DIRECTORY = 'dbaas-postgres'
 STATES = ['info']
-OBJECT_NAME = 'Postgres Cluster Backups (v2)'
-RETURNED_KEY = 'postgres_backups'
+OBJECT_NAME = 'Postgres Versions (v2)'
+RETURNED_KEY = 'postgres_versions'
 
 OPTIONS = {
-    'postgres_cluster': {
-        'description': ['The ID or name of an existing Postgres Cluster. If set, only backups belonging to this cluster are returned.'],
-        'available': STATES,
-        'type': 'str',
-    },
     'location': {
         'description': ['The location (region) whose regional endpoint will be queried. Possible options are: "de/fra", "de/txl", "es/vit", "fr/par", "gb/lhr", "gb/bhx", "us/ewr", "us/las", "us/mci". If not set, the endpoint will be the one corresponding to "de/txl". The api_url, if set, overrides this.'],
         'available': STATES,
@@ -37,14 +31,14 @@ OPTIONS = {
     **get_info_default_options(STATES),
 }
 
+
 DOCUMENTATION = """
-module: postgres_backup_info_v2
-short_description: List Postgres Cluster backups (DBaaS PostgreSQL v2 API)
+module: postgres_version_v2_info
+short_description: List Postgres Versions (DBaaS PostgreSQL v2 API)
 description:
-     - This is a simple module that supports listing existing Postgres Cluster backups using
-       the DBaaS PostgreSQL v2 API. There is no per-cluster backups endpoint, so when
-       I(postgres_cluster) is provided the account-wide backup list is filtered by cluster id
-       server-side via the API's filter parameter.
+     - This is a simple module that supports listing the PostgreSQL versions available for
+       clusters, using the DBaaS PostgreSQL v2 API. The region is selected through the
+       I(location) option; set I(api_url) (e.g. C(https://postgresql.de-fra.ionos.com)) to override it directly.
 version_added: "2.0"
 options:
     location:
@@ -79,11 +73,6 @@ options:
         env_fallback: IONOS_PASSWORD
         no_log: true
         required: false
-    postgres_cluster:
-        description:
-        - The ID or name of an existing Postgres Cluster. If set, only backups belonging
-            to this cluster are returned.
-        required: false
     token:
         description:
         - The Ionos token. Overrides the IONOS_TOKEN environment variable.
@@ -105,32 +94,15 @@ author:
 """
 
 EXAMPLES = """
-name: List Postgres Cluster Backups (all)
-ionoscloudsdk.ionoscloud.postgres_backup_info_v2:
+name: List Postgres Versions
+ionoscloudsdk.ionoscloud.postgres_version_v2_info:
   location: ''
-register: postgres_backup_response
+register: postgres_versions_response
 """
 
 
 def get_objects(module, client):
-    backups_api = ionoscloud_dbaas_postgres.BackupsApi(client)
-    postgres_cluster = module.params.get('postgres_cluster')
-
-    if postgres_cluster:
-        clusters_api = ionoscloud_dbaas_postgres.ClustersApi(client)
-        postgres_cluster_id = get_resource_id(
-            module,
-            get_paginated(clusters_api.clusters_get, depth=None),
-            postgres_cluster,
-            [['id'], ['properties', 'name']],
-            fail_not_found=True,
-        )
-        return get_paginated(
-            partial(backups_api.backups_get, filter_cluster_id=postgres_cluster_id),
-            depth=None,
-        )
-
-    return get_paginated(backups_api.backups_get, depth=None)
+    return ionoscloud_dbaas_postgres.VersionsApi(client).versions_get()
 
 
 if __name__ == '__main__':

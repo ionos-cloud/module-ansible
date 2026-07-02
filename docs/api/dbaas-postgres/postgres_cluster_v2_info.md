@@ -1,4 +1,4 @@
-# postgres_cluster_info_v2
+# postgres_cluster_v2_info
 
 This is a simple module that supports listing existing Postgres Clusters using the DBaaS PostgreSQL v2 API. The region is selected through the I(location) option; set I(api_url) (e.g. C(https://postgresql.de-fra.ionos.com)) to override it directly.
 
@@ -8,7 +8,7 @@ This is a simple module that supports listing existing Postgres Clusters using t
 ```yaml
 
 name: List Postgres Clusters
-ionoscloudsdk.ionoscloud.postgres_cluster_info_v2:
+ionoscloudsdk.ionoscloud.postgres_cluster_v2_info:
   location: ''
 register: postgres_clusters_response
 

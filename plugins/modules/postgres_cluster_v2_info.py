@@ -1,6 +1,6 @@
 from ansible import __version__
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_paginated
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options
 
 
@@ -19,8 +19,8 @@ USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-postgres/%s' % (
     __version__, ionoscloud_dbaas_postgres.__version__)
 DOC_DIRECTORY = 'dbaas-postgres'
 STATES = ['info']
-OBJECT_NAME = 'Postgres Backup Locations (v2)'
-RETURNED_KEY = 'postgres_backup_locations'
+OBJECT_NAME = 'Postgres Clusters (v2)'
+RETURNED_KEY = 'postgres_clusters'
 
 OPTIONS = {
     'location': {
@@ -33,12 +33,12 @@ OPTIONS = {
 
 
 DOCUMENTATION = """
-module: postgres_backup_location_info_v2
-short_description: List Postgres Backup Locations (DBaaS PostgreSQL v2 API)
+module: postgres_cluster_v2_info
+short_description: List Postgres Clusters (DBaaS PostgreSQL v2 API)
 description:
-     - This is a simple module that supports listing the Object Storage locations where
-       Postgres Cluster backups can be stored, using the DBaaS PostgreSQL v2 API. The
-       region is selected through the I(location) option; set I(api_url) (e.g. C(https://postgresql.de-fra.ionos.com)) to override it directly.
+     - This is a simple module that supports listing existing Postgres Clusters using the
+       DBaaS PostgreSQL v2 API. The region is selected through the I(location) option;
+       set I(api_url) (e.g. C(https://postgresql.de-fra.ionos.com)) to override it directly.
 version_added: "2.0"
 options:
     location:
@@ -94,15 +94,15 @@ author:
 """
 
 EXAMPLES = """
-name: List Postgres Backup Locations (pick a valid backup_location from here)
-ionoscloudsdk.ionoscloud.postgres_backup_location_info_v2:
+name: List Postgres Clusters
+ionoscloudsdk.ionoscloud.postgres_cluster_v2_info:
   location: ''
-register: postgres_backup_locations_response
+register: postgres_clusters_response
 """
 
 
 def get_objects(module, client):
-    return ionoscloud_dbaas_postgres.BackupLocationsApi(client).backuplocations_get()
+    return get_paginated(ionoscloud_dbaas_postgres.ClustersApi(client).clusters_get, depth=None)
 
 
 if __name__ == '__main__':

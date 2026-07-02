@@ -2,7 +2,7 @@
 
 ## 7.8.0
 ### Features
-* added new DBaaS PostgreSQL v2 modules `postgres_cluster_v2`, `postgres_cluster_info_v2`, `postgres_backup_info_v2`, `postgres_backup_location_info_v2` and `postgres_version_info_v2`
+* added new DBaaS PostgreSQL v2 modules `postgres_cluster_v2`, `postgres_cluster_v2_info`, `postgres_backup_v2_info`, `postgres_backup_location_v2_info` and `postgres_version_v2_info`
 ### Changes
 * updated SDK requirements to the latest major releases (built on pydantic 2): `ionoscloud_dbaas_postgres>=3`, `ionoscloud_cert_manager>=3`, `ionoscloud_container_registry>=2`, `ionoscloud_dbaas_mariadb>=2`, `ionoscloud_dns>=2`, `ionoscloud_logging>=2`, `ionoscloud_object_storage_management>=2` and `ionoscloud_vm_autoscaling>=2`; older SDK versions are no longer supported
 ### Docs
