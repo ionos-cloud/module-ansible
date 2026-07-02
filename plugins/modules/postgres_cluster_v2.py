@@ -375,9 +375,9 @@ options:
         - How long before wait gives up, in seconds.
         required: false
 requirements:
-    - "python >= 2.6"
+    - "python >= 3.8"
     - "ionoscloud >= 6.0.2"
-    - "ionoscloud-dbaas-postgres >= 2.0.0"
+    - "ionoscloud-dbaas-postgres >= 3.0.0"
 author:
     - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
