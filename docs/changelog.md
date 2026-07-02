@@ -5,6 +5,8 @@
 * added new DBaaS PostgreSQL v2 modules `postgres_cluster_v2`, `postgres_cluster_v2_info`, `postgres_backup_v2_info`, `postgres_backup_location_v2_info` and `postgres_version_v2_info`
 ### Changes
 * updated SDK requirements to the latest major releases (built on pydantic 2): `ionoscloud_dbaas_postgres>=3`, `ionoscloud_cert_manager>=3`, `ionoscloud_container_registry>=2`, `ionoscloud_dbaas_mariadb>=2`, `ionoscloud_dns>=2`, `ionoscloud_logging>=2`, `ionoscloud_object_storage_management>=2` and `ionoscloud_vm_autoscaling>=2`; older SDK versions are no longer supported
+### Fixes
+* `user` module now returns `changed=False` when the requested group membership already matches the user's current groups
 ### Docs
 * regenerated module documentation from the latest API specifications, including Confidential Computing notes for `server` and `cube_server` and a replication mode deprecation note for `postgres_cluster`
 

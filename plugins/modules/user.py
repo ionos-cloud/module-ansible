@@ -295,13 +295,24 @@ class UserModule(CommonIonosModule):
         return False
 
 
+    def _groups_differ(self, existing_object, clients):
+        um_api = ionoscloud.UserManagementApi(clients[0])
+        current_group_ids = {g.id for g in um_api.um_users_groups_get(existing_object.id).items}
+        all_groups = um_api.um_groups_get(depth=2)
+        desired_group_ids = {
+            get_resource_id(self.module, all_groups, group)
+            for group in self.module.params.get('groups')
+        }
+        return current_group_ids != desired_group_ids
+
+
     def _should_update_object(self, existing_object, clients):
         ignored_properties = self.module.params.get('ignored_properties')
 
         if not isinstance(ignored_properties, list):
             ignored_properties = []
 
-        return (
+        properties_changed = (
             self.module.params.get('lastname') is not None
             and 'lastname' not in ignored_properties
             and existing_object.properties.lastname != self.module.params.get('lastname')
@@ -319,8 +330,14 @@ class UserModule(CommonIonosModule):
             and existing_object.properties.force_sec_auth != self.module.params.get('force_sec_auth')
             or self.module.params.get('user_password') is not None
             and 'user_password' not in ignored_properties
-            or self.module.params.get('groups') is not None
+        )
+        if properties_changed:
+            return True
+
+        return (
+            self.module.params.get('groups') is not None
             and 'groups' not in ignored_properties
+            and self._groups_differ(existing_object, clients)
         )
 
 
