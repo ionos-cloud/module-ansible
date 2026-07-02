@@ -54,7 +54,7 @@ OPTIONS = {
         'type': 'str',
     },
     'subject_alternative_names': {
-        'description': ['Optional additional names to be added to the issued certificate. The additional names needs to be part of a zone in IONOS CLOUD DNS.'],
+        'description': ['Optional additional names to be added to the issued certificate. The additional names need to be part of a zone in IONOS CLOUD DNS.'],
         'available': ['present', 'update', 'absent'],
         'type': 'list',
         'elements': 'str',
@@ -138,7 +138,7 @@ options:
     subject_alternative_names:
         description:
         - Optional additional names to be added to the issued certificate. The additional
-            names needs to be part of a zone in IONOS CLOUD DNS.
+            names need to be part of a zone in IONOS CLOUD DNS.
         elements: str
         required: false
     token:

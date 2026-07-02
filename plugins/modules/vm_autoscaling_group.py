@@ -11,7 +11,7 @@ except ImportError:
 
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_module import CommonIonosModule
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import (
-    get_module_arguments, get_resource_id, get_paginated,
+    get_module_arguments, get_resource_id, get_paginated, model_to_result_dict,
 )
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_default_options
 
@@ -167,7 +167,7 @@ OPTIONS = {
         'description': ['The total number of cores for the VMs.'],
         'available': ['present', 'update'],
         'required': ['present'],
-        'type': 'str',
+        'type': 'int',
     },
     'cpu_family': {
         'description': [
@@ -414,7 +414,7 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   cpu_family: 'INTEL_XEON'
   ram: '1024'
   nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True}, {'lan': 1, 'name': 'SDK_TEST_NIC2', 'dhcp': False}]'
-  volumes: '[{'image': '0ede69ec-eeab-11ef-8fa7-aee9942a25aa', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
+  volumes: '[{'image_alias': 'ubuntu:latest', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
 register: vm_autoscaling_group_response
 ''',
     'update': '''
@@ -437,7 +437,7 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   cpu_family: 'INTEL_SKYLAKE'
   ram: '2048'
   nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True, 'firewall_active': True, 'firewall_rules': [{'name': 'test2', 'protocol': 'TCP', 'port_range_end': 12}]}]'
-  volumes: '[{'image': 'b5548883-108b-11f0-8ffe-266d89ffd7f8', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME_UPDATE', 'size': 75, 'type': 'SSD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
+  volumes: '[{'image_alias': 'ubuntu:latest', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME_UPDATE', 'size': 75, 'type': 'SSD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
   do_not_replace: false
   state: update
 register: vm_autoscaling_group_response
@@ -470,7 +470,7 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   cpu_family: 'INTEL_XEON'
   ram: '1024'
   nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True}, {'lan': 1, 'name': 'SDK_TEST_NIC2', 'dhcp': False}]'
-  volumes: '[{'image': '0ede69ec-eeab-11ef-8fa7-aee9942a25aa', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
+  volumes: '[{'image_alias': 'ubuntu:latest', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME', 'size': 50, 'type': 'HDD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
 register: vm_autoscaling_group_response
 
 
@@ -493,7 +493,7 @@ ionoscloudsdk.ionoscloud.vm_autoscaling_group:
   cpu_family: 'INTEL_SKYLAKE'
   ram: '2048'
   nics: '[{'lan': 1, 'name': 'SDK_TEST_NIC1', 'dhcp': True, 'firewall_active': True, 'firewall_rules': [{'name': 'test2', 'protocol': 'TCP', 'port_range_end': 12}]}]'
-  volumes: '[{'image': 'b5548883-108b-11f0-8ffe-266d89ffd7f8', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME_UPDATE', 'size': 75, 'type': 'SSD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
+  volumes: '[{'image_alias': 'ubuntu:latest', 'image_password': 'test12345', 'name': 'SDK_TEST_VOLUME_UPDATE', 'size': 75, 'type': 'SSD', 'bus': 'IDE', 'boot_order': 'AUTO'}]'
   do_not_replace: false
   state: update
 register: vm_autoscaling_group_response
@@ -742,7 +742,7 @@ class VMAutoScalingModule(CommonIonosModule):
             if module.params.get('do_not_replace'):
                 module.fail_json(msg="{} should be replaced but do_not_replace is set to False.".format(self.object_name))
 
-            new_object = self._create_object(existing_object, clients).to_dict()
+            new_object = model_to_result_dict(self._create_object(existing_object, clients))
             self._remove_object(existing_object, clients)
             return {
                 'changed': True,
@@ -756,7 +756,7 @@ class VMAutoScalingModule(CommonIonosModule):
                 'changed': True,
                 'failed': False,
                 'action': 'update',
-                self.returned_key: self._update_object(existing_object, clients).to_dict()
+                self.returned_key: model_to_result_dict(self._update_object(existing_object, clients))
             }
 
         # No action
@@ -764,7 +764,7 @@ class VMAutoScalingModule(CommonIonosModule):
             'changed': False,
             'failed': False,
             'action': 'create',
-            self.returned_key: existing_object.to_dict()
+            self.returned_key: model_to_result_dict(existing_object)
         }
 
 
@@ -809,7 +809,7 @@ class VMAutoScalingModule(CommonIonosModule):
             nics = existing_object.properties.replica_configuration.nics if nics is None else nics
             volumes = existing_object.properties.replica_configuration.volumes if volumes is None else volumes
 
-        vm_autoscaling_group = ionoscloud_vm_autoscaling.Group(
+        vm_autoscaling_group = ionoscloud_vm_autoscaling.GroupPost(
             properties=ionoscloud_vm_autoscaling.GroupProperties(
                 datacenter=ionoscloud_vm_autoscaling.GroupPropertiesDatacenter(id=datacenter_id),
                 max_replica_count=max_replica_count,
@@ -872,9 +872,9 @@ class VMAutoScalingModule(CommonIonosModule):
         nics = [get_nic_object(nic) for nic in self.module.params.get('nics')] if self.module.params.get('nics') else None
         volumes = [get_volume_object(volume) for volume in self.module.params.get('volumes')] if self.module.params.get('volumes') else None
 
-        vm_autoscaling_group = ionoscloud_vm_autoscaling.Group(
-            properties=ionoscloud_vm_autoscaling.GroupProperties(
-                datacenter=ionoscloud_vm_autoscaling.GroupPropertiesDatacenter(
+        vm_autoscaling_group = ionoscloud_vm_autoscaling.GroupPut(
+            properties=ionoscloud_vm_autoscaling.GroupPutProperties(
+                datacenter=ionoscloud_vm_autoscaling.GroupPutPropertiesDatacenter(
                     id=datacenter_id if datacenter_id else existing_object.properties.datacenter.id,
                 ),
                 max_replica_count=max_replica_count if max_replica_count else existing_object.properties.max_replica_count,

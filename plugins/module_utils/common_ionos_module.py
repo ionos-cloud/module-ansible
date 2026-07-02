@@ -4,6 +4,7 @@ from ansible.module_utils._text import to_native
 
 from .common_ionos_methods import (
     get_resource, get_resource_id, get_sdk_config, check_required_arguments,
+    model_to_result_dict,
 )
 
 
@@ -161,7 +162,7 @@ class CommonIonosModule():
                     'changed': True,
                     'failed': False,
                     'action': 'update',
-                    self.returned_key: self._update_object(existing_object, clients).to_dict(),
+                    self.returned_key: model_to_result_dict(self._update_object(existing_object, clients)),
                 },
             }
 
@@ -172,7 +173,7 @@ class CommonIonosModule():
                 'changed': False,
                 'failed': False,
                 'action': 'create',
-                self.returned_key: existing_object.to_dict(),
+                self.returned_key: model_to_result_dict(existing_object),
             },
         }
 
@@ -215,12 +216,12 @@ class CommonIonosModule():
                 'changed': True,
                 'failed': False,
                 'action': 'create',
-                self.returned_key: self._create_object(None, clients).to_dict(),
+                self.returned_key: model_to_result_dict(self._create_object(None, clients)),
             },
         }
 
     def _replace_object(self, existing_object, clients):
-        new_object = self._create_object(existing_object, clients).to_dict()
+        new_object = model_to_result_dict(self._create_object(existing_object, clients))
         self._remove_object(existing_object, clients)
         return new_object
 

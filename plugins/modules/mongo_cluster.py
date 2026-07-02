@@ -68,7 +68,7 @@ OPTIONS = {
         'elements': 'dict',
     },
     'template_id': {
-        'description': ['The unique ID of the template, which specifies the number of cores, storage size, and memory. You cannot downgrade to a smaller template or minor edition (e.g. from business to playground). To get a list of all templates to confirm the changes use the /templates endpoint.'],
+        'description': ['The unique ID of the template, which specifies the number of cores, storage size, and memory. You cannot downgrade to a smaller template or minor edition; for example, downgrading from *Business* to *Playground* is not possible. To get a list of all templates to confirm the changes, use the \'/templates\' endpoint.'],
         'available': ['update', 'present'],
         'required': ['present'],
         'type': 'str',
@@ -166,9 +166,10 @@ options:
     template_id:
         description:
         - The unique ID of the template, which specifies the number of cores, storage
-            size, and memory. You cannot downgrade to a smaller template or minor edition
-            (e.g. from business to playground). To get a list of all templates to confirm
-            the changes use the /templates endpoint.
+            size, and memory. You cannot downgrade to a smaller template or minor edition;
+            for example, downgrading from *Business* to *Playground* is not possible.
+            To get a list of all templates to confirm the changes, use the '/templates'
+            endpoint.
         required: false
     token:
         description:
@@ -208,7 +209,7 @@ EXAMPLE_PER_STATE = {
     'present': '''
 name: Create Cluster
 ionoscloudsdk.ionoscloud.mongo_cluster:
-  mongo_db_version: 5.0
+  mongo_db_version: 6.0
   instances: 3
   location: de/fra
   template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6
@@ -252,7 +253,7 @@ ionoscloudsdk.ionoscloud.mongo_cluster:
 EXAMPLES = """
 name: Create Cluster
 ionoscloudsdk.ionoscloud.mongo_cluster:
-  mongo_db_version: 5.0
+  mongo_db_version: 6.0
   instances: 3
   location: de/fra
   template_id: 6b78ea06-ee0e-4689-998c-fc9c46e781f6

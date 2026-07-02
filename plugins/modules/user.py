@@ -440,6 +440,14 @@ class UserModule(CommonIonosModule):
 
                 # update to reflect new group changes
                 user_response = um_api.um_users_find_by_id(user_response.id, depth=2)
+                # um_users_find_by_id does not populate the user's group memberships, so
+                # fetch them from the dedicated endpoint and expose them via entities.groups
+                user_groups = um_api.um_users_groups_get(user_response.id)
+                if user_response.entities is None:
+                    user_response.entities = ionoscloud.UsersEntities()
+                if user_response.entities.groups is None:
+                    user_response.entities.groups = ionoscloud.GroupUsers()
+                user_response.entities.groups.items = user_groups.items
         except ApiException as e:
             self.module.fail_json(msg="failed to create the new user: %s" % to_native(e))
         return user_response
@@ -520,6 +528,14 @@ class UserModule(CommonIonosModule):
 
                 # update to reflect new group changes
                 user_response = um_api.um_users_find_by_id(user_response.id, depth=2)
+                # um_users_find_by_id does not populate the user's group memberships, so
+                # fetch them from the dedicated endpoint and expose them via entities.groups
+                user_groups = um_api.um_users_groups_get(user_response.id)
+                if user_response.entities is None:
+                    user_response.entities = ionoscloud.UsersEntities()
+                if user_response.entities.groups is None:
+                    user_response.entities.groups = ionoscloud.GroupUsers()
+                user_response.entities.groups.items = user_groups.items
 
             return user_response
         except ApiException as e:

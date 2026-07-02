@@ -39,7 +39,7 @@ nics: [
 ]
 volumes: [
   {
-    'image': '0ede69ec-eeab-11ef-8fa7-aee9942a25aa',
+    'image_alias': 'ubuntu:latest',
     'image_password': 'test12345',
     'name': 'SDK_TEST_VOLUME',
     'size': 50,
@@ -50,7 +50,7 @@ volumes: [
 ]
 volumes_no_change: [
   {
-    'image': '0ede69ec-eeab-11ef-8fa7-aee9942a25aa',
+    'image_alias': 'ubuntu:latest',
     'name': 'SDK_TEST_VOLUME',
     'size': 50,
     'type': 'HDD',
@@ -91,7 +91,7 @@ ram_update: 2048
 
 volumes_update: [
   {
-    'image': 'b5548883-108b-11f0-8ffe-266d89ffd7f8',
+    'image_alias': 'ubuntu:latest',
     'image_password': 'test12345',
     'name': 'SDK_TEST_VOLUME_UPDATE',
     'size': 75,

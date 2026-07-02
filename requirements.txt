@@ -4,12 +4,12 @@ chevron
 ansible
 
 ionoscloud<7
-ionoscloud_cert_manager<3
-ionoscloud_container_registry<2
-ionoscloud_dbaas_postgres<2
+ionoscloud_cert_manager>=3,<4
+ionoscloud_container_registry>=2,<3
+ionoscloud_dbaas_postgres>=3,<4
 ionoscloud_dbaas_mongo<2
-ionoscloud_dbaas_mariadb<2
-ionoscloud_dns<2
-ionoscloud_logging<2
-ionoscloud_object_storage_management<2
-ionoscloud_vm_autoscaling<2
+ionoscloud_dbaas_mariadb>=2,<3
+ionoscloud_dns>=2,<3
+ionoscloud_logging>=2,<3
+ionoscloud_object_storage_management>=2,<3
+ionoscloud_vm_autoscaling>=2,<3

@@ -2,5 +2,5 @@
   connection: local
   gather_facts: false
 
-- name: Run Postgres Cluster Test
-  import_playbook: postgres-cluster-test.yml
+- name: Run Postgres Cluster V2 Test
+  import_playbook: postgres-cluster-v2-test.yml
