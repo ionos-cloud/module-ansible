@@ -1,15 +1,10 @@
 import importlib
 import os
-import re
 import yaml
 import chevron
 
 
 MODULES_DIR = os.path.join('plugins', 'modules')
-
-
-def is_info_module(name):
-    return re.search(r'_info(_v\d+)?$', name) is not None
 
 
 def find_examples_in_test_file(filename, module_reference, left_states, state_examples, test_vars):
@@ -42,7 +37,7 @@ def find_info_examples_in_test_file(filename, module_reference, left_states, sta
 def get_examples_from_tests(module_name, module):
     tests_dir = os.path.join('tests', module.DOC_DIRECTORY)
 
-    if is_info_module(module_name):
+    if module_name.endswith('_info'):
         example_extract_method = find_info_examples_in_test_file
     else:
         example_extract_method = find_examples_in_test_file
@@ -61,9 +56,8 @@ def get_examples_from_tests(module_name, module):
             if test.get('import_playbook') is not None
         ])
 
-    if is_info_module(module_name):
-        base_name = re.sub(r'_info(_v\d+)?$', '', module_name)
-        files_to_check.sort(key=lambda x:(x and base_name in x), reverse=True)
+    if module_name.endswith('_info'):
+        files_to_check.sort(key=lambda x:(x and module_name[:-5] in x), reverse=True)
     else:
         files_to_check.sort(key=lambda x:(x and module_name in x), reverse=True)
 
@@ -99,7 +93,7 @@ def update_examples(module_name):
     state_examples = get_examples_from_tests(module_name, module)
     to_change = []
 
-    if is_info_module(module_name):
+    if module_name.endswith('_info'):
         if state_examples.get('info') and state_examples.get('info') != module.EXAMPLES:
                 to_change.append([module.EXAMPLES, state_examples.get('info')])
     else:
