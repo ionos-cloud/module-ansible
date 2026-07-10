@@ -10,7 +10,7 @@ This module supports creating, updating, restoring or destroying In-Memory DB Cl
 name: Create Cluster
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
   location: ''
-  version: '7.2'
+  version: '9.0'
   instances: 1
   cores: 1
   ram: 4
@@ -83,7 +83,7 @@ ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
 name: Create Cluster
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
   location: ''
-  version: '7.2'
+  version: '9.0'
   instances: 1
   cores: 1
   ram: 4

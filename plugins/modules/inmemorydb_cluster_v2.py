@@ -419,7 +419,7 @@ EXAMPLE_PER_STATE = {
 name: Create Cluster
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
   location: ''
-  version: '7.2'
+  version: '9.0'
   instances: 1
   cores: 1
   ram: 4
@@ -480,7 +480,7 @@ EXAMPLES = """
 name: Create Cluster
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
   location: ''
-  version: '7.2'
+  version: '9.0'
   instances: 1
   cores: 1
   ram: 4
