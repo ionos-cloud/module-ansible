@@ -1,3 +1,6 @@
+import os
+import stat
+
 HAS_SDK = True
 try:
     import ionoscloud
@@ -139,15 +142,22 @@ ionoscloudsdk.ionoscloud.k8s_config:
 
 def get_config(module, client):
     k8s_cluster_id = get_resource_id(
-        module, 
+        module,
         ionoscloud.KubernetesApi(client).k8s_get(depth=1),
         module.params.get('k8s_cluster'),
     )
     config_file = module.params.get('config_file')
+    canonical = os.path.realpath(config_file)
+    parent_dir = os.path.dirname(canonical)
+    if not os.path.isdir(parent_dir):
+        module.fail_json(msg="invalid file path for parameter 'config_file': parent directory does not exist")
+    parent_stat = os.stat(parent_dir)
+    if parent_stat.st_mode & stat.S_IWOTH:
+        module.warn("config_file parent directory '%s' is world-writable" % parent_dir)
     k8s_server = ionoscloud.KubernetesApi(api_client=client)
 
     try:
-        with open(config_file, 'w') as f:
+        with open(canonical, 'w') as f:
             response = k8s_server.k8s_kubeconfig_get(k8s_cluster_id=k8s_cluster_id)
             f.write(response)
 

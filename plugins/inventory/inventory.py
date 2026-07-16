@@ -96,8 +96,6 @@ import argparse
 import re
 import stat
 import subprocess
-import pickle
-
 import six
 from six.moves import configparser
 
@@ -133,7 +131,16 @@ class IonosCloudInventory(object):
         if not getattr(self, 'password', None) and getattr(self, 'password_file', None):
             self.password = read_password_file(self.password_file)
 
-        self.cache_filename = self.cache_path + "/ansible-ionos.pkl"
+        if self.cache_path == '.':
+            cache_dir = os.path.expanduser("~/.ansible/tmp")
+        else:
+            cache_dir = self.cache_path
+        os.makedirs(cache_dir, mode=0o700, exist_ok=True)
+        self.cache_filename = os.path.join(cache_dir, "ionos-inventory-cache.json")
+
+        dir_stat = os.stat(cache_dir)
+        if dir_stat.st_mode & stat.S_IWOTH:
+            sys.stderr.write('WARNING: Cache directory {} is world-writable\n'.format(cache_dir))
 
         # Verify credentials and create client
         if hasattr(self, 'token'):
@@ -470,17 +477,32 @@ class IonosCloudInventory(object):
         # Check if host is specified by UUID
         if re.match('[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}', host, re.I):
             for server in self.data['servers']:
-                if host == server.id:
-                    datacenter_id = self._parse_id_from_href(server.href, 2)
-                    return ionoscloud.ServersApi(self.client).datacenters_servers_find_by_id(datacenter_id, server.id)
+                if isinstance(server, dict):
+                    server_id = server.get('id')
+                    server_href = server.get('href')
+                else:
+                    server_id = server.id
+                    server_href = server.href
+                if host == server_id:
+                    datacenter_id = self._parse_id_from_href(server_href, 2)
+                    return ionoscloud.ServersApi(self.client).datacenters_servers_find_by_id(datacenter_id, server_id)
         else:
             for server in self.data['servers']:
-                for nic in server.entities.nics.items:
-                    for ip in nic.properties.ips:
-                        if host == ip:
-                            datacenter_id = self._parse_id_from_href(server.href, 2)
-                            server_id = self._parse_id_from_href(server.href, 0)
-                            return ionoscloud.ServersApi(self.client).datacenters_servers_find_by_id(datacenter_id, server_id)
+                if isinstance(server, dict):
+                    server_href = server.get('href')
+                    for nic in server.get('entities', {}).get('nics', {}).get('items', []):
+                        for ip in nic.get('properties', {}).get('ips', []):
+                            if host == ip:
+                                datacenter_id = self._parse_id_from_href(server_href, 2)
+                                server_id = self._parse_id_from_href(server_href, 0)
+                                return ionoscloud.ServersApi(self.client).datacenters_servers_find_by_id(datacenter_id, server_id)
+                else:
+                    for nic in server.entities.nics.items:
+                        for ip in nic.properties.ips:
+                            if host == ip:
+                                datacenter_id = self._parse_id_from_href(server.href, 2)
+                                server_id = self._parse_id_from_href(server.href, 0)
+                                return ionoscloud.ServersApi(self.client).datacenters_servers_find_by_id(datacenter_id, server_id)
 
         return {}
 
@@ -495,13 +517,41 @@ class IonosCloudInventory(object):
 
     def load_from_cache(self):
         """ Reads the data from the cache file and assigns it to member variables as Python Objects"""
-        data = pickle.load(open(self.cache_filename, 'rb'))
-        self.data = data['data']
-        self.inventory = data['inventory']
+        with open(self.cache_filename, 'r') as f:
+            file_mode = stat.S_IMODE(os.stat(self.cache_filename).st_mode)
+            if file_mode != 0o600:
+                sys.stderr.write('WARNING: Cache file {} has permissions {:o}, expected 600\n'.format(
+                    self.cache_filename, file_mode))
+            try:
+                cached = json.load(f)
+            except (ValueError, json.JSONDecodeError):
+                sys.stderr.write('WARNING: Cache file is not valid JSON; treating as a cache miss.\n')
+                raise
+        self.data = cached['data']
+        self.inventory = cached['inventory']
 
     def write_to_cache(self):
         """ Writes serialized data to a file """
-        pickle.dump({'data': self.data, 'inventory': self.inventory}, open(self.cache_filename, 'wb'))
+        serializable_data = {}
+        for k, v in self.data.items():
+            serializable_data[k] = [self.client.sanitize_for_serialization(item) for item in v]
+
+        serializable_inventory = {}
+        for k, v in self.inventory.items():
+            if k == '_meta':
+                serializable_inventory['_meta'] = {
+                    'hostvars': {
+                        host: self.client.sanitize_for_serialization(srv)
+                        for host, srv in v.get('hostvars', {}).items()
+                    }
+                }
+            else:
+                serializable_inventory[k] = v
+
+        cache_data = {"version": 1, "data": serializable_data, "inventory": serializable_inventory}
+        with open(self.cache_filename, 'w') as f:
+            json.dump(cache_data, f)
+        os.chmod(self.cache_filename, 0o600)
 
     def to_safe(self, string):
         """ Converts 'bad' characters in a string to underscores so they can be used as Ansible groups """
@@ -530,14 +580,22 @@ def read_password_file(password_file):
         raise Exception("The password file %s was not found" % this_path)
 
     if is_executable(this_path):
+        canonical_path = os.path.realpath(this_path)
+        if not os.path.isfile(canonical_path):
+            raise Exception("Password script path is not a regular file: %s" % canonical_path)
+        if not os.access(canonical_path, os.X_OK):
+            raise Exception("Password script is not executable: %s" % canonical_path)
         try:
             # STDERR not captured to make it easier for users to prompt for input in their scripts
-            p = subprocess.Popen(this_path, stdout=subprocess.PIPE)
+            p = subprocess.Popen([canonical_path], stdout=subprocess.PIPE)
         except OSError as e:
             raise Exception("Problem running password script %s (%s). If this is not a script, remove the executable "
-                            "bit from the file." % (this_path, e))
+                            "bit from the file." % (canonical_path, e))
         stdout, stderr = p.communicate()
-        password = stdout.strip('\r\n')
+        try:
+            password = stdout.decode('utf-8').strip()
+        except UnicodeDecodeError:
+            raise Exception("Password script output is not valid UTF-8: %s" % canonical_path)
     else:
         try:
             f = open(this_path, "rb")

@@ -1,3 +1,5 @@
+import os
+
 HAS_SDK = True
 try:
     import ionoscloud_cert_manager
@@ -220,6 +222,14 @@ ionoscloudsdk.ionoscloud.certificate:
 """
 
 
+def _validate_file_path(module, path, param_name):
+    if path is None:
+        return
+    canonical = os.path.realpath(path)
+    if not os.path.isfile(canonical):
+        module.fail_json(msg="invalid file path for parameter '%s'" % param_name)
+
+
 class CertificateModule(CommonIonosModule):
     def __init__(self) -> None:
         super().__init__()
@@ -234,6 +244,9 @@ class CertificateModule(CommonIonosModule):
     def _should_replace_object(self, existing_object, clients):
         certificate_file = self.module.params.get('certificate_file')
         certificate_chain_file = self.module.params.get('certificate_chain_file')
+
+        _validate_file_path(self.module, certificate_file, 'certificate_file')
+        _validate_file_path(self.module, certificate_chain_file, 'certificate_chain_file')
 
         certificate_chain=open(certificate_chain_file, mode='r').read() if certificate_chain_file else None
         certificate=open(certificate_file, mode='r').read() if certificate_file else None
@@ -273,6 +286,10 @@ class CertificateModule(CommonIonosModule):
         certificate_chain_file = self.module.params.get('certificate_chain_file')
         certificate_name = self.module.params.get('certificate_name')
 
+        _validate_file_path(self.module, certificate_file, 'certificate_file')
+        _validate_file_path(self.module, private_key_file, 'private_key_file')
+        _validate_file_path(self.module, certificate_chain_file, 'certificate_chain_file')
+
         certificate_chain=open(certificate_chain_file, mode='r').read() if certificate_chain_file else None
         certificate=open(certificate_file, mode='r').read()
 
@@ -290,7 +307,7 @@ class CertificateModule(CommonIonosModule):
                         name=certificate_name,
                         certificate=certificate,
                         certificate_chain=certificate_chain,
-                        private_key=open(private_key_file, mode='r').read(),
+                        private_key=open(os.path.realpath(private_key_file), mode='r').read(),
                     ),
                 ),
             )

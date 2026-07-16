@@ -5,7 +5,6 @@
 from __future__ import absolute_import, division, print_function
 
 import re
-import traceback
 
 from uuid import uuid4
 
@@ -860,7 +859,7 @@ def _update_object(module, client, datacenter_id, new_object_name, existing_obje
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
         return server_response
     except Exception as e:
-        module.fail_json(msg="failed to update the server: %s" % to_native(e), exception=traceback.format_exc())
+        module.fail_json(msg="failed to update the server: %s" % to_native(e))
 
 
 def _remove_object(module, client, datacenter_id, existing_object):
@@ -884,7 +883,7 @@ def _remove_object(module, client, datacenter_id, existing_object):
             client.wait_for_completion(request_id=request_id, timeout=wait_timeout)
     except Exception as e:
         module.fail_json(
-            msg="failed to terminate the virtual server: %s" % to_native(e), exception=traceback.format_exc(),
+            msg="failed to terminate the virtual server: %s" % to_native(e),
         )
 
 
@@ -899,8 +898,7 @@ def _remove_boot_volume(module, client, datacenter_id, server_id):
         if volume:
             server_server.datacenters_servers_volumes_delete(datacenter_id, server_id, volume.id)
     except Exception as e:
-        module.fail_json(msg="failed to remove the server's boot volume: %s" % to_native(e),
-                         exception=traceback.format_exc())
+        module.fail_json(msg="failed to remove the server's boot volume: %s" % to_native(e))
 
 
 def create_server(module, client):
@@ -943,7 +941,7 @@ def create_server(module, client):
             if (hasattr(e, 'message') and e.message.startswith('not all') or to_native(e).startswith('not all')):
                 name = '%s%%d' % name
             else:
-                module.fail_json(msg=e, exception=traceback.format_exc())
+                module.fail_json(msg=to_native(e))
 
         number_range = xrange(count_offset, count_offset + count + len(numbers))
 

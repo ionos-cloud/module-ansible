@@ -1,6 +1,7 @@
 import re
 import uuid
 
+from ansible.errors import AnsibleError
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_native
 
@@ -238,6 +239,11 @@ def check_required_arguments(module, state, object_name, options):
 # Methods used to filter info module responses #
 ################################################
 
+def _validate_filter_key_segment(segment):
+    if not re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', segment):
+        raise AnsibleError("Invalid filter key segment: '%s'" % segment)
+
+
 def get_method_from_filter(filter):
     '''
     Returns the method which check a filter for one object. Such a method would work in the following way:
@@ -254,7 +260,13 @@ def get_method_from_filter(filter):
     key, value = filter
     def method(item):
         current = item
+        _LEAF_TYPES = (str, int, float, bool, bytes, list, dict)
         for key_part in key.split('.'):
+            _validate_filter_key_segment(key_part)
+            if current is None:
+                return False
+            if isinstance(current, _LEAF_TYPES):
+                return current == value
             current = getattr(current, key_part)
         return current == value
     return method

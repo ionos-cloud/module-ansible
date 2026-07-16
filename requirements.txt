@@ -1,9 +1,9 @@
-cryptography
-PyYAML
-chevron
-ansible
+cryptography>=41.0.0
+PyYAML>=6.0
+chevron>=0.14.0
+ansible>=8.0.0
 
-ionoscloud<7
+ionoscloud>=6.0.2,<7
 ionoscloud_cert_manager>=3,<4
 ionoscloud_container_registry>=2,<3
 ionoscloud_dbaas_postgres>=3,<4

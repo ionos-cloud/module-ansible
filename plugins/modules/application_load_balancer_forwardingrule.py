@@ -3,6 +3,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+import os
 
 __metaclass__ = type
 
@@ -372,7 +373,15 @@ def get_http_rule_object(http_rule):
     return http_rule_object
 
 
-def create_certificate(certificate_manager_client, certificate_input):
+def _validate_cert_file_path(module, path, key):
+    if path is None:
+        return
+    canonical = os.path.realpath(path)
+    if not os.path.isfile(canonical):
+        module.fail_json(msg="invalid file path for certificate parameter '%s'" % key)
+
+
+def create_certificate(module, certificate_manager_client, certificate_input):
     certificate_file = certificate_input.get('certificate_file')
     private_key_file = certificate_input.get('private_key_file')
     certificate_chain_file = certificate_input.get('certificate_chain_file')
@@ -380,26 +389,30 @@ def create_certificate(certificate_manager_client, certificate_input):
     if not certificate_file and not private_key_file:
         return None
 
+    _validate_cert_file_path(module, certificate_file, 'certificate_file')
+    _validate_cert_file_path(module, private_key_file, 'private_key_file')
+    _validate_cert_file_path(module, certificate_chain_file, 'certificate_chain_file')
+
     return ionoscloud_cert_manager.CertificateApi(certificate_manager_client).certificates_post(
         ionoscloud_cert_manager.CertificateCreate(
             properties=ionoscloud_cert_manager.Certificate(
                 name=certificate_input.get('certificate_name'),
-                certificate=open(certificate_file, mode='r').read(),
-                certificate_chain=open(certificate_chain_file, mode='r').read() if certificate_chain_file else None,
-                private_key=open(private_key_file, mode='r').read(),
+                certificate=open(os.path.realpath(certificate_file), mode='r').read(),
+                certificate_chain=open(os.path.realpath(certificate_chain_file), mode='r').read() if certificate_chain_file else None,
+                private_key=open(os.path.realpath(private_key_file), mode='r').read(),
             )
         )
     )
 
 
-def create_new_certificates(new_server_certificates, certificate_manager_client):
+def create_new_certificates(module, new_server_certificates, certificate_manager_client):
     new_certificates = []
 
     if not new_server_certificates:
         return []
 
     for certificate_input in new_server_certificates:
-        new_certificate = create_certificate(certificate_manager_client, certificate_input)
+        new_certificate = create_certificate(module, certificate_manager_client, certificate_input)
 
         if new_certificate:
             new_certificates.append(new_certificate.id)
@@ -409,7 +422,7 @@ def create_new_certificates(new_server_certificates, certificate_manager_client)
 
 def get_server_certificates(module, certificate_manager_client):
     existing_certificates = module.params.get('server_certificates') if module.params.get('server_certificates') else []
-    new_certificates = create_new_certificates(module.params.get('new_server_certificates'), certificate_manager_client)
+    new_certificates = create_new_certificates(module, module.params.get('new_server_certificates'), certificate_manager_client)
 
     return new_certificates +  existing_certificates
 

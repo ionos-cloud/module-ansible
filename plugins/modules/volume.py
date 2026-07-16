@@ -4,7 +4,6 @@
 
 from __future__ import absolute_import, division, print_function
 import re
-import traceback
 
 HAS_SDK = True
 
@@ -768,7 +767,7 @@ def create_volume(module, client):
             if (hasattr(e, 'message') and e.message.startswith('not all') or to_native(e).startswith('not all')):
                 name = '%s%%d' % name
             else:
-                module.fail_json(msg=e.message, exception=traceback.format_exc())
+                module.fail_json(msg=to_native(e))
 
         number_range = xrange(count_offset, count_offset + count + len(numbers))
         available_numbers = list(set(number_range).difference(numbers))
