@@ -380,13 +380,23 @@ def create_certificate(certificate_manager_client, certificate_input):
     if not certificate_file and not private_key_file:
         return None
 
+    with open(certificate_file, mode='r') as _f:
+        certificate = _f.read()
+    if certificate_chain_file:
+        with open(certificate_chain_file, mode='r') as _f:
+            certificate_chain = _f.read()
+    else:
+        certificate_chain = None
+    with open(private_key_file, mode='r') as _f:
+        private_key = _f.read()
+
     return ionoscloud_cert_manager.CertificateApi(certificate_manager_client).certificates_post(
         ionoscloud_cert_manager.CertificateCreate(
             properties=ionoscloud_cert_manager.Certificate(
                 name=certificate_input.get('certificate_name'),
-                certificate=open(certificate_file, mode='r').read(),
-                certificate_chain=open(certificate_chain_file, mode='r').read() if certificate_chain_file else None,
-                private_key=open(private_key_file, mode='r').read(),
+                certificate=certificate,
+                certificate_chain=certificate_chain,
+                private_key=private_key,
             )
         )
     )

@@ -235,8 +235,16 @@ class CertificateModule(CommonIonosModule):
         certificate_file = self.module.params.get('certificate_file')
         certificate_chain_file = self.module.params.get('certificate_chain_file')
 
-        certificate_chain=open(certificate_chain_file, mode='r').read() if certificate_chain_file else None
-        certificate=open(certificate_file, mode='r').read() if certificate_file else None
+        if certificate_chain_file:
+            with open(certificate_chain_file, mode='r') as _f:
+                certificate_chain = _f.read()
+        else:
+            certificate_chain = None
+        if certificate_file:
+            with open(certificate_file, mode='r') as _f:
+                certificate = _f.read()
+        else:
+            certificate = None
 
         return (
             certificate is not None
@@ -273,13 +281,21 @@ class CertificateModule(CommonIonosModule):
         certificate_chain_file = self.module.params.get('certificate_chain_file')
         certificate_name = self.module.params.get('certificate_name')
 
-        certificate_chain=open(certificate_chain_file, mode='r').read() if certificate_chain_file else None
-        certificate=open(certificate_file, mode='r').read()
+        if certificate_chain_file:
+            with open(certificate_chain_file, mode='r') as _f:
+                certificate_chain = _f.read()
+        else:
+            certificate_chain = None
+        with open(certificate_file, mode='r') as _f:
+            certificate = _f.read()
 
         if existing_object is not None:
             certificate_name = existing_object.properties.certificate_name if certificate_name is None else certificate_name
             certificate_chain = existing_object.properties.certificate_chain if certificate_chain is None else certificate_chain
             certificate = existing_object.properties.certificate if certificate is None else certificate
+
+        with open(private_key_file, mode='r') as _f:
+            private_key = _f.read()
 
         certificates_api = ionoscloud_cert_manager.CertificateApi(client)
 
@@ -290,7 +306,7 @@ class CertificateModule(CommonIonosModule):
                         name=certificate_name,
                         certificate=certificate,
                         certificate_chain=certificate_chain,
-                        private_key=open(private_key_file, mode='r').read(),
+                        private_key=private_key,
                     ),
                 ),
             )

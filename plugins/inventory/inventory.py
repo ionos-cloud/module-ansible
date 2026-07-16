@@ -96,10 +96,7 @@ import argparse
 import re
 import stat
 import subprocess
-import pickle
-
-import six
-from six.moves import configparser
+import configparser
 
 try:
     import ionoscloud
@@ -133,7 +130,8 @@ class IonosCloudInventory(object):
         if not getattr(self, 'password', None) and getattr(self, 'password_file', None):
             self.password = read_password_file(self.password_file)
 
-        self.cache_filename = self.cache_path + "/ansible-ionos.pkl"
+        self.cache_path = os.path.expanduser(self.cache_path)
+        self.cache_filename = self.cache_path + "/ansible-ionos.json"
 
         # Verify credentials and create client
         if hasattr(self, 'token'):
@@ -200,12 +198,10 @@ class IonosCloudInventory(object):
     def read_settings(self):
         """ Reads the settings from the inventory.ini file """
 
-        if six.PY3:
-            config = configparser.ConfigParser()
-        else:
-            config = configparser.SafeConfigParser()
+        config = configparser.ConfigParser()
 
-        config.read(os.path.dirname(os.path.realpath(__file__)) + '/inventory.ini')
+        config_path = os.path.dirname(os.path.realpath(__file__)) + '/inventory.ini'
+        config.read(config_path)
 
         # Credentials
         if config.has_option('ionos', 'token'):
@@ -225,6 +221,18 @@ class IonosCloudInventory(object):
 
         if config.has_option('ionos', 'api_url'):
             self.api_url = config.get('ionos', 'api_url')
+
+        token = getattr(self, 'token', '')
+        username = getattr(self, 'username', '')
+        password = getattr(self, 'password', '')
+        if token or username or password:
+            file_stat = os.stat(config_path)
+            mode = file_stat.st_mode
+            if mode & (stat.S_IRGRP | stat.S_IROTH):
+                sys.stderr.write(
+                    "WARNING: credentials file %s has insecure permissions %s\n"
+                    % (os.path.abspath(config_path), oct(mode))
+                )
 
         # Cache
         if config.has_option('ionos', 'cache_path'):
@@ -495,13 +503,29 @@ class IonosCloudInventory(object):
 
     def load_from_cache(self):
         """ Reads the data from the cache file and assigns it to member variables as Python Objects"""
-        data = pickle.load(open(self.cache_filename, 'rb'))
-        self.data = data['data']
-        self.inventory = data['inventory']
+        try:
+            with open(self.cache_filename, 'r') as f:
+                data = json.loads(f.read())
+            self.data = data['data']
+            self.inventory = data['inventory']
+        except (json.JSONDecodeError, OSError):
+            raise
 
     def write_to_cache(self):
         """ Writes serialized data to a file """
-        pickle.dump({'data': self.data, 'inventory': self.inventory}, open(self.cache_filename, 'wb'))
+        cache_dir = os.path.dirname(self.cache_filename)
+        os.makedirs(cache_dir, mode=0o700, exist_ok=True)
+        tmp_path = self.cache_filename + '.tmp'
+        fd = os.open(tmp_path, os.O_CREAT | os.O_WRONLY | os.O_TRUNC, 0o600)
+        renamed = False
+        try:
+            with os.fdopen(fd, 'w') as f:
+                f.write(json.dumps({'data': self.data, 'inventory': self.inventory}))
+            os.rename(tmp_path, self.cache_filename)
+            renamed = True
+        finally:
+            if not renamed:
+                os.unlink(tmp_path)
 
     def to_safe(self, string):
         """ Converts 'bad' characters in a string to underscores so they can be used as Ansible groups """
@@ -540,9 +564,8 @@ def read_password_file(password_file):
         password = stdout.strip('\r\n')
     else:
         try:
-            f = open(this_path, "rb")
-            password = f.read().strip()
-            f.close()
+            with open(this_path, "rb") as f:
+                password = f.read().strip()
         except (OSError, IOError) as e:
             raise Exception("Could not read password file %s: %s" % (this_path, e))
 
