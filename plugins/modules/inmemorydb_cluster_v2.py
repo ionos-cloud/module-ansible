@@ -908,5 +908,5 @@ class InMemoryDBClusterV2Module(CommonIonosModule):
 if __name__ == '__main__':
     ionos_module = InMemoryDBClusterV2Module()
     if not HAS_SDK:
-        ionos_module.module.fail_json(msg='ionoscloud and ionoscloud_dbaas_inmemorydb is required for this module, run `pip install ionoscloud ionoscloud_dbaas_inmemorydb`')
+        ionos_module.module.fail_json(msg='ionoscloud and ionoscloud_dbaas_inmemorydb are required for this module, run `pip install ionoscloud ionoscloud_dbaas_inmemorydb`')
     ionos_module.main()
