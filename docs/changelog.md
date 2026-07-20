@@ -1,5 +1,9 @@
 # Changelog
 
+## 7.9.0
+### Features
+* added new DBaaS In-Memory DB v2 modules `inmemorydb_cluster_v2`, `inmemorydb_cluster_v2_info`, `inmemorydb_snapshot_v2_info`, `inmemorydb_snapshot_location_v2_info` and `inmemorydb_version_v2_info`
+
 ## 7.8.0
 ### Features
 * added new DBaaS PostgreSQL v2 modules `postgres_cluster_v2`, `postgres_cluster_v2_info`, `postgres_backup_v2_info`, `postgres_backup_location_v2_info` and `postgres_version_v2_info`

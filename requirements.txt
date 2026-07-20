@@ -9,6 +9,7 @@ ionoscloud_container_registry>=2,<3
 ionoscloud_dbaas_postgres>=3,<4
 ionoscloud_dbaas_mongo<2
 ionoscloud_dbaas_mariadb>=2,<3
+ionoscloud_dbaas_inmemorydb>=1,<2
 ionoscloud_dns>=2,<3
 ionoscloud_logging>=2,<3
 ionoscloud_object_storage_management>=2,<3

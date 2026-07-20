@@ -114,6 +114,8 @@ jobs:
             keywords: "k8s, k8s-cluster-nodepool, k8s_nodepool"
           - namespace: dbaas-mariadb
             keywords: "mariadb"
+          - namespace: dbaas-in-memory-db
+            keywords: "inmemorydb"
           - namespace: natgateway
             keywords: "nat"
           - namespace: networkloadbalancer

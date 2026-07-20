@@ -1,0 +1,409 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  vars:
+    # DBaaS In-Memory DB v2 is regional: pick the region with `location` (selects the API host).
+    # Set `api_url` instead to point at a specific endpoint/proxy and override location.
+    inmemorydb_location: "de/fra"
+    inmemorydb_dc_location: "de/fra"
+    # snapshot_location is an Object Storage location id from the
+    # inmemorydb_snapshot_location_v2_info module, NOT a datacenter region. The
+    # "List Snapshot Locations" task below prints the valid values for this region.
+    # For de-fra the supported values are: eu-central-3, eu-central-4, us-central-1.
+    inmemorydb_snapshot_location: "eu-central-3"
+    # version must be one of the versions returned by inmemorydb_version_v2_info
+    # (printed by the "List Versions" task below). Currently supported: 8.0, 8.1, 9.0.
+    inmemorydb_version: "9.0"
+    inmemorydb_cluster_name: "ansible-test-v2"
+    # DBaaS scale operations (add instance + resize) can take well over 10 min;
+    # the module default wait_timeout (600s) is too short for them.
+    inmemorydb_wait_timeout: 3600
+    inmemorydb_maintenance_window:
+      time: "16:30:00"
+      day_of_the_week: "Sunday"
+    # The API requires a PRE-HASHED password: the 64-char lowercase SHA-256 hex of the
+    # plaintext. The value below is sha256("7357Cluster!x"); regenerate with e.g.
+    #   python3 -c "import hashlib;print(hashlib.sha256(b'<your-password>').hexdigest())"
+    inmemorydb_db_username: "clusteruser"
+    inmemorydb_db_password_hash: "fe3c3b9221b6a430b0e5db2670f254b753616532406b9f1e874d3bd5ce46f109"
+
+  tasks:
+
+  - name: Create datacenter
+    ionoscloudsdk.ionoscloud.datacenter:
+      name: "{{ datacenter }} - InMemoryDB v2"
+      location: "{{ inmemorydb_dc_location }}"
+    register: datacenter_response
+
+  - name: Provision a server
+    ionoscloudsdk.ionoscloud.server:
+      datacenter: "{{ datacenter }} - InMemoryDB v2"
+      name: "{{ name }}"
+      cores: 1
+      ram: 2048
+      availability_zone: ZONE_1
+      volume_availability_zone: ZONE_3
+      volume_size: 10
+      cpu_family: INTEL_SKYLAKE
+      disk_type: HDD
+      image: "{{ image_alias }}"
+      image_password: "{{ password }}"
+      location: "{{ inmemorydb_dc_location }}"
+      count: 1
+      assign_public_ip: true
+      remove_boot_volume: true
+      wait: true
+      wait_timeout: "{{ wait_timeout }}"
+      state: present
+    register: server_response
+
+  - name: Create private LAN
+    ionoscloudsdk.ionoscloud.lan:
+      datacenter: "{{ datacenter }} - InMemoryDB v2"
+      name: "test_lan1"
+      public: false
+    register: lan_response1
+
+  - name: Create NIC on the private LAN
+    ionoscloudsdk.ionoscloud.nic:
+      name: "test_nic1"
+      datacenter: "{{ datacenter }} - InMemoryDB v2"
+      server: "{{ server_response.machines[0].id }}"
+      lan: "{{ lan_response1.lan.id }}"
+      wait: true
+      wait_timeout: "{{ wait_timeout }}"
+      state: present
+    register: nic_response1
+
+  - name: List Snapshot Locations (pick a valid snapshot_location from here)
+    ionoscloudsdk.ionoscloud.inmemorydb_snapshot_location_v2_info:
+      location: "{{ inmemorydb_location }}"
+    register: inmemorydb_snapshot_locations_response
+
+  - name: Show available snapshot locations
+    ansible.builtin.debug:
+      var: inmemorydb_snapshot_locations_response.inmemorydb_snapshot_locations
+
+  - name: List In-Memory DB Versions
+    ionoscloudsdk.ionoscloud.inmemorydb_version_v2_info:
+      location: "{{ inmemorydb_location }}"
+    register: inmemorydb_versions_response
+
+  - name: Show available In-Memory DB versions
+    ansible.builtin.debug:
+      var: inmemorydb_versions_response.inmemorydb_versions
+
+  - name: Create Cluster
+    ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
+      location: "{{ inmemorydb_location }}"
+      version: "{{ inmemorydb_version }}"
+      instances: 1
+      cores: 1
+      ram: 4
+      connection:
+        datacenter: "{{ datacenter }} - InMemoryDB v2"
+        lan: "test_lan1"
+        primary_instance_address: 192.168.1.101/24
+      name: "{{ inmemorydb_cluster_name }}"
+      eviction_policy: noeviction
+      persistence_mode: RDB
+      maintenance_window: "{{ inmemorydb_maintenance_window }}"
+      snapshot_location: "{{ inmemorydb_snapshot_location }}"
+      snapshot_retention_days: 7
+      snapshot_hours:
+        - 2
+      db_username: "{{ inmemorydb_db_username }}"
+      db_password_hash: "{{ inmemorydb_db_password_hash }}"
+      wait: true
+      wait_timeout: "{{ inmemorydb_wait_timeout }}"
+    register: cluster_response
+
+  # state=present requires db_username/db_password_hash (module arg-spec), and supplying
+  # credentials always (re)applies them (the API never returns the hash to compare) — so a
+  # second present run with the same config still reports changed=true. present is therefore
+  # NOT idempotent while credentials are required on it; the idempotent no-change path is
+  # state=update with credentials omitted (see "Update Cluster No change" further down).
+  - name: Create Cluster re-run (present re-applies credentials -> changed)
+    ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
+      location: "{{ inmemorydb_location }}"
+      version: "{{ inmemorydb_version }}"
+      instances: 1
+      cores: 1
+      ram: 4
+      connection:
+        datacenter: "{{ datacenter }} - InMemoryDB v2"
+        lan: "test_lan1"
+        primary_instance_address: 192.168.1.101/24
+      name: "{{ inmemorydb_cluster_name }}"
+      eviction_policy: noeviction
+      persistence_mode: RDB
+      maintenance_window: "{{ inmemorydb_maintenance_window }}"
+      snapshot_location: "{{ inmemorydb_snapshot_location }}"
+      snapshot_retention_days: 7
+      snapshot_hours:
+        - 2
+      db_username: "{{ inmemorydb_db_username }}"
+      db_password_hash: "{{ inmemorydb_db_password_hash }}"
+      wait: true
+      wait_timeout: "{{ inmemorydb_wait_timeout }}"
+    register: cluster_response_no_change
+
+  - name: Asserting that a present re-run with credentials reports changed
+    assert:
+      that:
+        - cluster_response_no_change.changed == true
+      msg: "present re-run re-applies the required credentials, so changed should be true"
+
+  - name: List In-Memory DB Snapshots (all)
+    ionoscloudsdk.ionoscloud.inmemorydb_snapshot_v2_info:
+      location: "{{ inmemorydb_location }}"
+    register: inmemorydb_snapshot_response
+
+  - name: List In-Memory DB Snapshots for this cluster
+    ionoscloudsdk.ionoscloud.inmemorydb_snapshot_v2_info:
+      location: "{{ inmemorydb_location }}"
+      inmemorydb_cluster: "{{ inmemorydb_cluster_name }}"
+    register: inmemorydb_snapshot_response_filtered
+
+  # ===================================================================================
+  # EXPERIMENT — credentials on update (PUT). Read the cluster back after each step so the
+  # outputs can be compared: (0) after create, (1) after resetting user+password, (2) after
+  # omitting credentials.
+  # NOTE: the API NEVER returns the password hash (write-only), so 'credentials' in the info
+  # output only ever shows the username — a password rotation is NOT visible here. The only way
+  # to prove the password actually changed is a data-plane auth (redis-cli) from inside the DC.
+  # Each update also changes one non-credential field, because the module cannot detect a
+  # credential-only change and would otherwise report changed=false (no PUT sent).
+  # ===================================================================================
+
+  # ---------- (0) info after CREATE ----------
+  - name: List In-Memory DB Clusters (after CREATE)
+    ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2_info:
+      location: "{{ inmemorydb_location }}"
+    register: info_after_create
+
+  - name: Select this cluster (after CREATE)
+    ansible.builtin.set_fact:
+      cluster_after_create: "{{ info_after_create.inmemorydb_clusters | selectattr('id', 'equalto', cluster_response.inmemorydb_cluster.id) | first }}"
+
+  - name: Show cluster properties after CREATE
+    ansible.builtin.debug:
+      var: cluster_after_create.properties
+
+  # ---------- (1) update: reset user + password (rotate the hash) ----------
+  # Scale 1/1/4 -> 2/2/6 to force the PUT that carries the rotated credentials.
+  # Rotated hash below = sha256("7357Cluster!y").
+  - name: Update Cluster (reset user + password)
+    ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
+      location: "{{ inmemorydb_location }}"
+      inmemorydb_cluster: "{{ cluster_response.inmemorydb_cluster.id }}"
+      instances: 2
+      cores: 2
+      ram: 6
+      db_username: "{{ inmemorydb_db_username }}"
+      db_password_hash: "6d9271bfab11c908e51e898061e3ca16a970bc7ab8a4671c15cdf6ae4e9167f5"
+      state: update
+      wait: true
+      wait_timeout: "{{ inmemorydb_wait_timeout }}"
+    register: updated_cluster_response_reset
+
+  - name: List In-Memory DB Clusters (after PASSWORD RESET)
+    ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2_info:
+      location: "{{ inmemorydb_location }}"
+    register: info_after_reset
+
+  - name: Select this cluster (after PASSWORD RESET)
+    ansible.builtin.set_fact:
+      cluster_after_reset: "{{ info_after_reset.inmemorydb_clusters | selectattr('id', 'equalto', cluster_response.inmemorydb_cluster.id) | first }}"
+
+  - name: Show cluster properties after PASSWORD RESET
+    ansible.builtin.debug:
+      var: cluster_after_reset.properties
+
+  # ---------- (2) update: omit credentials entirely ----------
+  # db_username/db_password_hash omitted ON PURPOSE to verify the API leaves the existing user
+  # unchanged on a PUT. Change snapshot_retention_days (7 -> 14) to force the PUT without any
+  # credentials. If this fails with a credentials/validation error they ARE required and the
+  # module should re-instate required=['present','update','restore'].
+  - name: Update Cluster (omit credentials)
+    ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
+      location: "{{ inmemorydb_location }}"
+      inmemorydb_cluster: "{{ cluster_response.inmemorydb_cluster.id }}"
+      instances: 2
+      cores: 2
+      ram: 6
+      snapshot_retention_days: 14
+      state: update
+      wait: true
+      wait_timeout: "{{ inmemorydb_wait_timeout }}"
+    register: updated_cluster_response
+
+  - name: Asserting that the credential-less update succeeded and changed the cluster
+    assert:
+      that:
+        - updated_cluster_response.changed == true
+      msg: "The update omitting credentials should have succeeded and reported changed=true"
+
+  - name: List In-Memory DB Clusters (after OMIT credentials)
+    ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2_info:
+      location: "{{ inmemorydb_location }}"
+    register: info_after_omit
+
+  - name: Select this cluster (after OMIT credentials)
+    ansible.builtin.set_fact:
+      cluster_after_omit: "{{ info_after_omit.inmemorydb_clusters | selectattr('id', 'equalto', cluster_response.inmemorydb_cluster.id) | first }}"
+
+  - name: Show cluster properties after OMIT credentials
+    ansible.builtin.debug:
+      var: cluster_after_omit.properties
+
+  - name: Assert the user survived every update (username unchanged, user not removed)
+    assert:
+      that:
+        - cluster_after_omit.properties.credentials.username == inmemorydb_db_username
+      msg: "The user was removed or renamed by an update"
+
+  - name: Update Cluster No change (also without credentials)
+    ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
+      location: "{{ inmemorydb_location }}"
+      inmemorydb_cluster: "{{ cluster_response.inmemorydb_cluster.id }}"
+      instances: 2
+      cores: 2
+      ram: 6
+      snapshot_retention_days: 14
+      state: update
+      wait: true
+    register: updated_cluster_response_no_change
+
+  - name: Asserting that changed == false when no update is made
+    assert:
+      that:
+        - updated_cluster_response_no_change.changed == false
+      msg: "Changed should be false"
+
+  # ---------- (3) update: credentials ONLY, no other field changed ----------
+  # Supplying credentials must trigger the update on its own (the hash can't be compared),
+  # so this reports changed=true even though nothing else changed. This is the intended
+  # "set the password whenever it is provided" behaviour.
+  - name: Update Cluster (credentials only -> should be changed)
+    ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
+      location: "{{ inmemorydb_location }}"
+      inmemorydb_cluster: "{{ cluster_response.inmemorydb_cluster.id }}"
+      db_username: "{{ inmemorydb_db_username }}"
+      db_password_hash: "{{ inmemorydb_db_password_hash }}"
+      state: update
+      wait: true
+      wait_timeout: "{{ inmemorydb_wait_timeout }}"
+    register: updated_cluster_response_creds_only
+
+  - name: Asserting that supplying credentials alone triggers an update
+    assert:
+      that:
+        - updated_cluster_response_creds_only.changed == true
+      msg: "Supplying credentials alone should trigger an update (changed=true)"
+
+  # ---------- (4) partial credentials are rejected CLIENT-SIDE (both must be supplied) ----------
+  # The API requires a complete credentials block, so the module fails fast when only one of
+  # db_username / db_password_hash is given — no wasted API call. ignore_errors + assert each
+  # partial attempt is rejected with the "must be supplied together" message.
+  - name: "Partial creds: db_password_hash only (must be rejected)"
+    ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
+      location: "{{ inmemorydb_location }}"
+      inmemorydb_cluster: "{{ cluster_response.inmemorydb_cluster.id }}"
+      db_password_hash: "{{ inmemorydb_db_password_hash }}"
+      state: update
+      wait: true
+      wait_timeout: "{{ inmemorydb_wait_timeout }}"
+    register: probe_hash_only
+    ignore_errors: true
+
+  - name: "Assert db_password_hash-only is rejected client-side"
+    assert:
+      that:
+        - probe_hash_only.failed
+        - "'must be supplied together' in probe_hash_only.msg"
+      msg: "supplying only db_password_hash should be rejected with 'must be supplied together'"
+
+  - name: "Partial creds: db_username only (must be rejected)"
+    ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
+      location: "{{ inmemorydb_location }}"
+      inmemorydb_cluster: "{{ cluster_response.inmemorydb_cluster.id }}"
+      db_username: "{{ inmemorydb_db_username }}"
+      state: update
+      wait: true
+      wait_timeout: "{{ inmemorydb_wait_timeout }}"
+    register: probe_user_only
+    ignore_errors: true
+
+  - name: "Assert db_username-only is rejected client-side"
+    assert:
+      that:
+        - probe_user_only.failed
+        - "'must be supplied together' in probe_user_only.msg"
+      msg: "supplying only db_username should be rejected with 'must be supplied together'"
+
+  # In-place restore recovers the cluster from its own snapshots at recovery_target_time.
+  # It needs an existing snapshot and a target time inside the recoverable window, so it is
+  # left commented out to keep the run deterministic. To try it, pick a time from
+  # inmemorydb_snapshot_response_filtered (earliest/latest recovery target time) and uncomment:
+  #
+  # - name: Restore Cluster (in-place)
+  #   ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
+  #     location: "{{ inmemorydb_location }}"
+  #     inmemorydb_cluster: "{{ cluster_response.inmemorydb_cluster.id }}"
+  #     recovery_target_time: "2026-07-08T13:00:00Z"
+  #     db_username: "{{ inmemorydb_db_username }}"
+  #     db_password_hash: "{{ inmemorydb_db_password_hash }}"
+  #     state: restore
+  #     wait: true
+
+  - name: Delete Cluster (async)
+    ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
+      location: "{{ inmemorydb_location }}"
+      inmemorydb_cluster: "{{ cluster_response.inmemorydb_cluster.id }}"
+      state: absent
+      wait: false
+
+  - name: Delete Cluster (wait)
+    ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
+      location: "{{ inmemorydb_location }}"
+      inmemorydb_cluster: "{{ cluster_response.inmemorydb_cluster.id }}"
+      state: absent
+      wait: true
+      wait_timeout: "{{ inmemorydb_wait_timeout }}"
+
+  - name: Remove NIC
+    ionoscloudsdk.ionoscloud.nic:
+      nic: "test_nic1"
+      datacenter: "{{ datacenter }} - InMemoryDB v2"
+      server: "{{ server_response.machines[0].id }}"
+      wait: true
+      wait_timeout: "{{ wait_timeout }}"
+      state: absent
+
+  - name: Remove server
+    ionoscloudsdk.ionoscloud.server:
+      datacenter: "{{ datacenter }} - InMemoryDB v2"
+      instance_ids:
+        - "{{ server_response.machines[0].id }}"
+      remove_boot_volume: yes
+      wait_timeout: "{{ wait_timeout }}"
+      wait: true
+      state: absent
+
+  - name: Remove LAN
+    ionoscloudsdk.ionoscloud.lan:
+      datacenter: "{{ datacenter }} - InMemoryDB v2"
+      lan: "test_lan1"
+      state: absent
+      wait: true
+
+  - name: Remove datacenter
+    ionoscloudsdk.ionoscloud.datacenter:
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      state: absent
+      wait: true

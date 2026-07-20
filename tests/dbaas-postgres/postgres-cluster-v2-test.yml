@@ -195,18 +195,50 @@
         - updated_cluster_response_no_change.changed == false
       msg: "Changed should be false"
 
-  # In-place restore replays the cluster's own backups up to recovery_target_time.
-  # It needs an existing backup and a target time inside the recoverable window, so it is
-  # left commented out to keep the run deterministic. To try it, pick a time from
-  # postgres_backup_response_filtered (earliest/latest recovery target time) and uncomment:
-  #
-  # - name: Restore Cluster (in-place)
-  #   ionoscloudsdk.ionoscloud.postgres_cluster_v2:
-  #     location: "{{ postgres_location }}"
-  #     postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
-  #     recovery_target_time: "2026-06-08T13:00:00Z"
-  #     state: restore
-  #     wait: true
+  # In-place restore (point-in-time recovery) replays the cluster's own backups up to
+  # recovery_target_time. It is made deterministic by (1) polling until a backup exposes a
+  # recovery window (earliest_recovery_target_time is only populated once a base backup
+  # completes) and (2) restoring to that earliest recoverable point, which is by definition
+  # inside the window. latest_recovery_target_time is null for a fresh cluster (recoverable
+  # up to "now"), so it is dropped from the info response and not usable as a fixed target.
+  # state=restore also requires the master DB credentials: they are re-sent on the PUT and
+  # cannot be read back from the API, so db_username/db_password/db_database are mandatory.
+  - name: Wait until a backup exposes a recovery window
+    ionoscloudsdk.ionoscloud.postgres_backup_v2_info:
+      location: "{{ postgres_location }}"
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+    register: postgres_pitr_backups
+    until: >-
+      (postgres_pitr_backups.postgres_backups
+       | selectattr('properties.earliest_recovery_target_time', 'defined')
+       | list | length) > 0
+    retries: 30
+    delay: 20
+
+  - name: Pick the earliest recoverable point (guaranteed inside the window)
+    ansible.builtin.set_fact:
+      postgres_recovery_target_time: >-
+        {{ postgres_pitr_backups.postgres_backups
+           | selectattr('properties.earliest_recovery_target_time', 'defined')
+           | map(attribute='properties.earliest_recovery_target_time')
+           | list | first }}
+
+  - name: Show chosen recovery target time
+    ansible.builtin.debug:
+      var: postgres_recovery_target_time
+
+  - name: Restore Cluster (in-place)
+    ionoscloudsdk.ionoscloud.postgres_cluster_v2:
+      location: "{{ postgres_location }}"
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      recovery_target_time: "{{ postgres_recovery_target_time }}"
+      db_username: clusteruser
+      db_password: 7357Cluster!x
+      db_database: testdb
+      state: restore
+      wait: true
+      wait_timeout: "{{ postgres_wait_timeout }}"
+    register: restored_cluster_response
 
   - name: Delete Cluster (async)
     ionoscloudsdk.ionoscloud.postgres_cluster_v2:

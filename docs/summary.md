@@ -157,6 +157,14 @@
   * Info Modules
     * [MariaDB Clusters](api/dbaas-mariadb/mariadb_cluster_info.md)
     * [MariaDB Cluster Backups](api/dbaas-mariadb/mariadb_backup_info.md)
+* DBaaS In-Memory DB
+  * Modules
+    * [In-Memory DB Cluster (v2)](api/dbaas-in-memory-db/inmemorydb_cluster_v2.md)
+  * Info Modules
+    * [In-Memory DB Clusters (v2)](api/dbaas-in-memory-db/inmemorydb_cluster_v2_info.md)
+    * [In-Memory DB Cluster Snapshots (v2)](api/dbaas-in-memory-db/inmemorydb_snapshot_v2_info.md)
+    * [In-Memory DB Snapshot Locations (v2)](api/dbaas-in-memory-db/inmemorydb_snapshot_location_v2_info.md)
+    * [In-Memory DB Versions (v2)](api/dbaas-in-memory-db/inmemorydb_version_v2_info.md)
 * Managed Backup
   * Modules
     * [Backup Unit](api/managed-backup/backupunit.md)
