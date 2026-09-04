@@ -7,10 +7,10 @@ This is a simple module that supports listing existing In-Memory DB Clusters usi
 
 ```yaml
 
-name: List In-Memory DB Clusters
+name: List In-Memory DB Clusters (after CREATE)
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2_info:
-  location: ''
-register: inmemorydb_clusters_response
+  location: 'de/fra'
+register: info_after_create
 
 ```
 

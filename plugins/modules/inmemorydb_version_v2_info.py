@@ -97,7 +97,7 @@ author:
 EXAMPLES = """
 name: List In-Memory DB Versions
 ionoscloudsdk.ionoscloud.inmemorydb_version_v2_info:
-  location: ''
+  location: 'de/fra'
 register: inmemorydb_versions_response
 """
 

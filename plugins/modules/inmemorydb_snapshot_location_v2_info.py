@@ -95,9 +95,9 @@ author:
 """
 
 EXAMPLES = """
-name: List In-Memory DB Snapshot Locations
+name: List Snapshot Locations (pick a valid snapshot_location from here)
 ionoscloudsdk.ionoscloud.inmemorydb_snapshot_location_v2_info:
-  location: ''
+  location: 'de/fra'
 register: inmemorydb_snapshot_locations_response
 """
 

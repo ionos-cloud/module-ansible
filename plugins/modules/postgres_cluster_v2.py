@@ -33,7 +33,7 @@ RETURNED_KEY = 'postgres_cluster'
 
 OPTIONS = {
     'maintenance_window': {
-        'description': ['A weekly 4 hour-long window, during which maintenance might occur. A dict with keys `time` (start of the maintenance window in UTC, e.g. "16:30:00") and `day_of_the_week` (e.g. "Sunday").'],
+        'description': ['A weekly 4 hour-long window, during which maintenance might occur.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'dict',
@@ -79,7 +79,7 @@ OPTIONS = {
         'type': 'dict',
     },
     'replication_mode': {
-        'description': ['Defines the replication mode across instances. - `ASYNCHRONOUS`: Propagates updates to other instances without waiting for confirmation. Offers higher performance but may result in temporary data inconsistencies during replication delays. - `STRICTLY_SYNCHRONOUS`: Only supported for clusters with at least 3 instances. Requires all instances to acknowledge the update before it is committed, guaranteeing strong consistency at the cost of potential performance impact in high-latency environments.'],
+        'description': ['Defines the replication mode across instances.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'choices_docs': ['ASYNCHRONOUS', 'STRICTLY_SYNCHRONOUS'],
@@ -92,50 +92,50 @@ OPTIONS = {
         'type': 'str',
     },
     'db_username': {
-        'description': ['The username of the master database user. Must be 16 characters or less and must include only alphanumeric characters (`[A-Za-z0-9_]`) and underscores (`_`).'],
+        'description': ['The username of the database user to create or update. Must be 16 characters or less and must include only alphanumeric characters (`[A-Za-z0-9_]`) and underscores (`_`).'],
         'available': ['present', 'update', 'restore'],
         'required': ['present', 'update', 'restore'],
         'type': 'str',
         'no_log': True,
     },
     'db_password': {
-        'description': ['The password for the master database user. Must meet the following requirements: - At least 8 characters long. - Contains at least one lowercase letter. - Contains at least one uppercase letter. - Contains at least one digit (0-9). - Contains at least one special character from the set: @$!%*?&'],
+        'description': ['The password for the database user. Must be between 8 and 256 characters long. For a strong password we recommend that it also meets the following criteria, though these are not enforced: - Contains at least one lowercase letter. - Contains at least one uppercase letter. - Contains at least one digit (0-9). - Contains at least one special character from the set: @$!%*?&'],
         'available': ['present', 'update', 'restore'],
         'required': ['present', 'update', 'restore'],
         'type': 'str',
         'no_log': True,
     },
     'db_database': {
-        'description': ['The name of the initial database to be created. Must be 63 characters or less and must include only alphanumeric characters (`[a-z0-9A-Z]`) and underscores (`_`).'],
+        'description': ['The name of the database to create and grant the user access to. Must be 63 characters or less and must include only alphanumeric characters (`[a-z0-9A-Z]`) and underscores (`_`).'],
         'available': ['present', 'update', 'restore'],
         'required': ['present', 'update', 'restore'],
         'type': 'str',
     },
     'connection_pooler': {
-        'description': ['Defines how database connections are managed and reused. Default value is DISABLED. DISABLED: No connection pooling is used. Each request opens a new connection, which is closed immediately after use. It ensures isolation but may impact performance due to frequent connection setup and teardown. TRANSACTION: Connections are pooled and reused for the duration of a transaction. Once the transaction completes, the connection is returned to the pool. This mode balances efficiency with transactional integrity. SESSION: Connections are retained for the entire session and reused across multiple transactions. Offers the highest performance by minimizing connection overhead, but may tie up resources longer.'],
+        'description': ['Defines how database connections are managed and reused. Default value is `DISABLED`.'],
         'available': ['present', 'update'],
         'choices_docs': ['DISABLED', 'TRANSACTION', 'SESSION'],
         'type': 'str',
     },
     'backup_location': {
-        'description': ['The Object Storage location where the backup will be created. The BackupLocations provides a list of supported locations.'],
+        'description': ['The Object Storage location where the backup is created. The BackupLocations operations provide a list of supported locations.'],
         'available': ['present'],
         'required': ['present'],
         'type': 'str',
     },
     'backup_retention_days': {
-        'description': ['Configures how many days cluster backups are retained.'],
+        'description': ['The number of days cluster backups are retained. Accepted values are 1 to 365. Pre-existing clusters default to 7 days. If you reduce this value, backups older than the new window are purged.'],
         'available': ['present', 'update'],
         'required': ['present'],
         'type': 'int',
     },
     'logs_enabled': {
-        'description': ['Allows or disallows the collection and reporting of logs for this cluster\'s observability. If the observability service is not activated on the contract, this setting is accepted but has no effect; log collection will not be enabled until the observability service is activated.'],
+        'description': ['Activates or deactivates the collection and reporting of logs for this cluster\'s observability. If the observability service is not activated on the contract, this setting is accepted but has no effect. Log collection does not start until the observability service is active.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
     'metrics_enabled': {
-        'description': ['Allows or disallows the collection and reporting of metrics for this cluster\'s observability. If the observability service is not activated on the contract, this setting is accepted but has no effect; metric collection will not be enabled until the observability service is activated.'],
+        'description': ['Activates or deactivates the collection and reporting of metrics for this cluster\'s observability. If the observability service is not activated on the contract, this setting is accepted but has no effect. Metric collection does not start until the observability service is active.'],
         'available': ['present', 'update'],
         'type': 'bool',
     },
@@ -178,14 +178,6 @@ description:
        I(api_url) overrides the base API URL globally (for a proxy/test endpoint, not for region selection).
 version_added: "2.0"
 options:
-    location:
-        description:
-        - 'The location (region) in which the cluster will be created. Different service
-            endpoints are used based on location, possible options are: "de/fra", "de/txl",
-            "es/vit", "fr/par", "gb/lhr", "gb/bhx", "us/ewr", "us/las", "us/mci". If not
-            set, the endpoint will be the one corresponding to "de/txl". The api_url, if
-            set, overrides this.'
-        required: false
     allow_replace:
         default: false
         description:
@@ -207,12 +199,14 @@ options:
         required: false
     backup_location:
         description:
-        - The Object Storage location where the backup will be created. The BackupLocations
-            provides a list of supported locations.
+        - The Object Storage location where the backup is created. The BackupLocations
+            operations provide a list of supported locations.
         required: false
     backup_retention_days:
         description:
-        - Configures how many days cluster backups are retained.
+        - The number of days cluster backups are retained. Accepted values are 1 to 365.
+            Pre-existing clusters default to 7 days. If you reduce this value, backups
+            older than the new window are purged.
         required: false
     certificate_fingerprint:
         description:
@@ -231,15 +225,7 @@ options:
         - TRANSACTION
         - SESSION
         description:
-        - 'Defines how database connections are managed and reused. Default value is DISABLED.
-            DISABLED: No connection pooling is used. Each request opens a new connection,
-            which is closed immediately after use. It ensures isolation but may impact
-            performance due to frequent connection setup and teardown. TRANSACTION: Connections
-            are pooled and reused for the duration of a transaction. Once the transaction
-            completes, the connection is returned to the pool. This mode balances efficiency
-            with transactional integrity. SESSION: Connections are retained for the entire
-            session and reused across multiple transactions. Offers the highest performance
-            by minimizing connection overhead, but may tie up resources longer.'
+        - Defines how database connections are managed and reused. Default value is `DISABLED`.
         required: false
     cores:
         description:
@@ -247,48 +233,55 @@ options:
         required: false
     db_database:
         description:
-        - The name of the initial database to be created. Must be 63 characters or less
-            and must include only alphanumeric characters (`[a-z0-9A-Z]`) and underscores
-            (`_`).
+        - The name of the database to create and grant the user access to. Must be 63
+            characters or less and must include only alphanumeric characters (`[a-z0-9A-Z]`)
+            and underscores (`_`).
         required: false
     db_password:
         description:
-        - 'The password for the master database user. Must meet the following requirements:
-            - At least 8 characters long. - Contains at least one lowercase letter. -
+        - 'The password for the database user. Must be between 8 and 256 characters long.
+            For a strong password we recommend that it also meets the following criteria,
+            though these are not enforced: - Contains at least one lowercase letter. -
             Contains at least one uppercase letter. - Contains at least one digit (0-9).
             - Contains at least one special character from the set: @$!%*?&'
         no_log: true
         required: false
     db_username:
         description:
-        - The username of the master database user. Must be 16 characters or less and
-            must include only alphanumeric characters (`[A-Za-z0-9_]`) and underscores
-            (`_`).
+        - The username of the database user to create or update. Must be 16 characters
+            or less and must include only alphanumeric characters (`[A-Za-z0-9_]`) and
+            underscores (`_`).
         no_log: true
         required: false
     instances:
         description:
         - The total number of instances in the cluster (one primary and n-1 secondary).
         required: false
+    location:
+        description:
+        - 'The location (region) in which the cluster will be created. Different service
+            endpoints are used based on location, possible options are: "de/fra", "de/txl",
+            "es/vit", "fr/par", "gb/lhr", "gb/bhx", "us/ewr", "us/las", "us/mci". If not
+            set, the endpoint will be the one corresponding to "de/txl". The api_url,
+            if set, overrides this.'
+        required: false
     logs_enabled:
         description:
-        - Allows or disallows the collection and reporting of logs for this cluster's
+        - Activates or deactivates the collection and reporting of logs for this cluster's
             observability. If the observability service is not activated on the contract,
-            this setting is accepted but has no effect; log collection will not be enabled
-            until the observability service is activated.
+            this setting is accepted but has no effect. Log collection does not start
+            until the observability service is active.
         required: false
     maintenance_window:
         description:
-        - A weekly 4 hour-long window, during which maintenance might occur. A dict with
-            keys `time` (start of the maintenance window in UTC, e.g. "16:30:00") and
-            `day_of_the_week` (e.g. "Sunday").
+        - A weekly 4 hour-long window, during which maintenance might occur.
         required: false
     metrics_enabled:
         description:
-        - Allows or disallows the collection and reporting of metrics for this cluster's
+        - Activates or deactivates the collection and reporting of metrics for this cluster's
             observability. If the observability service is not activated on the contract,
-            this setting is accepted but has no effect; metric collection will not be
-            enabled until the observability service is activated.
+            this setting is accepted but has no effect. Metric collection does not start
+            until the observability service is active.
         required: false
     name:
         description:
@@ -326,13 +319,7 @@ options:
         - ASYNCHRONOUS
         - STRICTLY_SYNCHRONOUS
         description:
-        - 'Defines the replication mode across instances. - `ASYNCHRONOUS`: Propagates
-            updates to other instances without waiting for confirmation. Offers higher
-            performance but may result in temporary data inconsistencies during replication
-            delays. - `STRICTLY_SYNCHRONOUS`: Only supported for clusters with at least
-            3 instances. Requires all instances to acknowledge the update before it is
-            committed, guaranteeing strong consistency at the cost of potential performance
-            impact in high-latency environments.'
+        - Defines the replication mode across instances.
         required: false
     state:
         choices:
@@ -386,7 +373,7 @@ EXAMPLE_PER_STATE = {
     'present': '''
 name: Create Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster_v2:
-  location: ''
+  location: 'de/fra'
   postgres_version: '16'
   instances: 1
   cores: 1
@@ -396,47 +383,53 @@ ionoscloudsdk.ionoscloud.postgres_cluster_v2:
     datacenter: 'AnsibleAutoTestDBaaS - DBaaS v2'
     lan: test_lan1
     primary_instance_address: 192.168.1.101/24
-  name: ''
+  name: 'ansible-test-v2'
   replication_mode: ASYNCHRONOUS
   maintenance_window: ''
-  backup_location: ''
+  backup_location: 'eu-central-3'
   backup_retention_days: 7
   db_username: clusteruser
-  db_password: 7357Cluster!x
+  db_password: ''
   db_database: testdb
   wait: true
-  wait_timeout: ''
+  wait_timeout: '3600'
 register: cluster_response
 ''',
     'update': '''
 name: Update Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster_v2:
-  location: ''
+  location: 'de/fra'
   postgres_cluster: ''
   instances: 2
   cores: 2
   ram: 6
   storage_size: 20
   db_username: clusteruser
-  db_password: 7357Cluster!x
+  db_password: ''
   db_database: testdb
   state: update
   wait: true
-  wait_timeout: ''
+  wait_timeout: '3600'
 register: updated_cluster_response
 ''',
     'restore': '''
 name: Restore Cluster (in-place)
 ionoscloudsdk.ionoscloud.postgres_cluster_v2:
+  location: 'de/fra'
   postgres_cluster: ''
-  recovery_target_time: "2023-07-01T13:00:00Z"
+  recovery_target_time: ''
+  db_username: clusteruser
+  db_password: ''
+  db_database: testdb
   state: restore
   wait: true
+  wait_timeout: '3600'
+register: restored_cluster_response
 ''',
     'absent': '''
 name: Delete Cluster (async)
 ionoscloudsdk.ionoscloud.postgres_cluster_v2:
-  location: ''
+  location: 'de/fra'
   postgres_cluster: ''
   state: absent
   wait: false
@@ -446,7 +439,7 @@ ionoscloudsdk.ionoscloud.postgres_cluster_v2:
 EXAMPLES = """
 name: Create Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster_v2:
-  location: ''
+  location: 'de/fra'
   postgres_version: '16'
   instances: 1
   cores: 1
@@ -456,47 +449,53 @@ ionoscloudsdk.ionoscloud.postgres_cluster_v2:
     datacenter: 'AnsibleAutoTestDBaaS - DBaaS v2'
     lan: test_lan1
     primary_instance_address: 192.168.1.101/24
-  name: ''
+  name: 'ansible-test-v2'
   replication_mode: ASYNCHRONOUS
   maintenance_window: ''
-  backup_location: ''
+  backup_location: 'eu-central-3'
   backup_retention_days: 7
   db_username: clusteruser
-  db_password: 7357Cluster!x
+  db_password: ''
   db_database: testdb
   wait: true
-  wait_timeout: ''
+  wait_timeout: '3600'
 register: cluster_response
 
 
 name: Update Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster_v2:
-  location: ''
+  location: 'de/fra'
   postgres_cluster: ''
   instances: 2
   cores: 2
   ram: 6
   storage_size: 20
   db_username: clusteruser
-  db_password: 7357Cluster!x
+  db_password: ''
   db_database: testdb
   state: update
   wait: true
-  wait_timeout: ''
+  wait_timeout: '3600'
 register: updated_cluster_response
 
 
 name: Restore Cluster (in-place)
 ionoscloudsdk.ionoscloud.postgres_cluster_v2:
+  location: 'de/fra'
   postgres_cluster: ''
-  recovery_target_time: "2023-07-01T13:00:00Z"
+  recovery_target_time: ''
+  db_username: clusteruser
+  db_password: ''
+  db_database: testdb
   state: restore
   wait: true
+  wait_timeout: '3600'
+register: restored_cluster_response
 
 
 name: Delete Cluster (async)
 ionoscloudsdk.ionoscloud.postgres_cluster_v2:
-  location: ''
+  location: 'de/fra'
   postgres_cluster: ''
   state: absent
   wait: false

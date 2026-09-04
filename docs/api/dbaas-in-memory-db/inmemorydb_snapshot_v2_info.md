@@ -7,9 +7,9 @@ This is a simple module that supports listing existing In-Memory DB Cluster snap
 
 ```yaml
 
-name: List In-Memory DB Cluster Snapshots (all)
+name: List In-Memory DB Snapshots (all)
 ionoscloudsdk.ionoscloud.inmemorydb_snapshot_v2_info:
-  location: ''
+  location: 'de/fra'
 register: inmemorydb_snapshot_response
 
 ```

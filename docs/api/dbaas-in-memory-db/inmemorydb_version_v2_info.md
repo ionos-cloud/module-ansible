@@ -9,7 +9,7 @@ This is a simple module that supports listing the In-Memory DB versions supporte
 
 name: List In-Memory DB Versions
 ionoscloudsdk.ionoscloud.inmemorydb_version_v2_info:
-  location: ''
+  location: 'de/fra'
 register: inmemorydb_versions_response
 
 ```

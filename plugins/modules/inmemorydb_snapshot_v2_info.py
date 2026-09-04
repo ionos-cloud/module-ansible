@@ -105,9 +105,9 @@ author:
 """
 
 EXAMPLES = """
-name: List In-Memory DB Cluster Snapshots (all)
+name: List In-Memory DB Snapshots (all)
 ionoscloudsdk.ionoscloud.inmemorydb_snapshot_v2_info:
-  location: ''
+  location: 'de/fra'
 register: inmemorydb_snapshot_response
 """
 

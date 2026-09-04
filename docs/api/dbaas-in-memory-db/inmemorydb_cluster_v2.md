@@ -9,8 +9,8 @@ This module supports creating, updating, restoring or destroying In-Memory DB Cl
 
 name: Create Cluster
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
-  location: ''
-  version: '9.0'
+  location: 'de/fra'
+  inmemorydb_version: '9.0'
   instances: 1
   cores: 1
   ram: 4
@@ -18,49 +18,47 @@ ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
     datacenter: 'AnsibleAutoTestDBaaS - InMemoryDB v2'
     lan: test_lan1
     primary_instance_address: 192.168.1.101/24
-  name: ''
+  name: 'ansible-test-v2'
   eviction_policy: noeviction
   persistence_mode: RDB
   maintenance_window: ''
-  snapshot_location: ''
+  snapshot_location: 'eu-central-3'
   snapshot_retention_days: 7
   snapshot_hours:
-    - 2
-  db_username: clusteruser
+  - 2
+  db_username: 'clusteruser'
   db_password_hash: ''
   wait: true
-  wait_timeout: ''
+  wait_timeout: '3600'
 register: cluster_response
 
 
 name: Update Cluster
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
-  location: ''
+  location: 'de/fra'
   inmemorydb_cluster: ''
   instances: 2
   cores: 2
   ram: 6
-  db_username: clusteruser
+  db_username: 'clusteruser'
   db_password_hash: ''
   state: update
   wait: true
-  wait_timeout: ''
-register: updated_cluster_response
+  wait_timeout: '3600'
 
 
 name: Restore Cluster (in-place)
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
+  location: ''
   inmemorydb_cluster: ''
   recovery_target_time: "2023-07-01T13:00:00Z"
-  db_username: clusteruser
-  db_password_hash: ''
   state: restore
   wait: true
 
 
 name: Delete Cluster (async)
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
-  location: ''
+  location: 'de/fra'
   inmemorydb_cluster: ''
   state: absent
   wait: false
@@ -82,8 +80,8 @@ ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
   
 name: Create Cluster
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
-  location: ''
-  version: '9.0'
+  location: 'de/fra'
+  inmemorydb_version: '9.0'
   instances: 1
   cores: 1
   ram: 4
@@ -91,18 +89,18 @@ ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
     datacenter: 'AnsibleAutoTestDBaaS - InMemoryDB v2'
     lan: test_lan1
     primary_instance_address: 192.168.1.101/24
-  name: ''
+  name: 'ansible-test-v2'
   eviction_policy: noeviction
   persistence_mode: RDB
   maintenance_window: ''
-  snapshot_location: ''
+  snapshot_location: 'eu-central-3'
   snapshot_retention_days: 7
   snapshot_hours:
-    - 2
-  db_username: clusteruser
+  - 2
+  db_username: 'clusteruser'
   db_password_hash: ''
   wait: true
-  wait_timeout: ''
+  wait_timeout: '3600'
 register: cluster_response
 
 ```
@@ -124,7 +122,7 @@ register: cluster_response
   <td>A weekly 4 hour-long window, during which maintenance might occur. A dict with keys `time` (start of the maintenance window in UTC, e.g. &quot;16:30:00&quot;) and `day_of_the_week` (e.g. &quot;Sunday&quot;).</td>
   </tr>
   <tr>
-  <td>version<br/><mark style="color:blue;">str</mark></td>
+  <td>inmemorydb_version<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
   <td>The In-Memory DB version of the cluster. Use the inmemorydb_version_v2_info module (GET /versions) to retrieve the list of supported versions. To upgrade, provide a version listed in `can_upgrade_to` for the current version; downgrades are not supported.</td>
   </tr>
@@ -165,13 +163,13 @@ register: cluster_response
   </tr>
   <tr>
   <td>db_username<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>The username for the initial In-Memory DB user. Must be 2-16 characters and may only contain alphanumeric characters (`[A-Za-z0-9]`) and underscores (`_`). Restricted usernames (for example, admin, standby) are not allowed. Required when creating a cluster; on update and restore it may be omitted to keep the existing user unchanged. Supply db_username and db_password_hash together to (re)set the user or rotate its password; because the API never returns the hash for comparison, providing them always triggers an update (reported as changed).</td>
+  <td align="center">False</td>
+  <td>The username for the initial In-Memory DB user. Must be 2-16 characters and may only contain alphanumeric characters (`[A-Za-z0-9]`) and underscores (`_`). Restricted usernames (for example, admin, standby) are not allowed. Required when creating a cluster (the module fails with an explicit message if it is missing on create); omit it against an existing cluster to keep the current user unchanged and the run idempotent. Supply db_username and db_password_hash together to (re)set the user or rotate its password; because the API never returns the hash for comparison, providing them always triggers an update (reported as changed). Ignored on restore: an in-place restore always reinstates the credentials stored in the snapshot, so a password cannot be rotated through state=restore.</td>
   </tr>
   <tr>
   <td>db_password_hash<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>The pre-hashed password for the initial In-Memory DB user. The hex-encoded hash of the password; must be exactly 64 lowercase hexadecimal characters (the standard output of SHA-256). Note: base64-encoded SHA-256 hashes (44 characters) are not accepted. The plaintext password is never sent to nor returned by the API. Required when creating a cluster; on update and restore it may be omitted to leave the current password unchanged. Supplying it (together with db_username) always (re)sets the password and reports the task as changed, since the API never returns the hash for comparison; omit it for idempotent runs.</td>
+  <td align="center">False</td>
+  <td>The pre-hashed password for the initial In-Memory DB user. The hex-encoded hash of the password; must be exactly 64 lowercase hexadecimal characters (the standard output of SHA-256). Note: base64-encoded SHA-256 hashes (44 characters) are not accepted. The plaintext password is never sent to nor returned by the API. Required when creating a cluster (the module fails with an explicit message if it is missing on create); omit it against an existing cluster to leave the current password unchanged. Supplying it (together with db_username) always (re)sets the password and reports the task as changed, since the API never returns the hash for comparison; omit it for idempotent runs. Ignored on restore: an in-place restore always reinstates the credentials stored in the snapshot, so a password cannot be rotated through state=restore.</td>
   </tr>
   <tr>
   <td>db_password_algorithm<br/><mark style="color:blue;">str</mark></td>
@@ -279,7 +277,7 @@ register: cluster_response
   
 name: Delete Cluster (async)
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
-  location: ''
+  location: 'de/fra'
   inmemorydb_cluster: ''
   state: absent
   wait: false
@@ -358,17 +356,16 @@ ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
   
 name: Update Cluster
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
-  location: ''
+  location: 'de/fra'
   inmemorydb_cluster: ''
   instances: 2
   cores: 2
   ram: 6
-  db_username: clusteruser
+  db_username: 'clusteruser'
   db_password_hash: ''
   state: update
   wait: true
-  wait_timeout: ''
-register: updated_cluster_response
+  wait_timeout: '3600'
 
 ```
 ### Available parameters for state **update**:
@@ -389,7 +386,7 @@ register: updated_cluster_response
   <td>A weekly 4 hour-long window, during which maintenance might occur. A dict with keys `time` (start of the maintenance window in UTC, e.g. &quot;16:30:00&quot;) and `day_of_the_week` (e.g. &quot;Sunday&quot;).</td>
   </tr>
   <tr>
-  <td>version<br/><mark style="color:blue;">str</mark></td>
+  <td>inmemorydb_version<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
   <td>The In-Memory DB version of the cluster. Use the inmemorydb_version_v2_info module (GET /versions) to retrieve the list of supported versions. To upgrade, provide a version listed in `can_upgrade_to` for the current version; downgrades are not supported.</td>
   </tr>
@@ -426,12 +423,12 @@ register: updated_cluster_response
   <tr>
   <td>db_username<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The username for the initial In-Memory DB user. Must be 2-16 characters and may only contain alphanumeric characters (`[A-Za-z0-9]`) and underscores (`_`). Restricted usernames (for example, admin, standby) are not allowed. Required when creating a cluster; on update and restore it may be omitted to keep the existing user unchanged. Supply db_username and db_password_hash together to (re)set the user or rotate its password; because the API never returns the hash for comparison, providing them always triggers an update (reported as changed).</td>
+  <td>The username for the initial In-Memory DB user. Must be 2-16 characters and may only contain alphanumeric characters (`[A-Za-z0-9]`) and underscores (`_`). Restricted usernames (for example, admin, standby) are not allowed. Required when creating a cluster (the module fails with an explicit message if it is missing on create); omit it against an existing cluster to keep the current user unchanged and the run idempotent. Supply db_username and db_password_hash together to (re)set the user or rotate its password; because the API never returns the hash for comparison, providing them always triggers an update (reported as changed). Ignored on restore: an in-place restore always reinstates the credentials stored in the snapshot, so a password cannot be rotated through state=restore.</td>
   </tr>
   <tr>
   <td>db_password_hash<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The pre-hashed password for the initial In-Memory DB user. The hex-encoded hash of the password; must be exactly 64 lowercase hexadecimal characters (the standard output of SHA-256). Note: base64-encoded SHA-256 hashes (44 characters) are not accepted. The plaintext password is never sent to nor returned by the API. Required when creating a cluster; on update and restore it may be omitted to leave the current password unchanged. Supplying it (together with db_username) always (re)sets the password and reports the task as changed, since the API never returns the hash for comparison; omit it for idempotent runs.</td>
+  <td>The pre-hashed password for the initial In-Memory DB user. The hex-encoded hash of the password; must be exactly 64 lowercase hexadecimal characters (the standard output of SHA-256). Note: base64-encoded SHA-256 hashes (44 characters) are not accepted. The plaintext password is never sent to nor returned by the API. Required when creating a cluster (the module fails with an explicit message if it is missing on create); omit it against an existing cluster to leave the current password unchanged. Supplying it (together with db_username) always (re)sets the password and reports the task as changed, since the API never returns the hash for comparison; omit it for idempotent runs. Ignored on restore: an in-place restore always reinstates the credentials stored in the snapshot, so a password cannot be rotated through state=restore.</td>
   </tr>
   <tr>
   <td>db_password_algorithm<br/><mark style="color:blue;">str</mark></td>
@@ -529,10 +526,9 @@ register: updated_cluster_response
   
 name: Restore Cluster (in-place)
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
+  location: ''
   inmemorydb_cluster: ''
   recovery_target_time: "2023-07-01T13:00:00Z"
-  db_username: clusteruser
-  db_password_hash: ''
   state: restore
   wait: true
 
@@ -552,12 +548,12 @@ ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
   <tr>
   <td>db_username<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The username for the initial In-Memory DB user. Must be 2-16 characters and may only contain alphanumeric characters (`[A-Za-z0-9]`) and underscores (`_`). Restricted usernames (for example, admin, standby) are not allowed. Required when creating a cluster; on update and restore it may be omitted to keep the existing user unchanged. Supply db_username and db_password_hash together to (re)set the user or rotate its password; because the API never returns the hash for comparison, providing them always triggers an update (reported as changed).</td>
+  <td>The username for the initial In-Memory DB user. Must be 2-16 characters and may only contain alphanumeric characters (`[A-Za-z0-9]`) and underscores (`_`). Restricted usernames (for example, admin, standby) are not allowed. Required when creating a cluster (the module fails with an explicit message if it is missing on create); omit it against an existing cluster to keep the current user unchanged and the run idempotent. Supply db_username and db_password_hash together to (re)set the user or rotate its password; because the API never returns the hash for comparison, providing them always triggers an update (reported as changed). Ignored on restore: an in-place restore always reinstates the credentials stored in the snapshot, so a password cannot be rotated through state=restore.</td>
   </tr>
   <tr>
   <td>db_password_hash<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The pre-hashed password for the initial In-Memory DB user. The hex-encoded hash of the password; must be exactly 64 lowercase hexadecimal characters (the standard output of SHA-256). Note: base64-encoded SHA-256 hashes (44 characters) are not accepted. The plaintext password is never sent to nor returned by the API. Required when creating a cluster; on update and restore it may be omitted to leave the current password unchanged. Supplying it (together with db_username) always (re)sets the password and reports the task as changed, since the API never returns the hash for comparison; omit it for idempotent runs.</td>
+  <td>The pre-hashed password for the initial In-Memory DB user. The hex-encoded hash of the password; must be exactly 64 lowercase hexadecimal characters (the standard output of SHA-256). Note: base64-encoded SHA-256 hashes (44 characters) are not accepted. The plaintext password is never sent to nor returned by the API. Required when creating a cluster (the module fails with an explicit message if it is missing on create); omit it against an existing cluster to leave the current password unchanged. Supplying it (together with db_username) always (re)sets the password and reports the task as changed, since the API never returns the hash for comparison; omit it for idempotent runs. Ignored on restore: an in-place restore always reinstates the credentials stored in the snapshot, so a password cannot be rotated through state=restore.</td>
   </tr>
   <tr>
   <td>db_password_algorithm<br/><mark style="color:blue;">str</mark></td>

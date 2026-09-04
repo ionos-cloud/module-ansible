@@ -96,7 +96,7 @@ author:
 EXAMPLES = """
 name: List Postgres Backup Locations (pick a valid backup_location from here)
 ionoscloudsdk.ionoscloud.postgres_backup_location_v2_info:
-  location: ''
+  location: 'de/fra'
 register: postgres_backup_locations_response
 """
 

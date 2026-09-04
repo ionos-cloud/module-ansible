@@ -96,7 +96,7 @@ author:
 EXAMPLES = """
 name: List Postgres Clusters
 ionoscloudsdk.ionoscloud.postgres_cluster_v2_info:
-  location: ''
+  location: 'de/fra'
 register: postgres_clusters_response
 """
 

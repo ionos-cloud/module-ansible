@@ -9,7 +9,7 @@ This is a simple module that supports listing existing Postgres Clusters using t
 
 name: List Postgres Clusters
 ionoscloudsdk.ionoscloud.postgres_cluster_v2_info:
-  location: ''
+  location: 'de/fra'
 register: postgres_clusters_response
 
 ```
