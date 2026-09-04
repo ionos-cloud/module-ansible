@@ -12,3 +12,8 @@ updated_password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_
 wait_timeout: 500
 email: ansible.test@mail.com
 updated_email: updated.ansible.test@mail.com
+postgres_location: "de/fra"
+postgres_dc_location: "de/fra"
+postgres_backup_location: "eu-central-3"
+postgres_cluster_name: "ansible-test-v2"
+postgres_wait_timeout: 3600
