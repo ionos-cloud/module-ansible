@@ -665,7 +665,7 @@ class InMemoryDBClusterV2Module(CommonIonosModule):
         return ionoscloud_dbaas_inmemorydb.Cluster(
             name=pick('name', existing.name),
             description=pick('description', existing.description),
-            version=pick('version', existing.version),
+            version=pick('inmemorydb_version', existing.version),
             instances=instances,
             connection=existing.connection,
             persistence_mode=pick('persistence_mode', existing.persistence_mode),
