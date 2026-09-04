@@ -6,30 +6,15 @@
     - ./vars.yml
 
   vars:
-    # DBaaS In-Memory DB v2 is regional: pick the region with `location` (selects the API host).
-    # Set `api_url` instead to point at a specific endpoint/proxy and override location.
-    inmemorydb_location: "de/fra"
-    inmemorydb_dc_location: "de/fra"
-    # snapshot_location is an Object Storage location id from the
-    # inmemorydb_snapshot_location_v2_info module, NOT a datacenter region. The
-    # "List Snapshot Locations" task below prints the valid values for this region.
-    # For de-fra the supported values are: eu-central-3, eu-central-4, us-central-1.
-    inmemorydb_snapshot_location: "eu-central-3"
-    # version must be one of the versions returned by inmemorydb_version_v2_info
-    # (printed by the "List Versions" task below). Currently supported: 8.0, 8.1, 9.0.
-    inmemorydb_version: "9.0"
-    inmemorydb_cluster_name: "ansible-test-v2"
-    # DBaaS scale operations (add instance + resize) can take well over 10 min;
-    # the module default wait_timeout (600s) is too short for them.
-    inmemorydb_wait_timeout: 3600
     inmemorydb_maintenance_window:
       time: "16:30:00"
       day_of_the_week: "Sunday"
     # The API requires a PRE-HASHED password: the 64-char lowercase SHA-256 hex of the
     # plaintext. The value below is sha256("7357Cluster!x"); regenerate with e.g.
     #   python3 -c "import hashlib;print(hashlib.sha256(b'<your-password>').hexdigest())"
-    inmemorydb_db_username: "clusteruser"
     inmemorydb_db_password_hash: "fe3c3b9221b6a430b0e5db2670f254b753616532406b9f1e874d3bd5ce46f109"
+    # Rotated hash used by the credential-reset update below = sha256("7357Cluster!y").
+    inmemorydb_db_password_hash_rotated: "6d9271bfab11c908e51e898061e3ca16a970bc7ab8a4671c15cdf6ae4e9167f5"
 
   tasks:
 
@@ -48,7 +33,6 @@
       availability_zone: ZONE_1
       volume_availability_zone: ZONE_3
       volume_size: 10
-      cpu_family: INTEL_SKYLAKE
       disk_type: HDD
       image: "{{ image_alias }}"
       image_password: "{{ password }}"
@@ -100,7 +84,7 @@
   - name: Create Cluster
     ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
       location: "{{ inmemorydb_location }}"
-      version: "{{ inmemorydb_version }}"
+      inmemorydb_version: "{{ inmemorydb_version }}"
       instances: 1
       cores: 1
       ram: 4
@@ -122,15 +106,15 @@
       wait_timeout: "{{ inmemorydb_wait_timeout }}"
     register: cluster_response
 
-  # state=present requires db_username/db_password_hash (module arg-spec), and supplying
-  # credentials always (re)applies them (the API never returns the hash to compare) — so a
-  # second present run with the same config still reports changed=true. present is therefore
-  # NOT idempotent while credentials are required on it; the idempotent no-change path is
-  # state=update with credentials omitted (see "Update Cluster No change" further down).
-  - name: Create Cluster re-run (present re-applies credentials -> changed)
+  # Supplying credentials always (re)applies them: the API never returns the hash, so the module
+  # cannot compare the supplied value against the stored one and treats it as an intentional set.
+  # This re-run therefore reports changed=true. Credentials are NOT required on present (only
+  # _create_object insists on them), so the idempotent path is to omit them — with them omitted
+  # this same task reports changed=false, as "Update Cluster No change" further down shows.
+  - name: Create Cluster re-run (credentials supplied again -> changed)
     ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
       location: "{{ inmemorydb_location }}"
-      version: "{{ inmemorydb_version }}"
+      inmemorydb_version: "{{ inmemorydb_version }}"
       instances: 1
       cores: 1
       ram: 4
@@ -156,7 +140,7 @@
     assert:
       that:
         - cluster_response_no_change.changed == true
-      msg: "present re-run re-applies the required credentials, so changed should be true"
+      msg: "supplying credentials again re-applies them, so changed should be true"
 
   - name: List In-Memory DB Snapshots (all)
     ionoscloudsdk.ionoscloud.inmemorydb_snapshot_v2_info:
@@ -196,8 +180,11 @@
 
   # ---------- (1) update: reset user + password (rotate the hash) ----------
   # Scale 1/1/4 -> 2/2/6 to force the PUT that carries the rotated credentials.
-  # Rotated hash below = sha256("7357Cluster!y").
-  - name: Update Cluster (reset user + password)
+  # The rotated hash comes from a play var, not a literal: docs_utils/update_examples.py copies the
+  # first `state: update` task into the module's published EXAMPLES verbatim, and it only resolves
+  # vars from ./vars.yml — so a literal here would be printed in the public docs, while a play var
+  # renders as '' instead.
+  - name: Update Cluster
     ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
       location: "{{ inmemorydb_location }}"
       inmemorydb_cluster: "{{ cluster_response.inmemorydb_cluster.id }}"
@@ -205,11 +192,10 @@
       cores: 2
       ram: 6
       db_username: "{{ inmemorydb_db_username }}"
-      db_password_hash: "6d9271bfab11c908e51e898061e3ca16a970bc7ab8a4671c15cdf6ae4e9167f5"
+      db_password_hash: "{{ inmemorydb_db_password_hash_rotated }}"
       state: update
       wait: true
       wait_timeout: "{{ inmemorydb_wait_timeout }}"
-    register: updated_cluster_response_reset
 
   - name: List In-Memory DB Clusters (after PASSWORD RESET)
     ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2_info:
@@ -346,20 +332,101 @@
         - "'must be supplied together' in probe_user_only.msg"
       msg: "supplying only db_username should be rejected with 'must be supplied together'"
 
-  # In-place restore recovers the cluster from its own snapshots at recovery_target_time.
-  # It needs an existing snapshot and a target time inside the recoverable window, so it is
-  # left commented out to keep the run deterministic. To try it, pick a time from
-  # inmemorydb_snapshot_response_filtered (earliest/latest recovery target time) and uncomment:
+  # ===================================================================================
+  # In-place restore. recovery_target_time selects the most recent snapshot taken at or before that
+  # time (In-Memory DB has no continuous point-in-time recovery — the nearest preceding snapshot is
+  # used). The target is read off the cluster's own snapshots rather than hardcoded, so the run
+  # never depends on a timestamp going stale.
   #
-  # - name: Restore Cluster (in-place)
-  #   ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
-  #     location: "{{ inmemorydb_location }}"
-  #     inmemorydb_cluster: "{{ cluster_response.inmemorydb_cluster.id }}"
-  #     recovery_target_time: "2026-07-08T13:00:00Z"
-  #     db_username: "{{ inmemorydb_db_username }}"
-  #     db_password_hash: "{{ inmemorydb_db_password_hash }}"
-  #     state: restore
-  #     wait: true
+  # The restore is GUARDED, not asserted. A cluster does NOT expose a recovery window from
+  # provisioning onwards: In-Memory DB snapshots only at the scheduled snapshot_hours (02:00 for
+  # this cluster) and offers no on-demand snapshot endpoint, so a cluster created and torn down
+  # inside one run normally has no snapshot at all. Asserting here would fail the suite by design
+  # on every fresh run. The restore therefore executes only when a recoverable snapshot happens to
+  # exist — a cluster that has outlived its snapshot hour, or a manual re-run against a long-lived
+  # cluster — and is skipped with an explanation otherwise.
+  # NOTE: this means CI does not normally exercise state=restore; cover it with a manual run
+  # against a cluster older than its first snapshot_hours.
+  # ===================================================================================
+  - name: List this cluster's snapshots and their recovery windows
+    ionoscloudsdk.ionoscloud.inmemorydb_snapshot_v2_info:
+      location: "{{ inmemorydb_location }}"
+      inmemorydb_cluster: "{{ cluster_response.inmemorydb_cluster.id }}"
+    register: inmemorydb_pitr_snapshots
+
+  # earliest_recovery_target_time may be absent OR present-and-null; a null would break the sort,
+  # so reject both. latest_recovery_target_time stays null while a snapshot is recoverable up to
+  # "now", which is why the earliest point is the one used as the target.
+  - name: Collect this cluster's recoverable points
+    ansible.builtin.set_fact:
+      inmemorydb_recovery_points: >-
+        {{ inmemorydb_pitr_snapshots.inmemorydb_snapshots
+           | selectattr('properties.earliest_recovery_target_time', 'defined')
+           | rejectattr('properties.earliest_recovery_target_time', 'none')
+           | map(attribute='properties.earliest_recovery_target_time')
+           | sort | list }}
+
+  - name: Report that the in-place restore is being skipped
+    ansible.builtin.debug:
+      msg: >-
+        Skipping the in-place restore: no snapshot of this cluster exposes a recovery window yet.
+        In-Memory DB snapshots only at the scheduled snapshot_hours and has no on-demand snapshot
+        endpoint, so a cluster created during this run has nothing to restore from.
+    when: inmemorydb_recovery_points | length == 0
+
+  # The guard lives on a block, not on the individual tasks. docs_utils/update_examples.py harvests
+  # the shipped module EXAMPLES from the first top-level task per state in this file and dumps the
+  # whole task dict — a `when:` on the restore task itself would be baked verbatim into the public
+  # restore example, where `inmemorydb_recovery_points` does not exist. Tasks nested in a block are
+  # invisible to that harvester, so the committed example is left alone.
+  - name: Restore in place, when this cluster has a recovery point
+    when: inmemorydb_recovery_points | length > 0
+    block:
+
+      - name: Pick the earliest recoverable point (guaranteed inside the window)
+        ansible.builtin.set_fact:
+          inmemorydb_recovery_target_time: "{{ inmemorydb_recovery_points | first }}"
+
+      - name: Show chosen recovery target time
+        ansible.builtin.debug:
+          var: inmemorydb_recovery_target_time
+
+      # Credentials are deliberately NOT passed here. Per the API contract for an in-place restore
+      # ("Any existing credentials are replaced with those stored in the snapshot; any credentials
+      # provided in the request are ignored"), anything sent is discarded — a password cannot be
+      # rotated through state=restore, and sending credentials here would imply otherwise.
+      - name: Restore Cluster (in-place)
+        ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
+          location: "{{ inmemorydb_location }}"
+          inmemorydb_cluster: "{{ cluster_response.inmemorydb_cluster.id }}"
+          recovery_target_time: "{{ inmemorydb_recovery_target_time }}"
+          state: restore
+          wait: true
+          wait_timeout: "{{ inmemorydb_wait_timeout }}"
+        register: restored_cluster_response
+
+      - name: Asserting that the in-place restore reported changed
+        assert:
+          that:
+            - restored_cluster_response.changed == true
+          msg: "The in-place restore should always report changed=true"
+
+      - name: List In-Memory DB Clusters (after RESTORE)
+        ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2_info:
+          location: "{{ inmemorydb_location }}"
+        register: info_after_restore
+
+      - name: Select this cluster (after RESTORE)
+        ansible.builtin.set_fact:
+          cluster_after_restore: "{{ info_after_restore.inmemorydb_clusters | selectattr('id', 'equalto', cluster_response.inmemorydb_cluster.id) | first }}"
+
+      # The username is the snapshot's, reinstated by the restore — not one this task supplied.
+      - name: Assert the cluster is available again and carries the snapshot's user
+        assert:
+          that:
+            - cluster_after_restore.metadata.state == 'AVAILABLE'
+            - cluster_after_restore.properties.credentials.username == inmemorydb_db_username
+          msg: "The cluster did not come back AVAILABLE with the snapshot's user after the restore"
 
   - name: Delete Cluster (async)
     ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:

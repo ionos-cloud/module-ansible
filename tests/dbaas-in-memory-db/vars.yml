@@ -12,3 +12,10 @@ updated_password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_
 wait_timeout: 500
 email: ansible.test@mail.com
 updated_email: updated.ansible.test@mail.com
+inmemorydb_location: "de/fra"
+inmemorydb_dc_location: "de/fra"
+inmemorydb_version: "9.0"
+inmemorydb_snapshot_location: "eu-central-3"
+inmemorydb_cluster_name: "ansible-test-v2"
+inmemorydb_wait_timeout: 3600
+inmemorydb_db_username: "clusteruser"

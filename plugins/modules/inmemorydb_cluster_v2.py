@@ -38,7 +38,7 @@ OPTIONS = {
         'required': ['present'],
         'type': 'dict',
     },
-    'version': {
+    'inmemorydb_version': {
         'description': ['The In-Memory DB version of the cluster. Use the inmemorydb_version_v2_info module (GET /versions) to retrieve the list of supported versions. To upgrade, provide a version listed in `can_upgrade_to` for the current version; downgrades are not supported.'],
         'available': ['present', 'update'],
         'required': ['present'],
@@ -92,16 +92,14 @@ OPTIONS = {
         'type': 'str',
     },
     'db_username': {
-        'description': ['The username for the initial In-Memory DB user. Must be 2-16 characters and may only contain alphanumeric characters (`[A-Za-z0-9]`) and underscores (`_`). Restricted usernames (for example, admin, standby) are not allowed. Required when creating a cluster; on update and restore it may be omitted to keep the existing user unchanged. Supply db_username and db_password_hash together to (re)set the user or rotate its password; because the API never returns the hash for comparison, providing them always triggers an update (reported as changed).'],
+        'description': ['The username for the initial In-Memory DB user. Must be 2-16 characters and may only contain alphanumeric characters (`[A-Za-z0-9]`) and underscores (`_`). Restricted usernames (for example, admin, standby) are not allowed. Required when creating a cluster (the module fails with an explicit message if it is missing on create); omit it against an existing cluster to keep the current user unchanged and the run idempotent. Supply db_username and db_password_hash together to (re)set the user or rotate its password; because the API never returns the hash for comparison, providing them always triggers an update (reported as changed). Ignored on restore: an in-place restore always reinstates the credentials stored in the snapshot, so a password cannot be rotated through state=restore.'],
         'available': ['present', 'update', 'restore'],
-        'required': ['present'],
         'type': 'str',
         'no_log': True,
     },
     'db_password_hash': {
-        'description': ['The pre-hashed password for the initial In-Memory DB user. The hex-encoded hash of the password; must be exactly 64 lowercase hexadecimal characters (the standard output of SHA-256). Note: base64-encoded SHA-256 hashes (44 characters) are not accepted. The plaintext password is never sent to nor returned by the API. Required when creating a cluster; on update and restore it may be omitted to leave the current password unchanged. Supplying it (together with db_username) always (re)sets the password and reports the task as changed, since the API never returns the hash for comparison; omit it for idempotent runs.'],
+        'description': ['The pre-hashed password for the initial In-Memory DB user. The hex-encoded hash of the password; must be exactly 64 lowercase hexadecimal characters (the standard output of SHA-256). Note: base64-encoded SHA-256 hashes (44 characters) are not accepted. The plaintext password is never sent to nor returned by the API. Required when creating a cluster (the module fails with an explicit message if it is missing on create); omit it against an existing cluster to leave the current password unchanged. Supplying it (together with db_username) always (re)sets the password and reports the task as changed, since the API never returns the hash for comparison; omit it for idempotent runs. Ignored on restore: an in-place restore always reinstates the credentials stored in the snapshot, so a password cannot be rotated through state=restore.'],
         'available': ['present', 'update', 'restore'],
-        'required': ['present'],
         'type': 'str',
         'no_log': True,
     },
@@ -186,14 +184,6 @@ description:
        I(api_url) overrides the base API URL globally (for a proxy/test endpoint, not for region selection).
 version_added: "2.0"
 options:
-    location:
-        description:
-        - 'The location (region) in which the cluster will be created. Different service
-            endpoints are used based on location, possible options are: "de/fra", "de/txl",
-            "es/vit", "fr/par", "gb/lhr", "gb/bhx", "us/ewr", "us/las", "us/mci". If not
-            set, the endpoint will be the one corresponding to "de/fra". The api_url, if
-            set, overrides this.'
-        required: false
     allow_replace:
         default: false
         description:
@@ -237,23 +227,28 @@ options:
             hash of the password; must be exactly 64 lowercase hexadecimal characters
             (the standard output of SHA-256). Note: base64-encoded SHA-256 hashes (44
             characters) are not accepted. The plaintext password is never sent to nor
-            returned by the API. Required when creating a cluster; on update and restore
-            it may be omitted to leave the current password unchanged. Supplying it (together
-            with db_username) always (re)sets the password and reports the task as changed,
+            returned by the API. Required when creating a cluster (the module fails with
+            an explicit message if it is missing on create); omit it against an existing
+            cluster to leave the current password unchanged. Supplying it (together with
+            db_username) always (re)sets the password and reports the task as changed,
             since the API never returns the hash for comparison; omit it for idempotent
-            runs.'
+            runs. Ignored on restore: an in-place restore always reinstates the credentials
+            stored in the snapshot, so a password cannot be rotated through state=restore.'
         no_log: true
         required: false
     db_username:
         description:
-        - The username for the initial In-Memory DB user. Must be 2-16 characters and
+        - 'The username for the initial In-Memory DB user. Must be 2-16 characters and
             may only contain alphanumeric characters (`[A-Za-z0-9]`) and underscores (`_`).
             Restricted usernames (for example, admin, standby) are not allowed. Required
-            when creating a cluster; on update and restore it may be omitted to keep the
-            existing user unchanged. Supply db_username and db_password_hash together
-            to (re)set the user or rotate its password; because the API never returns
-            the hash for comparison, providing them always triggers an update (reported
-            as changed).
+            when creating a cluster (the module fails with an explicit message if it is
+            missing on create); omit it against an existing cluster to keep the current
+            user unchanged and the run idempotent. Supply db_username and db_password_hash
+            together to (re)set the user or rotate its password; because the API never
+            returns the hash for comparison, providing them always triggers an update
+            (reported as changed). Ignored on restore: an in-place restore always reinstates
+            the credentials stored in the snapshot, so a password cannot be rotated through
+            state=restore.'
         no_log: true
         required: false
     description:
@@ -277,11 +272,26 @@ options:
         description:
         - The ID or name of an existing In-Memory DB Cluster.
         required: false
+    inmemorydb_version:
+        description:
+        - The In-Memory DB version of the cluster. Use the inmemorydb_version_v2_info
+            module (GET /versions) to retrieve the list of supported versions. To upgrade,
+            provide a version listed in `can_upgrade_to` for the current version; downgrades
+            are not supported.
+        required: false
     instances:
         description:
         - The total number of instances in the cluster. A value of 1 creates a standalone
             instance; values 2-5 create a replicated setup with one primary and n-1 passive
             secondaries.
+        required: false
+    location:
+        description:
+        - 'The location (region) in which the cluster will be created. Different service
+            endpoints are used based on location, possible options are: "de/fra", "de/txl",
+            "es/vit", "fr/par", "gb/lhr", "gb/bhx", "us/ewr", "us/las", "us/mci". If not
+            set, the endpoint will be the one corresponding to "de/fra". The api_url,
+            if set, overrides this.'
         required: false
     logs_enabled:
         description:
@@ -292,8 +302,8 @@ options:
     maintenance_window:
         description:
         - A weekly 4 hour-long window, during which maintenance might occur. A dict with
-            keys `time` (start of the maintenance window in UTC, e.g. "16:30:00") and `day_of_the_week`
-            (e.g. "Sunday").
+            keys `time` (start of the maintenance window in UTC, e.g. "16:30:00") and
+            `day_of_the_week` (e.g. "Sunday").
         required: false
     metrics_enabled:
         description:
@@ -304,8 +314,8 @@ options:
     name:
         description:
         - The name of your In-Memory DB cluster. Must be 2-63 characters and must begin
-            and end with an alphanumeric character (`[A-Za-z0-9]`) with dashes (`-`), underscores
-            (`_`), dots (`.`), and alphanumerics between.
+            and end with an alphanumeric character (`[A-Za-z0-9]`) with dashes (`-`),
+            underscores (`_`), dots (`.`), and alphanumerics between.
         required: false
     password:
         aliases:
@@ -322,9 +332,9 @@ options:
         - RDB
         - RDB_AOF
         description:
-        - 'Specifies how and whether data is persisted to disk. `None` disables persistence;
+        - Specifies how and whether data is persisted to disk. `None` disables persistence;
             `AOF` logs every write operation; `RDB` takes periodic point-in-time snapshots;
-            `RDB_AOF` combines both.'
+            `RDB_AOF` combines both.
         required: false
     ram:
         description:
@@ -386,13 +396,6 @@ options:
         - The Ionos username. Overrides the IONOS_USERNAME environment variable.
         env_fallback: IONOS_USERNAME
         required: false
-    version:
-        description:
-        - The In-Memory DB version of the cluster. Use the inmemorydb_version_v2_info module
-            (GET /versions) to retrieve the list of supported versions. To upgrade, provide
-            a version listed in `can_upgrade_to` for the current version; downgrades are
-            not supported.
-        required: false
     wait:
         choices:
         - true
@@ -418,8 +421,8 @@ EXAMPLE_PER_STATE = {
     'present': '''
 name: Create Cluster
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
-  location: ''
-  version: '9.0'
+  location: 'de/fra'
+  inmemorydb_version: '9.0'
   instances: 1
   cores: 1
   ram: 4
@@ -427,49 +430,47 @@ ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
     datacenter: 'AnsibleAutoTestDBaaS - InMemoryDB v2'
     lan: test_lan1
     primary_instance_address: 192.168.1.101/24
-  name: ''
+  name: 'ansible-test-v2'
   eviction_policy: noeviction
   persistence_mode: RDB
   maintenance_window: ''
-  snapshot_location: ''
+  snapshot_location: 'eu-central-3'
   snapshot_retention_days: 7
   snapshot_hours:
-    - 2
-  db_username: clusteruser
+  - 2
+  db_username: 'clusteruser'
   db_password_hash: ''
   wait: true
-  wait_timeout: ''
+  wait_timeout: '3600'
 register: cluster_response
 ''',
     'update': '''
 name: Update Cluster
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
-  location: ''
+  location: 'de/fra'
   inmemorydb_cluster: ''
   instances: 2
   cores: 2
   ram: 6
-  db_username: clusteruser
+  db_username: 'clusteruser'
   db_password_hash: ''
   state: update
   wait: true
-  wait_timeout: ''
-register: updated_cluster_response
+  wait_timeout: '3600'
 ''',
     'restore': '''
 name: Restore Cluster (in-place)
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
+  location: ''
   inmemorydb_cluster: ''
   recovery_target_time: "2023-07-01T13:00:00Z"
-  db_username: clusteruser
-  db_password_hash: ''
   state: restore
   wait: true
 ''',
     'absent': '''
 name: Delete Cluster (async)
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
-  location: ''
+  location: 'de/fra'
   inmemorydb_cluster: ''
   state: absent
   wait: false
@@ -479,8 +480,8 @@ ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
 EXAMPLES = """
 name: Create Cluster
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
-  location: ''
-  version: '9.0'
+  location: 'de/fra'
+  inmemorydb_version: '9.0'
   instances: 1
   cores: 1
   ram: 4
@@ -488,49 +489,47 @@ ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
     datacenter: 'AnsibleAutoTestDBaaS - InMemoryDB v2'
     lan: test_lan1
     primary_instance_address: 192.168.1.101/24
-  name: ''
+  name: 'ansible-test-v2'
   eviction_policy: noeviction
   persistence_mode: RDB
   maintenance_window: ''
-  snapshot_location: ''
+  snapshot_location: 'eu-central-3'
   snapshot_retention_days: 7
   snapshot_hours:
-    - 2
-  db_username: clusteruser
+  - 2
+  db_username: 'clusteruser'
   db_password_hash: ''
   wait: true
-  wait_timeout: ''
+  wait_timeout: '3600'
 register: cluster_response
 
 
 name: Update Cluster
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
-  location: ''
+  location: 'de/fra'
   inmemorydb_cluster: ''
   instances: 2
   cores: 2
   ram: 6
-  db_username: clusteruser
+  db_username: 'clusteruser'
   db_password_hash: ''
   state: update
   wait: true
-  wait_timeout: ''
-register: updated_cluster_response
+  wait_timeout: '3600'
 
 
 name: Restore Cluster (in-place)
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
+  location: ''
   inmemorydb_cluster: ''
   recovery_target_time: "2023-07-01T13:00:00Z"
-  db_username: clusteruser
-  db_password_hash: ''
   state: restore
   wait: true
 
 
 name: Delete Cluster (async)
 ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
-  location: ''
+  location: 'de/fra'
   inmemorydb_cluster: ''
   state: absent
   wait: false
@@ -730,8 +729,8 @@ class InMemoryDBClusterV2Module(CommonIonosModule):
                 or existing.maintenance_window.day_of_the_week != maintenance_window.get('day_of_the_week')
                 or existing.maintenance_window.time != maintenance_window.get('time')
             )
-            or params.get('version') is not None
-            and existing.version != params.get('version')
+            or params.get('inmemorydb_version') is not None
+            and existing.version != params.get('inmemorydb_version')
             or params.get('instances') is not None
             and (instances is None or instances.count != params.get('instances'))
             or params.get('cores') is not None
@@ -798,7 +797,7 @@ class InMemoryDBClusterV2Module(CommonIonosModule):
         properties = ionoscloud_dbaas_inmemorydb.ClusterCreateProperties(
             name=params.get('name'),
             description=params.get('description'),
-            version=params.get('version'),
+            version=params.get('inmemorydb_version'),
             instances=ionoscloud_dbaas_inmemorydb.InstanceConfiguration(
                 count=params.get('instances'),
                 cores=params.get('cores'),
