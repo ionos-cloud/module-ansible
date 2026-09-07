@@ -192,7 +192,8 @@ modules_to_generate = [
     ['image', CLOUDAPI_SWAGGER, '/images/{imageId}', 'put', {}],
     ['ipblock', CLOUDAPI_SWAGGER, '/ipblocks', 'post', {}],
     ['k8s_cluster', CLOUDAPI_SWAGGER, '/k8s', 'post', {'s3_buckets_param': 's3Buckets'}],
-    ['k8s_nodepool', CLOUDAPI_SWAGGER, '/k8s/{k8sClusterId}/nodepools', 'post', {'datacenter': 'datacenterId'}],
+    # nodepool `properties` resolves to oneOf + discriminator, which parse_swagger.rb cannot walk
+    # ['k8s_nodepool', CLOUDAPI_SWAGGER, '/k8s/{k8sClusterId}/nodepools', 'post', {'datacenter': 'datacenterId'}],
     ['lan', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/lans', 'post', {'ipv6_cidr': 'ipv6CidrBlock'}],
     ['nat_gateway_flowlog', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/natgateways/{natGatewayId}/flowlogs', 'post', {}],
     ['nat_gateway_rule', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/natgateways/{natGatewayId}/rules', 'post', {}],
@@ -205,11 +206,13 @@ modules_to_generate = [
     ['pcc', CLOUDAPI_SWAGGER, '/pccs', 'post', {}],
     ['s3key', CLOUDAPI_SWAGGER, '/um/users/{userId}/s3keys/{keyId}', 'put', {}],
     ['server', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/servers', 'post', {}],
-    ['share', CLOUDAPI_SWAGGER, '/um/groups/{groupId}/shares/{resourceId}', 'post', {}],
+    # the request body is declared as `*/*`, while parse_swagger.rb asks for application/json
+    # ['share', CLOUDAPI_SWAGGER, '/um/groups/{groupId}/shares/{resourceId}', 'post', {}],
     ['snapshot', CLOUDAPI_SWAGGER, '/snapshots/{snapshotId}', 'put', {}],
     ['target_group', CLOUDAPI_SWAGGER, '/targetgroups', 'post', {}],
     ['user', CLOUDAPI_SWAGGER, '/um/users', 'post', {}],
-    ['volume', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/volumes', 'post', {'backupunit': 'backupunitId'}],
+    # volume `properties` uses allOf, which parse_swagger.rb cannot walk
+    # ['volume', CLOUDAPI_SWAGGER, '/datacenters/{datacenterId}/volumes', 'post', {'backupunit': 'backupunitId'}],
     [
         'postgres_cluster', POSTGRES_SWAGGER, '/clusters', 'post',
         {
@@ -240,14 +243,15 @@ modules_to_generate = [
             'template_id': 'templateID',
         },
     ],
-    [
-        'mongo_cluster_user', MONGODB_SWAGGER, '/clusters/{clusterId}/users', 'post',
-        {
-            'mongo_username': 'username',
-            'mongo_password': 'password',
-            'user_roles': 'roles',
-        },
-    ],
+    # user `properties` uses allOf, which parse_swagger.rb cannot walk
+    # [
+    #     'mongo_cluster_user', MONGODB_SWAGGER, '/clusters/{clusterId}/users', 'post',
+    #     {
+    #         'mongo_username': 'username',
+    #         'mongo_password': 'password',
+    #         'user_roles': 'roles',
+    #     },
+    # ],
     ['certificate', CERTIFICATE_MANAGER_SWAGGER, '/certificates', 'post', {}],
     [
         'certificate_provider', CERTIFICATE_MANAGER_SWAGGER, '/providers', 'post',
@@ -265,12 +269,13 @@ modules_to_generate = [
     ],
     ['pipeline', LOGGING_SWAGGER, '/pipelines', 'post', {}],
     # ['dns_zone', DNS_SWAGGER, '/zones', 'post', {}],
-    [
-        'object_storage_access_key', OBJECT_STORAGE_MANAGEMENT_SWAGGER, '/accesskeys', 'post', 
-        {
-            'access_key': None,
-        },
-    ],
+    # the `access_key: None` alias makes get_info_from_swagger raise TypeError
+    # [
+    #     'object_storage_access_key', OBJECT_STORAGE_MANAGEMENT_SWAGGER, '/accesskeys', 'post',
+    #     {
+    #         'access_key': None,
+    #     },
+    # ],
 ]
 
 for module in modules_to_generate:
