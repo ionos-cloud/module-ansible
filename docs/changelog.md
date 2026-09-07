@@ -3,6 +3,10 @@
 ## 7.9.0
 ### Features
 * added new DBaaS In-Memory DB v2 modules `inmemorydb_cluster_v2`, `inmemorydb_cluster_v2_info`, `inmemorydb_snapshot_v2_info`, `inmemorydb_snapshot_location_v2_info` and `inmemorydb_version_v2_info`
+* added support for the `de/fra/1` and `de/fra/2` locations to the `datacenter`, `server`, `vcpu_server` and MariaDB modules. Both are facilities inside the `de/fra` metro region and use the same regional endpoint. Note that some resources still exist only in `de/fra` itself
+* added the missing `gb/bhx` endpoint to the MariaDB modules
+### Changes
+* modules with regional endpoints now fail with a clear message when given an unsupported `location`, instead of silently falling back to the SDK's default region. Setting `api_url` still overrides `location`, and skips the check
 
 ## 7.8.0
 ### Features

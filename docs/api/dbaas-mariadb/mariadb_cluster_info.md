@@ -82,7 +82,7 @@ This is a simple module that supports listing existing MariaDB Clusters
   <tr>
   <td>location<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The location from which to retrieve clusters. Different service endpoints are used based on location, possible options are: &quot;de/fra&quot;, &quot;de/txl&quot;, &quot;es/vit&quot;, &quot;fr/par&quot;, &quot;gb/lhr&quot;, &quot;us/ewr&quot;, &quot;us/las&quot;, &quot;us/mci&quot;. If not set, the endpoint will be the one corresponding to &quot;de/txl&quot;.</td>
+  <td>The location from which to retrieve clusters. Different service endpoints are used based on location, possible options are: &quot;de/fra&quot;, &quot;de/fra/1&quot;, &quot;de/fra/2&quot;, &quot;de/txl&quot;, &quot;es/vit&quot;, &quot;fr/par&quot;, &quot;gb/lhr&quot;, &quot;gb/bhx&quot;, &quot;us/ewr&quot;, &quot;us/las&quot;, &quot;us/mci&quot;. If not set, the endpoint will be the one corresponding to &quot;de/txl&quot;.</td>
   </tr>
   <tr>
   <td>filters<br/><mark style="color:blue;">dict</mark></td>

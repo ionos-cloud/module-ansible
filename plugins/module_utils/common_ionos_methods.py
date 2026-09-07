@@ -24,6 +24,7 @@ LOCATION_CONSTANTS = {
 		'es/vit': 'https://mariadb.es-vit.ionos.com',
 		'fr/par': 'https://mariadb.fr-par.ionos.com',
 		'gb/lhr': 'https://mariadb.gb-lhr.ionos.com',
+		'gb/bhx': 'https://mariadb.gb-bhx.ionos.com',
 		'us/ewr': 'https://mariadb.us-ewr.ionos.com',
 		'us/las': 'https://mariadb.us-las.ionos.com',
 		'us/mci': 'https://mariadb.us-mci.ionos.com',
@@ -188,13 +189,41 @@ def get_module_arguments(options, states):
     return arguments
 
 
+def get_location_url(module, sdk, location):
+    """
+    Return the regional endpoint serving the given location, or None if the SDK has
+    no regional endpoints at all (in which case the SDK default is used).
+
+    A facility inside a metro region (e.g. 'de/fra/1', 'de/fra/2') shares its metro
+    region's endpoint, so it resolves to 'de/fra'. An unknown location fails the
+    task: silently falling back to the SDK's default region would operate on the
+    wrong region without telling anyone.
+    """
+    endpoints = LOCATION_CONSTANTS.get(sdk.__name__)
+    if not endpoints or location is None:
+        return None
+
+    if location not in endpoints and location.count('/') == 2:
+        location = location.rsplit('/', 1)[0]
+
+    if location not in endpoints:
+        module.fail_json(
+            msg='{location} is not a supported location. Supported locations are: {supported}'.format(
+                location=location,
+                supported=', '.join(sorted(endpoints)),
+            ),
+        )
+    return endpoints[location]
+
+
 def get_sdk_config(module, sdk, location=None):
     username = module.params.get('username')
     password = module.params.get('password')
     token = module.params.get('token')
     api_url = module.params.get('api_url')
     certificate_fingerprint = module.params.get('certificate_fingerprint')
-    location_url = LOCATION_CONSTANTS.get(sdk.__name__, {}).get(location)
+    # api_url overrides the location, so the location is not resolved at all in that case
+    location_url = None if api_url is not None else get_location_url(module, sdk, location)
 
     if token is not None:
         # use the token instead of username & password
