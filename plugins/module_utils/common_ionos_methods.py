@@ -222,7 +222,8 @@ def get_sdk_config(module, sdk, location=None):
     token = module.params.get('token')
     api_url = module.params.get('api_url')
     certificate_fingerprint = module.params.get('certificate_fingerprint')
-    location_url = get_location_url(module, sdk, location)
+    # api_url overrides the location, so the location is not resolved at all in that case
+    location_url = None if api_url is not None else get_location_url(module, sdk, location)
 
     if token is not None:
         # use the token instead of username & password

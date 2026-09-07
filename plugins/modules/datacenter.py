@@ -50,7 +50,7 @@ OPTIONS = {
     'location': {
         'description': ['The physical location where the datacenter will be created. This will be where all of your servers live. Property cannot be modified after datacenter creation (disallowed in update requests).'],
         'required': ['present'],
-        'choices_docs': ['us/las', 'us/ewr', 'de/fra', 'de/fra/1', 'de/fkb', 'de/txl', 'gb/lhr', 'es/vit', 'fr/par', 'us/mci'],
+        'choices_docs': ['us/las', 'us/ewr', 'de/fra', 'de/fra/1', 'de/fra/2', 'de/fkb', 'de/txl', 'gb/lhr', 'es/vit', 'fr/par', 'us/mci'],
         'available': ['present', 'update'],
         'type': 'str',
     },
@@ -108,6 +108,7 @@ options:
         - us/ewr
         - de/fra
         - de/fra/1
+        - de/fra/2
         - de/fkb
         - de/txl
         - gb/lhr

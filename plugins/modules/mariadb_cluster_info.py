@@ -24,7 +24,7 @@ RETURNED_KEY = 'mariadb_clusters'
 
 OPTIONS = {
     'location': {
-        'description': ['The location from which to retrieve clusters. Different service endpoints are used based on location, possible options are: "de/fra", "de/fra/1", "de/txl", "es/vit", "fr/par", "gb/lhr", "gb/bhx", "us/ewr", "us/las", "us/mci". If not set, the endpoint will be the one corresponding to "de/txl".'],
+        'description': ['The location from which to retrieve clusters. Different service endpoints are used based on location, possible options are: "de/fra", "de/fra/1", "de/fra/2", "de/txl", "es/vit", "fr/par", "gb/lhr", "gb/bhx", "us/ewr", "us/las", "us/mci". If not set, the endpoint will be the one corresponding to "de/txl".'],
         'available': STATES,
         'type': 'str',
     },
@@ -59,9 +59,9 @@ options:
     location:
         description:
         - 'The location from which to retrieve clusters. Different service endpoints are
-            used based on location, possible options are: "de/fra", "de/fra/1", "de/txl", "es/vit",
-            "fr/par", "gb/lhr", "gb/bhx", "us/ewr", "us/las", "us/mci". If not set, the endpoint
-            will be the one corresponding to "de/txl".'
+            used based on location, possible options are: "de/fra", "de/fra/1", "de/fra/2",
+            "de/txl", "es/vit", "fr/par", "gb/lhr", "gb/bhx", "us/ewr", "us/las", "us/mci".
+            If not set, the endpoint will be the one corresponding to "de/txl".'
         required: false
     password:
         aliases:
