@@ -6,18 +6,10 @@
     - ./vars.yml
 
   vars:
-    # DBaaS PostgreSQL v2 is regional: pick the region with `location` (selects the API host).
-    # Set `api_url` instead to point at a specific endpoint/proxy and override location.
-    postgres_location: "de/fra"
-    postgres_dc_location: "de/fra"
-    # backup_location is an Object Storage location id from /backup-locations
-    # (postgres_backup_location_v2_info), NOT a datacenter region. Valid de-fra values:
-    # eu-central-3, eu-central-4, us-central-1.
-    postgres_backup_location: "eu-central-3"
-    postgres_cluster_name: "ansible-test-v2"
-    # DBaaS scale operations (add instance + resize) can take well over 10 min;
-    # the module default wait_timeout (600s) is too short for them.
-    postgres_wait_timeout: 3600
+    # Declared here rather than in vars.yml on purpose: docs_utils/update_examples.py copies
+    # test tasks verbatim into the published module examples and resolves only vars.yml, so a
+    # literal password would be printed in the public docs while a playbook var renders as ''.
+    postgres_db_password: "7357Cluster!x"
     postgres_maintenance_window:
       time: "16:30:00"
       day_of_the_week: "Sunday"
@@ -39,7 +31,6 @@
       availability_zone: ZONE_1
       volume_availability_zone: ZONE_3
       volume_size: 10
-      cpu_family: INTEL_SKYLAKE
       disk_type: HDD
       image: "{{ image_alias }}"
       image_password: "{{ password }}"
@@ -106,7 +97,7 @@
       backup_location: "{{ postgres_backup_location }}"
       backup_retention_days: 7
       db_username: clusteruser
-      db_password: 7357Cluster!x
+      db_password: "{{ postgres_db_password }}"
       db_database: testdb
       wait: true
       wait_timeout: "{{ postgres_wait_timeout }}"
@@ -130,7 +121,7 @@
       backup_location: "{{ postgres_backup_location }}"
       backup_retention_days: 7
       db_username: clusteruser
-      db_password: 7357Cluster!x
+      db_password: "{{ postgres_db_password }}"
       db_database: testdb
       wait: true
       wait_timeout: "{{ postgres_wait_timeout }}"
@@ -167,7 +158,7 @@
       ram: 6
       storage_size: 20
       db_username: clusteruser
-      db_password: 7357Cluster!x
+      db_password: "{{ postgres_db_password }}"
       db_database: testdb
       state: update
       wait: true
@@ -183,7 +174,7 @@
       ram: 6
       storage_size: 20
       db_username: clusteruser
-      db_password: 7357Cluster!x
+      db_password: "{{ postgres_db_password }}"
       db_database: testdb
       state: update
       wait: true
@@ -195,18 +186,50 @@
         - updated_cluster_response_no_change.changed == false
       msg: "Changed should be false"
 
-  # In-place restore replays the cluster's own backups up to recovery_target_time.
-  # It needs an existing backup and a target time inside the recoverable window, so it is
-  # left commented out to keep the run deterministic. To try it, pick a time from
-  # postgres_backup_response_filtered (earliest/latest recovery target time) and uncomment:
-  #
-  # - name: Restore Cluster (in-place)
-  #   ionoscloudsdk.ionoscloud.postgres_cluster_v2:
-  #     location: "{{ postgres_location }}"
-  #     postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
-  #     recovery_target_time: "2026-06-08T13:00:00Z"
-  #     state: restore
-  #     wait: true
+  # In-place restore (point-in-time recovery) replays the cluster's own backups up to
+  # recovery_target_time. It is made deterministic by (1) polling until a backup exposes a
+  # recovery window (earliest_recovery_target_time is only populated once a base backup
+  # completes) and (2) restoring to that earliest recoverable point, which is by definition
+  # inside the window. latest_recovery_target_time is null for a fresh cluster (recoverable
+  # up to "now"), so it is dropped from the info response and not usable as a fixed target.
+  # state=restore also requires the master DB credentials: they are re-sent on the PUT and
+  # cannot be read back from the API, so db_username/db_password/db_database are mandatory.
+  - name: Wait until a backup exposes a recovery window
+    ionoscloudsdk.ionoscloud.postgres_backup_v2_info:
+      location: "{{ postgres_location }}"
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+    register: postgres_pitr_backups
+    until: >-
+      (postgres_pitr_backups.postgres_backups
+       | selectattr('properties.earliest_recovery_target_time', 'defined')
+       | list | length) > 0
+    retries: 30
+    delay: 20
+
+  - name: Pick the earliest recoverable point (guaranteed inside the window)
+    ansible.builtin.set_fact:
+      postgres_recovery_target_time: >-
+        {{ postgres_pitr_backups.postgres_backups
+           | selectattr('properties.earliest_recovery_target_time', 'defined')
+           | map(attribute='properties.earliest_recovery_target_time')
+           | list | first }}
+
+  - name: Show chosen recovery target time
+    ansible.builtin.debug:
+      var: postgres_recovery_target_time
+
+  - name: Restore Cluster (in-place)
+    ionoscloudsdk.ionoscloud.postgres_cluster_v2:
+      location: "{{ postgres_location }}"
+      postgres_cluster: "{{ cluster_response.postgres_cluster.id }}"
+      recovery_target_time: "{{ postgres_recovery_target_time }}"
+      db_username: clusteruser
+      db_password: "{{ postgres_db_password }}"
+      db_database: testdb
+      state: restore
+      wait: true
+      wait_timeout: "{{ postgres_wait_timeout }}"
+    register: restored_cluster_response
 
   - name: Delete Cluster (async)
     ionoscloudsdk.ionoscloud.postgres_cluster_v2:

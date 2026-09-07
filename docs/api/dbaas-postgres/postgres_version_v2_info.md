@@ -9,7 +9,7 @@ This is a simple module that supports listing the PostgreSQL versions available 
 
 name: List Postgres Versions
 ionoscloudsdk.ionoscloud.postgres_version_v2_info:
-  location: ''
+  location: 'de/fra'
 register: postgres_versions_response
 
 ```

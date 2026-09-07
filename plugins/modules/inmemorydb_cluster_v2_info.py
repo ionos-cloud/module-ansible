@@ -1,12 +1,12 @@
 from ansible import __version__
 
-from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info
+from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_methods import default_main_info, get_paginated
 from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_ionos_options import get_info_default_options
 
 
 HAS_SDK = True
 try:
-    import ionoscloud_dbaas_postgres
+    import ionoscloud_dbaas_inmemorydb
 except ImportError:
     HAS_SDK = False
 
@@ -15,16 +15,16 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-postgres/%s' % (
-    __version__, ionoscloud_dbaas_postgres.__version__)
-DOC_DIRECTORY = 'dbaas-postgres'
+USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-in-memory-db/%s' % (
+    __version__, ionoscloud_dbaas_inmemorydb.__version__)
+DOC_DIRECTORY = 'dbaas-in-memory-db'
 STATES = ['info']
-OBJECT_NAME = 'Postgres Backup Locations (v2)'
-RETURNED_KEY = 'postgres_backup_locations'
+OBJECT_NAME = 'In-Memory DB Clusters (v2)'
+RETURNED_KEY = 'inmemorydb_clusters'
 
 OPTIONS = {
     'location': {
-        'description': ['The location (region) whose regional endpoint will be queried. Possible options are: "de/fra", "de/txl", "es/vit", "fr/par", "gb/lhr", "gb/bhx", "us/ewr", "us/las", "us/mci". If not set, the endpoint will be the one corresponding to "de/txl". The api_url, if set, overrides this.'],
+        'description': ['The location (region) whose regional endpoint will be queried. Possible options are: "de/fra", "de/txl", "es/vit", "fr/par", "gb/lhr", "gb/bhx", "us/ewr", "us/las", "us/mci". If not set, the endpoint will be the one corresponding to "de/fra". The api_url, if set, overrides this.'],
         'available': STATES,
         'type': 'str',
     },
@@ -33,12 +33,12 @@ OPTIONS = {
 
 
 DOCUMENTATION = """
-module: postgres_backup_location_v2_info
-short_description: List Postgres Backup Locations (DBaaS PostgreSQL v2 API)
+module: inmemorydb_cluster_v2_info
+short_description: List In-Memory DB Clusters (DBaaS In-Memory DB v2 API)
 description:
-     - This is a simple module that supports listing the Object Storage locations where
-       Postgres Cluster backups can be stored, using the DBaaS PostgreSQL v2 API. The
-       region is selected through the I(location) option; set I(api_url) (e.g. C(https://postgresql.de-fra.ionos.com)) to override it directly.
+     - This is a simple module that supports listing existing In-Memory DB Clusters using the
+       DBaaS In-Memory DB v2 API. The region is selected through the I(location) option;
+       set I(api_url) (e.g. C(https://in-memory-db.de-fra.ionos.com/v2)) to override it directly.
 version_added: "2.0"
 options:
     location:
@@ -46,7 +46,7 @@ options:
         - 'The location (region) whose regional endpoint will be queried. Possible options
             are: "de/fra", "de/txl", "es/vit", "fr/par", "gb/lhr", "gb/bhx", "us/ewr",
             "us/las", "us/mci". If not set, the endpoint will be the one corresponding to
-            "de/txl". The api_url, if set, overrides this.'
+            "de/fra". The api_url, if set, overrides this.'
         required: false
     api_url:
         description:
@@ -88,25 +88,25 @@ options:
         required: false
 requirements:
     - "python >= 3.8"
-    - "ionoscloud-dbaas-postgres >= 3.0.0"
+    - "ionoscloud-dbaas-inmemorydb >= 1.0.0"
 author:
     - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLES = """
-name: List Postgres Backup Locations (pick a valid backup_location from here)
-ionoscloudsdk.ionoscloud.postgres_backup_location_v2_info:
+name: List In-Memory DB Clusters (after CREATE)
+ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2_info:
   location: 'de/fra'
-register: postgres_backup_locations_response
+register: info_after_create
 """
 
 
 def get_objects(module, client):
-    return ionoscloud_dbaas_postgres.BackupLocationsApi(client).backuplocations_get()
+    return get_paginated(ionoscloud_dbaas_inmemorydb.ClustersApi(client).clusters_get, depth=None)
 
 
 if __name__ == '__main__':
     default_main_info(
-        ionoscloud_dbaas_postgres, 'ionoscloud_dbaas_postgres', USER_AGENT, HAS_SDK, OPTIONS,
+        ionoscloud_dbaas_inmemorydb, 'ionoscloud_dbaas_inmemorydb', USER_AGENT, HAS_SDK, OPTIONS,
         STATES, OBJECT_NAME, RETURNED_KEY, get_objects,
     )

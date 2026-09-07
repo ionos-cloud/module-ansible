@@ -1,0 +1,6 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+- name: Run In-Memory DB Cluster V2 Test
+  import_playbook: inmemorydb-cluster-v2-test.yml

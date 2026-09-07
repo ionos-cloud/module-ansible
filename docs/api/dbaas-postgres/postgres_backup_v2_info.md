@@ -9,7 +9,7 @@ This is a simple module that supports listing existing Postgres Cluster backups 
 
 name: List Postgres Cluster Backups (all)
 ionoscloudsdk.ionoscloud.postgres_backup_v2_info:
-  location: ''
+  location: 'de/fra'
 register: postgres_backup_response
 
 ```

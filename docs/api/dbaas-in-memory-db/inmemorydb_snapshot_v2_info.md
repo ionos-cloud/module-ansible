@@ -1,22 +1,22 @@
-# postgres_backup_location_v2_info
+# inmemorydb_snapshot_v2_info
 
-This is a simple module that supports listing the Object Storage locations where Postgres Cluster backups can be stored, using the DBaaS PostgreSQL v2 API. The region is selected through the I(location) option; set I(api_url) (e.g. C(https://postgresql.de-fra.ionos.com)) to override it directly.
+This is a simple module that supports listing existing In-Memory DB Cluster snapshots using the DBaaS In-Memory DB v2 API. There is no per-cluster snapshots endpoint, so when I(inmemorydb_cluster) is provided the account-wide snapshot list is filtered by cluster id server-side via the API's filter parameter.
 
 ## Example Syntax
 
 
 ```yaml
 
-name: List Postgres Backup Locations (pick a valid backup_location from here)
-ionoscloudsdk.ionoscloud.postgres_backup_location_v2_info:
+name: List In-Memory DB Snapshots (all)
+ionoscloudsdk.ionoscloud.inmemorydb_snapshot_v2_info:
   location: 'de/fra'
-register: postgres_backup_locations_response
+register: inmemorydb_snapshot_response
 
 ```
 
 
 &nbsp;
-### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/dbaas-postgres).
+### For more examples please check out the tests [here](https://github.com/ionos-cloud/module-ansible/tree/master/tests/dbaas-in-memory-db).
 
 &nbsp;
 ### Available parameters:
@@ -32,9 +32,14 @@ register: postgres_backup_locations_response
   </thead>
   <tbody>
   <tr>
+  <td>inmemorydb_cluster<br/><mark style="color:blue;">str</mark></td>
+  <td align="center">False</td>
+  <td>The ID or name of an existing In-Memory DB Cluster. If set, only snapshots belonging to this cluster are returned.</td>
+  </tr>
+  <tr>
   <td>location<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>The location (region) whose regional endpoint will be queried. Possible options are: &quot;de/fra&quot;, &quot;de/txl&quot;, &quot;es/vit&quot;, &quot;fr/par&quot;, &quot;gb/lhr&quot;, &quot;gb/bhx&quot;, &quot;us/ewr&quot;, &quot;us/las&quot;, &quot;us/mci&quot;. If not set, the endpoint will be the one corresponding to &quot;de/txl&quot;. The api_url, if set, overrides this.</td>
+  <td>The location (region) whose regional endpoint will be queried. Possible options are: &quot;de/fra&quot;, &quot;de/txl&quot;, &quot;es/vit&quot;, &quot;fr/par&quot;, &quot;gb/lhr&quot;, &quot;gb/bhx&quot;, &quot;us/ewr&quot;, &quot;us/las&quot;, &quot;us/mci&quot;. If not set, the endpoint will be the one corresponding to &quot;de/fra&quot;. The api_url, if set, overrides this.</td>
   </tr>
   <tr>
   <td>filters<br/><mark style="color:blue;">dict</mark></td>

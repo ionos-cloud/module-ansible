@@ -7,7 +7,7 @@ from ansible_collections.ionoscloudsdk.ionoscloud.plugins.module_utils.common_io
 
 HAS_SDK = True
 try:
-    import ionoscloud_dbaas_postgres
+    import ionoscloud_dbaas_inmemorydb
 except ImportError:
     HAS_SDK = False
 
@@ -16,21 +16,21 @@ ANSIBLE_METADATA = {
     'status': ['preview'],
     'supported_by': 'community',
 }
-USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-postgres/%s' % (
-    __version__, ionoscloud_dbaas_postgres.__version__)
-DOC_DIRECTORY = 'dbaas-postgres'
+USER_AGENT = 'ansible-module/%s_sdk-python-dbaas-in-memory-db/%s' % (
+    __version__, ionoscloud_dbaas_inmemorydb.__version__)
+DOC_DIRECTORY = 'dbaas-in-memory-db'
 STATES = ['info']
-OBJECT_NAME = 'Postgres Cluster Backups (v2)'
-RETURNED_KEY = 'postgres_backups'
+OBJECT_NAME = 'In-Memory DB Cluster Snapshots (v2)'
+RETURNED_KEY = 'inmemorydb_snapshots'
 
 OPTIONS = {
-    'postgres_cluster': {
-        'description': ['The ID or name of an existing Postgres Cluster. If set, only backups belonging to this cluster are returned.'],
+    'inmemorydb_cluster': {
+        'description': ['The ID or name of an existing In-Memory DB Cluster. If set, only snapshots belonging to this cluster are returned.'],
         'available': STATES,
         'type': 'str',
     },
     'location': {
-        'description': ['The location (region) whose regional endpoint will be queried. Possible options are: "de/fra", "de/txl", "es/vit", "fr/par", "gb/lhr", "gb/bhx", "us/ewr", "us/las", "us/mci". If not set, the endpoint will be the one corresponding to "de/txl". The api_url, if set, overrides this.'],
+        'description': ['The location (region) whose regional endpoint will be queried. Possible options are: "de/fra", "de/txl", "es/vit", "fr/par", "gb/lhr", "gb/bhx", "us/ewr", "us/las", "us/mci". If not set, the endpoint will be the one corresponding to "de/fra". The api_url, if set, overrides this.'],
         'available': STATES,
         'type': 'str',
     },
@@ -38,12 +38,12 @@ OPTIONS = {
 }
 
 DOCUMENTATION = """
-module: postgres_backup_v2_info
-short_description: List Postgres Cluster backups (DBaaS PostgreSQL v2 API)
+module: inmemorydb_snapshot_v2_info
+short_description: List In-Memory DB Cluster snapshots (DBaaS In-Memory DB v2 API)
 description:
-     - This is a simple module that supports listing existing Postgres Cluster backups using
-       the DBaaS PostgreSQL v2 API. There is no per-cluster backups endpoint, so when
-       I(postgres_cluster) is provided the account-wide backup list is filtered by cluster id
+     - This is a simple module that supports listing existing In-Memory DB Cluster snapshots using
+       the DBaaS In-Memory DB v2 API. There is no per-cluster snapshots endpoint, so when
+       I(inmemorydb_cluster) is provided the account-wide snapshot list is filtered by cluster id
        server-side via the API's filter parameter.
 version_added: "2.0"
 options:
@@ -52,7 +52,7 @@ options:
         - 'The location (region) whose regional endpoint will be queried. Possible options
             are: "de/fra", "de/txl", "es/vit", "fr/par", "gb/lhr", "gb/bhx", "us/ewr",
             "us/las", "us/mci". If not set, the endpoint will be the one corresponding to
-            "de/txl". The api_url, if set, overrides this.'
+            "de/fra". The api_url, if set, overrides this.'
         required: false
     api_url:
         description:
@@ -71,6 +71,11 @@ options:
             Filters should be a dict with a key containing keys and value pair in the
             following format: ''properties.name'': ''server_name'''
         required: false
+    inmemorydb_cluster:
+        description:
+        - The ID or name of an existing In-Memory DB Cluster. If set, only snapshots belonging
+            to this cluster are returned.
+        required: false
     password:
         aliases:
         - subscription_password
@@ -78,11 +83,6 @@ options:
         - The Ionos password. Overrides the IONOS_PASSWORD environment variable.
         env_fallback: IONOS_PASSWORD
         no_log: true
-        required: false
-    postgres_cluster:
-        description:
-        - The ID or name of an existing Postgres Cluster. If set, only backups belonging
-            to this cluster are returned.
         required: false
     token:
         description:
@@ -99,42 +99,42 @@ options:
         required: false
 requirements:
     - "python >= 3.8"
-    - "ionoscloud-dbaas-postgres >= 3.0.0"
+    - "ionoscloud-dbaas-inmemorydb >= 1.0.0"
 author:
     - "IONOS CLOUD SDK Team <sdk-tooling@ionos.com>"
 """
 
 EXAMPLES = """
-name: List Postgres Cluster Backups (all)
-ionoscloudsdk.ionoscloud.postgres_backup_v2_info:
+name: List In-Memory DB Snapshots (all)
+ionoscloudsdk.ionoscloud.inmemorydb_snapshot_v2_info:
   location: 'de/fra'
-register: postgres_backup_response
+register: inmemorydb_snapshot_response
 """
 
 
 def get_objects(module, client):
-    backups_api = ionoscloud_dbaas_postgres.BackupsApi(client)
-    postgres_cluster = module.params.get('postgres_cluster')
+    snapshots_api = ionoscloud_dbaas_inmemorydb.SnapshotsApi(client)
+    inmemorydb_cluster = module.params.get('inmemorydb_cluster')
 
-    if postgres_cluster:
-        clusters_api = ionoscloud_dbaas_postgres.ClustersApi(client)
-        postgres_cluster_id = get_resource_id(
+    if inmemorydb_cluster:
+        clusters_api = ionoscloud_dbaas_inmemorydb.ClustersApi(client)
+        inmemorydb_cluster_id = get_resource_id(
             module,
             get_paginated(clusters_api.clusters_get, depth=None),
-            postgres_cluster,
+            inmemorydb_cluster,
             [['id'], ['properties', 'name']],
             fail_not_found=True,
         )
         return get_paginated(
-            partial(backups_api.backups_get, filter_cluster_id=postgres_cluster_id),
+            partial(snapshots_api.snapshots_get, filter_cluster_id=inmemorydb_cluster_id),
             depth=None,
         )
 
-    return get_paginated(backups_api.backups_get, depth=None)
+    return get_paginated(snapshots_api.snapshots_get, depth=None)
 
 
 if __name__ == '__main__':
     default_main_info(
-        ionoscloud_dbaas_postgres, 'ionoscloud_dbaas_postgres', USER_AGENT, HAS_SDK, OPTIONS,
+        ionoscloud_dbaas_inmemorydb, 'ionoscloud_dbaas_inmemorydb', USER_AGENT, HAS_SDK, OPTIONS,
         STATES, OBJECT_NAME, RETURNED_KEY, get_objects,
     )

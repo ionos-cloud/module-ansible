@@ -143,6 +143,14 @@
     * [Postgres Cluster Backups (v2)](api/dbaas-postgres/postgres_backup_v2_info.md)
     * [Postgres Backup Locations (v2)](api/dbaas-postgres/postgres_backup_location_v2_info.md)
     * [Postgres Versions (v2)](api/dbaas-postgres/postgres_version_v2_info.md)
+* DBaaS In-Memory DB
+  * Modules
+    * [In-Memory DB Cluster (v2)](api/dbaas-in-memory-db/inmemorydb_cluster_v2.md)
+  * Info Modules
+    * [In-Memory DB Clusters (v2)](api/dbaas-in-memory-db/inmemorydb_cluster_v2_info.md)
+    * [In-Memory DB Cluster Snapshots (v2)](api/dbaas-in-memory-db/inmemorydb_snapshot_v2_info.md)
+    * [In-Memory DB Snapshot Locations (v2)](api/dbaas-in-memory-db/inmemorydb_snapshot_location_v2_info.md)
+    * [In-Memory DB Versions (v2)](api/dbaas-in-memory-db/inmemorydb_version_v2_info.md)
 * DBaaS Mongo
   * Modules
     * [Mongo Cluster](api/dbaas-mongo/mongo_cluster.md)

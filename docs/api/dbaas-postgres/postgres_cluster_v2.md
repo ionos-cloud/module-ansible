@@ -9,7 +9,7 @@ This module supports creating, updating, restoring or destroying Postgres Cluste
 
 name: Create Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster_v2:
-  location: ''
+  location: 'de/fra'
   postgres_version: '16'
   instances: 1
   cores: 1
@@ -19,47 +19,53 @@ ionoscloudsdk.ionoscloud.postgres_cluster_v2:
     datacenter: 'AnsibleAutoTestDBaaS - DBaaS v2'
     lan: test_lan1
     primary_instance_address: 192.168.1.101/24
-  name: ''
+  name: 'ansible-test-v2'
   replication_mode: ASYNCHRONOUS
   maintenance_window: ''
-  backup_location: ''
+  backup_location: 'eu-central-3'
   backup_retention_days: 7
   db_username: clusteruser
-  db_password: 7357Cluster!x
+  db_password: ''
   db_database: testdb
   wait: true
-  wait_timeout: ''
+  wait_timeout: '3600'
 register: cluster_response
 
 
 name: Update Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster_v2:
-  location: ''
+  location: 'de/fra'
   postgres_cluster: ''
   instances: 2
   cores: 2
   ram: 6
   storage_size: 20
   db_username: clusteruser
-  db_password: 7357Cluster!x
+  db_password: ''
   db_database: testdb
   state: update
   wait: true
-  wait_timeout: ''
+  wait_timeout: '3600'
 register: updated_cluster_response
 
 
 name: Restore Cluster (in-place)
 ionoscloudsdk.ionoscloud.postgres_cluster_v2:
+  location: 'de/fra'
   postgres_cluster: ''
-  recovery_target_time: "2023-07-01T13:00:00Z"
+  recovery_target_time: ''
+  db_username: clusteruser
+  db_password: ''
+  db_database: testdb
   state: restore
   wait: true
+  wait_timeout: '3600'
+register: restored_cluster_response
 
 
 name: Delete Cluster (async)
 ionoscloudsdk.ionoscloud.postgres_cluster_v2:
-  location: ''
+  location: 'de/fra'
   postgres_cluster: ''
   state: absent
   wait: false
@@ -81,7 +87,7 @@ ionoscloudsdk.ionoscloud.postgres_cluster_v2:
   
 name: Create Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster_v2:
-  location: ''
+  location: 'de/fra'
   postgres_version: '16'
   instances: 1
   cores: 1
@@ -91,16 +97,16 @@ ionoscloudsdk.ionoscloud.postgres_cluster_v2:
     datacenter: 'AnsibleAutoTestDBaaS - DBaaS v2'
     lan: test_lan1
     primary_instance_address: 192.168.1.101/24
-  name: ''
+  name: 'ansible-test-v2'
   replication_mode: ASYNCHRONOUS
   maintenance_window: ''
-  backup_location: ''
+  backup_location: 'eu-central-3'
   backup_retention_days: 7
   db_username: clusteruser
-  db_password: 7357Cluster!x
+  db_password: ''
   db_database: testdb
   wait: true
-  wait_timeout: ''
+  wait_timeout: '3600'
 register: cluster_response
 
 ```
@@ -119,7 +125,7 @@ register: cluster_response
   <tr>
   <td>maintenance_window<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">True</td>
-  <td>A weekly 4 hour-long window, during which maintenance might occur. A dict with keys `time` (start of the maintenance window in UTC, e.g. &quot;16:30:00&quot;) and `day_of_the_week` (e.g. &quot;Sunday&quot;).</td>
+  <td>A weekly 4 hour-long window, during which maintenance might occur.</td>
   </tr>
   <tr>
   <td>postgres_version<br/><mark style="color:blue;">str</mark></td>
@@ -154,7 +160,7 @@ register: cluster_response
   <tr>
   <td>replication_mode<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>Defines the replication mode across instances. - `ASYNCHRONOUS`: Propagates updates to other instances without waiting for confirmation. Offers higher performance but may result in temporary data inconsistencies during replication delays. - `STRICTLY_SYNCHRONOUS`: Only supported for clusters with at least 3 instances. Requires all instances to acknowledge the update before it is committed, guaranteeing strong consistency at the cost of potential performance impact in high-latency environments.<br />Options: ['ASYNCHRONOUS', 'STRICTLY_SYNCHRONOUS']</td>
+  <td>Defines the replication mode across instances.<br />Options: ['ASYNCHRONOUS', 'STRICTLY_SYNCHRONOUS']</td>
   </tr>
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
@@ -164,42 +170,42 @@ register: cluster_response
   <tr>
   <td>db_username<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The username of the master database user. Must be 16 characters or less and must include only alphanumeric characters (`[A-Za-z0-9_]`) and underscores (`_`).</td>
+  <td>The username of the database user to create or update. Must be 16 characters or less and must include only alphanumeric characters (`[A-Za-z0-9_]`) and underscores (`_`).</td>
   </tr>
   <tr>
   <td>db_password<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The password for the master database user. Must meet the following requirements: - At least 8 characters long. - Contains at least one lowercase letter. - Contains at least one uppercase letter. - Contains at least one digit (0-9). - Contains at least one special character from the set: @$!%*?&amp;</td>
+  <td>The password for the database user. Must be between 8 and 256 characters long. For a strong password we recommend that it also meets the following criteria, though these are not enforced: - Contains at least one lowercase letter. - Contains at least one uppercase letter. - Contains at least one digit (0-9). - Contains at least one special character from the set: @$!%*?&amp;</td>
   </tr>
   <tr>
   <td>db_database<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The name of the initial database to be created. Must be 63 characters or less and must include only alphanumeric characters (`[a-z0-9A-Z]`) and underscores (`_`).</td>
+  <td>The name of the database to create and grant the user access to. Must be 63 characters or less and must include only alphanumeric characters (`[a-z0-9A-Z]`) and underscores (`_`).</td>
   </tr>
   <tr>
   <td>connection_pooler<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>Defines how database connections are managed and reused. Default value is DISABLED. DISABLED: No connection pooling is used. Each request opens a new connection, which is closed immediately after use. It ensures isolation but may impact performance due to frequent connection setup and teardown. TRANSACTION: Connections are pooled and reused for the duration of a transaction. Once the transaction completes, the connection is returned to the pool. This mode balances efficiency with transactional integrity. SESSION: Connections are retained for the entire session and reused across multiple transactions. Offers the highest performance by minimizing connection overhead, but may tie up resources longer.<br />Options: ['DISABLED', 'TRANSACTION', 'SESSION']</td>
+  <td>Defines how database connections are managed and reused. Default value is `DISABLED`.<br />Options: ['DISABLED', 'TRANSACTION', 'SESSION']</td>
   </tr>
   <tr>
   <td>backup_location<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The Object Storage location where the backup will be created. The BackupLocations provides a list of supported locations.</td>
+  <td>The Object Storage location where the backup is created. The BackupLocations operations provide a list of supported locations.</td>
   </tr>
   <tr>
   <td>backup_retention_days<br/><mark style="color:blue;">int</mark></td>
   <td align="center">True</td>
-  <td>Configures how many days cluster backups are retained.</td>
+  <td>The number of days cluster backups are retained. Accepted values are 1 to 365. Pre-existing clusters default to 7 days. If you reduce this value, backups older than the new window are purged.</td>
   </tr>
   <tr>
   <td>logs_enabled<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Allows or disallows the collection and reporting of logs for this cluster's observability. If the observability service is not activated on the contract, this setting is accepted but has no effect; log collection will not be enabled until the observability service is activated.</td>
+  <td>Activates or deactivates the collection and reporting of logs for this cluster's observability. If the observability service is not activated on the contract, this setting is accepted but has no effect. Log collection does not start until the observability service is active.</td>
   </tr>
   <tr>
   <td>metrics_enabled<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Allows or disallows the collection and reporting of metrics for this cluster's observability. If the observability service is not activated on the contract, this setting is accepted but has no effect; metric collection will not be enabled until the observability service is activated.</td>
+  <td>Activates or deactivates the collection and reporting of metrics for this cluster's observability. If the observability service is not activated on the contract, this setting is accepted but has no effect. Metric collection does not start until the observability service is active.</td>
   </tr>
   <tr>
   <td>backup_id<br/><mark style="color:blue;">str</mark></td>
@@ -272,7 +278,7 @@ register: cluster_response
   
 name: Delete Cluster (async)
 ionoscloudsdk.ionoscloud.postgres_cluster_v2:
-  location: ''
+  location: 'de/fra'
   postgres_cluster: ''
   state: absent
   wait: false
@@ -351,18 +357,18 @@ ionoscloudsdk.ionoscloud.postgres_cluster_v2:
   
 name: Update Cluster
 ionoscloudsdk.ionoscloud.postgres_cluster_v2:
-  location: ''
+  location: 'de/fra'
   postgres_cluster: ''
   instances: 2
   cores: 2
   ram: 6
   storage_size: 20
   db_username: clusteruser
-  db_password: 7357Cluster!x
+  db_password: ''
   db_database: testdb
   state: update
   wait: true
-  wait_timeout: ''
+  wait_timeout: '3600'
 register: updated_cluster_response
 
 ```
@@ -381,7 +387,7 @@ register: updated_cluster_response
   <tr>
   <td>maintenance_window<br/><mark style="color:blue;">dict</mark></td>
   <td align="center">False</td>
-  <td>A weekly 4 hour-long window, during which maintenance might occur. A dict with keys `time` (start of the maintenance window in UTC, e.g. &quot;16:30:00&quot;) and `day_of_the_week` (e.g. &quot;Sunday&quot;).</td>
+  <td>A weekly 4 hour-long window, during which maintenance might occur.</td>
   </tr>
   <tr>
   <td>postgres_version<br/><mark style="color:blue;">str</mark></td>
@@ -411,7 +417,7 @@ register: updated_cluster_response
   <tr>
   <td>replication_mode<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>Defines the replication mode across instances. - `ASYNCHRONOUS`: Propagates updates to other instances without waiting for confirmation. Offers higher performance but may result in temporary data inconsistencies during replication delays. - `STRICTLY_SYNCHRONOUS`: Only supported for clusters with at least 3 instances. Requires all instances to acknowledge the update before it is committed, guaranteeing strong consistency at the cost of potential performance impact in high-latency environments.<br />Options: ['ASYNCHRONOUS', 'STRICTLY_SYNCHRONOUS']</td>
+  <td>Defines the replication mode across instances.<br />Options: ['ASYNCHRONOUS', 'STRICTLY_SYNCHRONOUS']</td>
   </tr>
   <tr>
   <td>name<br/><mark style="color:blue;">str</mark></td>
@@ -421,37 +427,37 @@ register: updated_cluster_response
   <tr>
   <td>db_username<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The username of the master database user. Must be 16 characters or less and must include only alphanumeric characters (`[A-Za-z0-9_]`) and underscores (`_`).</td>
+  <td>The username of the database user to create or update. Must be 16 characters or less and must include only alphanumeric characters (`[A-Za-z0-9_]`) and underscores (`_`).</td>
   </tr>
   <tr>
   <td>db_password<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The password for the master database user. Must meet the following requirements: - At least 8 characters long. - Contains at least one lowercase letter. - Contains at least one uppercase letter. - Contains at least one digit (0-9). - Contains at least one special character from the set: @$!%*?&amp;</td>
+  <td>The password for the database user. Must be between 8 and 256 characters long. For a strong password we recommend that it also meets the following criteria, though these are not enforced: - Contains at least one lowercase letter. - Contains at least one uppercase letter. - Contains at least one digit (0-9). - Contains at least one special character from the set: @$!%*?&amp;</td>
   </tr>
   <tr>
   <td>db_database<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The name of the initial database to be created. Must be 63 characters or less and must include only alphanumeric characters (`[a-z0-9A-Z]`) and underscores (`_`).</td>
+  <td>The name of the database to create and grant the user access to. Must be 63 characters or less and must include only alphanumeric characters (`[a-z0-9A-Z]`) and underscores (`_`).</td>
   </tr>
   <tr>
   <td>connection_pooler<br/><mark style="color:blue;">str</mark></td>
   <td align="center">False</td>
-  <td>Defines how database connections are managed and reused. Default value is DISABLED. DISABLED: No connection pooling is used. Each request opens a new connection, which is closed immediately after use. It ensures isolation but may impact performance due to frequent connection setup and teardown. TRANSACTION: Connections are pooled and reused for the duration of a transaction. Once the transaction completes, the connection is returned to the pool. This mode balances efficiency with transactional integrity. SESSION: Connections are retained for the entire session and reused across multiple transactions. Offers the highest performance by minimizing connection overhead, but may tie up resources longer.<br />Options: ['DISABLED', 'TRANSACTION', 'SESSION']</td>
+  <td>Defines how database connections are managed and reused. Default value is `DISABLED`.<br />Options: ['DISABLED', 'TRANSACTION', 'SESSION']</td>
   </tr>
   <tr>
   <td>backup_retention_days<br/><mark style="color:blue;">int</mark></td>
   <td align="center">False</td>
-  <td>Configures how many days cluster backups are retained.</td>
+  <td>The number of days cluster backups are retained. Accepted values are 1 to 365. Pre-existing clusters default to 7 days. If you reduce this value, backups older than the new window are purged.</td>
   </tr>
   <tr>
   <td>logs_enabled<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Allows or disallows the collection and reporting of logs for this cluster's observability. If the observability service is not activated on the contract, this setting is accepted but has no effect; log collection will not be enabled until the observability service is activated.</td>
+  <td>Activates or deactivates the collection and reporting of logs for this cluster's observability. If the observability service is not activated on the contract, this setting is accepted but has no effect. Log collection does not start until the observability service is active.</td>
   </tr>
   <tr>
   <td>metrics_enabled<br/><mark style="color:blue;">bool</mark></td>
   <td align="center">False</td>
-  <td>Allows or disallows the collection and reporting of metrics for this cluster's observability. If the observability service is not activated on the contract, this setting is accepted but has no effect; metric collection will not be enabled until the observability service is activated.</td>
+  <td>Activates or deactivates the collection and reporting of metrics for this cluster's observability. If the observability service is not activated on the contract, this setting is accepted but has no effect. Metric collection does not start until the observability service is active.</td>
   </tr>
   <tr>
   <td>postgres_cluster<br/><mark style="color:blue;">str</mark></td>
@@ -519,10 +525,16 @@ register: updated_cluster_response
   
 name: Restore Cluster (in-place)
 ionoscloudsdk.ionoscloud.postgres_cluster_v2:
+  location: 'de/fra'
   postgres_cluster: ''
-  recovery_target_time: "2023-07-01T13:00:00Z"
+  recovery_target_time: ''
+  db_username: clusteruser
+  db_password: ''
+  db_database: testdb
   state: restore
   wait: true
+  wait_timeout: '3600'
+register: restored_cluster_response
 
 ```
 ### Available parameters for state **restore**:
@@ -540,17 +552,17 @@ ionoscloudsdk.ionoscloud.postgres_cluster_v2:
   <tr>
   <td>db_username<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The username of the master database user. Must be 16 characters or less and must include only alphanumeric characters (`[A-Za-z0-9_]`) and underscores (`_`).</td>
+  <td>The username of the database user to create or update. Must be 16 characters or less and must include only alphanumeric characters (`[A-Za-z0-9_]`) and underscores (`_`).</td>
   </tr>
   <tr>
   <td>db_password<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The password for the master database user. Must meet the following requirements: - At least 8 characters long. - Contains at least one lowercase letter. - Contains at least one uppercase letter. - Contains at least one digit (0-9). - Contains at least one special character from the set: @$!%*?&amp;</td>
+  <td>The password for the database user. Must be between 8 and 256 characters long. For a strong password we recommend that it also meets the following criteria, though these are not enforced: - Contains at least one lowercase letter. - Contains at least one uppercase letter. - Contains at least one digit (0-9). - Contains at least one special character from the set: @$!%*?&amp;</td>
   </tr>
   <tr>
   <td>db_database<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
-  <td>The name of the initial database to be created. Must be 63 characters or less and must include only alphanumeric characters (`[a-z0-9A-Z]`) and underscores (`_`).</td>
+  <td>The name of the database to create and grant the user access to. Must be 63 characters or less and must include only alphanumeric characters (`[a-z0-9A-Z]`) and underscores (`_`).</td>
   </tr>
   <tr>
   <td>recovery_target_time<br/><mark style="color:blue;">str</mark></td>
