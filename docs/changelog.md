@@ -1,5 +1,12 @@
 # Changelog
 
+## 7.10.0
+### Features
+* added new DBaaS MariaDB v2 modules `mariadb_cluster_v2`, `mariadb_cluster_v2_info`, `mariadb_backup_v2_info`, `mariadb_backup_location_v2_info` and `mariadb_version_v2_info`
+### Changes
+* updated the MariaDB SDK requirement to `ionoscloud_dbaas_mariadb>=3,<4`, the pydantic 2 SDK for the MariaDB v2 API, and pointed the MariaDB regional endpoints at their `/v2` path
+* the v1 MariaDB modules (`mariadb_cluster`, `mariadb_cluster_info`, `mariadb_backup_info`) target the v1 API, which the new SDK no longer ships; use the `_v2` modules instead
+
 ## 7.9.0
 ### Features
 * added new DBaaS In-Memory DB v2 modules `inmemorydb_cluster_v2`, `inmemorydb_cluster_v2_info`, `inmemorydb_snapshot_v2_info`, `inmemorydb_snapshot_location_v2_info` and `inmemorydb_version_v2_info`

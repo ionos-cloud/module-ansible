@@ -2,5 +2,5 @@
   connection: local
   gather_facts: false
 
-- name: Run MariaDB Cluster Test
-  import_playbook: mariadb-cluster-test.yml
+- name: Run MariaDB Cluster V2 Test
+  import_playbook: mariadb-cluster-v2-test.yml

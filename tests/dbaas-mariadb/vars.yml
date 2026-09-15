@@ -9,3 +9,11 @@ image_alias: ubuntu:latest
 password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}"
 updated_password: "{{ lookup('ansible.builtin.password', '/dev/null chars=ascii_letters,digits') }}"
 wait_timeout: 500
+mariadb_location: "de/fra"
+mariadb_dc_location: "de/fra"
+mariadb_backup_location: "eu-central-3"
+mariadb_cluster_name: "ansible-test-v2"
+mariadb_cluster_version: "11.4"
+mariadb_wait_timeout: 3600
+mariadb_db_username: "dbadmin"
+mariadb_db_database: "my_database"

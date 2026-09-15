@@ -1,0 +1,328 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ./vars.yml
+
+  vars:
+    # Declared here rather than in vars.yml on purpose: docs_utils/update_examples.py copies
+    # test tasks verbatim into the published module examples and resolves only vars.yml, so a
+    # literal password would be printed in the public docs while a playbook var renders as ''.
+    mariadb_db_password: "7357Cluster!x"
+
+  tasks:
+
+  - name: Create datacenter
+    ionoscloudsdk.ionoscloud.datacenter:
+      name: "{{ datacenter }} - DBaaS v2"
+      location: "{{ mariadb_dc_location }}"
+    register: datacenter_response
+
+  - name: Provision a server
+    ionoscloudsdk.ionoscloud.server:
+      datacenter: "{{ datacenter }} - DBaaS v2"
+      name: "{{ name }}"
+      cores: 1
+      ram: 2048
+      availability_zone: ZONE_1
+      volume_availability_zone: ZONE_3
+      volume_size: 10
+      disk_type: HDD
+      image: "{{ image_alias }}"
+      image_password: "{{ password }}"
+      location: "{{ mariadb_dc_location }}"
+      count: 1
+      assign_public_ip: true
+      remove_boot_volume: true
+      wait: true
+      wait_timeout: "{{ wait_timeout }}"
+      state: present
+    register: server_response
+
+  - name: Create private LAN
+    ionoscloudsdk.ionoscloud.lan:
+      datacenter: "{{ datacenter }} - DBaaS v2"
+      name: "test_lan1"
+      public: false
+    register: lan_response1
+
+  - name: Create NIC on the private LAN
+    ionoscloudsdk.ionoscloud.nic:
+      name: "test_nic1"
+      datacenter: "{{ datacenter }} - DBaaS v2"
+      server: "{{ server_response.machines[0].id }}"
+      lan: "{{ lan_response1.lan.id }}"
+      wait: true
+      wait_timeout: "{{ wait_timeout }}"
+      state: present
+    register: nic_response1
+
+  - name: List MariaDB Backup Locations (pick a valid backup_location from here)
+    ionoscloudsdk.ionoscloud.mariadb_backup_location_v2_info:
+      location: "{{ mariadb_location }}"
+    register: mariadb_backup_locations_response
+
+  - name: Show available backup locations
+    ansible.builtin.debug:
+      var: mariadb_backup_locations_response.mariadb_backup_locations
+
+  - name: List MariaDB Versions
+    ionoscloudsdk.ionoscloud.mariadb_version_v2_info:
+      location: "{{ mariadb_location }}"
+    register: mariadb_versions_response
+
+  - name: Show available mariadb versions
+    ansible.builtin.debug:
+      var: mariadb_versions_response.mariadb_versions
+
+  - name: Create Cluster
+    ionoscloudsdk.ionoscloud.mariadb_cluster_v2:
+      location: "{{ mariadb_location }}"
+      mariadb_version: "{{ mariadb_cluster_version }}"
+      instances: 1
+      cores: 1
+      ram: 4
+      storage_size: 10
+      connection:
+        datacenter: "{{ datacenter }} - DBaaS v2"
+        lan: "test_lan1"
+        primary_instance_address: 192.168.2.101/24
+      name: "{{ mariadb_cluster_name }}"
+      description: "Ansible test MariaDB v2 cluster"
+      maintenance_window:
+        day_of_the_week: "Sunday"
+        time: "09:00:00"
+      backup_location: "{{ mariadb_backup_location }}"
+      backup_retention_days: 7
+      db_username: "{{ mariadb_db_username }}"
+      db_password: "{{ mariadb_db_password }}"
+      db_database: "{{ mariadb_db_database }}"
+      wait: true
+      wait_timeout: "{{ mariadb_wait_timeout }}"
+    register: cluster_response
+
+  - name: Asserting that changed == true when the cluster is created
+    assert:
+      that:
+        - cluster_response.changed == true
+        - cluster_response.mariadb_cluster.id is defined
+      msg: "Creating the cluster should report changed and return an id"
+
+  - name: Create Cluster no change
+    ionoscloudsdk.ionoscloud.mariadb_cluster_v2:
+      location: "{{ mariadb_location }}"
+      mariadb_version: "{{ mariadb_cluster_version }}"
+      instances: 1
+      cores: 1
+      ram: 4
+      storage_size: 10
+      connection:
+        datacenter: "{{ datacenter }} - DBaaS v2"
+        lan: "test_lan1"
+        primary_instance_address: 192.168.2.101/24
+      name: "{{ mariadb_cluster_name }}"
+      description: "Ansible test MariaDB v2 cluster"
+      maintenance_window:
+        day_of_the_week: "Sunday"
+        time: "09:00:00"
+      backup_location: "{{ mariadb_backup_location }}"
+      backup_retention_days: 7
+      db_username: "{{ mariadb_db_username }}"
+      db_password: "{{ mariadb_db_password }}"
+      db_database: "{{ mariadb_db_database }}"
+      wait: true
+      wait_timeout: "{{ mariadb_wait_timeout }}"
+    register: cluster_response_no_change
+
+  - name: Asserting that changed == false when no update is made
+    assert:
+      that:
+        - cluster_response_no_change.changed == false
+      msg: "Changed should be false"
+
+  - name: List MariaDB Clusters
+    ionoscloudsdk.ionoscloud.mariadb_cluster_v2_info:
+      location: "{{ mariadb_location }}"
+    register: mariadb_clusters_response
+
+  - name: List MariaDB Cluster Backups (all)
+    ionoscloudsdk.ionoscloud.mariadb_backup_v2_info:
+      location: "{{ mariadb_location }}"
+    register: mariadb_backup_response
+
+  - name: List MariaDB Cluster Backups for this cluster
+    ionoscloudsdk.ionoscloud.mariadb_backup_v2_info:
+      location: "{{ mariadb_location }}"
+      mariadb_cluster: "{{ mariadb_cluster_name }}"
+    register: mariadb_backup_response_filtered
+
+  # Only cores, ram and storage_size are updatable compute attributes, and storage_size may only
+  # ever be increased, so the instance count is deliberately left untouched here.
+  - name: Update Cluster
+    ionoscloudsdk.ionoscloud.mariadb_cluster_v2:
+      location: "{{ mariadb_location }}"
+      mariadb_cluster: "{{ cluster_response.mariadb_cluster.id }}"
+      cores: 2
+      ram: 6
+      storage_size: 20
+      backup_retention_days: 14
+      description: "Updated Ansible test MariaDB v2 cluster"
+      db_username: "{{ mariadb_db_username }}"
+      db_password: "{{ mariadb_db_password }}"
+      db_database: "{{ mariadb_db_database }}"
+      state: update
+      wait: true
+      wait_timeout: "{{ mariadb_wait_timeout }}"
+    register: updated_cluster_response
+
+  - name: Asserting that changed == true when the cluster is updated
+    assert:
+      that:
+        - updated_cluster_response.changed == true
+      msg: "Updating cores, ram, storage_size, backup_retention_days and description should report changed"
+
+  # Read the cluster back rather than trusting the PUT response, so the update is asserted against
+  # what the API actually persisted.
+  - name: Read the updated cluster back
+    ionoscloudsdk.ionoscloud.mariadb_cluster_v2_info:
+      location: "{{ mariadb_location }}"
+    register: mariadb_clusters_after_update
+
+  - name: Select the updated cluster
+    ansible.builtin.set_fact:
+      mariadb_updated_cluster: >-
+        {{ mariadb_clusters_after_update.mariadb_clusters
+           | selectattr('id', 'equalto', cluster_response.mariadb_cluster.id)
+           | list | first }}
+
+  - name: Asserting that the update was persisted
+    assert:
+      that:
+        - mariadb_updated_cluster.properties.instances.cores == 2
+        - mariadb_updated_cluster.properties.instances.ram == 6
+        - mariadb_updated_cluster.properties.instances.storage_size == 20
+        - mariadb_updated_cluster.properties.backup.retention_days == 14
+        - mariadb_updated_cluster.properties.description == 'Updated Ansible test MariaDB v2 cluster'
+      msg: "The updated cores, ram, storage_size, backup retention and description should be persisted"
+
+  - name: Update Cluster No change
+    ionoscloudsdk.ionoscloud.mariadb_cluster_v2:
+      location: "{{ mariadb_location }}"
+      mariadb_cluster: "{{ cluster_response.mariadb_cluster.id }}"
+      cores: 2
+      ram: 6
+      storage_size: 20
+      backup_retention_days: 14
+      description: "Updated Ansible test MariaDB v2 cluster"
+      db_username: "{{ mariadb_db_username }}"
+      db_password: "{{ mariadb_db_password }}"
+      db_database: "{{ mariadb_db_database }}"
+      state: update
+      wait: true
+      wait_timeout: "{{ mariadb_wait_timeout }}"
+    register: updated_cluster_response_no_change
+
+  - name: Asserting that changed == false when no update is made
+    assert:
+      that:
+        - updated_cluster_response_no_change.changed == false
+      msg: "Changed should be false"
+
+  # In-place restore (point-in-time recovery) replays the cluster's own backups up to
+  # recovery_target_time. It is made deterministic by (1) polling until a backup exposes a
+  # recovery window (earliest_recovery_target_time is only populated once a base backup
+  # completes) and (2) restoring to that earliest recoverable point, which is by definition
+  # inside the window. latest_recovery_target_time is null for a fresh cluster (recoverable
+  # up to "now"), so it is dropped from the info response and not usable as a fixed target.
+  # state=restore also requires the master DB credentials: they are re-sent on the PUT and
+  # cannot be read back from the API, so db_username/db_password/db_database are mandatory.
+  - name: Wait until a backup exposes a recovery window
+    ionoscloudsdk.ionoscloud.mariadb_backup_v2_info:
+      location: "{{ mariadb_location }}"
+      mariadb_cluster: "{{ cluster_response.mariadb_cluster.id }}"
+    register: mariadb_pitr_backups
+    until: >-
+      (mariadb_pitr_backups.mariadb_backups
+       | selectattr('properties.earliest_recovery_target_time', 'defined')
+       | list | length) > 0
+    retries: 30
+    delay: 20
+
+  - name: Pick the earliest recoverable point (guaranteed inside the window)
+    ansible.builtin.set_fact:
+      mariadb_recovery_target_time: >-
+        {{ mariadb_pitr_backups.mariadb_backups
+           | selectattr('properties.earliest_recovery_target_time', 'defined')
+           | map(attribute='properties.earliest_recovery_target_time')
+           | list | first }}
+
+  - name: Show chosen recovery target time
+    ansible.builtin.debug:
+      var: mariadb_recovery_target_time
+
+  - name: Restore Cluster (in-place)
+    ionoscloudsdk.ionoscloud.mariadb_cluster_v2:
+      location: "{{ mariadb_location }}"
+      mariadb_cluster: "{{ cluster_response.mariadb_cluster.id }}"
+      recovery_target_time: "{{ mariadb_recovery_target_time }}"
+      db_username: "{{ mariadb_db_username }}"
+      db_password: "{{ mariadb_db_password }}"
+      db_database: "{{ mariadb_db_database }}"
+      state: restore
+      wait: true
+      wait_timeout: "{{ mariadb_wait_timeout }}"
+    register: restored_cluster_response
+
+  - name: Asserting that the in-place restore was applied
+    assert:
+      that:
+        - restored_cluster_response.changed == true
+      msg: "Restoring the cluster should report changed"
+
+  - name: Delete Cluster (async)
+    ionoscloudsdk.ionoscloud.mariadb_cluster_v2:
+      location: "{{ mariadb_location }}"
+      mariadb_cluster: "{{ cluster_response.mariadb_cluster.id }}"
+      state: absent
+      wait: false
+
+  - name: Delete Cluster (wait)
+    ionoscloudsdk.ionoscloud.mariadb_cluster_v2:
+      location: "{{ mariadb_location }}"
+      mariadb_cluster: "{{ cluster_response.mariadb_cluster.id }}"
+      state: absent
+      wait: true
+      wait_timeout: "{{ mariadb_wait_timeout }}"
+
+  - name: Remove NIC
+    ionoscloudsdk.ionoscloud.nic:
+      nic: "test_nic1"
+      datacenter: "{{ datacenter }} - DBaaS v2"
+      server: "{{ server_response.machines[0].id }}"
+      wait: true
+      wait_timeout: "{{ wait_timeout }}"
+      state: absent
+
+  - name: Remove server
+    ionoscloudsdk.ionoscloud.server:
+      datacenter: "{{ datacenter }} - DBaaS v2"
+      instance_ids:
+        - "{{ server_response.machines[0].id }}"
+      remove_boot_volume: yes
+      wait_timeout: "{{ wait_timeout }}"
+      wait: true
+      state: absent
+
+  - name: Remove LAN
+    ionoscloudsdk.ionoscloud.lan:
+      datacenter: "{{ datacenter }} - DBaaS v2"
+      lan: "test_lan1"
+      state: absent
+      wait: true
+
+  - name: Remove datacenter
+    ionoscloudsdk.ionoscloud.datacenter:
+      datacenter: "{{ datacenter_response.datacenter.id }}"
+      state: absent
+      wait: true

@@ -31,7 +31,7 @@ The IONOS module for Ansible requires the following:
 * [IONOS CLOUD **Compute Engine** Python SDK](https://pypi.org/project/ionoscloud/) >= 6.1.6, < 7
 * [IONOS CLOUD **DBaaS PostgreSQL** Python SDK](https://pypi.org/project/ionoscloud-dbaas-postgres/) < 2
 * [IONOS CLOUD **DBaaS MongoDB** Python SDK](https://pypi.org/project/ionoscloud-dbaas-mongo/) < 2
-* [IONOS CLOUD **DBaaS MariaDB** Python SDK](https://pypi.org/project/ionoscloud-dbaas-mariadb/) < 2
+* [IONOS CLOUD **DBaaS MariaDB** Python SDK](https://pypi.org/project/ionoscloud-dbaas-mariadb/) >= 3, < 4
 * [IONOS CLOUD **DBaaS In-Memory DB** Python SDK](https://pypi.org/project/ionoscloud-dbaas-inmemorydb/) < 2
 * [IONOS CLOUD **Container Registry** Python SDK](https://pypi.org/project/ionoscloud-container-registry/) < 2
 * [IONOS CLOUD **Certificate Manager** Python SDK](https://pypi.org/project/ionoscloud-cert-manager/) < 3
