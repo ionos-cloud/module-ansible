@@ -107,7 +107,8 @@
       that:
         - cluster_response.changed == true
         - cluster_response.mariadb_cluster.id is defined
-      msg: "Creating the cluster should report changed and return an id"
+        - cluster_response.mariadb_cluster.metadata.state == 'AVAILABLE'
+      msg: "Creating the cluster with wait should report changed and return an id and an AVAILABLE cluster"
 
   - name: Create Cluster no change
     ionoscloudsdk.ionoscloud.mariadb_cluster_v2:
@@ -180,10 +181,12 @@
     assert:
       that:
         - updated_cluster_response.changed == true
-      msg: "Updating cores, ram, storage_size, backup_retention_days and description should report changed"
+        - updated_cluster_response.mariadb_cluster.metadata.state == 'AVAILABLE'
+      msg: "Updating cores, ram, storage_size, backup_retention_days and description should report changed and return an AVAILABLE cluster"
 
   # Read the cluster back rather than trusting the PUT response, so the update is asserted against
-  # what the API actually persisted.
+  # what the API actually persisted. The credentials are also only legible here: db_username is
+  # no_log, so the cluster module replaces it with a placeholder in its own return value.
   - name: Read the updated cluster back
     ionoscloudsdk.ionoscloud.mariadb_cluster_v2_info:
       location: "{{ mariadb_location }}"
@@ -204,7 +207,9 @@
         - mariadb_updated_cluster.properties.instances.storage_size == 20
         - mariadb_updated_cluster.properties.backup.retention_days == 14
         - mariadb_updated_cluster.properties.description == 'Updated Ansible test MariaDB v2 cluster'
-      msg: "The updated cores, ram, storage_size, backup retention and description should be persisted"
+        - mariadb_updated_cluster.properties.credentials.username == mariadb_db_username
+        - mariadb_updated_cluster.properties.credentials.database == mariadb_db_database
+      msg: "The updated attributes should be persisted and the initial user and database should survive the update"
 
   - name: Update Cluster No change
     ionoscloudsdk.ionoscloud.mariadb_cluster_v2:

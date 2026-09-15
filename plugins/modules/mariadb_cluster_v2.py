@@ -518,7 +518,7 @@ class MariaDBClusterV2Module(CommonIonosModule):
         self.object_identity_paths = [['id'], ['properties', 'name']]
 
     def _wait_until_available(self, clusters_api, dbaas_client, cluster_id):
-        """Wait until the cluster reaches AVAILABLE, honouring wait_timeout and failing fast on FAILED."""
+        """Wait until the cluster reaches AVAILABLE and return it, honouring wait_timeout and failing fast on FAILED."""
         def check_state(cluster):
             if cluster.metadata.state == 'FAILED':
                 raise Exception(
@@ -526,7 +526,7 @@ class MariaDBClusterV2Module(CommonIonosModule):
                         cluster_id, getattr(cluster.metadata, 'status_message', None)))
             return cluster.metadata.state == 'AVAILABLE'
 
-        dbaas_client.wait_for(
+        return dbaas_client.wait_for(
             fn_request=lambda: clusters_api.clusters_find_by_id(cluster_id),
             fn_check=check_state,
             timeout=self.module.params.get('wait_timeout'),
@@ -751,7 +751,7 @@ class MariaDBClusterV2Module(CommonIonosModule):
         try:
             mariadb_cluster = clusters_api.clusters_post(cluster_create)
             if self.module.params.get('wait'):
-                self._wait_until_available(clusters_api, dbaas_client, mariadb_cluster.id)
+                mariadb_cluster = self._wait_until_available(clusters_api, dbaas_client, mariadb_cluster.id)
         except Exception as e:
             self.module.fail_json(msg="failed to create the new MariaDB Cluster: %s" % to_native(e))
         return mariadb_cluster
@@ -769,7 +769,7 @@ class MariaDBClusterV2Module(CommonIonosModule):
         try:
             mariadb_cluster = clusters_api.clusters_put(existing_object.id, cluster_ensure)
             if self.module.params.get('wait'):
-                self._wait_until_available(clusters_api, dbaas_client, existing_object.id)
+                mariadb_cluster = self._wait_until_available(clusters_api, dbaas_client, existing_object.id)
         except Exception as e:
             self.module.fail_json(msg="failed to update the MariaDB Cluster: %s" % to_native(e))
         return mariadb_cluster
