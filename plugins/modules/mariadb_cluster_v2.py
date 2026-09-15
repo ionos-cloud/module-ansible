@@ -759,7 +759,7 @@ class MariaDBClusterV2Module(CommonIonosModule):
     def _update_object(self, existing_object, clients):
         dbaas_client = clients[0]
         clusters_api = ionoscloud_dbaas_mariadb.ClustersApi(dbaas_client)
-        self._wait_until_available(clusters_api, dbaas_client, existing_object.id)
+        existing_object = self._wait_until_available(clusters_api, dbaas_client, existing_object.id)
 
         cluster_ensure = ionoscloud_dbaas_mariadb.ClusterEnsure(
             id=existing_object.id,
@@ -809,8 +809,7 @@ class MariaDBClusterV2Module(CommonIonosModule):
             self.module.fail_json(
                 msg='MariaDB Cluster {} not found.'.format(self.module.params.get('mariadb_cluster')))
 
-        existing_object = clusters_api.clusters_find_by_id(mariadb_cluster_id)
-        self._wait_until_available(clusters_api, dbaas_client, mariadb_cluster_id)
+        existing_object = self._wait_until_available(clusters_api, dbaas_client, mariadb_cluster_id)
 
         # an in-place restore carries only the recovery target: the source is inferred from the
         # cluster's own backups and a source backup ID is rejected here.
