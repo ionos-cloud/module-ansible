@@ -103,6 +103,14 @@
       wait_timeout: "{{ postgres_wait_timeout }}"
     register: cluster_response
 
+  - name: Asserting that changed == true when the cluster is created
+    assert:
+      that:
+        - cluster_response.changed == true
+        - cluster_response.postgres_cluster.id is defined
+        - cluster_response.postgres_cluster.metadata.state == 'AVAILABLE'
+      msg: "Creating the cluster with wait should report changed and return an id and an AVAILABLE cluster"
+
   - name: Create Cluster no change
     ionoscloudsdk.ionoscloud.postgres_cluster_v2:
       location: "{{ postgres_location }}"
@@ -164,6 +172,43 @@
       wait: true
       wait_timeout: "{{ postgres_wait_timeout }}"
     register: updated_cluster_response
+
+  - name: Asserting that changed == true when the cluster is updated
+    assert:
+      that:
+        - updated_cluster_response.changed == true
+        - updated_cluster_response.postgres_cluster.metadata.state == 'AVAILABLE'
+      msg: "Updating instances, cores, ram and storage_size should report changed and return an AVAILABLE cluster"
+
+  # Read the cluster back rather than trusting the PUT response, so the update is asserted against
+  # what the API actually persisted. The credentials are also only legible here: db_username is
+  # no_log, so the cluster module replaces it with a placeholder in its own return value.
+  - name: Read the updated cluster back
+    ionoscloudsdk.ionoscloud.postgres_cluster_v2_info:
+      location: "{{ postgres_location }}"
+    register: postgres_clusters_after_update
+
+  - name: Select the updated cluster
+    ansible.builtin.set_fact:
+      postgres_updated_cluster: >-
+        {{ postgres_clusters_after_update.postgres_clusters
+           | selectattr('id', 'equalto', cluster_response.postgres_cluster.id)
+           | list | first }}
+
+  # backup_retention_days is not supplied by the update task: the PUT carries it over from the
+  # existing cluster, so asserting it here covers the merge as well as the change.
+  - name: Asserting that the update was persisted
+    assert:
+      that:
+        - postgres_updated_cluster.metadata.state == 'AVAILABLE'
+        - postgres_updated_cluster.properties.instances.count == 2
+        - postgres_updated_cluster.properties.instances.cores == 2
+        - postgres_updated_cluster.properties.instances.ram == 6
+        - postgres_updated_cluster.properties.instances.storage_size == 20
+        - postgres_updated_cluster.properties.backup.retention_days == 7
+        - postgres_updated_cluster.properties.credentials.username == 'clusteruser'
+        - postgres_updated_cluster.properties.credentials.database == 'testdb'
+      msg: "The updated attributes should be persisted, and the backup retention, user and database should survive the update"
 
   - name: Update Cluster No change
     ionoscloudsdk.ionoscloud.postgres_cluster_v2:
@@ -230,6 +275,32 @@
       wait: true
       wait_timeout: "{{ postgres_wait_timeout }}"
     register: restored_cluster_response
+
+  # restore_object returns only {action, changed, id}, so the cluster state has to be read back.
+  - name: Asserting that the in-place restore was applied
+    assert:
+      that:
+        - restored_cluster_response.changed == true
+      msg: "Restoring the cluster should report changed"
+
+  - name: Read the restored cluster back
+    ionoscloudsdk.ionoscloud.postgres_cluster_v2_info:
+      location: "{{ postgres_location }}"
+    register: postgres_clusters_after_restore
+
+  - name: Select the restored cluster
+    ansible.builtin.set_fact:
+      postgres_restored_cluster: >-
+        {{ postgres_clusters_after_restore.postgres_clusters
+           | selectattr('id', 'equalto', cluster_response.postgres_cluster.id)
+           | list | first }}
+
+  - name: Asserting that the cluster is available again after the restore
+    assert:
+      that:
+        - postgres_restored_cluster.metadata.state == 'AVAILABLE'
+        - postgres_restored_cluster.properties.credentials.username == 'clusteruser'
+      msg: "The cluster should come back AVAILABLE with its user after the restore"
 
   - name: Delete Cluster (async)
     ionoscloudsdk.ionoscloud.postgres_cluster_v2:

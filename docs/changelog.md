@@ -6,6 +6,9 @@
 ### Changes
 * updated the MariaDB SDK requirement to `ionoscloud_dbaas_mariadb>=3,<4`, the pydantic 2 SDK for the MariaDB v2 API, and pointed the MariaDB regional endpoints at their `/v2` path
 * the v1 MariaDB modules (`mariadb_cluster`, `mariadb_cluster_info`, `mariadb_backup_info`) target the v1 API, which the new SDK no longer ships; use the `_v2` modules instead
+### Fixes
+* `postgres_cluster_v2` and `inmemorydb_cluster_v2` now return the cluster polled by the wait rather than the create/update response captured before it, so a task run with `wait: true` no longer reports `metadata.state` as `PROVISIONING` or `UPDATING` for a cluster that has already reached `AVAILABLE`
+* `postgres_cluster_v2` and `inmemorydb_cluster_v2` now build the full-replacement PUT for `update` and `restore` from the cluster polled after the pre-update wait. The PUT falls back to the existing value for every field the caller did not supply, so a change that landed while the wait was in progress was previously sent back in its pre-wait form and reverted
 
 ## 7.9.0
 ### Features
