@@ -514,7 +514,7 @@ class PostgresClusterV2Module(CommonIonosModule):
         self.object_identity_paths = [['id'], ['properties', 'name']]
 
     def _wait_until_available(self, clusters_api, dbaas_client, cluster_id):
-        """Wait until the cluster reaches AVAILABLE, honouring wait_timeout and failing fast on FAILED."""
+        """Wait until the cluster reaches AVAILABLE and return it, honouring wait_timeout and failing fast on FAILED."""
         def check_state(cluster):
             if cluster.metadata.state == 'FAILED':
                 raise Exception(
@@ -522,7 +522,7 @@ class PostgresClusterV2Module(CommonIonosModule):
                         cluster_id, getattr(cluster.metadata, 'status_message', None)))
             return cluster.metadata.state == 'AVAILABLE'
 
-        dbaas_client.wait_for(
+        return dbaas_client.wait_for(
             fn_request=lambda: clusters_api.clusters_find_by_id(cluster_id),
             fn_check=check_state,
             timeout=self.module.params.get('wait_timeout'),
@@ -742,7 +742,7 @@ class PostgresClusterV2Module(CommonIonosModule):
         try:
             postgres_cluster = clusters_api.clusters_post(cluster_create)
             if self.module.params.get('wait'):
-                self._wait_until_available(clusters_api, dbaas_client, postgres_cluster.id)
+                postgres_cluster = self._wait_until_available(clusters_api, dbaas_client, postgres_cluster.id)
         except Exception as e:
             self.module.fail_json(msg="failed to create the new Postgres Cluster: %s" % to_native(e))
         return postgres_cluster
@@ -750,7 +750,7 @@ class PostgresClusterV2Module(CommonIonosModule):
     def _update_object(self, existing_object, clients):
         dbaas_client = clients[0]
         clusters_api = ionoscloud_dbaas_postgres.ClustersApi(dbaas_client)
-        self._wait_until_available(clusters_api, dbaas_client, existing_object.id)
+        existing_object = self._wait_until_available(clusters_api, dbaas_client, existing_object.id)
 
         cluster_ensure = ionoscloud_dbaas_postgres.ClusterEnsure(
             id=existing_object.id,
@@ -760,7 +760,7 @@ class PostgresClusterV2Module(CommonIonosModule):
         try:
             postgres_cluster = clusters_api.clusters_put(existing_object.id, cluster_ensure)
             if self.module.params.get('wait'):
-                self._wait_until_available(clusters_api, dbaas_client, existing_object.id)
+                postgres_cluster = self._wait_until_available(clusters_api, dbaas_client, existing_object.id)
         except Exception as e:
             self.module.fail_json(msg="failed to update the Postgres Cluster: %s" % to_native(e))
         return postgres_cluster
@@ -800,8 +800,7 @@ class PostgresClusterV2Module(CommonIonosModule):
             self.module.fail_json(
                 msg='Postgres Cluster {} not found.'.format(self.module.params.get('postgres_cluster')))
 
-        existing_object = clusters_api.clusters_find_by_id(postgres_cluster_id)
-        self._wait_until_available(clusters_api, dbaas_client, postgres_cluster_id)
+        existing_object = self._wait_until_available(clusters_api, dbaas_client, postgres_cluster_id)
 
         restore_from_backup = ionoscloud_dbaas_postgres.ClusterRestoreFromBackup(
             ionoscloud_dbaas_postgres.PostgresInPlaceRestoreClusterFromBackup(

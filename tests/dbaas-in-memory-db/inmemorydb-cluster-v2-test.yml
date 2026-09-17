@@ -106,6 +106,14 @@
       wait_timeout: "{{ inmemorydb_wait_timeout }}"
     register: cluster_response
 
+  - name: Asserting that changed == true when the cluster is created
+    assert:
+      that:
+        - cluster_response.changed == true
+        - cluster_response.inmemorydb_cluster.id is defined
+        - cluster_response.inmemorydb_cluster.metadata.state == 'AVAILABLE'
+      msg: "Creating the cluster with wait should report changed and return an id and an AVAILABLE cluster"
+
   # Supplying credentials always (re)applies them: the API never returns the hash, so the module
   # cannot compare the supplied value against the stored one and treats it as an intentional set.
   # This re-run therefore reports changed=true. Credentials are NOT required on present (only
@@ -140,7 +148,8 @@
     assert:
       that:
         - cluster_response_no_change.changed == true
-      msg: "supplying credentials again re-applies them, so changed should be true"
+        - cluster_response_no_change.inmemorydb_cluster.metadata.state == 'AVAILABLE'
+      msg: "supplying credentials again re-applies them, so changed should be true and the cluster should come back AVAILABLE"
 
   - name: List In-Memory DB Snapshots (all)
     ionoscloudsdk.ionoscloud.inmemorydb_snapshot_v2_info:
@@ -178,6 +187,19 @@
     ansible.builtin.debug:
       var: cluster_after_create.properties
 
+  # The credentials are only legible here: db_username is no_log, so the cluster module replaces it
+  # with a placeholder in its own return value.
+  - name: Asserting that the created cluster is AVAILABLE and carries what was requested
+    assert:
+      that:
+        - cluster_after_create.metadata.state == 'AVAILABLE'
+        - cluster_after_create.properties.instances.count == 1
+        - cluster_after_create.properties.instances.cores == 1
+        - cluster_after_create.properties.instances.ram == 4
+        - cluster_after_create.properties.snapshot.retention_days == 7
+        - cluster_after_create.properties.credentials.username == inmemorydb_db_username
+      msg: "The created cluster should be AVAILABLE with the requested sizing, retention and user"
+
   # ---------- (1) update: reset user + password (rotate the hash) ----------
   # Scale 1/1/4 -> 2/2/6 to force the PUT that carries the rotated credentials.
   # The rotated hash comes from a play var, not a literal: docs_utils/update_examples.py copies the
@@ -210,6 +232,16 @@
     ansible.builtin.debug:
       var: cluster_after_reset.properties
 
+  - name: Asserting that the credential reset scaled the cluster and left it AVAILABLE
+    assert:
+      that:
+        - cluster_after_reset.metadata.state == 'AVAILABLE'
+        - cluster_after_reset.properties.instances.count == 2
+        - cluster_after_reset.properties.instances.cores == 2
+        - cluster_after_reset.properties.instances.ram == 6
+        - cluster_after_reset.properties.credentials.username == inmemorydb_db_username
+      msg: "The 1/1/4 -> 2/2/6 scaling that carried the rotated credentials should be persisted"
+
   # ---------- (2) update: omit credentials entirely ----------
   # db_username/db_password_hash omitted ON PURPOSE to verify the API leaves the existing user
   # unchanged on a PUT. Change snapshot_retention_days (7 -> 14) to force the PUT without any
@@ -232,7 +264,8 @@
     assert:
       that:
         - updated_cluster_response.changed == true
-      msg: "The update omitting credentials should have succeeded and reported changed=true"
+        - updated_cluster_response.inmemorydb_cluster.metadata.state == 'AVAILABLE'
+      msg: "The update omitting credentials should have succeeded, reported changed=true and returned an AVAILABLE cluster"
 
   - name: List In-Memory DB Clusters (after OMIT credentials)
     ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2_info:
@@ -247,11 +280,16 @@
     ansible.builtin.debug:
       var: cluster_after_omit.properties
 
-  - name: Assert the user survived every update (username unchanged, user not removed)
+  - name: Assert the user survived every update and no earlier change was reverted
     assert:
       that:
+        - cluster_after_omit.metadata.state == 'AVAILABLE'
         - cluster_after_omit.properties.credentials.username == inmemorydb_db_username
-      msg: "The user was removed or renamed by an update"
+        - cluster_after_omit.properties.snapshot.retention_days == 14
+        - cluster_after_omit.properties.instances.count == 2
+        - cluster_after_omit.properties.instances.cores == 2
+        - cluster_after_omit.properties.instances.ram == 6
+      msg: "The user was removed or renamed, or the earlier 2/2/6 scaling was reverted, by an update"
 
   - name: Update Cluster No change (also without credentials)
     ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2:
@@ -290,7 +328,30 @@
     assert:
       that:
         - updated_cluster_response_creds_only.changed == true
-      msg: "Supplying credentials alone should trigger an update (changed=true)"
+        - updated_cluster_response_creds_only.inmemorydb_cluster.metadata.state == 'AVAILABLE'
+      msg: "Supplying credentials alone should trigger an update (changed=true) and return an AVAILABLE cluster"
+
+  # This PUT supplies nothing but the credentials, so every other field in the full-replacement body
+  # is merged in from the existing cluster. Read it back to prove the merge preserved them.
+  - name: List In-Memory DB Clusters (after CREDENTIALS ONLY)
+    ionoscloudsdk.ionoscloud.inmemorydb_cluster_v2_info:
+      location: "{{ inmemorydb_location }}"
+    register: info_after_creds_only
+
+  - name: Select this cluster (after CREDENTIALS ONLY)
+    ansible.builtin.set_fact:
+      cluster_after_creds_only: "{{ info_after_creds_only.inmemorydb_clusters | selectattr('id', 'equalto', cluster_response.inmemorydb_cluster.id) | first }}"
+
+  - name: Assert the credentials-only update did not revert any other field
+    assert:
+      that:
+        - cluster_after_creds_only.metadata.state == 'AVAILABLE'
+        - cluster_after_creds_only.properties.instances.count == 2
+        - cluster_after_creds_only.properties.instances.cores == 2
+        - cluster_after_creds_only.properties.instances.ram == 6
+        - cluster_after_creds_only.properties.snapshot.retention_days == 14
+        - cluster_after_creds_only.properties.credentials.username == inmemorydb_db_username
+      msg: "A credentials-only update must not revert the sizing or the snapshot retention"
 
   # ---------- (4) partial credentials are rejected CLIENT-SIDE (both must be supplied) ----------
   # The API requires a complete credentials block, so the module fails fast when only one of
