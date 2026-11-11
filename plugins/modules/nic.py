@@ -88,7 +88,7 @@ OPTIONS = {
         'version_added': '2.4',
     },
     'ips': {
-        'description': ['Collection of IP addresses, assigned to the NIC. Explicitly assigned public IPs need to come from reserved IP blocks. Passing value null or empty array will assign an IP address automatically.'],
+        'description': ['Collection of IP addresses, assigned to the NIC. Explicitly assigned public IPs need to come from reserved IP blocks. Passing value null or empty array will assign an IP address automatically. On a private LAN, an explicit private IP must lie within the LAN\'s IPv4 CIDR block, and any address of the block can be set. An automatically assigned IP is never one of the first 10 addresses or the broadcast address of the block, so a /28 offers 5 addresses, for example .10 to .14 when it starts at .0, or .26 to .30 when it starts at .16. When no automatically assignable IP is left, a NIC without an explicit IP is rejected.'],
         'available': ['present', 'update'],
         'type': 'list',
         'version_added': '2.4',
@@ -151,7 +151,12 @@ options:
         description:
         - Collection of IP addresses, assigned to the NIC. Explicitly assigned public
             IPs need to come from reserved IP blocks. Passing value null or empty array
-            will assign an IP address automatically.
+            will assign an IP address automatically. On a private LAN, an explicit private
+            IP must lie within the LAN's IPv4 CIDR block, and any address of the block
+            can be set. An automatically assigned IP is never one of the first 10 addresses
+            or the broadcast address of the block, so a /28 offers 5 addresses, for example
+            .10 to .14 when it starts at .0, or .26 to .30 when it starts at .16. When
+            no automatically assignable IP is left, a NIC without an explicit IP is rejected.
         required: false
         version_added: '2.4'
     ipv6_cidr:
