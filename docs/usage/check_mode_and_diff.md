@@ -28,7 +28,7 @@ tasks:
     email: <email>
     administrator: false
     user_password: <password>
-    force_sec_auth: false
+    force_sec_auth: true
     state: present
     check_mode: true
     diff: true
@@ -44,10 +44,10 @@ Output:
                 "administrator": false,
                 "email": "<email>",
                 "firstname": "John",
-                "force_sec_auth": false,
+                "force_sec_auth": true,
                 "groups": "",
                 "lastname": "Doe",
-                "user_password": "user password will be updated"
+                "user_password": ""
             },
             "before": {
                 "administrator": false,
@@ -67,10 +67,10 @@ Output:
                 "administrator": false,
                 "email": "<email>",
                 "firstname": "John",
-                "force_sec_auth": false,
+                "force_sec_auth": true,
                 "groups": "",
                 "lastname": "Doe",
-                "user_password": "user password will be updated"
+                "user_password": ""
             }
         }
     }
