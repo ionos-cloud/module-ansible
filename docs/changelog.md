@@ -1,5 +1,9 @@
 # Changelog
 
+## 7.11.0
+### Fixes
+* `user` module now ignores `user_password` for a user that already exists, because the API only accepts a password when the user is created. Setting `user_password` no longer reports `changed=True` on every run, and the `diff` output only shows the password when the user is being created
+
 ## 7.10.0
 ### Features
 * added new DBaaS MariaDB v2 modules `mariadb_cluster_v2`, `mariadb_cluster_v2_info`, `mariadb_backup_v2_info`, `mariadb_backup_location_v2_info` and `mariadb_version_v2_info`
