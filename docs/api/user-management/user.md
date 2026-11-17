@@ -123,8 +123,8 @@ register: user_response
   </tr>
   <tr>
   <td>user_password<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">True</td>
-  <td>A password for the user.</td>
+  <td align="center">False</td>
+  <td>A password for the user. Required when creating the user. The password can only be used when the user is created and is ignored afterwards, so it cannot be changed with this module. Replacing the user to set a new password does not work either, because the API rejects creating a user with the email of a user that was just deleted.</td>
   </tr>
   <tr>
   <td>administrator<br/><mark style="color:blue;">bool</mark></td>
@@ -314,11 +314,6 @@ ionoscloudsdk.ionoscloud.user:
   <td>user<br/><mark style="color:blue;">str</mark></td>
   <td align="center">True</td>
   <td>The ID or name of the user.</td>
-  </tr>
-  <tr>
-  <td>user_password<br/><mark style="color:blue;">str</mark></td>
-  <td align="center">False</td>
-  <td>A password for the user.</td>
   </tr>
   <tr>
   <td>administrator<br/><mark style="color:blue;">bool</mark></td>

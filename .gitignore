@@ -103,3 +103,4 @@ reset.sh
 
 Gemfile.lock
 inventory.ini
+.claude/

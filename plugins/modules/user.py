@@ -64,9 +64,8 @@ OPTIONS = {
         'type': 'str',
     },
     'user_password': {
-        'description': ['A password for the user.'],
-        'available': ['present', 'update'],
-        'required': ['present'],
+        'description': ['A password for the user. Required when creating the user. The password can only be used when the user is created and is ignored afterwards, so it cannot be changed with this module. Replacing the user to set a new password does not work either, because the API rejects creating a user with the email of a user that was just deleted.'],
+        'available': ['present'],
         'type': 'str',
         'no_log': True,
     },
@@ -182,7 +181,11 @@ options:
         required: false
     user_password:
         description:
-        - A password for the user.
+        - A password for the user. Required when creating the user. The password can only
+            be used when the user is created and is ignored afterwards, so it cannot be
+            changed with this module. Replacing the user to set a new password does not
+            work either, because the API rejects creating a user with the email of a user
+            that was just deleted.
         no_log: true
         required: false
     username:
@@ -328,8 +331,6 @@ class UserModule(CommonIonosModule):
             or self.module.params.get('force_sec_auth') is not None
             and 'force_sec_auth' not in ignored_properties
             and existing_object.properties.force_sec_auth != self.module.params.get('force_sec_auth')
-            or self.module.params.get('user_password') is not None
-            and 'user_password' not in ignored_properties
         )
         if properties_changed:
             return True
@@ -365,7 +366,8 @@ class UserModule(CommonIonosModule):
             'email': object_properties.email if self.module.params.get('email') is None else self.module.params.get('email'),
             'administrator': object_properties.administrator if self.module.params.get('administrator') is None else self.module.params.get('administrator'),
             'force_sec_auth': object_properties.force_sec_auth if self.module.params.get('force_sec_auth') is None else self.module.params.get('force_sec_auth'),
-            'user_password': '' if self.module.params.get('user_password') is None else 'user password will be updated',
+            # The password is write-once: it is only sent when the user is created.
+            'user_password': 'user password will be set' if existing_object is None and self.module.params.get('user_password') is not None else '',
             'groups': '' if self.module.params.get('groups') is None else 'user groups will be updated',
         }
 
@@ -403,6 +405,9 @@ class UserModule(CommonIonosModule):
             user_password = existing_object.properties.user_password if user_password is None else user_password
             administrator = existing_object.properties.administrator if administrator is None else administrator
             force_sec_auth = existing_object.properties.force_sec_auth if force_sec_auth is None else force_sec_auth
+
+        if not user_password:
+            self.module.fail_json(msg='user_password parameter is required when creating a User')
 
         wait = self.module.params.get('wait')
         wait_timeout = int(self.module.params.get('wait_timeout'))
@@ -477,7 +482,6 @@ class UserModule(CommonIonosModule):
         email = self.module.params.get('email')
         administrator = self.module.params.get('administrator')
         force_sec_auth = self.module.params.get('force_sec_auth')
-        user_password = self.module.params.get('user_password')
 
         email = existing_object.properties.email if email is None else email
         firstname = existing_object.properties.firstname if firstname is None else firstname
@@ -497,8 +501,6 @@ class UserModule(CommonIonosModule):
             administrator=administrator or False,
             force_sec_auth=force_sec_auth or False,
         )
-        if user_password:
-            user_properties.password = user_password
         
         new_user = UserPut(properties=user_properties)
 

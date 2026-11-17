@@ -33,7 +33,6 @@
           - user_response.diff.after.firstname == 'John'
           - user_response.diff.after.lastname == 'Doe'
           - user_response.diff.after.groups == ''
-          - user_response.diff.after.user_password == 'user password will be updated'
           - user_response.user.id == '<known after creation>'
           - user_response.user.properties.email == random_user
           - user_response.user.properties.firstname == 'John'
@@ -41,7 +40,6 @@
           - user_response.user.properties.administrator == False
           - user_response.user.properties.force_sec_auth == False
           - user_response.user.properties.groups == ''
-          - user_response.user.properties.user_password == 'user password will be updated'
         msg: "check_mode and diff don't work correctly"
 
     - name: Create user check 2
@@ -69,7 +67,6 @@
           - user_response.user.properties.administrator == False
           - user_response.user.properties.force_sec_auth == False
           - user_response.user.properties.groups == ''
-          - user_response.user.properties.user_password == 'user password will be updated'
         msg: "check_mode and diff don't work correctly"
 
     - name: Create user
@@ -94,7 +91,7 @@
           - user_response_created.diff.after.firstname == 'John'
           - user_response_created.diff.after.lastname == 'Doe'
           - user_response_created.diff.after.groups == ''
-          - user_response_created.diff.after.user_password == 'user password will be updated'
+          - user_response_created.diff.after.user_password == 'user password will be set'
           - user_response_created.user.properties.email == random_user
           - user_response_created.user.properties.firstname == 'John'
           - user_response_created.user.properties.lastname == 'Doe'
@@ -130,10 +127,10 @@
           - user_response.user.properties.groups == ''
           - user_response.user.properties.administrator == False
           - user_response.user.properties.force_sec_auth == True
-          - user_response.user.properties.user_password == 'user password will be updated'
+          - user_response.user.properties.user_password == ''
         msg: "check_mode and diff don't work correctly"
-    
-    - name: Create user
+
+    - name: Create user with only the password set again
       ionoscloudsdk.ionoscloud.user:
         firstname: John
         lastname: Doe
@@ -146,27 +143,60 @@
       diff: true
       register: user_response
 
-    - name: Asserting that check_mode and diff work correctly
+    - name: Asserting that the write-once password does not trigger an update
       assert:
         that:
-          - user_response.changed == True
-          - user_response.msg == 'User ' + random_user + ' would be updated'
+          - user_response.changed == False
+          - user_response.msg is not defined
           - user_response.diff.before.administrator == user_response.diff.after.administrator == false
           - user_response.diff.before.email == user_response.diff.after.email == random_user
           - user_response.diff.before.firstname == user_response.diff.after.firstname == 'John'
           - user_response.diff.before.lastname == user_response.diff.after.lastname == 'Doe'
           - user_response.diff.before.groups == user_response.diff.after.groups == ''
-          - user_response.diff.before.user_password == '' 
-          - user_response.diff.after.user_password == 'user password will be updated'
+          - user_response.diff.before.user_password == user_response.diff.after.user_password == ''
           - user_response.user.id == user_response_created.user.id
           - user_response.user.properties.email == random_user
           - user_response.user.properties.firstname == 'John'
           - user_response.user.properties.lastname == 'Doe'
-          - user_response.user.properties.groups == ''
           - user_response.user.properties.administrator == False
           - user_response.user.properties.force_sec_auth == False
-          - user_response.user.properties.user_password == 'user password will be updated'
-        msg: "check_mode and diff don't work correctly"
+          - user_response.user.properties.user_password is not defined
+        msg: "user_password must only be used when creating the user"
+
+    - name: Create user with only the password set again (no check mode)
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: false
+        user_password: "{{ password }}"
+        force_sec_auth: false
+        state: present
+      register: user_response
+
+    - name: Asserting that an existing user is not updated because of its password
+      assert:
+        that:
+          - user_response.changed == False
+          - user_response.user.id == user_response_created.user.id
+        msg: "user_password must only be used when creating the user"
+
+    - name: Ensure existing user without user_password
+      ionoscloudsdk.ionoscloud.user:
+        firstname: John
+        lastname: Doe
+        email: "{{ random_user }}"
+        administrator: false
+        force_sec_auth: false
+        state: present
+      register: user_response
+
+    - name: Asserting that user_password is not required for an existing user
+      assert:
+        that:
+          - user_response.changed == False
+          - user_response.user.id == user_response_created.user.id
+        msg: "user_password must not be required when the user already exists"
 
     - name: Create user
       ionoscloudsdk.ionoscloud.user:
@@ -194,8 +224,7 @@
           - user_response.diff.before.lastname == 'Doe'
           - user_response.diff.after.lastname == 'Doe changed'
           - user_response.diff.before.groups == user_response.diff.after.groups == ''
-          - user_response.diff.before.user_password == '' 
-          - user_response.diff.after.user_password == 'user password will be updated'
+          - user_response.diff.before.user_password == user_response.diff.after.user_password == ''
         msg: "check_mode and diff don't work correctly"
 
     - name: Test ignored fields
@@ -243,7 +272,7 @@
     - name: Test ignored fields not set
       ionoscloudsdk.ionoscloud.user:
         firstname: John
-        lastname: Doe
+        lastname: Doe Changed
         email: "{{ random_user }}"
         administrator: false
         user_password: "{{ password }}"
